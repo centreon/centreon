@@ -892,19 +892,19 @@ importers:
   tests/e2e:
     devDependencies:
       '@badeball/cypress-cucumber-preprocessor':
-        specifier: ^20.0.5
-        version: 20.0.5(cypress@13.11.0)(typescript@5.4.5)
+        specifier: ^20.0.6
+        version: 20.0.6(cypress@13.11.0)(typescript@5.4.5)
       '@types/cypress-cucumber-preprocessor':
         specifier: ^4.0.5
         version: 4.0.5
       '@types/node':
-        specifier: ^20.14.1
+        specifier: ^20.14.2
         version: 20.14.2
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
       cypress:
-        specifier: ^13.10.0
+        specifier: ^13.11.0
         version: 13.11.0
       cypress-file-upload:
         specifier: ^5.0.8
@@ -1791,6 +1791,17 @@ packages:
 
   '@badeball/cypress-cucumber-preprocessor@20.0.5':
     resolution: {integrity: sha512-KmlyvOOq5XjVbCIiCmY/+QyUA2CQPeBoa9AJD7N1UrnuI9EDvZkO11UHdcu+uG2x2V5k8ZBijIqYW/xvsHK4Wg==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+    peerDependencies:
+      '@cypress/browserify-preprocessor': ^3.0.1
+      cypress: ^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0
+    peerDependenciesMeta:
+      '@cypress/browserify-preprocessor':
+        optional: true
+
+  '@badeball/cypress-cucumber-preprocessor@20.0.6':
+    resolution: {integrity: sha512-e95/LciUMJIrBj6PkbYq83efmbyBBg3v/aUT/IbuK7KhpWYtZ3Kqgv7Ychul6zGNsXy7q092dCg0frX/QEhSVw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
     peerDependencies:
@@ -9036,6 +9047,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.3:
     resolution: {integrity: sha512-x00IRNXNy63jwGkJmzPigoySHbaqpNuzKbBOmzK+g2OdZpQ9w+sxCN+VSB3ja7IAge2OP2qpfxTjeNcyjmW1uw==}
@@ -15351,38 +15363,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@badeball/cypress-cucumber-preprocessor@20.0.5(cypress@13.11.0)(typescript@5.4.5)':
-    dependencies:
-      '@badeball/cypress-configuration': 6.1.1
-      '@cucumber/ci-environment': 10.0.1
-      '@cucumber/cucumber': 10.6.0
-      '@cucumber/cucumber-expressions': 17.1.0
-      '@cucumber/gherkin': 28.0.0
-      '@cucumber/html-formatter': 21.3.1(@cucumber/messages@24.1.0)
-      '@cucumber/message-streams': 4.0.1(@cucumber/messages@24.1.0)
-      '@cucumber/messages': 24.1.0
-      '@cucumber/pretty-formatter': 1.0.1(@cucumber/cucumber@10.6.0)(@cucumber/messages@24.1.0)
-      '@cucumber/tag-expressions': 6.1.0
-      base64-js: 1.5.1
-      chalk: 4.1.2
-      cli-table: 0.3.11
-      common-ancestor-path: 1.0.1
-      cosmiconfig: 9.0.0(typescript@5.4.5)
-      cypress: 13.11.0
-      debug: 4.3.4(supports-color@5.5.0)
-      error-stack-parser: 2.1.4
-      esbuild: 0.20.2
-      glob: 10.3.12
-      is-path-inside: 3.0.3
-      mocha: 10.4.0
-      seedrandom: 3.0.5
-      source-map: 0.7.4
-      split: 1.0.1
-      uuid: 9.0.1
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
-
   '@badeball/cypress-cucumber-preprocessor@20.0.5(cypress@13.8.1)(typescript@5.4.5)':
     dependencies:
       '@badeball/cypress-configuration': 6.1.1
@@ -15401,6 +15381,38 @@ snapshots:
       common-ancestor-path: 1.0.1
       cosmiconfig: 9.0.0(typescript@5.4.5)
       cypress: 13.8.1
+      debug: 4.3.4(supports-color@5.5.0)
+      error-stack-parser: 2.1.4
+      esbuild: 0.20.2
+      glob: 10.3.12
+      is-path-inside: 3.0.3
+      mocha: 10.4.0
+      seedrandom: 3.0.5
+      source-map: 0.7.4
+      split: 1.0.1
+      uuid: 9.0.1
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+
+  '@badeball/cypress-cucumber-preprocessor@20.0.6(cypress@13.11.0)(typescript@5.4.5)':
+    dependencies:
+      '@badeball/cypress-configuration': 6.1.1
+      '@cucumber/ci-environment': 10.0.1
+      '@cucumber/cucumber': 10.6.0
+      '@cucumber/cucumber-expressions': 17.1.0
+      '@cucumber/gherkin': 28.0.0
+      '@cucumber/html-formatter': 21.3.1(@cucumber/messages@24.1.0)
+      '@cucumber/message-streams': 4.0.1(@cucumber/messages@24.1.0)
+      '@cucumber/messages': 24.1.0
+      '@cucumber/pretty-formatter': 1.0.1(@cucumber/cucumber@10.6.0)(@cucumber/messages@24.1.0)
+      '@cucumber/tag-expressions': 6.1.0
+      base64-js: 1.5.1
+      chalk: 4.1.2
+      cli-table: 0.3.11
+      common-ancestor-path: 1.0.1
+      cosmiconfig: 9.0.0(typescript@5.4.5)
+      cypress: 13.11.0
       debug: 4.3.4(supports-color@5.5.0)
       error-stack-parser: 2.1.4
       esbuild: 0.20.2
