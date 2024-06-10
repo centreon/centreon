@@ -8,6 +8,7 @@ Test Timeout        120s
 Start and stop gorgone
     # fichier de conf : pull_central + autodiscovery
     # start gorgone 2
+    # stop gorgone 2
     FOR    ${i}    IN RANGE    5
         Setup Gorgone Config    gorgone_start_stop${i}    ${CURDIR}${/}config.yaml
         Log To Console    Starting Gorgone...

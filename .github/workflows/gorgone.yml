@@ -139,7 +139,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, bullseye]
+        distrib: [el8, bullseye, bookworm]
         include:
           - package_extension: rpm
             image: gorgone-testing-alma8
