@@ -3,7 +3,7 @@ import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/comm
 Cypress.Commands.add(
   'createMultipleResourceAccessRules',
   (numberOfTimes, major_version) => {
-    for (let i = 1; i <= numberOfTimes; i++) {
+    for (let i = 1; i <= numberOfTimes; i += 1) {
       const name = `Rule${i}`;
       const payload = {
         contact_groups: { all: false, ids: [] },
@@ -26,7 +26,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('enableResourcesAccessManagementFeature', () => {
   return cy.execInContainer({
-    command: `sed -i 's/"resource_access_management": 2,/"resource_access_management": 3,/g' /usr/share/centreon/config/features.json`,
+    command: `sed -i 's/"resource_access_management": [0-3]/"resource_access_management": 3/' /usr/share/centreon/config/features.json`,
     name: 'web'
   });
 });
@@ -225,9 +225,12 @@ Cypress.Commands.add(
 declare global {
   namespace Cypress {
     interface Chainable {
+      createMultipleResourceAccessRules: (
+        numberOfTimes,
+        major_version
+      ) => Cypress.Chainable;
       addBvsAndBas: () => Cypress.Chainable;
       addRightsForUser: () => Cypress.Chainable;
-      createMultipleResourceAccessRules: () => Cypress.Chainable;
       enableResourcesAccessManagementFeature: () => Cypress.Chainable;
       grantBaAccessToUsers: () => Cypress.Chainable;
       installBamModule: () => Cypress.Chainable;
@@ -237,4 +240,5 @@ declare global {
     }
   }
 }
+
 export {};

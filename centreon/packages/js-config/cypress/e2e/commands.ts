@@ -7,7 +7,10 @@ import './commands/monitoring';
 
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
-installLogsCollector({ enableExtendedCollector: true });
+installLogsCollector({
+  commandTimings: 'seconds',
+  enableExtendedCollector: true
+});
 
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
@@ -260,6 +263,7 @@ Cypress.Commands.add(
     return cy.get('.MuiAlert-message').then(($snackbar) => {
       if ($snackbar.text().includes('Login succeeded')) {
         cy.wait('@getNavigationList');
+        cy.get('.MuiAlert-message').should('not.be.visible');
       }
     });
   }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -37,28 +37,47 @@
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../functions.php';
+require __DIR__ . '/../../../include/common/common-Func.php';
 
 define('SQL_ERROR_CODE_ACCESS_DENIED', 1698);
 
-$requiredParameters = array(
+$requiredParameters = [
     'db_configuration',
     'db_storage',
     'db_user',
     'db_password',
-    'db_password_confirm'
-);
+    'db_password_confirm',
+];
 
-$err = array(
-    'required' => array(),
+$err = [
+    'required' => [],
     'password' => true,
-    'connection' => ''
-);
+    'connection' => '',
+    'use_vault' => false,
+    'vault_error' => '',
+];
 
 $parameters = filter_input_array(INPUT_POST);
+
 foreach ($parameters as $name => $value) {
     if (in_array($name, $requiredParameters) && trim($value) == '') {
         $err['required'][] = $name;
     }
+}
+
+// If the vault checkbox is checked, validate that the feature is enabled
+if (array_key_exists('use_vault', $parameters)) {
+    (new \Symfony\Component\Dotenv\Dotenv())->bootEnv('/usr/share/centreon/.env');
+    $isCloudPlatform = false;
+    if (array_key_exists("IS_CLOUD_PLATFORM", $_ENV) && $_ENV["IS_CLOUD_PLATFORM"]) {
+        $isCloudPlatform = true;
+    }
+    $featuresFileContent = file_get_contents(__DIR__ . '/../../../../config/features.json');
+    $featureFlagManager = new \Core\Common\Infrastructure\FeatureFlags($isCloudPlatform, $featuresFileContent);
+    $err['use_vault'] = in_array('vault', $featureFlagManager->getEnabled());
+    if (! $err['use_vault']) {
+        $err['vault_error'] = 'Vault feature is disabled';
+
 }
 
 if (!in_array('db_password', $err['required']) && !in_array('db_password_confirm', $err['required']) &&

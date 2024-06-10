@@ -189,16 +189,7 @@ after(() => {
 
 Given('a dashboard that includes a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
@@ -226,16 +217,7 @@ Then(
 
 Given('a dashboard configuring Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
@@ -273,16 +255,7 @@ Then(
 
 Given('a dashboard featuring two Status Grid widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoStatusGridWidgets);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
@@ -305,12 +278,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -376,16 +344,7 @@ Then("the Status Grid widget is added in the dashboard's layout", () => {
 
 Given('a dashboard with a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
@@ -414,12 +373,7 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
 
 Given('a dashboard having a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
+  cy.visitDashboard(dashboards.default.name);
 });
 
 When(
@@ -433,6 +387,7 @@ When(
     }).click();
     cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.wait('@resourceRequest');
   }
 );
 

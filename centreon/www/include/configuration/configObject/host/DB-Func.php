@@ -43,6 +43,8 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use Core\Host\Application\Converter\HostEventConverter;
+
 /**
  * Quickform rule that checks whether or not monitoring server can be set
  *
@@ -2970,7 +2972,6 @@ function testCg($list)
     return CentreonContactgroup::verifiedExists($list);
 }
 
-
 /**
  * Apply template in order to deploy services
  *
@@ -3111,4 +3112,275 @@ function sanitizeFormHostParameters(array $ret): array
         }
     }
     return $bindParams;
+}
+
+/**
+ * Create a new host from formData.
+ *
+ * @param array<mixed> $ret
+ *
+ * @return int|null
+ */
+function insertHostInAPI(array $ret = []): int|null
+{
+    global $centreon, $form, $isCloudPlatform, $basePath;
+
+    /** @var array<string,int|string|null> $formData */
+    $formData = !count($ret) ? $form->getSubmitValues() : $ret;
+
+    try {
+        $hostId = insertHostByApi($formData, $isCloudPlatform, $basePath);
+
+        if ((int) $formData['host_register'] === 0) {
+            updateHostTemplateService($hostId);
+        }
+
+        if (! $isCloudPlatform) {
+            if ((int) $formData['host_register'] !== 0) {
+                updateHostHostParent($hostId, $formData);
+                updateHostHostChild($hostId);
+            }
+            updateHostContactGroup($hostId, $formData);
+            updateHostContact($hostId, $formData);
+        }
+
+        if (
+            ! empty($formData['dupSvTplAssoc']['dupSvTplAssoc'])
+            || $isCloudPlatform === true
+        ) {
+            createHostTemplateService($hostId);
+        }
+
+        // Update conf change flag for poller
+        signalConfigurationChange('host', $hostId);
+        // Update host ACLs
+        $centreon->user->access->updateACL([
+            'type' => 'HOST',
+            'id' => $hostId,
+            'action' => 'ADD',
+            'access_grp_id' => (isset($formData['acl_groups']) ? $formData['acl_groups'] : null),
+        ]);
+        // Insert change logs
+        $fields = CentreonLogAction::prepareChanges($formData);
+        $centreon->CentreonLogAction->insertLog(
+            "host",
+            $hostId,
+            CentreonDB::escape($formData["host_name"]),
+            "a",
+            $fields
+        );
+
+        return ($hostId);
+    } catch (\Throwable $th) {
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . "</div>";
+
+        return (null);
+    }
+}
+
+/**
+ * Make the API request to create a new host and return the new ID.
+ *
+ * @param array $formData
+ * @param bool $isCloudPlatform
+ * @param string $basePath
+ *
+ * @throws \LogicException
+ * @throws \Exception
+ *
+ * @return int
+ */
+function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePath): int
+{
+    $kernel = \App\Kernel::createForWeb();
+    /** @var Core\Infrastructure\Common\Api\Router $router */
+    $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
+        ?? throw new LogicException('Router not found in container');
+    $client = new Symfony\Component\HttpClient\CurlHttpClient();
+
+
+    $payload = getPayloadForHostTemplate($isCloudPlatform, $formData);
+
+    $url = $router->generate(
+        'AddHostTemplate',
+        $basePath ? ['base_uri' => $basePath] : [],
+        Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+    );
+
+    $headers = [
+        'Content-Type' => 'application/json',
+        'X-AUTH-TOKEN' => $_COOKIE['PHPSESSID'],
+    ];
+    $response = $client->request(
+        'POST',
+        $url,
+        [
+            'headers' => $headers,
+            'body' => json_encode($payload),
+        ],
+    );
+
+    if ($response->getStatusCode() !== 201) {
+        $content = json_decode($response->getContent(false));
+
+        throw new \Exception($content->message ?? 'Unexpected return status');
+    }
+
+    $data = $response->toArray();
+
+    /** @var array{id:int} $data */
+    return $data['id'];
+}
+
+/**
+ * @param bool $isCloudPlatform
+ * @param array<mixed> $formData
+ * @return array<string,mixed>
+ */
+function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): array
+{
+    if ($isCloudPlatform === true) {
+        return [
+            'name' => $formData['host_name'],
+            'alias' => $formData['host_alias'] ?: null,
+            'snmp_version' => $formData['host_snmp_version'] ?: null,
+            'snmp_community' => $formData['host_snmp_community'] ?: null,
+            'note_url' => $formData['ehi_notes_url'] ?: null,
+            'note' => $formData['ehi_notes'] ?: null,
+            'action_url' => $formData['ehi_action_url'] ?: null,
+            'icon_id' => '' !== $formData['ehi_icon_image']
+                ? (int) $formData['ehi_icon_image']
+                : null,
+            'timezone_id' => '' !== $formData['host_location']
+                ? (int) $formData['host_location']
+                : null,
+            'severity_id' => '' !== $formData['criticality_id']
+                ? (int) $formData['criticality_id']
+                : null,
+            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+                ? (int) $formData['timeperiod_tp_id']
+                : null,
+            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+                ? (int) $formData['host_max_check_attempts']
+                : null,
+            'normal_check_interval' => '' !== $formData['host_check_interval']
+                ? (int) $formData['host_check_interval']
+                : null,
+            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+                ? (int) $formData['host_retry_check_interval']
+                : null,
+            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
+            'macros' => array_map(
+                static function (int $key, string $name, string $value) use ($formData): array {
+                    return [
+                        'name' => $name,
+                        'value' => $value,
+                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
+                        'description' => $formData["macroDescription_{$key}"],
+                    ];
+                },
+                array_keys($formData['macroInput'] ?? []),
+                $formData['macroInput'] ?? [],
+                $formData['macroValue'] ?? []
+            ),
+        ];
+    } else {
+        return [
+            'name' => $formData['host_name'],
+            'alias' => $formData['host_alias'] ?: null,
+            'snmp_version' => $formData['host_snmp_version'] ?: null,
+            'snmp_community' => $formData['host_snmp_community'] ?: null,
+            'note_url' => $formData['ehi_notes_url'] ?: null,
+            'note' => $formData['ehi_notes'] ?: null,
+            'action_url' => $formData['ehi_action_url'] ?: null,
+            'icon_id' => '' !== $formData['ehi_icon_image']
+                ? (int) $formData['ehi_icon_image']
+                : null,
+            'icon_alternative' => $formData['ehi_icon_image_alt'] ?: null,
+            'comment' => $formData['host_comment'] ?: null,
+            'timezone_id' => '' !== $formData['host_location']
+                ? (int) $formData['host_location']
+                : null,
+            'severity_id' => '' !== $formData['criticality_id']
+                ? (int) $formData['criticality_id']
+                : null,
+            'check_command_id' => '' !== $formData['command_command_id']
+                ? (int) $formData['command_command_id']
+                : null,
+            'check_command_args' => array_values(array_filter(
+                explode('!', $formData['command_command_id_arg1']),
+                static fn(string $elem): bool => $elem !== ""
+            )),
+            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+                ? (int) $formData['timeperiod_tp_id']
+                : null,
+            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+                ? (int) $formData['host_max_check_attempts']
+                : null,
+            'normal_check_interval' => '' !== $formData['host_check_interval']
+                ? (int) $formData['host_check_interval']
+                : null,
+            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+                ? (int) $formData['host_retry_check_interval']
+                : null,
+            'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
+            'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
+            'low_flap_threshold' => $formData['host_low_flap_threshold']
+                ? (int) $formData['host_low_flap_threshold']
+                : null,
+            'high_flap_threshold' => '' !== $formData['host_high_flap_threshold']
+                ? (int) $formData['host_high_flap_threshold']
+                : null,
+            'freshness_checked' => (int) $formData['host_check_freshness']['host_check_freshness'],
+            'freshness_threshold' => '' !== $formData['host_freshness_threshold']
+                ? (int) $formData['host_freshness_threshold']
+                : null,
+            'acknowledgement_timeout' => '' !== $formData['host_acknowledgement_timeout']
+                ? (int) $formData['host_acknowledgement_timeout']
+                : null,
+            'flap_detection_enabled' => (int) $formData['host_flap_detection_enabled']['host_flap_detection_enabled'],
+            'event_handler_enabled' => (int) $formData['host_event_handler_enabled']['host_event_handler_enabled'],
+            'event_handler_command_id' => '' !== $formData['command_command_id2']
+                ? (int) $formData['command_command_id2']
+                : null,
+            'event_handler_command_args' => array_values(array_filter(
+                explode('!', $formData['command_command_id_arg2']),
+                static fn(string $elem): bool => $elem !== ""
+            )),
+            'notification_enabled' => (int) $formData['host_notifications_enabled']['host_notifications_enabled'],
+            'notification_interval' => '' !== $formData['host_notification_interval'] ?
+                 (int) $formData['host_notification_interval']
+                 : null,
+            'notification_timeperiod_id' => '' !== $formData['timeperiod_tp_id2']
+                ? (int) $formData['timeperiod_tp_id2']
+                : null,
+            'notification_options' => HostEventConverter::toBitFlag(HostEventConverter::fromString(
+                implode(',', array_keys($formData['host_notifOpts'] ?? []))
+            )),
+            'first_notification_delay' => '' !== $formData['host_first_notification_delay']
+                ? (int) $formData['host_first_notification_delay']
+                : null,
+            'recovery_notification_delay' => '' !== $formData['host_recovery_notification_delay']
+                ? (int) $formData['host_recovery_notification_delay']
+                : null,
+            'add_inherited_contact_group' => (bool) ($formData['cg_additive_inheritance'] ?? false),
+            'add_inherited_contact' => (bool) ($formData['contact_additive_inheritance'] ?? false),
+            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
+            'macros' => array_map(
+                static function (int $key, string $name, string $value) use ($formData): array {
+                    return [
+                        'name' => $name,
+                        'value' => $value,
+                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
+                        'description' => $formData["macroDescription_{$key}"],
+                    ];
+                },
+                array_keys($formData['macroInput'] ?? []),
+                $formData['macroInput'] ?? [],
+                $formData['macroValue'] ?? []
+            ),
+        ];
+    }
 }

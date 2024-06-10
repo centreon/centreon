@@ -70,8 +70,10 @@ export default ({
     requestTimeout: 20000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: true,
+    video: isDevelopment,
     videoCompression: 0,
-    videosFolder: `${resultsFolder}/videos`
+    videosFolder: `${resultsFolder}/videos`,
+    viewportHeight: 1080,
+    viewportWidth: 1920
   });
 };
