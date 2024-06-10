@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import data from '../../../fixtures/acls/acl-data.json';
-import '../commands';
 
 const ACLResource = {
   ...data.ACLResource,
@@ -8,13 +8,13 @@ const ACLResource = {
 };
 
 const duplicatedACLResource = {
-  name: ACLResource.name + '_1'
+  name: `${ACLResource.name}_1`
 };
 
 const modifedACLResource = {
-  name: ACLResource.name + '_modified',
-  description: ACLResource.description + '_modified',
-  comment: ACLResource.comment + '_modified'
+  comment: `${ACLResource.comment}_modified`,
+  description: `${ACLResource.description}_modified`,
+  name: `${ACLResource.name}_modified`
 };
 
 beforeEach(() => {
@@ -45,16 +45,16 @@ Given('three ACL access groups including non admin users exist', () => {
     password: data.contacts.contact1.password
   });
   cy.addACLGroup({
-    name: data.ACLGroups.ACLGroup1.name,
-    contacts: [data.contacts.contact1.name]
+    contacts: [data.contacts.contact1.name],
+    name: data.ACLGroups.ACLGroup1.name
   });
   cy.addACLGroup({
-    name: data.ACLGroups.ACLGroup2.name,
-    contacts: [data.contacts.contact1.name]
+    contacts: [data.contacts.contact1.name],
+    name: data.ACLGroups.ACLGroup2.name
   });
   cy.addACLGroup({
-    name: data.ACLGroups.ACLGroup3.name,
-    contacts: [data.contacts.contact1.name]
+    contacts: [data.contacts.contact1.name],
+    name: data.ACLGroups.ACLGroup3.name
   });
 });
 
@@ -69,23 +69,18 @@ When('I add a new Resources access linked with two groups', () => {
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody()
-    .find('input[name="acl_res_name"]')
-    .click()
-    .type(ACLResource.name);
+  cy.getIframeBody().find('input[name="acl_res_name"]').type(ACLResource.name);
   cy.getIframeBody()
     .find('input[name="acl_res_alias"]')
-    .click()
     .type(ACLResource.description);
 
-  ACLResource.ACLGroups.map((ACLGroup) => {
+  ACLResource.ACLGroups.forEach((ACLGroup) => {
     cy.getIframeBody().find('select[name="acl_groups-f[]"]').select(ACLGroup);
     cy.getIframeBody().find('input[name="add"]').eq(0).click();
   });
 
   cy.getIframeBody()
     .find('textarea[name="acl_res_comment"]')
-    .click()
     .type(ACLResource.comment);
 
   cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
@@ -94,11 +89,7 @@ When('I add a new Resources access linked with two groups', () => {
 Then('the Resources access is saved with its properties', () => {
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody()
-    .contains('tr', ACLResource.name)
-    .within(() => {
-      cy.get('td.ListColLeft > a').eq(0).click();
-    });
+  cy.getIframeBody().contains('td.ListColLeft > a', ACLResource.name).click();
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -108,7 +99,7 @@ Then('the Resources access is saved with its properties', () => {
     .find('input[name="acl_res_alias"]')
     .should('have.value', ACLResource.description);
 
-  ACLResource.ACLGroups.map((ACLGroup) => {
+  ACLResource.ACLGroups.forEach((ACLGroup) => {
     cy.getIframeBody()
       .find('select[name="acl_groups-t[]"]')
       .should('contain', ACLGroup);
@@ -131,10 +122,8 @@ Then(
       cy.wait('@getTimeZone');
 
       cy.getIframeBody()
-        .contains('tr', ACLGroup[1].name)
-        .within(() => {
-          cy.get('td.ListColLeft').click();
-        });
+        .contains('td.ListColLeft > a', ACLGroup[1].name)
+        .click();
 
       cy.wait('@getTimeZone').then(() => {
         cy.executeActionOnIframe(
@@ -147,15 +136,14 @@ Then(
         );
       });
 
-      ACLResource.ACLGroups.includes(ACLGroup[1].name)
-        ? cy
-            .getIframeBody()
-            .find('select[name="resourceAccess-t[]"]')
-            .should('contain', ACLResource.name)
-        : cy
-            .getIframeBody()
-            .find('select[name="resourceAccess-t[]"]')
-            .should('not.contain', ACLResource.name);
+      cy.getIframeBody()
+        .find('select[name="resourceAccess-t[]"]')
+        .should(
+          ACLResource.ACLGroups.includes(ACLGroup[1].name)
+            ? 'contain'
+            : 'not.contain',
+          ACLResource.name
+        );
     });
   }
 );
@@ -163,10 +151,10 @@ Then(
 Given('one existing Resources access linked with two access groups', () => {
   cy.addACLResource({ name: ACLResource.name });
 
-  ACLResource.ACLGroups.map((ACLGroup) => {
+  ACLResource.ACLGroups.forEach((ACLGroup) => {
     cy.addACLResourceToACLGroup({
-      ACLResourceName: ACLResource.name,
-      ACLGroupName: ACLGroup
+      ACLGroupName: ACLGroup,
+      ACLResourceName: ACLResource.name
     });
   });
 });
@@ -179,11 +167,7 @@ When('I remove one access group', () => {
   });
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody()
-    .contains('tr', ACLResource.name)
-    .within(() => {
-      cy.get('td.ListColLeft > a').eq(0).click();
-    });
+  cy.getIframeBody().contains('td.ListColLeft > a', ACLResource.name).click();
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -206,10 +190,8 @@ Then('link between access group and Resources access must be broken', () => {
       ACLResource.ACLGroups[1],
       ($body) => {
         cy.wrap($body)
-          .contains('tr', ACLResource.ACLGroups[1])
-          .within(() => {
-            cy.get('td.ListColLeft').click();
-          });
+          .contains('td.ListColLeft > a', ACLResource.ACLGroups[1])
+          .click();
       },
       3,
       3000
@@ -233,12 +215,12 @@ Then('link between access group and Resources access must be broken', () => {
 });
 
 Given('one existing Resources access', () => {
-  cy.addACLResource({ name: ACLResource.name, alias: ACLResource.description });
+  cy.addACLResource({ alias: ACLResource.description, name: ACLResource.name });
 
-  ACLResource.ACLGroups.map((ACLGroup) => {
+  ACLResource.ACLGroups.forEach((ACLGroup) => {
     cy.addACLResourceToACLGroup({
-      ACLResourceName: ACLResource.name,
-      ACLGroupName: ACLGroup
+      ACLGroupName: ACLGroup,
+      ACLResourceName: ACLResource.name
     });
   });
 });
@@ -261,7 +243,11 @@ When('I duplicate the Resources access', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      cy.stub<any>(win, 'confirm').returns(true);
+      if (!win) {
+        throw new Error('Cannot get iframe');
+      }
+
+      cy.stub(win, 'confirm').returns(true);
     }
   );
 
@@ -274,10 +260,8 @@ Then(
     cy.wait('@getTimeZone');
 
     cy.getIframeBody()
-      .contains('tr', duplicatedACLResource.name)
-      .within(() => {
-        cy.get('td.ListColLeft > a').eq(0).click();
-      });
+      .contains('td.ListColLeft > a', duplicatedACLResource.name)
+      .click();
     cy.wait('@getTimeZone');
 
     cy.getIframeBody()
@@ -287,7 +271,7 @@ Then(
       .find('input[name="acl_res_alias"]')
       .should('have.value', ACLResource.description);
 
-    ACLResource.ACLGroups.map((ACLGroup) => {
+    ACLResource.ACLGroups.forEach((ACLGroup) => {
       cy.getIframeBody()
         .find('select[name="acl_groups-t[]"]')
         .should('contain', ACLGroup);
@@ -300,7 +284,7 @@ Then(
 );
 
 Given('one existing enabled Resources access record', () => {
-  cy.addACLResource({ name: ACLResource.name, alias: ACLResource.description });
+  cy.addACLResource({ alias: ACLResource.description, name: ACLResource.name });
 });
 
 When(
@@ -313,29 +297,19 @@ When(
     });
     cy.wait('@getTimeZone');
 
-    cy.getIframeBody()
-      .contains('tr', ACLResource.name)
-      .within(() => {
-        cy.get('td.ListColLeft > a').eq(0).click();
-      });
+    cy.getIframeBody().contains('td.ListColLeft > a', ACLResource.name).click();
     cy.wait('@getTimeZone');
 
     cy.getIframeBody()
       .find('input[name="acl_res_name"]')
-      .clear()
-      .click()
-      .type(modifedACLResource.name);
+      .type(`{selectAll}{backspace}${modifedACLResource.name}`);
     cy.getIframeBody()
       .find('input[name="acl_res_alias"]')
-      .clear()
-      .click()
-      .type(modifedACLResource.description);
+      .type(`{selectAll}{backspace}${modifedACLResource.description}`);
 
     cy.getIframeBody()
       .find('textarea[name="acl_res_comment"]')
-      .clear()
-      .click()
-      .type(modifedACLResource.comment);
+      .type(`{selectAll}{backspace}${modifedACLResource.comment}`);
 
     cy.getIframeBody()
       .find('input[name="acl_res_activate[acl_res_activate]"][value="0"]')
@@ -350,10 +324,8 @@ Then('the modifications are saved', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', modifedACLResource.name)
-    .within(() => {
-      cy.get('td.ListColLeft > a').eq(0).click();
-    });
+    .contains('td.ListColLeft > a', modifedACLResource.name)
+    .click();
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -390,7 +362,11 @@ When('I delete the Resources access', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      cy.stub<any>(win, 'confirm').returns(true);
+      if (!win) {
+        throw new Error('Cannot get iframe');
+      }
+
+      cy.stub(win, 'confirm').returns(true);
     }
   );
 
