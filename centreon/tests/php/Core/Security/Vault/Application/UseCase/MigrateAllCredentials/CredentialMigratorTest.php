@@ -30,6 +30,7 @@ use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterfac
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialErrorDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
@@ -62,6 +63,7 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
     $writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class);
     $writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class);
     $writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class);
+    $writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class);
 
     $writeVaultRepository->method('upsert')->willReturn('vault/path');
 
@@ -80,6 +82,7 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         writeHostTemplateRepository: $writeHostTemplateRepository,
         writeHostMacroRepository: $writeHostMacroRepository,
         writeServiceMacroRepository: $writeServiceMacroRepository,
+        writeOptionRepository: $writeOptionRepository,
         hosts: $hosts,
         hostTemplates: $hostTemplates
     );
@@ -108,6 +111,7 @@ it('tests getIterator method with exception', function (): void {
     $writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class);
     $writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class);
     $writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class);
+    $writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class);
 
     $writeVaultRepository->method('upsert')->willThrowException(new \Exception('Test exception'));
 
@@ -126,6 +130,7 @@ it('tests getIterator method with exception', function (): void {
         writeHostTemplateRepository: $writeHostTemplateRepository,
         writeHostMacroRepository: $writeHostMacroRepository,
         writeServiceMacroRepository: $writeServiceMacroRepository,
+        writeOptionRepository: $writeOptionRepository,
         hosts: $hosts,
         hostTemplates: $hostTemplates
     );

@@ -162,7 +162,7 @@ final class MigrateAllCredentials
                             $credentials[] = $credential;
                         }
                     }
-                } else {
+                } elseif (is_object($resource['data'])) {
                     $value = $resource['data']->{$resource['getter']}();
                     if ($value !== '' && ! str_starts_with($value, 'secret::')) {
                         $credential = new CredentialDto();
@@ -180,6 +180,7 @@ final class MigrateAllCredentials
             $this->migrateCredentials($credentials, $this->response, $hosts, $hostTemplates);
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
+            dump((string) $ex);
             $this->error((string) $ex);
             $presenter->presentResponse(new ErrorResponse(VaultException::unableToMigrateCredentials()));
         }

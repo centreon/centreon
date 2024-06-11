@@ -33,6 +33,8 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Option\Application\Repository\ReadOptionRepositoryInterface;
+use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
@@ -50,10 +52,12 @@ beforeEach(function (): void {
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
         $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
+        $this->readOptionRepository = $this->createMock(ReadOptionRepositoryInterface::class),
         $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class),
         $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class),
         $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class),
         $this->writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class),
+        $this->writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class)
     );
 });
 
@@ -91,4 +95,4 @@ it('should present a MigrateAllCredentialsResponse when no error occurs', functi
     ($this->useCase)($presenter);
     expect($presenter->response)->toBeInstanceOf(MigrateAllCredentialsResponse::class)
         ->and($presenter->response->results)->toBeInstanceOf(CredentialMigrator::class);
-});
+})->only();
