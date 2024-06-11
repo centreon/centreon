@@ -71,6 +71,7 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
             CredentialTypeEnum::TYPE_HOST => 'host',
             CredentialTypeEnum::TYPE_SERVICE => 'service',
             CredentialTypeEnum::TYPE_HOST_TEMPLATE => 'host_template',
+            CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => 'knowledge_base'
         };
     }
 
@@ -83,7 +84,7 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
      */
     private function prefixMacroName(CredentialRecordedDto|CredentialErrorDto $dto): string
     {
-        if ($dto->credentialName === '_HOSTSNMPCOMMUNITY') {
+        if (in_array($dto->credentialName, ['_HOSTSNMPCOMMUNITY', '_KBPASSWORD']) ) {
             return $dto->credentialName;
         }
 

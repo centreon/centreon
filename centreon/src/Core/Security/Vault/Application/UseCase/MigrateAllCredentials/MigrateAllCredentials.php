@@ -36,6 +36,8 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Option\Application\Repository\ReadOptionRepositoryInterface;
+use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
@@ -64,12 +66,13 @@ final class MigrateAllCredentials
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        private readonly ReadOptionRepositoryInterface $readOptionRepository,
         private readonly WriteHostRepositoryInterface $writeHostRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
-    )
-    {
+        private readonly WriteOptionRepositoryInterface $writeOptionRepository,
+    ) {
         $this->response = new MigrateAllCredentialsResponse();
     }
 
@@ -85,53 +88,80 @@ final class MigrateAllCredentials
             $hostTemplates = $this->readHostTemplateRepository->findAll();
             $hostMacros = $this->readHostMacroRepository->findPasswords();
             $serviceMacros = $this->readServiceMacroRepository->findPasswords();
-
+            $knowledgeBasePasswordOption = $this->readOptionRepository->findByName('kb_wiki_password');
             /**
              * @var \ArrayIterator<int, CredentialDto> $credentials
              */
             $credentials = new \ArrayIterator([]);
 
             $resources = [
-                ['data' => $hosts,
+                [
+                    'data' => $hosts,
                     'type' => CredentialTypeEnum::TYPE_HOST,
                     'name' => '_HOSTSNMPCOMMUNITY',
                     'getter' => 'getSnmpCommunity',
                     'idGetter' => 'getId',
                 ],
-                ['data' => $hostTemplates,
+                [
+                    'data' => $hostTemplates,
                     'type' => CredentialTypeEnum::TYPE_HOST_TEMPLATE,
                     'name' => '_HOSTSNMPCOMMUNITY',
                     'getter' => 'getSnmpCommunity',
                     'idGetter' => 'getId',
                 ],
-                ['data' => $hostMacros,
+                [
+                    'data' => $hostMacros,
                     'type' => CredentialTypeEnum::TYPE_HOST,
                     'name' => null,
                     'getter' => 'getValue',
                     'idGetter' => 'getOwnerId',
                 ],
-                ['data' => $serviceMacros,
+                [
+                    'data' => $serviceMacros,
                     'type' => CredentialTypeEnum::TYPE_SERVICE,
                     'name' => null,
                     'getter' => 'getValue',
                     'idGetter' => 'getOwnerId',
                 ],
+                [
+                    'data' => $knowledgeBasePasswordOption,
+                    'type' => CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD,
+                    'name' => '_KBPASSWORD',
+                    'getter' => 'getValue',
+                    'idGetter' => null
+                ]
             ];
             foreach ($resources as $resource) {
-                foreach ($resource['data'] as $item) {
-                    $value = $item->{$resource['getter']}();
+                if (is_array($resource['data'])) {
+                    foreach ($resource['data'] as $item) {
+                        $value = $item->{$resource['getter']}();
+                        if ($value !== '' && ! str_starts_with($value, 'secret::')) {
+                            $credential = new CredentialDto();
+                            $credential->resourceId = $resource['idGetter'] !== null
+                                ? $item->{$resource['idGetter']}()
+                                : null;
+                            $credential->type = $resource['type'];
+                            $credential->name = $resource['name'] ?? $item->getName();
+                            $credential->value = $value;
+
+                            $credentials[] = $credential;
+                        }
+                    }
+                } else {
+                    $value = $resource['data']->{$resource['getter']}();
                     if ($value !== '' && ! str_starts_with($value, 'secret::')) {
                         $credential = new CredentialDto();
-                        $credential->resourceId = $item->{$resource['idGetter']}();
+                        $credential->resourceId = $resource['idGetter'] !== null
+                            ? $resource['data']->{$resource['idGetter']}()
+                            : null;
                         $credential->type = $resource['type'];
-                        $credential->name = $resource['name'] ?? $item->getName();
+                        $credential->name = $resource['name'] ?? $resource['data']->getName();
                         $credential->value = $value;
 
                         $credentials[] = $credential;
                     }
                 }
             }
-
             $this->migrateCredentials($credentials, $this->response, $hosts, $hostTemplates);
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
@@ -160,6 +190,7 @@ final class MigrateAllCredentials
             $this->writeHostTemplateRepository,
             $this->writeHostMacroRepository,
             $this->writeServiceMacroRepository,
+            $this->writeOptionRepository,
             $hosts,
             $hostTemplates,
         );

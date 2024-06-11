@@ -34,12 +34,14 @@ abstract class AbstractVaultRepository
     use LoggerTrait;
     public const HOST_VAULT_PATH = 'monitoring/hosts';
     public const SERVICE_VAULT_PATH = 'monitoring/services';
+    public const KNOWLEDGE_BASE_PATH = 'configuration/knowledge_base';
     protected const DEFAULT_SCHEME = 'https';
 
     /** @var string[] */
     protected array $availablePaths = [
         self::HOST_VAULT_PATH,
         self::SERVICE_VAULT_PATH,
+        self::KNOWLEDGE_BASE_PATH
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;
@@ -63,7 +65,7 @@ abstract class AbstractVaultRepository
         if (! in_array($customPath, $this->availablePaths, true)) {
             $this->error("Invalid custom vault path '{$customPath}'");
 
-            throw new \LogicException();
+            throw new \LogicException("Invalid custom vault path '{$customPath}'");
         }
         $this->customPath = $customPath;
     }

@@ -33,6 +33,8 @@ use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
+use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
+use Core\Option\Domain\Option;
 
 /**
  * @implements \IteratorAggregate<CredentialRecordedDto|CredentialErrorDto>
@@ -58,6 +60,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
+        private readonly WriteOptionRepositoryInterface $writeOptionRepository,
         private readonly array $hosts,
         private readonly array $hostTemplates,
     ) {
@@ -74,19 +77,32 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
          */
         foreach ($this->credentials as $credential) {
             try {
+
+                switch($credential->type) {
+                    case CredentialTypeEnum::TYPE_HOST:
+                    case CredentialTypeEnum::TYPE_HOST_TEMPLATE:
+                        $recordInformation = $this->migrateHostAndHostTemplateCredentials(
+                            $credential,
+                            $existingUuids
+                        );
+                        break;
+                    case CredentialTypeEnum::TYPE_SERVICE:
+                        $recordInformation = $this->migrateServiceAndServiceTemplateCredentials(
+                            $credential,
+                            $existingUuids
+                        );
+                        break;
+                    case CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD:
+                        $recordInformation = $this->migrateKnowledgeBasePassword($credential);
+                        break;
+                }
                 if (
                     $credential->type === CredentialTypeEnum::TYPE_HOST
                     || $credential->type === CredentialTypeEnum::TYPE_HOST_TEMPLATE
                 ) {
-                    $recordInformation = $this->migrateHostAndHostTemplateCredentials(
-                        $credential,
-                        $existingUuids
-                    );
+
                 } else {
-                    $recordInformation = $this->migrateServiceAndServiceTemplateCredentials(
-                        $credential,
-                        $existingUuids
-                    );
+
                 }
 
                 $status = new CredentialRecordedDto();
@@ -99,12 +115,13 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                 yield $status;
             } catch (\Throwable $ex) {
                 $this->error($ex->getMessage(), ['trace' => (string) $ex]);
+                dd($ex);
                 $status = new CredentialErrorDto();
                 $status->resourceId = $credential->resourceId;
                 $status->type = $credential->type;
                 $status->credentialName = $credential->name;
                 $status->message = $ex->getMessage();
-
+                dd($status);
                 yield $status;
             }
         }
@@ -200,6 +217,23 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
         return [
             'uuid' => $existingUuids['services'][$credential->resourceId],
+            'path' => $vaultPath,
+        ];
+    }
+
+    private function migrateKnowledgeBasePassword(CredentialDto $credential): array
+    {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::KNOWLEDGE_BASE_PATH);
+        $vaultPath = $this->writeVaultRepository->upsert(
+            null,
+            [$credential->name => $credential->value]
+        );
+        $vaultPathPart = explode('/', $vaultPath);
+        $uuid = end($vaultPathPart);
+        $option = new Option('kb_wiki_password', $vaultPath);
+        $this->writeOptionRepository->update($option);
+        return [
+            'uuid' => $uuid,
             'path' => $vaultPath,
         ];
     }
