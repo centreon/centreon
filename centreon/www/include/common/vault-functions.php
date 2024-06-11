@@ -1354,6 +1354,8 @@ function insertServiceSecretsInVault(
 }
 
 /**
+ * Update or Insert the knowledge base password into the vault.
+ *
  * @param string $password
  * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
@@ -1381,6 +1383,8 @@ function upsertKnowledgeBasePasswordInVault(
 }
 
 /**
+ * Find the Knowledge Base password from the vault.
+ *
  * @param Logger $logger
  * @param string $kbPasswordPath
  * @param VaultConfiguration $vaultConfiguration
@@ -1409,6 +1413,8 @@ function findKnowledgeBasePasswordFromVault(
 }
 
 /**
+ * Write the Knowledge Base Password into the vault.
+ *
  * @param VaultConfiguration $vaultConfiguration
  * @param string $uuid
  * @param string $clientToken
@@ -1455,19 +1461,4 @@ function writeKnowledgeBasePasswordInVault(
     }
 
     $logger->info(sprintf("Write successfully Knowledge Base Password in vault: %s", $password));
-}
-
-/**
- * @param CentreonDB $pearDB
- * @param string $vaultPath
- */
-function updateOptionTableWithKnowledgeBaseVaultPath(CentreonDB $pearDB, string $vaultPath): void
-{
-    $stmt = $pearDB->prepare("DELETE FROM `options` WHERE `key` = 'kb_wiki_password'");
-    $stmt->execute();
-
-    $stmt = $pearDB->prepare("INSERT INTO `options` (`key`, `value`) VALUES (:key, :value)");
-    $stmt->bindValue(':key', "kb_wiki_password", \PDO::PARAM_STR);
-    $stmt->bindValue(':value', $vaultPath, \PDO::PARAM_STR);
-    $stmt->execute();
 }
