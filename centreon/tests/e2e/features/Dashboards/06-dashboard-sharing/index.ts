@@ -50,6 +50,7 @@ beforeEach(() => {
   cy.logoutViaAPI();
 });
 
+
 after(() => {
   cy.stopContainers();
 });
