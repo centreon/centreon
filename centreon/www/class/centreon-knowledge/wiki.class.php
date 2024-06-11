@@ -33,10 +33,10 @@
  *
  */
 
+require_once  _CENTREON_PATH_ . '/bootstrap.php';
 require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . '/../../include/common/vault-functions.php';
-require_once  _CENTREON_PATH_ . '/vendor/autoload.php';
 
 class Wiki
 {

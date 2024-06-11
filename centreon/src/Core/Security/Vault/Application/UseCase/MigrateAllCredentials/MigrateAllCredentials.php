@@ -84,11 +84,13 @@ final class MigrateAllCredentials
 
                 return;
             }
+
             $hosts = $this->readHostRepository->findAll();
             $hostTemplates = $this->readHostTemplateRepository->findAll();
             $hostMacros = $this->readHostMacroRepository->findPasswords();
             $serviceMacros = $this->readServiceMacroRepository->findPasswords();
             $knowledgeBasePasswordOption = $this->readOptionRepository->findByName('kb_wiki_password');
+
             /**
              * @var \ArrayIterator<int, CredentialDto> $credentials
              */

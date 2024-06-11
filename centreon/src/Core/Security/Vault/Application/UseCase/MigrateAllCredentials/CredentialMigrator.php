@@ -77,33 +77,18 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
          */
         foreach ($this->credentials as $credential) {
             try {
-
-                switch($credential->type) {
-                    case CredentialTypeEnum::TYPE_HOST:
-                    case CredentialTypeEnum::TYPE_HOST_TEMPLATE:
-                        $recordInformation = $this->migrateHostAndHostTemplateCredentials(
+                $recordInformation = match ($credential->type) {
+                    CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE => $this
+                        ->migrateHostAndHostTemplateCredentials(
                             $credential,
                             $existingUuids
-                        );
-                        break;
-                    case CredentialTypeEnum::TYPE_SERVICE:
-                        $recordInformation = $this->migrateServiceAndServiceTemplateCredentials(
-                            $credential,
-                            $existingUuids
-                        );
-                        break;
-                    case CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD:
-                        $recordInformation = $this->migrateKnowledgeBasePassword($credential);
-                        break;
-                }
-                if (
-                    $credential->type === CredentialTypeEnum::TYPE_HOST
-                    || $credential->type === CredentialTypeEnum::TYPE_HOST_TEMPLATE
-                ) {
-
-                } else {
-
-                }
+                        ),
+                    CredentialTypeEnum::TYPE_SERVICE => $this->migrateServiceAndServiceTemplateCredentials(
+                        $credential,
+                        $existingUuids
+                    ),
+                    CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => $this->migrateKnowledgeBasePassword($credential)
+                };
 
                 $status = new CredentialRecordedDto();
                 $status->uuid = $recordInformation['uuid'];
@@ -115,13 +100,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                 yield $status;
             } catch (\Throwable $ex) {
                 $this->error($ex->getMessage(), ['trace' => (string) $ex]);
-                dd($ex);
                 $status = new CredentialErrorDto();
                 $status->resourceId = $credential->resourceId;
                 $status->type = $credential->type;
                 $status->credentialName = $credential->name;
                 $status->message = $ex->getMessage();
-                dd($status);
                 yield $status;
             }
         }
@@ -221,6 +204,14 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         ];
     }
 
+    /**
+     * @param CredentialDto $credential
+     *
+     * @return array{uuid: string, path: string}
+     *
+     * @throws \Throwable
+     * *
+     * */
     private function migrateKnowledgeBasePassword(CredentialDto $credential): array
     {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::KNOWLEDGE_BASE_PATH);
