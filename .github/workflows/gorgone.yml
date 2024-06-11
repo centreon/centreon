@@ -182,6 +182,7 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
+            apt update
             apt install -y ./centreon-gorgone*${{ matrix.distrib }}*
           else
             dnf install -y ./centreon-gorgone*${{ matrix.distrib }}* ./centreon-gorgone-centreon-config*${{ matrix.distrib }}*
