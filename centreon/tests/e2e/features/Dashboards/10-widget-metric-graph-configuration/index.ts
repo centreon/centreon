@@ -117,7 +117,7 @@ before(() => {
       activeCheckEnabled: false,
       host: services.serviceCritical.host,
       maxCheckAttempts: 1,
-      name: 'service2',
+      name: services.serviceWarning.name,
       template: services.serviceWarning.template
     })
     .addService({
