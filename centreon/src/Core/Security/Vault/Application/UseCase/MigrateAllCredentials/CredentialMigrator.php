@@ -53,6 +53,8 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @param Host[] $hosts,
      * @param HostTemplate[] $hostTemplates,
      * @param WriteOptionRepositoryInterface $writeOptionRepository
+     * @param Macro[] $hostMacros
+     * @param Macro[] $serviceMacros
      */
     public function __construct(
         private readonly \Traversable&\Countable $credentials,
@@ -64,6 +66,8 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         private readonly WriteOptionRepositoryInterface $writeOptionRepository,
         private readonly array $hosts,
         private readonly array $hostTemplates,
+        private readonly array $hostMacros,
+        private readonly array $serviceMacros,
     ) {
     }
 
@@ -165,10 +169,12 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                 }
             }
         } else {
-
-            $updatedMacro = new Macro($credential->resourceId, $credential->name, $vaultPath);
-            $updatedMacro->setIsPassword(true);
-            $this->writeHostMacroRepository->update($updatedMacro);
+            foreach ($this->hostMacros as $hostMacro) {
+                if ($hostMacro->getOwnerId() === $credential->resourceId) {
+                    $hostMacro->setValue($vaultPath);
+                    $this->writeHostMacroRepository->update($hostMacro);
+                }
+            }
         }
 
         return [
@@ -203,9 +209,12 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         );
         $vaultPathPart = explode('/', $vaultPath);
         $existingUuids['services'][$credential->resourceId] = end($vaultPathPart);
-        $updatedMacro = new Macro($credential->resourceId, $credential->name, $vaultPath);
-        $updatedMacro->setIsPassword(true);
-        $this->writeServiceMacroRepository->update($updatedMacro);
+        foreach ($this->serviceMacros as $serviceMacro) {
+            if ($serviceMacro->getOwnerId() === $credential->resourceId) {
+                $serviceMacro->setValue($vaultPath);
+                $this->writeServiceMacroRepository->update($serviceMacro);
+            }
+        }
 
         return [
             'uuid' => $existingUuids['services'][$credential->resourceId],
