@@ -1368,16 +1368,16 @@ function upsertKnowledgeBasePasswordInVault(
     Logger $logger,
     ?string $uuid,
     UUIDGeneratorInterface $uuidGenerator
-): void {
+): string {
     global $pearDB;
 
     $httpClient = new CentreonRestHttp();
     $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
     $uuid = $uuid ?? $uuidGenerator->generateV4();
     writeKnowledgeBasePasswordInVault($vaultConfiguration, $uuid, $clientToken, $password, $logger, $httpClient);
-    $kbPath = "secret::" . $vaultConfiguration->getName() . "::" . $vaultConfiguration->getRootPath()
+    return "secret::" . $vaultConfiguration->getName() . "::" . $vaultConfiguration->getRootPath()
         . "/data/configuration/knowledge_base/" . $uuid;
-    updateOptionTableWithKnowledgeBaseVaultPath($pearDB, $kbPath);
+
 }
 
 /**

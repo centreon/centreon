@@ -910,31 +910,51 @@ function updateKnowledgeBaseData($db, $form, $centreon, ?string $originalPasswor
         unset($ret["kb_wiki_url"]);
     }
 
-    $kernel = \App\Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
     foreach ($ret as $key => $value) {
-        if ($key === "kb_wiki_password" && $vaultConfiguration !== null) {
-            $uuid = null;
-            if (str_starts_with($originalPassword, "secret::")) {
-                $vaultPathPart = explode("/", $originalPassword);
-                $uuid = end($vaultPathPart);
-            }
-            /**
-             * @var \Centreon\Domain\Log\Logger $logger
-             */
-            $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-            /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-            $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-            upsertKnowledgeBasePasswordInVault($value, $vaultConfiguration, $logger, $uuid, $uuidGenerator);
+        if ($key === "kb_wiki_password") {
+            $vaultPath = saveKnowledgeBasePasswordInVault($value, $originalPassword);
+            $value = $vaultPath ?? $value;
+            updateOption($db, $key, $value);
         } elseif (preg_match('/^kb_/', $key)) {
             updateOption($db, $key, $value);
         }
     }
 
     $centreon->initOptGen($db);
+}
+
+/**
+ * @param string $password
+ * @param string $originalPassword
+ *
+ * @return string|null
+ *
+ * @throws Throwable
+ */
+function saveKnowledgeBasePasswordInVault(string $password, string $originalPassword): ?string
+{
+    $kernel = \App\Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    if ($vaultConfiguration === null) {
+        return null;
+    }
+
+    $uuid = null;
+    if (str_starts_with($originalPassword, "secret::")) {
+        $vaultPathPart = explode("/", $originalPassword);
+        $uuid = end($vaultPathPart);
+    }
+
+    /**
+     * @var \Centreon\Domain\Log\Logger $logger
+     */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    return upsertKnowledgeBasePasswordInVault($password, $vaultConfiguration, $logger, $uuid, $uuidGenerator);
 }
 
 /**

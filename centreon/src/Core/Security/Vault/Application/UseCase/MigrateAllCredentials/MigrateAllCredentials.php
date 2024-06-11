@@ -187,7 +187,6 @@ final class MigrateAllCredentials
             );
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
-            dump((string) $ex);
             $this->error((string) $ex);
             $presenter->presentResponse(new ErrorResponse(VaultException::unableToMigrateCredentials()));
         }
