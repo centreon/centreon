@@ -5,11 +5,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Set locale
 RUN apt-get update && \
     apt-get install -y locales libcurl4-openssl-dev curl wget zstd jq lsb-release mariadb-client iproute2 && \
-    apt-get update && \
     apt-get install -y ca-certificates apt-transport-https software-properties-common gnupg2 && \
-    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
+    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+    
 ENV LANG=en_US.UTF-8
 
 # Install required packages and Robotframework
@@ -24,7 +22,7 @@ RUN apt-get update && \
     robotframework-databaselibrary \
     pymysql \
     robotframework-requests && \
-    echo "deb https://packages.centreon.com/ubuntu-standard-24.04-testing/ jammy main" | tee -a /etc/apt/sources.list.d/centreon-testing.list && \
+    echo "deb https://packages.centreon.com/ubuntu-standard-24.05-testing/ jammy main" | tee -a /etc/apt/sources.list.d/centreon-testing.list && \
     echo "deb https://packages.centreon.com/ubuntu-plugins-testing/ jammy main" | tee -a /etc/apt/sources.list.d/centreon-plugins-testing.list && \
     wget -O- https://packages.centreon.com/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1 && \
     apt-get update && \
