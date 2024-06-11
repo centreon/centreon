@@ -21,7 +21,13 @@ headers {
   centreon-auth-token: {{token}}
 }
 
+assert {
+  res.body: isJson
+}
+
 tests {
-  var helpers = eval(globals.loadHelpers);
-  helpers.checkHostList();
+  const { checkHostList } = require('./lib/helpers');
+  
+  checkHostList();
+  
 }
