@@ -6,9 +6,15 @@ import { equals } from 'ramda';
 import { Link } from 'react-router-dom';
 import { useIsFetching } from '@tanstack/react-query';
 
-import { CardHeader, CircularProgress, Typography } from '@mui/material';
+import {
+  Button,
+  CardHeader,
+  CircularProgress,
+  Typography
+} from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import DvrIcon from '@mui/icons-material/Dvr';
+import UpdateIcon from '@mui/icons-material/Update';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
 
@@ -22,6 +28,7 @@ import {
   labelResourcesStatus,
   labelSeeMore
 } from '../../translatedLabels';
+import { useLastRefresh } from '../../hooks/useLastRefresh';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
@@ -29,6 +36,7 @@ import MorePanelActions from './MorePanelActions';
 interface PanelHeaderProps {
   changeViewMode: (displayType) => void;
   displayMoreActions: boolean;
+  displayShrinkRefresh: boolean;
   id: string;
   linkToResourceStatus?: string;
   pageType: string | null;
@@ -41,10 +49,10 @@ const PanelHeader = ({
   linkToResourceStatus,
   displayMoreActions,
   changeViewMode,
-  pageType
+  pageType,
+  displayShrinkRefresh
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
-
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
 
   const { classes } = usePanelHeaderStyles();
@@ -66,10 +74,16 @@ const PanelHeader = ({
 
   const isFetching = useIsFetching({ queryKey: [widgetPrefixQuery] });
 
-  const duplicate = (event): void => {
+  const refreshLabel = useLastRefresh(isFetching);
+
+  const duplicate = (event: MouseEvent): void => {
     event.preventDefault();
     setIsEditing(() => true);
     duplicatePanel(id);
+  };
+
+  const refresh = (): void => {
+    setRefreshCount?.(id);
   };
 
   const openMoreActions = (event): void => setMoreActionsOpen(event.target);
@@ -82,7 +96,28 @@ const PanelHeader = ({
       action={
         displayMoreActions && (
           <div className={classes.panelActionsIcons}>
-            {!!isFetching && <CircularProgress size={20} />}
+            {displayShrinkRefresh ? (
+              <IconButton
+                disabled={isFetching}
+                size="small"
+                title={refreshLabel}
+                onClick={refresh}
+              >
+                {isFetching ? <CircularProgress size={24} /> : <UpdateIcon />}
+              </IconButton>
+            ) : (
+              <Button
+                className={classes.panelHeaderRefreshButton}
+                disabled={isFetching}
+                size="small"
+                startIcon={
+                  isFetching ? <CircularProgress size={16} /> : <UpdateIcon />
+                }
+                onClick={refresh}
+              >
+                {refreshLabel}
+              </Button>
+            )}
             {linkToResourceStatus && (
               <Link
                 data-testid={t(labelSeeMore, { page })}
@@ -111,12 +146,16 @@ const PanelHeader = ({
               close={closeMoreActions}
               duplicate={duplicate}
               id={id}
-              setRefreshCount={setRefreshCount}
             />
           </div>
         )
       }
       className={classes.panelHeader}
+      classes={{
+        content: displayShrinkRefresh
+          ? classes.panelHeaderContentWithShrink
+          : classes.panelHeaderContent
+      }}
       title={
         <Typography className={classes.panelTitle}>
           {panel?.options?.name || ''}
