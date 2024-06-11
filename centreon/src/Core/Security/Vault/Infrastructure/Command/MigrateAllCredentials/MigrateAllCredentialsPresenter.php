@@ -84,7 +84,7 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
      */
     private function prefixMacroName(CredentialRecordedDto|CredentialErrorDto $dto): string
     {
-        if (in_array($dto->credentialName, ['_HOSTSNMPCOMMUNITY', '_KBPASSWORD']) ) {
+        if (in_array($dto->credentialName, ['_HOSTSNMPCOMMUNITY', '_KBPASSWORD'])) {
             return $dto->credentialName;
         }
 
