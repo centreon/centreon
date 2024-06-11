@@ -22,6 +22,12 @@ const useStyles = makeStyles()((theme: Theme) => ({
     paddingRight: theme.spacing(1),
     paddingTop: theme.spacing(0.6)
   },
+  compactLabel: {
+    top: '-10px'
+  },
+  compactLabelShrink: {
+    top: '0px'
+  },
   hiddenText: {
     display: 'table',
     lineHeight: 0,
@@ -164,6 +170,14 @@ const TextField = forwardRef(
             onChange={changeInputValue}
             {...getValueProps()}
             {...rest}
+            InputLabelProps={{
+              classes: {
+                root: cx(equals(size, 'compact') && classes.compactLabel),
+                shrink: cx(
+                  equals(size, 'compact') && classes.compactLabelShrink
+                )
+              }
+            }}
             InputProps={{
               className: cx(
                 classes.inputBase,

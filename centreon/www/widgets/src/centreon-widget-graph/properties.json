@@ -39,33 +39,393 @@
       "defaultValue": []
     }
   },
-  "generalProperties": {
-    "groups": [
-      {
-        "id": "graphStyles",
-        "name": "Graph style"
-      }
-    ],
-    "elements": {
-      "curveType": {
-        "group": "graphStyles",
-        "type": "select",
-        "label": "Curve type",
-        "defaultValue": "linear",
-        "options": [
-          {
-            "id": "linear",
-            "name": "Linear"
-          },
-          {
-            "id": "natural",
-            "name": "Natural"
-          },
-          {
-            "id": "step",
-            "name": "Step"
+  "categories": {
+    "Display settings": {
+      "groups": [
+        {
+          "id": "graphStyles",
+          "name": "Graph style"
+        },
+        {
+          "id": "axis",
+          "name": "Axis"
+        },
+        {
+          "id": "legend",
+          "name": "Legend"
+        },
+        {
+          "id": "tooltip",
+          "name": "Tooltip"
+        }
+      ],
+      "elements": {
+        "curveType": {
+          "group": "graphStyles",
+          "type": "select",
+          "label": "Curve type",
+          "defaultValue": "linear",
+          "options": [
+            {
+              "id": "linear",
+              "name": "Linear"
+            },
+            {
+              "id": "natural",
+              "name": "Natural"
+            },
+            {
+              "id": "step",
+              "name": "Step"
+            }
+          ]
+        },
+        "showPoints": {
+          "group": "graphStyles",
+          "type": "switch",
+          "label": "Display curve points",
+          "defaultValue": false
+        },
+        "lineWidthMode": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "label": "Line width",
+          "defaultValue": "auto",
+          "secondaryLabel": "The Auto value corresponds to the value defined in the Curves configuration in Centreon.",
+          "options": [
+            {
+              "id": "auto",
+              "name": "Auto"
+            },
+            {
+              "id": "custom",
+              "name": "Custom"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "lineWidth",
+              "displayValue": "custom",
+              "input": {
+                "type": "slider",
+                "defaultValue": 2,
+                "slider": {
+                  "min": 0,
+                  "max": 10,
+                  "unit": "px"
+                }
+              }
+            }
+          ]
+        },
+        "showArea": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "label": "Show area",
+          "defaultValue": "auto",
+          "secondaryLabel": "The Auto value corresponds to the value defined in the Curves configuration in Centreon.",
+          "options": [
+            {
+              "id": "auto",
+              "name": "Auto"
+            },
+            {
+              "id": "show",
+              "name": "Show"
+            },
+            {
+              "id": "hide",
+              "name": "Hide"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "areaOpacity",
+              "displayValue": "show",
+              "input": {
+                "type": "slider",
+                "defaultValue": 20,
+                "label": "Fill opacity",
+                "slider": {
+                  "max": 100,
+                  "min": 0,
+                  "unit": "%"
+                }
+              }
+            }
+          ]
+        },
+        "lineStyleMode": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "defaultValue": "solid",
+          "label": "Line style",
+          "options": [
+            {
+              "id": "solid",
+              "name": "Solid"
+            },
+            {
+              "id": "dash",
+              "name": "Dashed"
+            },
+            {
+              "id": "dots",
+              "name": "Dotted"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "dashLength",
+              "displayValue": "dash",
+              "direction": "row",
+              "input": {
+                "type": "textfield",
+                "defaultValue": 5,
+                "label": "Dash width",
+                "text": {
+                  "size": "compact",
+                  "type": "number",
+                  "min": 0,
+                  "autoSize": true
+                }
+              }
+            },
+            {
+              "name": "dashOffset",
+              "displayValue": "dash",
+              "direction": "row",
+              "input": {
+                "type": "textfield",
+                "defaultValue": 5,
+                "label": "Space",
+                "text": {
+                  "size": "compact",
+                  "type": "number",
+                  "min": 0,
+                  "autoSize": true
+                }
+              }
+            },
+            {
+              "name": "",
+              "displayValue": "dash",
+              "direction": "row",
+              "input": {
+                "type": "text",
+                "label": "px"
+              }
+            },
+            {
+              "name": "dotOffset",
+              "displayValue": "dots",
+              "direction": "row",
+              "input": {
+                "type": "textfield",
+                "defaultValue": 5,
+                "label": "Space",
+                "text": {
+                  "size": "compact",
+                  "type": "number",
+                  "min": 0,
+                  "autoSize": true
+                }
+              }
+            },
+            {
+              "name": "",
+              "displayValue": "dots",
+              "direction": "row",
+              "input": {
+                "type": "text",
+                "label": "px"
+              }
+            }
+          ]
+        },
+        "showAxisBorder": {
+          "type": "switch",
+          "label": "Show axis border",
+          "group": "axis",
+          "defaultValue": true
+        },
+        "yAxisTickLabelRotation": {
+          "group": "axis",
+          "type": "slider",
+          "label": "Y-axis tick label rotation",
+          "defaultValue": 0,
+          "slider": {
+            "min": -45,
+            "max": 45,
+            "unit": "°"
           }
-        ]
+        },
+        "isCenteredZero": {
+          "type": "switch",
+          "label": "Zero-centered",
+          "group": "axis",
+          "defaultValue": false
+        },
+        "showGridLines": {
+          "type": "switch",
+          "label": "Show grid lines",
+          "group": "axis",
+          "defaultValue": true,
+          "subInputs": [
+            {
+              "name": "gridLinesType",
+              "displayValue": true,
+              "input": {
+                "group": "axis",
+                "type": "button-group",
+                "label": "Grid lines type",
+                "defaultValue": "all",
+                "options": [
+                  {
+                    "id": "horizontal",
+                    "name": "Horizontal"
+                  },
+                  {
+                    "id": "vertical",
+                    "name": "Vertical"
+                  },
+                  {
+                    "id": "all",
+                    "name": "Both"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "scale": {
+          "group": "axis",
+          "type": "button-group",
+          "label": "Scale",
+          "defaultValue": "linear",
+          "options": [
+            {
+              "id": "linear",
+              "name": "Linear"
+            },
+            {
+              "id": "logarithmic",
+              "name": "Logarithmic"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "scaleLogarithmicBase",
+              "input": {
+                "type": "radio",
+                "defaultValue": "2",
+                "options": [
+                  {
+                    "id": "2",
+                    "name": "Base 2"
+                  },
+                  {
+                    "id": "10",
+                    "name": "Base 10"
+                  }
+                ]
+              },
+              "displayValue": "logarithmic"
+            }
+          ]
+        },
+        "showLegend": {
+          "group": "legend",
+          "type": "switch",
+          "label": "Show legend",
+          "defaultValue": true,
+          "subInputs": [
+            {
+              "name": "legendDisplayMode",
+              "displayValue": true,
+              "input": {
+                "group": "legend",
+                "type": "button-group",
+                "label": "Display mode",
+                "defaultValue": "grid",
+                "options": [
+                  {
+                    "id": "grid",
+                    "name": "Grid"
+                  },
+                  {
+                    "id": "list",
+                    "name": "List"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "legendPlacement",
+              "displayValue": true,
+              "input": {
+                "group": "legend",
+                "type": "button-group",
+                "label": "Position",
+                "defaultValue": "bottom",
+                "options": [
+                  {
+                    "id": "left",
+                    "name": "Left"
+                  },
+                  {
+                    "id": "bottom",
+                    "name": "Bottom"
+                  },
+                  {
+                    "id": "right",
+                    "name": "Right"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "tooltipMode": {
+          "group": "tooltip",
+          "type": "button-group",
+          "label": "Tooltip display",
+          "defaultValue": "all",
+          "options": [
+            {
+              "id": "all",
+              "name": "All"
+            },
+            {
+              "id": "single",
+              "name": "Single"
+            },
+            {
+              "id": "hidden",
+              "name": "Hidden"
+            }
+          ]
+        },
+        "tooltipSortOrder": {
+          "group": "tooltip",
+          "type": "button-group",
+          "label": "Value sorting",
+          "defaultValue": "name",
+          "options": [
+            {
+              "id": "name",
+              "name": "By name"
+            },
+            {
+              "id": "ascending",
+              "name": "Ascending"
+            },
+            {
+              "id": "descending",
+              "name": "Descending"
+            }
+          ]
+        }
       }
     }
   },
