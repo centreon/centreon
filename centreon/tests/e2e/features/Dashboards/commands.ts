@@ -253,6 +253,14 @@ Cypress.Commands.add('visitDashboards', () => {
   cy.wait('@listAllDashboards');
 });
 
+Cypress.Commands.add('visitDashboard', (name) => {
+  cy.visitDashboards();
+
+  cy.contains(name).click();
+
+  cy.url().should('match', /\/home\/dashboards\/library\/\d+$/);
+});
+
 interface Dashboard {
   description?: string;
   name: string;
@@ -291,6 +299,7 @@ declare global {
         expectedColors: Array<string>,
         expectedValue: Array<string>
       ) => Cypress.Chainable;
+      visitDashboard: (name: string) => Cypress.Chainable;
       visitDashboards: () => Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,

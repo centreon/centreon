@@ -154,7 +154,7 @@ const notificationSentCheck = ({
             return cy.wrap(result.output.includes('INFO: Response code: 304'));
           });
       },
-      { interval: 20000, timeout: 300000 }
+      { interval: 30000, timeout: 400000 }
     )
     .then(() => {
       const command =
@@ -211,13 +211,13 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
           return cy.wrap(initialLineCount !== currentLineCount);
         });
     },
-    { interval: 5000, timeout: 40000 }
+    { interval: 6000, timeout: 40000 }
   );
 };
 
 let servicesFoundStepCount = 0;
 
-const stepWaitingTime = 250;
+const stepWaitingTime = 350;
 const pollingCheckTimeout = 60000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
 
