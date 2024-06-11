@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { equals, isEmpty } from 'ramda';
 import { Link } from 'react-router-dom';
-import { useIsFetching } from '@tanstack/react-query';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 
 import {
   Button,
@@ -72,9 +72,16 @@ const PanelHeader = ({
     [panel?.panelConfiguration.path, id]
   );
 
+  const queryClient = useQueryClient();
   const isFetching = useIsFetching({ queryKey: [widgetPrefixQuery] });
 
   const refreshLabel = useLastRefresh(isFetching);
+
+  const hasQueryData = !isEmpty(
+    queryClient.getQueriesData({
+      queryKey: [widgetPrefixQuery]
+    })
+  );
 
   const duplicate = (event: MouseEvent): void => {
     event.preventDefault();
@@ -96,28 +103,40 @@ const PanelHeader = ({
       action={
         displayMoreActions && (
           <div className={classes.panelActionsIcons}>
-            {displayShrinkRefresh ? (
-              <IconButton
-                disabled={!!isFetching}
-                size="small"
-                title={refreshLabel}
-                tooltipPlacement="top"
-                onClick={refresh}
-              >
-                {isFetching ? <CircularProgress size={24} /> : <UpdateIcon />}
-              </IconButton>
-            ) : (
-              <Button
-                className={classes.panelHeaderRefreshButton}
-                disabled={!!isFetching}
-                size="small"
-                startIcon={
-                  isFetching ? <CircularProgress size={16} /> : <UpdateIcon />
-                }
-                onClick={refresh}
-              >
-                {refreshLabel}
-              </Button>
+            {hasQueryData && (
+              <div>
+                {displayShrinkRefresh ? (
+                  <IconButton
+                    disabled={!!isFetching}
+                    size="small"
+                    title={refreshLabel}
+                    tooltipPlacement="top"
+                    onClick={refresh}
+                  >
+                    {isFetching ? (
+                      <CircularProgress size={24} />
+                    ) : (
+                      <UpdateIcon />
+                    )}
+                  </IconButton>
+                ) : (
+                  <Button
+                    className={classes.panelHeaderRefreshButton}
+                    disabled={!!isFetching}
+                    size="small"
+                    startIcon={
+                      isFetching ? (
+                        <CircularProgress size={16} />
+                      ) : (
+                        <UpdateIcon />
+                      )
+                    }
+                    onClick={refresh}
+                  >
+                    {refreshLabel}
+                  </Button>
+                )}
+              </div>
             )}
             {linkToResourceStatus && (
               <Link

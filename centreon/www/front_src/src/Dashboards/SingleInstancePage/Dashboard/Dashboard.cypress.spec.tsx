@@ -428,16 +428,6 @@ describe('Dashboard', () => {
 
       cy.makeSnapshot();
     });
-
-    it('displays the refresh button when the more actions button is clicked', () => {
-      initializeAndMount(viewerRoles);
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-
-      cy.contains(labelRefresh).should('be.visible');
-
-      cy.makeSnapshot();
-    });
   });
 
   describe('Duplicate', () => {
