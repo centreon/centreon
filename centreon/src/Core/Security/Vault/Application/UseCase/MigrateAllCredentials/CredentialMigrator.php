@@ -193,7 +193,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             throw new \Exception('Resource ID should not be null');
         }
         $uuid = null;
-        if ($credential->resourceId !== null && array_key_exists($credential->resourceId, $existingUuids['services'])) {
+        if (array_key_exists($credential->resourceId, $existingUuids['services'])) {
             $uuid = $existingUuids['services'][$credential->resourceId];
         }
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
@@ -220,8 +220,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      *
      * @return array{uuid: string, path: string}
      *
-     * *
-     * */
+     */
     private function migrateKnowledgeBasePassword(CredentialDto $credential): array
     {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::KNOWLEDGE_BASE_PATH);

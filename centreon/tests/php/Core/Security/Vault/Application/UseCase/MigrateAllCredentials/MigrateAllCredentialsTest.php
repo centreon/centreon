@@ -95,4 +95,4 @@ it('should present a MigrateAllCredentialsResponse when no error occurs', functi
     ($this->useCase)($presenter);
     expect($presenter->response)->toBeInstanceOf(MigrateAllCredentialsResponse::class)
         ->and($presenter->response->results)->toBeInstanceOf(CredentialMigrator::class);
-})->only();
+});
