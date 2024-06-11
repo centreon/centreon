@@ -1,0 +1,27 @@
+meta {
+  name: with viewType all
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&viewType=all
+  body: none
+  auth: none
+}
+
+query {
+  action: list
+  object: centreon_realtime_hosts
+  viewType: all
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+tests {
+  var helpers = eval(globals.loadHelpers);
+  helpers.checkHostList();
+}

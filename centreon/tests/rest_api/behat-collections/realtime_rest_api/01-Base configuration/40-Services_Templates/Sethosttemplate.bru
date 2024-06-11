@@ -1,0 +1,35 @@
+meta {
+  name: Sethosttemplate
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+query {
+  action: action
+  object: centreon_clapi
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "action": "sethosttemplate",
+    "object": "stpl",
+    "values": "{{stpl_description}};{{htpl_name}}"
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

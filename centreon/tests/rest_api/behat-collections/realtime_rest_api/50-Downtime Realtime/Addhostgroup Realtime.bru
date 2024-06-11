@@ -1,0 +1,47 @@
+meta {
+  name: Addhostgroup Realtime
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+query {
+  action: action
+  object: centreon_clapi
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "action": "add",
+    "object": "RTDOWNTIME",
+    "values": "HG;{{hg_name}};{{start_time}};{{end_time}};1;3600;Ceci est un commentaire;0"
+  }
+}
+
+script:pre-request {
+  postman.setGlobalVariable("fixed", "1");
+  
+  var date = new Date();
+  var datetime_start = date.getFullYear() + "/" + ('0' + (date.getMonth()+1)).slice(-2) + "/" + ('0' + date.getDate()).slice(-2) + " " + ('0' + date.getHours()).slice(-2) + ":" + 
+                       ('0' + date.getMinutes()).slice(-2);
+  postman.setEnvironmentVariable("start_time", datetime_start);
+  
+  var dateEnd = new Date(date.setHours(date.getHours()+2));
+  var datetime_end = dateEnd.getFullYear() + "/" + ('0' + (dateEnd.getMonth()+1)).slice(-2) + "/" + ('0' + dateEnd.getDate()).slice(-2) + " " + ('0' + dateEnd.getHours()).slice(-2) + ":" + 
+  ('0' + dateEnd.getMinutes()).slice(-2);
+  postman.setEnvironmentVariable("end_time", datetime_end);
+}
+
+tests {
+  tests["Status code is 200"] = res.getStatus() === 200;
+}

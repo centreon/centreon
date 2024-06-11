@@ -1,0 +1,35 @@
+meta {
+  name: add host ack
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+query {
+  action: action
+  object: centreon_clapi
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "action": "add",
+    "object": "host",
+    "values": "ack_host;ack_host;0.0.0.0;{{htpl_name}};central;"
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

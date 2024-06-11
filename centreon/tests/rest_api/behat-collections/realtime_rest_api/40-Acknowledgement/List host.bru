@@ -1,0 +1,64 @@
+meta {
+  name: List host
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+query {
+  action: action
+  object: centreon_clapi
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "action": "show",
+    "object": "rtacknowledgement",
+    "values": "HOST"
+  }
+}
+
+tests {
+  tests["Status code is 200"] = res.getStatus() === 200;
+  
+  var contentType = postman.getResponseHeader("Content-Type");
+  tests["Content-Type is application/json"] = contentType === "application/json;charset=utf-8";
+  
+  var jsonData = JSON.parse(responseBody);
+  var result= jsonData.result;
+  
+  var schema = {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "array",
+      "items": {
+          "type": "object",
+          "properties": {
+              "id": { "type": "string" },
+              "host_name": { "type": "string" },
+              "entry_time": { "type": "string" },
+              "author": { "type": "string" },
+              "comment_data": { "type": "string" },
+              "sticky": { "type": "string" },
+              "notify_contacts": { "type": "string" },
+              "persistent_comment": { "type": "string" }
+          },
+          "additionalProperties": false,
+          "required ": ["id ", "host_name ", "entry_time", "author", "comment_data", "sticky", "notify_contacts", "persistent_comment"]
+      }
+  };
+  
+  tests["Validate schema"] = tv4.validate(result, schema);
+  
+   
+  
+}

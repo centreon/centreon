@@ -1,0 +1,29 @@
+meta {
+  name: viewType problems with limit
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit={{my_limit}}&viewType=problems
+  body: none
+  auth: none
+}
+
+query {
+  action: list
+  object: centreon_realtime_hosts
+  limit: {{my_limit}}
+  viewType: problems
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+tests {
+  var helpers = eval(globals.loadHelpers);
+  helpers.test200();
+  helpers.testJson();
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Service List by host name
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&searchHost={{host_name}}
+  body: none
+  auth: none
+}
+
+query {
+  action: list
+  object: centreon_realtime_services
+  searchHost: {{host_name}}
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+tests {
+  var helpers = eval(globals.loadHelpers);
+  helpers.checkServiceList();
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Setparam active service
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+query {
+  action: action
+  object: centreon_clapi
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "action": "setparam",
+    "object": "service",
+    "values": "ack_host;ack_service;active_checks_enabled;0"
+  }
+}
+
+tests {
+  tests["Status code is 200"] = res.getStatus() === 200;
+}

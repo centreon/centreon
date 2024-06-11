@@ -1,0 +1,65 @@
+meta {
+  name: Show Host Realtime
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+query {
+  action: action
+  object: centreon_clapi
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "action": "show",
+    "object": "RTDOWNTIME",
+    "values": "HOST;{{host_name}}"
+  }
+}
+
+tests {
+  tests["Status code is 200"] = res.getStatus() === 200;
+  var contentType = postman.getResponseHeader("Content-Type");
+  tests["Content-Type is application/json"] = contentType === "application/json;charset=utf-8";
+  
+  var jsonData = JSON.parse(responseBody);
+  var result = jsonData.result;
+  
+  var schema = {
+      "type": "array",
+      "items": {
+          "type": "object",
+          "properties": {
+              "id": {"type": "string" },
+              "host_name": {"type": "string"},
+              "author": {"type": "string" },
+              "actual_start_time": {"type": "string" },
+              "actual_end_time": {"type": "string"},
+              "start_time": { "type": "string"},
+              "end_time": { "type": "string"},
+              "comment_data": {"type": "string" },
+              "duration": {"type": "string" },
+              "fixed": {"type": "string" },
+              "url": {"type": "string"}
+          },
+          "additionalProperties": false,
+          "required": ["id", "host_name", "author", "actual_start_time", "actual_end_time", "start_time", "end_time", "comment_data", "duration", "fixed", "url"]
+      }
+  }
+  
+  postman.setEnvironmentVariable("rtdowntime_id",result[0].id);
+  
+  tests["Validate schema JSON"] = tv4.validate(result, schema);
+  
+}

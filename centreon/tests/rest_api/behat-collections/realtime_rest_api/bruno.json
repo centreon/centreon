@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Centreon Web Rest API realtime",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

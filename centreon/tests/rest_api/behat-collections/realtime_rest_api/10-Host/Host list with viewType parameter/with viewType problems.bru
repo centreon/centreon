@@ -1,0 +1,28 @@
+meta {
+  name: with viewType problems
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&viewType=problems
+  body: none
+  auth: none
+}
+
+query {
+  action: list
+  object: centreon_realtime_hosts
+  viewType: problems
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+tests {
+  var helpers = eval(globals.loadHelpers);
+  helpers.test200();
+  helpers.testJson();
+}

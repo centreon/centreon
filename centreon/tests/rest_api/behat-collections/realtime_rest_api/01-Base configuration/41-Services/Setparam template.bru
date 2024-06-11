@@ -1,0 +1,33 @@
+meta {
+  name: Setparam template
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+query {
+  action: action
+  object: centreon_clapi
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "action": "setparam",
+    "object": "service",
+    "values": "{{host_name}};{{service_description}};template;{{stpl_description}}"
+  }
+}
+
+tests {
+  tests["Status code is 200"] = res.getStatus() === 200;
+}

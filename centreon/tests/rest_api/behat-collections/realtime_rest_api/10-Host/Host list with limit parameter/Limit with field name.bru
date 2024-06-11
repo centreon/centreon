@@ -1,0 +1,28 @@
+meta {
+  name: Limit with field name
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit=2&fields=name
+  body: none
+  auth: none
+}
+
+query {
+  action: list
+  object: centreon_realtime_hosts
+  limit: 2
+  fields: name
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+tests {
+  var helpers = eval(globals.loadHelpers);
+  helpers.checkHostList(["name"]);
+}

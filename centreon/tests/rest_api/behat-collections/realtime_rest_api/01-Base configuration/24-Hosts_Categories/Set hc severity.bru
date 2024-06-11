@@ -1,0 +1,35 @@
+meta {
+  name: Set hc severity
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+query {
+  action: action
+  object: centreon_clapi
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "action": "setseverity",
+    "object": "hc",
+    "values": "{{hc_name}};{{hc_severity_level}};{{hc_severity_icon}}"
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

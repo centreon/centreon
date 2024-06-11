@@ -1,0 +1,28 @@
+meta {
+  name: Limit with all fields
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit=2&fields=id,name,alias,address,state,state_type,output,max_check_attempts,check_attempt,last_check,next_check,last_state_change,last_hard_state_change,acknowledged,instance,instance_id,criticality,passive_checks,active_checks,notify,action_url,notes_url,notes,icon_image,icon_image_alt,scheduled_downtime_depth,flapping
+  body: none
+  auth: none
+}
+
+query {
+  action: list
+  object: centreon_realtime_hosts
+  limit: 2
+  fields: id,name,alias,address,state,state_type,output,max_check_attempts,check_attempt,last_check,next_check,last_state_change,last_hard_state_change,acknowledged,instance,instance_id,criticality,passive_checks,active_checks,notify,action_url,notes_url,notes,icon_image,icon_image_alt,scheduled_downtime_depth,flapping
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+tests {
+  var helpers = eval(globals.loadHelpers);
+  helpers.checkHostList(["id", "name", "alias", "address", "state", "state_type", "output", "max_check_attempts", "check_attempt", "last_check", "next_check", "last_state_change", "last_hard_state_change", "acknowledged", "instance_name", "instance_id", "criticality", "passive_checks", "active_checks", "notify", "action_url", "notes_url", "notes", "icon_image", "icon_image_alt", "scheduled_downtime_depth", "flapping"]);
+}

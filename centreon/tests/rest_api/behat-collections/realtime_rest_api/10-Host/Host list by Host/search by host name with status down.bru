@@ -1,0 +1,29 @@
+meta {
+  name: search by host name with status down
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&search={{host_name}}&status=down
+  body: none
+  auth: none
+}
+
+query {
+  action: list
+  object: centreon_realtime_hosts
+  search: {{host_name}}
+  status: down
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+tests {
+  var helpers = eval(globals.loadHelpers);
+  helpers.test200();
+  helpers.testJson();
+}

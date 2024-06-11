@@ -1,0 +1,28 @@
+meta {
+  name: Service List with viewType unhandled critical
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&viewType=unhandled_critical
+  body: none
+  auth: none
+}
+
+query {
+  action: list
+  object: centreon_realtime_services
+  viewType: unhandled_critical
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+tests {
+  var helpers = eval(globals.loadHelpers);
+  helpers.test200();
+  helpers.testJson();
+}

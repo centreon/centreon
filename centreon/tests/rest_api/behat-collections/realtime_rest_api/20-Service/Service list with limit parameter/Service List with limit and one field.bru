@@ -1,0 +1,29 @@
+meta {
+  name: Service List with limit and one field
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&limit={{my_limit}}&fields=service_id&sortType=service_id
+  body: none
+  auth: none
+}
+
+query {
+  action: list
+  object: centreon_realtime_services
+  limit: {{my_limit}}
+  fields: service_id
+  sortType: service_id
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+tests {
+  var helpers = eval(globals.loadHelpers);
+  helpers.checkServiceList(["service_id"]);
+}

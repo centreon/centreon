@@ -1,0 +1,35 @@
+meta {
+  name: Setparam hostnotifopt
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+query {
+  action: action
+  object: centreon_clapi
+}
+
+headers {
+  Content-Type: application/json
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "action": "setparam",
+    "object": "contact",
+    "values": "{{contact_alias}};hostnotifopt;{{contact_hostnotifopt}}"
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
