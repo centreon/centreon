@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y locales libcurl4-openssl-dev curl wget zstd jq lsb-release mariadb-client iproute2 && \
     apt-get install -y ca-certificates apt-transport-https software-properties-common gnupg2 && \
-    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
+    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 ENV LANG=en_US.UTF-8
 
