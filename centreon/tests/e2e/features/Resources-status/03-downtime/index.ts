@@ -258,8 +258,8 @@ Then('the line disappears from the listing', () => {
         });
     },
     {
-      timeout: 15000,
-      interval: 5000
+      interval: 5000,
+      timeout: 15000
     }
   );
 });
@@ -375,8 +375,8 @@ Then('the lines disappears from the listing', () => {
         });
     },
     {
-      timeout: 15000,
-      interval: 5000
+      interval: 5000,
+      timeout: 15000
     }
   );
 });
