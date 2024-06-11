@@ -228,7 +228,6 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @throws \Throwable
      *
      * @return array{uuid: string, path: string}
-     *
      */
     private function migrateKnowledgeBasePassword(CredentialDto $credential): array
     {
