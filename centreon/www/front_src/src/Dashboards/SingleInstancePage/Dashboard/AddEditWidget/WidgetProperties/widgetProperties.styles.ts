@@ -4,13 +4,16 @@ import { alpha } from '@mui/system';
 
 export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
   groupContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),
     marginLeft: theme.spacing(0.5)
   },
   groupDivider: {
     marginBottom: theme.spacing(1)
   },
   groupTitle: {
-    fontSize: '1.15rem'
+    fontWeight: theme.typography.fontWeightBold
   },
   previewDescription: {
     marginTop: theme.spacing(1)

@@ -5,7 +5,6 @@ export const useSelectStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(1),
-    marginBottom: theme.spacing(2),
     width: 'fit-content'
   }
 }));
