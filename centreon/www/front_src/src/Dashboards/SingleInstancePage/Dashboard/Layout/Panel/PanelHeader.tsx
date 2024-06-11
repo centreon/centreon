@@ -98,9 +98,10 @@ const PanelHeader = ({
           <div className={classes.panelActionsIcons}>
             {displayShrinkRefresh ? (
               <IconButton
-                disabled={isFetching}
+                disabled={!!isFetching}
                 size="small"
                 title={refreshLabel}
+                tooltipPlacement="top"
                 onClick={refresh}
               >
                 {isFetching ? <CircularProgress size={24} /> : <UpdateIcon />}
@@ -108,7 +109,7 @@ const PanelHeader = ({
             ) : (
               <Button
                 className={classes.panelHeaderRefreshButton}
-                disabled={isFetching}
+                disabled={!!isFetching}
                 size="small"
                 startIcon={
                   isFetching ? <CircularProgress size={16} /> : <UpdateIcon />
