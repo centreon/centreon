@@ -19,8 +19,6 @@
  *
  */
 
-require_once realpath(__DIR__ . '/..') . '/bootstrap.php'
-
 $constants = [
     '_CENTREON_PATH_' => realpath(__DIR__ . '/..') . '/',
     '_CENTREON_ETC_' => '@CENTREON_ETC@',
