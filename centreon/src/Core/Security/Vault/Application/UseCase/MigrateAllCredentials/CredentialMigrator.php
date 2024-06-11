@@ -52,6 +52,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
      * @param Host[] $hosts,
      * @param HostTemplate[] $hostTemplates,
+     * @param WriteOptionRepositoryInterface $writeOptionRepository
      */
     public function __construct(
         private readonly \Traversable&\Countable $credentials,
@@ -105,6 +106,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                 $status->type = $credential->type;
                 $status->credentialName = $credential->name;
                 $status->message = $ex->getMessage();
+
                 yield $status;
             }
         }
@@ -128,6 +130,9 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         CredentialDto $credential,
         array &$existingUuids
     ): array {
+        if ($credential->resourceId === null) {
+            throw new \Exception('Resource ID should not be null');
+        }
         $uuid = null;
         if (array_key_exists($credential->resourceId, $existingUuids['hosts'])) {
             $uuid = $existingUuids['hosts'][$credential->resourceId];
@@ -160,6 +165,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                 }
             }
         } else {
+
             $updatedMacro = new Macro($credential->resourceId, $credential->name, $vaultPath);
             $updatedMacro->setIsPassword(true);
             $this->writeHostMacroRepository->update($updatedMacro);
@@ -183,8 +189,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         CredentialDto $credential,
         array &$existingUuids
     ): array {
+        if ($credential->resourceId === null) {
+            throw new \Exception('Resource ID should not be null');
+        }
         $uuid = null;
-        if (array_key_exists($credential->resourceId, $existingUuids['services'])) {
+        if ($credential->resourceId !== null && array_key_exists($credential->resourceId, $existingUuids['services'])) {
             $uuid = $existingUuids['services'][$credential->resourceId];
         }
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
@@ -207,9 +216,10 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
     /**
      * @param CredentialDto $credential
      *
+     * @throws \Throwable
+     *
      * @return array{uuid: string, path: string}
      *
-     * @throws \Throwable
      * *
      * */
     private function migrateKnowledgeBasePassword(CredentialDto $credential): array
@@ -223,6 +233,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         $uuid = end($vaultPathPart);
         $option = new Option('kb_wiki_password', $vaultPath);
         $this->writeOptionRepository->update($option);
+
         return [
             'uuid' => $uuid,
             'path' => $vaultPath,

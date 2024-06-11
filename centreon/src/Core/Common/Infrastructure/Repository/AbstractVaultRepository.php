@@ -41,7 +41,7 @@ abstract class AbstractVaultRepository
     protected array $availablePaths = [
         self::HOST_VAULT_PATH,
         self::SERVICE_VAULT_PATH,
-        self::KNOWLEDGE_BASE_PATH
+        self::KNOWLEDGE_BASE_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;

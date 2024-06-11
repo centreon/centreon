@@ -36,8 +36,10 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Core\Option\Application\Repository\ReadOptionRepositoryInterface;
 use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
+use Core\Option\Domain\Option;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
@@ -58,6 +60,8 @@ final class MigrateAllCredentials
      * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
      * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
+     * @param ReadOptionRepositoryInterface $readOptionRepository
+     * @param WriteOptionRepositoryInterface $writeOptionRepository
      */
     public function __construct(
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
@@ -96,6 +100,15 @@ final class MigrateAllCredentials
              */
             $credentials = new \ArrayIterator([]);
 
+            /**
+             * @var array<array{
+             *     data: array<Macro|HostTemplate|Host>|Option,
+             *     type: CredentialTypeEnum,
+             *     name: ?string,
+             *     getter: string,
+             *     idGetter: ?string
+             * }> $resources
+             */
             $resources = [
                 [
                     'data' => $hosts,
@@ -130,8 +143,8 @@ final class MigrateAllCredentials
                     'type' => CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD,
                     'name' => '_KBPASSWORD',
                     'getter' => 'getValue',
-                    'idGetter' => null
-                ]
+                    'idGetter' => null,
+                ],
             ];
             foreach ($resources as $resource) {
                 if (is_array($resource['data'])) {
