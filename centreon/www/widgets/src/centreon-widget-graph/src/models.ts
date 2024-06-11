@@ -12,12 +12,33 @@ export interface FormTimePeriod {
 }
 
 export interface PanelOptions {
+  areaOpacity: number;
   curveType: 'linear' | 'step' | 'natural';
+  dashLength?: number;
+  dashOffset?: number;
+  dotOffset?: number;
   globalRefreshInterval?: number;
+  gridLinesType: 'horizontal' | 'vertical' | 'all';
+  isCenteredZero: boolean;
+  legendDisplayMode: 'grid' | 'list';
+  legendPlacement: 'right' | 'bottom' | 'left';
+  lineStyleMode: 'solid' | 'dash' | 'dots';
+  lineWidth?: number;
+  lineWidthMode: 'auto' | 'custom';
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
+  scale: 'linear' | 'logarithmic';
+  scaleLogarithmicBase: string;
+  showArea: 'auto' | 'show' | 'hide';
+  showAxisBorder: boolean;
+  showGridLines: boolean;
+  showLegend: boolean;
+  showPoints: boolean;
   threshold: FormThreshold;
   timeperiod: FormTimePeriod;
+  tooltipMode: 'all' | 'single' | 'hidden';
+  tooltipSortOrder: 'name' | 'ascending' | 'descending';
+  yAxisTickLabelRotation: number;
 }
 
 export interface FormThreshold {
