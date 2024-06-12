@@ -121,9 +121,14 @@ jobs:
               echo "release_cloud=1" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
-            [2-9][0-9].[0-9][0-9].x |22.10.x-tun)
+            [2-9][0-9].[0-9][0-9].x|22.10.x-tun)
               echo "release=1" >> $GITHUB_OUTPUT
-              echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+              echo "release_cloud=0" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              ;;
+            develop)
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              echo "release_cloud=1" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             release* | hotfix*)
@@ -154,9 +159,19 @@ jobs:
               fi
               ;;
             *)
+              # Any branch name
+              GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+              GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
-              echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
-              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+
+              # Check if pull request branch targeting develop
+              if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
+                echo "release_cloud=1" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              else
+                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              fi
               ;;
           esac
 
