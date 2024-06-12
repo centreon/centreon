@@ -31,10 +31,10 @@ use Symfony\Component\Yaml\Yaml;
 // Define constants
 $constants = [
     '_CENTREON_PATH_' => realpath(__DIR__ . '/..') . '/',
-    '_CENTREON_ETC_' => '/etc/centreon',
-    '_CENTREON_LOG_' => '/var/log/centreon',
-    '_CENTREON_CACHEDIR_' => '/var/cache/centreon',
-    '_CENTREON_VARLIB_' => '/var/lib/centreon',
+    '_CENTREON_ETC_' => '@CENTREON_ETC@',
+    '_CENTREON_LOG_' => '@CENTREON_LOG@',
+    '_CENTREON_CACHEDIR_' => '@CENTREON_CACHEDIR@',
+    '_CENTREON_VARLIB_' => '@CENTREON_VARLIB@',
     '_CENTREON_PHP_VERSION_' => '8.1',
     '_CENTREON_MARIA_DB_MIN_VERSION_' => '10.5',
 ];
