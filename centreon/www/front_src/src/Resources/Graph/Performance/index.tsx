@@ -51,10 +51,10 @@ import {
 import Legend from './Legend';
 import LoadingSkeleton from './LoadingSkeleton';
 import {
-  AdditionalLines,
   FilterLines,
   GraphData,
   Line as LineModel,
+  LinesProps,
   NewLines,
   TimeValue
 } from './models';
@@ -77,7 +77,7 @@ interface Props {
   isInViewport?: boolean;
   limitLegendRows?: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
+  renderAdditionalLines?: (args: LinesProps) => ReactNode;
   resource: Resource | ResourceDetails;
   start: string;
   timeline?: Array<TimelineEvent>;

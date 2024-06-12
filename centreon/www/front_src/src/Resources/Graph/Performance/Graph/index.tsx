@@ -45,16 +45,12 @@ import {
 } from '../../../translatedLabels';
 import { updatedGraphIntervalAtom } from '../ExportableGraphWithTimeline/atoms';
 import Lines from '../Lines';
-import { AdditionalLines, Line as LineModel, TimeValue } from '../models';
+import { Line as LineModel, LinesProps, TimeValue } from '../models';
 import {
   getDates,
   getLeftScale,
   getRightScale,
-  getSortedStackedLines,
-  getTime,
-  getUnits,
-  getXScale,
-  getYScale
+  getXScale
 } from '../timeSeries';
 
 import AddCommentForm from './AddCommentForm';
@@ -201,7 +197,7 @@ interface GraphContentProps {
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
+  renderAdditionalLines?: (additionalLinesProps: LinesProps) => ReactNode;
   resource: Resource | ResourceDetails;
   showAddCommentTooltip: (args) => void;
   start: string;
@@ -466,12 +462,7 @@ const GraphContent = ({
   const commentTitle = isCommentPermitted ? '' : t(labelActionNotPermitted);
 
   const additionalLinesProps = {
-    getSortedStackedLines,
-    getTime,
-    getUnits,
-    getYScale,
     graphHeight,
-    graphWidth,
     leftScale,
     lines,
     rightScale,
@@ -519,10 +510,9 @@ const GraphContent = ({
               graphHeight={graphHeight}
               leftScale={leftScale}
               lines={lines}
-              renderAdditionalLines={renderAdditionalLines?.({
-                additionalLinesProps,
-                resource
-              })}
+              renderAdditionalLines={renderAdditionalLines?.(
+                additionalLinesProps
+              )}
               rightScale={rightScale}
               timeSeries={timeSeries}
               timeTick={timeTick}

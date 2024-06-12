@@ -1,9 +1,10 @@
 import { MouseEvent, MutableRefObject, ReactNode, useState } from 'react';
 
-import { isNil } from 'ramda';
+import { isNil, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai';
 
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
@@ -28,6 +29,7 @@ import {
   labelPerformancePage,
   labelSmallSize
 } from '../../translatedLabels';
+import { selectedResourceDetailsEndpointDerivedAtom } from '../../Details/detailsAtoms';
 
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 
@@ -35,7 +37,6 @@ interface Props {
   end: string;
   open: boolean;
   performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
-  renderAdditionalGraphActions?: ReactNode;
   resource?: Resource | ResourceDetails;
   start: string;
   timeline?: Array<TimelineEvent>;
@@ -56,8 +57,7 @@ const GraphActions = ({
   performanceGraphRef,
   open,
   end,
-  start,
-  renderAdditionalGraphActions
+  start
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -65,6 +65,9 @@ const GraphActions = ({
   const [menuAnchor, setMenuAnchor] = useState<Element | null>(null);
   const [exporting, setExporting] = useState<boolean>(false);
 
+  const selectedResourceDetailsEndpoint = useAtomValue(
+    selectedResourceDetailsEndpointDerivedAtom
+  );
   const { format } = useLocaleDateTimeFormat();
   const navigate = useNavigate();
 
@@ -156,14 +159,14 @@ const GraphActions = ({
           >
             <SaveAsImageIcon fontSize="inherit" />
           </IconButton>
-          <>
-            <FederatedComponent
-              buttonConfigurationData={{ resource }}
-              path="/anomaly-detection"
-              styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
-            />
-            {renderAdditionalGraphActions}
-          </>
+          <FederatedComponent
+            end={end}
+            path="/anomaly-detection/configuration-button"
+            resourceEndpoint={selectedResourceDetailsEndpoint}
+            start={start}
+            styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
+            type={resource?.type}
+          />
           <Menu
             keepMounted
             anchorEl={menuAnchor}

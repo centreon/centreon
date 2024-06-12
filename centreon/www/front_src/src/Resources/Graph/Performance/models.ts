@@ -96,29 +96,12 @@ export interface GetYScaleProps {
 }
 
 export interface LinesProps {
-  getSortedStackedLines: (lines: Array<Line>) => Array<Line>;
-  getTime: (timeValue: TimeValue) => number;
-  getUnits: (lines: Array<Line>) => Array<string>;
-  getYScale: ({
-    hasMoreThanTwoUnits,
-    unit,
-    secondUnit,
-    leftScale,
-    rightScale,
-    invert
-  }: GetYScaleProps) => ScaleLinear<number, number>;
   graphHeight: number;
-  graphWidth: number;
   leftScale: ScaleLinear<number, number, never>;
   lines: Array<Line>;
   rightScale: ScaleLinear<number, number, never>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number, never>;
-}
-
-export interface AdditionalLines {
-  additionalLinesProps: LinesProps;
-  resource: ResourceDetails | Resource;
 }
 
 export interface FilterLines {

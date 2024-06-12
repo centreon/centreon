@@ -158,8 +158,10 @@ export { default as FluidTypography } from './Typography/FluidTypography';
 export { default as EllipsisTypography } from './Typography/EllipsisTypography';
 export * from './Dashboard';
 export * from './Graph';
+export { default as ThresholdLines } from './Graph/LineChart/BasicComponents/Lines/Threshold';
 export type { LineChartData } from './Graph/common/models';
 export * from './Graph/common/timeSeries';
+export * from './Graph/LineChart/models';
 
 export { default as TimePeriods } from './TimePeriods';
 export { default as SimpleCustomTimePeriod } from './TimePeriods/CustomTimePeriod/SimpleCustomTimePeriod';
