@@ -38,7 +38,11 @@ runs:
         declare -a PREVIOUS_STABLE_TAGS=()
         SCOPE_VERSION="OSS"
         MINOR_VERSION_FILE_PATH=".version"
-        RELEASE_CLOUD=0
+        RELEASE_CLOUD=0 # (0 = not a release cloud, 1 = release cloud)
+        MAJOR_VERSION=""
+        MINOR_VERSION=""
+        CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
+        COMPONENT_DIR=""
 
         # Get current stable branch name
         # If MASTER, use root .version
@@ -195,7 +199,7 @@ runs:
         JIRA_RELEASE_RELEASED="false"
         # Create JIRA version for each released component
         echo "Creating JIRA releases."
-        for TAG in ${NEW_STABLE_TAGS[@]}; do
+        for TAG in ${NEW_RELEASE_TAGS[@]}; do
           if [ -n $TAG ]; then
             echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
             # Build JSON with release information for JIRA API
@@ -210,7 +214,7 @@ runs:
             # Send to JIRA API release
             echo "Sending to JIRA API release: $JIRA_RELEASE_DATA"
             curl --fail --request POST \
-              --url 'https://${{ inputs.jira_base_url }}/rest/api/3/version' \
+              --url "${{ inputs.jira_base_url }}/rest/api/3/version" \
               --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
               --header 'Accept: application/json' \
               --header 'Content-Type: application/json' \
