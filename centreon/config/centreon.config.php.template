@@ -41,7 +41,7 @@ $constants = [
 
 $createVaultConfiguration  = function(): VaultConfiguration
 {
-    $vaultConfigurationInformation = Yaml::parseFile(_CENTREON_VARLIB_ . '/vault/vault.yaml');
+    $vaultConfigurationInformation = json_decode(file_get_contents(_CENTREON_VARLIB_ . '/vault/vault.json'), true)
     $encryptionManager = new Encryption();
     (new Dotenv())->bootEnv('/usr/share/centreon/.env');
     $encryptionManager->setFirstKey($_ENV["APP_SECRET"]);
@@ -121,7 +121,7 @@ if (file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
     if (
         ! defined('user')
         && ! defined('password')
-        && file_exists(_CENTREON_VARLIB_ . '/vault/vault.yaml')
+        && file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')
         && str_starts_with($conf_centreon['user'], 'secret::')
         && str_starts_with($conf_centreon['password'], 'secret::')
     ) {
