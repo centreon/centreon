@@ -305,9 +305,11 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
          * if so then add the new servicegroup to the dataset
          * otherwise create a new dataset for this servicegroup
          */
-        $serviceGroupDatasetFilters = array_filter(
-            $datasets,
-            fn (array $dataset) => $dataset['dataset_filter_type'] === 'servicegroup'
+        $serviceGroupDatasetFilters = array_values(
+            array_filter(
+                $datasets,
+                fn (array $dataset) => $dataset['dataset_filter_type'] === 'servicegroup'
+            )
         );
 
         // No dataset_filter of type service group found. Create a new one
