@@ -29,7 +29,6 @@ use Core\Security\Vault\Application\Repository\{
 };
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Yaml\Yaml;
 
 class FsReadVaultConfigurationRepository implements ReadVaultConfigurationRepository
 {
