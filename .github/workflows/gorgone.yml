@@ -134,7 +134,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   test-gorgone:
-    needs: [get-version, package, docker-packaging]
+    needs: [get-version, package]
 
     strategy:
       fail-fast: false
