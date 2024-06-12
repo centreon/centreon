@@ -104,8 +104,8 @@ fixSymfonyCacheRights() {
     else
       chown -R www-data:www-data "$SYMFONY_CACHE_DIR"
     fi
+    chmod 755 "$SYMFONY_CACHE_DIR"
   fi
-  chmod 755 "$SYMFONY_CACHE_DIR"
 }
 
 package_type="rpm"
