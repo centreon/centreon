@@ -5,6 +5,7 @@ import { ThresholdLine } from './ThresholdLine';
 export const groupMargin = 25;
 
 interface Props {
+  barHeight: number;
   hideTooltip: () => void;
   showTooltip: (args) => void;
   size: 'small' | 'medium';
@@ -17,11 +18,13 @@ const Thresholds = ({
   thresholds,
   showTooltip,
   hideTooltip,
-  size
+  size,
+  barHeight
 }: Props): JSX.Element => (
   <>
     {thresholds.warning.map(({ value, label }) => (
       <ThresholdLine
+        barHeight={barHeight}
         hideTooltip={hideTooltip}
         key={`warning-${value.toString()}`}
         label={label}
@@ -34,6 +37,7 @@ const Thresholds = ({
     ))}
     {thresholds.critical.map(({ value, label }) => (
       <ThresholdLine
+        barHeight={barHeight}
         hideTooltip={hideTooltip}
         key={`critical-${value.toString()}`}
         label={label}

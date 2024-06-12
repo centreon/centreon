@@ -6,8 +6,9 @@ import { equals, flatten, head, pluck } from 'ramda';
 import { Bar } from '@visx/shape';
 import { useSpring, animated } from '@react-spring/web';
 
-import { alpha, Box, Fade, useTheme } from '@mui/material';
+import { alpha, Box, useTheme } from '@mui/material';
 
+import { Tooltip as MuiTooltip } from '../../components/Tooltip';
 import {
   formatMetricValueWithUnit,
   getMetricWithLatestData
@@ -25,10 +26,7 @@ interface Props extends SingleBarProps {
   width: number;
 }
 
-const baseStyles = {
-  ...Tooltip.defaultStyles,
-  textAlign: 'center'
-};
+const textHeight = 46;
 
 const ResponsiveSingleBar = ({
   data,
@@ -57,14 +55,8 @@ const ResponsiveSingleBar = ({
     head(metric.data) as number
   );
 
-  const {
-    showTooltip,
-    hideTooltip,
-    tooltipOpen,
-    tooltipLeft,
-    tooltipTop,
-    tooltipData
-  } = Tooltip.useTooltip();
+  const { showTooltip, hideTooltip, tooltipOpen, tooltipData } =
+    Tooltip.useTooltip();
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const barColor = useMemo(
@@ -84,7 +76,7 @@ const ResponsiveSingleBar = ({
     ? {
         ...theme.typography.h6
       }
-    : theme.typography.h3;
+    : theme.typography.h4;
 
   const text = showLabels && (
     <text
@@ -126,6 +118,15 @@ const ResponsiveSingleBar = ({
 
   const springStyle = useSpring({ width: metricBarWidth });
 
+  const barHeight = barHeights[size];
+
+  const barY = groupMargin + (isSmall ? 0 : 2 * margins.top);
+
+  const realBarHeight =
+    !isSmall && textHeight + barHeight > height
+      ? height - textHeight - 2 * margins.top
+      : barHeight;
+
   return (
     <div
       style={{
@@ -141,55 +142,43 @@ const ResponsiveSingleBar = ({
           width: '100%'
         }}
       >
-        <svg height={height} ref={svgRef} width={width}>
-          <Group.Group>
-            {text}
-            <animated.rect
-              data-testid={`${latestMetricData}-bar-${barColor}`}
-              fill={barColor}
-              height={barHeights[size]}
-              rx={4}
-              style={springStyle}
-              x={5}
-              y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
-            />
-            <Bar
-              fill="transparent"
-              height={barHeights[size]}
-              rx={4}
-              ry={4}
-              stroke={alpha(theme.palette.text.primary, 0.3)}
-              width={maxBarWidth}
-              x={5}
-              y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
-            />
-            {thresholds.enabled && (
-              <Thresholds
-                hideTooltip={hideTooltip}
-                showTooltip={showTooltip}
-                size={size}
-                thresholds={thresholds}
-                xScale={xScale}
+        <MuiTooltip label={tooltipData} open={tooltipOpen} placement="top">
+          <svg height={height} ref={svgRef} width={width}>
+            <Group.Group>
+              {text}
+              <animated.rect
+                data-testid={`${latestMetricData}-bar-${barColor}`}
+                fill={barColor}
+                height={realBarHeight}
+                rx={4}
+                style={springStyle}
+                x={5}
+                y={barY}
               />
-            )}
-          </Group.Group>
-        </svg>
+              <Bar
+                fill="transparent"
+                height={realBarHeight}
+                rx={4}
+                ry={4}
+                stroke={alpha(theme.palette.text.primary, 0.3)}
+                width={maxBarWidth}
+                x={5}
+                y={barY}
+              />
+              {thresholds.enabled && (
+                <Thresholds
+                  barHeight={realBarHeight}
+                  hideTooltip={hideTooltip}
+                  showTooltip={showTooltip}
+                  size={size}
+                  thresholds={thresholds}
+                  xScale={xScale}
+                />
+              )}
+            </Group.Group>
+          </svg>
+        </MuiTooltip>
       </Box>
-      <Fade in={tooltipOpen}>
-        <Tooltip.Tooltip
-          left={tooltipLeft}
-          style={{
-            ...baseStyles,
-            backgroundColor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            transform: `translate(-50%, ${isSmall ? -100 : -120}px)`,
-            zIndex: theme.zIndex.tooltip
-          }}
-          top={tooltipTop}
-        >
-          {tooltipData}
-        </Tooltip.Tooltip>
-      </Fade>
     </div>
   );
 };

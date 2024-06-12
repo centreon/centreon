@@ -18,6 +18,7 @@ const lineMargins = {
 };
 
 interface Props {
+  barHeight: number;
   hideTooltip: () => void;
   label: string;
   showTooltip: (args) => void;
@@ -34,15 +35,14 @@ export const ThresholdLine = ({
   thresholdType,
   showTooltip,
   hideTooltip,
-  size
+  size,
+  barHeight
 }: Props): JSX.Element => {
   const theme = useTheme();
 
   const scaledValue = xScale(value) || 0;
 
   const lineMargin = lineMargins[size];
-
-  const thresholdLineHeight = barHeights[size] + 2 * lineMargin;
 
   const isSmall = equals(size, 'small');
 
@@ -75,8 +75,8 @@ export const ThresholdLine = ({
         }
         y2={
           isSmall
-            ? thresholdLineHeight + groupMargin - lineMargin
-            : thresholdLineHeight + groupMargin + lineMargin + margins.top
+            ? barHeight + groupMargin - lineMargin + margins.top
+            : barHeight + groupMargin + lineMargin + 2 * margins.top
         }
       />
       <line
@@ -92,8 +92,8 @@ export const ThresholdLine = ({
         }
         y2={
           isSmall
-            ? thresholdLineHeight + groupMargin - lineMargin
-            : thresholdLineHeight + groupMargin + lineMargin + margins.top
+            ? barHeight + groupMargin - lineMargin + margins.top
+            : barHeight + groupMargin + lineMargin + 2 * margins.top
         }
         onMouseEnter={onMouseEnter(scaledValue)}
         onMouseLeave={hideTooltip}
