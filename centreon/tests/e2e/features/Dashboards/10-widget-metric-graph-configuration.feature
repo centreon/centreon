@@ -53,3 +53,8 @@ Feature: Configuring metrics graph widget
     Given a dashboard with a configured Metrics Graph widget
     When the dashboard administrator selects more than two metric units
     Then a message should be displayed indicating that the user can only select a maximum of two metric units
+
+  Scenario: Filtering service list by selected host
+    Given a dashboard having Metrics Graph widget with multiple hosts
+    When the dashboard administrator opens service list
+    Then only the services associated with the selected hosts should be displayed

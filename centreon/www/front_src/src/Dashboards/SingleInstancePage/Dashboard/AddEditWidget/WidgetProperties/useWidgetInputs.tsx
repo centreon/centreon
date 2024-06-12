@@ -34,7 +34,10 @@ import {
   WidgetTiles,
   WidgetDisplayType,
   WidgetSwitch,
-  WidgetSelect
+  WidgetSelect,
+  WidgetButtonGroup,
+  WidgetSlider,
+  WidgetText
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -58,10 +61,13 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.tiles]: WidgetTiles,
   [FederatedWidgetOptionType.displayType]: WidgetDisplayType,
   [FederatedWidgetOptionType.switch]: WidgetSwitch,
-  [FederatedWidgetOptionType.select]: WidgetSelect
+  [FederatedWidgetOptionType.select]: WidgetSelect,
+  [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup,
+  [FederatedWidgetOptionType.slider]: WidgetSlider,
+  [FederatedWidgetOptionType.text]: WidgetText
 };
 
-const DefaultComponent = (): JSX.Element => (
+export const DefaultComponent = (): JSX.Element => (
   <div data-testid="unknown widget property" />
 );
 
