@@ -931,7 +931,7 @@ function updateKnowledgeBaseData($db, $form, $centreon, ?string $originalPasswor
  *
  * @throws Throwable
  */
-function saveKnowledgeBasePasswordInVault(string $password, string $originalPassword): ?string
+function saveKnowledgeBasePasswordInVault(string $password, ?string $originalPassword): ?string
 {
     $kernel = \App\Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
@@ -943,7 +943,7 @@ function saveKnowledgeBasePasswordInVault(string $password, string $originalPass
     }
 
     $uuid = null;
-    if (str_starts_with($originalPassword, "secret::")) {
+    if ($originalPassword !== null && str_starts_with($originalPassword, "secret::")) {
         $vaultPathPart = explode("/", $originalPassword);
         $uuid = end($vaultPathPart);
     }
