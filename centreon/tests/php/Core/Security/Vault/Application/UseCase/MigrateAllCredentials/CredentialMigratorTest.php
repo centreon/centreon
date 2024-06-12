@@ -30,6 +30,7 @@ use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterfac
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialErrorDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
@@ -73,6 +74,14 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         new HostTemplate(2, 'HostTemplate1', 'HostTemplate1'),
     ];
 
+    $hostMacro = new Macro(1,'_MACRO_HOST1','value');
+    $hostMacro->setIsPassword(true);
+    $hostMacros = [$hostMacro];
+
+    $serviceMacro = new Macro(1,'_MACRO_SERVICE1','value');
+    $serviceMacro->setIsPassword(true);
+    $serviceMacros = [$serviceMacro];
+
     $credentialMigrator = new CredentialMigrator(
         credentials: $credentials,
         writeVaultRepository: $writeVaultRepository,
@@ -81,7 +90,9 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         writeHostMacroRepository: $writeHostMacroRepository,
         writeServiceMacroRepository: $writeServiceMacroRepository,
         hosts: $hosts,
-        hostTemplates: $hostTemplates
+        hostTemplates: $hostTemplates,
+        hostMacros: $hostMacros,
+        serviceMacros: $serviceMacros
     );
 
     foreach ($credentialMigrator as $status) {
@@ -119,6 +130,14 @@ it('tests getIterator method with exception', function (): void {
         new HostTemplate(2, 'HostTemplate1', 'HostTemplate1'),
     ];
 
+    $hostMacro = new Macro(1,'_MACRO_HOST1','value');
+    $hostMacro->setIsPassword(true);
+    $hostMacros = [$hostMacro];
+
+    $serviceMacro = new Macro(1,'_MACRO_SERVICE1','value');
+    $serviceMacro->setIsPassword(true);
+    $serviceMacros = [$serviceMacro];
+
     $credentialMigrator = new CredentialMigrator(
         credentials: $credentials,
         writeVaultRepository: $writeVaultRepository,
@@ -127,7 +146,9 @@ it('tests getIterator method with exception', function (): void {
         writeHostMacroRepository: $writeHostMacroRepository,
         writeServiceMacroRepository: $writeServiceMacroRepository,
         hosts: $hosts,
-        hostTemplates: $hostTemplates
+        hostTemplates: $hostTemplates,
+        hostMacros: $hostMacros,
+        serviceMacros: $serviceMacros
     );
 
     foreach ($credentialMigrator as $status) {
