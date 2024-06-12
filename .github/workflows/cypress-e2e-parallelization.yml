@@ -34,6 +34,10 @@ on:
       package_directory:
         required: false
         type: string
+      test_tags:
+        required: false
+        type: string
+        default: "not @ignore"
       dependencies_lock_file:
         required: true
         type: string
@@ -78,7 +82,8 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
-      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
+      IMAGE_TAG: develop
+      # IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
@@ -144,6 +149,7 @@ jobs:
           saml_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}
+          test_tags: ${{ inputs.test_tags }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
 

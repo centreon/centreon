@@ -203,9 +203,43 @@ jobs:
           echo "env=$MAJOR-$ENV" >> $GITHUB_OUTPUT
 
           DOCKERIZE_MATRIX='["alma9"]'
+          DOCKERIZE_MATRIX=$(cat <<EOF
+            [
+              {
+                "operating_system": "alma9",
+                "database": "mariadb:10.11",
+                "test_tags": "not @ignore"
+              }
+            ]
+          EOF
+          )
           if [ "${{ github.event_name }}" = "schedule" ]; then
             DOCKERIZE_MATRIX='["alma8","alma9","bullseye"]'
+            DOCKERIZE_MATRIX=$(cat <<EOF
+              [
+                {
+                  "operating_system": "alma8",
+                  "database": "mariadb:10.11",
+                  "test_tags": "not @ignore and @system"
+                },
+                {
+                  "operating_system": "alma9",
+                  "database": "mariadb:10.11",
+                  "test_tags": "not @ignore"
+                },
+                {
+                  "operating_system": "bullseye",
+                  "database": "mysql:8.3",
+                  "test_tags": "not @ignore"
+                }
+              ]
+          EOF
+            )
           fi
+
+          # transform json to a single line
+          DOCKERIZE_MATRIX=$(echo $DOCKERIZE_MATRIX | jq . -c)
+
           echo "dockerize_matrix=$DOCKERIZE_MATRIX" >> $GITHUB_OUTPUT
         shell: bash
         env:
