@@ -10,13 +10,13 @@ Proxy module has to bind to a tcp port for the pullwss module to connect to.
 
 ## Configuration
 
-| Directive | Description                                                   | Default value |
-|:----------|:--------------------------------------------------------------|:--------------|
-| ssl       | should the connection be made over TLS/SSL or not                 | `false`       |
-| address   | IP address to connect to                                      |               |
-| port      | TCP port to connect to                                        |               |
-| token     | token to authenticate to the central gorgone                  |               |
-| proxy     | HTTP(S) proxy to access central gorgone                       |               |
+| Directive | Description                                       | Default value |
+|:----------|:--------------------------------------------------|:--------------|
+| ssl       | should the connection be made over TLS/SSL or not | `false`       |
+| address   | IP address to connect to                          |               |
+| port      | TCP port to connect to                            |               |
+| token     | token to authenticate to the central gorgone      |               |
+| proxy     | HTTP(S) proxy to access central gorgone           |               |
 
 ### Example
 
