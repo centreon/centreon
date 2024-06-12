@@ -1,12 +1,18 @@
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 
-import { equals } from 'ramda';
+import { equals, gte } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-export const useLastRefresh = (isFetching: number): string => {
+interface UseLastRefreshState {
+  isLastRefreshMoreThanADay: boolean;
+  labelRefresh: string;
+}
+
+export const useLastRefresh = (isFetching: number): UseLastRefreshState => {
   const previousIsFetchingRef = useRef<number | null>(null);
-  const previousLastRefresh = useRef('');
+  const previousLastRefreshRef = useRef('');
+  const previousLastRefreshDateRef = useRef<number>(new Date().getTime());
   const { format } = useLocaleDateTimeFormat();
 
   const hasFetchStateChanged = !equals(
@@ -14,20 +20,26 @@ export const useLastRefresh = (isFetching: number): string => {
     previousIsFetchingRef.current
   );
 
-  const formattedLastRefresh = useMemo(() => {
-    previousIsFetchingRef.current = isFetching;
+  if (isFetching && hasFetchStateChanged) {
+    previousLastRefreshDateRef.current = new Date().getTime();
+  }
 
-    if (!isFetching || !hasFetchStateChanged) {
-      return null;
-    }
-    const newLastRefresh = format({
-      date: new Date(),
-      formatString: 'L LTS'
-    });
-    previousLastRefresh.current = newLastRefresh;
+  previousIsFetchingRef.current = isFetching;
 
-    return newLastRefresh;
-  }, [isFetching, hasFetchStateChanged]);
+  const now = new Date().getTime();
 
-  return formattedLastRefresh || previousLastRefresh.current;
+  const isLastRefreshMoreThanADay = gte(
+    now - previousLastRefreshDateRef.current,
+    1_000 * 60 * 60 * 24
+  );
+
+  const newLastRefresh = format({
+    date: new Date(previousLastRefreshDateRef.current),
+    formatString: isLastRefreshMoreThanADay ? 'L LT' : 'LT'
+  });
+
+  return {
+    isLastRefreshMoreThanADay,
+    labelRefresh: newLastRefresh || previousLastRefreshRef.current
+  };
 };

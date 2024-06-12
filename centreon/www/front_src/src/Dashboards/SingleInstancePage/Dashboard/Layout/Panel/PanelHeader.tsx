@@ -75,7 +75,8 @@ const PanelHeader = ({
   const queryClient = useQueryClient();
   const isFetching = useIsFetching({ queryKey: [widgetPrefixQuery] });
 
-  const refreshLabel = useLastRefresh(isFetching);
+  const { labelRefresh, isLastRefreshMoreThanADay } =
+    useLastRefresh(isFetching);
 
   const hasQueryData = !isEmpty(
     queryClient.getQueriesData({
@@ -105,11 +106,11 @@ const PanelHeader = ({
           <div className={classes.panelActionsIcons}>
             {hasQueryData && (
               <div>
-                {displayShrinkRefresh ? (
+                {displayShrinkRefresh && isLastRefreshMoreThanADay ? (
                   <IconButton
                     disabled={!!isFetching}
                     size="small"
-                    title={refreshLabel}
+                    title={labelRefresh}
                     tooltipPlacement="top"
                     onClick={refresh}
                   >
@@ -133,7 +134,7 @@ const PanelHeader = ({
                     }
                     onClick={refresh}
                   >
-                    {refreshLabel}
+                    {labelRefresh}
                   </Button>
                 )}
               </div>
