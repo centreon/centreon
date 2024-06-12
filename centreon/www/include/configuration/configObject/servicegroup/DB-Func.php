@@ -354,6 +354,24 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
 }
 
 /**
+ * @param int $datasetFilterId
+ * @param string $resourceIds
+ */
+function updateDatasetFiltersResourceIds(int $datasetFilterId, string $resourceIds): void
+{
+    global $pearDB;
+
+    $request = <<<'SQL'
+        UPDATE dataset_filters SET resource_ids = :resourceIds WHERE `id` = :datasetFilterId
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':datasetFilterId', $datasetFilterId, \PDO::PARAM_INT);
+    $statement->bindValue(':resourceIds', $resourceIds, \PDO::PARAM_STR);
+    $statement->execute();
+}
+
+/**
  * @param int $datasetId
  * @param int $serviceGroupId
  */
