@@ -58,3 +58,36 @@ Feature: Configuring metrics graph widget
     Given a dashboard having Metrics Graph widget with multiple hosts
     When the dashboard administrator opens service list
     Then only the services associated with the selected hosts should be displayed
+
+  Scenario: Update Metrics Graph Style by displaying Curve Points
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator activates the curve points settings
+    Then the curve points should be displayed on the graph
+
+  Scenario: Update Metrics Graph Style by using a custom Line Width
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator clicks on the custom button
+    And the dashboard administrator updates the line width settings using the gauge
+    Then the line width should be updated in the graph
+
+  Scenario: Update Metrics Graph Style by Showing area and adjusting opacity
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator clicks on the show button
+    And the dashboard administrator updates the opacity using the gauge
+    Then the opacity should be updated in the graph
+
+  Scenario: Update Metrics Graph Style by Using a Dashed Line Style
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator clicks on the Dashed button
+    And the dashboard administrator updates the dash and space input values
+    Then the line style should be updated based on the changed values
+
+  Scenario: Update Metrics Graph Style by centering values around 0
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator clicks on zero-centred button
+    Then the Metrics Graph widget should be refreshed to center the values around 0
+
+  Scenario: Update Metrics Graph Style by changing the display mode from grid to list
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator selects the list display mode
+    Then the Metrics Graph widget should refresh to display items in a list format
