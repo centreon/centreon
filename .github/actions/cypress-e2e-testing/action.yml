@@ -71,7 +71,7 @@ runs:
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@1b70233146622b69e789ccdd4f9452adc638d25a # v6.6.1
       with:
-        command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }} --env tags='${{ inputs.test_tags }}'
+        command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }} --env tags="${{ inputs.test_tags }}"
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
         publish-summary: false
