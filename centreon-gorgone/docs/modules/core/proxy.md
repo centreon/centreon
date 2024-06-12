@@ -14,24 +14,35 @@ A SSH client library make routing to non-gorgoned nodes possible.
 
 | Directive            | Description                                                         | Default value |
 |:---------------------|:--------------------------------------------------------------------|:--------------|
-| pool                 | Number of childs to instantiate to process events                   | `5`           |
-| synchistory_time     | Time in seconds between two logs synchronisation                    | `60`          |
-| synchistory_timeout  | Time in seconds before logs synchronisation is considered timed out | `30`          |
+| pool                 | Number of children to instantiate to process events                   | `5`           |
+
+| synchistory_time     | Time in seconds between two log synchronisations                    | `60`          |
+
+| synchistory_timeout  | Time in seconds before log synchronisation is considered timed out | `30`          |
+
 | ping                 | Time in seconds between two node pings                              | `60`          |
 | pong_discard_timeout | Time in seconds before a node is considered dead                    | `300`         |
 
-This part of the configuration is only used if some poller must connect with pullwss module.
+This part of the configuration is only used if some poller must connect with the pullwss module.
+
 
 
 | Directive     | Description                                                                                    | Default value |
 |:--------------|:-----------------------------------------------------------------------------------------------|:--------------|
-| httpserver    | Array containing all below configuration for pullwss connnection                               | no value.     |
-| enable        | Boolean if http server should be enabled                                                       | `false`       |
-| ssl           | Should connection be made over tls/ssl or not                                                  | `false`       |
-| ssl_cert_file | Path to a ssl certificate file. required if ssl: true                                          |               |
-| ssl_key_file  | Path to a ssl key file associated to the certificate already configured. required if ssl: true |               |
-| passphrase    | No idea, maybe an optionnal pasphrase for the ssl key.                                         |               |
-| token         | Allow to authenticate node. It is required to enable the http server.                          |               |
+| httpserver    | Array containing all the configuration below for a pullwss connection                               | no value.     |
+
+| enable        | Boolean if HTTP server should be enabled                                                       | `false`       |
+
+| ssl           | Should connection be made over TLS/SSL or not                                                  | `false`       |
+
+| ssl_cert_file | Path to a SSL certificate file. required if ssl: true                                          |               |
+
+| ssl_key_file  | Path to a SSL key file associated to the certificate already configured. required if ssl: true |               |
+
+| passphrase    | May be an optional passphrase for the SSL key.                                         |               |
+
+| token         | Allow to authenticate node. It is required to enable the HTTP server.                          |               |
+
 | address       | Address to listen to. It can be 0.0.0.0 to listen on all IPv4 addresses.                             |               |
 | port          | TCP port to listen to.                                                                         |               |
 

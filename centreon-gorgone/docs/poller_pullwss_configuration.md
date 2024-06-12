@@ -6,13 +6,13 @@ We are showing how to configure gorgone to manage that architecture:
 
 Central server <------- Distant Poller
 ```
-contrary to pull module, the communication is entierely done on http(s) websocket.
-In our case, we have the following configuration (need to adatp to your configuration).
+unlike for the pull module, the communication is entirely done on the HTTP(S) websocket.
+In our case, we have the following configuration (you need to adapt it to your configuration).
 
 * Central server:
   * address: 10.30.2.203
 * Distant Poller:
-  * id: 6 (configured in Centreon interface as **zmq**. You get it in the Centreon interface)
+  * id: 6 (configured in the Centreon interface as **zmq**. You get it in the Centreon interface)
   * address: 10.30.2.179
   * rsa public key thumbprint: nJSH9nZN2ugQeksHif7Jtv19RQA58yjxfX-Cpnhx09s
 

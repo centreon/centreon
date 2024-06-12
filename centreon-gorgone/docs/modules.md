@@ -22,7 +22,8 @@ List of the available modules:
 
 # Module implementation
 
-Each module should have a hook.pm and a class.pm file with some mandatory function implemented.
+Each module should have a hook.pm and a class.pm file with some mandatory functions implemented.
+
 
 ## hook.pm
 
@@ -62,16 +63,19 @@ Inside the child process, a class.pm object is created and the class->run method
 
 ## class.pm
 
-This class must inherit module.pm package.
+This class must inherit the module.pm package.
 
-This object is most of the time (maybe all ?) a singleton.
+
+This object is most of the time a singleton (maybe every time).
+
 
 It will be created by hook.pm when starting the module.
 This is the workhorse that will process all events.
 
 It seems like none of these methods will be called by gorgone-core, so naming is not required to follow this convention.
 
-(please keep the code base consistent if you make a new module).
+(Please keep the code base consistent if you make a new module).
+
 
 ### new()
 
@@ -79,7 +83,8 @@ Class constructor
 
 ### run()
 
-Will be called by hook.pm. This method should wait for event and dispatch them accordingly.
+Will be called by hook.pm. This method should wait for events and dispatch them accordingly.
+
 
 Uses the EV library to wait for new things to do, either by waiting on the ZMQ file descriptor (fd)
 
@@ -96,4 +101,5 @@ module.pm parent class has an event() method, so it's not mandatory to implement
 
 Method called by event() when a ZMQ message is found.
 
-Method name is in the form `action_eventname` where eventname is the name of the event in lowercase, as defined by the constant in hook.pm  
+Method name is in the `action_eventname` form where eventname is the name of the event in lowercase, as defined by the constant in hook.pm  
+
