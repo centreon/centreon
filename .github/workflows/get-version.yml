@@ -213,7 +213,7 @@ jobs:
             ]
           EOF
           )
-          if [ "${{ github.event_name }}" = "schedule" ]; then
+          # if [ "${{ github.event_name }}" = "schedule" ]; then
             DOCKERIZE_MATRIX='["alma8","alma9","bullseye"]'
             DOCKERIZE_MATRIX=$(cat <<EOF
               [
@@ -235,7 +235,7 @@ jobs:
               ]
           EOF
             )
-          fi
+          # fi
 
           # transform json to a single line
           DOCKERIZE_MATRIX=$(echo $DOCKERIZE_MATRIX | jq . -c)
