@@ -41,7 +41,7 @@ $constants = [
 
 $createVaultConfiguration  = function(): VaultConfiguration
 {
-    $vaultConfigurationInformation = json_decode(file_get_contents(_CENTREON_VARLIB_ . '/vault/vault.json'), true)
+    $vaultConfigurationInformation = json_decode(file_get_contents(_CENTREON_VARLIB_ . '/vault/vault.json'), true);
     $encryptionManager = new Encryption();
     (new Dotenv())->bootEnv('/usr/share/centreon/.env');
     $encryptionManager->setFirstKey($_ENV["APP_SECRET"]);
