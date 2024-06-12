@@ -313,7 +313,9 @@ describe('Dashboard', () => {
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelTitle).type('Generic input');
-      cy.findByLabelText('Generic text').type('Text for the new widget');
+      cy.findAllByLabelText('Generic text')
+        .eq(1)
+        .type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
       cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
