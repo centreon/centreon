@@ -17,6 +17,7 @@ import DvrIcon from '@mui/icons-material/Dvr';
 import UpdateIcon from '@mui/icons-material/Update';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
+import { Tooltip } from '@centreon/ui/components';
 
 import {
   dashboardAtom,
@@ -178,9 +179,15 @@ const PanelHeader = ({
           : classes.panelHeaderContent
       }}
       title={
-        <Typography className={classes.panelTitle}>
-          {panel?.options?.name || ''}
-        </Typography>
+        <Tooltip
+          followCursor={false}
+          label={panel?.options?.name}
+          placement="top"
+        >
+          <Typography className={classes.panelTitle}>
+            {panel?.options?.name || ''}
+          </Typography>
+        </Tooltip>
       }
     />
   );
