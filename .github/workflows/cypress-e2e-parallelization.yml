@@ -144,7 +144,7 @@ jobs:
           name: ${{ inputs.name }}
           database_image: ${{ inputs.database_image }}
           web_image_os: ${{ inputs.os }}
-          web_image_version: ${{ github.head_ref || github.ref_name }}
+          web_image_version: ${{ env.IMAGE_TAG }}
           openid_image_version: ${{ inputs.major_version }}
           saml_image_version: ${{ inputs.major_version }}
           module: centreon

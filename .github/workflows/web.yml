@@ -648,6 +648,26 @@ jobs:
   #         path: /tmp/cache/docker-image
   #         key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
+  create-xray-test-plan-and-test-execution:
+    needs: [get-version]
+    # needs: [get-version, dockerize]
+    # if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    with:
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      os: ${{ matrix.operating_system }}
+    secrets:
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
   newman-test:
     needs: [get-version, create-xray-test-plan-and-test-execution]
     # needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
@@ -664,7 +684,7 @@ jobs:
       os: ${{ matrix.operating_system }}
       container_name: my_centreon_container
       centreon_url: http://localhost
-      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
       database_image: bitnami/${{ matrix.database }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-version.outputs.major_version }}
@@ -696,6 +716,7 @@ jobs:
       image_name: centreon-web
       os: ${{ matrix.operating_system }}
       features_path: tests/api/features
+      test_tags: ${{ matrix.test_tags }}
       config_file: tests/api/behat.yml
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -719,30 +740,11 @@ jobs:
       image_name: centreon-web
       os: ${{ matrix.operating_system }}
       features_path: features
+      test_tags: ${{ matrix.test_tags }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
-  create-xray-test-plan-and-test-execution:
-    needs: [get-version]
-    # needs: [get-version, dockerize]
-    # if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
-
-    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
-    with:
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      os: ${{ matrix.operating_system }}
-    secrets:
-      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
     needs: [get-version, create-xray-test-plan-and-test-execution]
@@ -764,7 +766,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || matrix.os == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || matrix.operating_system == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
