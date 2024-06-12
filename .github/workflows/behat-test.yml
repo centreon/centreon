@@ -39,6 +39,7 @@ jobs:
   behat-test-list:
     runs-on: ubuntu-22.04
     outputs:
+      test_tags: ${{ steps.list-features.outputs.test_tags }}
       features: ${{ steps.list-features.outputs.features }}
 
     steps:
@@ -63,7 +64,12 @@ jobs:
         run: |
           cd ${{ inputs.module_name }}
           composer install --optimize-autoloader
-          echo "features=$(./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --tags '~@ignore&&@api' --dry-run | sed -n '/Skipped scenarios/,$p' | grep .feature | sed -e 's#[[:space:]]*${{ inputs.features_path }}/##' | cut -f1 -d":" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+          # Update test tags format for behat compatibility
+          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
+
+          echo "features=$(./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --tags '$TEST_TAGS' --dry-run | sed -n '/Skipped scenarios/,$p' | grep .feature | sed -e 's#[[:space:]]*${{ inputs.features_path }}/##' | cut -f1 -d":" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
           # echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   behat-test-run:
@@ -142,7 +148,7 @@ jobs:
           rm -rf xunit-reports && mkdir xunit-reports
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '~@ignore' --tags '@system' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.features }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
