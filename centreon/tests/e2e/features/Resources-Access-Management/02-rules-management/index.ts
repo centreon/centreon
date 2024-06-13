@@ -54,8 +54,7 @@ const resultsToSubmit = [
 
 beforeEach(() => {
   cy.startContainers();
-  // install BAM and cloud extensions modules
-  cy.installBamModuleOnContainer();
+  // install cloud extensions modules
   cy.installCloudExtensionsOnContainer();
   cy.enableResourcesAccessManagementFeature();
   cy.intercept({
@@ -102,9 +101,7 @@ beforeEach(() => {
 
 Given('I am logged in as a user with limited access', () => {
   // we should install bam, cloud extension and anomaly detection
-  cy.installBamModule();
   cy.installCloudExtensionsModule();
-  cy.grantBaAccessToUsers();
   cy.logoutViaAPI();
   cy.setUserTokenApiV1();
   // user should have access to ba
@@ -291,35 +288,6 @@ Then('the user can see the Host selected by the Administrator', () => {
   cy.contains('Centreon-Database').should('be.visible');
 });
 
-When(
-  'the Administrator selects "Business view" as the resource and fills in the required fields',
-  () => {
-    cy.addBvsAndBas(data_bv, data_ba);
-    cy.get('#Name').type('Rule1');
-    cy.getByLabel({ label: 'Select resource type', tag: 'div' }).click();
-    cy.getByLabel({ label: 'Business view', tag: 'li' }).click();
-    cy.getByLabel({ label: 'Select resource', tag: 'input' }).click();
-    cy.contains(`${data_bv[0].Bv}`).click();
-  }
-);
-
-When(
-  'the user is redirected to the monitoring "Business Activity" page',
-  () => {
-    cy.navigateTo({
-      page: 'Monitoring',
-      rootItemNumber: 1,
-      subMenu: 'Business Activity'
-    });
-  }
-);
-
-Then('the user can access the selected business view', () => {
-  cy.getIframeBody()
-    .find('span[aria-labelledby$="-bv_filter-container"]')
-    .click();
-  cy.getIframeBody().contains(`${data_bv[0].Bv}`).click();
-});
 
 Then('the Administrator selects "All hosts"', () => {
   cy.contains('span', 'All hosts')
@@ -332,23 +300,6 @@ Then('the Administrator selects "All hosts"', () => {
 Then('the user can see all hosts', () => {
   cy.contains('Centreon-Database').should('be.visible');
   cy.contains('Centreon-New').should('be.visible');
-});
-
-Then('the Administrator selects "All Business views"', () => {
-  cy.contains('span', 'All business views')
-    .parent()
-    .within(() => {
-      cy.getByTestId({ testId: 'CheckBoxOutlineBlankIcon' }).parent().click();
-    });
-});
-
-Then('the user can access all the business views', () => {
-  cy.getIframeBody()
-    .find('span[aria-labelledby$="-bv_filter-container"]')
-    .click();
-  for (const value of data_bv) {
-    cy.getIframeBody().contains(value.Bv);
-  };
 });
 
 Then('the Administrator selects "All contacts" and clicks on "Save"', () => {
@@ -383,4 +334,3 @@ When('the user that was just created is logged in', () => {
 afterEach(() => {
   cy.stopContainers();
 });
-

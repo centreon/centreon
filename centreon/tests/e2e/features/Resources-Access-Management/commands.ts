@@ -31,25 +31,6 @@ Cypress.Commands.add('enableResourcesAccessManagementFeature', () => {
   });
 });
 
-Cypress.Commands.add('installBamModuleOnContainer', () => {
-  return cy
-    .execInContainer({
-      command: `dnf install -y centreon-license-manager`,
-      name: 'web'
-    })
-    .copyToContainer({
-      destination: `/tmp/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm`,
-      source:
-        './fixtures/modules/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm',
-      type: CopyToContainerContentType.File
-    })
-    .execInContainer({
-      command: `dnf install -y /tmp/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm`,
-      name: 'web'
-    });
-});
-
-// the rpm package is taken from JFrog artifactroy repos
 Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
   return cy
     .copyToContainer({
@@ -68,37 +49,6 @@ Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
     });
 });
 
-Cypress.Commands.add('installBamModule', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.visit(`/centreon/administration/extensions/manager`);
-  cy.contains('.MuiCard-root', 'License Manager').within(() => {
-    cy.getWebVersion().then(({ major_version, minor_version }) => {
-      cy.get('button').contains(`${major_version}.${minor_version}`).click();
-    });
-  });
-  cy.waitUntil(
-    () => {
-      return cy.get('[data-testid="PublishIcon"]').then(($element) => {
-        cy.get('[data-testid="PublishIcon"]').click();
-
-        return cy.wrap($element.length === 1);
-      });
-    },
-    { interval: 3000, timeout: 8000 }
-  );
-
-  cy.get('input[type="file"]').attachFile({
-    encoding: 'utf-8',
-    filePath: '../../../../.github/scripts/license/bam.license',
-    mimeType: 'application/octet-stream'
-  });
-  cy.get('[data-testid="Confirm"]').click();
-  cy.contains('.MuiCard-root', 'Business Activity Monitoring').within(() => {
-    cy.getWebVersion().then(({ major_version, minor_version }) => {
-      cy.get('button').contains(`${major_version}.${minor_version}`).click();
-    });
-  });
-});
 
 Cypress.Commands.add('installCloudExtensionsModule', () => {
   cy.contains('.MuiCard-root', 'Anomaly Detection').within(() => {
@@ -168,60 +118,6 @@ Cypress.Commands.add('addRightsForUser', (userInformation) => {
   cy.wait('@getTimeZone');
 });
 
-Cypress.Commands.add('grantBaAccessToUsers', () => {
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
-  cy.wait('@getTimeZone');
-  cy.wait('@getKeepAlive');
-  cy.getIframeBody().contains('customer_user_menu_access').click();
-  cy.wait('@getTimeZone');
-  cy.wait('@getTopCounteruser');
-  cy.wait('@getTopCounterpoller');
-  cy.wait('@getTopCounterservice');
-  cy.wait('@getTopCounterhosts');
-  cy.getIframeBody().find('img#img_1').click();
-  cy.getIframeBody().find('input#i1_4').parent().click();
-  cy.getIframeBody()
-    .find('div#validForm')
-    .find('.btc.bt_success[name="submitC"]')
-    .click();
-});
-
-Cypress.Commands.add(
-  'addBvsAndBas',
-  (businessViewInfos, businessActivityInfos) => {
-    businessViewInfos.forEach((value) => {
-      cy.executeActionViaClapi({
-        bodyContent: {
-          action: 'ADD',
-          object: 'BV',
-          values: `${value.Bv};${value.description}`
-        }
-      });
-    });
-
-    businessActivityInfos.forEach((value) => {
-      cy.executeActionViaClapi({
-        bodyContent: {
-          action: 'ADD',
-          object: 'BA',
-          values: `${value.Ba};${value.description};${value.State_Source};${value.Warning_threshold};${value.Critical_threshold};${value.Notification_interval}`
-        }
-      });
-      cy.executeActionViaClapi({
-        bodyContent: {
-          action: 'SETBV',
-          object: 'BA',
-          values: `${value.Ba};${value.Bv}`
-        }
-      });
-    });
-  }
-);
-
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -229,12 +125,8 @@ declare global {
         numberOfTimes,
         major_version
       ) => Cypress.Chainable;
-      addBvsAndBas: () => Cypress.Chainable;
       addRightsForUser: () => Cypress.Chainable;
       enableResourcesAccessManagementFeature: () => Cypress.Chainable;
-      grantBaAccessToUsers: () => Cypress.Chainable;
-      installBamModule: () => Cypress.Chainable;
-      installBamModuleOnContainer: () => Cypress.Chainable;
       installCloudExtensionsModule: () => Cypress.Chainable;
       installCloudExtensionsOnContainer: () => Cypress.Chainable;
     }
