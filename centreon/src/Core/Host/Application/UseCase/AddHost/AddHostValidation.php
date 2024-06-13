@@ -56,7 +56,8 @@ class AddHostValidation
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
+        public array $accessGroups = []
     ) {
     }
 
@@ -90,10 +91,16 @@ class AddHostValidation
      */
     public function assertIsValidMonitoringServer(int $monitoringServerId): void
     {
-        if (false === $this->readMonitoringServerRepository->exists($monitoringServerId)) {
-            $this->error('Monitoring server does not exist', ['monitoringServerId' => $monitoringServerId]);
+        if ($monitoringServerId !== null) {
+            $exists = ($this->accessGroups === [])
+                ? $this->readMonitoringServerRepository->exists($monitoringServerId)
+                : $this->readMonitoringServerRepository->existsByAccessGroups($monitoringServerId, $this->accessGroups);
 
-            throw HostException::idDoesNotExist('monitoringServerId', $monitoringServerId);
+            if (! $exists) {
+                $this->error('Monitoring server does not exist', ['monitoringServerId' => $monitoringServerId]);
+
+                throw HostException::idDoesNotExist('monitoringServerId', $monitoringServerId);
+            }
         }
     }
 
@@ -139,10 +146,16 @@ class AddHostValidation
      */
     public function assertIsValidSeverity(?int $severityId): void
     {
-        if ($severityId !== null && false === $this->readHostSeverityRepository->exists($severityId) ) {
-            $this->error('Host severity does not exist', ['severity_id' => $severityId]);
+        if ($severityId !== null) {
+            $exists = ($this->accessGroups === [])
+                ? $this->readHostSeverityRepository->exists($severityId)
+                : $this->readHostSeverityRepository->existsByAccessGroups($severityId, $this->accessGroups);
 
-            throw HostException::idDoesNotExist('severityId', $severityId);
+            if (! $exists) {
+                $this->error('Host severity does not exist', ['severity_id' => $severityId]);
+
+                throw HostException::idDoesNotExist('severityId', $severityId);
+            }
         }
     }
 
