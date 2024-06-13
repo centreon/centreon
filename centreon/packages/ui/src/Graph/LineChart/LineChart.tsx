@@ -113,8 +113,7 @@ const LineChart = ({
   const { displayedLines, newLines } = useFilterLines({
     displayThreshold: canDisplayThreshold(shapeLines?.areaThresholdLines),
     lines,
-    linesGraph,
-    setLinesGraph
+    linesGraph
   });
 
   const xScale = useMemo(

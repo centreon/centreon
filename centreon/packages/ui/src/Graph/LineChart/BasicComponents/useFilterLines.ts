@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import { useMemo } from 'react';
 
 import { equals, propEq, reject } from 'ramda';
 
@@ -14,7 +14,6 @@ interface UseFilterLines {
   displayThreshold?: boolean;
   lines: Array<Line>;
   linesGraph: Array<Line> | null;
-  setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
 }
 
 interface Result {
@@ -25,10 +24,8 @@ interface Result {
 const useFilterLines = ({
   displayThreshold = false,
   lines,
-  linesGraph,
-  setLinesGraph
+  linesGraph
 }: UseFilterLines): Result => {
-  const displayedLines = reject(propEq(false, 'display'), linesGraph ?? lines);
   const filterLines = (): Array<Line> => {
     const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
 
@@ -43,18 +40,19 @@ const useFilterLines = ({
     return [...lineOriginMetric, ...linesUpperLower] as Array<Line>;
   };
 
-  useEffect(() => {
-    const filteredLines = filterLines();
+  const newLines = useMemo(() => {
     if (!lines || !displayThreshold) {
-      setLinesGraph(lines);
-
-      return;
+      return lines;
     }
 
-    setLinesGraph(filteredLines);
+    return filterLines();
   }, [lines, displayThreshold]);
 
-  return { displayedLines, newLines: linesGraph ?? lines };
+  const newDisplayedLines = linesGraph ?? newLines;
+
+  const displayedLines = reject(propEq(false, 'display'), newDisplayedLines);
+
+  return { displayedLines, newLines: linesGraph ?? newLines };
 };
 
 export default useFilterLines;
