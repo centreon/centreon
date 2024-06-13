@@ -394,18 +394,19 @@ Given(
     initializeDataFiles();
 
     cy.copyToContainer({
-      destination:
-        '/bitnami/mariadb/data/centreon_storage/centreon_storage_services.txt',
+      // destination:
+      //   '/bitnami/mariadb/data/centreon_storage/centreon_storage_services.txt',
+      destination: '/tmp/centreon_storage_services.txt',
       name: 'db',
       source: './fixtures/notifications/centreon_storage_services.txt',
       type: CopyToContainerContentType.File
     });
 
-    const query_centreon_storage_service = `LOAD DATA INFILE 'centreon_storage_services.txt' 
+    const query_centreon_storage_service = `LOAD DATA INFILE '/tmp/centreon_storage_services.txt'
     INTO TABLE services
-    FIELDS TERMINATED BY '\t' 
+    FIELDS TERMINATED BY '\t'
     LINES TERMINATED BY '\n'
-    (host_id, description, service_id, acknowledged, acknowledgement_type, action_url, active_checks, check_attempt, check_command, check_freshness, check_interval, check_period, check_type, checked, default_active_checks, default_event_handler_enabled, default_flap_detection, default_notify, default_passive_checks, display_name, enabled, event_handler, event_handler_enabled, execution_time, first_notification_delay, flap_detection, flap_detection_on_critical, flap_detection_on_ok, flap_detection_on_unknown, flap_detection_on_warning, flapping, freshness_threshold, high_flap_threshold, icon_image, icon_image_alt, last_hard_state, last_update, latency, low_flap_threshold, max_check_attempts, next_check, no_more_notifications, notification_interval, notification_number, notification_period, notify, notify_on_critical, notify_on_downtime, notify_on_flapping, notify_on_recovery, notify_on_unknown, notify_on_warning, obsess_over_service, output, passive_checks, percent_state_change, perfdata, retain_nonstatus_information, retain_status_information, retry_interval, scheduled_downtime_depth, should_be_scheduled, stalk_on_critical, stalk_on_ok, stalk_on_unknown, stalk_on_warning, state, state_type, volatile);    
+    (host_id, description, service_id, acknowledged, acknowledgement_type, action_url, active_checks, check_attempt, check_command, check_freshness, check_interval, check_period, check_type, checked, default_active_checks, default_event_handler_enabled, default_flap_detection, default_notify, default_passive_checks, display_name, enabled, event_handler, event_handler_enabled, execution_time, first_notification_delay, flap_detection, flap_detection_on_critical, flap_detection_on_ok, flap_detection_on_unknown, flap_detection_on_warning, flapping, freshness_threshold, high_flap_threshold, icon_image, icon_image_alt, last_hard_state, last_update, latency, low_flap_threshold, max_check_attempts, next_check, no_more_notifications, notification_interval, notification_number, notification_period, notify, notify_on_critical, notify_on_downtime, notify_on_flapping, notify_on_recovery, notify_on_unknown, notify_on_warning, obsess_over_service, output, passive_checks, percent_state_change, perfdata, retain_nonstatus_information, retain_status_information, retry_interval, scheduled_downtime_depth, should_be_scheduled, stalk_on_critical, stalk_on_ok, stalk_on_unknown, stalk_on_warning, state, state_type, volatile);
     `;
     cy.requestOnDatabase({
       database: 'centreon_storage',
