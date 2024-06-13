@@ -66,11 +66,23 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          version: 8
+          run_install: false
+          standalone: true
+
       - name: List features
         id: list-features
         run: |
-          cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          pnpm add -g @cucumber/cucumber
+          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sort | jq -R -s -c 'split("\n")[:-1]'" >> $GITHUB_OUTPUT
+
+      # - name: List features
+      #   id: list-features
+      #   run: |
+      #     cd ${{ inputs.module_name }}
+      #     echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
     needs: [cypress-e2e-test-list]
