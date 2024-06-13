@@ -9,7 +9,7 @@
         <tr>
             <td class='formlabel'>{t}Vault Address{/t} <span style='color:#e00b3d'> *</span></td>
             <td class='formvalue'>
-                <input type='text' name='address' value='{$parameters.address}' />
+                <input type='text' name='address' value='{$parameters.address}' size="35"/>
                 <label class='field_msg'></label>
             </td>
         </tr>
@@ -21,7 +21,7 @@
             </td>
         </tr>
         <tr>
-            <td class='formlabel'>{t}Storage Root Path (default: root){/t} <span style='color:#e00b3d'> *</span></td>
+            <td class='formlabel'>{t}Centreon Storage Path{/t} <span style='color:#e00b3d'> *</span></td>
             <td class='formvalue'>
                 <input type='text' name='root_path' value='{$parameters.root_path}' />
                 <label class='field_msg'></label>
@@ -30,14 +30,14 @@
         <tr>
             <td class='formlabel'>{t}Role Id{/t} <span style='color:#e00b3d'> *</span></td>
             <td class='formvalue'>
-                <input type='text' name='role_id' value='{$parameters.role_id}' />
+                <input type='text' name='role_id' value='{$parameters.role_id}' size="35"/>
                 <label class='field_msg'></label>
             </td>
         </tr>
         <tr>
             <td class='formlabel'>{t}Secret Id{/t}<span style='color:#e00b3d'> *</span></td>
             <td class='formvalue'>
-                <input type='text' name='secret_id' value='{$parameters.secret_id}' />
+                <input type='text' name='secret_id' value='{$parameters.secret_id}' size="35"/>
                 <label class='field_msg'></label>
             </td>
         </tr>

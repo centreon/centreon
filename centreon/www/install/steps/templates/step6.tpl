@@ -5,7 +5,7 @@
             <th colspan='2'>{t}Database information{/t}</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id ="database_information_form_body">
         <tr>
             <td class='formlabel'>{t}Database Host Address (default: localhost){/t}</td>
             <td class='formvalue'>
@@ -69,13 +69,6 @@
                 <label class='field_msg'></label>
             </td>
         </tr>
-        <tr>
-            <td class='formlabel'>{t}Use vault to store sensitive data{/t}</td>
-            <td class='formvalue'>
-                <input type='checkbox' name='use_vault' value="{$parameters.use_vault}"/>
-                <label class='field_msg'></label>
-            </td>
-        </tr>
         </tbody>
     </table>
 </form>
@@ -83,6 +76,30 @@
 <script type="text/javascript">
 
     {literal}
+
+    jQuery.ajax({
+        type: 'GET',
+        url: './steps/process/getFeatureFlags.php',
+        success: (data) => {
+            const result = JSON.parse(data);
+            if (result.vault === true) {
+                jQuery('#database_information_form_body').append(`
+                    <tr>
+                        <td class='formlabel'>
+                            {/literal}{t}{literal}
+                                Use vault to store sensitive data
+                            {/literal}{/t}{literal}
+                        </td>
+                        <td class='formvalue'>
+                            <input type='checkbox' name='use_vault' value="{$parameters.use_vault}"/>
+                            <label class='field_msg'></label>
+                        </td>
+                    </tr>
+                `);
+            }
+        }
+    });
+
 
     function validation() {
         jQuery('.field_msg').empty();
