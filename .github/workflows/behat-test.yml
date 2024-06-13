@@ -58,7 +58,7 @@ jobs:
           pnpm add -g @cucumber/cucumber
           cd ${{ inputs.module_name }}
           cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sort | jq -R -s -c 'split("\n")[:-1]'" >> $GITHUB_OUTPUT
+          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
       # - name: Setup PHP
       #   uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
