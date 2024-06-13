@@ -18,6 +18,7 @@ import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
 import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
+import DescriptionWrapper from '../../components/DescriptionWrapper';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 
@@ -90,14 +91,17 @@ const Panel = ({
     Component: (
       <>
         {displayDescription && (
-          <RichTextEditor
-            disabled
-            contentClassName={cx(isGenericTextPanel && classes.description)}
-            editable={false}
-            editorState={
-              panelOptionsAndData.options?.description?.content || undefined
-            }
-          />
+          <DescriptionWrapper>
+            <RichTextEditor
+              disabled
+              contentClassName={cx(isGenericTextPanel && classes.description)}
+              editable={false}
+              editorState={
+                panelOptionsAndData.options?.description?.content || undefined
+              }
+              inputClassname={classes.descriptionInput}
+            />
+          </DescriptionWrapper>
         )}
         {!isGenericText(panelConfigurations.path) && (
           <div

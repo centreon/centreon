@@ -20,6 +20,7 @@ const lineMargins = {
 interface Props {
   barHeight: number;
   hideTooltip: () => void;
+  isSmall: boolean;
   label: string;
   showTooltip: (args) => void;
   size: 'small' | 'medium';
@@ -36,15 +37,14 @@ export const ThresholdLine = ({
   showTooltip,
   hideTooltip,
   size,
-  barHeight
+  barHeight,
+  isSmall
 }: Props): JSX.Element => {
   const theme = useTheme();
 
   const scaledValue = xScale(value) || 0;
 
   const lineMargin = lineMargins[size];
-
-  const isSmall = equals(size, 'small');
 
   const bottom = barHeights[size] + margin * 2;
 

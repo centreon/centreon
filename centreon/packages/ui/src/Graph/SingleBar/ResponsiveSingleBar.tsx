@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 
 import { Group, Tooltip } from '@visx/visx';
 import { scaleLinear } from '@visx/scale';
-import { equals, flatten, head, pluck } from 'ramda';
+import { equals, flatten, head, lt, pluck } from 'ramda';
 import { Bar } from '@visx/shape';
 import { useSpring, animated } from '@react-spring/web';
 
@@ -26,8 +26,6 @@ interface Props extends SingleBarProps {
   width: number;
 }
 
-const textHeight = 46;
-
 const ResponsiveSingleBar = ({
   data,
   thresholds,
@@ -39,6 +37,8 @@ const ResponsiveSingleBar = ({
   showLabels = true
 }: Props): JSX.Element => {
   const theme = useTheme();
+
+  const isSmallHeight = lt(height, 90);
 
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
@@ -70,13 +70,11 @@ const ResponsiveSingleBar = ({
     [latestMetricData, thresholds, theme]
   );
 
-  const isSmall = equals(size, 'small');
+  const isSmall = equals(size, 'small') || isSmallHeight;
 
-  const textStyle = isSmall
-    ? {
-        ...theme.typography.h6
-      }
-    : theme.typography.h4;
+  const textStyle = isSmall ? theme.typography.h6 : theme.typography.h4;
+
+  const textHeight = isSmall ? 46 : 27;
 
   const text = showLabels && (
     <text
@@ -118,7 +116,7 @@ const ResponsiveSingleBar = ({
 
   const springStyle = useSpring({ width: metricBarWidth });
 
-  const barHeight = barHeights[size];
+  const barHeight = isSmallHeight ? barHeights.small : barHeights[size];
 
   const barY = groupMargin + (isSmall ? 0 : 2 * margins.top);
 
@@ -169,6 +167,7 @@ const ResponsiveSingleBar = ({
                 <Thresholds
                   barHeight={realBarHeight}
                   hideTooltip={hideTooltip}
+                  isSmall={isSmall}
                   showTooltip={showTooltip}
                   size={size}
                   thresholds={thresholds}

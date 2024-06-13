@@ -256,7 +256,7 @@ const LineChart = ({
               {displayLegend &&
                 (equals(legend?.placement, 'left') ||
                   equals(legend?.placement, 'right')) && (
-                  <div ref={legendRef} style={{ maxWidth: '40%' }}>
+                  <div ref={legendRef} style={{ maxWidth: '60%' }}>
                     <Legend
                       base={baseAxis}
                       height={height}

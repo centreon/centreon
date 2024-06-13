@@ -4,6 +4,11 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
   description: {
     marginBottom: theme.spacing(1)
   },
+  descriptionInput: {
+    overflow: 'hidden',
+    textOverflow: 'clip',
+    whiteSpace: 'nowrap'
+  },
   panelActionsIcons: {
     columnGap: theme.spacing(2),
     display: 'flex',

@@ -16,7 +16,7 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       color: theme.typography.body1.color
     },
     item: {
-      width: 'max-content'
+      width: '100%'
     },
     items: {
       '&[data-as-list="true"]': {
@@ -93,7 +93,7 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       width: theme.spacing(1.5)
     },
     legendName: {
-      maxWidth: '75%'
+      maxWidth: '95%'
     },
     legendNameSide: {
       maxWidth: '95%'
@@ -113,7 +113,8 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
     text: {
       fontSize: '0.75rem',
       fontWeight: theme.typography.fontWeightMedium,
-      lineHeight: 1
+      lineHeight: 1,
+      maxWidth: '250px'
     },
     textList: {
       fontSize: '0.75rem',
