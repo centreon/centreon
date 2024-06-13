@@ -46,13 +46,9 @@ export const ThresholdLine = ({
 
   const lineMargin = lineMargins[size];
 
-  const bottom = barHeights[size] + margin * 2;
-
-  const onMouseEnter = (left) => (): void =>
+  const onMouseEnter = (): void =>
     showTooltip({
-      tooltipData: label,
-      tooltipLeft: left,
-      tooltipTop: bottom
+      tooltipData: label
     });
 
   const lineColor = equals(thresholdType, 'warning')
@@ -95,7 +91,7 @@ export const ThresholdLine = ({
             ? barHeight + groupMargin - lineMargin + margins.top
             : barHeight + groupMargin + lineMargin + 2 * margins.top
         }
-        onMouseEnter={onMouseEnter(scaledValue)}
+        onMouseEnter={onMouseEnter}
         onMouseLeave={hideTooltip}
       />
     </>

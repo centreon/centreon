@@ -20,6 +20,7 @@ import {
 import { Line } from '../common/timeSeries/models';
 import { Thresholds as ThresholdsModel } from '../common/models';
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
+import { useTooltipStyles } from '../common/useTooltipStyles';
 
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
@@ -77,6 +78,7 @@ const LineChart = ({
   limitLegend
 }: Props): JSX.Element => {
   const { classes } = useStyles();
+  const { classes: tooltipClasses } = useTooltipStyles();
 
   const theme = useTheme();
 
@@ -234,7 +236,7 @@ const LineChart = ({
       <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
         <MuiTooltip
           classes={{
-            tooltip: classes.graphValueTooltip
+            tooltip: tooltipClasses.tooltip
           }}
           placement="top-start"
           title={

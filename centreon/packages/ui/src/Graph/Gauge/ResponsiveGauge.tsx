@@ -11,6 +11,7 @@ import { formatMetricValueWithUnit } from '../common/timeSeries';
 import { getColorFromDataAndTresholds } from '../common/utils';
 import { margins } from '../common/margins';
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
+import { useTooltipStyles } from '../common/useTooltipStyles';
 
 import Thresholds from './Thresholds';
 import PieData from './PieData';
@@ -31,6 +32,7 @@ const ResponsiveGauge = ({
   displayAsRaw,
   baseColor
 }: Props): JSX.Element => {
+  const { classes } = useTooltipStyles();
   const svgRef = useRef<SVGSVGElement>(null);
 
   const theme = useTheme();
@@ -81,6 +83,9 @@ const ResponsiveGauge = ({
       }}
     >
       <MuiTooltip
+        classes={{
+          tooltip: classes.tooltip
+        }}
         label={tooltipData}
         open={thresholds.enabled && tooltipOpen}
         placement="top"

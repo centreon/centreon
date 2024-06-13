@@ -16,6 +16,7 @@ import {
 import { Metric } from '../common/timeSeries/models';
 import { getColorFromDataAndTresholds } from '../common/utils';
 import { margins } from '../common/margins';
+import { useTooltipStyles } from '../common/useTooltipStyles';
 
 import { SingleBarProps } from './models';
 import Thresholds, { groupMargin } from './Thresholds';
@@ -36,6 +37,7 @@ const ResponsiveSingleBar = ({
   size = 'medium',
   showLabels = true
 }: Props): JSX.Element => {
+  const { classes } = useTooltipStyles();
   const theme = useTheme();
 
   const isSmallHeight = lt(height, 90);
@@ -140,7 +142,14 @@ const ResponsiveSingleBar = ({
           width: '100%'
         }}
       >
-        <MuiTooltip label={tooltipData} open={tooltipOpen} placement="top">
+        <MuiTooltip
+          classes={{
+            tooltip: classes.tooltip
+          }}
+          label={tooltipData}
+          open={tooltipOpen}
+          placement="top"
+        >
           <svg height={height} ref={svgRef} width={width}>
             <Group.Group>
               {text}

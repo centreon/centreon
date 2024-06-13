@@ -35,14 +35,6 @@ const useStyles = makeStyles()((theme) => ({
     fill: theme.palette.text.primary,
     position: 'relative'
   },
-  graphValueTooltip: {
-    backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.shape.borderRadius,
-    boxShadow: theme.shadows[3],
-    color: theme.palette.text.primary,
-    maxWidth: 'none',
-    padding: 0
-  },
   header: {
     display: 'grid',
     gridTemplateColumns: '0.4fr 1fr 0.4fr',
