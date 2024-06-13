@@ -138,7 +138,8 @@ export {
 } from './FileDropZone';
 export type { CustomDropZoneContentProps } from './FileDropZone';
 export {
-  default as TestQueryProvider, testQueryClient
+  default as TestQueryProvider,
+  testQueryClient
 } from './api/TestQueryProvider';
 export * from './FallbackPage/FallbackPage';
 export * from './Logo/CentreonLogo';
