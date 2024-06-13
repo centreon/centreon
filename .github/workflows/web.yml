@@ -656,6 +656,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
     with:
@@ -676,6 +677,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+    name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/newman.yml
     with:
@@ -708,6 +710,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+    name: api-integration-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/behat-test.yml
     with:
@@ -732,6 +735,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+    name: legacy-e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/behat-test.yml
     with:
@@ -755,6 +759,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+    name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
