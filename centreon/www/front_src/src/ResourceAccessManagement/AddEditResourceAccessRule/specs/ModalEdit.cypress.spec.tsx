@@ -2,7 +2,12 @@ import { ReactElement } from 'react';
 
 import { Provider, createStore } from 'jotai';
 
-import { Method, SnackbarProvider, TestQueryProvider, testQueryClient } from '@centreon/ui';
+import {
+  Method,
+  SnackbarProvider,
+  TestQueryProvider,
+  testQueryClient
+} from '@centreon/ui';
 
 import {
   editedResourceAccessRuleIdAtom,
@@ -41,6 +46,7 @@ import {
   labelYourFormHasUnsavedChanges,
   labelDoYouWantToQuitWithoutSaving
 } from '../../translatedLabels';
+import { query } from '../FormInitialValues/useFormInitialValues';
 
 import {
   editedRuleFormData,
@@ -49,7 +55,8 @@ import {
   findBusinessViewsResponse,
   findResourceAccessRuleResponse,
   platformVersions,
-  editedRuleFormDataWithAllContactsAndContactGroups
+  editedRuleFormDataWithAllContactsAndContactGroups,
+  findResourceAccessRuleResponseDecoded
 } from './testUtils';
 
 import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
@@ -77,10 +84,9 @@ const ModalWithQueryProvider = (): ReactElement => {
 };
 
 const initialize = (): void => {
-  testQueryClient.setQueryData(
-    ['resource-access-rule', 1],
-    findResourceAccessRuleResponse()
-  );
+  cy.stub(query, 'useQueryClient').returns({
+    getQueryData: () => findResourceAccessRuleResponseDecoded()
+  });
 
   cy.interceptAPIRequest({
     alias: 'findResourceAccessRuleRequest',
@@ -179,8 +185,6 @@ describe('Edit modal', () => {
   });
 
   it('displays configured contacts and contact groups for the Resource Access Rule', () => {
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findByRole('dialog').scrollTo('bottom');
     cy.findByText('admin admin').should('be.visible');
     cy.findByText('centreon-gorgone').should('be.visible');
@@ -191,8 +195,6 @@ describe('Edit modal', () => {
   });
 
   it('sends a request to edit a Resource Access Rule when a configured value is changed and the Save button is clicked', () => {
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
     cy.findByRole('dialog').scrollTo('bottom');
@@ -207,8 +209,6 @@ describe('Edit modal', () => {
 
   it('sends a request to edit a Resource Access Rule when a configured resources are changed to All resources in datasets', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
-
-    cy.waitForRequest('@findResourceAccessRuleRequest');
 
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
@@ -231,8 +231,6 @@ describe('Edit modal', () => {
 
   it('sends a request to edit a Resource Access Rule when a configured resources are changed to All host groups in datasets', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
-
-    cy.waitForRequest('@findResourceAccessRuleRequest');
 
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
@@ -258,7 +256,6 @@ describe('Edit modal', () => {
   it('send a request to edit a Resource Access Rule when business views are added to configuration', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
     store.set(platformVersionsAtom, platformVersions);
-    cy.waitForRequest('@findResourceAccessRuleRequest');
 
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
@@ -291,8 +288,6 @@ describe('Edit modal', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
     store.set(platformVersionsAtom, platformVersions);
 
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
@@ -316,8 +311,6 @@ describe('Edit modal', () => {
 
   it('sends a request to edit a Resource Access Rule when configured contacts and contact groups are changed to all', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
-
-    cy.waitForRequest('@findResourceAccessRuleRequest');
 
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
@@ -348,8 +341,6 @@ describe('Edit modal', () => {
   it('displays a confirmation dialog when the form is edited and the Exit button is clicked', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
 
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
@@ -366,8 +357,6 @@ describe('Edit modal', () => {
   it('displays a confirmation dialog when the form is edited and the Close button is clicked', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
 
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
@@ -383,8 +372,6 @@ describe('Edit modal', () => {
 
   it('displays a confiramtion dialog when the form is edited and a click occurs outside the modal', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
-
-    cy.waitForRequest('@findResourceAccessRuleRequest');
 
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
