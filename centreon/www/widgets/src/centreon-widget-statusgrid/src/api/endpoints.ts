@@ -155,10 +155,6 @@ export const buildResourcesEndpoint = ({
   });
 };
 
-export const baIndicatorsEndpoint =
-  '/bam/monitoring/business-activities/indicators';
-export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
-
 export const buildCondensedViewEndpoint = ({
   type,
   resources,
@@ -200,3 +196,9 @@ export const buildCondensedViewEndpoint = ({
     }
   });
 };
+
+export const baIndicatorsEndpoint =
+  '/bam/monitoring/business-activities/indicators';
+export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
+export const getBAEndpoint = (id): string =>
+  `/bam/monitoring/business-activities/${id}`;

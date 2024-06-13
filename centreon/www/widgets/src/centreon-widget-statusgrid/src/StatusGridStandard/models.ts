@@ -102,3 +102,18 @@ export interface MetricProps {
   warningHighThreshold: number | null;
   warningLowThreshold: number | null;
 }
+
+export enum IndicatorType {
+  AnomalyDetection = 'anomaly-detection',
+  BooleanRule = 'boolean-rule',
+  BusinessActivity = 'business-activity',
+  MetaService = 'metaservice',
+  Service = 'service'
+}
+
+export enum CalculationMethod {
+  BestStatus = 'best status',
+  Impact = 'impact',
+  Ratio = 'ratio',
+  WorstStatus = 'worst status'
+}

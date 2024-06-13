@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { equals, gt, isNil } from 'ramda';
+import { equals, gt, isNil, last } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 
@@ -15,7 +15,9 @@ import {
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import {
+  baIndicatorsEndpoint,
   buildResourcesEndpoint,
+  businessActivitiesEndpoint,
   hostsEndpoint,
   resourcesEndpoint
 } from '../api/endpoints';
@@ -26,7 +28,12 @@ import {
 } from '../../../translatedLabels';
 import { getWidgetEndpoint } from '../../../utils';
 
-import { ResourceData, ResourceStatus, StatusGridProps } from './models';
+import {
+  IndicatorType,
+  ResourceData,
+  ResourceStatus,
+  StatusGridProps
+} from './models';
 import Tile from './Tile';
 import HeatMapSkeleton from './LoadingSkeleton';
 import { getColor } from './utils';
@@ -63,14 +70,34 @@ const StatusGrid = ({
     refreshIntervalCustom
   });
 
+  const lastSelectedResourceType = last(panelData?.resources)?.resourceType;
+
+  const isBVResourceType = equals(lastSelectedResourceType, 'business-view');
+  const isBAResourceType = equals(
+    lastSelectedResourceType,
+    'business-activity'
+  );
+
+  const getBaseEndpoint = (): string => {
+    if (isBVResourceType) {
+      return businessActivitiesEndpoint;
+    }
+    if (isBAResourceType) {
+      return baIndicatorsEndpoint;
+    }
+    if (equals(resourceType, 'host')) {
+      return hostsEndpoint;
+    }
+
+    return resourcesEndpoint;
+  };
+
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       getWidgetEndpoint({
         dashboardId,
         defaultEndpoint: buildResourcesEndpoint({
-          baseEndpoint: equals(resourceType, 'host')
-            ? hostsEndpoint
-            : resourcesEndpoint,
+          baseEndpoint: getBaseEndpoint(),
           limit: tiles,
           resources,
           sortBy,
@@ -113,7 +140,9 @@ const StatusGrid = ({
           is_in_downtime,
           is_acknowledged,
           information,
-          links
+          links,
+          type,
+          resource = null
         }) => {
           const statusColor = getColor({
             is_acknowledged,
@@ -133,11 +162,13 @@ const StatusGrid = ({
               is_in_downtime,
               metricsEndpoint: links?.endpoints.metrics,
               name,
-              parentId: parent?.id,
-              parentName: parent?.name,
+              parentId: parent?.id || resource?.parent_id,
+              parentName: parent?.name || resource?.parent_name,
               parentStatus: parent?.status?.severity_code,
+              resourceId: resource?.id,
               status: status?.severity_code,
               statusName: status?.name.toLocaleLowerCase(),
+              type: isBVResourceType ? IndicatorType.BusinessActivity : type,
               uuid
             },
             id: uuid
@@ -175,15 +206,16 @@ const StatusGrid = ({
     <HeatMap<ResourceData | null>
       displayTooltipCondition={(resourceData) => !isNil(resourceData)}
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
-      tooltipContent={isOnPublicPage ? undefined : Tooltip(resourceType)}
+      tooltipContent={isOnPublicPage ? undefined : Tooltip()}
     >
       {({ isSmallestSize, data: resourceData }) => (
         <Tile
           data={resourceData}
+          isBAResourceType={isBVResourceType || isBAResourceType}
           isSmallestSize={isSmallestSize}
           resources={resources}
           statuses={statuses}
-          type={resourceType}
+          type={resourceData?.type}
         />
       )}
     </HeatMap>
