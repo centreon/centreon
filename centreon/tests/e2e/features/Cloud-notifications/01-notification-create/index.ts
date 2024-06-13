@@ -394,8 +394,6 @@ Given(
     initializeDataFiles();
 
     cy.copyToContainer({
-      // destination:
-      //   '/bitnami/mariadb/data/centreon_storage/centreon_storage_services.txt',
       destination: '/tmp/centreon_storage_services.txt',
       name: 'db',
       source: './fixtures/notifications/centreon_storage_services.txt',
@@ -414,13 +412,13 @@ Given(
     });
 
     cy.copyToContainer({
-      destination: '/bitnami/mariadb/data/centreon/centreon_services.txt',
+      destination: '/tmp/centreon_services.txt',
       name: 'db',
       source: './fixtures/notifications/centreon_services.txt',
       type: CopyToContainerContentType.File
     });
 
-    const query_centreon_service = `LOAD DATA INFILE 'centreon_services.txt'
+    const query_centreon_service = `LOAD DATA INFILE '/tmp/centreon_services.txt'
     INTO TABLE service
     FIELDS TERMINATED BY '\t'
     LINES TERMINATED BY '\n'
@@ -431,13 +429,13 @@ Given(
     });
 
     cy.copyToContainer({
-      destination: '/bitnami/mariadb/data/centreon/host_service_relation.txt',
+      destination: '/tmp/host_service_relation.txt',
       name: 'db',
       source: './fixtures/notifications/host_service_relation.txt',
       type: CopyToContainerContentType.File
     });
 
-    const query_host_service_relation = `LOAD DATA INFILE 'host_service_relation.txt'
+    const query_host_service_relation = `LOAD DATA INFILE '/tmp/host_service_relation.txt'
     INTO TABLE host_service_relation
     FIELDS TERMINATED BY '\t'
     LINES TERMINATED BY '\n'
