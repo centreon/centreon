@@ -30,6 +30,8 @@ const useFormInitialValues = (): UseFormState => {
       ? getInitialValues(data)
       : getEmptyInitialValues();
 
+  console.log(data);
+
   const isLoading = equals(modalState.mode, ModalMode.Edit)
     ? !!isFetching
     : false;

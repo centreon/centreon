@@ -1,14 +1,33 @@
 import { equals } from 'ramda';
 import { createStore, Provider } from 'jotai';
 
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import {
+  Method,
+  SnackbarProvider,
+  testQueryClient,
+  TestQueryProvider
+} from '@centreon/ui';
 
 import ResourceAccessRulesListing from '../Listing';
 import { buildResourceAccessRulesEndpoint } from '../api/endpoints';
-import { resourceAccessRuleEndpoint } from '../../AddEditResourceAccessRule/api/endpoints';
+import {
+  findBusinessViewsEndpoint,
+  resourceAccessRuleEndpoint
+} from '../../AddEditResourceAccessRule/api/endpoints';
 import {
   labelActiveOrInactive,
+  labelAddFilter,
+  labelAddNewDataset,
+  labelAddResourceDatasets,
+  labelAllBusinessViews,
+  labelAllContactGroups,
+  labelAllContacts,
+  labelAllHostGroups,
+  labelAllHostGroupsSelected,
+  labelAllResourcesSelected,
+  labelBusinessView,
   labelCancel,
+  labelContactsAndContactGroups,
   labelDelete,
   labelDeleteMultipleResourceAccessRules,
   labelDeleteResourceAccessRule,
@@ -17,19 +36,46 @@ import {
   labelDeleteResourceAccessRulesDialogMessage,
   labelDeleteResourceAccessRulesWarning,
   labelDeleteResourceAccessRuleWarning,
+  labelDescription,
+  labelDoYouWantToQuitWithoutSaving,
   labelDuplicate,
+  labelEditResourceAccessRule,
   labelEnterNameForDuplicatedRule,
+  labelExit,
   labelFailedToDeleteSelectedRules,
+  labelName,
   labelNameAlreadyExists,
   labelRequired,
   labelResourceAccessRuleDeletedSuccess,
+  labelResourceAccessRuleEditedSuccess,
   labelResourceAccessRuleName,
   labelResourceAccessRulesDeletedSuccess,
-  labelRuleDuplicatedSuccess
+  labelRuleDuplicatedSuccess,
+  labelRuleProperies,
+  labelSave,
+  labelSelectResource,
+  labelSelectResourceType,
+  labelYourFormHasUnsavedChanges
 } from '../../translatedLabels';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
-import { findResourceAccessRuleResponse } from '../../AddEditResourceAccessRule/specs/testUtils';
+import {
+  editedRuleFormData,
+  editedRuleFormDataiWithAllBusinessViews,
+  editedRuleFormDataiWithBusinessViews,
+  editedRuleFormDataWithAllContactsAndContactGroups,
+  findBusinessViewsResponse,
+  findResourceAccessRuleResponse,
+  platformVersions
+} from '../../AddEditResourceAccessRule/specs/testUtils';
+import { AddEditResourceAccessRuleModal } from '../../AddEditResourceAccessRule';
+import {
+  editedResourceAccessRuleIdAtom,
+  modalStateAtom,
+  resourceAccessRulesNamesAtom
+} from '../../atom';
+import { ModalMode } from '../../models';
+import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 
 import {
   defaultQueryParams,
@@ -41,6 +87,11 @@ import {
 } from './testUtils';
 
 const store = createStore();
+store.set(editedResourceAccessRuleIdAtom, 1);
+store.set(resourceAccessRulesNamesAtom, [
+  { id: 1, name: 'Rule 1' },
+  { id: 2, name: 'Rule 2' }
+]);
 
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
@@ -50,6 +101,7 @@ const ListingWithQueryProvider = (): JSX.Element => {
           <SnackbarProvider>
             <>
               <ResourceAccessRulesListing />
+              <AddEditResourceAccessRuleModal />
               <DeleteConfirmationDialog />
               <DuplicationForm />
             </>
@@ -595,6 +647,334 @@ describe('Listing action: duplicate a rule', () => {
     cy.waitForRequest('@postErrorRequest');
 
     cy.findByText('internal server error').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Edit rule', () => {
+  beforeEach(() => {
+    testQueryClient.setQueryData(
+      ['resource-access-rule', 1],
+      findResourceAccessRuleResponse()
+    );
+
+    cy.interceptAPIRequest({
+      alias: 'findResourceAccessRuleRequest',
+      method: Method.GET,
+      path: resourceAccessRuleEndpoint({ id: 1 }),
+      response: findResourceAccessRuleResponse()
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'defaultRequest',
+      method: Method.GET,
+      path: buildResourceAccessRulesEndpoint(defaultQueryParams),
+      response: getListingResponse({})
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'editResourceAccessRuleRequest',
+      method: Method.PUT,
+      path: resourceAccessRuleEndpoint({ id: 1 }),
+      response: { status: 'ok' }
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'findBusinessViewsEndpoint',
+      method: Method.GET,
+      path: `${findBusinessViewsEndpoint}**`,
+      response: findBusinessViewsResponse
+    });
+
+    cy.render(ListingWithQueryProvider);
+  });
+
+  it.only('displays the edit resource access rule modal and control actions', () => {
+    cy.findByText('rule1').click();
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findByText(labelEditResourceAccessRule).should('be.visible');
+    cy.findByText(labelRuleProperies).should('be.visible');
+    cy.findByText(labelAddResourceDatasets).should('be.visible');
+    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByText(labelContactsAndContactGroups).should('be.visible');
+    cy.findByLabelText(labelExit).should('be.enabled');
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('ensures that the form handles an empty name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
+    cy.findByLabelText(labelName).clear();
+    cy.findByText(labelRuleProperies).click();
+
+    cy.findByText(labelRequired).should('be.visible');
+
+    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('ensures that the form handles an existing name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
+    cy.findByLabelText(labelName).clear().type('Rule 2');
+    cy.findByText(labelRuleProperies).click();
+
+    cy.findByText(labelNameAlreadyExists).should('be.visible');
+
+    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it("ensures that the Save's button initial state is set to disabled", () => {
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('confirms that the Save button becomes enabled when a modification occurs and the form is error-free', () => {
+    cy.findByLabelText(labelSave).should('be.disabled');
+    cy.findByLabelText(labelDescription).clear().type('Rule 1 description');
+
+    cy.findByLabelText(labelSave).should('not.be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays configured resources for the Resource Access Rule', () => {
+    cy.findByText(labelAddResourceDatasets).should('be.visible');
+    cy.findByText('Host group').should('be.visible');
+    cy.findByText('Linux-Servers').should('be.visible');
+    cy.findByText('Host').should('be.visible');
+    cy.findByText('Centreon-Server').should('be.visible');
+
+    cy.findByText('Service category').should('be.visible');
+    cy.findByText('Ping').should('be.visible');
+    cy.findByText('Traffic').should('be.visible');
+    cy.findByText('Disk').should('be.visible');
+    cy.findByText('Memory').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays configured contacts and contact groups for the Resource Access Rule', () => {
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByText('admin admin').should('be.visible');
+    cy.findByText('centreon-gorgone').should('be.visible');
+    cy.findByText('Guest').should('be.visible');
+    cy.findByText('Supervisor').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to edit a Resource Access Rule when a configured value is changed and the Save button is clicked', () => {
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest');
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to edit a Resource Access Rule when a configured resources are changed to All resources in datasets', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('All resources').click();
+    cy.findByLabelText(labelAllResourcesSelected).should('be.visible');
+    cy.findAllByTestId(labelSelectResource).should('be.disabled');
+
+    cy.findByLabelText(labelAddFilter).should('be.disabled');
+    cy.findByLabelText(labelAddNewDataset).should('be.disabled');
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest');
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to edit a Resource Access Rule when a configured resources are changed to All host groups in datasets', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+
+    cy.findByLabelText(labelName).clear().type('rule#1');
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(editedRuleFormData);
+    });
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('send a request to edit a Resource Access Rule when business views are added to configuration', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+    store.set(platformVersionsAtom, platformVersions);
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+
+    cy.findByLabelText(labelName).clear().type('rule#1');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText(labelBusinessView).click();
+
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findBusinessViewsEndpoint');
+    cy.findByText('BV1').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.findByText('BV2').click();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        editedRuleFormDataiWithBusinessViews
+      );
+    });
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('send a request to edit a Resource Access Rule when all business views are added to configuration', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+    store.set(platformVersionsAtom, platformVersions);
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+
+    cy.findByLabelText(labelName).clear().type('rule#1');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText(labelBusinessView).click();
+    cy.findByText(labelAllBusinessViews).click();
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        editedRuleFormDataiWithAllBusinessViews
+      );
+    });
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to edit a Resource Access Rule when configured contacts and contact groups are changed to all', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+
+    cy.findByLabelText(labelName).clear().type('rule#1');
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelAllContacts).click();
+    cy.findByLabelText(labelAllContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        editedRuleFormDataWithAllContactsAndContactGroups
+      );
+    });
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation dialog when the form is edited and the Exit button is clicked', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+    cy.findByLabelText(labelExit).click();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByText('Cancel').click();
+  });
+
+  it('displays a confirmation dialog when the form is edited and the Close button is clicked', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+    cy.findByLabelText('close').click();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByText('Cancel').click();
+  });
+
+  it('displays a confiramtion dialog when the form is edited and a click occurs outside the modal', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+    cy.clickOutside();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
 
     cy.makeSnapshot();
   });

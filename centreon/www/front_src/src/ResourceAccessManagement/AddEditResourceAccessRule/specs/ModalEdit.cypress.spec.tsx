@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 
 import { Provider, createStore } from 'jotai';
 
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider, testQueryClient } from '@centreon/ui';
 
 import {
   editedResourceAccessRuleIdAtom,
@@ -77,6 +77,11 @@ const ModalWithQueryProvider = (): ReactElement => {
 };
 
 const initialize = (): void => {
+  testQueryClient.setQueryData(
+    ['resource-access-rule', 1],
+    findResourceAccessRuleResponse()
+  );
+
   cy.interceptAPIRequest({
     alias: 'findResourceAccessRuleRequest',
     method: Method.GET,
@@ -107,8 +112,6 @@ describe('Edit modal', () => {
   beforeEach(() => initialize());
 
   it('displays the edit resource access rule modal and control actions', () => {
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findByText(labelEditResourceAccessRule).should('be.visible');
     cy.findByText(labelRuleProperies).should('be.visible');
     cy.findByText(labelAddResourceDatasets).should('be.visible');
@@ -121,8 +124,6 @@ describe('Edit modal', () => {
   });
 
   it('ensures that the form handles an empty name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findByLabelText(labelName).clear();
     cy.findByText(labelRuleProperies).click();
 
@@ -135,8 +136,6 @@ describe('Edit modal', () => {
   });
 
   it('ensures that the form handles an existing name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findByLabelText(labelName).clear().type('Rule 2');
     cy.findByText(labelRuleProperies).click();
 
@@ -149,16 +148,12 @@ describe('Edit modal', () => {
   });
 
   it("ensures that the Save's button initial state is set to disabled", () => {
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.makeSnapshot();
   });
 
   it('confirms that the Save button becomes enabled when a modification occurs and the form is error-free', () => {
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findByLabelText(labelSave).should('be.disabled');
     cy.findByLabelText(labelDescription).clear().type('Rule 1 description');
 
@@ -168,8 +163,6 @@ describe('Edit modal', () => {
   });
 
   it('displays configured resources for the Resource Access Rule', () => {
-    cy.waitForRequest('@findResourceAccessRuleRequest');
-
     cy.findByText(labelAddResourceDatasets).should('be.visible');
     cy.findByText('Host group').should('be.visible');
     cy.findByText('Linux-Servers').should('be.visible');

@@ -422,10 +422,10 @@ export const findResourceAccessRuleResponse = (): object => ({
       type: 'service_category'
     }
   ],
-  description: 'First rule',
+  description: 'resourceAccessRule1',
   id: 1,
   is_enabled: true,
-  name: 'Rule 1'
+  name: 'rule1'
 });
 
 export const platformVersions = {
