@@ -60,6 +60,10 @@ jobs:
           cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sort | jq -R -s -c 'split("\n")[:-1]'
           echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
+          # Update test tags format for behat compatibility
+          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
+
       # - name: Setup PHP
       #   uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
       #   with:
@@ -165,7 +169,7 @@ jobs:
           rm -rf xunit-reports && mkdir xunit-reports
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.features }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.test_tags }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
