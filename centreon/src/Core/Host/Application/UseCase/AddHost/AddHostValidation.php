@@ -60,7 +60,7 @@ class AddHostValidation
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ContactInterface $user,
+        private readonly ContactInterface $user
     ) {
     }
 
