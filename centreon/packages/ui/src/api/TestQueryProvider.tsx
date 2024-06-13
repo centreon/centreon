@@ -19,7 +19,8 @@ interface TestQueryProviderProps {
 const TestQueryProvider = ({
   children
 }: TestQueryProviderProps): JSX.Element => (
-  <QueryClientProvider client={testQueryClient}>{children}</QueryClientProvider>
+  <QueryClientProvider client={client}>{children}</QueryClientProvider>
+
 );
 
 export default TestQueryProvider;
