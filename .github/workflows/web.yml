@@ -649,7 +649,7 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   newman-test:
-    needs: [get-version, changes, create-xray-test-plan-and-test-execution]
+    needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
@@ -722,8 +722,8 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   create-xray-test-plan-and-test-execution:
-    needs: [get-version]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'canary' || github.event_name == 'schedule' ) }}
+    needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
     strategy:
       fail-fast: false
       matrix:
