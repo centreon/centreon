@@ -73,10 +73,6 @@ beforeEach(() => {
   }).as('getContactFrame');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_bam_top_counter&action=getBamTopCounterData'
-  }).as('getTopCounter');
-  cy.intercept({
-    method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
   }).as('getTopCounteruser');
   cy.intercept({
@@ -132,7 +128,7 @@ Given('an Administrator is logged in on the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
-When('a new host is created', () => {
+When('new hosts are created', () => {
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
@@ -212,7 +208,7 @@ When('a new host is created', () => {
 });
 
 Then(
-  'the Administrator is redirected to the "Resource Access Management" page',
+  'the Administrator navigates to the "Resource Access Management" page',
   () => {
     // Access to all resources should be deleted first
     cy.executeActionViaClapi({
@@ -262,10 +258,12 @@ When(
     cy.contains('div', 'The resource access rule was successfully created', {
       timeout: 10000
     });
-    cy.wait('@getTopCounteruser');
-    cy.wait('@getTopCounterpoller');
-    cy.wait('@getTopCounterservice');
-    cy.wait('@getTopCounterhosts');
+    cy.wait([
+      '@getTopCounteruser',
+      '@getTopCounterpoller',
+      '@getTopCounterservice',
+      '@getTopCounterhosts'
+    ]);
     cy.applyAcl();
   }
 );
@@ -278,14 +276,13 @@ Given('the selected user is logged in', () => {
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 
-When('the user is redirected to the monitoring "Resources" page', () => {
+When('the user navigates to the monitoring "Resources" page', () => {
   cy.visit('centreon/monitoring/resources');
 });
 
 Then('the user can see the Host selected by the Administrator', () => {
   cy.contains('Centreon-Database').should('be.visible');
 });
-
 
 Then('the Administrator selects "All hosts"', () => {
   cy.contains('span', 'All hosts')
@@ -307,10 +304,12 @@ Then('the Administrator selects "All contacts" and clicks on "Save"', () => {
       cy.getByTestId({ testId: 'CheckBoxOutlineBlankIcon' }).parent().click();
     });
   cy.getByLabel({ label: 'Save', tag: 'button' }).click();
-  cy.wait('@getTopCounteruser');
-  cy.wait('@getTopCounterpoller');
-  cy.wait('@getTopCounterservice');
-  cy.wait('@getTopCounterhosts');
+  cy.wait([
+    '@getTopCounteruser',
+    '@getTopCounterpoller',
+    '@getTopCounterservice',
+    '@getTopCounterhosts'
+  ]);
   cy.applyAcl();
 });
 
