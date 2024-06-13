@@ -642,6 +642,7 @@ jobs:
                                     echo "Error in response: $(echo "$response_getTestRun" | jq -r '.error.text')"
                                     echo "Retrying after a delay..."
                                     retry_attempts=$((retry_attempts + 1))
+                                    sleep $((retry_attempts * 30))
                                 else
                                     break
                                 fi
