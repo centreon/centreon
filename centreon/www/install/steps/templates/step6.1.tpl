@@ -2,7 +2,7 @@
     <table cellpadding='0' cellspacing='0' border='0' width='100%' class='StyleDottedHr' align='center'>
         <thead>
         <tr>
-            <th colspan='2'>{t}VAULT INFO{/t}</th>
+            <th colspan='2'>{t}VAULT INFORMATION{/t}</th>
         </tr>
         </thead>
         <tbody>
@@ -16,14 +16,14 @@
         <tr>
             <td class='formlabel'>{t}Vault Port (default: 443){/t} <span style='color:#e00b3d'> *</span></td>
             <td class='formvalue'>
-                <input type='text' name='port' value='{$parameters.port}' />
+                <input type='text' name='port' value='{$parameters.port}' size="35"/>
                 <label class='field_msg'></label>
             </td>
         </tr>
         <tr>
             <td class='formlabel'>{t}Centreon Storage Path{/t} <span style='color:#e00b3d'> *</span></td>
             <td class='formvalue'>
-                <input type='text' name='root_path' value='{$parameters.root_path}' />
+                <input type='text' name='root_path' value='{$parameters.root_path}' size="35"/>
                 <label class='field_msg'></label>
             </td>
         </tr>
