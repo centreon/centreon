@@ -190,7 +190,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
 
         $request .= " ag.acl_group_id IN ({$bindQuery})";
 
-        $request .= ' GROUP BY service_categories.name';
+        $request .= ' GROUP BY host_categories.id';
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
