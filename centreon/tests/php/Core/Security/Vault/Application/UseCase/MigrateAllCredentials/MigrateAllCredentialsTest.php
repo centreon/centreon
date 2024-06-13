@@ -33,6 +33,8 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\PollerMacro\Application\Repository\ReadPollerMacroRepositoryInterface;
+use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
@@ -50,10 +52,12 @@ beforeEach(function (): void {
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
         $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
+        $this->readPollerMacroRepository = $this->createMock(ReadPollerMacroRepositoryInterface::class),
         $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class),
         $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class),
         $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class),
         $this->writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class),
+        $this->writePollerMacroRepository = $this->createMock(WritePollerMacroRepositoryInterface::class),
     );
 });
 

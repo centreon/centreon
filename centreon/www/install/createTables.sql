@@ -616,6 +616,7 @@ CREATE TABLE `cfg_resource` (
   `resource_line` varchar(255) DEFAULT NULL,
   `resource_comment` varchar(255) DEFAULT NULL,
   `resource_activate` enum('0','1') DEFAULT NULL,
+  `is_password` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`resource_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
