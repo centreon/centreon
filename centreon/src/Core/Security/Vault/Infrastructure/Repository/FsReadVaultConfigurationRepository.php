@@ -58,7 +58,8 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
             return null;
         }
 
-        $record = json_decode($vaultConfiguration, true);
+        $record = json_decode($vaultConfiguration, true)
+            ?: throw new \Exception('Invalid vault configuration');
 
         /**
          * @var array{
