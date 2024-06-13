@@ -33,3 +33,4 @@ centreon:
       dsn: "mysql:host=@DBHOST@:port=3306;dbname=centreon_storage"
       username: "@DBUSER@"
       password: "@DBPASSWORD@"
+      
