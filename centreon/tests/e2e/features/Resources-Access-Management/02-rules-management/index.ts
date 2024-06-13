@@ -2,8 +2,6 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/users/simple-user.json';
 import data2 from '../../../fixtures/users/new-simple-user.json';
-import data_bv from '../../../fixtures/resources-access-management/bv-names.json';
-import data_ba from '../../../fixtures/resources-access-management/ba-names.json';
 
 import '../commands';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';

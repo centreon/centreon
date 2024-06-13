@@ -1,4 +1,4 @@
-import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+import { CopyToContainerContentType } from "@centreon/js-config/cypress/e2e/commands";
 
 Cypress.Commands.add(
   'createMultipleResourceAccessRules',
