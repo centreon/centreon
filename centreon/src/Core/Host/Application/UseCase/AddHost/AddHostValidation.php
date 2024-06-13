@@ -36,6 +36,7 @@ use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
@@ -43,6 +44,9 @@ use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 class AddHostValidation
 {
     use LoggerTrait;
+
+    /** @var AccessGroup[] */
+    public array $accessGroups = [];
 
     public function __construct(
         private readonly ReadHostRepositoryInterface $readHostRepository,
@@ -57,7 +61,6 @@ class AddHostValidation
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
-        public array $accessGroups = []
     ) {
     }
 
