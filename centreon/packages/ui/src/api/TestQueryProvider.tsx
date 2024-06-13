@@ -2,7 +2,8 @@ import { ReactNode } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-export const testQueryClient = new QueryClient({
+const client = new QueryClient({
+
   defaultOptions: {
     queries: {
       gcTime: 0,
