@@ -2,12 +2,7 @@ import { ReactElement } from 'react';
 
 import { Provider, createStore } from 'jotai';
 
-import {
-  Method,
-  SnackbarProvider,
-  TestQueryProvider,
-  testQueryClient
-} from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import {
   editedResourceAccessRuleIdAtom,
