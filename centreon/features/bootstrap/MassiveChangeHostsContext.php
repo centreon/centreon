@@ -15,19 +15,19 @@ class MassiveChangeHostsContext extends CentreonContext
     protected $host1 = array(
         'name' => 'host1Name',
         'alias' => 'host1Alias',
-        'address' => 'host1@localhost'
+        'address' => '1.2.3.4'
     );
 
     protected $host2 = array(
         'name' => 'host2Name',
         'alias' => 'host2Alias',
-        'address' => 'host2@localhost'
+        'address' => '2.3.4.5'
     );
 
     protected $host3 = array(
         'name' => 'host3Name',
         'alias' => 'host3Alias',
-        'address' => 'host3@localhost'
+        'address' => '3.4.5.6'
     );
 
     protected $hostGroup = array(
@@ -59,7 +59,7 @@ class MassiveChangeHostsContext extends CentreonContext
             'generic-host'
         ),
         'service_linked_to_template' => 0,
-        'command_arguments' => 'hostCommandArgument',
+        'command_arguments' => '!hostCommandArgument',
         'macros' => array(
             'HOSTMACRONAME' => '22'
         ),
@@ -103,7 +103,7 @@ class MassiveChangeHostsContext extends CentreonContext
         'high_flap_threshold' => 85,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
-        'event_handler_arguments' => 'event_handler_arguments',
+        'event_handler_arguments' => '!event_handler_arguments',
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
@@ -117,7 +117,7 @@ class MassiveChangeHostsContext extends CentreonContext
     protected $updatedHost1 = array(
         'name' => 'host1Name',
         'alias' => 'host1Alias',
-        'address' => 'host1@localhost',
+        'address' => '1.2.3.4',
         'snmp_community' => 'snmp',
         'snmp_version' => '2c',
         'monitored_from' => 'Central',
@@ -127,7 +127,7 @@ class MassiveChangeHostsContext extends CentreonContext
         ),
         'service_linked_to_template' => 0,
         'check_command' => 'check_http',
-        'command_arguments' => 'hostCommandArgument',
+        'command_arguments' => '!hostCommandArgument',
         'macros' => array(
             'HOSTMACRONAME' => '22'
         ),
@@ -162,7 +162,7 @@ class MassiveChangeHostsContext extends CentreonContext
         'high_flap_threshold' => 85,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
-        'event_handler_arguments' => 'event_handler_arguments',
+        'event_handler_arguments' => '!event_handler_arguments',
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
@@ -176,7 +176,7 @@ class MassiveChangeHostsContext extends CentreonContext
     protected $updatedHost2 = array(
         'name' => 'host2Name',
         'alias' => 'host2Alias',
-        'address' => 'host2@localhost',
+        'address' => '2.3.4.5',
         'snmp_community' => 'snmp',
         'snmp_version' => '2c',
         'monitored_from' => 'Central',
@@ -186,7 +186,7 @@ class MassiveChangeHostsContext extends CentreonContext
         ),
         'service_linked_to_template' => 0,
         'check_command' => 'check_http',
-        'command_arguments' => 'hostCommandArgument',
+        'command_arguments' => '!hostCommandArgument',
         'macros' => array(
             'HOSTMACRONAME' => '22'
         ),
@@ -221,7 +221,7 @@ class MassiveChangeHostsContext extends CentreonContext
         'high_flap_threshold' => 85,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
-        'event_handler_arguments' => 'event_handler_arguments',
+        'event_handler_arguments' => '!event_handler_arguments',
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
