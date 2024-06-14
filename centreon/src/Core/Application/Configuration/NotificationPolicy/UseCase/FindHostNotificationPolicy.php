@@ -91,7 +91,6 @@ class FindHostNotificationPolicy
             $notifiedContactGroups = $this->readHostNotificationRepository->findNotifiedContactGroupsById($hostId);
         }
 
-
         $realtimeHost = $this->readRealTimeHostRepository->findHostById($hostId);
         if ($realtimeHost === null) {
             $this->handleHostNotFound($hostId, $presenter);
