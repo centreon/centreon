@@ -60,7 +60,7 @@ beforeEach(function (): void {
         $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class),
         $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class),
         $this->writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class),
-        $this->writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class)
+        $this->writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class),
         $this->writePollerMacroRepository = $this->createMock(WritePollerMacroRepositoryInterface::class),
     );
 });
