@@ -674,7 +674,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(format('[{0},{1}]', fromJson(needs.get-version.outputs.dockerize_matrix[0]), fromJson(needs.get-version.outputs.dockerize_matrix[1]))) }}
+        include: ${{ fromJson(format('[{0},{1}]', toJson(needs.get-version.outputs.dockerize_matrix)[0], toJson(needs.get-version.outputs.dockerize_matrix)[1])) }}
     name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/newman.yml
