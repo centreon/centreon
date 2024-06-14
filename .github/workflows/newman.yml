@@ -368,8 +368,7 @@ jobs:
         shell: bash
         working-directory: centreon/tests/rest_api
     env:
-      # IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
-      IMAGE_TAG: develop
+      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
       CONTAINER_NAME: ${{ inputs.container_name }}
       CENTREON_URL: ${{ inputs.centreon_url }}

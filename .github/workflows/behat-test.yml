@@ -64,35 +64,6 @@ jobs:
           TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
           echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
-      # - name: Setup PHP
-      #   uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
-      #   with:
-      #     php-version: 8.1
-      #     coverage: none
-      #   env:
-      #     COMPOSER_TOKEN: ${{ secrets.composer_token }}
-      #     runner: ubuntu-22.04
-
-      # - name: Install dependencies
-      #   run: composer install --optimize-autoloader
-      #   working-directory: ${{ inputs.module_name }}
-
-      # - name: List features
-      #   id: list-features
-      #   run: |
-      #     cd ${{ inputs.module_name }}
-      #     composer install --optimize-autoloader
-
-      #     # Update test tags format for behat compatibility
-      #     TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
-      #     echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
-
-      #     echo $TEST_TAGS
-      #     FEAT="$(./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --tags "$TEST_TAGS" --dry-run | sed -n '/Skipped scenarios/,$p' | grep .feature | sed -e 's#[[:space:]]*${{ inputs.features_path }}/##' | cut -f1 -d":" | sort | jq -R -s -c 'split("\n")[:-1]')"
-      #     echo $FEAT
-      #     echo "features=$(./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --tags "$TEST_TAGS" --dry-run | sed -n '/Skipped scenarios/,$p' | grep .feature | sed -e 's#[[:space:]]*${{ inputs.features_path }}/##' | cut -f1 -d":" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-      #     # echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-
   behat-test-run:
     if: ${{ needs.behat-test-list.outputs.features != '' && toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]' }}
     needs: [behat-test-list]
@@ -104,8 +75,7 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
-      # IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
-      IMAGE_TAG: develop
+      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
