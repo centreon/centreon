@@ -49,6 +49,7 @@ beforeEach(function (): void {
     $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class);
     $this->writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class);
     $this->writePollerMacroRepository = $this->createMock(WritePollerMacroRepositoryInterface::class);
+    $this->writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class);
 
     $this->credential1 = new CredentialDto();
     $this->credential1->resourceId = 1;
@@ -100,7 +101,7 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         writeHostTemplateRepository: $this->writeHostTemplateRepository,
         writeHostMacroRepository: $this->writeHostMacroRepository,
         writeServiceMacroRepository: $this->writeServiceMacroRepository,
-        writeOptionRepository: $writeOptionRepository,
+        writeOptionRepository: $this->writeOptionRepository,
         writePollerMacroRepository: $this->writePollerMacroRepository,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,
@@ -132,7 +133,7 @@ it('tests getIterator method with exception', function (): void {
         writeHostTemplateRepository: $this->writeHostTemplateRepository,
         writeHostMacroRepository: $this->writeHostMacroRepository,
         writeServiceMacroRepository: $this->writeServiceMacroRepository,
-        writeOptionRepository: $writeOptionRepository,
+        writeOptionRepository: $this->writeOptionRepository,
         writePollerMacroRepository: $this->writePollerMacroRepository,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,
