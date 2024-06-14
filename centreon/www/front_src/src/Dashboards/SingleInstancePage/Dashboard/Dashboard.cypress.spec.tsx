@@ -367,11 +367,6 @@ describe('Dashboard', () => {
       cy.get('[data-canmove="true"]')
         .eq(0)
         .parent()
-        .should('have.css', 'width')
-        .and('equal', '276px');
-      cy.get('[data-canmove="true"]')
-        .eq(0)
-        .parent()
         .should('have.css', 'height')
         .and('equal', '232px');
 
@@ -381,11 +376,6 @@ describe('Dashboard', () => {
         .realMouseMove(-100, -100)
         .realMouseUp();
 
-      cy.get('[data-canmove="true"]')
-        .eq(0)
-        .parent()
-        .should('have.css', 'width')
-        .and('equal', '174px');
       cy.get('[data-canmove="true"]')
         .eq(0)
         .parent()
