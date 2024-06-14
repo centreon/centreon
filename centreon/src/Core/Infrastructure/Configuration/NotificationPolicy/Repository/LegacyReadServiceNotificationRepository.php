@@ -66,11 +66,11 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
      */
     public function findNotifiedContactsByIdAndAccessGroups(int $hostId, int $serviceId, array $accessGroups): array
     {
-        if (! isset($this->notifiedContactGroups[$serviceId])) {
+        if (! isset($this->notifiedContacts[$serviceId])) {
             $this->fetchNotifiedContactsAndContactGroups($hostId, $serviceId, $accessGroups);
         }
 
-        return $this->notifiedContactGroups[$serviceId];
+        return $this->notifiedContacts[$serviceId];
     }
 
     /**
