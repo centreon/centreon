@@ -78,7 +78,7 @@ const LineChart = ({
   limitLegend
 }: Props): JSX.Element => {
   const { classes } = useStyles();
-  const { classes: tooltipClasses } = useTooltipStyles();
+  const { classes: tooltipClasses, cx } = useTooltipStyles();
 
   const theme = useTheme();
 
@@ -234,48 +234,50 @@ const LineChart = ({
     <>
       <Header header={header} title={title} />
       <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
-        <MuiTooltip
-          data-disablePadding
-          classes={{
-            tooltip: tooltipClasses.tooltip
-          }}
-          placement="top-start"
-          title={
-            equals('hidden', tooltip?.mode) ? null : (
-              <GraphValueTooltip
-                base={baseAxis}
-                isSingleMode={equals('single', tooltip?.mode)}
-                sortOrder={tooltip?.sortOrder}
-              />
-            )
-          }
-        >
-          <div className={classes.container}>
-            <Stack
-              direction={
-                equals(legend?.placement, 'left') ? 'row' : 'row-reverse'
+        <div className={classes.container}>
+          <Stack
+            direction={
+              equals(legend?.placement, 'left') ? 'row' : 'row-reverse'
+            }
+          >
+            {displayLegend &&
+              (equals(legend?.placement, 'left') ||
+                equals(legend?.placement, 'right')) && (
+                <div ref={legendRef} style={{ maxWidth: '60%' }}>
+                  <Legend
+                    base={baseAxis}
+                    height={height}
+                    limitLegend={limitLegend}
+                    lines={newLines}
+                    mode={legend?.mode}
+                    placement="left"
+                    renderExtraComponent={legend?.renderExtraComponent}
+                    setLinesGraph={setLinesGraph}
+                    shouldDisplayLegendInCompactMode={
+                      shouldDisplayLegendInCompactMode
+                    }
+                    width={width}
+                  />
+                </div>
+              )}
+            <MuiTooltip
+              classes={{
+                tooltip: cx(
+                  tooltipClasses.tooltip,
+                  tooltipClasses.tooltipDisablePadding
+                )
+              }}
+              placement="top-start"
+              title={
+                equals('hidden', tooltip?.mode) ? null : (
+                  <GraphValueTooltip
+                    base={baseAxis}
+                    isSingleMode={equals('single', tooltip?.mode)}
+                    sortOrder={tooltip?.sortOrder}
+                  />
+                )
               }
             >
-              {displayLegend &&
-                (equals(legend?.placement, 'left') ||
-                  equals(legend?.placement, 'right')) && (
-                  <div ref={legendRef} style={{ maxWidth: '60%' }}>
-                    <Legend
-                      base={baseAxis}
-                      height={height}
-                      limitLegend={limitLegend}
-                      lines={newLines}
-                      mode={legend?.mode}
-                      placement="left"
-                      renderExtraComponent={legend?.renderExtraComponent}
-                      setLinesGraph={setLinesGraph}
-                      shouldDisplayLegendInCompactMode={
-                        shouldDisplayLegendInCompactMode
-                      }
-                      width={width}
-                    />
-                  </div>
-                )}
               <svg
                 height={graphHeight + margin.top}
                 ref={graphSvgRef}
@@ -363,26 +365,26 @@ const LineChart = ({
                   )}
                 </Group.Group>
               </svg>
-            </Stack>
-            {displayTooltip && (
-              <GraphTooltip {...tooltip} {...graphTooltipData} />
-            )}
-            <Fade in={thresholdTooltipOpen}>
-              <Tooltip.Tooltip
-                left={thresholdTooltipLeft}
-                style={{
-                  ...baseStyles,
-                  backgroundColor: theme.palette.background.paper,
-                  color: theme.palette.text.primary,
-                  transform: `translate(${graphWidth / 2}px, -10px)`
-                }}
-                top={thresholdTooltipTop}
-              >
-                {thresholdTooltipData}
-              </Tooltip.Tooltip>
-            </Fade>
-          </div>
-        </MuiTooltip>
+            </MuiTooltip>
+          </Stack>
+          {displayTooltip && (
+            <GraphTooltip {...tooltip} {...graphTooltipData} />
+          )}
+          <Fade in={thresholdTooltipOpen}>
+            <Tooltip.Tooltip
+              left={thresholdTooltipLeft}
+              style={{
+                ...baseStyles,
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                transform: `translate(${graphWidth / 2}px, -10px)`
+              }}
+              top={thresholdTooltipTop}
+            >
+              {thresholdTooltipData}
+            </Tooltip.Tooltip>
+          </Fade>
+        </div>
       </ClickAwayListener>
       {displayLegend && displayLegendInBottom && (
         <div ref={legendRef}>

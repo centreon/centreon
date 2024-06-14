@@ -1,5 +1,5 @@
 import { Layout } from 'react-grid-layout';
-import { lte, isNil, isEmpty } from 'ramda';
+import { lte, isNil, isEmpty, lt } from 'ramda';
 
 import { DashboardLayout } from '@centreon/ui';
 
@@ -61,6 +61,12 @@ const PanelsLayout = ({
                     lte(w, 3) &&
                     !isNil(options?.name) &&
                     !isEmpty(options?.name)
+                  }
+                  forceDisplayShrinkRefresh={
+                    lte(w, 2) &&
+                    !isNil(options?.name) &&
+                    !isEmpty(options?.name) &&
+                    !lt(options.name.length, 5)
                   }
                   id={i}
                   linkToResourceStatus={

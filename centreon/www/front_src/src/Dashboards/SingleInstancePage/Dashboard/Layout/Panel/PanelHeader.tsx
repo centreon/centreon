@@ -38,6 +38,7 @@ interface PanelHeaderProps {
   changeViewMode: (displayType) => void;
   displayMoreActions: boolean;
   displayShrinkRefresh: boolean;
+  forceDisplayShrinkRefresh: boolean;
   id: string;
   linkToResourceStatus?: string;
   pageType: string | null;
@@ -51,7 +52,8 @@ const PanelHeader = ({
   displayMoreActions,
   changeViewMode,
   pageType,
-  displayShrinkRefresh
+  displayShrinkRefresh,
+  forceDisplayShrinkRefresh
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
@@ -107,7 +109,8 @@ const PanelHeader = ({
           <div className={classes.panelActionsIcons}>
             {hasQueryData && (
               <div>
-                {displayShrinkRefresh && isLastRefreshMoreThanADay ? (
+                {forceDisplayShrinkRefresh ||
+                (displayShrinkRefresh && isLastRefreshMoreThanADay) ? (
                   <IconButton
                     disabled={!!isFetching}
                     size="small"

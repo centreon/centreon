@@ -66,12 +66,12 @@ export const ThresholdLine = ({
         x2={scaledValue}
         y1={
           isSmall
-            ? groupMargin - lineMargin + 5
+            ? groupMargin - lineMargin + 2
             : groupMargin + lineMargin + margins.top
         }
         y2={
           isSmall
-            ? barHeight + groupMargin - lineMargin + margins.top + 5
+            ? barHeight + groupMargin - lineMargin + margins.top + 2
             : barHeight + groupMargin + lineMargin + 2 * margins.top
         }
       />
