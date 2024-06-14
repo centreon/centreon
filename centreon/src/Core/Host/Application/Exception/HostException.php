@@ -32,7 +32,7 @@ class HostException extends \Exception
      */
     public static function accessNotAllowedForRealTime(): self
     {
-        return new self(_('You are not allowed to access real time hosts'));
+        return new self(_('You are not allowed to access hosts in the real time context'));
     }
 
     /**

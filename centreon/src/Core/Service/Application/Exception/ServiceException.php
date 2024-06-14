@@ -64,7 +64,7 @@ class ServiceException extends \Exception
      */
     public static function accessNotAllowedForRealTime(): self
     {
-        return new self(_('You are not allowed to access real time services'));
+        return new self(_('You are not allowed to access services in the real time context'));
     }
 
     /**
