@@ -235,6 +235,7 @@ const LineChart = ({
       <Header header={header} title={title} />
       <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
         <MuiTooltip
+          data-disablePadding
           classes={{
             tooltip: tooltipClasses.tooltip
           }}

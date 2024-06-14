@@ -1,5 +1,5 @@
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
-import { equals, pluck } from 'ramda';
+import { equals, gt, lt, pluck } from 'ramda';
 
 import { getValueByUnit } from '../common/utils';
 import { LegendScale } from '../Legend/models';
@@ -63,7 +63,9 @@ const useResponsiveBarStack = ({
   };
 
   const barSize = {
-    height: svgContainerSize.height - 16,
+    height: gt(height / 2, svgContainerSize.height - 16)
+      ? svgContainerSize.height - 16
+      : svgContainerSize.height - 46,
     width: svgContainerSize.width - 16
   };
 

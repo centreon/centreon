@@ -80,6 +80,8 @@ const ResponsivePie = ({
     width
   });
 
+  const isSmall = lt(width, 100);
+
   const { classes } = usePieStyles({ svgSize });
 
   return (
@@ -97,7 +99,7 @@ const ResponsivePie = ({
           width: svgWrapperWidth
         }}
       >
-        {equals(variant, 'pie') && title && (
+        {(equals(variant, 'pie') || isSmall) && title && (
           <div className={classes.title} data-testid="Title" ref={titleRef}>
             {`${numeral(total).format('0a').toUpperCase()} `} {t(title)}
           </div>
@@ -199,7 +201,7 @@ const ResponsivePie = ({
                   });
                 }}
               </Pie>
-              {equals(variant, 'donut') && title && (
+              {equals(variant, 'donut') && !isSmall && title && (
                 <>
                   <Text
                     className={classes.title}

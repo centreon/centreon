@@ -5,7 +5,7 @@ import { Group } from '@visx/group';
 import numeral from 'numeral';
 import { Text } from '@visx/text';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { equals, lt } from 'ramda';
 
 import { Tooltip } from '../../components';
 import { LegendProps } from '../Legend/models';
@@ -36,7 +36,7 @@ const ResponsiveBarStack = ({
   legendDirection = 'column'
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useBarStackStyles();
+  const { classes, cx } = useBarStackStyles();
 
   const titleRef = useRef(null);
   const legendRef = useRef(null);
@@ -68,8 +68,10 @@ const ResponsiveBarStack = ({
     ? BarStackVertical
     : BarStackHorizontal;
 
+  const isSmallHeight = isVerticalBar ? lt(height, 190) : lt(height, 100);
+
   return (
-    <div className={classes.container} style={{ height, width }}>
+    <div className={classes.container} style={{ width }}>
       <div
         className={classes.svgWrapper}
         style={{
@@ -78,14 +80,20 @@ const ResponsiveBarStack = ({
         }}
       >
         {title && (
-          <div className={classes.title} data-testid="Title" ref={titleRef}>
+          <div
+            className={cx(classes.title, isSmallHeight && classes.smallTitle)}
+            data-testid="Title"
+            ref={titleRef}
+          >
             {`${numeral(total).format('0a').toUpperCase()} `} {t(title)}
           </div>
         )}
         <div
           className={classes.svgContainer}
           data-testid="barStack"
-          style={svgContainerSize}
+          style={{
+            width: svgContainerSize.width
+          }}
         >
           <svg
             data-variant={variant}
