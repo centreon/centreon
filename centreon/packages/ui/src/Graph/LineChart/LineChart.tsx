@@ -109,10 +109,13 @@ const LineChart = ({
     linesGraph
   });
 
+  const legendHeight =
+    legend?.height ?? (legendRef.current?.getBoundingClientRect().height || 0);
+
   const legendBoundingHeight =
     !equals(legend?.display, false) &&
     (isNil(legend?.placement) || equals(legend?.placement, 'bottom'))
-      ? legendRef.current?.getBoundingClientRect().height || 0
+      ? legendHeight
       : 0;
   const legendBoundingWidth =
     !equals(legend?.display, false) &&
@@ -381,7 +384,7 @@ const LineChart = ({
         </MuiTooltip>
       </ClickAwayListener>
       {displayLegend && displayLegendInBottom && (
-        <div ref={legendRef}>
+        <div ref={legendRef} style={{ height: legend?.height ?? 'unset' }}>
           <Legend
             base={baseAxis}
             height={height}
