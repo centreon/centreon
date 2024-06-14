@@ -239,6 +239,7 @@ final class MigrateAllCredentials
             $credential->value = $hostTemplate->getSnmpCommunity();
             $credentials[] = $credential;
         }
+
         return $credentials;
     }
 
@@ -258,6 +259,7 @@ final class MigrateAllCredentials
             $credential->value = $hostMacro->getValue();
             $credentials[] = $credential;
         }
+
         return $credentials;
     }
 
@@ -277,6 +279,7 @@ final class MigrateAllCredentials
             $credential->value = $serviceMacro->getValue();
             $credentials[] = $credential;
         }
+
         return $credentials;
     }
 
@@ -296,6 +299,7 @@ final class MigrateAllCredentials
             $credential->value = $pollerMacro->getValue();
             $credentials[] = $credential;
         }
+
         return $credentials;
     }
 
