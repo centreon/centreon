@@ -103,11 +103,13 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
           >
             {header && (
               <div className={classes.widgetHeader} data-canMove={canMove}>
-                <div
-                  {...listeners}
-                  className={classes.widgetHeaderDraggable}
-                  data-testid={`${id}_move_panel`}
-                />
+                {canMove && (
+                  <div
+                    {...listeners}
+                    className={classes.widgetHeaderDraggable}
+                    data-testid={`${id}_move_panel`}
+                  />
+                )}
                 {header}
               </div>
             )}

@@ -29,13 +29,28 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
       fontWeight: theme.typography.fontWeightMedium,
       lineHeight: 1
     },
+    gap: theme.spacing(1),
     height: theme.spacing(4.5),
     padding: theme.spacing(0),
     paddingTop: theme.spacing(1.5)
   },
+  panelHeaderContent: {
+    width: '45%'
+  },
+  panelHeaderContentWithShrink: {
+    width: '47%'
+  },
+  panelHeaderRefreshButton: {
+    height: 'auto',
+    padding: `1px ${theme.spacing(0.5)}`
+  },
   panelTitle: {
     fontSize: '1.3rem',
-    fontWeight: theme.typography.fontWeightBold
+    fontWeight: theme.typography.fontWeightBold,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    width: '100%'
   }
 }));
 
