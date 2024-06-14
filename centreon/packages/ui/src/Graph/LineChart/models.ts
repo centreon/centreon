@@ -158,6 +158,7 @@ export interface GlobalAreaLines {
 }
 export interface LegendModel {
   display?: boolean;
+  height?: number;
   mode: 'grid' | 'list';
   placement: 'bottom' | 'left' | 'right';
   renderExtraComponent?: ReactNode;
