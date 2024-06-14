@@ -36,6 +36,7 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
@@ -132,7 +133,14 @@ final class MigrateAllCredentials
                 }
             }
 
-            $this->migrateCredentials($credentials, $this->response, $hosts, $hostTemplates);
+            $this->migrateCredentials(
+                $credentials,
+                $this->response,
+                $hosts,
+                $hostTemplates,
+                $hostMacros,
+                $serviceMacros
+            );
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
             $this->error((string) $ex);
@@ -145,12 +153,16 @@ final class MigrateAllCredentials
      * @param MigrateAllCredentialsResponse $response
      * @param Host[] $hosts
      * @param HostTemplate[] $hostTemplates
+     * @param Macro[] $hostMacros
+     * @param Macro[] $serviceMacros
      */
     private function migrateCredentials(
         \Traversable&\Countable $credentials,
         MigrateAllCredentialsResponse $response,
         array $hosts,
-        array $hostTemplates
+        array $hostTemplates,
+        array $hostMacros,
+        array $serviceMacros,
     ): void {
 
         $response->results = new CredentialMigrator(
@@ -162,6 +174,8 @@ final class MigrateAllCredentials
             $this->writeServiceMacroRepository,
             $hosts,
             $hostTemplates,
+            $hostMacros,
+            $serviceMacros,
         );
     }
 }

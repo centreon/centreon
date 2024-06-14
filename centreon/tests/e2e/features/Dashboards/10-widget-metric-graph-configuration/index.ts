@@ -1,14 +1,56 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
-  checkMetricsAreMonitored,
-  checkServicesAreMonitored
+  checkHostsAreMonitored,
+  checkServicesAreMonitored,
+  checkMetricsAreMonitored
 } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
 import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
+import metricsGraphWithMultipleHosts from '../../../fixtures/dashboards/creation/widgets/metricsGraphWithMultipleHosts.json';
+
+const services = {
+  serviceCritical: {
+    host: 'host3',
+    name: 'service3',
+    template: 'SNMP-Linux-Load-Average'
+  },
+  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
+  serviceWarning: {
+    host: 'host2',
+    name: 'service2',
+    template: 'SNMP-Linux-Memory'
+  }
+};
+const resultsToSubmit = [
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceCritical.name,
+    status: 'critical'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceWarning.name,
+    status: 'warning'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  },
+  {
+    host: services.serviceCritical.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  }
+];
 
 before(() => {
   cy.startContainers();
@@ -33,13 +75,78 @@ before(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceOk.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceWarning.name,
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    });
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceCritical.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceWarning.name,
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
-  checkServicesAreMonitored([
-    {
-      name: 'Ping',
-      status: 'ok'
-    }
+  cy.loginByTypeOfUser({
+    jsonName: 'admin'
+  });
+
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
   ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
+  cy.submitResults(resultsToSubmit);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
+  ]);
+
   checkMetricsAreMonitored([
     {
       host: 'Centreon-Server',
@@ -47,6 +154,16 @@ before(() => {
       service: 'Ping'
     }
   ]);
+
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
+
+  cy.logoutViaAPI();
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -176,7 +293,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.editDashboard(dashboards.default.name);
   cy.wait('@performanceData');
-  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -263,7 +380,7 @@ When(
       tag: 'button'
     }).click();
     cy.wait('@performanceData');
-    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -380,5 +497,43 @@ Then(
       'span',
       'Thresholds are automatically hidden as soon as you select 2 metric units.'
     ).should('exist');
+  }
+);
+
+Given('a dashboard having Metrics Graph widget with multiple hosts', () => {
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWithMultipleHosts
+  );
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
+  cy.contains(dashboards.default.name).click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).realClick();
+  cy.wait('@performanceData');
+});
+
+When('the dashboard administrator opens service list', () => {
+  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description);
+  cy.getByLabel({ label: 'Open' }).eq(2).click();
+});
+
+Then(
+  'only the services associated with the selected hosts should be displayed',
+  () => {
+    cy.contains('Ping').should('be.visible');
   }
 );
