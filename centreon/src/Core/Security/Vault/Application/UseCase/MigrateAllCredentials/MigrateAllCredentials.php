@@ -322,5 +322,4 @@ final class MigrateAllCredentials
 
         return $credentials;
     }
-
 }
