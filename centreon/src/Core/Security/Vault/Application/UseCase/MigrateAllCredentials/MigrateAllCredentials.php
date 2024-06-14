@@ -173,7 +173,6 @@ final class MigrateAllCredentials
      * @param Option|null $knowledgeBasePasswordOption
      *
      * @return \ArrayIterator<int, CredentialDto> $credentials
-     *
      */
     private function createCredentialDtos(
         array $hosts,
