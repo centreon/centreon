@@ -29,7 +29,6 @@ interface useBarStackState {
   keys: Array<string>;
   legendScale: LegendScale;
   svgContainerSize: Size;
-  svgWrapperWidth: number;
   total: number;
   xScale;
   yScale;
@@ -52,10 +51,6 @@ const useResponsiveBarStack = ({
 
   const horizontalGap = widthOfLegend > 0 ? 12 : 0;
   const verticalGap = heightOfTitle > 0 ? 8 : 0;
-
-  const svgWrapperWidth = isVerticalBar
-    ? size + 36
-    : width - widthOfLegend - horizontalGap;
 
   const svgContainerSize = {
     height: isVerticalBar ? height - heightOfTitle - verticalGap : size,
@@ -123,7 +118,6 @@ const useResponsiveBarStack = ({
     keys,
     legendScale,
     svgContainerSize,
-    svgWrapperWidth,
     total,
     xScale,
     yScale

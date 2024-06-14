@@ -50,7 +50,6 @@ const ResponsiveBarStack = ({
     total,
     xScale,
     yScale,
-    svgWrapperWidth,
     svgContainerSize,
     isVerticalBar
   } = useResponsiveBarStack({
@@ -69,18 +68,12 @@ const ResponsiveBarStack = ({
     : BarStackHorizontal;
 
   const isSmallHeight = isVerticalBar ? lt(height, 190) : lt(height, 100);
-  const isSmallWidth = lt(height, 150);
+  const isSmallWidth = isVerticalBar ? lt(width, 80) : lt(width, 350);
   const mustDisplayLegend = isSmallWidth ? false : displayLegend;
 
   return (
     <div className={classes.container} style={{ width }}>
-      <div
-        className={classes.svgWrapper}
-        style={{
-          minHeight: height,
-          width: svgWrapperWidth
-        }}
-      >
+      <div className={classes.svgWrapper}>
         {title && (
           <div
             className={cx(classes.title, isSmallHeight && classes.smallTitle)}
@@ -165,7 +158,7 @@ const ResponsiveBarStack = ({
                                 isVerticalBar ? bar.height - 1 : bar.height
                               }
                               key={`bar-stack-${barStack.index}-${bar.index}`}
-                              ry={10}
+                              ry={4}
                               width={isVerticalBar ? bar.width : bar.width - 1}
                               x={bar.x}
                               y={bar.y}
