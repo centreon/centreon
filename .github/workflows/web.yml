@@ -533,23 +533,23 @@ jobs:
       - name: Generate information according to matrix os
         id: matrix_include
         run: |
-          if [ "${{ matrix.os }}" = "alma8" ]; then
+          if [ "${{ matrix.operating_system }}" = "alma8" ]; then
             DISTRIB=el8
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.os }}" = "alma9" ]; then
+          elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.os }}" = "bullseye" ]; then
+          elif [ "${{ matrix.operating_system }}" = "bullseye" ]; then
             DISTRIB=bullseye
             PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.os }}" = "bookworm" ]; then
+          elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.os }}" = "jammy" ]; then
+          elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
             DISTRIB=jammy
             PACKAGE_EXTENSION=deb
           else
-            echo "::error::${{ matrix.os }} is not managed"
+            echo "::error::${{ matrix.operating_system }} is not managed"
             exit 1
           fi
 
@@ -576,26 +576,26 @@ jobs:
       - name: Build web image
         uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+          file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
 
       - name: Push web image
         uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+          file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
         run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
@@ -603,7 +603,7 @@ jobs:
 
       - name: Build slim image
         run: |
-          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}"
+          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}"
           sed -i '/openid:/,$d' .github/docker/docker-compose.yml # remove all services after openid
           docker compose -f .github/docker/docker-compose.yml pull db
           slim build \
@@ -615,22 +615,22 @@ jobs:
             --include-shell \
             --include-new=false \
             --http-probe-off \
-            --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
-            --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
-            --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
-            --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
-            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            --exec-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/exec.txt \
+            --include-path-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-path.txt \
+            --include-bin-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-bin.txt \
+            --path-perms-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/path-perms.txt \
+            --tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Push slim image
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Store slim image in local archive
         run: |
           mkdir -p /tmp/cache/docker-image
-          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Clear previous docker image from cache
@@ -639,14 +639,14 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Store slim image in cache
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: /tmp/cache/docker-image
-          key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
   create-xray-test-plan-and-test-execution:
     needs: [get-version, dockerize]
@@ -674,7 +674,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(toJson(format('[{0},{1}]', needs.get-version.outputs.dockerize_matrix[0], needs.get-version.outputs.dockerize_matrix[1]))) }}
+        include: ${{ format('[{0},{1}]', fromJson(needs.get-version.outputs.dockerize_matrix[0]), fromJson(needs.get-version.outputs.dockerize_matrix[1])) }}
     name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/newman.yml
