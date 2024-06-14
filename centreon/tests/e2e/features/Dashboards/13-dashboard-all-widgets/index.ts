@@ -405,6 +405,7 @@ When(
   }
 );
 
+
 Then(
   'the dashboard administrator should be redirected to the {string} widget resources',
   (widgetType) => {
