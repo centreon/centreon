@@ -119,9 +119,9 @@ const PanelHeader = ({
                     onClick={refresh}
                   >
                     {isFetching ? (
-                      <CircularProgress size={24} />
+                      <CircularProgress size={20} />
                     ) : (
-                      <UpdateIcon />
+                      <UpdateIcon fontSize="small" />
                     )}
                   </IconButton>
                 ) : (
@@ -131,7 +131,7 @@ const PanelHeader = ({
                     size="small"
                     startIcon={
                       isFetching ? (
-                        <CircularProgress size={16} />
+                        <CircularProgress size={20} />
                       ) : (
                         <UpdateIcon />
                       )
