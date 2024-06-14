@@ -5,12 +5,16 @@ Library            Process
 Library            RequestsLibrary
 
 *** Variables ***
-${gorgone_binary}           /usr/bin/gorgoned
-${ROOT_CONFIG}              ${CURDIR}${/}..${/}config${/}
-${pull_central_config}      ${ROOT_CONFIG}pull_central_config.yaml
-${pull_poller_config}       ${ROOT_CONFIG}pull_poller_config.yaml
-${push_central_config}      ${ROOT_CONFIG}push_central_config.yaml
-${push_poller_config}       ${ROOT_CONFIG}push_poller_config.yaml
+${gorgone_binary}             /usr/bin/gorgoned
+${ROOT_CONFIG}                ${CURDIR}${/}..${/}config${/}
+${pull_central_config}        ${ROOT_CONFIG}pull_central_config.yaml
+${pull_poller_config}         ${ROOT_CONFIG}pull_poller_config.yaml
+${pullwss_central_config}     ${ROOT_CONFIG}pullwss_central_config.yaml
+${pullwss_poller_config}      ${ROOT_CONFIG}pullwss_poller_config.yaml
+${push_central_config}        ${ROOT_CONFIG}push_central_config.yaml
+${push_poller_config}         ${ROOT_CONFIG}push_poller_config.yaml
+${gorgone_core_config}        ${ROOT_CONFIG}gorgone_core_central.yaml
+
 ${DBHOST}                   127.0.0.1
 ${DBPORT}                   3306
 ${DBNAME}                   centreon_gorgone_test
@@ -19,12 +23,12 @@ ${DBPASSWORD}               password
 
 *** Keywords ***
 Start Gorgone
-    [Arguments]    ${CONFIG_FILE}    ${SEVERITY}    ${ALIAS}
+    [Arguments]    ${SEVERITY}    ${ALIAS}
     ${process}    Start Process
     ...    /usr/bin/perl
     ...    ${gorgone_binary}
     ...    --config
-    ...    ${CONFIG_FILE}
+    ...    /etc/centreon-gorgone/${ALIAS}/includer.yaml
     ...    --logfile
     ...    /var/log/centreon-gorgone/${ALIAS}/gorgoned.log
     ...    --severity
@@ -39,7 +43,7 @@ Stop Gorgone And Remove Gorgone Config
 
     FOR    ${process}    IN    @{process_alias}
         ${result}    Terminate Process    ${process}
-        BuiltIn.Run Keyword And Continue On Failure    Should Be True    ${result.rc} == -15 or ${result.rc} == 0    Engine badly stopped alias = ${process_alias} - code returned ${result.rc}.
+        BuiltIn.Run Keyword And Continue On Failure    Should Be True    ${result.rc} == -15 or ${result.rc} == -9 or ${result.rc} == 0    Engine badly stopped alias = ${process} - code returned ${result.rc}.
     END
 
 Gorgone Execute Sql
@@ -52,7 +56,7 @@ Gorgone Execute Sql
     END
 
 Setup Gorgone Config
-    [Arguments]        ${gorgone_name}    @{file_list}    ${sql_file}=
+    [Arguments]        @{file_list}    ${gorgone_name}=gorgone_process_name        ${sql_file}=
     Gorgone Execute Sql    ${sql_file}
     Create Directory    /var/log/centreon-gorgone/${gorgone_name}/
     Copy File    ${CURDIR}${/}..${/}config${/}includer.yaml    /etc/centreon-gorgone/${gorgone_name}/includer.yaml
@@ -63,13 +67,13 @@ Setup Gorgone Config
     ${key_thumbprint}    Run    perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path=/var/lib/centreon-gorgone/.keys/rsakey.priv.pem | cut -d: -f4
 
     ${result}    Run    sed -i -e 's/@UNIQ_ID_FROM_ROBOT_TESTING_CONFIG_FILE@/${gorgone_name}/g' /etc/centreon-gorgone/${gorgone_name}/includer.yaml
-    
+
     ${CMD}    Catenate
-    ...    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g' 
-    ...    -e 's/@DBNAME@/${DBNAME}/g' 
-    ...    -e 's/@DBHOST@/${DBHOST}/g' 
-    ...    -e 's/@DBPASSWORD@/${DBPASSWORD}/g' 
-    ...    -e 's/@DBUSER@/${DBUSER}/g' 
+    ...    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g'
+    ...    -e 's/@DBNAME@/${DBNAME}/g'
+    ...    -e 's/@DBHOST@/${DBHOST}/g'
+    ...    -e 's/@DBPASSWORD@/${DBPASSWORD}/g'
+    ...    -e 's/@DBUSER@/${DBUSER}/g'
     ...    -e 's/@UNIQ_ID_FROM_ROBOT_TESTING_CONFIG_FILE@/${gorgone_name}/g'
     ...    /etc/centreon-gorgone/${gorgone_name}/config.d/*.yaml
 
@@ -94,7 +98,7 @@ Check Poller Communicate
     [Arguments]    ${poller_id}
     ${response}     Set Variable    ${EMPTY}
     Log To Console    checking Gorgone see poller in rest api response...
-    FOR    ${i}    IN RANGE    10
+    FOR    ${i}    IN RANGE    20
         Sleep    5
         ${response}=    GET  http://127.0.0.1:8085/api/internal/constatus
         Log    ${response.json()}
@@ -103,27 +107,47 @@ Check Poller Communicate
         END
     END
     Log To Console    json response : ${response.json()}
-    Should Be True    ${i} < 9    timeout waiting for poller status in gorgone rest api (/api/internal/constatus) : ${response.json()}
+    Should Be True    ${i} < 20    timeout after ${i} time waiting for poller status in gorgone rest api (/api/internal/constatus) : ${response.json()}
     Should Be True    0 == ${response.json()}[data][${poller_id}][ping_failed]    there was failed ping between the central and the poller ${poller_id}
     Should Be True    0 < ${response.json()}[data][${poller_id}][ping_ok]    there was no successful ping between the central and the poller ${poller_id}
 
 Setup Two Gorgone Instances
     [Arguments]    ${communication_mode}=push_zmq    ${central_name}=gorgone_central    ${poller_name}=gorgone_poller_2
-
     ${result}    Run    perl /usr/local/bin/gorgone_key_generation.pl
     # generate key if there is none.
     # gorgone can generate it's own key, but as we need the thumbprint in the configuration we need to generate them before launching gorgone.
     # this script only create key if the files don't exists, and silently finish if the files already exists.
     IF    '${communication_mode}' == 'push_zmq'
-        Setup Gorgone Config    ${central_name}    ${push_central_config}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
-        Setup Gorgone Config    ${poller_name}    ${push_poller_config}
+        Setup Gorgone Config    ${push_central_config}    ${gorgone_core_config}    gorgone_name=${central_name}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
+        Setup Gorgone Config    ${push_poller_config}    gorgone_name=${poller_name}
 
-        Start Gorgone    /etc/centreon-gorgone/gorgone_central/includer.yaml    debug    ${central_name}
-        Start Gorgone    /etc/centreon-gorgone/gorgone_poller_2/includer.yaml    debug    ${poller_name}
-    
+        Start Gorgone    debug    ${central_name}
+        Start Gorgone    debug    ${poller_name}
+
         Check Poller Is Connected    port=5556    expected_nb=2
         Check Poller Communicate     2
+    ELSE IF    '${communication_mode}' == 'pullwss'
+        Setup Gorgone Config    ${pullwss_central_config}    ${ROOT_CONFIG}pullwss_node_register_one_node.yaml    ${gorgone_core_config}    gorgone_name=${central_name}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
+        Setup Gorgone Config    ${gorgone_core_config}    ${pullwss_poller_config}    gorgone_name=${poller_name}
+
+        Start Gorgone    debug    ${central_name}
+        Wait Until Port Is Bind    8086
+        Start Gorgone    debug    ${poller_name}
+        Check Poller Is Connected    port=8086    expected_nb=2
+        Check Poller Communicate     2
+
     ELSE
-        Fail    pull and pullwss mode are not yet implemented.
+        Fail    pull mode is not yet implemented.
     END
 
+Wait Until Port Is Bind
+    [Arguments]    ${port}
+    FOR    ${i}    IN RANGE    10
+        Sleep    0.5
+        ${nb_port_listening}    Run    ss -tlnp | grep ':${port}' | grep LIST | wc -l
+        IF    ${nb_port_listening} == 1
+          BREAK
+        END
+    END
+    Should Be True    ${i} < 10    Gorgone did not listen on port ${port} on time.
+    Log To Console    tcp port ${port} bind after ${i} attempt (0.5 seconds each)
