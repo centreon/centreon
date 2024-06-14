@@ -1730,6 +1730,4 @@ function writeKnowledgeBasePasswordInVault(
 
         throw $ex;
     }
-
-    $logger->info(sprintf("Write successfully Knowledge Base Password in vault: %s", $password));
 }
