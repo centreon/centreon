@@ -330,9 +330,8 @@ final class MigrateAllCredentials
         $credentials = [];
         if (
             $knowledgeBasePasswordOption === null
-            || ($knowledgeBasePasswordOption->getValue() !== null
-                || str_starts_with($knowledgeBasePasswordOption->getValue(), 'secret::')
-            )
+            || $knowledgeBasePasswordOption->getValue() === null
+            || str_starts_with($knowledgeBasePasswordOption->getValue(), 'secret::')
         ){
             return $credentials;
         }
