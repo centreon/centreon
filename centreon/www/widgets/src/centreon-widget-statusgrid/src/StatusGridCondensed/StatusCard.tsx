@@ -14,7 +14,11 @@ import { Tooltip } from '@centreon/ui/components';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { Resource, StatusDetail } from '../../../models';
-import { getResourcesUrl, severityStatusBySeverityCode } from '../../../utils';
+import {
+  getBAsURL,
+  getResourcesUrl,
+  severityStatusBySeverityCode
+} from '../../../utils';
 
 import { useStatusGridCondensedStyles } from './StatusGridCondensed.styles';
 import ResourcesTooltip from './Tooltip/ResourcesTooltip';
@@ -46,13 +50,16 @@ const StatusCard = ({
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
-  const url = getResourcesUrl({
-    allResources: resources,
-    isForOneResource: false,
-    states: [],
-    statuses: [severityStatusBySeverityCode[severityCode]],
-    type: resourceType
-  });
+  const url =
+    isBVResourceType || isBAResourceType
+      ? getBAsURL(severityCode)
+      : getResourcesUrl({
+          allResources: resources,
+          isForOneResource: false,
+          states: [],
+          statuses: [severityStatusBySeverityCode[severityCode]],
+          type: resourceType
+        });
 
   return (
     <Tooltip

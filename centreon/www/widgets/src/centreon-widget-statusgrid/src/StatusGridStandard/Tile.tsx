@@ -61,7 +61,7 @@ const Tile = ({
     if (isBAResourceType) {
       const url = getLink({
         hostId: data?.parentId,
-        id: data?.resourceId,
+        id: data?.resourceId || data?.id,
         name: data?.name,
         type
       });

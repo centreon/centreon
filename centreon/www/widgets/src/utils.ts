@@ -350,3 +350,17 @@ export const getWidgetEndpoint = ({
 
   return defaultEndpoint;
 };
+
+export const getBAStatusBySeverityCode = {
+  [SeverityCode.High]: 'critical',
+  [SeverityCode.Medium]: 'warning',
+  [SeverityCode.OK]: 'ok',
+  [SeverityCode.None]: 'unknown',
+  [SeverityCode.Pending]: 'pending'
+};
+
+export const getBAsURL = (severityCode: number): string => {
+  const status = getBAStatusBySeverityCode[severityCode];
+
+  return `/main.php?p=20701&status=${status}`;
+};
