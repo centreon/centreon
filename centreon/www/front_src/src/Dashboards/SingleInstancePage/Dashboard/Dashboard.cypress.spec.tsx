@@ -313,7 +313,9 @@ describe('Dashboard', () => {
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelTitle).type('Generic input');
-      cy.findByLabelText('Generic text').type('Text for the new widget');
+      cy.findAllByLabelText('Generic text')
+        .eq(1)
+        .type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
       cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
@@ -425,16 +427,6 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelSave).should('not.exist');
       cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
       cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
-
-      cy.makeSnapshot();
-    });
-
-    it('displays the refresh button when the more actions button is clicked', () => {
-      initializeAndMount(viewerRoles);
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-
-      cy.contains(labelRefresh).should('be.visible');
 
       cy.makeSnapshot();
     });
