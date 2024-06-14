@@ -35,6 +35,7 @@ abstract class AbstractVaultRepository
     public const HOST_VAULT_PATH = 'monitoring/hosts';
     public const SERVICE_VAULT_PATH = 'monitoring/services';
     public const KNOWLEDGE_BASE_PATH = 'configuration/knowledge_base';
+    public const POLLER_MACRO_VAULT_PATH = 'monitoring/pollerMacros';
     protected const DEFAULT_SCHEME = 'https';
 
     /** @var string[] */
@@ -42,6 +43,7 @@ abstract class AbstractVaultRepository
         self::HOST_VAULT_PATH,
         self::SERVICE_VAULT_PATH,
         self::KNOWLEDGE_BASE_PATH,
+        self::POLLER_MACRO_VAULT_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;

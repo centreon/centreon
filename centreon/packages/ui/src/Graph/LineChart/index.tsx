@@ -14,7 +14,7 @@ import { LineChartData, Thresholds } from '../common/models';
 
 import LineChart from './LineChart';
 import LoadingSkeleton from './LoadingSkeleton';
-import { GlobalAreaLines, LineChartProps, LegendModel } from './models';
+import { GlobalAreaLines, LineChartProps } from './models';
 import useLineChartData from './useLineChartData';
 
 dayjs.extend(localizedFormat);
@@ -22,10 +22,8 @@ dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
 interface Props extends Partial<LineChartProps> {
-  curve?: 'linear' | 'step' | 'natural';
   data?: LineChartData;
   end: string;
-  legend: LegendModel;
   limitLegend?: false | number;
   loading: boolean;
   shapeLines?: GlobalAreaLines;
@@ -46,11 +44,18 @@ const WrapperLineChart = ({
   data,
   loading,
   timeShiftZones,
-  tooltip,
+  tooltip = {
+    mode: 'all',
+    sortOrder: 'name'
+  },
   annotationEvent,
-  legend,
+  legend = {
+    display: true,
+    mode: 'grid',
+    placement: 'bottom'
+  },
   header,
-  curve = 'linear',
+  lineStyle,
   thresholds,
   thresholdUnit,
   limitLegend
@@ -85,7 +90,6 @@ const WrapperLineChart = ({
             <LineChart
               annotationEvent={annotationEvent}
               axis={axis}
-              curve={curve}
               displayAnchor={displayAnchor}
               graphData={adjustedData}
               graphInterval={{ end, start }}
@@ -94,6 +98,7 @@ const WrapperLineChart = ({
               height={height || responsiveHeight}
               legend={legend}
               limitLegend={limitLegend}
+              lineStyle={lineStyle}
               shapeLines={shapeLines}
               thresholdUnit={thresholdUnit}
               thresholds={thresholds}

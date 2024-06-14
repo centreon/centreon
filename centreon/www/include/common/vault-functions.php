@@ -37,6 +37,7 @@
 use Centreon\Domain\Log\Logger;
 use Utility\Interfaces\UUIDGeneratorInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Utility\Interfaces\UUIDGeneratorInterface;
 
 const VAULT_PATH_REGEX = '^secret::[^:]*::';
 const SNMP_COMMUNITY_MACRO_NAME = '_HOSTSNMPCOMMUNITY';
@@ -49,9 +50,9 @@ const DEFAULT_SCHEME = 'https';
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
  *
- * @return string
+ * @throws Exception
  *
- * @throws \Exception
+ * @return string
  */
 function authenticateToVault(
     VaultConfiguration $vaultConfiguration,
@@ -60,27 +61,30 @@ function authenticateToVault(
 ): string {
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
-        $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
+        $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
         $body = [
-            "role_id" => $vaultConfiguration->getRoleId(),
-            "secret_id" => $vaultConfiguration->getSecretId(),
+            'role_id' => $vaultConfiguration->getRoleId(),
+            'secret_id' => $vaultConfiguration->getSecretId(),
         ];
         $logger->info('Authenticating to Vault: ' . $url);
-        $loginResponse = $httpClient->call($url, "POST", $body);
-    } catch (\Exception $ex) {
-        $logger->error($url . " did not respond with a 2XX status");
+        $loginResponse = $httpClient->call($url, 'POST', $body);
+    } catch (Exception $ex) {
+        $logger->error($url . ' did not respond with a 2XX status');
+
         throw $ex;
     }
 
     if (! isset($loginResponse['auth']['client_token'])) {
-        $logger->error($url . " Unable to retrieve client token from Vault");
-        throw new \Exception('Unable to authenticate to Vault');
+        $logger->error($url . ' Unable to retrieve client token from Vault');
+
+        throw new Exception('Unable to authenticate to Vault');
     }
+
     return $loginResponse['auth']['client_token'];
 }
 
 /**
- * Get host secrets data from vault
+ * Get host secrets data from vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param int $hostId
@@ -89,9 +93,9 @@ function authenticateToVault(
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
  *
- * @return array<string, mixed>
+ * @throws Throwable
  *
- * @throws \Throwable
+ * @return array<string, mixed>
  */
 function getHostSecretsFromVault(
     VaultConfiguration $vaultConfiguration,
@@ -103,8 +107,8 @@ function getHostSecretsFromVault(
 ): array {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
         . $vaultConfiguration->getRootPath() . '/data/monitoring/hosts/' . $uuid;
-    $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
-    $logger->info(sprintf("Search Host %d secrets at: %s", $hostId, $url));
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Search Host %d secrets at: %s', $hostId, $url));
 
     try {
         $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
@@ -113,11 +117,11 @@ function getHostSecretsFromVault(
         }
 
         return [];
-    } catch (\RestNotFoundException $ex) {
-        $logger->info(sprintf("Host %d not found in vault", $hostId));
+    } catch (RestNotFoundException $ex) {
+        $logger->info(sprintf('Host %d not found in vault', $hostId));
 
         return [];
-    } catch (\Exception $ex) {
+    } catch (Exception $ex) {
         $logger->error(sprintf('Unable to get secrets for host : %d', $hostId));
 
         throw $ex;
@@ -128,13 +132,13 @@ function getHostSecretsFromVault(
  * Write Host secrets data in vault.
  *
  * @param VaultConfiguration $vaultConfiguration
- * @param int $hostId
+ * @param string $uuid
  * @param string $clientToken
  * @param array<string,mixed> $passwordTypeData
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
  *
- * @throws \Exception
+ * @throws Exception
  */
 function writeHostSecretsInVault(
     VaultConfiguration $vaultConfiguration,
@@ -148,51 +152,52 @@ function writeHostSecretsInVault(
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
             . '/v1/' . $vaultConfiguration->getRootPath()
             . '/data/monitoring/hosts/' . $uuid;
-        $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
+        $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
         $logger->info(
-            "Writing Host Secrets at : " . $url,
-            ["secrets" => implode(", ", array_keys($passwordTypeData))]
+            'Writing Host Secrets at : ' . $url,
+            ['secrets' => implode(', ', array_keys($passwordTypeData))]
         );
-        $httpClient->call($url, "POST", ['data' => $passwordTypeData], ['X-Vault-Token: ' . $clientToken]);
-    } catch(\Exception $ex) {
+        $httpClient->call($url, 'POST', ['data' => $passwordTypeData], ['X-Vault-Token: ' . $clientToken]);
+    } catch (Exception $ex) {
         $logger->error(
-            "Unable to write host secrets into vault",
+            'Unable to write host secrets into vault',
             [
-                "message" => $ex->getMessage(),
-                "url" => $url,
-                "trace" => $ex->getTraceAsString(),
-                "secrets" => implode(", ", array_keys($passwordTypeData)),
+                'message' => $ex->getMessage(),
+                'url' => $url,
+                'trace' => $ex->getTraceAsString(),
+                'secrets' => implode(', ', array_keys($passwordTypeData)),
             ]
         );
 
         throw $ex;
     }
 
-    $logger->info(sprintf("Write successfully secrets in vault: %s", implode(', ', array_keys($passwordTypeData))));
+    $logger->info(sprintf('Write successfully secrets in vault: %s', implode(', ', array_keys($passwordTypeData))));
 }
 
 /**
  * Update host table with secrets path on vault.
  *
- * @param \CentreonDB $pearDB
+ * @param CentreonDB $pearDB
  * @param string $hostPath
  * @param int $hostId
- * @throws \Throwable
+ *
+ * @throws Throwable
  */
-function updateHostTableWithVaultPath(\CentreonDB $pearDB, string $hostPath, int $hostId): void
+function updateHostTableWithVaultPath(CentreonDB $pearDB, string $hostPath, int $hostId): void
 {
     $statementUpdateHost = $pearDB->prepare(
-        <<<SQL
-            UPDATE `host` SET host_snmp_community = :path WHERE host_id = :hostId
-        SQL
+        <<<'SQL'
+                UPDATE `host` SET host_snmp_community = :path WHERE host_id = :hostId
+            SQL
     );
-    $statementUpdateHost->bindValue(':path', $hostPath, \PDO::PARAM_STR);
+    $statementUpdateHost->bindValue(':path', $hostPath, PDO::PARAM_STR);
     $statementUpdateHost->bindValue(':hostId', $hostId);
     $statementUpdateHost->execute();
 }
 
 /**
- * Duplicate Host Secrets in Vault
+ * Duplicate Host Secrets in Vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
@@ -204,7 +209,7 @@ function updateHostTableWithVaultPath(\CentreonDB $pearDB, string $hostPath, int
  * @param string $clientToken
  * @param int $newHostId
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function duplicateHostSecretsInVault(
     VaultConfiguration $vaultConfiguration,
@@ -219,16 +224,16 @@ function duplicateHostSecretsInVault(
 ): void {
     global $pearDB;
 
-    //Get UUID form Host SNMP Community Path if it is set
+    // Get UUID form Host SNMP Community Path if it is set
     if (! empty($snmpCommunity)) {
-        $pathPart = explode("/", $snmpCommunity);
+        $pathPart = explode('/', $snmpCommunity);
         $uuid = end($pathPart);
 
-        //Get UUID from macro password if they match the vault path regex
+        // Get UUID from macro password if they match the vault path regex
     } elseif (! empty($macroPasswords)) {
-        foreach($macroPasswords as $macroValue) {
+        foreach ($macroPasswords as $macroValue) {
             if (preg_match('/' . VAULT_PATH_REGEX . '/',$macroValue)) {
-                $pathPart = explode("/", $macroValue);
+                $pathPart = explode('/', $macroValue);
                 $uuid = end($pathPart);
                 break;
             }
@@ -256,15 +261,15 @@ function duplicateHostSecretsInVault(
             $logger,
             $httpClient
         );
-        $hostPath = "secret::" . $vaultConfiguration->getName() . "::"
+        $hostPath = 'secret::' . $vaultConfiguration->getName() . '::'
             . $vaultConfiguration->getRootPath()
-            . "/data/monitoring/hosts/" . $newUuid;
-        //Store vault path for SNMP Community
+            . '/data/monitoring/hosts/' . $newUuid;
+        // Store vault path for SNMP Community
         if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $hostSecretsFromVault)){
             updateHostTableWithVaultPath($pearDB, $hostPath, $newHostId);
         }
 
-        //Store vault path for macros
+        // Store vault path for macros
         if (! empty($macroPasswords)) {
             updateOnDemandMacroHostTableWithVaultPath(
                 $pearDB,
@@ -278,40 +283,40 @@ function duplicateHostSecretsInVault(
 /**
  * Update on_demand_macro_host table with secrets path on vault.
  *
- * @param \CentreonDB $pearDB
+ * @param CentreonDB $pearDB
  * @param non-empty-array<int> $macroIds
  * @param string $hostPath
  *
- * @throws \Throwable
+ * @throws Throwable
  */
-function updateOnDemandMacroHostTableWithVaultPath(\CentreonDB $pearDB, array $macroIds, string $hostPath): void
+function updateOnDemandMacroHostTableWithVaultPath(CentreonDB $pearDB, array $macroIds, string $hostPath): void
 {
     $bindMacroIds = [];
-    foreach($macroIds as $macroId) {
+    foreach ($macroIds as $macroId) {
         $bindMacroIds[':macro_' . $macroId] = $macroId;
     }
-    $bindMacroString = implode(", ", array_keys($bindMacroIds));
+    $bindMacroString = implode(', ', array_keys($bindMacroIds));
     $statementUpdateMacros = $pearDB->prepare(
         <<<SQL
-            UPDATE `on_demand_macro_host` SET host_macro_value = :path WHERE host_macro_id IN ($bindMacroString)
-        SQL
+                UPDATE `on_demand_macro_host` SET host_macro_value = :path WHERE host_macro_id IN ({$bindMacroString})
+            SQL
     );
-    $statementUpdateMacros->bindValue(':path', $hostPath, \PDO::PARAM_STR);
-    foreach($bindMacroIds as $bindToken => $bindValue) {
-        $statementUpdateMacros->bindValue($bindToken, $bindValue, \PDO::PARAM_INT);
+    $statementUpdateMacros->bindValue(':path', $hostPath, PDO::PARAM_STR);
+    foreach ($bindMacroIds as $bindToken => $bindValue) {
+        $statementUpdateMacros->bindValue($bindToken, $bindValue, PDO::PARAM_INT);
     }
     $statementUpdateMacros->execute();
 }
 
 /**
- * Delete resources from the vault
+ * Delete resources from the vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
  * @param int[] $hostIds
  * @param int[] $serviceIds
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function deleteResourceSecretsInVault(
     VaultConfiguration $vaultConfiguration,
@@ -331,7 +336,7 @@ function deleteResourceSecretsInVault(
             }
         }
 
-        //Delete entry in vault for children services
+        // Delete entry in vault for children services
         if (array_key_exists('service', $uuids)) {
             foreach ($uuids['service'] as $uuid) {
                 deleteServiceFromVault($vaultConfiguration, $uuid, $clientToken, $logger, $httpClient);
@@ -348,7 +353,7 @@ function deleteResourceSecretsInVault(
 }
 
 /**
- * Found Host and Service linked to Host Secrets UUIDs
+ * Found Host and Service linked to Host Secrets UUIDs.
  *
  * @param non-empty-array<int> $hostIds
  * @param string $vaultPath
@@ -364,42 +369,42 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath
         $bindParams[':hostId_' . $hostId] = $hostId;
     }
 
-    $bindString = implode(", ", array_keys($bindParams));
+    $bindString = implode(', ', array_keys($bindParams));
     $statement = $pearDB->prepare(
         <<<SQL
-            SELECT DISTINCT h.host_snmp_community, odmh.host_macro_value, odms.svc_macro_value
-            FROM host as h
-                LEFT JOIN on_demand_macro_host as odmh
-                    ON h.host_id = odmh.host_host_id
-                LEFT JOIN host_service_relation as hsr
-                    ON h.host_id = hsr.host_host_id
-                LEFT JOIN on_demand_macro_service as odms
-                    ON odms.svc_svc_id = hsr.service_service_id
-                WHERE (h.host_snmp_community LIKE :vaultPath
-                    OR odmh.host_macro_value LIKE :vaultPath
-                    OR odms.svc_macro_value LIKE :vaultPath)
-                    AND h.host_id IN ( $bindString );
-        SQL
+                SELECT DISTINCT h.host_snmp_community, odmh.host_macro_value, odms.svc_macro_value
+                FROM host as h
+                    LEFT JOIN on_demand_macro_host as odmh
+                        ON h.host_id = odmh.host_host_id
+                    LEFT JOIN host_service_relation as hsr
+                        ON h.host_id = hsr.host_host_id
+                    LEFT JOIN on_demand_macro_service as odms
+                        ON odms.svc_svc_id = hsr.service_service_id
+                    WHERE (h.host_snmp_community LIKE :vaultPath
+                        OR odmh.host_macro_value LIKE :vaultPath
+                        OR odms.svc_macro_value LIKE :vaultPath)
+                        AND h.host_id IN ( {$bindString} );
+            SQL
     );
     foreach ($bindParams as $token => $hostId) {
-        $statement->bindValue($token, $hostId, \PDO::PARAM_INT);
+        $statement->bindValue($token, $hostId, PDO::PARAM_INT);
     }
-    $statement->bindValue(':vaultPath', $vaultPath . '%', \PDO::PARAM_STR);
+    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
     $statement->execute();
     $uuids = [];
-    while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-        if (preg_match("/^" . $vaultPath ."/", $result['host_snmp_community'])) {
-            $vaultPathPart = explode("/", $result['host_snmp_community']);
-        } elseif (preg_match("/^" . $vaultPath ."/", $result['host_macro_value'])) {
-            $vaultPathPart = explode("/", $result['host_macro_value']);
+    while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
+        if (preg_match('/^' . $vaultPath .'/', $result['host_snmp_community'])) {
+            $vaultPathPart = explode('/', $result['host_snmp_community']);
+        } elseif (preg_match('/^' . $vaultPath .'/', $result['host_macro_value'])) {
+            $vaultPathPart = explode('/', $result['host_macro_value']);
         }
         if (isset($vaultPathPart)) {
             $uuids['host'][] = end($vaultPathPart);
         }
 
-        //Add UUID of services linked to host
-        if (preg_match("/^" . $vaultPath ."/", $result['svc_macro_value'])) {
-            $vaultPathPart = explode("/", $result['svc_macro_value']);
+        // Add UUID of services linked to host
+        if (preg_match('/^' . $vaultPath .'/', $result['svc_macro_value'])) {
+            $vaultPathPart = explode('/', $result['svc_macro_value']);
             $uuids['service'][] = end($vaultPathPart);
         }
     }
@@ -408,7 +413,7 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath
 }
 
 /**
- * Delete host secrets data from vault
+ * Delete host secrets data from vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param string $uuid
@@ -416,7 +421,7 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function deleteHostFromVault(
     VaultConfiguration $vaultConfiguration,
@@ -427,18 +432,19 @@ function deleteHostFromVault(
 ): void {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
         . $vaultConfiguration->getRootPath() . '/metadata/monitoring/hosts/' . $uuid;
-    $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
-    $logger->info(sprintf("Deleting Host: %s", $uuid));
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Deleting Host: %s', $uuid));
     try {
         $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
-    } catch (\Exception $ex) {
-        $logger->error(sprintf("Unable to delete Host: %s", $uuid));
+    } catch (Exception $ex) {
+        $logger->error(sprintf('Unable to delete Host: %s', $uuid));
+
         throw $ex;
     }
 }
 
 /**
- * Delete service secrets data from vault
+ * Delete service secrets data from vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param string $uuid
@@ -446,7 +452,7 @@ function deleteHostFromVault(
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function deleteServiceFromVault(
     VaultConfiguration $vaultConfiguration,
@@ -457,18 +463,19 @@ function deleteServiceFromVault(
 ): void {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
         . $vaultConfiguration->getRootPath() . '/metadata/monitoring/services/' . $uuid;
-    $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
-    $logger->info(sprintf("Deleting Service: %s", $uuid));
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Deleting Service: %s', $uuid));
     try {
         $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
-    } catch (\Exception $ex) {
-        $logger->error(sprintf("Unable to delete Service: %s", $uuid));
+    } catch (Exception $ex) {
+        $logger->error(sprintf('Unable to delete Service: %s', $uuid));
+
         throw $ex;
     }
 }
 
 /**
- * Found Service Secrets UUIDs
+ * Found Service Secrets UUIDs.
  *
  * @param non-empty-array<int> $serviceIds
  * @param string $vaultPath
@@ -483,23 +490,23 @@ function retrieveMultipleServiceUuidsFromDatabase(array $serviceIds, string $vau
     foreach ($serviceIds as $serviceId) {
         $bindParams[':serviceId_' . $serviceId] = $serviceId;
     }
-    $bindString = implode(", ", array_keys($bindParams));
+    $bindString = implode(', ', array_keys($bindParams));
     $statement = $pearDB->prepare(
         <<<SQL
-            SELECT DISTINCT odms.svc_macro_value
-            FROM on_demand_macro_service as odms
-                WHERE odms.svc_macro_value LIKE :vaultPath
-                    AND odms.svc_svc_id IN ( $bindString )
-        SQL
+                SELECT DISTINCT odms.svc_macro_value
+                FROM on_demand_macro_service as odms
+                    WHERE odms.svc_macro_value LIKE :vaultPath
+                        AND odms.svc_svc_id IN ( {$bindString} )
+            SQL
     );
     foreach ($bindParams as $token => $serviceId) {
-        $statement->bindValue($token, $serviceId, \PDO::PARAM_INT);
+        $statement->bindValue($token, $serviceId, PDO::PARAM_INT);
     }
-    $statement->bindValue(':vaultPath', $vaultPath . '%', \PDO::PARAM_STR);
+    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
     $statement->execute();
     $uuids = [];
-    while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-        $vaultPathPart = explode("/", $result['svc_macro_value']);
+    while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $vaultPathPart = explode('/', $result['svc_macro_value']);
         $uuids[] = end($vaultPathPart);
     }
 
@@ -507,37 +514,38 @@ function retrieveMultipleServiceUuidsFromDatabase(array $serviceIds, string $vau
 }
 
 /**
- * Retrieve UUID of a host
+ * Retrieve UUID of a host.
  *
- * @param \CentreonDB $pearDB
+ * @param CentreonDB $pearDB
  * @param int $hostId
  * @param string $vaultConfigurationName
  *
- * @return string|null
- *
  * @throws Throwable
+ *
+ * @return string|null
  */
-function retrieveHostUuidFromDatabase(\CentreonDB $pearDB, int $hostId, string $vaultConfigurationName): ?string
+function retrieveHostUuidFromDatabase(CentreonDB $pearDB, int $hostId, string $vaultConfigurationName): ?string
 {
     $vaultPath = 'secret::'. $vaultConfigurationName .'::';
     $statement = $pearDB->prepare(
-        <<<SQL
-            SELECT h.host_snmp_community, odm.host_macro_value
-                FROM host as h
-                     LEFT JOIN on_demand_macro_host AS odm
-                    ON odm.host_host_id = h.host_id 
-            WHERE h.host_id= :hostId
-                AND (odm.host_macro_value LIKE :vaultPath
-                OR h.host_snmp_community LIKE :vaultPath)
-        SQL
+        <<<'SQL'
+                SELECT h.host_snmp_community, odm.host_macro_value
+                    FROM host as h
+                         LEFT JOIN on_demand_macro_host AS odm
+                        ON odm.host_host_id = h.host_id
+                WHERE h.host_id= :hostId
+                    AND (odm.host_macro_value LIKE :vaultPath
+                    OR h.host_snmp_community LIKE :vaultPath)
+            SQL
     );
-    $statement->bindValue(':hostId', $hostId, \PDO::PARAM_STR);
-    $statement->bindValue(':vaultPath', $vaultPath . '%', \PDO::PARAM_STR);
+    $statement->bindValue(':hostId', $hostId, PDO::PARAM_STR);
+    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
     $statement->execute();
-    if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+    if (($result = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
         foreach ($result as $columnValue) {
             if (preg_match('/' . VAULT_PATH_REGEX . '/', $columnValue)) {
-                $pathPart = explode("/", $columnValue);
+                $pathPart = explode('/', $columnValue);
+
                 return end($pathPart);
             }
         }
@@ -547,7 +555,7 @@ function retrieveHostUuidFromDatabase(\CentreonDB $pearDB, int $hostId, string $
 }
 
 /**
- * Update Host Secrets in Vault while Massive changing
+ * Update Host Secrets in Vault while Massive changing.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
@@ -555,8 +563,9 @@ function retrieveHostUuidFromDatabase(\CentreonDB $pearDB, int $hostId, string $
  * @param string|null $uuid
  * @param int $hostId
  * @param array<int,array<string,string>> $macros
+ * @param ?string $snmpCommunity
  *
- * @throws \Throwable $ex
+ * @throws Throwable $ex
  */
 function updateHostSecretsInVaultFromMC(
     VaultConfiguration $vaultConfiguration,
@@ -590,7 +599,7 @@ function updateHostSecretsInVaultFromMC(
     );
 
     if (! empty($updateHostPayload)) {
-        $uuid = $uuid ?? $uuidGenerator->generateV4();
+        $uuid ??= $uuidGenerator->generateV4();
         writeHostSecretsInVault(
             $vaultConfiguration,
             $uuid,
@@ -600,16 +609,16 @@ function updateHostSecretsInVaultFromMC(
             $httpClient
         );
 
-        $hostPath = "secret::" . $vaultConfiguration->getName() . "::"
+        $hostPath = 'secret::' . $vaultConfiguration->getName() . '::'
             . $vaultConfiguration->getRootPath()
-            . "/data/monitoring/hosts/" . $uuid;
+            . '/data/monitoring/hosts/' . $uuid;
 
-        //Store vault path for SNMP Community
+        // Store vault path for SNMP Community
         if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)) {
             updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
         }
 
-        //Store vault path for macros
+        // Store vault path for macros
         if (! empty($macroPasswordIds)) {
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
         }
@@ -617,7 +626,7 @@ function updateHostSecretsInVaultFromMC(
 }
 
 /**
- * Store all the ids of password macros that have been updated
+ * Store all the ids of password macros that have been updated.
  *
  * @param array<int,array<string,string>> $macros
  *
@@ -626,7 +635,7 @@ function updateHostSecretsInVaultFromMC(
 function getIdOfUpdatedPasswordMacros(array $macros): array
 {
     $macroPasswordIds = [];
-    foreach($macros as $macroId => $macroInfos) {
+    foreach ($macros as $macroId => $macroInfos) {
         if (
             $macroInfos['macroPassword'] === '1'
             && ! preg_match('/' . VAULT_PATH_REGEX . '/', $macroInfos['macroValue'])
@@ -639,7 +648,7 @@ function getIdOfUpdatedPasswordMacros(array $macros): array
 }
 
 /**
- * Add new macros and SNMP Community to the write in vault payload
+ * Add new macros and SNMP Community to the write in vault payload.
  *
  * @param string|null $hostSNMPCommunity
  * @param array<int,array{
@@ -654,7 +663,7 @@ function getIdOfUpdatedPasswordMacros(array $macros): array
  */
 function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, array $secretsFromVault): array
 {
-    foreach($macros as $macroInfos) {
+    foreach ($macros as $macroInfos) {
         if (
             $macroInfos['macroPassword'] === '1'
             && ! preg_match('/' . VAULT_PATH_REGEX . '/', $macroInfos['macroValue'])
@@ -663,7 +672,7 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
         }
     }
 
-    //Add SNMP Community if a new value has been set
+    // Add SNMP Community if a new value has been set
     if ($hostSNMPCommunity !== null && ! preg_match('/' . VAULT_PATH_REGEX . '/', $hostSNMPCommunity)) {
         $secretsFromVault[SNMP_COMMUNITY_MACRO_NAME] = $hostSNMPCommunity;
     }
@@ -672,7 +681,7 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
 }
 
 /**
- * Update Host Secrets in Vault
+ * Update Host Secrets in Vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
@@ -682,7 +691,7 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
  * @param array $macros
  * @param string|null $snmpCommunity
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function updateHostSecretsInVault(
     VaultConfiguration $vaultConfiguration,
@@ -728,15 +737,15 @@ function updateHostSecretsInVault(
             $httpClient
         );
 
-        $hostPath = "secret::" . $vaultConfiguration->getName() . "::"
+        $hostPath = 'secret::' . $vaultConfiguration->getName() . '::'
             . $vaultConfiguration->getRootPath()
-            . "/data/monitoring/hosts/" . $uuid;
-        //Store vault path for SNMP Community
+            . '/data/monitoring/hosts/' . $uuid;
+        // Store vault path for SNMP Community
         if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)){
             updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
         }
 
-        //Store vault path for macros
+        // Store vault path for macros
         if (! empty($macroPasswordIds)) {
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
         }
@@ -762,24 +771,24 @@ function updateHostSecretsInVault(
  */
 function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, array $secretsFromVault): array
 {
-    //Unset existing macros on vault if they no more exist while submitting the form
-    foreach(array_keys($secretsFromVault) as $secretKey) {
+    // Unset existing macros on vault if they no more exist while submitting the form
+    foreach (array_keys($secretsFromVault) as $secretKey) {
         if ($secretKey !== SNMP_COMMUNITY_MACRO_NAME) {
             $macroName = [];
-            foreach($macros as $macroInfos) {
+            foreach ($macros as $macroInfos) {
                 $macroName[] = $macroInfos['macroName'];
                 if (array_key_exists('originalName', $macroInfos) && $secretKey === $macroInfos['originalName']) {
                     $secretsFromVault[$macroInfos['macroName']] = $secretsFromVault[$secretKey];
                 }
             }
-            if (! in_array($secretKey, $macroName)) {
+            if (! in_array($secretKey, $macroName, true)) {
                 unset($secretsFromVault[$secretKey]);
             }
         }
     }
 
-    //Add macros to payload if they are password type and their values have changed
-    foreach($macros as $macroInfos) {
+    // Add macros to payload if they are password type and their values have changed
+    foreach ($macros as $macroInfos) {
         if (
             $macroInfos['macroPassword'] === '1'
             && ! preg_match('/' . VAULT_PATH_REGEX . '/', $macroInfos['macroValue'])
@@ -788,7 +797,7 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
         }
     }
 
-    //Unset existing SNMP Community if it no more exists while submitting the form
+    // Unset existing SNMP Community if it no more exists while submitting the form
     if (
         array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $secretsFromVault)
         && $hostSNMPCommunity === null
@@ -796,7 +805,7 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
         unset($secretsFromVault[SNMP_COMMUNITY_MACRO_NAME]);
     }
 
-    //Add SNMP Community if a new value has been set
+    // Add SNMP Community if a new value has been set
     if ($hostSNMPCommunity !== null && ! preg_match('/' . VAULT_PATH_REGEX . '/', $hostSNMPCommunity)) {
         $secretsFromVault[SNMP_COMMUNITY_MACRO_NAME] = $hostSNMPCommunity;
     }
@@ -805,7 +814,7 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
 }
 
 /**
- * Insert Host secrets In Vault
+ * Insert Host secrets In Vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param UUIDGeneratorInterface $uuidGenerator
@@ -819,7 +828,7 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
  *  }> $macros $macros
  * @param int $hostId
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function insertHostSecretsInVault(
     VaultConfiguration $vaultConfiguration,
@@ -830,21 +839,21 @@ function insertHostSecretsInVault(
     int $hostId
 ): void {
     global $pearDB;
-    //store SNMP Community and password macros
+    // store SNMP Community and password macros
     $passwordTypeData = [];
     if ($snmpCommunity !== null) {
         $passwordTypeData[SNMP_COMMUNITY_MACRO_NAME] = $snmpCommunity;
     }
     $macroPasswordIds = [];
-    foreach($macros as $macroId => $macroInfos) {
+    foreach ($macros as $macroId => $macroInfos) {
         if ($macroInfos['macroPassword'] === '1') {
             $passwordTypeData[$macroInfos['macroName']] = $macroInfos['macroValue'];
             $macroPasswordIds[] = $macroId;
         }
     }
 
-    //If there is some password values, write them in the vault
-    if (!empty($passwordTypeData)) {
+    // If there is some password values, write them in the vault
+    if (! empty($passwordTypeData)) {
         $httpClient = new CentreonRestHttp();
         $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
         $uuid = $uuidGenerator->generateV4();
@@ -856,15 +865,15 @@ function insertHostSecretsInVault(
             $logger,
             $httpClient
         );
-        $hostPath = "secret::" . $vaultConfiguration->getName() . "::" . $vaultConfiguration->getRootPath()
-            . "/data/monitoring/hosts/" . $uuid;
+        $hostPath = 'secret::' . $vaultConfiguration->getName() . '::' . $vaultConfiguration->getRootPath()
+            . '/data/monitoring/hosts/' . $uuid;
 
-        //Store vault path for SNMP Community
+        // Store vault path for SNMP Community
         if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $passwordTypeData)){
             updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
         }
 
-        //Store vault path for macros
+        // Store vault path for macros
         if (! empty($macroPasswordIds)) {
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
         }
@@ -872,7 +881,7 @@ function insertHostSecretsInVault(
 }
 
 /**
- * Duplicate Service Secrets in Vault
+ * Duplicate Service Secrets in Vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
@@ -882,7 +891,7 @@ function insertHostSecretsInVault(
  * @param array<int, string> $macroPasswords
  * @param string $clientToken
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function duplicateServiceSecretsInVault(
     VaultConfiguration $vaultConfiguration,
@@ -898,7 +907,7 @@ function duplicateServiceSecretsInVault(
     $uuid = null;
     foreach ($macroPasswords as $macroValue) {
         if (preg_match('/' . VAULT_PATH_REGEX . '/', $macroValue)) {
-            $pathPart = explode("/", $macroValue);
+            $pathPart = explode('/', $macroValue);
             $uuid = end($pathPart);
             break;
         }
@@ -926,11 +935,11 @@ function duplicateServiceSecretsInVault(
             $logger,
             $httpClient
         );
-        $servicePath = "secret::" . $vaultConfiguration->getName() . "::"
+        $servicePath = 'secret::' . $vaultConfiguration->getName() . '::'
             . $vaultConfiguration->getRootPath()
-            . "/data/monitoring/services/" . $newUuid;
+            . '/data/monitoring/services/' . $newUuid;
 
-        //Store vault path for macros
+        // Store vault path for macros
         if (! empty($macroPasswords)) {
             updateOnDemandMacroServiceTableWithVaultPath(
                 $pearDB,
@@ -942,7 +951,7 @@ function duplicateServiceSecretsInVault(
 }
 
 /**
- * Get service secrets data from vault
+ * Get service secrets data from vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param int $serviceId
@@ -951,9 +960,9 @@ function duplicateServiceSecretsInVault(
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
  *
- * @return array<string, mixed>
+ * @throws Throwable
  *
- * @throws \Throwable
+ * @return array<string, mixed>
  */
 function getServiceSecretsFromVault(
     VaultConfiguration $vaultConfiguration,
@@ -965,8 +974,8 @@ function getServiceSecretsFromVault(
 ): array {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
         . $vaultConfiguration->getRootPath() . '/data/monitoring/services/' . $uuid;
-    $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
-    $logger->info(sprintf("Search Service %d secrets at: %s", $serviceId, $url));
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Search Service %d secrets at: %s', $serviceId, $url));
 
     try {
         $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
@@ -975,12 +984,13 @@ function getServiceSecretsFromVault(
         }
 
         return [];
-    } catch (\RestNotFoundException $ex) {
-        $logger->info(sprintf("Service %d not found in vault", $serviceId));
+    } catch (RestNotFoundException $ex) {
+        $logger->info(sprintf('Service %d not found in vault', $serviceId));
 
         return [];
-    } catch (\Exception $ex) {
+    } catch (Exception $ex) {
         $logger->error(sprintf('Unable to get secrets for Service : %d', $serviceId));
+
         throw $ex;
     }
 }
@@ -993,8 +1003,10 @@ function getServiceSecretsFromVault(
  * @param string $clientToken
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
+ * @param string $uuid
+ * @param array $macros
  *
- * @throws \Exception
+ * @throws Exception
  */
 function writeServiceSecretsInVault(
     VaultConfiguration $vaultConfiguration,
@@ -1008,88 +1020,89 @@ function writeServiceSecretsInVault(
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
             . '/v1/' . $vaultConfiguration->getRootPath()
             . '/data/monitoring/services/' . $uuid;
-        $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
+        $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
         $logger->info(
-            "Writing Service Secrets at : " . $url,
-            ["secrets" => implode(", ", array_keys($macros))]
+            'Writing Service Secrets at : ' . $url,
+            ['secrets' => implode(', ', array_keys($macros))]
         );
-        $httpClient->call($url, "POST", ['data' => $macros], ['X-Vault-Token: ' . $clientToken]);
-    } catch(\Exception $ex) {
+        $httpClient->call($url, 'POST', ['data' => $macros], ['X-Vault-Token: ' . $clientToken]);
+    } catch (Exception $ex) {
         $logger->error(
-            "Unable to write Service secrets into vault",
+            'Unable to write Service secrets into vault',
             [
-                "message" => $ex->getMessage(),
-                "trace" => $ex->getTraceAsString(),
-                "secrets" => implode(", ", array_keys($macros))
+                'message' => $ex->getMessage(),
+                'trace' => $ex->getTraceAsString(),
+                'secrets' => implode(', ', array_keys($macros)),
             ]
         );
 
         throw $ex;
     }
 
-    $logger->info(sprintf("Write successfully secrets in vault: %s", implode(', ', array_keys($macros))));
+    $logger->info(sprintf('Write successfully secrets in vault: %s', implode(', ', array_keys($macros))));
 }
 
 /**
  * Update on_demand_macro_service table with secrets path on vault.
  *
- * @param \CentreonDB $pearDB
+ * @param CentreonDB $pearDB
  * @param non-empty-array<int> $macroIds
  * @param string $servicePath
  *
- * @throws \Throwable
+ * @throws Throwable
  */
-function updateOnDemandMacroServiceTableWithVaultPath(\CentreonDB $pearDB, array $macroIds, string $servicePath): void
+function updateOnDemandMacroServiceTableWithVaultPath(CentreonDB $pearDB, array $macroIds, string $servicePath): void
 {
     $bindMacroIds = [];
-    foreach($macroIds as $macroId) {
+    foreach ($macroIds as $macroId) {
         $bindMacroIds[':macro_' . $macroId] = $macroId;
     }
-    $bindMacroString = implode(", ", array_keys($bindMacroIds));
+    $bindMacroString = implode(', ', array_keys($bindMacroIds));
     $statementUpdateMacros = $pearDB->prepare(
         <<<SQL
-            UPDATE `on_demand_macro_service` SET svc_macro_value = :path WHERE svc_macro_id IN ($bindMacroString)
-        SQL
+                UPDATE `on_demand_macro_service` SET svc_macro_value = :path WHERE svc_macro_id IN ({$bindMacroString})
+            SQL
     );
-    $statementUpdateMacros->bindValue(':path', $servicePath, \PDO::PARAM_STR);
-    foreach($bindMacroIds as $bindToken => $bindValue) {
-        $statementUpdateMacros->bindValue($bindToken, $bindValue, \PDO::PARAM_INT);
+    $statementUpdateMacros->bindValue(':path', $servicePath, PDO::PARAM_STR);
+    foreach ($bindMacroIds as $bindToken => $bindValue) {
+        $statementUpdateMacros->bindValue($bindToken, $bindValue, PDO::PARAM_INT);
     }
     $statementUpdateMacros->execute();
 }
 
 /**
- * Retrieve UUID of a service
+ * Retrieve UUID of a service.
  *
- * @param \CentreonDB $pearDB
+ * @param CentreonDB $pearDB
  * @param int $serviceId
  * @param string $vaultConfigurationName
  *
- * @return string|null
- *
  * @throws Throwable
+ *
+ * @return string|null
  */
 function retrieveServiceSecretUuidFromDatabase(
-    \CentreonDB $pearDB,
+    CentreonDB $pearDB,
     int $serviceId,
     string $vaultConfigurationName
 ): ?string {
     $vaultPath = 'secret::'. $vaultConfigurationName .'::';
     $statement = $pearDB->prepare(
-        <<<SQL
-            SELECT ods.svc_macro_value
-                FROM on_demand_macro_service AS ods
-                WHERE ods.svc_svc_id= :serviceId
-                AND ods.svc_macro_value LIKE :vaultPath
-        SQL
+        <<<'SQL'
+                SELECT ods.svc_macro_value
+                    FROM on_demand_macro_service AS ods
+                    WHERE ods.svc_svc_id= :serviceId
+                    AND ods.svc_macro_value LIKE :vaultPath
+            SQL
     );
-    $statement->bindValue(':serviceId', $serviceId, \PDO::PARAM_STR);
-    $statement->bindValue(':vaultPath', $vaultPath . '%', \PDO::PARAM_STR);
+    $statement->bindValue(':serviceId', $serviceId, PDO::PARAM_STR);
+    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
     $statement->execute();
-    if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+    if (($result = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
         foreach ($result as $columnValue) {
             if (preg_match('/' . VAULT_PATH_REGEX . '/', $columnValue)) {
-                $pathPart = explode("/", $columnValue);
+                $pathPart = explode('/', $columnValue);
+
                 return end($pathPart);
             }
         }
@@ -1099,7 +1112,7 @@ function retrieveServiceSecretUuidFromDatabase(
 }
 
 /**
- * Update Service Secrets in Vault after Massive changing
+ * Update Service Secrets in Vault after Massive changing.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
@@ -1113,7 +1126,7 @@ function retrieveServiceSecretUuidFromDatabase(
  *       originalName?: string
  *  }> $macros
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function updateServiceSecretsInVaultFromMC(
     VaultConfiguration $vaultConfiguration,
@@ -1154,11 +1167,11 @@ function updateServiceSecretsInVaultFromMC(
             $httpClient
         );
 
-        $servicePath = "secret::" . $vaultConfiguration->getName() . "::"
+        $servicePath = 'secret::' . $vaultConfiguration->getName() . '::'
             . $vaultConfiguration->getRootPath()
-            . "/data/monitoring/services/" . $uuid;
+            . '/data/monitoring/services/' . $uuid;
 
-        //Store vault path for macros
+        // Store vault path for macros
         if (! empty($macroPasswordIds)) {
             updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macroPasswordIds, $servicePath);
         }
@@ -1166,7 +1179,7 @@ function updateServiceSecretsInVaultFromMC(
 }
 
 /**
- * Add new macros to the write in vault payload
+ * Add new macros to the write in vault payload.
  *
  * @param array<int,array{
  *      macroName: string,
@@ -1180,7 +1193,7 @@ function updateServiceSecretsInVaultFromMC(
  */
 function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromVault)
 {
-    foreach($macros as $macroInfos) {
+    foreach ($macros as $macroInfos) {
         if (
             $macroInfos['macroPassword'] === '1'
             && ! preg_match('/' . VAULT_PATH_REGEX . '/', $macroInfos['macroValue'])
@@ -1193,7 +1206,7 @@ function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromV
 }
 
 /**
- * Update Service Secrest in Vault
+ * Update Service Secrest in Vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
@@ -1202,7 +1215,7 @@ function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromV
  * @param array $macros
  * @param string|null $uuid
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function updateServiceSecretsInVault(
     VaultConfiguration $vaultConfiguration,
@@ -1247,10 +1260,10 @@ function updateServiceSecretsInVault(
             $httpClient
         );
 
-        $servicePath = "secret::" . $vaultConfiguration->getName() . "::"
-            . $vaultConfiguration->getRootPath() . "/data/monitoring/services/" . $uuid;
+        $servicePath = 'secret::' . $vaultConfiguration->getName() . '::'
+            . $vaultConfiguration->getRootPath() . '/data/monitoring/services/' . $uuid;
 
-        //Store vault path for macros
+        // Store vault path for macros
         if (! empty($macroPasswordIds)) {
             updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macroPasswordIds, $servicePath);
         }
@@ -1275,22 +1288,22 @@ function updateServiceSecretsInVault(
  */
 function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVault): array
 {
-    //Unset existing macros on vault if they no more exist while submitting the form
-    foreach(array_keys($serviceSecretsFromVault) as $secretKey) {
+    // Unset existing macros on vault if they no more exist while submitting the form
+    foreach (array_keys($serviceSecretsFromVault) as $secretKey) {
         $macroName = [];
-        foreach($macros as $macroInfos) {
+        foreach ($macros as $macroInfos) {
             $macroName[] = $macroInfos['macroName'];
             if (array_key_exists('originalName', $macroInfos) && $secretKey === $macroInfos['originalName']) {
                 $serviceSecretsFromVault[$macroInfos['macroName']] = $serviceSecretsFromVault[$secretKey];
             }
         }
-        if (! in_array($secretKey, $macroName)) {
+        if (! in_array($secretKey, $macroName, true)) {
             unset($serviceSecretsFromVault[$secretKey]);
         }
     }
 
-    //Add macros to payload if they are password type and their values have changed
-    foreach($macros as $macroInfos) {
+    // Add macros to payload if they are password type and their values have changed
+    foreach ($macros as $macroInfos) {
         if (
             $macroInfos['macroPassword'] === '1'
             && ! preg_match('/' . VAULT_PATH_REGEX . '/', $macroInfos['macroValue'])
@@ -1303,7 +1316,7 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
 }
 
 /**
- * insert Service Secrets in Vault
+ * insert Service Secrets in Vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param UUIDGeneratorInterface $uuidGenerator
@@ -1315,7 +1328,7 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
  *       originalName?: string
  *  }> $macros
  *
- * @throws \Throwable
+ * @throws Throwable
  */
 function insertServiceSecretsInVault(
     VaultConfiguration $vaultConfiguration,
@@ -1347,9 +1360,268 @@ function insertServiceSecretsInVault(
             $logger,
             $httpClient
         );
-        $servicePath = "secret::" . $vaultConfiguration->getName() . "::" . $vaultConfiguration->getRootPath()
-            . "/data/monitoring/services/" . $uuid;
+        $servicePath = 'secret::' . $vaultConfiguration->getName() . '::' . $vaultConfiguration->getRootPath()
+            . '/data/monitoring/services/' . $uuid;
         updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macroPasswordIds, $servicePath);
+    }
+}
+
+// POLLER MACROS (Configuration > Pollers > Resources)
+
+/**
+ * Retrieve UUID of a poller macro.
+ *
+ * @param CentreonDB $pearDB
+ * @param string $vaultConfigurationName
+ *
+ * @throws Throwable
+ *
+ * @return string|null
+ */
+function retrievePollerMacroUuidFromDatabase(
+    CentreonDB $pearDB,
+    string $vaultConfigurationName
+): ?string {
+    $vaultPath = 'secret::'. $vaultConfigurationName .'::';
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+                SELECT resource_line FROM cfg_resource
+                WHERE resource_line LIKE :vaultPath
+            SQL
+    );
+    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
+    $statement->execute();
+    if (($result = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
+        /** @var array{resource_line:string} $result */
+        if (preg_match('/' . VAULT_PATH_REGEX . '/', $result['resource_line'])) {
+            $pathPart = explode('/', $result['resource_line']);
+
+            return end($pathPart);
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Insert poller macros Secrets in Vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param UUIDGeneratorInterface $uuidGenerator
+ * @param Logger $logger
+ * @param string $key
+ * @param string $value
+ * @param string $uuid
+ *
+ * @throws Exception
+ *
+ * @return string|null
+ */
+function upsertPollerMacroSecretInVault(
+    VaultConfiguration $vaultConfiguration,
+    UUIDGeneratorInterface $uuidGenerator,
+    Logger $logger,
+    string $key,
+    string $value,
+    ?string $uuid = null,
+): string|null {
+    if (! empty($value)) {
+        $httpClient = new CentreonRestHttp();
+        $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+
+        $data = [];
+        if ($uuid !== null) {
+            $data = readPollerMacroSecretsInVault($vaultConfiguration, $logger, $uuid, $httpClient, $clientToken);
+        } else {
+            $uuid = $uuidGenerator->generateV4();
+        }
+
+        $data[$key] = $value;
+
+        writePollerMacroSecretsInVault(
+            $vaultConfiguration,
+            $clientToken,
+            $data,
+            $logger,
+            $httpClient,
+            $uuid,
+        );
+
+        return 'secret::' . $vaultConfiguration->getName() . '::' . $vaultConfiguration->getRootPath()
+            . '/data/monitoring/pollerMacros/' . $uuid;
+    }
+
+    return null;
+}
+
+/**
+ * delete poller macros Secrets in Vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param Logger $logger
+ * @param string $uuid
+ * @param string $key
+ *
+ * @throws Exception
+ */
+function deletePollerMacroSecretInVault(
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    string $uuid,
+    string $key,
+): void {
+    $httpClient = new CentreonRestHttp();
+    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+
+    $data = readPollerMacroSecretsInVault($vaultConfiguration, $logger, $uuid, $httpClient, $clientToken);
+
+    unset($data[str_replace('$', '', $key)]);
+
+    if ($data !== []) {
+        writePollerMacroSecretsInVault(
+            $vaultConfiguration,
+            $clientToken,
+            $data,
+            $logger,
+            $httpClient,
+            $uuid,
+        );
+    } else {
+        deletePollerMacroSecretsFromVault(
+            $vaultConfiguration,
+            $logger,
+            $uuid,
+            $httpClient,
+            $clientToken,
+        );
+    }
+}
+
+/**
+ * Write poller macro secrets data in vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param string $clientToken
+ * @param array<string,string> $macros
+ * @param Logger $logger
+ * @param CentreonRestHttp $httpClient
+ * @param string $uuid
+ *
+ * @throws Exception
+ */
+function writePollerMacroSecretsInVault(
+    VaultConfiguration $vaultConfiguration,
+    string $clientToken,
+    array $macros,
+    Logger $logger,
+    CentreonRestHttp $httpClient,
+    string $uuid
+): void {
+    try {
+        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
+            . '/v1/' . $vaultConfiguration->getRootPath()
+            . '/data/monitoring/pollerMacros/' . $uuid;
+        $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+        $logger->info(
+            'Writing Poller Macro Secrets at : ' . $url,
+            ['secrets' => implode(', ', array_keys($macros))]
+        );
+        $httpClient->call($url, 'POST', ['data' => $macros], ['X-Vault-Token: ' . $clientToken]);
+    } catch (Exception $ex) {
+        $logger->error(
+            'Unable to write Poller Macro secrets into vault',
+            [
+                'message' => $ex->getMessage(),
+                'trace' => $ex->getTraceAsString(),
+                'secrets' => implode(', ', array_keys($macros)),
+            ]
+        );
+
+        throw $ex;
+    }
+
+    $logger->info(sprintf('Write successfully secrets in vault: %s', implode(', ', array_keys($macros))));
+}
+
+/**
+ * Get poller macro secrets data from vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param Logger $logger
+ * @param string $uuid
+ * @param null|CentreonRestHttp $httpClient
+ * @param null|string $clientToken
+ *
+ * @throws Throwable
+ *
+ * @return array<string, string>
+ */
+function readPollerMacroSecretsInVault(
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    string $uuid,
+    ?CentreonRestHttp $httpClient = null,
+    ?string $clientToken = null,
+): array {
+    $httpClient ??= new CentreonRestHttp();
+    $clientToken ??= authenticateToVault($vaultConfiguration, $logger, $httpClient);
+
+    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
+        . '/v1/' . $vaultConfiguration->getRootPath() . '/data/monitoring/pollerMacros/' . $uuid;
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Search Poller macros secrets at: %s', $url));
+
+    try {
+        $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
+        if (array_key_exists('data', $content) && array_key_exists('data', $content['data'])) {
+            return $content['data']['data'];
+        }
+
+        return [];
+    } catch (RestNotFoundException $ex) {
+        $logger->info('Poller Macros not found in vault');
+
+        return [];
+    } catch (Exception $ex) {
+        $logger->error('Unable to get secrets for Poller macros');
+
+        throw $ex;
+    }
+}
+
+/**
+ * Delete poller macro secret from vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param Logger $logger
+ * @param string $uuid
+ * @param CentreonRestHttp $httpClient
+ * @param string $clientToken
+ *
+ * @throws Throwable
+ */
+function deletePollerMacroSecretsFromVault(
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    string $uuid,
+    CentreonRestHttp $httpClient,
+    string $clientToken,
+): void {
+    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
+        . '/v1/' . $vaultConfiguration->getRootPath() . '/metadata/monitoring/pollerMacros/' . $uuid;
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Delete Poller macros secrets at: %s', $url));
+
+    try {
+        $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
+
+    } catch (RestNotFoundException $ex) {
+        $logger->info('Poller Macros not found in vault');
+
+    } catch (Exception $ex) {
+        $logger->error('Unable to delete secrets for Poller macros');
+
+        throw $ex;
     }
 }
 

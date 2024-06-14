@@ -1,5 +1,5 @@
 import * as Curve from '@visx/curve';
-import { always, cond, equals } from 'ramda';
+import { always, cond, equals, isNil } from 'ramda';
 
 import { alpha } from '@mui/material';
 
@@ -9,7 +9,7 @@ const commonTickLabelProps = {
   textAnchor: 'middle'
 };
 
-const margin = { bottom: 30, left: 55, right: 55, top: 30 };
+const margin = { bottom: 30, left: 50, right: 50, top: 30 };
 
 interface FillColor {
   areaColor: string;
@@ -19,8 +19,11 @@ interface FillColor {
 const getFillColor = ({
   transparency,
   areaColor
-}: FillColor): string | undefined =>
-  transparency ? alpha(areaColor, 1 - transparency * 0.01) : undefined;
+}: FillColor): string | undefined => {
+  return !isNil(transparency)
+    ? alpha(areaColor, 1 - transparency * 0.01)
+    : undefined;
+};
 
 const dateFormat = 'L';
 const timeFormat = 'LT';
