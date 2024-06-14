@@ -54,9 +54,11 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
      */
     public function find(): ?VaultConfiguration
     {
-        if (! $vaultConfiguration = file_get_contents($this->configurationFile, true)) {
+        if (! $this->exists()) {
             return null;
         }
+
+        $vaultConfiguration = file_get_contents($this->configurationFile, true);
 
         $record = json_decode($vaultConfiguration, true)
             ?: throw new \Exception('Invalid vault configuration');

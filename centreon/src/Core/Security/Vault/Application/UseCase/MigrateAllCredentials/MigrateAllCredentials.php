@@ -211,6 +211,9 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($hosts as $host) {
+            if ($host->getSnmpCommunity() === '' || str_starts_with($host->getSnmpCommunity(), 'secret::')) {
+                continue;
+            }
             $credential = new CredentialDto();
             $credential->resourceId = $host->getId();
             $credential->type = CredentialTypeEnum::TYPE_HOST;
@@ -231,6 +234,12 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($hostTemplates as $hostTemplate) {
+            if (
+                $hostTemplate->getSnmpCommunity() === ''
+                || str_starts_with($hostTemplate->getSnmpCommunity(), 'secret::'))
+            {
+                continue;
+            }
             $credential = new CredentialDto();
             $credential->resourceId = $hostTemplate->getId();
             $credential->type = CredentialTypeEnum::TYPE_HOST_TEMPLATE;
@@ -251,6 +260,9 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($hostMacros as $hostMacro) {
+            if ($hostMacro->getValue() === '' || str_starts_with($hostMacro->getValue(), 'secret::')) {
+                continue;
+            }
             $credential = new CredentialDto();
             $credential->resourceId = $hostMacro->getOwnerId();
             $credential->type = CredentialTypeEnum::TYPE_HOST;
@@ -271,6 +283,9 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($serviceMacros as $serviceMacro) {
+            if ($serviceMacro->getValue() === '' || str_starts_with($serviceMacro->getValue(), 'secret::')) {
+                continue;
+            }
             $credential = new CredentialDto();
             $credential->resourceId = $serviceMacro->getOwnerId();
             $credential->type = CredentialTypeEnum::TYPE_SERVICE;
@@ -291,6 +306,9 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($pollerMacros as $pollerMacro) {
+            if ($pollerMacro->getValue() === '' || str_starts_with($pollerMacro->getValue(), 'secret::')) {
+                continue;
+            }
             $credential = new CredentialDto();
             $credential->resourceId = $pollerMacro->getId();
             $credential->type = CredentialTypeEnum::TYPE_POLLER_MACRO;
@@ -310,7 +328,12 @@ final class MigrateAllCredentials
     private function createKnowledgeBasePasswordCredentialDto(?Option $knowledgeBasePasswordOption): array
     {
         $credentials = [];
-        if ($knowledgeBasePasswordOption === null) {
+        if (
+            $knowledgeBasePasswordOption === null
+            || ($knowledgeBasePasswordOption->getValue() === ''
+                || str_starts_with($knowledgeBasePasswordOption->getValue(), 'secret::')
+            )
+        ){
             return $credentials;
         }
 

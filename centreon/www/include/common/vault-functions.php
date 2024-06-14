@@ -37,7 +37,6 @@
 use Centreon\Domain\Log\Logger;
 use Utility\Interfaces\UUIDGeneratorInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Utility\Interfaces\UUIDGeneratorInterface;
 
 const VAULT_PATH_REGEX = '^secret::[^:]*::';
 const SNMP_COMMUNITY_MACRO_NAME = '_HOSTSNMPCOMMUNITY';
