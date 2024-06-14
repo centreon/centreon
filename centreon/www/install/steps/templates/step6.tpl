@@ -87,7 +87,7 @@
                     <tr>
                         <td class='formlabel'>
                             {/literal}{t}{literal}
-                                Use vault to store sensitive data
+                                Use a vault to store sensitive data
                             {/literal}{/t}{literal}
                         </td>
                         <td class='formvalue'>

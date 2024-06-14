@@ -2684,7 +2684,7 @@ msgstr "Mot de passe de l'utilisateur de la base de données"
 msgid "Confirm user password"
 msgstr "Confirmer le mot de passe de l'utilisateur"
 
-msgid "Use vault to store sensitive data"
+msgid "Use a vault to store sensitive data"
 msgstr "Utiliser un coffre fort pour stocker les données sensibles"
 
 #: centreon-web/www/install/steps/functions.php:140
