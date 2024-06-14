@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
+namespace Core\PollerMacro\Application\Repository;
 
-enum CredentialTypeEnum
+use Core\PollerMacro\Domain\Model\PollerMacro;
+
+interface WritePollerMacroRepositoryInterface
 {
-    case TYPE_HOST;
-    case TYPE_HOST_TEMPLATE;
-    case TYPE_SERVICE;
-    case TYPE_POLLER_MACRO;
+    /**
+     * Update a poller macro.
+     *
+     * @param PollerMacro $macro
+     *
+     * @throws \Throwable
+     */
+    public function update(PollerMacro $macro): void;
 }

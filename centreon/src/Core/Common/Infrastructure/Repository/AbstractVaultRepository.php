@@ -34,12 +34,14 @@ abstract class AbstractVaultRepository
     use LoggerTrait;
     public const HOST_VAULT_PATH = 'monitoring/hosts';
     public const SERVICE_VAULT_PATH = 'monitoring/services';
+    public const POLLER_MACRO_VAULT_PATH = 'monitoring/pollerMacros';
     protected const DEFAULT_SCHEME = 'https';
 
     /** @var string[] */
     protected array $availablePaths = [
         self::HOST_VAULT_PATH,
         self::SERVICE_VAULT_PATH,
+        self::POLLER_MACRO_VAULT_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;
