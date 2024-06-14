@@ -98,7 +98,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
             $request .= $searchRequest;
         }
 
-        $request .= ' GROUP BY host_categories.name';
+        $request .= ' GROUP BY host_categories.id';
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
