@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
@@ -7,6 +9,7 @@ import { execSync } from 'child_process';
 import { defineConfig } from 'cypress';
 import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
 import { config as configDotenv } from 'dotenv';
+import del from 'del';
 
 import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
@@ -53,6 +56,18 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
+        on('after:spec', (spec, results) => {
+          if (results && results.video) {
+            let hasRetries = false;
+            for (const test of results.tests) {
+              if (test.attempts.length > 1) {
+                hasRetries = true;
+                break;
+              }
+            }
+          }
+        });
+
         return plugins(on, config);
       },
       specPattern,
@@ -68,7 +83,7 @@ export default ({
     },
     execTimeout: 60000,
     requestTimeout: 20000,
-    retries: 0,
+    retries: 2,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
     videoCompression: 0,

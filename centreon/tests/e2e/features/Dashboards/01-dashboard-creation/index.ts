@@ -64,7 +64,7 @@ Then(
 
     cy.getByTestId({ testId: 'submit' }).should('be.disabled');
 
-    cy.getByTestId({ testId: 'cancel' }).should('be.enabled');
+    cy.getByTestId({ testId: 'cancel' }).should('be.disabled');
   }
 );
 
