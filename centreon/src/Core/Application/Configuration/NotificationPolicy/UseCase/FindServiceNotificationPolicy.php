@@ -114,7 +114,6 @@ class FindServiceNotificationPolicy
             );
         }
 
-
         $realtimeService = $this->readRealTimeServiceRepository->findServiceById($hostId, $serviceId);
         if ($realtimeService === null) {
             $this->handleServiceNotFound($hostId, $serviceId, $presenter);

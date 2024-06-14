@@ -102,7 +102,7 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
      *
      * @param int $hostId
      * @param int $serviceId
-     * @param AccessGroup[]
+     * @param AccessGroup[] $accessGroups
      */
     private function fetchNotifiedContactsAndContactGroups(int $hostId, int $serviceId, array $accessGroups = []): void
     {
@@ -130,7 +130,18 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
             $notifiedContactGroupIds = $host['contact_groups_cache'] ?? [];
         }
 
-        $this->notifiedContacts[$serviceId] = $this->findContactsByIds($notifiedContactIds);
-        $this->notifiedContactGroups[$serviceId] = $this->findContactGroupsByIds($notifiedContactGroupIds);
+        if ($accessGroups === []) {
+            $this->notifiedContacts[$serviceId] = $this->findContactsByIds($notifiedContactIds);
+            $this->notifiedContactGroups[$serviceId] = $this->findContactGroupsByIds($notifiedContactGroupIds);
+        } else {
+            $this->notifiedContacts[$serviceId] = $this->findContactsByIdsAndAccessGroups(
+                $notifiedContactIds,
+                $accessGroups
+            );
+            $this->notifiedContactGroups[$serviceId] = $this->findContactGroupsByIdsAndAccessGroups(
+                $notifiedContactGroupIds,
+                $accessGroups
+            );
+        }
     }
 }
