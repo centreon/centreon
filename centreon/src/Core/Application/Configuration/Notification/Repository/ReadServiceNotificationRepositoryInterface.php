@@ -25,6 +25,7 @@ namespace Core\Application\Configuration\Notification\Repository;
 
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadServiceNotificationRepositoryInterface
 {
