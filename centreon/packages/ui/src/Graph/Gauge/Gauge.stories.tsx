@@ -16,13 +16,10 @@ const Template = (props): JSX.Element => (
     <div style={{ height: '500px', width: '500px' }}>
       <Gauge {...props} />
     </div>
-    <div style={{ height: '200px', width: '200px' }}>
+    <div style={{ height: '100px', width: '120px' }}>
       <Gauge {...props} />
     </div>
-    <div style={{ height: '300px', width: '400px' }}>
-      <Gauge {...props} />
-    </div>
-    <div style={{ height: '400px', width: '300px' }}>
+    <div style={{ height: '300px', width: '200px' }}>
       <Gauge {...props} />
     </div>
   </div>

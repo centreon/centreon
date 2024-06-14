@@ -69,6 +69,8 @@ const ResponsiveBarStack = ({
     : BarStackHorizontal;
 
   const isSmallHeight = isVerticalBar ? lt(height, 190) : lt(height, 100);
+  const isSmallWidth = lt(height, 150);
+  const mustDisplayLegend = isSmallWidth ? false : displayLegend;
 
   return (
     <div className={classes.container} style={{ width }}>
@@ -198,7 +200,7 @@ const ResponsiveBarStack = ({
           </svg>
         </div>
       </div>
-      {displayLegend && (
+      {mustDisplayLegend && (
         <div data-testid="Legend" ref={legendRef}>
           <Legend
             data={data}

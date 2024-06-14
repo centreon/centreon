@@ -40,7 +40,7 @@ const ResponsiveSingleBar = ({
   const { classes } = useTooltipStyles();
   const theme = useTheme();
 
-  const isSmallHeight = lt(height, 90);
+  const isSmallHeight = lt(height, 150);
 
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
@@ -120,7 +120,7 @@ const ResponsiveSingleBar = ({
 
   const barHeight = isSmallHeight ? barHeights.small : barHeights[size];
 
-  const barY = groupMargin + (isSmall ? 0 : 2 * margins.top);
+  const barY = groupMargin + (isSmall ? 5 : 2 * margins.top);
 
   const realBarHeight =
     !isSmall && textHeight + barHeight > height

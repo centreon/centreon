@@ -66,7 +66,6 @@ const ResponsivePie = ({
     legendScale,
     svgContainerSize,
     svgSize,
-    svgWrapperWidth,
     total,
     innerRadius,
     isContainsExactlyOneNonZeroValue
@@ -80,7 +79,8 @@ const ResponsivePie = ({
     width
   });
 
-  const isSmall = lt(width, 100);
+  const isSmall = lt(width, 130);
+  const mustDisplayLegend = isSmall ? false : displayLegend;
 
   const { classes } = usePieStyles({ svgSize });
 
@@ -88,15 +88,13 @@ const ResponsivePie = ({
     <div
       className={classes.container}
       style={{
-        height,
-        width
+        height
       }}
     >
       <div
         className={classes.svgWrapper}
         style={{
-          minHeight: height,
-          width: svgWrapperWidth
+          minHeight: equals(variant, 'donut') && isSmall ? 'auto' : height
         }}
       >
         {(equals(variant, 'pie') || isSmall) && title && (
@@ -112,7 +110,11 @@ const ResponsivePie = ({
             width: svgContainerSize
           }}
         >
-          <svg data-variant={variant} height={svgSize} width={svgSize}>
+          <svg
+            data-variant={variant}
+            height={Math.ceil(svgSize)}
+            width={Math.ceil(svgSize)}
+          >
             <Group left={half} top={half}>
               <Pie
                 cornerRadius={4}
@@ -226,7 +228,7 @@ const ResponsivePie = ({
           </svg>
         </div>
       </div>
-      {displayLegend && (
+      {mustDisplayLegend && (
         <div data-testid="Legend" ref={legendRef}>
           <Legend
             data={data}

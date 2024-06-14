@@ -1,6 +1,6 @@
 import { isNil } from 'ramda';
 
-import { Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 
 import FluidTypography from '../../Typography/FluidTypography';
 import { LineChartData, Thresholds } from '../common/models';

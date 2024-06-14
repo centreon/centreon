@@ -356,6 +356,42 @@ describe('Dashboard', () => {
 
       cy.makeSnapshot();
     });
+
+    it('resizes the widget to its minimum size when the handle is dragged', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'width')
+        .and('equal', '276px');
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'height')
+        .and('equal', '232px');
+
+      cy.get('[class*="react-resizable-handle-se"]')
+        .eq(0)
+        .realMouseDown()
+        .realMouseMove(-100, -100)
+        .realMouseUp();
+
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'width')
+        .and('equal', '174px');
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'height')
+        .and('equal', '148px');
+
+      cy.makeSnapshot();
+    });
   });
 
   describe('Delete widget', () => {
