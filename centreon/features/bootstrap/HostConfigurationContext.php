@@ -15,13 +15,13 @@ class HostConfigurationContext extends CentreonContext
     protected $host2 = array(
         'name' => 'hostName2',
         'alias' => 'hostAlias2',
-        'address' => 'host2@localhost'
+        'address' => '2.3.4.5'
     );
 
     protected $host3 = array(
         'name' => 'hostName3',
         'alias' => 'hostAlias3',
-        'address' => 'host3@localhost'
+        'address' => '3.4.5.6'
     );
 
     protected $hostGroup1 = array(
@@ -60,7 +60,7 @@ class HostConfigurationContext extends CentreonContext
     protected $initialProperties = array(
         'name' => 'hostName',
         'alias' => 'hostAlias',
-        'address' => 'host@localhost',
+        'address' => '1.2.3.4',
         'snmp_community' => 'hostSnmpCommunity',
         'snmp_version' => '1',
         'location' => 'America/Caracas',
@@ -68,7 +68,7 @@ class HostConfigurationContext extends CentreonContext
             'generic-host'
         ),
         'check_command' => 'check_http',
-        'command_arguments' => 'hostCommandArgument',
+        'command_arguments' => '!hostCommandArgument',
         'check_period' => 'workhours',
         'max_check_attempts' => 34,
         'normal_check_interval' => 5,
@@ -100,7 +100,7 @@ class HostConfigurationContext extends CentreonContext
         'high_flap_threshold' => 85,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
-        'event_handler_arguments' => 'event_handler_arguments',
+        'event_handler_arguments' => '!event_handler_arguments',
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
@@ -114,7 +114,7 @@ class HostConfigurationContext extends CentreonContext
     protected $duplicatedProperties = array(
         'name' => 'hostName_1',
         'alias' => 'hostAlias',
-        'address' => 'host@localhost',
+        'address' => '1.2.3.4',
         'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '1',
         'location' => 'America/Caracas',
@@ -122,7 +122,7 @@ class HostConfigurationContext extends CentreonContext
             'generic-host'
         ),
         'check_command' => 'check_http',
-        'command_arguments' => 'hostCommandArgument',
+        'command_arguments' => '!hostCommandArgument',
         'check_period' => 'workhours',
         'max_check_attempts' => 34,
         'normal_check_interval' => 5,
@@ -154,7 +154,7 @@ class HostConfigurationContext extends CentreonContext
         'high_flap_threshold' => 85,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
-        'event_handler_arguments' => 'event_handler_arguments',
+        'event_handler_arguments' => '!event_handler_arguments',
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
@@ -168,7 +168,7 @@ class HostConfigurationContext extends CentreonContext
     protected $updatedProperties = array(
         'name' => 'hostNameChanged',
         'alias' => 'hostAliasChanged',
-        'address' => 'hostChanged@localhost',
+        'address' => '4.3.2.1',
         'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '3',
         'macros' => array(
@@ -179,7 +179,7 @@ class HostConfigurationContext extends CentreonContext
             'hostTemplateName'
         ),
         'check_command' => 'check_https',
-        'command_arguments' => 'hostCommandArgumentChanged',
+        'command_arguments' => '!hostCommandArgumentChanged',
         'check_period' => 'none',
         'max_check_attempts' => 43,
         'normal_check_interval' => 4,
@@ -211,7 +211,7 @@ class HostConfigurationContext extends CentreonContext
         'high_flap_threshold' => 51,
         'event_handler_enabled' => 1,
         'event_handler' => 'check_http',
-        'event_handler_arguments' => 'eventHandlerArgumentsChanged',
+        'event_handler_arguments' => '!eventHandlerArgumentsChanged',
         'url' => 'hostMassiveChangeUrlChanged',
         'notes' => 'hostMassiveChangeNotesChanged',
         'action_url' => 'hostMassiveChangeActionUrlChanged',

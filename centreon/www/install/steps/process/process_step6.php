@@ -39,6 +39,10 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../functions.php';
 require __DIR__ . '/../../../include/common/common-Func.php';
 
+use Symfony\Component\Dotenv\Dotenv;
+use Core\Common\Infrastructure\FeatureFlags;
+use CentreonLegacy\Core\Install\Step\Step6;
+
 define('SQL_ERROR_CODE_ACCESS_DENIED', 1698);
 
 $requiredParameters = [
@@ -65,19 +69,8 @@ foreach ($parameters as $name => $value) {
     }
 }
 
-// If the vault checkbox is checked, validate that the feature is enabled
 if (array_key_exists('use_vault', $parameters)) {
-    (new \Symfony\Component\Dotenv\Dotenv())->bootEnv('/usr/share/centreon/.env');
-    $isCloudPlatform = false;
-    if (array_key_exists("IS_CLOUD_PLATFORM", $_ENV) && $_ENV["IS_CLOUD_PLATFORM"]) {
-        $isCloudPlatform = true;
-    }
-    $featuresFileContent = file_get_contents(__DIR__ . '/../../../../config/features.json');
-    $featureFlagManager = new \Core\Common\Infrastructure\FeatureFlags($isCloudPlatform, $featuresFileContent);
-    $err['use_vault'] = in_array('vault', $featureFlagManager->getEnabled());
-    if (! $err['use_vault']) {
-        $err['vault_error'] = 'Vault feature is disabled';
-
+    $err['use_vault'] = true;
 }
 
 if (!in_array('db_password', $err['required']) && !in_array('db_password_confirm', $err['required']) &&
@@ -116,7 +109,7 @@ try {
 }
 
 if (!count($err['required']) && $err['password'] && trim($err['connection']) == '') {
-    $step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
+    $step = new Step6($dependencyInjector);
     $step->setDatabaseConfiguration($parameters);
 }
 
