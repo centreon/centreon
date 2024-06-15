@@ -119,6 +119,12 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
     textList: {
       fontSize: '0.75rem',
       fontWeight: theme.typography.fontWeightMedium
+    },
+    textListBottom: {
+      width: 'auto'
+    },
+    textListSide: {
+      width: '95%'
     }
   })
 );
