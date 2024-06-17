@@ -25,6 +25,9 @@ const passPercent = report.stats.passPercent;
 // load retries from the hasRetries.json file
 const retries = {};
 const retriesFile = '../../../../centreon/centreon/packages/js-config/cypress/e2e/results';
+if (!fs.existsSync(retriesFile)) {
+  throw new Error(`Report file ${retriesFile} does not exist`);
+}
 if (fs.existsSync(retriesFile)) {
   retries = JSON.parse(fs.readFileSync(retriesFile, 'utf8'));
 }
