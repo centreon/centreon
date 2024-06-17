@@ -22,9 +22,12 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MonitoringServer;
 
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
  * This class is designed to manage monitoring servers and their associated resources.
@@ -34,17 +37,17 @@ use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface
 class MonitoringServerService implements MonitoringServerServiceInterface
 {
     /**
-     * @var MonitoringServerRepositoryInterface
-     */
-    private $monitoringServerRepository;
-
-    /**
      * PollerService constructor.
+     *
      * @param MonitoringServerRepositoryInterface $pollerRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupstRepository
+     * @param ContactInterface $contact
      */
-    public function __construct(MonitoringServerRepositoryInterface $pollerRepository)
-    {
-        $this->monitoringServerRepository = $pollerRepository;
+    public function __construct(
+        private readonly MonitoringServerRepositoryInterface $monitoringServerRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupsRepository,
+        private readonly ContactInterface $contact
+    ) {
     }
 
     /**
@@ -53,7 +56,21 @@ class MonitoringServerService implements MonitoringServerServiceInterface
     public function findServers(): array
     {
         try {
-            return $this->monitoringServerRepository->findServersWithRequestParameters();
+            if (! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)) {
+                throw MonitoringServerException::listNotAllowed();
+            }
+
+            if ($this->contact->isAdmin()) {
+                return $this->monitoringServerRepository->findServersWithRequestParameters();
+            } else {
+                $accessGroups = $this->readAccessGroupsRepository->findByContact($this->contact);
+
+                return $this->monitoringServerRepository->findServersWithRequestParametersAndAccessGroups(
+                    $accessGroups
+                );
+            }
+        } catch (MonitoringServerException $ex) {
+            throw new MonitoringServerException($ex->getMessage());
         } catch (\Exception $ex) {
             throw new MonitoringServerException('Error when searching for monitoring servers', 0, $ex);
         }
