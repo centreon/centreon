@@ -205,6 +205,11 @@ Given('a resource is in downtime', () => {
     .then((val) => {
       return val.css('background-color') === actionBackgroundColors.inDowntime;
     });
+
+  cy.waitForDowntime({
+    host: 'host1',
+    service: serviceInDtName
+  });
 });
 
 Given('that you have to go to the downtime page', () => {
