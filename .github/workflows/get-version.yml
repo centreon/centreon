@@ -269,7 +269,7 @@ jobs:
               "main": [alma9_mariadb],
               "operating_systems": [alma9_mariadb],
               "databases": [alma9_mariadb],
-            ];
+            };
 
             console.log(context.eventName);
 
@@ -278,7 +278,7 @@ jobs:
                 "main": [alma9_mariadb],
                 "operating_systems": [alma9_mariadb, alma8_mariadb, bullseye_mysql],
                 "databases": [alma9_mariadb, bullseye_mysql],
-              ];
+              };
             }
 
             console.log(matrix);
