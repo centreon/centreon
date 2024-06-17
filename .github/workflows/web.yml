@@ -524,7 +524,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(toJson(toJson(needs.get-version.outputs.os_and_database_matrix).operating_systems)) }}
+        include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).operating_systems) }}
 
     steps:
       - name: Checkout sources
@@ -654,7 +654,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(toJson(needs.get-version.outputs.os_and_database_matrix).operating_systems) }}
+        include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).operating_systems) }}
     name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
@@ -674,7 +674,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(toJson(toJson(needs.get-version.outputs.os_and_database_matrix).databases)) }}
+        include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).databases) }}
     name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/newman.yml
@@ -705,7 +705,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(toJson(toJson(needs.get-version.outputs.os_and_database_matrix).databases)) }}
+        include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).databases) }}
     name: api-integration-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/behat-test.yml
@@ -729,7 +729,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(toJson(toJson(needs.get-version.outputs.os_and_database_matrix).operating_systems)) }}
+        include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).operating_systems) }}
     name: legacy-e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/behat-test.yml
@@ -752,7 +752,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(toJson(toJson(needs.get-version.outputs.os_and_database_matrix).operating_systems)) }}
+        include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).operating_systems) }}
     name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
@@ -784,7 +784,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(toJson(toJson(needs.get-version.outputs.os_and_database_matrix).main)) }}
+        include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).main) }}
     name: performances-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     steps:
