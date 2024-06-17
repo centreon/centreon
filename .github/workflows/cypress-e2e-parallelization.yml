@@ -175,10 +175,14 @@ jobs:
 
               if [ "$retries" != "{}" ]; then
                 echo "Test retries: $retries"
-                retriesHtml="<h2>:warning: Test Retries</h2><table><tr><th>Test Scenario</th></tr>"
+                retriesHtml="<h2>:warning: Test Retries</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
 
-                for key in $(jq -r 'keys[]' $retriesFile); do
-                  retriesHtml+="<tr><td>:warning: $key</td></tr>"
+                # Parcourir chaque clé dans le fichier hasRetries.json
+                echo "$retries" | jq -r 'keys[]' | while read -r key; do
+                  # Extraire la fonctionnalité et le scénario de test
+                  feature=$(echo "$key" | awk -F ' > ' '{print $1}')
+                  scenario=$(echo "$key" | awk -F ' > ' '{print $2}')
+                  retriesHtml+="<tr><td>:warning: $feature</td><td>:warning: $scenario</td></tr>"
                 done
 
                 retriesHtml+="</table>"
