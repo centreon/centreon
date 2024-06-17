@@ -524,7 +524,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).operating_systems) }}
+        include: ${{ fromJson(fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems) }}
 
     steps:
       - name: Checkout sources
