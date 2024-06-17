@@ -233,6 +233,17 @@ jobs:
         with:
           version: 8
 
+      - name: Download Artifactsss
+        uses: actions/download-artifact@v2
+        with:
+          name: hasRetries.json  # Nom de l'artefact à télécharger
+          path: ${{ github.workspace }}/artifacts  # Répertoire où l'artefact sera téléchargé
+
+      - name: Use Artifacts
+        run: |
+          # Utilisation des artefacts téléchargés
+          cat ${{ github.workspace }}/artifacts/hasRetries.json
+
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:

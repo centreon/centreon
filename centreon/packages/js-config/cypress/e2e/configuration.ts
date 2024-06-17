@@ -63,7 +63,7 @@ export default ({
             results.runs.forEach((run) => {
               run.tests.forEach((test) => {
                 if (test.attempts && test.attempts.length > 1) {
-                  const testTitle = test.title.join(' > '); // Convertit le tableau en chaîne de caractères
+                  const testTitle = test.title.join(' > ');
                   testRetries[testTitle] = true;
                 }
               });
@@ -73,7 +73,6 @@ export default ({
           console.log('After run results:', results);
           console.log('Test retries:', testRetries);
 
-          // Sauvegarder l'objet testRetries dans un fichier dans le répertoire e2e/results
           const resultFilePath = path.join(
             __dirname,
             'results',
