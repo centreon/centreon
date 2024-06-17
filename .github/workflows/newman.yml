@@ -464,7 +464,19 @@ jobs:
 
       - name: Display container logs
         if: failure()
-        run: docker compose -f ../../../.github/docker/docker-compose.yml logs
+        run: |
+          echo "::group::docker compose logs"
+          docker compose -f ../../../.github/docker/docker-compose.yml logs
+          echo "::endgroup::"
+
+          echo "::group::centreon-web.log"
+          docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/centreon-web.log 2>/dev/null || echo 'centreon-web.log does not exist'"
+          echo "::endgroup::"
+
+          echo "::group::sql-error.log"
+          docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/sql-error.log 2>/dev/null || echo 'sql-error.log does not exist'"
+          echo "::endgroup::"
+        shell: bash
 
       - name: Replace / with - in the feature path
         id: feature-path
