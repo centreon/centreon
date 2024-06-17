@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Service\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Service\Domain\Model\ServiceStatusesCount;
 
 interface ReadRealTimeServiceRepositoryInterface
 {
@@ -44,4 +45,22 @@ interface ReadRealTimeServiceRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $accessGroupIds
     ): array;
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @return ServiceStatusesCount
+     */
+    public function findStatusesByRequestParameters(RequestParametersInterface $requestParameters): ServiceStatusesCount;
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     * @param int[] $accessGroupIds
+     *
+     * @return ServiceStatusesCount
+     */
+    public function findStatusesByRequestParametersAndAccessGroupIds(
+        RequestParametersInterface $requestParameters,
+        array $accessGroupIds
+    ): ServiceStatusesCount;
 }

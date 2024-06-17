@@ -2684,6 +2684,9 @@ msgstr "Mot de passe de l'utilisateur de la base de données"
 msgid "Confirm user password"
 msgstr "Confirmer le mot de passe de l'utilisateur"
 
+msgid "Use a vault to store sensitive data"
+msgstr "Utiliser un coffre fort pour stocker les données sensibles"
+
 #: centreon-web/www/install/steps/functions.php:140
 msgid "File not found"
 msgstr "Fichier non trouvé"
@@ -18977,6 +18980,12 @@ msgstr "Impossible de migrer les mots de passe"
 
 msgid "No vault configured"
 msgstr "Aucun coffre configuré"
+
+msgid "You are not allowed to access hosts in the real time context"
+msgstr "Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps réel"
+
+msgid "You are not allowed to access services in the real time context"
+msgstr "Vous n'êtes pas autorisé à accéder aux services dans le cadre du temps réel"
 
 msgid "Value sorting"
 msgstr "Tri des valeurs"
