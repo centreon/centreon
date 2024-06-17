@@ -156,6 +156,17 @@ jobs:
           echo "Modified Feature Name: $feature_name_with_dash"
           echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
 
+      - name: Download Artifactsss
+        uses: actions/download-artifact@v2
+        with:
+            name: hasRetries.json  # Nom de l'artefact à télécharger
+            path: ${{ github.workspace }}/artifacts  # Répertoire où l'artefact sera téléchargé
+
+      - name: Use Artifacts
+        run: |
+          # Utilisation des artefacts téléchargés
+           cat ${{ github.workspace }}/artifacts/hasRetries.json
+
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
@@ -232,17 +243,6 @@ jobs:
       - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
           version: 8
-
-      - name: Download Artifactsss
-        uses: actions/download-artifact@v2
-        with:
-          name: hasRetries.json  # Nom de l'artefact à télécharger
-          path: ${{ github.workspace }}/artifacts  # Répertoire où l'artefact sera téléchargé
-
-      - name: Use Artifacts
-        run: |
-          # Utilisation des artefacts téléchargés
-          cat ${{ github.workspace }}/artifacts/hasRetries.json
 
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
