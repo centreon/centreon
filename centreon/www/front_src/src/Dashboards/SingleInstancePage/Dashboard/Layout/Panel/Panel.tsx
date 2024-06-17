@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
-import { cond } from 'ramda';
 
 import { client, RichTextEditor, useMemoComponent } from '@centreon/ui';
 

@@ -1,5 +1,5 @@
 import { Layout } from 'react-grid-layout';
-import { lte, isNil, isEmpty, lt } from 'ramda';
+import { lte, isNil, isEmpty } from 'ramda';
 
 import { DashboardLayout } from '@centreon/ui';
 
