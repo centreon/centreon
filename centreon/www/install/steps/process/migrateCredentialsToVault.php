@@ -120,7 +120,7 @@ function authenticateToVault(VaultConfiguration $vaultConfiguration, CentreonRes
         throw new \Exception('Unable to authenticate to Vault');
     }
 
-    return $content['auth']['client_token'];
+    return $loginResponse['auth']['client_token'];
 }
 
 /**
@@ -147,7 +147,8 @@ function migrateDatabaseCredentials(
 ): string {
     $uuidGenerator = new \Utility\UUIDGenerator();
     $uuid = $uuidGenerator->generateV4();
-    $vaultPath = "secret::hashicorp_vault::jeremy/data/database/" . $uuid;
+    $vaultPathUri = "jeremy/data/database/" . $uuid;
+    $vaultPath = "secret::hashicorp_vault::" . $vaultPathUri;
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
     $url = 'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
         . '/v1/' . $vaultPath;
@@ -156,7 +157,7 @@ function migrateDatabaseCredentials(
     ];
 
     $body = [
-        'data' => $credentials,
+        'data' => ['_DBUSERNAME' => $credentials['username'], '_DBPASSWORD' => $credentials['password']],
     ];
 
     $httpClient->call($url, 'POST', $body, $headers);
