@@ -169,7 +169,7 @@ jobs:
         if: always()
         run: |
             if [ -f "${{ inputs.module_name }}/tests/e2e/results/hasRetries.json" ]; then
-              retries=$(jq '.' e2e/results/hasRetries.json)
+              retries=$(jq '.' centreon/tests/e2e/results/hasRetries.json)
               echo "Test retries: $retries"
               echo "There were test retries: $retries" >> $GITHUB_STEP_SUMMARY
               echo "retries=$retries" >> $GITHUB_OUTPUT
