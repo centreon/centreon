@@ -63,7 +63,7 @@ export default ({
             results.runs.forEach((run) => {
               run.tests.forEach((test) => {
                 if (test.attempts && test.attempts.length > 1) {
-                  const testTitle = test.title.join(' > ');
+                  const testTitle = test.title.join(' > '); // Convertit le tableau en chaîne de caractères
                   testRetries[testTitle] = true;
                 }
               });
@@ -73,9 +73,10 @@ export default ({
           console.log('After run results:', results);
           console.log('Test retries:', testRetries);
 
+          // Sauvegarder l'objet testRetries dans un fichier dans le répertoire e2e/results
           const resultFilePath = path.join(
             __dirname,
-            'results',
+            '../../../../tests/e2e/results',
             'hasRetries.json'
           );
           fs.writeFileSync(
@@ -101,7 +102,7 @@ export default ({
     requestTimeout: 20000,
     retries: {
       openMode: 0,
-      runMode: 1
+      runMode: 2
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
