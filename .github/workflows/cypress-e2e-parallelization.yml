@@ -168,7 +168,7 @@ jobs:
         id: check_retries
         if: always()
         run: |
-            if [ -f "e2e/results/hasRetries.json" ]; then
+            if [ -f "${{ inputs.module_name }}/tests/e2e/results/hasRetries.json" ]; then
               retries=$(jq '.' e2e/results/hasRetries.json)
               echo "Test retries: $retries"
               echo "There were test retries: $retries" >> $GITHUB_STEP_SUMMARY
