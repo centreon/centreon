@@ -65,12 +65,23 @@ export default ({
                 break;
               }
             }
+            console.log(`Spec: ${spec.relative}, Retries: ${hasRetries}`);
           }
         });
 
-        // Add logging for debugging
         on('after:run', (results) => {
+          let hasRetries = false;
+          if ('runs' in results) {
+            results.runs.forEach((run) => {
+              run.tests.forEach((test) => {
+                if (test.attempts && test.attempts.length > 1) {
+                  hasRetries = true;
+                }
+              });
+            });
+          }
           console.log('After run results:', results);
+          console.log('Were there any retries? ', hasRetries);
         });
 
         return plugins(on, config);
