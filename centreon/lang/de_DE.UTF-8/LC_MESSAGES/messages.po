@@ -17007,3 +17007,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Tooltip"
 # msgstr ""
+
+# msgid "Add to playlist"
+# msgstr ""

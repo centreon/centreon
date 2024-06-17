@@ -17789,3 +17789,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Tooltip"
 # msgstr ""
+
+# msgid "Add to playlist"
+# msgstr ""

@@ -19109,3 +19109,6 @@ msgstr "Axe"
 
 msgid "Tooltip"
 msgstr "Infobulle"
+
+msgid "Add to playlist"
+msgstr "Ajouter à une liste de diffusion"
