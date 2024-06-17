@@ -22,16 +22,6 @@ const totalPending = report.stats.pending;
 const totalFailures = report.stats.failures;
 const duration = report.stats.duration / 1000;
 const passPercent = report.stats.passPercent;
-// load retries from the hasRetries.json file
-const retries = {};
-const retriesFile = '../../../../centreon/centreon/packages/js-config/cypress/e2e/results';
-if (!fs.existsSync(retriesFile)) {
-  throw new Error(`Report file ${retriesFile} does not exist`);
-}
-if (fs.existsSync(retriesFile)) {
-  retries = JSON.parse(fs.readFileSync(retriesFile, 'utf8'));
-}
-
 
 const summary = `<h1>Cypress Test summary</h1>
 <ul>
@@ -42,7 +32,6 @@ const summary = `<h1>Cypress Test summary</h1>
   <li>:x: Failures: ${totalFailures}</li>
   <li>:bar_chart: Pass percent: ${passPercent}%</li>
   <li>:stopwatch: Duration: ${duration} seconds</li>
-  <li>:repeat: Retries: ${retries}</li>
 </ul>`;
 
 const getTestsBySuite = (suite) => {
