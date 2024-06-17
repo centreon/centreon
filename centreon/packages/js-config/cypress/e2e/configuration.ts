@@ -68,6 +68,11 @@ export default ({
           }
         });
 
+        // Add logging for debugging
+        on('after:run', (results) => {
+          console.log('After run results:', results);
+        });
+
         return plugins(on, config);
       },
       specPattern,
