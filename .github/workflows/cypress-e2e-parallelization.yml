@@ -166,16 +166,17 @@ jobs:
 
       - name: Check for test retries
         id: check_retries
+        if: always()
         run: |
-              if [ -f "e2e/results/hasRetries.json" ]; then
-                retries=$(jq '.' e2e/results/hasRetries.json)
-                echo "Test retries: $retries"
-                echo "There were test retries: $retries" >> $GITHUB_STEP_SUMMARY
-                echo "retries=$retries" >> $GITHUB_OUTPUT
-              else
-                echo "hasRetries.json not found!"
-                echo "retries={}" >> $GITHUB_OUTPUT
-              fi
+            if [ -f "e2e/results/hasRetries.json" ]; then
+              retries=$(jq '.' e2e/results/hasRetries.json)
+              echo "Test retries: $retries"
+              echo "There were test retries: $retries" >> $GITHUB_STEP_SUMMARY
+              echo "retries=$retries" >> $GITHUB_OUTPUT
+            else
+              echo "hasRetries.json not found!"
+              echo "retries={}" >> $GITHUB_OUTPUT
+            fi
         shell: bash
 
       - name: Upload test reports
