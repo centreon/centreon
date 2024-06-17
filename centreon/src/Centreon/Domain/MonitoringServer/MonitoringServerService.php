@@ -56,7 +56,7 @@ class MonitoringServerService implements MonitoringServerServiceInterface
     public function findServers(): array
     {
         try {
-            if (! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)) {
+            if (! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)) {
                 throw MonitoringServerException::listNotAllowed();
             }
 
