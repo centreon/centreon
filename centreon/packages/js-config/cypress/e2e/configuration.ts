@@ -56,19 +56,6 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        on('after:spec', (spec, results) => {
-          if (results && results.video) {
-            let hasRetries = false;
-            for (const test of results.tests) {
-              if (test.attempts.length > 1) {
-                hasRetries = true;
-                break;
-              }
-            }
-            console.log(`Spec: ${spec.relative}, Retries: ${hasRetries}`);
-          }
-        });
-
         on('after:run', (results) => {
           let hasRetries = false;
           if ('runs' in results) {
