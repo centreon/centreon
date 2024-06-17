@@ -94,21 +94,37 @@ runs:
           jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
           rm "$report_path"
 
-          # Extract retry information
-          retry_summary=$(jq -r '.tests[] | select(.retry!= null) |.name + ": " + (.retry + 1) + " retries"' "$report_path_updated")
-
           # Show the content of the modified file
           echo "::group::${feature_name}-report.json"
           cat "$report_path_updated"
-          echo "::endgroup::"
-
-          # Show the retry summary
-          echo "::group::Retry Summary"
-          echo "$retry_summary"
           echo "::endgroup::"
 
         else
           echo "Report file not found: $report_path"
           exit 1
         fi
+      shell: bash
+
+    - name: Check for test retries
+      id: check_retries
+      run: |
+          if [ -f "e2e/results/hasRetries.json" ]; then
+            retries=$(jq '.' e2e/results/hasRetries.json)
+            echo "Test retries: $retries"
+            echo "retries=$retries" >> $GITHUB_OUTPUT
+          else
+            echo "hasRetries.json not found!"
+            echo "retries={}" >> $GITHUB_OUTPUT
+          fi
+      shell: bash
+
+    - name: Use retry status
+      run: |
+          retries="${{ steps.check_retries.outputs.retries }}"
+          if [ "$retries" != "{}" ]; then
+            echo "There were test retries:"
+            echo "$retries"
+          else
+            echo "No test retries"
+          fi
       shell: bash

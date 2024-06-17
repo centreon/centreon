@@ -5,11 +5,12 @@
 /* eslint-disable import/no-unresolved */
 
 import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 import { defineConfig } from 'cypress';
 import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
 import { config as configDotenv } from 'dotenv';
-import del from 'del';
 
 import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
@@ -57,18 +58,31 @@ export default ({
         tasks(on);
 
         on('after:run', (results) => {
-          let hasRetries = false;
+          const testRetries: { [key: string]: boolean } = {};
           if ('runs' in results) {
             results.runs.forEach((run) => {
               run.tests.forEach((test) => {
                 if (test.attempts && test.attempts.length > 1) {
-                  hasRetries = true;
+                  const testTitle = test.title.join(' > '); // Convertit le tableau en chaîne de caractères
+                  testRetries[testTitle] = true;
                 }
               });
             });
           }
+
           console.log('After run results:', results);
-          console.log('Were there any retries? ', hasRetries);
+          console.log('Test retries:', testRetries);
+
+          // Sauvegarder l'objet testRetries dans un fichier dans le répertoire e2e/results
+          const resultFilePath = path.join(
+            __dirname,
+            'results',
+            'hasRetries.json'
+          );
+          fs.writeFileSync(
+            resultFilePath,
+            JSON.stringify(testRetries, null, 2)
+          );
         });
 
         return plugins(on, config);
