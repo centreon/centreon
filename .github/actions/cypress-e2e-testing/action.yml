@@ -124,6 +124,7 @@ runs:
           if [ "$retries" != "{}" ]; then
             echo "There were test retries:"
             echo "$retries"
+            echo "There were test retries: $retries" >> $GITHUB_STEP_SUMMARY
           else
             echo "No test retries"
           fi
