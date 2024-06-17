@@ -38,7 +38,7 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
     width: '45%'
   },
   panelHeaderContentWithShrink: {
-    width: '47%'
+    width: '20%'
   },
   panelHeaderRefreshButton: {
     height: 'auto',

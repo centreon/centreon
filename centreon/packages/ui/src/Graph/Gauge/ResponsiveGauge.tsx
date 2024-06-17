@@ -115,7 +115,8 @@ const ResponsiveGauge = ({
               style={{
                 fill: pieColor,
                 ...theme.typography.h3,
-                fontSize: Math.min(width, height) / (gaugeValue?.length || 0)
+                fontSize:
+                  Math.min(width, height) / (gaugeValue?.length || 1) + 3
               }}
               textAnchor="middle"
               x="0%"

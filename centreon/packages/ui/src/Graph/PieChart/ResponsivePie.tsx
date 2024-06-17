@@ -79,8 +79,10 @@ const ResponsivePie = ({
     width
   });
 
+  const isTooSmallForLegend = lt(width, 170);
+
   const isSmall = lt(width, 130);
-  const mustDisplayLegend = isSmall ? false : displayLegend;
+  const mustDisplayLegend = isTooSmallForLegend ? false : displayLegend;
 
   const { classes } = usePieStyles({ svgSize });
 

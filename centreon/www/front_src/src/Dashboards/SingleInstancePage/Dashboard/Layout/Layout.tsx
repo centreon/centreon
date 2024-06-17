@@ -65,8 +65,7 @@ const PanelsLayout = ({
                   forceDisplayShrinkRefresh={
                     lte(w, 2) &&
                     !isNil(options?.name) &&
-                    !isEmpty(options?.name) &&
-                    !lt(options.name.length, 5)
+                    !isEmpty(options?.name)
                   }
                   id={i}
                   linkToResourceStatus={

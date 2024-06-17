@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
+import { cond } from 'ramda';
 
 import { client, RichTextEditor, useMemoComponent } from '@centreon/ui';
 
@@ -87,23 +88,44 @@ const Panel = ({
 
   const isGenericTextPanel = isGenericText(panelConfigurations?.path);
 
+  const getDescription = (): JSX.Element | null => {
+    if (!displayDescription) {
+      return null;
+    }
+
+    if (isGenericTextPanel) {
+      return (
+        <RichTextEditor
+          disabled
+          contentClassName={cx(isGenericTextPanel && classes.description)}
+          editable={false}
+          editorState={
+            panelOptionsAndData.options?.description?.content || undefined
+          }
+        />
+      );
+    }
+
+    return (
+      <DescriptionWrapper>
+        <RichTextEditor
+          disabled
+          contentClassName={cx(isGenericTextPanel && classes.description)}
+          editable={false}
+          editorState={
+            panelOptionsAndData.options?.description?.content || undefined
+          }
+          inputClassname={classes.descriptionInput}
+        />
+      </DescriptionWrapper>
+    );
+  };
+
   return useMemoComponent({
     Component: (
       <>
-        {displayDescription && (
-          <DescriptionWrapper>
-            <RichTextEditor
-              disabled
-              contentClassName={cx(isGenericTextPanel && classes.description)}
-              editable={false}
-              editorState={
-                panelOptionsAndData.options?.description?.content || undefined
-              }
-              inputClassname={classes.descriptionInput}
-            />
-          </DescriptionWrapper>
-        )}
-        {!isGenericText(panelConfigurations.path) && (
+        {getDescription()}
+        {!isGenericTextPanel && (
           <div
             className={cx(
               displayDescription
