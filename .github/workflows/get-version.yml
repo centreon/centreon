@@ -244,3 +244,35 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        id: set_os_database_matrix
+        with:
+          script: |
+            let matrix = [
+              {
+                "operating_system": "alma9",
+                "database": "mariadb:10.11",
+                "test_tags": "not @ignore"
+              }
+            ];
+
+            console.log(context);
+
+            if (context.event_name === 'schedule') {
+              matrix = [
+                ...matrix,
+                {
+                  "operating_system": "bullseye",
+                  "database": "mysql:8.3",
+                  "test_tags": "not @ignore"
+                },
+                {
+                  "operating_system": "alma8",
+                  "database": "mariadb:10.11",
+                  "test_tags": "not @ignore and @system"
+                }
+              ];
+            }
+
+            console.log(matrix);
