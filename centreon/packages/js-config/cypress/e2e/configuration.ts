@@ -101,7 +101,7 @@ export default ({
     requestTimeout: 20000,
     retries: {
       openMode: 0,
-      runMode: 2
+      runMode: 1
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
