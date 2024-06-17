@@ -172,28 +172,23 @@ jobs:
 
             if [ -f "$retriesFile" ]; then
               retries=$(jq '.' $retriesFile)
-              retriesCount=$(jq 'length' $retriesFile)
 
               if [ "$retries" != "{}" ]; then
                 echo "Test retries: $retries"
                 retriesHtml="<h2>:warning: Test Retries</h2><table><tr><th>Test Scenario</th></tr>"
-                echo "$retries" | jq -r 'to_entries[] | "\(.key)"' | while read -r line; do
-                  retriesHtml+="<tr><td>:warning: $line</td></tr>"
+
+                for key in $(jq -r 'keys[]' $retriesFile); do
+                  retriesHtml+="<tr><td>:warning: $key</td></tr>"
                 done
+
                 retriesHtml+="</table>"
                 echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
-                echo "retries=$retries" >> $GITHUB_OUTPUT
-              else
-                retriesHtml="<h2>Test Retries</h2><table><tr><td>:warning: No retries found</td></tr></table>"
-                echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
-                echo "retries={}" >> $GITHUB_OUTPUT
+
+                retriesJson=$(echo "$retries" | jq -c '.')
+                echo "retries=$retriesJson" >> $GITHUB_OUTPUT
               fi
-            else
-              retriesHtml="<h2>Test Retries</h2><table><tr><td>:warning: hasRetries.json not found!</td></tr></table>"
-              echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
-              echo "retries={}" >> $GITHUB_OUTPUT
             fi
-        shell: bash
+          shell: bash
 
       - name: Upload test reports
         if: failure()
