@@ -8,6 +8,7 @@ import {
   ContentCopy as DuplicateIcon,
   MoreHoriz as MoreIcon
 } from '@mui/icons-material';
+import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 
 import {
   ActionsList,
@@ -17,6 +18,7 @@ import {
 
 import { Dashboard } from '../../../api/models';
 import {
+  labelAddToPlaylist,
   labelDelete,
   labelDuplicate,
   labelShareWithContacts
@@ -39,15 +41,18 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
 
   const {
     moreActionsOpen,
+    hasIEEEInstalled,
     openDeleteModal,
     openDuplicateModal,
     openEditAccessRightModal,
     openEditModal,
     openMoreActions,
-    closeMoreActions
+    closeMoreActions,
+    openAddToPlaylistModal
   } = useDashboardCardActions({ dashboard });
 
   const labels = {
+    labelAddToPlaylist: t(labelAddToPlaylist),
     labelDelete: t(labelDelete),
     labelDuplicate: t(labelDuplicate),
     labelEditProperties: t(labelEditProperties),
@@ -89,6 +94,16 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
               label: labels.labelDuplicate,
               onClick: openDuplicateModal
             },
+            ...(hasIEEEInstalled
+              ? [
+                  ActionsListActionDivider.divider,
+                  {
+                    Icon: PlayArrowOutlinedIcon,
+                    label: labels.labelAddToPlaylist,
+                    onClick: openAddToPlaylistModal
+                  }
+                ]
+              : []),
             ActionsListActionDivider.divider,
             {
               Icon: DeleteIcon,

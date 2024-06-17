@@ -7,10 +7,15 @@ import {
   ContentCopy as DuplicateIcon
 } from '@mui/icons-material';
 import { Menu } from '@mui/material';
+import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 
 import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
 
-import { labelDelete, labelDuplicate } from '../../../../../translatedLabels';
+import {
+  labelAddToPlaylist,
+  labelDelete,
+  labelDuplicate
+} from '../../../../../translatedLabels';
 import { labelEditProperties } from '../../translatedLabels';
 
 import useActions from './useActions';
@@ -24,8 +29,13 @@ interface Props {
 const MoreActions = ({ close, anchor, row }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const { openDeleteModal, editDashboard, openDuplicateModal } =
-    useActions(row);
+  const {
+    openDeleteModal,
+    editDashboard,
+    openDuplicateModal,
+    hasIEEEInstalled,
+    openAddToPlaylistModal
+  } = useActions(row);
 
   return (
     <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
@@ -42,6 +52,16 @@ const MoreActions = ({ close, anchor, row }: Props): JSX.Element => {
             label: t(labelDuplicate),
             onClick: pipe(openDuplicateModal, close)
           },
+          ...(hasIEEEInstalled
+            ? [
+                ActionsListActionDivider.divider,
+                {
+                  Icon: PlayArrowOutlinedIcon,
+                  label: t(labelAddToPlaylist),
+                  onClick: openAddToPlaylistModal
+                }
+              ]
+            : []),
           ActionsListActionDivider.divider,
           {
             Icon: DeleteIcon,
