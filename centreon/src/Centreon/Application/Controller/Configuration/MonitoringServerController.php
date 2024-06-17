@@ -66,8 +66,10 @@ class MonitoringServerController extends AbstractController
      * Entry point to find a monitoring server
      *
      * @param RequestParametersInterface $requestParameters
-     * @return View
+     *
      * @throws \Exception
+     *
+     * @return View
      */
     public function findServers(RequestParametersInterface $requestParameters): View
     {
@@ -76,16 +78,12 @@ class MonitoringServerController extends AbstractController
             MonitoringServer::SERIALIZER_GROUP_MAIN,
         ]);
 
-        try {
-            return $this->view(
-                [
-                    'result' => $this->monitoringServerService->findServers(),
-                    'meta' => $requestParameters->toArray()
-                ]
-            )->setContext($context);
-        } catch (MonitoringServerException $ex) {
-            throw new AccessDeniedException($ex->getMessage());
-        }
+        return $this->view(
+            [
+                'result' => $this->monitoringServerService->findServers(),
+                'meta' => $requestParameters->toArray()
+            ]
+        )->setContext($context);
     }
 
     /**

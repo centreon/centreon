@@ -28,6 +28,7 @@ use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * This class is designed to manage monitoring servers and their associated resources.
@@ -58,9 +59,9 @@ class MonitoringServerService implements MonitoringServerServiceInterface
         try {
             if (
                 ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
-                || ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
+                && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
             ) {
-                throw MonitoringServerException::listNotAllowed();
+                throw new AccessDeniedException();
             }
 
             if ($this->contact->isAdmin()) {
@@ -72,10 +73,10 @@ class MonitoringServerService implements MonitoringServerServiceInterface
                     $accessGroups
                 );
             }
-        } catch (MonitoringServerException $ex) {
-            throw new MonitoringServerException($ex->getMessage());
+        } catch (AccessDeniedException $ex) {
+            throw new AccessDeniedException('You are not allowed to access this resource');
         } catch (\Exception $ex) {
-            throw new \Exception('Error when searching for monitoring servers', 0, $ex);
+            throw new MonitoringServerException('Error when searching for monitoring servers', 0, $ex);
         }
     }
 

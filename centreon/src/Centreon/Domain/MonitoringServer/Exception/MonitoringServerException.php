@@ -27,8 +27,4 @@ namespace Centreon\Domain\MonitoringServer\Exception;
  */
 class MonitoringServerException extends \Exception
 {
-    public static function listNotAllowed(): self
-    {
-        return new self(_('You are not allowed to list monitoring servers'));
-    }
 }

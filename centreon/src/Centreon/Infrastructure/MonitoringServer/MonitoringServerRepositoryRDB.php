@@ -173,9 +173,6 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $searchRequest ??= '';
         $sortRequest ??= ' ORDER BY id DESC';
         $paginationRequest ??= '';
-        // $request .= !is_null($searchRequest) ? $searchRequest : '';
-        // $request .= !is_null($sortRequest) ? $sortRequest : ' ORDER BY id DESC';
-        // $request .= !is_null($paginationRequest) ? $paginationRequest : ''; '';
 
         if ($accessGroups !== []) {
             $accessGroupIds = array_map(
