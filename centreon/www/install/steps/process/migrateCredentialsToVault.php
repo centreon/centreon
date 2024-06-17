@@ -151,7 +151,7 @@ function migrateDatabaseCredentials(
     $vaultPath = "secret::hashicorp_vault::" . $vaultPathUri;
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
     $url = 'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-        . '/v1/' . $vaultPath;
+        . '/v1/' . $vaultPathUri;
     $headers = [
         'X-Vault-Token' => $token,
     ];
