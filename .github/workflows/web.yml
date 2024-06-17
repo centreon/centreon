@@ -516,7 +516,8 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [get-version, package]
+    needs: [get-version]
+    # needs: [get-version, package]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     env:
@@ -524,7 +525,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).operating_systems) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix.operating_systems) }}
+        # include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).operating_systems) }}
 
     steps:
       - name: Checkout sources
