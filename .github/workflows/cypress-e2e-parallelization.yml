@@ -188,7 +188,7 @@ jobs:
                 echo "retries=$retriesJson" >> $GITHUB_OUTPUT
               fi
             fi
-          shell: bash
+        shell: bash
 
       - name: Upload test reports
         if: failure()
