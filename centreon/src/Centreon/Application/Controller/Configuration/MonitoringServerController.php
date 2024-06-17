@@ -75,12 +75,17 @@ class MonitoringServerController extends AbstractController
         $context = (new Context())->setGroups([
             MonitoringServer::SERIALIZER_GROUP_MAIN,
         ]);
-        return $this->view(
-            [
-                'result' => $this->monitoringServerService->findServers(),
-                'meta' => $requestParameters->toArray()
-            ]
-        )->setContext($context);
+
+        try {
+            return $this->view(
+                [
+                    'result' => $this->monitoringServerService->findServers(),
+                    'meta' => $requestParameters->toArray()
+                ]
+            )->setContext($context);
+        } catch (MonitoringServerException $ex) {
+            throw new AccessDeniedException($ex->getMessage());
+        }
     }
 
     /**
