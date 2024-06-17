@@ -43,7 +43,8 @@ import {
   labelUpdate,
   labelUserDeleted,
   labelWelcomeToDashboardInterface,
-  labelAddAContact
+  labelAddAContact,
+  labelAddToPlaylist
 } from './translatedLabels';
 import { routerHooks } from './routerHooks';
 import { DashboardLayout } from './models';
@@ -662,6 +663,20 @@ describe('Dashboards', () => {
         cy.makeSnapshot(
           `${displayView}: sends a shares update request when the shares are updated and the corresponding button is clicked`
         );
+      });
+
+      it('opens the modal when the IT Edition Extensions module is installed and the corresponding button is clicked', () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByLabelText(displayView).click();
+
+        cy.findAllByLabelText('More actions').eq(0).click();
+
+        cy.contains(labelAddToPlaylist).click();
+
+        cy.get('[role="dialog"]').should('be.visible');
+
+        cy.makeSnapshot();
       });
     });
   });
