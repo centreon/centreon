@@ -33,8 +33,13 @@
  *
  */
 
+
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
+require_once __DIR__ . '/migrateCredentialsToVault.php';
+
+use Core\Common\Infrastructure\FeatureFlags;
+use Symfony\Component\Dotenv\Dotenv;
 $step = new \CentreonLegacy\Core\Install\Step\Step9($dependencyInjector);
 $version = $step->getVersion();
 
@@ -64,6 +69,19 @@ try {
     }
     $dependencyInjector['filesystem']->remove($backupDir . '/tmp/admin.json');
     $dependencyInjector['filesystem']->remove($backupDir . '/tmp/database.json');
+
+    (new Dotenv())->bootEnv('/usr/share/centreon/.env');
+    $isCloudPlatform = false;
+    if (array_key_exists("IS_CLOUD_PLATFORM", $_ENV) && $_ENV["IS_CLOUD_PLATFORM"]) {
+        $isCloudPlatform = true;
+    }
+    $featuresFileContent = file_get_contents(__DIR__ . '/../../../../config/features.json');
+    $featureFlagManager = new FeatureFlags($isCloudPlatform, $featuresFileContent);
+    $isVaultFeatureEnable = $featureFlagManager->isEnabled('vault');
+    if ($isVaultFeatureEnable && file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')) {
+        migrateCredentialsToVault();
+    }
+
     $result = true;
 } catch (\Exception $e) {
     $result = false;
