@@ -88,33 +88,33 @@ jobs:
               - '**/tests/e2e/**/*.feature'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  # gherkin-lint:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+  gherkin-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  #     - uses: ./.github/actions/gherkin-lint
-  #       with:
-  #         features_path: centreon/tests/e2e/features
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: centreon/tests/e2e/features
 
-  # dispatch-to-maintained-branches:
-  #   if: ${{ github.event_name == 'schedule' && github.ref_name == 'develop' }}
-  #   runs-on: ubuntu-22.04
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v4
+  dispatch-to-maintained-branches:
+    if: ${{ github.event_name == 'schedule' && github.ref_name == 'develop' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
 
-  #     - run: |
-  #         NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x")
-  #         for target in ${NIGHTLY_TARGETS[@]}; do
-  #           echo "[INFO] - Dispatching nightly run to $target branch."
-  #           gh workflow run web.yml -r "$target" -f is_nightly=true
-  #         done
-  #       shell: bash
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x")
+          for target in ${NIGHTLY_TARGETS[@]}; do
+            echo "[INFO] - Dispatching nightly run to $target branch."
+            gh workflow run web.yml -r "$target" -f is_nightly=true
+          done
+        shell: bash
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -138,386 +138,385 @@ jobs:
   #     jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
   #     jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  # frontend-web-build:
-  #   needs: [get-version]
-  #   runs-on: ubuntu-22.04
+  frontend-web-build:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
 
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  #     - uses: ./.github/actions/frontend-build
-  #       with:
-  #         base_directory: ${{ env.base_directory }}
-  #         dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-  #         index_file: ${{ env.base_directory }}/www/index.html
-  #         static_directory: ${{ env.base_directory }}/www/static
-  #         index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-  #         static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-  #         build_command: pnpm centreon:build
+      - uses: ./.github/actions/frontend-build
+        with:
+          base_directory: ${{ env.base_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+          index_file: ${{ env.base_directory }}/www/index.html
+          static_directory: ${{ env.base_directory }}/www/static
+          index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          build_command: pnpm centreon:build
 
-  # frontend-widgets-build:
-  #   needs: [get-version]
-  #   runs-on: ubuntu-22.04
+  frontend-widgets-build:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
 
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  #     - uses: ./.github/actions/frontend-build
-  #       with:
-  #         base_directory: ${{ env.widgets_directory }}
-  #         dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-  #         static_directory: ${{ env.widgets_directory }}/src
-  #         static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
+      - uses: ./.github/actions/frontend-build
+        with:
+          base_directory: ${{ env.widgets_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+          static_directory: ${{ env.widgets_directory }}/src
+          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
 
-  # backend-dependencies:
-  #   needs: [get-version]
-  #   runs-on: ubuntu-22.04
+  backend-dependencies:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
 
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  #     - uses: ./.github/actions/backend-dependencies
-  #       with:
-  #         base_directory: ${{ env.base_directory }}
-  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+      - uses: ./.github/actions/backend-dependencies
+        with:
+          base_directory: ${{ env.base_directory }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
-  # translation-build:
-  #   needs: [get-version]
+  translation-build:
+    needs: [get-version]
 
-  #   runs-on: ubuntu-22.04
-  #   container:
-  #     image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
-  #     credentials:
-  #       username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #       password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+    runs-on: ubuntu-22.04
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  #     - run: |
-  #         cd centreon
-  #         mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
-  #         php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
-  #         for i in lang/* ; do
-  #           localefull=`basename $i`
-  #           langcode=`echo $localefull | cut -d _ -f 1`
-  #           mkdir -p "www/locale/$localefull/LC_MESSAGES"
-  #           msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
-  #           msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
-  #           php bin/centreon-translations.php "$langcode" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
-  #         done
-  #       shell: bash
+      - run: |
+          cd centreon
+          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
+          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
+          for i in lang/* ; do
+            localefull=`basename $i`
+            langcode=`echo $localefull | cut -d _ -f 1`
+            mkdir -p "www/locale/$localefull/LC_MESSAGES"
+            msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
+            msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
+            php bin/centreon-translations.php "$langcode" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
+          done
+        shell: bash
 
-  #     - uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-  #       with:
-  #         path: ${{ env.base_directory }}/www/locale
-  #         key: ${{ github.sha }}-${{ github.run_id }}-translation
+      - uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.base_directory }}/www/locale
+          key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  # frontend-web-lint:
-  #   runs-on: ubuntu-22.04
+  frontend-web-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+
+  frontend-widgets-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.widgets_directory }}
+          module_name: centreon-widgets
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+
+  frontend-unit-test:
+    runs-on: ubuntu-22.04
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          version: 8
+          run_install: false
+
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: centreon
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+      - name: Unit test
+        run: pnpm t --silent --reporter=jest-junit
+        working-directory: centreon
+
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/junit.xml"
+
+  # frontend-component-test:
   #   needs: [changes, get-version]
   #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+  #   uses: ./.github/workflows/cypress-component-parallelization.yml
+  #   with:
+  #     name: component
+  #     module_name: centreon
+  #     specs_path: www/**
+  #     dependencies_lock_file: centreon/pnpm-lock.yaml
 
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+  backend-unit-test:
+    runs-on: ubuntu-22.04
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
-  #     - uses: ./.github/actions/frontend-lint
-  #       with:
-  #         frontend_directory: ${{ env.base_directory }}
-  #         module_name: centreon
-  #         dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  # frontend-widgets-lint:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes, get-version]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+      - name: Setup PHP
+        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
 
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-  #     - uses: ./.github/actions/frontend-lint
-  #       with:
-  #         frontend_directory: ${{ env.widgets_directory }}
-  #         module_name: centreon-widgets
-  #         dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+      - name: Install dependencies
+        uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
+        with:
+          working-directory: centreon
+          composer-options: "--optimize-autoloader"
 
-  # frontend-unit-test:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes, get-version]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+      - name: Unit test
+        run: XDEBUG_MODE=coverage composer run-script test:ci
+        working-directory: centreon
 
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
-  #     - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
-  #       with:
-  #         version: 8
-  #         run_install: false
+  backend-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
-  #     - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
-  #       with:
-  #         node-version: 20
-  #         cache: pnpm
-  #         cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  #     - name: Install dependencies
-  #       run: pnpm install --frozen-lockfile
-  #       working-directory: centreon
-  #       env:
-  #         CYPRESS_INSTALL_BINARY: "0"
-  #         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-  #         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      - name: Setup PHP
+        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
 
-  #     - name: Unit test
-  #       run: pnpm t --silent --reporter=jest-junit
-  #       working-directory: centreon
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+        working-directory: centreon
+        shell: bash
 
-  #     - if: failure()
-  #       uses: ./.github/actions/publish-report
-  #       with:
-  #         path: "centreon/junit.xml"
+      - name: Run of php-cs-fixer with strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+        working-directory: centreon
 
-  # # frontend-component-test:
-  # #   needs: [changes, get-version]
-  # #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-  # #   uses: ./.github/workflows/cypress-component-parallelization.yml
-  # #   with:
-  # #     name: component
-  # #     module_name: centreon
-  # #     specs_path: www/**
-  # #     dependencies_lock_file: centreon/pnpm-lock.yaml
+      - name: Run of php-cs-fixer without strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
+        working-directory: centreon
 
-  # backend-unit-test:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes, get-version]
-  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+      - name: Run of phpstan on /src at level 4
+        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
+        working-directory: centreon
 
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
+        working-directory: centreon
 
-  #     - name: Setup PHP
-  #       uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
-  #       with:
-  #         php-version: 8.1
-  #         coverage: none
-  #       env:
-  #         runner: ubuntu-22.04
+      - name: Run of phpstan on /tests at level 2
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
+        working-directory: centreon
 
-  #     - name: Install dependencies
-  #       uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
-  #       with:
-  #         working-directory: centreon
-  #         composer-options: "--optimize-autoloader"
+  package:
+    needs:
+      [
+        gherkin-lint,
+        get-version,
+        translation-build,
+        backend-dependencies,
+        backend-lint,
+        backend-unit-test,
+        frontend-web-build,
+        frontend-web-lint,
+        frontend-widgets-build,
+        frontend-widgets-lint,
+        frontend-unit-test,
+        # frontend-component-test,
+      ]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
-  #     - name: Unit test
-  #       run: XDEBUG_MODE=coverage composer run-script test:ci
-  #       working-directory: centreon
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package_extension: rpm
+            image: packaging-nfpm-alma8
+            distrib: el8
+          - package_extension: rpm
+            image: packaging-nfpm-alma9
+            distrib: el9
+          - package_extension: deb
+            image: packaging-nfpm-bullseye
+            distrib: bullseye
+          - package_extension: deb
+            image: packaging-nfpm-bookworm
+            distrib: bookworm
+          - package_extension: deb
+            image: packaging-nfpm-jammy
+            distrib: jammy
 
-  #     - if: failure()
-  #       uses: ./.github/actions/publish-report
-  #       with:
-  #         path: "centreon/build/phpunit.xml"
-  #         format: "php-junit"
+    runs-on: ubuntu-22.04
 
-  # backend-lint:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes, get-version]
-  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    name: package ${{ matrix.distrib }}
 
-  #     - name: Setup PHP
-  #       uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
-  #       with:
-  #         php-version: 8.1
-  #         coverage: none
-  #       env:
-  #         runner: ubuntu-22.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  #     - name: Install Dependencies
-  #       run: composer install --optimize-autoloader
-  #       working-directory: centreon
-  #       shell: bash
+      - name: Restore translation from cache
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: centreon/www/locale
+          key: ${{ github.sha }}-${{ github.run_id }}-translation
+          fail-on-cache-miss: true
 
-  #     - name: Run of php-cs-fixer with strict_type
-  #       run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
-  #       working-directory: centreon
+      - name: Restore web index.html from cache
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: centreon/www/index.html
+          key: ${{ github.sha }}-${{ github.run_id }}-index
+          fail-on-cache-miss: true
 
-  #     - name: Run of php-cs-fixer without strict_type
-  #       run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
-  #       working-directory: centreon
+      - name: Restore web frontend from cache
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: centreon/www/static
+          key: ${{ github.sha }}-${{ github.run_id }}-static
+          fail-on-cache-miss: true
 
-  #     - name: Run of phpstan on /src at level 4
-  #       run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
-  #       working-directory: centreon
+      - name: Restore widget frontend from cache
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: centreon/www/widgets/src
+          key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
+          fail-on-cache-miss: true
 
-  #     - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
-  #       run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
-  #       working-directory: centreon
+      - name: Move widgets directory
+        run: mv centreon/www/widgets/src/* centreon/www/widgets/
+        shell: bash
 
-  #     - name: Run of phpstan on /tests at level 2
-  #       run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
-  #       working-directory: centreon
+      - name: Restore vendor directory from cache
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: centreon/vendor
+          key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          fail-on-cache-miss: true
 
-  # package:
-  #   needs:
-  #     [
-  #       gherkin-lint,
-  #       get-version,
-  #       translation-build,
-  #       backend-dependencies,
-  #       backend-lint,
-  #       backend-unit-test,
-  #       frontend-web-build,
-  #       frontend-web-lint,
-  #       frontend-widgets-build,
-  #       frontend-widgets-lint,
-  #       frontend-unit-test,
-  #       frontend-component-test,
-  #     ]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+      - name: Set perl vendor lib path according to distrib
+        run: |
+          if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
+            PERL_VENDORLIB="/usr/share/perl5"
+          else
+            PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
+          fi
+          echo "PERL_VENDORLIB=$PERL_VENDORLIB" >> $GITHUB_ENV
+        shell: bash
 
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       include:
-  #         - package_extension: rpm
-  #           image: packaging-nfpm-alma8
-  #           distrib: el8
-  #         - package_extension: rpm
-  #           image: packaging-nfpm-alma9
-  #           distrib: el9
-  #         - package_extension: deb
-  #           image: packaging-nfpm-bullseye
-  #           distrib: bullseye
-  #         - package_extension: deb
-  #           image: packaging-nfpm-bookworm
-  #           distrib: bookworm
-  #         - package_extension: deb
-  #           image: packaging-nfpm-jammy
-  #           distrib: jammy
+      - name: Create centreon web configuration file
+        run: mv centreon/config/centreon.config.php.template centreon/config/centreon.config.php
+        shell: bash
 
-  #   runs-on: ubuntu-22.04
+      - name: Remove compilation related files
+        run: |
+          rm -rf centreon/www/front_src
+          rm -rf centreon/www/widgets/src
+          find centreon/www/widgets/ -maxdepth 1 -type f ! -name "*.php" ! -name "*.ts" -delete
+        shell: bash
 
-  #   container:
-  #     image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-  #     credentials:
-  #       username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #       password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      - name: Replace macros in source code
+        run: |
+          MACRO_REPLACEMENT_FILE="centreon/packaging/src/centreon-macroreplacement.txt"
+          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
+            APACHE_USER="apache"
+          else
+            APACHE_USER="www-data"
+          fi
+          echo "s#@WEB_USER@#$APACHE_USER#g" >> $MACRO_REPLACEMENT_FILE
 
-  #   name: package ${{ matrix.distrib }}
+          find ./centreon -type f -not -path "./vendor/*" | grep -v $MACRO_REPLACEMENT_FILE | xargs --delimiter='\n' sed -i -f $MACRO_REPLACEMENT_FILE
+        shell: bash
 
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Generate selinux binaries
+        if: ${{ matrix.package_extension == 'rpm' }}
+        run: |
+          cd centreon/selinux
+          sed -i "s/@VERSION@/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}/g" *.te
+          make -f /usr/share/selinux/devel/Makefile
+        shell: bash
 
-  #     - name: Restore translation from cache
-  #       uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-  #       with:
-  #         path: centreon/www/locale
-  #         key: ${{ github.sha }}-${{ github.run_id }}-translation
-  #         fail-on-cache-miss: true
+      - name: Remove selinux packaging files on debian
+        if: ${{ matrix.package_extension == 'deb' }}
+        run: rm -f centreon/packaging/*-selinux.yaml
+        shell: bash
 
-  #     - name: Restore web index.html from cache
-  #       uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-  #       with:
-  #         path: centreon/www/index.html
-  #         key: ${{ github.sha }}-${{ github.run_id }}-index
-  #         fail-on-cache-miss: true
-
-  #     - name: Restore web frontend from cache
-  #       uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-  #       with:
-  #         path: centreon/www/static
-  #         key: ${{ github.sha }}-${{ github.run_id }}-static
-  #         fail-on-cache-miss: true
-
-  #     - name: Restore widget frontend from cache
-  #       uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-  #       with:
-  #         path: centreon/www/widgets/src
-  #         key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
-  #         fail-on-cache-miss: true
-
-  #     - name: Move widgets directory
-  #       run: mv centreon/www/widgets/src/* centreon/www/widgets/
-  #       shell: bash
-
-  #     - name: Restore vendor directory from cache
-  #       uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-  #       with:
-  #         path: centreon/vendor
-  #         key: ${{ github.sha }}-${{ github.run_id }}-vendor
-  #         fail-on-cache-miss: true
-
-  #     - name: Set perl vendor lib path according to distrib
-  #       run: |
-  #         if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
-  #           PERL_VENDORLIB="/usr/share/perl5"
-  #         else
-  #           PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
-  #         fi
-  #         echo "PERL_VENDORLIB=$PERL_VENDORLIB" >> $GITHUB_ENV
-  #       shell: bash
-
-  #     - name: Create centreon web configuration file
-  #       run: mv centreon/config/centreon.config.php.template centreon/config/centreon.config.php
-  #       shell: bash
-
-  #     - name: Remove compilation related files
-  #       run: |
-  #         rm -rf centreon/www/front_src
-  #         rm -rf centreon/www/widgets/src
-  #         find centreon/www/widgets/ -maxdepth 1 -type f ! -name "*.php" ! -name "*.ts" -delete
-  #       shell: bash
-
-  #     - name: Replace macros in source code
-  #       run: |
-  #         MACRO_REPLACEMENT_FILE="centreon/packaging/src/centreon-macroreplacement.txt"
-  #         if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
-  #           APACHE_USER="apache"
-  #         else
-  #           APACHE_USER="www-data"
-  #         fi
-  #         echo "s#@WEB_USER@#$APACHE_USER#g" >> $MACRO_REPLACEMENT_FILE
-
-  #         find ./centreon -type f -not -path "./vendor/*" | grep -v $MACRO_REPLACEMENT_FILE | xargs --delimiter='\n' sed -i -f $MACRO_REPLACEMENT_FILE
-  #       shell: bash
-
-  #     - name: Generate selinux binaries
-  #       if: ${{ matrix.package_extension == 'rpm' }}
-  #       run: |
-  #         cd centreon/selinux
-  #         sed -i "s/@VERSION@/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}/g" *.te
-  #         make -f /usr/share/selinux/devel/Makefile
-  #       shell: bash
-
-  #     - name: Remove selinux packaging files on debian
-  #       if: ${{ matrix.package_extension == 'deb' }}
-  #       run: rm -f centreon/packaging/*-selinux.yaml
-  #       shell: bash
-
-  #     - name: Package Centreon
-  #       uses: ./.github/actions/package-nfpm
-  #       with:
-  #         nfpm_file_pattern: "centreon/packaging/*.yaml"
-  #         distrib: ${{ matrix.distrib }}
-  #         package_extension: ${{ matrix.package_extension }}
-  #         major_version: ${{ needs.get-version.outputs.major_version }}
-  #         minor_version: ${{ needs.get-version.outputs.minor_version }}
-  #         release: ${{ needs.get-version.outputs.release }}
-  #         arch: all
-  #         commit_hash: ${{ github.sha }}
-  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-  #         rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-  #         rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
-  #         rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-  #         stability: ${{ needs.get-version.outputs.stability }}
+      - name: Package Centreon
+        uses: ./.github/actions/package-nfpm
+        with:
+          nfpm_file_pattern: "centreon/packaging/*.yaml"
+          distrib: ${{ matrix.distrib }}
+          package_extension: ${{ matrix.package_extension }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          release: ${{ needs.get-version.outputs.release }}
+          arch: all
+          commit_hash: ${{ github.sha }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
+          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
+          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [get-version]
-    # needs: [get-version, package]
+    needs: [get-version, package]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     env:
@@ -526,7 +525,6 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
-        # include: ${{ fromJson(fromJson(toJson(needs.get-version.outputs.os_and_database_matrix)).operating_systems) }}
 
     steps:
       - name: Checkout sources
