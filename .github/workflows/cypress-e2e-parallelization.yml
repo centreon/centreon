@@ -177,13 +177,8 @@ jobs:
                 echo "Test retries: $retries"
                 retriesHtml="<h2>:warning: Test Retries</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
 
-                # Parcourir chaque clé dans le fichier hasRetries.json
-                echo "$retries" | jq -r 'keys[]' | while read -r key; do
-                  # Extraire la fonctionnalité et le scénario de test
-                  feature=$(echo "$key" | awk -F ' > ' '{print $1}')
-                  scenario=$(echo "$key" | awk -F ' > ' '{print $2}')
-                  retriesHtml+="<tr><td>:warning: $feature</td><td>:warning: $scenario</td></tr>"
-                done
+                # Generate the HTML rows
+                retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>:warning: \(.key | split(" > ")[0])</td><td>:warning: \(.key | split(" > ")[1])</td></tr>"' $retriesFile)
 
                 retriesHtml+="</table>"
                 echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
