@@ -22,6 +22,13 @@ const totalPending = report.stats.pending;
 const totalFailures = report.stats.failures;
 const duration = report.stats.duration / 1000;
 const passPercent = report.stats.passPercent;
+// load retries from the hasRetries.json file
+let retries = {};
+const retriesFile = 'results/hasRetries.json';
+if (fs.existsSync(retriesFile)) {
+  retries = JSON.parse(fs.readFileSync(retriesFile, 'utf8'));
+}
+
 
 const summary = `<h1>Cypress Test summary</h1>
 <ul>
@@ -32,6 +39,7 @@ const summary = `<h1>Cypress Test summary</h1>
   <li>:x: Failures: ${totalFailures}</li>
   <li>:bar_chart: Pass percent: ${passPercent}%</li>
   <li>:stopwatch: Duration: ${duration} seconds</li>
+  <li>:repeat: Retries: ${Object.keys(retries).length}</li>
 </ul>`;
 
 const getTestsBySuite = (suite) => {
