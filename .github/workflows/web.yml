@@ -524,7 +524,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix.operating_systems) }}
 
     steps:
       - name: Checkout sources
@@ -654,7 +654,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix.operating_systems) }}
     name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
@@ -674,7 +674,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(format('[{0},{1}]', fromJson(needs.get-version.outputs.dockerize_matrix[0]), fromJson(needs.get-version.outputs.dockerize_matrix[1]))) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix.databases) }}
     name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/newman.yml
@@ -705,7 +705,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix.databases) }}
     name: api-integration-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/behat-test.yml
@@ -729,7 +729,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix.operating_systems) }}
     name: legacy-e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/behat-test.yml
@@ -752,7 +752,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix.operating_systems) }}
     name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
@@ -781,6 +781,11 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix.main) }}
+    name: performances-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
