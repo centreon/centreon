@@ -98,7 +98,6 @@ runs:
           echo "::group::${feature_name}-report.json"
           cat "$report_path_updated"
           echo "::endgroup::"
-
         else
           echo "Report file not found: $report_path"
           exit 1
