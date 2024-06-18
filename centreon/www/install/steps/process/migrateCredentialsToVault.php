@@ -53,17 +53,11 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 function migrateCredentialsToVault(): void
 {
-    try {
-        $vaultConfiguration = getVaultConfiguration();
-        $httpClient = new CentreonRestHttp();
-        $vaultToken = authenticateToVault($vaultConfiguration, $httpClient);
-        $vaultPath = migrateDatabaseCredentials($vaultConfiguration, $vaultToken, $httpClient);
-        updateConfigFilesWithVaultPath($vaultPath);
-    } catch (\Throwable $ex) {
-        $err['message'] = $ex->getMessage();
-        echo json_encode($err);
-        exit;
-    }
+    $vaultConfiguration = getVaultConfiguration();
+    $httpClient = new CentreonRestHttp();
+    $vaultToken = authenticateToVault($vaultConfiguration, $httpClient);
+    $vaultPath = migrateDatabaseCredentials($vaultConfiguration, $vaultToken, $httpClient);
+    updateConfigFilesWithVaultPath($vaultPath);
 }
 
 /**
