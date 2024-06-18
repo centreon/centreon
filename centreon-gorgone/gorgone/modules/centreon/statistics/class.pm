@@ -39,10 +39,12 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
+    use Data::Dumper;
     $connector = $class->SUPER::new(%options);
     bless $connector, $class;
 
     $connector->{log_pace} = 3;
+    $connector->{logger}->writeLogDebug("EVAN : " . Dumper($class));
 
     $connector->set_signal_handlers();
     return $connector;
@@ -332,6 +334,9 @@ sub write_broker_stats {
 
 sub write_engine_stats {
     my ($self, %options) = @_;
+    $self->{logger}->writeLogDebug("[statistics][EVAN] here are the option of write_engine_stats ");
+    use Data::Dumper;
+    $self->{logger}->writeLogDebug(Dumper(\%options));
 
     return if (!defined($options{data}->{result}->{exit_code}) || $options{data}->{result}->{exit_code} != 0 ||
         !defined($options{data}->{metadata}->{poller_id}));
@@ -377,7 +382,7 @@ sub write_engine_stats {
                         "('$options{data}->{metadata}->{poller_id}', 'Service Check Latency', 'Average', '$3')"
                 );
                 if ($status == -1) {
-                    $self->{logger}->writeLogError("[statistics] Failed to add statistics in 'nagios_stats table'");
+                    $self->{logger}->writeLogError("[statistics] Failed to add statistics Service Check Latency in 'nagios_stats table'");
                 }
             }
 
@@ -398,6 +403,15 @@ sub write_engine_stats {
                 values => [ $1, $2 , $3 ]
             );
         } elsif ($_ =~ /Active Service Execution Time:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ sec/) {
+            my $status = $self->{class_object_centstorage}->custom_execute(
+                request => "INSERT INTO `nagios_stats` (instance_id, stat_label, stat_key, stat_value) VALUES " .
+                    "('$options{data}->{metadata}->{poller_id}', 'Service Check Execution Time', 'Min', '$1'), " .
+                    "('$options{data}->{metadata}->{poller_id}', 'Service Check Execution Time', 'Max', '$2'), " .
+                    "('$options{data}->{metadata}->{poller_id}', 'Service Check Execution Time', 'Average', '$3')"
+            );
+            if ($status == -1) {
+                $self->{logger}->writeLogError("[statistics] Failed to add statistics Service Check Execution Time in 'nagios_stats table'");
+            }
             my $dest_file = $engine_stats_dir . '/nagios_active_service_execution.rrd';
             $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
             if (!-e $dest_file) {
@@ -449,6 +463,15 @@ sub write_engine_stats {
                 values => [ $1, $2 , $3, $4 ]
             );
         } elsif ($_ =~ /Active Host Latency:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ sec/) {
+            my $status = $self->{class_object_centstorage}->custom_execute(
+                request => "INSERT INTO `nagios_stats` (instance_id, stat_label, stat_key, stat_value) VALUES " .
+                    "('$options{data}->{metadata}->{poller_id}', 'Host Check Latency ', 'Min', '$1'), " .
+                    "('$options{data}->{metadata}->{poller_id}', 'Host Check Latency ', 'Max', '$2'), " .
+                    "('$options{data}->{metadata}->{poller_id}', 'Host Check Latency ', 'Average', '$3')"
+            );
+            if ($status == -1) {
+                $self->{logger}->writeLogError("[statistics] Failed to add statistics Host Check Latency in 'nagios_stats table'");
+            }
             my $dest_file = $engine_stats_dir . '/nagios_active_host_latency.rrd';
             $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
             if (!-e $dest_file) {
@@ -466,6 +489,15 @@ sub write_engine_stats {
                 values => [ $1, $2 , $3 ]
             );
         } elsif ($_ =~ /Active Host Execution Time:\s*([0-9\.]*)\ \/\ ([0-9\.]*)\ \/\ ([0-9\.]*)\ sec/) {
+            my $status = $self->{class_object_centstorage}->custom_execute(
+                request => "INSERT INTO `nagios_stats` (instance_id, stat_label, stat_key, stat_value) VALUES " .
+                    "('$options{data}->{metadata}->{poller_id}', 'Host Check Execution Time', 'Min', '$1'), " .
+                    "('$options{data}->{metadata}->{poller_id}', 'Host Check Execution Time', 'Max', '$2'), " .
+                    "('$options{data}->{metadata}->{poller_id}', 'Host Check Execution Time', 'Average', '$3')"
+            );
+            if ($status == -1) {
+                $self->{logger}->writeLogError("[statistics] Failed to add statistics Host Check Execution Time in 'nagios_stats table'");
+            }
             my $dest_file = $engine_stats_dir . '/nagios_active_host_execution.rrd';
             $self->{logger}->writeLogDebug("[statistics] Writing in file '" . $dest_file . "'");
             if (!-e $dest_file) {
@@ -518,6 +550,7 @@ sub write_engine_stats {
             );
         }
     }
+    $self->{logger}->writeLogInfo("[statistics] poller $options{data}->{metadata}->{poller_id} engine data was integrated in rrd and sql database.");
 }
 
 sub rrd_create {

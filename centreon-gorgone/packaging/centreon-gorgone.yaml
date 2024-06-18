@@ -189,6 +189,7 @@ overrides:
       - perl(Try::Tiny)
       - tar
       - perl(JSON) # gorgone_key_thumbprint.pl needs the json module, even when json::xs is already installed
+      - perl(RRDs)
   deb:
     depends:   # those dependencies are taken from centreon-gorgone/packaging/debian/control
       - centreon-common
@@ -220,6 +221,7 @@ overrides:
       - libzmq-ffi-perl
       - libclone-choose-perl
       - libjson-perl # gorgone_key_thumbprint.pl needs the json module, even when json::xs is already installed
+      - librrds-perl
 
 rpm:
   summary: Centreon gorgone daemon
