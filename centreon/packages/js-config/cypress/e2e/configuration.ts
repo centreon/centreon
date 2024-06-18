@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable consistent-return */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -24,20 +23,6 @@ interface ConfigurationOptions {
   isDevelopment?: boolean;
   specPattern: string;
 }
-
-const reportPath = path.join(
-  __dirname,
-  '../../../../tests/e2e/results',
-  'cucumber-logs',
-  'report.json'
-);
-
-const hasRetriesPath = path.join(
-  __dirname,
-  '../../../../tests/e2e/results',
-  'hasRetries.json'
-);
-
 
 export default ({
   specPattern,
@@ -72,27 +57,43 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        on('after:run', () => {
-          // Manipulation après l'exécution des tests
-          cy.readFile(reportPath, { timeout: 60000 }).then((results) => {
-            console.log('After run results:', results);
-
-            // Générer les données pour hasRetries.json
-            const testRetries: { [key: string]: boolean } = {};
-            if ('runs' in results) {
-              results.runs.forEach((run: any) => {
-                run.tests.forEach((test: any) => {
-                  if (test.attempts && test.attempts.length > 1) {
-                    const testTitle = test.title.join(' > ');
-                    testRetries[testTitle] = true;
-                  }
-                });
+        on('after:run', async (results) => {
+          const testRetries: { [key: string]: boolean } = {};
+          if ('runs' in results) {
+            results.runs.forEach((run) => {
+              run.tests.forEach((test) => {
+                if (test.attempts && test.attempts.length > 1) {
+                  const testTitle = test.title.join(' > '); // Convert the array to a string
+                  testRetries[testTitle] = true;
+                }
               });
-            }
+            });
+          }
 
-            // Sauvegarder les testRetries dans hasRetries.json
-            cy.writeFile(hasRetriesPath, JSON.stringify(testRetries, null, 2));
-          });
+          console.log('After run results:', results);
+          console.log('Test retries:', testRetries);
+
+          // Save the testRetries object to a file in the e2e/results directory
+          const resultFilePath = path.join(
+            __dirname,
+            '../../../../tests/e2e/results',
+            'hasRetries.json'
+          );
+          fs.writeFileSync(
+            resultFilePath,
+            JSON.stringify(testRetries, null, 2)
+          );
+
+          const reportPath = path.join(
+            __dirname,
+            '../../../../tests/e2e/results',
+            'cucumber-logs',
+            'report.json'
+          );
+
+          if (!fs.existsSync(reportPath)) {
+            fs.writeFileSync(reportPath, '');
+          }
         });
 
         return plugins(on, config);
