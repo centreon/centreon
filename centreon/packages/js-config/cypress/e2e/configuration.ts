@@ -58,6 +58,20 @@ export default ({
         tasks(on);
 
         on('after:run', async (results) => {
+          const reportDir = path.join(
+            __dirname,
+            '../../../../tests/e2e/results',
+            'cucumber-logs'
+          );
+
+          const reportPath = path.join(reportDir, 'report.json');
+          if (!fs.existsSync(reportDir)) {
+            fs.mkdirSync(reportDir, { recursive: true });
+          }
+
+          if (!fs.existsSync(reportPath)) {
+            fs.writeFileSync(reportPath, '');
+          }
           const testRetries: { [key: string]: boolean } = {};
           if ('runs' in results) {
             results.runs.forEach((run) => {
@@ -83,21 +97,6 @@ export default ({
             resultFilePath,
             JSON.stringify(testRetries, null, 2)
           );
-
-          const reportDir = path.join(
-            __dirname,
-            '../../../../tests/e2e/results',
-            'cucumber-logs'
-          );
-
-          const reportPath = path.join(reportDir, 'report.json');
-          if (!fs.existsSync(reportDir)) {
-            fs.mkdirSync(reportDir, { recursive: true });
-          }
-
-          if (!fs.existsSync(reportPath)) {
-            fs.writeFileSync(reportPath, '');
-          }
         });
 
         return plugins(on, config);
