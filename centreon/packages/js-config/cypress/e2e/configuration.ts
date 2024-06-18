@@ -53,10 +53,6 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
-        installLogsPrinter(on);
-        await esbuildPreprocessor(on, config);
-        tasks(on);
-
         on('after:run', async (results) => {
           const testRetries: { [key: string]: boolean } = {};
           if ('runs' in results) {
@@ -83,22 +79,10 @@ export default ({
             resultFilePath,
             JSON.stringify(testRetries, null, 2)
           );
-
-          const reportDir = path.join(
-            __dirname,
-            '../../../../tests/e2e/results',
-            'cucumber-logs'
-          );
-
-          const reportPath = path.join(reportDir, 'report.json');
-          if (!fs.existsSync(reportDir)) {
-            fs.mkdirSync(reportDir, { recursive: true });
-          }
-
-          if (!fs.existsSync(reportPath)) {
-            fs.writeFileSync(reportPath, '{}');
-          }
         });
+        installLogsPrinter(on);
+        await esbuildPreprocessor(on, config);
+        tasks(on);
 
         return plugins(on, config);
       },
