@@ -85,7 +85,7 @@ try {
 
 
     $result = true;
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     $result = false;
     $message = $e->getMessage();
 }

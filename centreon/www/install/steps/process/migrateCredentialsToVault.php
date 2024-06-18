@@ -49,7 +49,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * Migrate database credentials to Vault and update the different config files.
  *
- * @return void
+ * @throws Throwable
  */
 function migrateCredentialsToVault(): void
 {
@@ -61,8 +61,6 @@ function migrateCredentialsToVault(): void
 }
 
 /**
- * Retrieve Vault configuration.
- *
  * @return VaultConfiguration
  *
  * @throws Throwable
@@ -160,6 +158,13 @@ function migrateDatabaseCredentials(
     return $vaultPath;
 }
 
+/**
+ * Update the different config files with the vault path.
+ *
+ * @param $vaultPath
+ *
+ * @throws Exception
+ */
 function updateConfigFilesWithVaultPath($vaultPath): void
 {
     updateCentreonConfPhpFile($vaultPath);
@@ -167,9 +172,17 @@ function updateConfigFilesWithVaultPath($vaultPath): void
     updateDatabaseYamlFile($vaultPath);
 }
 
+/**
+ * Retrieve database credentials from config file.
+ *
+ * @return array{username: string, password: string
+ *
+ * @throws Exception
+ */
 function retrieveDatabaseCredentialsFromConfigFile(): array
 {
-    $content = file_get_contents("/etc/centreon/centreon.conf.php");
+    $content = file_get_contents("/etc/centreon/centreon.conf.php")
+        ?: throw new Exception('Unable to retrieve content of file');
 
     preg_match(
         '/\$conf_centreon\[[\'\"]user[\'\"]\]\s*=\s*[\'\"](.*)[\'\"]\s*;/',
@@ -190,9 +203,15 @@ function retrieveDatabaseCredentialsFromConfigFile(): array
     return ['username' => $userContent, 'password' => $passwordContent];
 }
 
+/**
+ * @param string $vaultPath
+ *
+ * @throws Exception
+ */
 function updateCentreonConfPhpFile(string $vaultPath): void
 {
-    $content = file_get_contents("/etc/centreon/centreon.conf.php");
+    $content = file_get_contents("/etc/centreon/centreon.conf.php")
+        ?: throw new Exception('Unable to retrieve content of file: /etc/centreon/centreon.conf.php');
 
     $newContentPhp = preg_replace(
         '/\$conf_centreon\[[\'\"]user[\'\"]\]\s*=\s*(.*)/',
@@ -205,12 +224,19 @@ function updateCentreonConfPhpFile(string $vaultPath): void
         $newContentPhp
     );
 
-    file_put_contents("/etc/centreon/centreon.conf.php", $newContentPhp);
+    file_put_contents("/etc/centreon/centreon.conf.php", $newContentPhp)
+        ?: throw new Exception('Unable to update file: /etc/centreon/centreon.conf.php');
 }
 
+/**
+ * @param string $vaultPath
+ *
+ * @throws Exception
+ */
 function updateCentreonConfPmFile(string $vaultPath): void
 {
-    $content = file_get_contents("/etc/centreon/conf.pm");
+    $content = file_get_contents("/etc/centreon/conf.pm")
+        ?: throw new Exception('Unable to retrieve content of file: /etc/centreon/conf.pm');
 
     $newContentPm = preg_replace(
         '/"db_user"\s*=>\s*(.*)/',
@@ -233,12 +259,19 @@ function updateCentreonConfPmFile(string $vaultPath): void
         $newContentPm
     );
 
-    file_put_contents("/etc/centreon/conf.pm", $newContentPm);
+    file_put_contents("/etc/centreon/conf.pm", $newContentPm)
+        ?: throw new Exception('Unable to update file: /etc/centreon/conf.pm');
 }
 
+/**
+ * @param string $vaultPath
+ *
+ * @throws Exception
+ */
 function updateDatabaseYamlFile(string $vaultPath): void
 {
-    $content = file_get_contents("/etc/centreon/config.d/10-database.yaml");
+    $content = file_get_contents("/etc/centreon/config.d/10-database.yaml")
+        ?: throw new Exception('Unable to retrieve content of file: /etc/centreon/config.d/10-database.yaml');
 
     $newContentYaml = preg_replace(
         '/username: (.*)/',
@@ -251,5 +284,6 @@ function updateDatabaseYamlFile(string $vaultPath): void
         $newContentYaml
     );
 
-    file_put_contents("/etc/centreon/config.d/10-database.yaml", $newContentYaml);
+    file_put_contents("/etc/centreon/config.d/10-database.yaml", $newContentYaml)
+        ?: throw new Exception('Unable to update file: /etc/centreon/config.d/10-database.yaml');
 }
