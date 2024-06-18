@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable consistent-return */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -75,12 +76,13 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
+        installLogsPrinter(on);
+
+        await esbuildPreprocessor(on, config);
+        tasks(on);
         on('after:spec', async (spec, results) => {
           await handleTestResults(results);
         });
-        installLogsPrinter(on);
-        await esbuildPreprocessor(on, config);
-        tasks(on);
 
         return plugins(on, config);
       },
