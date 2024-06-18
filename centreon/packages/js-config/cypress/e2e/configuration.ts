@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Import des modules nécessaires
 import fs from 'fs';
 import path from 'path';
@@ -20,33 +22,37 @@ interface ConfigurationOptions {
   specPattern: string;
 }
 
-// Définition du chemin vers report.json et hasRetries.json
-const resultsFolder = '${cypressFolder || '.'}/results';
-const reportPath = path.join(resultsFolder, 'cucumber-logs', 'report.json');
-const hasRetriesPath = path.join(resultsFolder, 'hasRetries.json');
+// Définition du chemin vers report.json
+const reportPath = path.join(
+  __dirname,
+  '../../../../tests/e2e/results',
+  'cucumber-logs',
+  'report.json'
+);
 
-// Fonction pour assurer la création des fichiers
-function ensureFilesExist() {
-  try {
-    // Création de report.json s'il n'existe pas
-    if (!fs.existsSync(reportPath)) {
-      fs.writeFileSync(reportPath, '{}'); // Vous pouvez initialiser avec un objet vide ou autre contenu
-      console.log('Created report.json:', reportPath);
+// Fonction pour attendre la création de report.json
+const waitForReportJson = (
+  callback: () => void,
+  timeout: number,
+  interval: number
+) => {
+  let elapsedTime = 0;
+
+  const checkFileExists = () => {
+    if (fs.existsSync(reportPath)) {
+      callback();
+    } else {
+      elapsedTime += interval;
+      if (elapsedTime < timeout) {
+        setTimeout(checkFileExists, interval);
+      } else {
+        console.error('Timeout waiting for report.json');
+      }
     }
+  };
 
-    // Création de hasRetries.json s'il n'existe pas
-    if (!fs.existsSync(hasRetriesPath)) {
-      fs.writeFileSync(hasRetriesPath, '{}'); // Vous pouvez initialiser avec un objet vide ou autre contenu
-      console.log('Created hasRetries.json:', hasRetriesPath);
-    }
-  } catch (err) {
-    console.error('Error creating files:', err);
-    throw err;
-  }
-}
-
-// Appeler la fonction pour s'assurer que les fichiers existent
-ensureFilesExist();
+  checkFileExists();
+};
 
 // Définition de la configuration Cypress
 export default ({
@@ -60,9 +66,42 @@ export default ({
     configDotenv({ path: envFile });
   }
 
+  const resultsFolder = `${cypressFolder || '.'}/results`;
+
   const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
     .toString('utf8')
     .replace(/[\n\r\s]+$/, '');
+
+  // Fonction pour traiter after:run une fois que report.json est prêt
+  const handleAfterRun = (results: any) => {
+    const testRetries: { [key: string]: boolean } = {};
+
+    if ('runs' in results) {
+      results.runs.forEach((run: any) => {
+        run.tests.forEach((test: any) => {
+          if (test.attempts && test.attempts.length > 1) {
+            const testTitle = test.title.join(' > '); // Convert the array to a string
+            testRetries[testTitle] = true;
+          }
+        });
+      });
+    }
+
+    console.log('After run results:', results);
+    console.log('Test retries:', testRetries);
+
+    // Lisez et manipulez report.json ici si nécessaire
+    const reportContent = fs.readFileSync(reportPath, 'utf8');
+    console.log('Content of report.json:', reportContent);
+
+    // Sauvegardez les testRetries dans hasRetries.json
+    const resultFilePath = path.join(
+      __dirname,
+      '../../../../tests/e2e/results',
+      'hasRetries.json'
+    );
+    fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
+  };
 
   return defineConfig({
     chromeWebSecurity: false,
@@ -75,39 +114,25 @@ export default ({
       reporterOptions: {
         configFile: `${__dirname}/reporter-config.js`
       },
-      setupNodeEvents: async (on, config) => {
+      setupNodeEvents: (on, config) => {
         installLogsPrinter(on);
-        await esbuildPreprocessor(on, config);
+        esbuildPreprocessor(on, config);
         tasks(on);
 
-        on('after:run', (results) => {
-          const testRetries: { [key: string]: boolean } = {};
+        // Attendre la création de report.json avant de continuer
+        waitForReportJson(
+          () => {
+            // Définir l'événement after:run une fois que report.json est prêt
+            on('after:run', handleAfterRun);
 
-          if ('runs' in results) {
-            results.runs.forEach((run) => {
-              run.tests.forEach((test) => {
-                if (test.attempts && test.attempts.length > 1) {
-                  const testTitle = test.title.join(' > '); // Convert the array to a string
-                  testRetries[testTitle] = true;
-                }
-              });
-            });
-          }
+            // Continuer avec d'autres configurations et plugins
+            plugins(on, config);
+          },
+          30000,
+          1000
+        ); // Timeout de 30 secondes, vérification toutes les 1 seconde
 
-          console.log('After run results:', results);
-          console.log('Test retries:', testRetries);
-
-          // Lire et manipuler report.json ici si nécessaire
-          const reportContent = fs.readFileSync(reportPath, 'utf8');
-          console.log('Content of report.json:', reportContent);
-
-          // Sauvegarder les testRetries dans hasRetries.json
-          fs.writeFileSync(hasRetriesPath, JSON.stringify(testRetries, null, 2));
-
-          return plugins(on, config);
-        });
-
-        return plugins(on, config);
+        // Ne pas retourner de valeurs dans setupNodeEvents
       },
       specPattern,
       supportFile: 'support/e2e.{js,jsx,ts,tsx}'
