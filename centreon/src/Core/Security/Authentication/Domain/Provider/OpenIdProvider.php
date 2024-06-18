@@ -286,7 +286,7 @@ class OpenIdProvider implements OpenIdProviderInterface
             throw ConfigurationException::missingInformationEndpoint();
         }
 
-        $this->sendRequestForConnectionTokenOrFail($authorizationCode);
+        $this->sendRequestForConnectionTokenOrFail($authorizationCode, $customConfiguration->getRedirectUrl());
         $this->createAuthenticationTokens();
         if (array_key_exists('id_token', $this->connectionTokenResponseContent)) {
             $this->idTokenPayload = $this->extractTokenPayload($this->connectionTokenResponseContent['id_token']);
@@ -468,16 +468,22 @@ class OpenIdProvider implements OpenIdProviderInterface
      *
      * @throws SSOAuthenticationException
      */
-    private function sendRequestForConnectionTokenOrFail(string $authorizationCode): void
+    private function sendRequestForConnectionTokenOrFail(string $authorizationCode, ?string $redirectUrl): void
     {
         $this->info('Send request to external provider for connection token...');
 
         // Define parameters for the request
-        $redirectUri = $this->router->generate(
-            'centreon_security_authentication_login_openid',
-            [],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
+        $redirectUri = $redirectUrl !== null
+            ? $redirectUrl . $this->router->generate(
+                'centreon_security_authentication_login_openid',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_PATH
+            )
+            : $this->router->generate(
+                'centreon_security_authentication_login_openid',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
         $data = [
             'grant_type' => 'authorization_code',
             'code' => $authorizationCode,
