@@ -20,13 +20,33 @@ interface ConfigurationOptions {
   specPattern: string;
 }
 
-// Définition du chemin vers report.json
-const reportPath = path.join(
-  __dirname,
-  '../../../../tests/e2e/results',
-  'cucumber-logs',
-  'report.json'
-);
+// Définition du chemin vers report.json et hasRetries.json
+const resultsFolder = '${cypressFolder || '.'}/results';
+const reportPath = path.join(resultsFolder, 'cucumber-logs', 'report.json');
+const hasRetriesPath = path.join(resultsFolder, 'hasRetries.json');
+
+// Fonction pour assurer la création des fichiers
+function ensureFilesExist() {
+  try {
+    // Création de report.json s'il n'existe pas
+    if (!fs.existsSync(reportPath)) {
+      fs.writeFileSync(reportPath, '{}'); // Vous pouvez initialiser avec un objet vide ou autre contenu
+      console.log('Created report.json:', reportPath);
+    }
+
+    // Création de hasRetries.json s'il n'existe pas
+    if (!fs.existsSync(hasRetriesPath)) {
+      fs.writeFileSync(hasRetriesPath, '{}'); // Vous pouvez initialiser avec un objet vide ou autre contenu
+      console.log('Created hasRetries.json:', hasRetriesPath);
+    }
+  } catch (err) {
+    console.error('Error creating files:', err);
+    throw err;
+  }
+}
+
+// Appeler la fonction pour s'assurer que les fichiers existent
+ensureFilesExist();
 
 // Définition de la configuration Cypress
 export default ({
@@ -39,8 +59,6 @@ export default ({
   if (envFile) {
     configDotenv({ path: envFile });
   }
-
-  const resultsFolder = `${cypressFolder || '.'}/results`;
 
   const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
     .toString('utf8')
@@ -79,25 +97,14 @@ export default ({
           console.log('After run results:', results);
           console.log('Test retries:', testRetries);
 
-          // Vérifiez d'abord si report.json existe
-          if (fs.existsSync(reportPath)) {
-            // Lisez et manipulez report.json ici si nécessaire
-            const reportContent = fs.readFileSync(reportPath, 'utf8');
-            console.log('Content of report.json:', reportContent);
+          // Lire et manipuler report.json ici si nécessaire
+          const reportContent = fs.readFileSync(reportPath, 'utf8');
+          console.log('Content of report.json:', reportContent);
 
-            // Sauvegardez les testRetries dans hasRetries.json
-            const resultFilePath = path.join(
-              __dirname,
-              '../../../../tests/e2e/results',
-              'hasRetries.json'
-            );
-            fs.writeFileSync(
-              resultFilePath,
-              JSON.stringify(testRetries, null, 2)
-            );
-          } else {
-            console.log('Report file not found: ', reportPath);
-          }
+          // Sauvegarder les testRetries dans hasRetries.json
+          fs.writeFileSync(hasRetriesPath, JSON.stringify(testRetries, null, 2));
+
+          return plugins(on, config);
         });
 
         return plugins(on, config);
