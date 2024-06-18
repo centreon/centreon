@@ -168,7 +168,7 @@ jobs:
         id: check_retries
         if: always()
         run: |
-            retriesFile="${{ inputs.module_name }}/tests/e2e/results/hasRetries.json"
+            retriesFile="centreon/tests/e2e/results/hasRetries.json"
 
             if [ -f "$retriesFile" ]; then
               retries=$(jq '.' $retriesFile)
@@ -179,8 +179,11 @@ jobs:
                 retriesHtml+="<p>The following tests were retried during execution:</p>"
                 retriesHtml+="<table><tr><th>Feature</th><th>Test Scenario</th></tr>"
 
-                # Generate the HTML rows
-                retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>:warning: \(.key | split(\" > \")[0])</td><td>:warning: \(.key | split(\" > \")[1])</td></tr>"' $retriesFile)
+                while IFS= read -r line; do
+                  feature=$(echo "$line" | jq -r 'split(" > ")[0]')
+                  scenario=$(echo "$line" | jq -r 'split(" > ")[1]')
+                  retriesHtml+="<tr><td>:warning: $feature</td><td>:warning: $scenario</td></tr>"
+                done < <(jq -r 'keys[]' $retriesFile)
 
                 retriesHtml+="</table>"
                 echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
