@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+# Copyright 2024 Centreon (http://www.centreon.com/)
+#
+# Centreon is a full-fledged industry-strength solution that meets
+# the needs in IT infrastructure and application monitoring for
+# service performance.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# this script is a simple place holder to mock the centenginestats binary provided by centreon-engine package.
+# it output static data for testing purpose.
+
+cat << EOF
+Centreon Engine Statistics Utility 23.10.6
+
+Copyright 2003-2008      Ethan Galstad
+Copyright 2011-2013,2016 Centreon
+License: GPLv2
+
+CURRENT STATUS DATA
+------------------------------------------------------
+Status File:                            /var/log/centreon-engine/status.dat
+Status File Age:                        0d 0h 0m 26s
+Status File Version:                    (null)
+
+Program Running Time:                   1d 6h 37m 49s
+Centreon Engine PID:                    597
+Used/High/Total Command Buffers:        0 / 0 / 4096
+
+Total Services:                         27
+Services Checked:                       27
+Services Scheduled:                     27
+Services Actively Checked:              27
+Services Passively Checked:             0
+Total Service State Change:             0.000 / 0.000 / 0.000 %
+Active Service Latency:                 0.102 / 0.955 / 0.550 sec
+Active Service Execution Time:          0.001 / 0.332 / 0.132 sec
+Active Service State Change:            0.000 / 0.000 / 0.000 %
+Active Services Last 1/5/15/60 min:     1 / 16 / 24 / 27
+Passive Service Latency:                0.000 / 0.000 / 0.000 sec
+Passive Service State Change:           0.000 / 0.000 / 0.000 %
+Passive Services Last 1/5/15/60 min:    0 / 0 / 0 / 0
+Services Ok/Warn/Unk/Crit:              21 / 0 / 6 / 0
+Services Flapping:                      0
+Services In Downtime:                   0
+
+Total Hosts:                            6
+Hosts Checked:                          5
+Hosts Scheduled:                        5
+Hosts Actively Checked:                 6
+Host Passively Checked:                 0
+Total Host State Change:                0.000 / 0.000 / 0.000 %
+Active Host Latency:                    0.020 / 0.868 / 0.475 sec
+Active Host Execution Time:             0.030 / 0.152 / 0.083 sec
+Active Host State Change:               0.000 / 0.000 / 0.000 %
+Active Hosts Last 1/5/15/60 min:        0 / 3 / 5 / 5
+Passive Host Latency:                   0.000 / 0.000 / 0.000 sec
+Passive Host State Change:              0.000 / 0.000 / 0.000 %
+Passive Hosts Last 1/5/15/60 min:       0 / 0 / 0 / 0
+Hosts Up/Down/Unreach:                  5 / 1 / 0
+Hosts Flapping:                         0
+Hosts In Downtime:                      0
+
+Active Host Checks Last 1/5/15 min:     0 / 5 / 21
+   Scheduled:                           0 / 3 / 13
+   On-demand:                           0 / 2 / 8
+   Parallel:                            0 / 3 / 13
+   Serial:                              0 / 0 / 0
+   Cached:                              0 / 2 / 8
+Passive Host Checks Last 1/5/15 min:    0 / 0 / 0
+Active Service Checks Last 1/5/15 min:  1 / 18 / 57
+   Scheduled:                           1 / 18 / 57
+   On-demand:                           0 / 0 / 0
+   Cached:                              0 / 0 / 0
+Passive Service Checks Last 1/5/15 min: 0 / 0 / 0
+
+External Commands Last 1/5/15 min:      0 / 0 / 0
+
+EOF

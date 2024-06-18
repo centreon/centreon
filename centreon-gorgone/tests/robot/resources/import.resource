@@ -5,4 +5,7 @@ Library             OperatingSystem
 Library             String
 Library             Collections
 Resource            resources.resource
+Library             LogResearch.py
 Library             DatabaseLibrary
+Library             JSONLibrary
+Library             DateTime

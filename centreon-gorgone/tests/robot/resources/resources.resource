@@ -18,6 +18,7 @@ ${gorgone_core_config}        ${ROOT_CONFIG}gorgone_core_central.yaml
 ${DBHOST}                   127.0.0.1
 ${DBPORT}                   3306
 ${DBNAME}                   centreon_gorgone_test
+${DBNAME_STORAGE}           centreon-storage
 ${DBUSER}                   centreon
 ${DBPASSWORD}               password
 
@@ -56,7 +57,7 @@ Gorgone Execute Sql
     END
 
 Setup Gorgone Config
-    [Arguments]        @{file_list}    ${gorgone_name}=gorgone_process_name        ${sql_file}=
+    [Arguments]        ${file_list}    ${gorgone_name}=gorgone_process_name        ${sql_file}=
     Gorgone Execute Sql    ${sql_file}
     Create Directory    /var/log/centreon-gorgone/${gorgone_name}/
     Copy File    ${CURDIR}${/}..${/}config${/}includer.yaml    /etc/centreon-gorgone/${gorgone_name}/includer.yaml
@@ -112,23 +113,39 @@ Check Poller Communicate
     Should Be True    0 < ${response.json()}[data][${poller_id}][ping_ok]    there was no successful ping between the central and the poller ${poller_id}
 
 Setup Two Gorgone Instances
-    [Arguments]    ${communication_mode}=push_zmq    ${central_name}=gorgone_central    ${poller_name}=gorgone_poller_2
+    [Arguments]    ${central_config}=@{EMPTY}    ${poller_config}=@{EMPTY}    ${communication_mode}=push_zmq    ${central_name}=gorgone_central    ${poller_name}=gorgone_poller_2
     ${result}    Run    perl /usr/local/bin/gorgone_key_generation.pl
     # generate key if there is none.
     # gorgone can generate it's own key, but as we need the thumbprint in the configuration we need to generate them before launching gorgone.
     # this script only create key if the files don't exists, and silently finish if the files already exists.
     IF    '${communication_mode}' == 'push_zmq'
-        Setup Gorgone Config    ${push_central_config}    ${gorgone_core_config}    gorgone_name=${central_name}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
-        Setup Gorgone Config    ${push_poller_config}    gorgone_name=${poller_name}
+        @{central_push_config}=    Copy List    ${central_config}
+        Append To List    ${central_push_config}    ${push_central_config}    ${gorgone_core_config}
 
-        Start Gorgone    debug    ${central_name}
+        @{poller_push_config}=    Copy List    ${poller_config}
+        Append To List    ${poller_push_config}    ${push_poller_config}
+
+        Setup Gorgone Config    ${central_push_config}    gorgone_name=${central_name}    sql_file=${ROOT_CONFIG}db_add_1_poller.sql
+        Setup Gorgone Config    ${poller_push_config}     gorgone_name=${poller_name}
+
         Start Gorgone    debug    ${poller_name}
+        Wait Until Port Is Bind    5556
+        Start Gorgone    debug    ${central_name}
+        
 
         Check Poller Is Connected    port=5556    expected_nb=2
         Check Poller Communicate     2
+
     ELSE IF    '${communication_mode}' == 'pullwss'
-        Setup Gorgone Config    ${pullwss_central_config}    ${ROOT_CONFIG}pullwss_node_register_one_node.yaml    ${gorgone_core_config}    gorgone_name=${central_name}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
-        Setup Gorgone Config    ${gorgone_core_config}    ${pullwss_poller_config}    gorgone_name=${poller_name}
+
+        @{central_pullwss_config}=    Copy List    ${central_config}
+        Append To List    ${central_pullwss_config}    ${pullwss_central_config}    ${ROOT_CONFIG}pullwss_node_register_one_node.yaml    ${gorgone_core_config}
+
+        @{poller_pullwss_config}=    Copy List    ${poller_config}
+        Append To List    ${poller_pullwss_config}    ${gorgone_core_config}    ${pullwss_poller_config}
+
+        Setup Gorgone Config    ${central_pullwss_config}    gorgone_name=${central_name}    sql_file=${ROOT_CONFIG}db_add_1_poller.sql
+        Setup Gorgone Config    ${poller_pullwss_config}     gorgone_name=${poller_name}
 
         Start Gorgone    debug    ${central_name}
         Wait Until Port Is Bind    8086
@@ -149,5 +166,6 @@ Wait Until Port Is Bind
           BREAK
         END
     END
-    Should Be True    ${i} < 10    Gorgone did not listen on port ${port} on time.
+
+    Should Be True    ${i} < 9    Gorgone did not listen on port ${port} on time.
     Log To Console    tcp port ${port} bind after ${i} attempt (0.5 seconds each)
