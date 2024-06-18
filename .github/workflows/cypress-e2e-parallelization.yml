@@ -165,24 +165,24 @@ jobs:
           retention-days: 1
 
       - name: Check for test retries
-      id: check_retries
-      if: always()
-      run: |
-          retriesFile="${{ inputs.module_name }}/tests/e2e/results/hasRetries.json"
-          if [ -f "$retriesFile" ]; then
-            retries=$(jq '.' $retriesFile)
-            if [ "$retries" != "{}" ]; then
-              echo "Test retries: $retries"
-              retriesHtml="<h2>:warning:The following tests were retried during execution:</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
-              # Generate the HTML rows
-              retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>:warning: \(.key | split(" > ")[0])</td><td>:warning: \(.key | split(" > ")[1])</td></tr>"' $retriesFile)
-              retriesHtml+="</table>"
-              echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
-              retriesJson=$(echo "$retries" | jq -c '.')
-              echo "retries=$retriesJson" >> $GITHUB_OUTPUT
+        id: check_retries
+        if: always()
+        run: |
+            retriesFile="${{ inputs.module_name }}/tests/e2e/results/hasRetries.json"
+            if [ -f "$retriesFile" ]; then
+              retries=$(jq '.' $retriesFile)
+              if [ "$retries" != "{}" ]; then
+                echo "Test retries: $retries"
+                retriesHtml="<h2>:warning:The following tests were retried during execution:</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
+                # Generate the HTML rows
+                retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>:warning: \(.key | split(" > ")[0])</td><td>:warning: \(.key | split(" > ")[1])</td></tr>"' $retriesFile)
+                retriesHtml+="</table>"
+                echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
+                retriesJson=$(echo "$retries" | jq -c '.')
+                echo "retries=$retriesJson" >> $GITHUB_OUTPUT
+              fi
             fi
-          fi
-      shell: bash
+        shell: bash
 
       - name: Upload test reports
         if: failure()
