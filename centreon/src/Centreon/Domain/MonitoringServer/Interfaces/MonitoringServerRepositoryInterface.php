@@ -83,6 +83,18 @@ interface MonitoringServerRepositoryInterface
     public function findServer(int $monitoringServerId): ?MonitoringServer;
 
     /**
+     * Find a monitoring server by id and access groups.
+     *
+     * @param int $monitoringServerId Id of the monitoring server to be found
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Exception
+     *
+     * @return MonitoringServer|null
+     */
+    public function findServerByIdAndAccessGroups(int $monitoringServerId, array $accessGroups): ?MonitoringServer;
+
+    /**
      * Find a monitoring server by its name.
      *
      * @param string $monitoringServerName Name to find

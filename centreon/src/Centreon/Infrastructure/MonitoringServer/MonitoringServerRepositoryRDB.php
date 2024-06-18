@@ -30,6 +30,8 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use PhpParser\Node\Stmt\Foreach_;
 
 /**
  * This class is designed to manage the repository of the monitoring servers
@@ -38,6 +40,8 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements MonitoringServerRepositoryInterface
 {
+    use SqlMultipleBindTrait;
+
     /**
      * @var SqlRequestParametersTranslator
      */
@@ -194,6 +198,61 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
             return $server;
         }
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServerByIdAndAccessGroups(int $monitoringServerId, array $accessGroups): ?MonitoringServer
+    {
+        if ($accessGroups === []) {
+            return null;
+        }
+
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group_id_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT * FROM `:db`.nagios_server
+                INNER JOIN `:db`.acl_resources_poller_relations arpr
+                    ON arpr.poller_id = id
+                INNER JOIN `:db`.acl_resources res
+                    ON res.acl_res_id = arpr.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                WHERE argr.acl_group_id IN ({$bindQuery})
+                    AND id = :server_id
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':server_id', $monitoringServerId, \PDO::PARAM_INT);
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var MonitoringServer $server */
+            $server = EntityCreator::createEntityByArray(
+                MonitoringServer::class,
+                $record
+            );
+            if ((int) $record['last_restart'] === 0) {
+                $server->setLastRestart(null);
+            }
+
+            return $server;
+        }
+
         return null;
     }
 
