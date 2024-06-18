@@ -17154,3 +17154,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Critical KPIs"
 # msgstr ""
+
+# msgid "Error while searching for notification contact groups"
+# msgstr ""

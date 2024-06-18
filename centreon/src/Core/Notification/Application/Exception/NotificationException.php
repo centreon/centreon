@@ -111,4 +111,9 @@ class NotificationException extends \Exception
     {
         return new self(_('Error while listing notification resources'));
     }
+
+    public static function errorWhileSearchingForContactGroups(): self
+    {
+        return new self(_('Error while searching for notification contact groups'));
+    }
 }

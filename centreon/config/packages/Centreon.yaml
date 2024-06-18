@@ -43,6 +43,7 @@ services:
             - '../../src/Core/ServiceGroup/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
+            - '../../src/Core/Contact/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 

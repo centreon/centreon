@@ -35,9 +35,9 @@ use Core\Notification\Application\UseCase\FindNotifications\FindNotifications;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsResponse;
 use Core\Notification\Application\UseCase\FindNotifications\NotificationDto;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationChannel;
+use Core\Notification\Domain\Model\Channel;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\ConfigurationTimePeriod;
+use Core\Notification\Domain\Model\TimePeriod;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\Notification\Infrastructure\API\FindNotifications\FindNotificationsPresenterStub;
@@ -100,9 +100,9 @@ it('should get the resources count with ACL calculation when the user is not adm
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,'notification-one', new ConfigurationTimePeriod(1, '24x7'), true);
-    $notificationTwo = new Notification(2,'notification-two', new ConfigurationTimePeriod(1, '24x7'), true);
-    $notificationThree = new Notification(3,'notification-three', new ConfigurationTimePeriod(1, '24x7'), true);
+    $notificationOne = new Notification(1,'notification-one', new TimePeriod(1, '24x7'), true);
+    $notificationTwo = new Notification(2,'notification-two', new TimePeriod(1, '24x7'), true);
+    $notificationThree = new Notification(3,'notification-three', new TimePeriod(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -115,7 +115,7 @@ it('should get the resources count with ACL calculation when the user is not adm
 
     $this->notificationRepository
         ->expects($this->once())
-        ->method('findUsersCountByNotificationIds')
+        ->method('countContactsByNotificationIdsAndAccessGroup')
         ->willReturn([
             1 => 4,
             2 => 3,
@@ -133,7 +133,7 @@ it('should get the resources count with ACL calculation when the user is not adm
         ->willReturn($repositories);
 
     $this->readAccessGroupRepository
-        ->expects($this->once())
+        ->expects($this->atLeastOnce())
         ->method('findByContact')
         ->with($contact)
         ->willReturn($accessGroups);
@@ -141,7 +141,7 @@ it('should get the resources count with ACL calculation when the user is not adm
     foreach ($repositories as $repository) {
         $repository
             ->expects($this->any())
-            ->method('findResourcesCountByNotificationIdsAndAccessGroups');
+            ->method('countResourcesByNotificationIdsAndAccessGroups');
     }
 
     (new FindNotifications(
@@ -158,9 +158,9 @@ it('should get the resources count without ACL calculation when the user is admi
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,'notification-one', new ConfigurationTimePeriod(1, '24x7'), true);
-    $notificationTwo = new Notification(2,'notification-two', new ConfigurationTimePeriod(1, '24x7'), true);
-    $notificationThree = new Notification(3,'notification-three', new ConfigurationTimePeriod(1, '24x7'), true);
+    $notificationOne = new Notification(1,'notification-one', new TimePeriod(1, '24x7'), true);
+    $notificationTwo = new Notification(2,'notification-two', new TimePeriod(1, '24x7'), true);
+    $notificationThree = new Notification(3,'notification-three', new TimePeriod(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -173,7 +173,7 @@ it('should get the resources count without ACL calculation when the user is admi
 
     $this->notificationRepository
         ->expects($this->once())
-        ->method('findUsersCountByNotificationIds')
+        ->method('countContactsByNotificationIds')
         ->willReturn([
             1 => 4,
             2 => 3,
@@ -188,7 +188,7 @@ it('should get the resources count without ACL calculation when the user is admi
     foreach ($repositories as $repository) {
         $repository
             ->expects($this->any())
-            ->method('findResourcesCountByNotificationIds');
+            ->method('countResourcesByNotificationIdsAndAccessGroups');
     }
 
     (new FindNotifications(
@@ -205,9 +205,9 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,'notification-one', new ConfigurationTimePeriod(1, '24x7'), true);
-    $notificationTwo = new Notification(2,'notification-two', new ConfigurationTimePeriod(1, '24x7'), true);
-    $notificationThree = new Notification(3,'notification-three', new ConfigurationTimePeriod(1, '24x7'), true);
+    $notificationOne = new Notification(1,'notification-one', new TimePeriod(1, '24x7'), true);
+    $notificationTwo = new Notification(2,'notification-two', new TimePeriod(1, '24x7'), true);
+    $notificationThree = new Notification(3,'notification-three', new TimePeriod(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -219,12 +219,12 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ]);
 
     $notificationChannelsByNotifications = [
-        1 => [NotificationChannel::from('Slack')],
-        2 => [NotificationChannel::from('Slack'), NotificationChannel::from('Sms')],
+        1 => [Channel::from('Slack')],
+        2 => [Channel::from('Slack'), Channel::from('Sms')],
         3 => [
-            NotificationChannel::from('Slack'),
-            NotificationChannel::from('Sms'),
-            NotificationChannel::from('Email'),
+            Channel::from('Slack'),
+            Channel::from('Sms'),
+            Channel::from('Email'),
         ],
     ];
 
@@ -241,7 +241,7 @@ it('should present a FindNotificationsResponse when the use case is executed cor
 
     $this->notificationRepository
         ->expects($this->once())
-        ->method('findUsersCountByNotificationIds')
+        ->method('countContactsByNotificationIds')
         ->willReturn($usersCount);
 
     $this->hgResourceRepository
@@ -268,7 +268,7 @@ it('should present a FindNotificationsResponse when the use case is executed cor
     foreach ($repositories as $repository) {
         $repository
             ->expects($this->any())
-            ->method('findResourcesCountByNotificationIds')
+            ->method('countResourcesByNotificationIds')
             ->willReturn($resourcesCount[$index]);
         $index++;
     }
@@ -301,11 +301,11 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ->and($firstNotification->resources)->toBe(
             [
                 [
-                    'type' => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
+                    'type' => NotificationResource::TYPE_HOST_GROUP,
                     'count' => $hostgroupResourcesCount[$notificationOne->getId()],
                 ],
                 [
-                    'type' => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
+                    'type' => NotificationResource::TYPE_SERVICE_GROUP,
                     'count' => $servicegroupResourcesCount[$notificationOne->getId()],
                 ],
             ]
@@ -324,11 +324,11 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ->and($secondNotification->resources)->toBe(
             [
                 [
-                    'type' => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
+                    'type' => NotificationResource::TYPE_HOST_GROUP,
                     'count' => $hostgroupResourcesCount[$notificationTwo->getId()],
                 ],
                 [
-                    'type' => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
+                    'type' => NotificationResource::TYPE_SERVICE_GROUP,
                     'count' => $servicegroupResourcesCount[$notificationTwo->getId()],
                 ],
             ]
@@ -347,11 +347,11 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ->and($thirdNotification->resources)->toBe(
             [
                 [
-                    'type' => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
+                    'type' => NotificationResource::TYPE_HOST_GROUP,
                     'count' => $hostgroupResourcesCount[$notificationThree->getId()],
                 ],
                 [
-                    'type' => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
+                    'type' => NotificationResource::TYPE_SERVICE_GROUP,
                     'count' => $servicegroupResourcesCount[$notificationThree->getId()],
                 ],
             ]

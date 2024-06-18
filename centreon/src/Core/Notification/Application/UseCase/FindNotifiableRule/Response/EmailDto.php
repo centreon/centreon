@@ -21,44 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Domain\Model;
+namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
 
-use Centreon\Domain\Common\Assertion\Assertion;
-
-class ConfigurationTimePeriod
+final class EmailDto
 {
-    public const ALL_TIME_PERIOD = '24x7';
-
     /**
-     * @param int $id
-     * @param string $name
-     *
-     * @throws \Assert\AssertionFailedException
+     * @param list<ContactDto> $contacts
+     * @param string $subject
+     * @param string $formattedMessage
      */
     public function __construct(
-        private readonly int $id,
-        private readonly string $name
+        public array $contacts = [],
+        public string $subject = '',
+        public string $formattedMessage = '',
     ) {
-        Assertion::positiveInt($id, 'timePeriod::id');
-    }
-
-    /**
-     * Get the timeperiod id.
-     *
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * Get the timeperiod name.
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
     }
 }

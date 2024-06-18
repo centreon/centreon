@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -30,11 +31,15 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Contact\Domain\Model\BasicContact;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbReadContactRepository extends AbstractRepositoryDRB implements ReadContactRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -280,20 +285,21 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
 
         $accessGroupIdsAsString = implode(',', array_keys($bind));
 
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
+        $statement = $this->db->prepare(
+            $this->translateDbName(<<<SQL
                 SELECT c.contact_id
                 FROM `:db`.contact c
-                         LEFT JOIN `:db`.contactgroup_contact_relation ccr
-                                   ON c.contact_id = ccr.contact_contact_id
-                         LEFT JOIN `:db`.acl_group_contacts_relations gcr
-                                   ON c.contact_id = gcr.contact_contact_id
-                         LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
-                                   ON ccr.contactgroup_cg_id = gcgr.cg_cg_id
+                 LEFT JOIN `:db`.contactgroup_contact_relation ccr
+                           ON c.contact_id = ccr.contact_contact_id
+                 LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                           ON c.contact_id = gcr.contact_contact_id
+                 LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                           ON ccr.contactgroup_cg_id = gcgr.cg_cg_id
                 WHERE  gcr.acl_group_id IN ({$accessGroupIdsAsString})
                     OR gcgr.acl_group_id IN ({$accessGroupIdsAsString});
                 SQL
-        ));
+            )
+        );
         foreach ($bind as $token => $accessGroupId) {
             $statement->bindValue($token, $accessGroupId, \PDO::PARAM_INT);
         }
@@ -351,5 +357,159 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
         }
 
         return $admins;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIds(array $contactIds): array
+    {
+        if ($contactIds === []) {
+            return [];
+        }
+        [$bindValues, $subRequest] = $this->createMultipleBindQuery($contactIds, ':id');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(<<<SQL
+                SELECT contact_id, contact_name, contact_alias, contact_email,
+                    contact_admin, contact_activate
+                FROM `:db`.contact
+                WHERE contact_id IN ({$subRequest})
+                SQL
+            )
+        );
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $contacts = [];
+        foreach ($statement as $data) {
+            /** @var array{
+             *     contact_id: int,
+             *     contact_name: string,
+             *     contact_alias: string,
+             *     contact_email: string,
+             *     contact_activate: string,
+             *     contact_admin: string,
+             * } $data
+             */
+            $contacts[] = $this->createBasicContact($data);
+        }
+
+        return $contacts;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function retrieveExistingContactIds(array $contactIds): array
+    {
+        if ($contactIds === []) {
+            return [];
+        }
+
+        [$bindValues, $subRequest] = $this->createMultipleBindQuery($contactIds, ':id_');
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                "SELECT contact_id FROM `:db`.contact WHERE contact_id IN ({$subRequest})"
+            )
+        );
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @throws AssertionFailedException
+     */
+    public function findByAccessGroup(array $accessGroups): array
+    {
+        if ($accessGroups === []) {
+            return [];
+        }
+        $accessGroupIds = array_map(
+            fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        [$accessGroupBindValues, $accessGroupSubRequest] = $this->createMultipleBindQuery($accessGroupIds, ':id_');
+
+        $request = $this->translateDbName(<<<SQL
+            SELECT contact_id, contact_name, contact_alias, contact_email,
+                   contact_admin, contact_activate
+            FROM `:db`.contact
+            LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                ON cgcr.contact_contact_id = contact.contact_id
+            LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
+            LEFT JOIN `:db`.acl_groups aclcg
+                ON aclcg.acl_group_id = gcgr.acl_group_id
+                AND aclcg.acl_group_activate = '1'
+            LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                ON gcr.contact_contact_id = contact.contact_id
+            LEFT JOIN `:db`.acl_groups aclc
+                ON aclc.acl_group_id = gcr.acl_group_id
+            WHERE contact.contact_register = '1'
+                AND (aclc.acl_group_id IN ({$accessGroupSubRequest}) OR aclcg.acl_group_id IN ({$accessGroupSubRequest}))
+            GROUP BY contact.contact_id
+            SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($accessGroupBindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $contacts = [];
+        foreach ($statement as $result) {
+            /**
+             * @var array{
+             *      contact_id: int,
+             *      contact_name: string,
+             *      contact_alias: string,
+             *      contact_email: string,
+             *      contact_activate: string,
+             *      contact_admin: string,
+             *  } $result
+             */
+            $contacts[] = $this->createBasicContact($result);
+        }
+
+        return $contacts;
+    }
+
+    /**
+     * @param array{
+     *     contact_id: int,
+     *     contact_name: string,
+     *     contact_alias: string,
+     *     contact_email: string,
+     *     contact_activate: string,
+     *     contact_admin: string,
+     * } $data
+     *
+     * @throws AssertionFailedException
+     *
+     * @return BasicContact
+     */
+    private function createBasicContact(array $data): BasicContact
+    {
+        return new BasicContact(
+            (int) $data['contact_id'],
+            $data['contact_name'],
+            $data['contact_alias'],
+            $data['contact_email'],
+            $data['contact_admin'] === '1',
+            $data['contact_activate'] === '1'
+        );
     }
 }

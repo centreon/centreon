@@ -44,7 +44,7 @@ interface ReadUserRepositoryInterface
      * Find configured users that belong to given access groups.
      *
      * @param AccessGroup[] $accessGroups
-     * @param RequestParametersInterface $requestParameters
+     * @param RequestParametersInterface|null $requestParameters
      *
      * @throws \Throwable
      *
@@ -52,7 +52,7 @@ interface ReadUserRepositoryInterface
      */
     public function findByAccessGroupsAndRequestParameters(
         array $accessGroups,
-        RequestParametersInterface $requestParameters
+        ?RequestParametersInterface $requestParameters
     ): array;
 
     /**

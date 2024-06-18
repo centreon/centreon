@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Notification\Infrastructure\Repository;
 
-use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, NotifiableService, NotificationHostEvent, NotificationServiceEvent};
+use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, NotifiableService, HostEvent, ServiceEvent};
 use Core\Notification\Infrastructure\Repository\DbNotifiableResourceFactory;
 
 dataset('$records', [
@@ -90,14 +90,14 @@ it('can create an array of notifiable resources from an array of records', funct
             expect($host)->toBeInstanceOf(NotifiableHost::class);
             expect($host->getEvents())->toBeArray();
             foreach ($host->getEvents() as $hostEvent) {
-                expect($hostEvent)->toBeInstanceOf(NotificationHostEvent::class);
+                expect($hostEvent)->toBeInstanceOf(HostEvent::class);
             }
             expect($host->getServices())->toBeArray();
             foreach ($host->getServices() as $service) {
                 expect($service)->toBeInstanceOf(NotifiableService::class);
                 expect($service->getEvents())->toBeArray();
                 foreach ($service->getEvents() as $serviceEvent) {
-                    expect($serviceEvent)->toBeInstanceOf(NotificationServiceEvent::class);
+                    expect($serviceEvent)->toBeInstanceOf(ServiceEvent::class);
                 }
             }
         }

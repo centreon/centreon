@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\Converter;
 
-use Core\Notification\Domain\Model\NotificationHostEvent;
+use Core\Notification\Domain\Model\HostEvent;
 
 class NotificationHostEventConverter
 {
@@ -39,7 +39,7 @@ class NotificationHostEventConverter
      * Convert an array of NotificationHostEvent to a string.
      * ex: [NotificationHostEvent::Down, NotificationHostEvent::Unreachable] => 'd,u'.
      *
-     * @param NotificationHostEvent[] $events
+     * @param HostEvent[] $events
      *
      * @return string
      */
@@ -48,9 +48,9 @@ class NotificationHostEventConverter
         $eventsAsBitFlags = [];
         foreach ($events as $event) {
             $eventsAsBitFlags[] = match ($event) {
-                NotificationHostEvent::Up => self::CASE_UP_AS_STR,
-                NotificationHostEvent::Down => self::CASE_DOWN_AS_STR,
-                NotificationHostEvent::Unreachable => self::CASE_UNREACHABLE_AS_STR,
+                HostEvent::Up => self::CASE_UP_AS_STR,
+                HostEvent::Down => self::CASE_DOWN_AS_STR,
+                HostEvent::Unreachable => self::CASE_UNREACHABLE_AS_STR,
             };
         }
 
@@ -63,7 +63,7 @@ class NotificationHostEventConverter
      *
      * @param string $legacyStr
      *
-     * @return NotificationHostEvent[]
+     * @return HostEvent[]
      */
     public static function fromString(string $legacyStr): array
     {
@@ -76,9 +76,9 @@ class NotificationHostEventConverter
         $events = [];
         foreach ($legacyValues as $value) {
             $events[] = match ($value) {
-                self::CASE_UP_AS_STR => NotificationHostEvent::Up,
-                self::CASE_DOWN_AS_STR => NotificationHostEvent::Down,
-                self::CASE_UNREACHABLE_AS_STR => NotificationHostEvent::Unreachable,
+                self::CASE_UP_AS_STR => HostEvent::Up,
+                self::CASE_DOWN_AS_STR => HostEvent::Down,
+                self::CASE_UNREACHABLE_AS_STR => HostEvent::Unreachable,
                 default => throw new \LogicException('Should never occur, only for phpstan')
             };
         }
@@ -89,16 +89,16 @@ class NotificationHostEventConverter
     /**
      * Convert a NotificationHostEvent into bitFlags.
      *
-     * @param NotificationHostEvent $event
+     * @param HostEvent $event
      *
      * @return int
      */
-    public static function toBit(NotificationHostEvent $event): int
+    public static function toBit(HostEvent $event): int
     {
         return match ($event) {
-            NotificationHostEvent::Up => self::CASE_UP_AS_BIT,
-            NotificationHostEvent::Down => self::CASE_DOWN_AS_BIT,
-            NotificationHostEvent::Unreachable => self::CASE_UNREACHABLE_AS_BIT,
+            HostEvent::Up => self::CASE_UP_AS_BIT,
+            HostEvent::Down => self::CASE_DOWN_AS_BIT,
+            HostEvent::Unreachable => self::CASE_UNREACHABLE_AS_BIT,
         };
     }
 
@@ -109,7 +109,7 @@ class NotificationHostEventConverter
      *
      * @throws \Throwable
      *
-     * @return NotificationHostEvent[]
+     * @return HostEvent[]
      */
     public static function fromBitFlags(int $bitFlags): array
     {
@@ -118,7 +118,7 @@ class NotificationHostEventConverter
         }
 
         $enums = [];
-        foreach (NotificationHostEvent::cases() as $enum) {
+        foreach (HostEvent::cases() as $enum) {
             if ($bitFlags & self::toBit($enum)) {
                 $enums[] = $enum;
             }
@@ -131,7 +131,7 @@ class NotificationHostEventConverter
      * Convert an array of NotificationHostEvent into a bitFlags
      * If the array contains NotificationHostEvent::None or is empty, an empty bitFlags will be returned.
      *
-     * @param NotificationHostEvent[] $enums
+     * @param HostEvent[] $enums
      *
      * @return int
      */

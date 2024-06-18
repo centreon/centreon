@@ -22,10 +22,13 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Contact;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Database repository for the contacts.
@@ -34,6 +37,8 @@ use Centreon\Infrastructure\DatabaseConnection;
  */
 final class ContactRepositoryRDB implements ContactRepositoryInterface
 {
+    use SqlMultipleBindTrait;
+
     /**
      * @var DatabaseConnection
      */
@@ -226,31 +231,6 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    public function exist(array $userIds): array
-    {
-        $bind = [];
-        foreach($userIds as $key => $userId) {
-            $bind[":user_$key"] = $userId;
-        }
-        if ($bind === []) {
-            return [];
-        }
-        $request = $this->translateDbName(
-           'SELECT contact_id FROM `:db`.contact
-            WHERE contact_id IN ( ' . implode(', ', array_keys($bind)) . ')'
-        );
-        $statement = $this->db->prepare($request);
-        foreach ($bind as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
-    }
-
-    /**
      * Find and add all topology rules defined by all menus access defined for this contact.
      * The purpose is to limit access to the API based on menus access.
      *
@@ -258,7 +238,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      */
     private function addTopologyRules(Contact $contact): void
     {
-        $toplogySubquery =
+        $topologySubquery =
             $contact->isAdmin()
             ? 'SELECT topology.topology_id, 1 AS access_right
                 FROM `:db`.topology'
@@ -283,7 +263,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             'SELECT topology.topology_name, topology.topology_page,
                     topology.topology_parent, access.access_right
             FROM `:db`.topology
-            LEFT JOIN (' . $toplogySubquery . ') AS access
+            LEFT JOIN (' . $topologySubquery . ') AS access
             ON access.topology_id = topology.topology_id
             WHERE topology.topology_page IS NOT NULL
             ORDER BY topology.topology_page';
@@ -446,6 +426,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      * Create a contact based on the data.
      *
      * @param mixed[] $contact Array of values representing the contact information
+     *
+     * @throws \Exception
      * @return Contact Returns a new instance of contact
      */
     private function createContact(array $contact): Contact

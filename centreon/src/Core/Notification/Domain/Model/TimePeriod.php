@@ -21,17 +21,44 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response;
+namespace Core\Notification\Domain\Model;
 
-final class NotifiableContactGroupDto
+use Centreon\Domain\Common\Assertion\Assertion;
+
+class TimePeriod
 {
+    public const ALL_TIME_PERIOD = '24x7';
+
     /**
      * @param int $id
      * @param string $name
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function __construct(
-        public int $id = 0,
-        public string $name = '',
+        private readonly int $id,
+        private readonly string $name
     ) {
+        Assertion::positiveInt($id, 'timePeriod::id');
+    }
+
+    /**
+     * Get the timeperiod id.
+     *
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the timeperiod name.
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 }

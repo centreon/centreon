@@ -1,4 +1,4 @@
-configuration_contact_group_find_all:
+FindContactGroups:
   methods: GET
   path: /configuration/contacts/groups
   controller: 'Core\Contact\Infrastructure\Api\FindContactGroups\FindContactGroupsController'

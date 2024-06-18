@@ -121,6 +121,9 @@ final class FindUsers
         return $response;
     }
 
+    /**
+     * @throws \Throwable
+     */
     private function hasAccessToAllUsers(): bool
     {
         if ($this->user->isAdmin()) {

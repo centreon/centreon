@@ -17935,3 +17935,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Critical KPIs"
 # msgstr ""
+
+# msgid "Error while searching for notification contact groups"
+# msgstr ""

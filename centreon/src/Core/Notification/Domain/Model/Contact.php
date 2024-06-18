@@ -26,7 +26,7 @@ namespace Core\Notification\Domain\Model;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
-class ConfigurationUser
+class Contact
 {
     /**
      * @param int $id
@@ -41,6 +41,8 @@ class ConfigurationUser
         private readonly string $email,
     ) {
         Assertion::positiveInt($id, 'User::id');
+        Assertion::notEmpty($name, 'User::name');
+        Assertion::notEmpty($email, 'User::email');
     }
 
     /**

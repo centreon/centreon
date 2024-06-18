@@ -36,7 +36,7 @@ use Core\Notification\Application\UseCase\PartialUpdateNotification\{
     PartialUpdateNotification,
     PartialUpdateNotificationRequest
 };
-use Core\Notification\Domain\Model\ConfigurationTimePeriod;
+use Core\Notification\Domain\Model\TimePeriod;
 use Core\Notification\Domain\Model\Notification;
 
 beforeEach(function () {
@@ -125,7 +125,7 @@ it('should present a No Content Response when a notification definition has been
         ->setTopologyRules([Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]);
     $request = new PartialUpdateNotificationRequest();
     $request->isActivated = false;
-    $notification = new Notification(1, 'myNotification', new ConfigurationTimePeriod(1, '24x7'), true);
+    $notification = new Notification(1, 'myNotification', new TimePeriod(1, '24x7'), true);
     $this->readRepository
         ->expects($this->once())
         ->method('findById')

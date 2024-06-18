@@ -17487,3 +17487,6 @@ msgstr "Modo avanzado"
 
 # msgid "Critical KPIs"
 # msgstr ""
+
+# msgid "Error while searching for notification contact groups"
+# msgstr ""
