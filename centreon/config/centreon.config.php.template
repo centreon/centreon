@@ -134,7 +134,6 @@ if (file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
                 $conf_centreon['password'] = $credentialContent['password'];
         } catch (\Throwable $ex) {
             error_log((string) $ex);
-            throw $ex;
         }
     }
 
