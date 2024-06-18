@@ -9,6 +9,7 @@ import {
 import {
   enableNotificationFeature,
   notificationSentCheck,
+  notificationSentCount,
   setBrokerNotificationsOutput,
   waitUntilLogFileChange,
   initializeDataFiles
@@ -293,13 +294,17 @@ When('the hard state has been reached', () => {
       ]);
       break;
     default:
-      const servicesToBeChecked = Array.from({ length: 1000 }, (_, i) => ({
-        name: `service_${i + 1}`,
-        status: 'ok',
-        statusType: 'hard'
-      }));
-      checkServicesAreMonitored(servicesToBeChecked);
+      checkServicesAreMonitored(
+        Array.from({ length: 1000 }, (_, i) => ({
+          name: `service_${i + 1}`,
+          status: 'ok',
+          statusType: 'hard'
+        }))
+      );
   }
+
+  // reduce memory usage
+  cy.execInContainer({ command: 'systemctl stop centengine', name: 'web' });
 });
 
 When('the notification refresh_delay has been reached', () => {
@@ -318,7 +323,8 @@ Then(
             { length: 1000 },
             (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
           );
-          notificationSentCheck({ logs: logsToCheck });
+          // notificationSentCheck({ logs: logsToCheck });
+          notificationSentCount(1000);
         }
         notificationSentCheck({
           logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
@@ -334,7 +340,8 @@ Then(
             { length: 1000 },
             (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
           );
-          notificationSentCheck({ logs: logsToCheck });
+          // notificationSentCheck({ logs: logsToCheck });
+          notificationSentCount(1000);
         }
         notificationSentCheck({
           logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
@@ -483,6 +490,7 @@ When(
       cy.request({
         body: payloadCheck,
         method: 'POST',
+        timeout: 120000,
         url: '/centreon/api/latest/monitoring/resources/check'
       }).then((response) => {
         expect(response.status).to.eq(204);

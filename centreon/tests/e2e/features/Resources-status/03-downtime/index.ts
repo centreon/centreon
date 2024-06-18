@@ -174,6 +174,15 @@ Then(
           val.css('background-color') === actionBackgroundColors.inDowntime
         );
       });
+
+    cy.waitForDowntime({
+      host: 'host1',
+      service: serviceInDtName
+    });
+    cy.waitForDowntime({
+      host: 'host1',
+      service: secondServiceInDtName
+    });
   }
 );
 
@@ -335,6 +344,15 @@ Given('multiple resources are in downtime', () => {
     .then((val) => {
       return val.css('background-color') === actionBackgroundColors.inDowntime;
     });
+
+  cy.waitForDowntime({
+    host: 'host1',
+    service: serviceInDtName
+  });
+  cy.waitForDowntime({
+    host: 'host1',
+    service: secondServiceInDtName
+  });
 });
 
 When('I search for the resources currently "In Downtime" in the list', () => {
