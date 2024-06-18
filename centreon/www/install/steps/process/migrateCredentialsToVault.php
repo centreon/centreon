@@ -76,6 +76,7 @@ function migrateCredentialsToVault(): void
 function getVaultConfiguration(): VaultConfiguration
 {
     $encryption = new Encryption();
+    $encryption->setFirstKey($_ENV["APP_SECRET"]);
     $readVaultConfigurationRepository = new FsReadVaultConfigurationRepository(
         '/var/lib/centreon/vault/vault.json',
         new Filesystem(),
@@ -153,7 +154,7 @@ function migrateDatabaseCredentials(
     $url = 'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
         . '/v1/' . $vaultPathUri;
     $headers = [
-        'X-Vault-Token' => $token,
+        'X-Vault-Token: ' . $token,
     ];
 
     $body = [
