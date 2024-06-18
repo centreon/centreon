@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import dataLastWeek from '../LineChart/mockedData/lastWeek.json';
+import dataLastWeek from '../mockedData/lastWeek.json';
 
 import { Gauge } from './Gauge';
 

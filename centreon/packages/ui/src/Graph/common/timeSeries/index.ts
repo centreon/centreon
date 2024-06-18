@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 import { Scale } from '@visx/visx';
 import { bisector } from 'd3-array';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { ScaleLinear, ScaleTime, ScaleBand } from 'd3-scale';
 import {
   map,
   pipe,
@@ -353,7 +353,8 @@ const getScale = ({
   thresholds,
   isCenteredZero,
   scale,
-  scaleLogarithmicBase
+  scaleLogarithmicBase,
+  isHorizontal
 }): ScaleLinear<number, number> => {
   const isLogScale = equals(scale, 'logarithmic');
   const minValue = Math.min(
@@ -370,6 +371,7 @@ const getScale = ({
   const scaleType = getScaleType(scale);
 
   const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
+  const range = [height, upperRangeValue];
 
   if (isCenteredZero) {
     const greatestValue = Math.max(Math.abs(maxValue), Math.abs(minValue));
@@ -377,14 +379,14 @@ const getScale = ({
     return scaleType<number>({
       base: scaleLogarithmicBase || 2,
       domain: [-greatestValue, greatestValue],
-      range: [height, upperRangeValue]
+      range: isHorizontal ? range : range.reverse()
     });
   }
 
   return scaleType<number>({
     base: scaleLogarithmicBase || 2,
     domain: [isLogScale ? 0.001 : minValue, maxValue],
-    range: [height, upperRangeValue]
+    range: isHorizontal ? range : range.reverse()
   });
 };
 
@@ -396,7 +398,8 @@ const getLeftScale = ({
   thresholdUnit,
   isCenteredZero,
   scale,
-  scaleLogarithmicBase
+  scaleLogarithmicBase,
+  isHorizontal = true
 }: AxeScale): ScaleLinear<number, number> => {
   const [firstUnit, , thirdUnit] = getUnits(dataLines);
 
@@ -432,6 +435,7 @@ const getLeftScale = ({
     graphValues,
     height: valueGraphHeight,
     isCenteredZero,
+    isHorizontal,
     scale,
     scaleLogarithmicBase,
     stackedValues,
@@ -449,6 +453,17 @@ const getXScale = ({
   });
 };
 
+export const getXScaleBand = ({
+  dataTime,
+  valueWidth
+}: Xscale): ReturnType<typeof Scale.scaleBand<number>> => {
+  return Scale.scaleBand({
+    domain: dataTime.map(getTime),
+    padding: 0.2,
+    range: [0, valueWidth]
+  });
+};
+
 const getRightScale = ({
   dataLines,
   dataTimeSeries,
@@ -457,7 +472,8 @@ const getRightScale = ({
   thresholdUnit,
   isCenteredZero,
   scale,
-  scaleLogarithmicBase
+  scaleLogarithmicBase,
+  isHorizontal = true
 }: AxeScale): ScaleLinear<number, number> => {
   const [, secondUnit] = getUnits(dataLines);
 
@@ -484,6 +500,7 @@ const getRightScale = ({
     graphValues,
     height: valueGraphHeight,
     isCenteredZero,
+    isHorizontal,
     scale,
     scaleLogarithmicBase,
     stackedValues,

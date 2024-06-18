@@ -15,22 +15,28 @@ import { legendWidth } from '../../LineChart/Legend/Legend.styles';
 import { Line } from '../timeSeries/models';
 
 import { useBaseChartStyles } from './useBaseChartStyles';
+import Header from './Header';
+import { LineChartHeader } from './Header/models';
 
 interface Props {
   base?: number;
   children: JSX.Element;
   graphWidth: number;
+  header?: LineChartHeader;
   height: number | null;
   legend: {
     displayLegend: boolean;
-    mode: 'grid' | 'list';
-    placement: string;
+    mode?: 'grid' | 'list';
+    placement?: 'left' | 'right' | 'bottom';
     renderExtraComponent?: ReactNode;
   };
   legendRef: MutableRefObject<HTMLDivElement | null>;
   limitLegend?: number | false;
   lines: Array<Line>;
-  setLines: Dispatch<SetStateAction<Array<Line> | null>>;
+  setLines:
+    | Dispatch<SetStateAction<Array<Line> | null>>
+    | Dispatch<SetStateAction<Array<Line>>>;
+  title: string;
 }
 
 const BaseChart = ({
@@ -42,7 +48,9 @@ const BaseChart = ({
   limitLegend = false,
   setLines,
   children,
-  legendRef
+  legendRef,
+  title,
+  header
 }: Props): JSX.Element => {
   const { classes } = useBaseChartStyles();
 
@@ -66,6 +74,7 @@ const BaseChart = ({
 
   return (
     <>
+      <Header header={header} title={title} />
       <div className={classes.container}>
         <Stack
           direction={equals(legend?.placement, 'left') ? 'row' : 'row-reverse'}
