@@ -91,9 +91,7 @@ export default ({
             'report.json'
           );
 
-          if (!fs.existsSync(reportPath)) {
-            fs.writeFileSync(reportPath, '');
-          }
+          fs.writeFileSync(reportPath, '');
         });
 
         return plugins(on, config);
