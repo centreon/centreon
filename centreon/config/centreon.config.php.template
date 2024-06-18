@@ -124,14 +124,14 @@ if (file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
         && str_starts_with($conf_centreon['password'], 'secret::')
     ) {
         try {
-                $vaultConfiguration = $createVaultConfiguration();
-                $httpClient = new CurlHttpClient();
-                $token = $authenticateToVault($httpClient, $vaultConfiguration);
-                $databaseVaultPathPart = explode("::", $conf_centreon['user']);
-                $vaultPath = end($databaseVaultPathPart);
-                $credentialContent = $retrieveDatabaseCredentialsFromVault($token, $vaultPath, $httpClient, $vaultConfiguration);
-                $conf_centreon['user'] = $credentialContent['username'];
-                $conf_centreon['password'] = $credentialContent['password'];
+            $vaultConfiguration = $createVaultConfiguration();
+            $httpClient = new CurlHttpClient();
+            $token = $authenticateToVault($httpClient, $vaultConfiguration);
+            $databaseVaultPathPart = explode("::", $conf_centreon['user']);
+            $vaultPath = end($databaseVaultPathPart);
+            $credentialContent = $retrieveDatabaseCredentialsFromVault($token, $vaultPath, $httpClient, $vaultConfiguration);
+            $conf_centreon['user'] = $credentialContent['username'];
+            $conf_centreon['password'] = $credentialContent['password'];
         } catch (\Throwable $ex) {
             error_log((string) $ex);
         }
