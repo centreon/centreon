@@ -45,6 +45,9 @@ const getBarLength = ({
 
   if (!isHorizontal) {
     if (value < 0) {
+      if (isCenteredZero) {
+        return height - lengthToMatchZero - invertedBarLength;
+      }
       if (invertedBarLength > 0) {
         return invertedBarLength;
       }
