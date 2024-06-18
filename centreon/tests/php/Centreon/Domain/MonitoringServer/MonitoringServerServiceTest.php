@@ -30,7 +30,6 @@ use Centreon\Domain\MonitoringServer\MonitoringServerService;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use PhpParser\Node\Stmt\Foreach_;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 beforeEach(function (): void {
