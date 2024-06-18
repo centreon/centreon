@@ -133,7 +133,7 @@ it('should return an array of monitoring servers when executed by a non-admin us
 
     expect($monitoringServers)->toBeArray();
 
-    foreach ($monitoringServers as $index => $monitoringServer) {
+    foreach ($monitoringServers as $monitoringServer) {
         expect($monitoringServer->getId())
             ->toBe($this->poller->getId());
         expect($monitoringServer->getName())
