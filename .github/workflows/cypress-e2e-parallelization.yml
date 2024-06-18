@@ -179,11 +179,9 @@ jobs:
                 retriesHtml+="<p>The following tests were retried during execution:</p>"
                 retriesHtml+="<table><tr><th>Feature</th><th>Test Scenario</th></tr>"
 
-                while IFS= read -r line; do
-                  feature=$(echo "$line" | jq -r 'split(" > ")[0]')
-                  scenario=$(echo "$line" | jq -r 'split(" > ")[1]')
-                  retriesHtml+="<tr><td>:warning: $feature</td><td>:warning: $scenario</td></tr>"
-                done < <(jq -r 'keys[]' $retriesFile)
+                jq -r 'to_entries[] | "<tr><td>:warning: \(.key | split(\" > \")[0])</td><td>:warning: \(.key | split(\" > \")[1])</td></tr>"' $retriesFile | while read -r line; do
+                  retriesHtml+="$line"
+                done
 
                 retriesHtml+="</table>"
                 echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
