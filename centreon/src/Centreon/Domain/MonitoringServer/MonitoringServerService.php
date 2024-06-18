@@ -41,7 +41,7 @@ class MonitoringServerService implements MonitoringServerServiceInterface
      * PollerService constructor.
      *
      * @param MonitoringServerRepositoryInterface $monitoringServerRepository
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupstRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupsRepository
      * @param ContactInterface $contact
      */
     public function __construct(
