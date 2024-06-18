@@ -40,7 +40,7 @@ class MonitoringServerService implements MonitoringServerServiceInterface
     /**
      * PollerService constructor.
      *
-     * @param MonitoringServerRepositoryInterface $pollerRepository
+     * @param MonitoringServerRepositoryInterface $monitoringServerRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupstRepository
      * @param ContactInterface $contact
      */
