@@ -28,7 +28,9 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -48,11 +50,13 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
     use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
 /**
  * @phpstan-import-type _RoleMapping from PartialUpdateOpenIdConfigurationRequest
  * @phpstan-import-type _GroupsMapping from PartialUpdateOpenIdConfigurationRequest
  * @phpstan-import-type _AuthConditions from PartialUpdateOpenIdConfigurationRequest
+ * @phpstan-import-type _PartialUpdateOpenIdConfigurationRequest from PartialUpdateOpenIdConfigurationRequest
  */
 final class PartialUpdateOpenIdConfiguration
 {
@@ -70,8 +74,11 @@ final class PartialUpdateOpenIdConfiguration
         private ReadContactTemplateRepositoryInterface $contactTemplateRepository,
         private ReadContactGroupRepositoryInterface $contactGroupRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
+        private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory,
+        private ReadVaultConfigurationRepositoryInterface $vaultConfigurationRepository,
+        private WriteVaultRepositoryInterface $writeVaultRepository
     ) {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::OPEN_ID_CREDENTIALS_VAULT_PATH);
     }
 
     /**
@@ -83,7 +90,7 @@ final class PartialUpdateOpenIdConfiguration
         PartialUpdateOpenIdConfigurationRequest $request
     ): void {
 
-        $this->info('Partialy Updating OpenID Provider');
+        $this->info('Partially Updating OpenID Provider');
         try {
             $provider = $this->providerAuthenticationFactory->create(Provider::OPENID);
             /** @var Configuration */
@@ -166,6 +173,8 @@ final class PartialUpdateOpenIdConfiguration
                 $requestArray[$paramName] = $oldConfigArray[$paramName];
             }
         }
+
+        $requestArray = $this->manageClientIdAndClientSecretIntoVault($requestArray, $customConfig);
 
         return new CustomConfiguration($requestArray);
     }
@@ -469,5 +478,64 @@ final class PartialUpdateOpenIdConfiguration
         }
 
         return null;
+    }
+
+    /**
+     * Manage the client id and client secret into the vault.
+     * This method will upsert the client id and the client secret if one of those values change and are not already
+     * stored into the vault.
+     *
+     * @param _PartialUpdateOpenIdConfigurationRequest $requestArray
+     * @param CustomConfiguration $customConfiguration
+     *
+     * @return _PartialUpdateOpenIdConfigurationRequest
+     *
+     * @throws \Throwable
+     */
+    private function manageClientIdAndClientSecretIntoVault(
+        array $requestArray,
+        CustomConfiguration $customConfiguration
+    ): array {
+        // No need to do anything if vault is not configured
+        if (! $this->vaultConfigurationRepository->exists()) {
+            return $requestArray;
+        }
+
+        // Retrieve the uuid from the vault path if the client id or client secret is already stored
+        $uuid = null;
+        if (
+            ($customConfiguration->getClientId() !== null
+                && str_starts_with($customConfiguration->getClientId(), 'secret::'))
+            || ($customConfiguration->getClientSecret() !== null
+                && str_starts_with($customConfiguration->getClientSecret(), 'secret::'))
+        ) {
+            $vaultPathPart = explode(
+                '/',
+                $customConfiguration->getClientId() ?? $customConfiguration->getClientSecret()
+            );
+            $uuid = end($vaultPathPart);
+        }
+
+        // Update the vault with the new client id and client secret if the value are not a vault path.
+        $data = [];
+        if ($requestArray['client_id'] !== null && ! str_starts_with($requestArray['client_id'], 'secret::')) {
+            $data['_OPENID_CLIENT_ID'] = $requestArray['client_id'];
+        }
+        if ($requestArray['client_secret'] !== null && ! str_starts_with($requestArray['client_secret'], 'secret::')) {
+            $data['_OPENID_CLIENT_SECRET'] = $requestArray['client_secret'];
+        }
+
+        if (! empty($data)) {
+            $vaultPath = $this->writeVaultRepository->upsert(
+                $uuid,
+                $data
+            );
+
+            // Assign new values to the request array
+            $requestArray['client_id'] = $vaultPath;
+            $requestArray['client_secret'] = $vaultPath;
+        }
+
+        return $requestArray;
     }
 }

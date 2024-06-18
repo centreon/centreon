@@ -36,6 +36,7 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
      */
     public function __construct(private UrlGeneratorInterface $router)
     {
+
     }
 
     /**

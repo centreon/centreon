@@ -29,6 +29,7 @@ use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use CentreonUserLog;
 use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Domain\Configuration\User\Model\NewUser;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
@@ -44,6 +45,7 @@ use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\Attr
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\Conditions;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\GroupsMapping as GroupsMappingSecurityAccess;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\RolesMapping;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use DateInterval;
 use Exception;
 use Pimple\Container;
@@ -121,7 +123,9 @@ class OpenIdProvider implements OpenIdProviderInterface
         private readonly Conditions $conditions,
         private readonly RolesMapping $rolesMapping,
         private readonly GroupsMappingSecurityAccess $groupsMapping,
-        private readonly AttributePathFetcher $attributePathFetcher
+        private readonly AttributePathFetcher $attributePathFetcher,
+        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
     ) {
         $pearDB = $this->dependencyInjector['configuration_db'];
         $this->centreonLog = new CentreonUserLog(-1, $pearDB);
@@ -550,6 +554,22 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
+
+        if (
+            $customConfiguration->getClientId() !== null
+            && str_starts_with($customConfiguration->getClientId(), 'secret::')
+        ) {
+            $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientId());
+            $customConfiguration->setClientId($vaultData['_OPENID_CLIENT_ID']);
+        }
+
+        if (
+            $customConfiguration->getClientSecret() !== null
+            && str_starts_with($customConfiguration->getClientSecret(), 'secret::')
+        ) {
+            $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientSecret());
+            $customConfiguration->setClientSecret($vaultData['_OPENID_CLIENT_SECRET']);
+        }
 
         // Define parameters for the request
         $data = [

@@ -105,19 +105,19 @@ class OpenIdConfigurationException extends \Exception
         )));
     }
 
-    /**
-     * Exception thrown when the Authentication Endpoints is not valid.
-     *
-     * @param string $endpoint
-     *
-     * @return self
-     */
-    public static function invalidAuthenticationConditionsEndpoint(string $endpoint): self
+    public static function unableToRetrieveCredentialsFromVault(array $credentials): self
     {
         return new self(_(sprintf(
-            'The authentication conditions endpoint should match your introspection or user information endpoints:'
-                . ' %s given',
-            $endpoint
+            'Unable to retrieve credentials from vault: %s',
+            implode(', ', $credentials)
+        )));
+    }
+
+    public static function unknownProviderType(string $type): self
+    {
+        return new self(_(sprintf(
+            'Unknown provider type: %s',
+            $type
         )));
     }
 }

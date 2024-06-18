@@ -38,6 +38,55 @@ namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateO
  *      priority: int
  *  }>
  * }
+ *
+ * @phpstan-type _GroupMapping array{
+ *   is_enabled: bool,
+ *   attribute_path: string,
+ *   endpoint: array{
+ *       type: string,
+ *       custom_endpoint:string|null
+ *   },
+ *   relations:array<array{
+ *       group_value: string,
+ *       contact_group_id: int
+ *   }>
+ *  }
+ *
+ * @phpstan-type _AuthenticationConditions array{
+ *   is_enabled: bool,
+ *   attribute_path: string,
+ *   authorized_values: string[],
+ *   trusted_client_addresses: string[],
+ *   blacklist_client_addresses: string[],
+ *   endpoint: array{
+ *       type: string,
+ *       custom_endpoint:string|null
+ *   }
+ *  }
+ *
+ * @phpstan-type _UpdateOpenIdConfigurationRequest array{
+ *     is_active: bool,
+ *     is_forced: bool,
+ *     base_url: string|null,
+ *     authorization_endpoint: string|null,
+ *     token_endpoint: string|null,
+ *     introspection_token_endpoint: string|null,
+ *     user_information_endpoint: string|null,
+ *     end_session_endpoint: string|null,
+ *     connection_scopes: string[],
+ *     login_claim: string|null,
+ *     client_id: string|null,
+ *     client_secret: string|null,
+ *     authentication_type: string|null,
+ *     verify_peer: bool,
+ *     is_auto_import_enabled: bool,
+ *     contact_template: array{id: int, name: string}|null,
+ *     email_bind_attribute: string|null,
+ *     user_name_bind_attribute: string|null,
+ *     roles_mapping: _RoleMapping,
+ *     authentication_conditions: _AuthenticationConditions,
+ *     groups_mapping: _GroupMapping,
+ *     redirect_url: string|null
  */
 final class UpdateOpenIdConfigurationRequest
 {
@@ -108,17 +157,7 @@ final class UpdateOpenIdConfigurationRequest
     ];
 
     /**
-     * @var array{
-     *  is_enabled: bool,
-     *  attribute_path: string,
-     *  authorized_values: string[],
-     *  trusted_client_addresses: string[],
-     *  blacklist_client_addresses: string[],
-     *  endpoint: array{
-     *      type: string,
-     *      custom_endpoint:string|null
-     *  }
-     * }
+     * @var _AuthenticationConditions
      */
     public array $authenticationConditions = [
         'is_enabled' => false,
@@ -133,18 +172,7 @@ final class UpdateOpenIdConfigurationRequest
     ];
 
     /**
-     * @var array{
-     *  is_enabled: bool,
-     *  attribute_path: string,
-     *  endpoint: array{
-     *      type: string,
-     *      custom_endpoint:string|null
-     *  },
-     *  relations:array<array{
-     *      group_value: string,
-     *      contact_group_id: int
-     *  }>
-     * }
+     * @var _GroupMapping
      */
     public array $groupsMapping = [
         'is_enabled' => false,
@@ -159,7 +187,7 @@ final class UpdateOpenIdConfigurationRequest
     public ?string $redirectUrl = null;
 
     /**
-     * @return array<string,mixed>
+     * @return _UpdateOpenIdConfigurationRequest
      */
     public function toArray(): array
     {

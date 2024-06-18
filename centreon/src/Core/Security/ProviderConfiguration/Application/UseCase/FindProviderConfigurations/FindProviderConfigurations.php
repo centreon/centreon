@@ -25,10 +25,16 @@ namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderCo
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
+
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as CustomConfigurationOpenId;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderResponse\{
     ProviderResponseInterface
 };
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 
 final class FindProviderConfigurations
 {
@@ -43,8 +49,12 @@ final class FindProviderConfigurations
      */
     public function __construct(
         \Traversable $providerResponses,
-        private ReadConfigurationRepositoryInterface $readConfigurationFactory
+        private ReadConfigurationRepositoryInterface $readConfigurationFactory,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository
     ) {
+        // iterate on factories instead of responses
+        // each factory will return a single response
+        // and only one presenter will manage the single response
         $this->providerResponses = iterator_to_array($providerResponses);
     }
 
@@ -55,27 +65,56 @@ final class FindProviderConfigurations
     {
         try {
             $configurations = $this->readConfigurationFactory->findConfigurations();
+
+            /**
+             * match configuration type and response type to bind automatically corresponding configuration and response.
+             * e.g configuration type 'local' will match response type 'local',
+             * LocalProviderResponse::create will take LocalConfiguration.
+             */
+            $responses = [];
+            foreach ($configurations as $configuration) {
+                foreach ($this->providerResponses as $providerResponse) {
+                    if ($configuration->getType() === $providerResponse->getType()) {
+                        $this->manageCredentialsFromVault($configuration);
+                        $responses[] = $providerResponse->create($configuration);
+                    }
+                }
+            }
+
+            $presenter->present($responses);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
 
             return;
         }
+    }
 
-        /**
-         * match configuration type and response type to bind automatically corresponding configuration and response.
-         * e.g configuration type 'local' will match response type 'local',
-         * LocalProviderResponse::create will take LocalConfiguration.
-         */
-        $responses = [];
-        foreach ($configurations as $configuration) {
-            foreach ($this->providerResponses as $providerResponse) {
-                if ($configuration->getType() === $providerResponse->getType()) {
-                    $responses[] = $providerResponse->create($configuration);
-                }
+    private function manageCredentialsFromVault(Configuration $configuration): void
+    {
+        $customConfiguration = match ($configuration->getType()) {
+            Provider::OPENID => $this->manageCredentialsForOpenId($configuration),
+            default => throw OpenIdConfigurationException::unknownProviderType($configuration->getType())
+        };
+
+
+        $configuration->setCustomConfiguration($customConfiguration);
+    }
+
+    private function manageCredentialsForOpenId(Configuration $configuration): CustomConfigurationOpenId
+    {
+        /** @var CustomConfigurationOpenId $customConfiguration */
+        $customConfiguration = $configuration->getCustomConfiguration();
+        if (str_starts_with($customConfiguration->getClientId(), 'secret::')) {
+            $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientId());
+            if (! array_key_exists('_OPENID_CLIENT_ID', $vaultData)) {
+                throw OpenIdConfigurationException::unableToRetrieveCredentialsFromVault(
+                    ['_OPENID_CLIENT_ID']
+                );
             }
+            $customConfiguration->setClientId($vaultData['_OPENID_CLIENT_ID']);
         }
 
-        $presenter->present($responses);
+        return $customConfiguration;
     }
 }
