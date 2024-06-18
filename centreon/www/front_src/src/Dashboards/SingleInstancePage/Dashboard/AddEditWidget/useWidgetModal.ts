@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, startTransition, useState } from 'react';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals, find, propEq } from 'ramda';
+import { equals, find, isEmpty, propEq, toPairs } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
@@ -78,13 +78,20 @@ const useWidgetModal = (): useWidgetModalState => {
       federatedWidgetsProperties || []
     );
 
+    const inputCategories = selectedWidgetProperties?.categories || [];
+
     const defaultOptions =
       selectedWidget && selectedWidgetProperties
         ? {
             ...getDefaultValues(selectedWidgetProperties.options),
-            ...getDefaultValues(
-              selectedWidgetProperties.generalProperties?.elements
-            )
+            ...toPairs(inputCategories).reduce((acc, [, value]) => {
+              const hasGroups = !isEmpty(value?.groups);
+
+              return {
+                ...acc,
+                ...getDefaultValues(hasGroups ? value.elements : value)
+              };
+            }, {})
           }
         : {};
 

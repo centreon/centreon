@@ -12,8 +12,8 @@ updates:
   - package-ecosystem: npm
     directory: '/'
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
+      interval: daily
+    open-pull-requests-limit: 0
     labels:
       - 'dependencies'
       - 'javascript'
@@ -24,8 +24,8 @@ updates:
   - package-ecosystem: composer
     directory: '/'
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
+      interval: daily
+    open-pull-requests-limit: 0
     labels:
       - 'dependencies'
       - 'php'

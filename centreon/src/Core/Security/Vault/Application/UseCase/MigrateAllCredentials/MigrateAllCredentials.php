@@ -36,6 +36,10 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+use Core\PollerMacro\Application\Repository\ReadPollerMacroRepositoryInterface;
+use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
+use Core\PollerMacro\Domain\Model\PollerMacro;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
@@ -52,10 +56,12 @@ final class MigrateAllCredentials
      * @param ReadHostMacroRepositoryInterface $readHostMacroRepository
      * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
      * @param ReadServiceMacroRepositoryInterface $readServiceMacroRepository
+     * @param ReadPollerMacroRepositoryInterface $readPollerMacroRepository
      * @param WriteHostRepositoryInterface $writeHostRepository
      * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
      * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
+     * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository
      */
     public function __construct(
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
@@ -64,10 +70,12 @@ final class MigrateAllCredentials
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        private readonly ReadPollerMacroRepositoryInterface $readPollerMacroRepository,
         private readonly WriteHostRepositoryInterface $writeHostRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
+        private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
     )
     {
         $this->response = new MigrateAllCredentialsResponse();
@@ -85,6 +93,7 @@ final class MigrateAllCredentials
             $hostTemplates = $this->readHostTemplateRepository->findAll();
             $hostMacros = $this->readHostMacroRepository->findPasswords();
             $serviceMacros = $this->readServiceMacroRepository->findPasswords();
+            $pollerMacros = $this->readPollerMacroRepository->findPasswords();
 
             /**
              * @var \ArrayIterator<int, CredentialDto> $credentials
@@ -116,6 +125,12 @@ final class MigrateAllCredentials
                     'getter' => 'getValue',
                     'idGetter' => 'getOwnerId',
                 ],
+                ['data' => $pollerMacros,
+                    'type' => CredentialTypeEnum::TYPE_POLLER_MACRO,
+                    'name' => null,
+                    'getter' => 'getValue',
+                    'idGetter' => 'getId',
+                ],
             ];
             foreach ($resources as $resource) {
                 foreach ($resource['data'] as $item) {
@@ -132,7 +147,15 @@ final class MigrateAllCredentials
                 }
             }
 
-            $this->migrateCredentials($credentials, $this->response, $hosts, $hostTemplates);
+            $this->migrateCredentials(
+                $credentials,
+                $this->response,
+                $hosts,
+                $hostTemplates,
+                $hostMacros,
+                $serviceMacros,
+                $pollerMacros,
+            );
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
             $this->error((string) $ex);
@@ -145,12 +168,18 @@ final class MigrateAllCredentials
      * @param MigrateAllCredentialsResponse $response
      * @param Host[] $hosts
      * @param HostTemplate[] $hostTemplates
+     * @param Macro[] $hostMacros
+     * @param Macro[] $serviceMacros
+     * @param PollerMacro[] $pollerMacros
      */
     private function migrateCredentials(
         \Traversable&\Countable $credentials,
         MigrateAllCredentialsResponse $response,
         array $hosts,
-        array $hostTemplates
+        array $hostTemplates,
+        array $hostMacros,
+        array $serviceMacros,
+        array $pollerMacros,
     ): void {
 
         $response->results = new CredentialMigrator(
@@ -160,8 +189,12 @@ final class MigrateAllCredentials
             $this->writeHostTemplateRepository,
             $this->writeHostMacroRepository,
             $this->writeServiceMacroRepository,
+            $this->writePollerMacroRepository,
             $hosts,
             $hostTemplates,
+            $hostMacros,
+            $serviceMacros,
+            $pollerMacros,
         );
     }
 }

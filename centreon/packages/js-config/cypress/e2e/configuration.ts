@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
 
@@ -74,6 +75,8 @@ export default ({
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
     videoCompression: 0,
-    videosFolder: `${resultsFolder}/videos`
+    videosFolder: `${resultsFolder}/videos`,
+    viewportHeight: 1080,
+    viewportWidth: 1920
   });
 };

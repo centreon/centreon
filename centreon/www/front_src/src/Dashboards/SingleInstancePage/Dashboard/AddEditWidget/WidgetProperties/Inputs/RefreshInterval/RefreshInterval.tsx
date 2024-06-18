@@ -1,6 +1,14 @@
+import { useMemo } from 'react';
+
 import { useTranslation } from 'react-i18next';
 
-import { Box, FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import {
+  Box,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Typography
+} from '@mui/material';
 
 import { labelRefreshInterval } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
@@ -10,7 +18,8 @@ import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import useRefreshInterval from './useRefreshInterval';
 
 const RefreshInterval = ({
-  propertyName
+  propertyName,
+  isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -20,9 +29,11 @@ const RefreshInterval = ({
 
   const { canEditField } = useCanEditProperties();
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <Box>
-      <Subtitle>{t(labelRefreshInterval)}</Subtitle>
+      <Label>{t(labelRefreshInterval)}</Label>
       <RadioGroup value={value} onChange={changeRefreshIntervalOption}>
         {options.map(({ value: optionValue, label }) => (
           <FormControlLabel

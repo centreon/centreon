@@ -29,7 +29,6 @@ use Core\Security\Vault\Application\Repository\{
 };
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Yaml\Yaml;
 
 class FsReadVaultConfigurationRepository implements ReadVaultConfigurationRepository
 {
@@ -55,18 +54,16 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
      */
     public function find(): ?VaultConfiguration
     {
-        if (! $this->filesystem->exists($this->configurationFile)) {
+        if (! $vaultConfiguration = file_get_contents($this->configurationFile, true)) {
             return null;
         }
 
-        $record = Yaml::parseFile($this->configurationFile);
+        $record = json_decode($vaultConfiguration, true)
+            ?: throw new \Exception('Invalid vault configuration');
 
         /**
          * @var array{
-         *  id: int,
          *  name: string,
-         *  vault_id: int,
-         *  vault_name: string,
          *  url: string,
          *  port: int,
          *  root_path: string,

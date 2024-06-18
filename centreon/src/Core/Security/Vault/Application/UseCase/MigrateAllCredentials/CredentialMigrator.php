@@ -33,9 +33,17 @@ use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
+use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
+use Core\PollerMacro\Domain\Model\PollerMacro;
 
 /**
  * @implements \IteratorAggregate<CredentialRecordedDto|CredentialErrorDto>
+ *
+ * @phpstan-type _ExistingUuids array{
+ *      hosts: string[],
+ *      services:string[],
+ *      pollerMacro: ?string,
+ * }
  */
 class CredentialMigrator implements \IteratorAggregate, \Countable
 {
@@ -48,8 +56,12 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
      * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
      * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
+     * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository,
      * @param Host[] $hosts,
      * @param HostTemplate[] $hostTemplates,
+     * @param Macro[] $hostMacros
+     * @param Macro[] $serviceMacros
+     * @param PollerMacro[] $pollerMacros,
      */
     public function __construct(
         private readonly \Traversable&\Countable $credentials,
@@ -58,8 +70,12 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
+        private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
         private readonly array $hosts,
         private readonly array $hostTemplates,
+        private readonly array $hostMacros,
+        private readonly array $serviceMacros,
+        private readonly array $pollerMacros,
     ) {
     }
 
@@ -68,26 +84,28 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         $existingUuids = [
             'hosts' => [],
             'services' => [],
+            'pollerMacro' => null,
         ];
         /**
          * @var CredentialDto $credential
          */
         foreach ($this->credentials as $credential) {
             try {
-                if (
-                    $credential->type === CredentialTypeEnum::TYPE_HOST
-                    || $credential->type === CredentialTypeEnum::TYPE_HOST_TEMPLATE
-                ) {
-                    $recordInformation = $this->migrateHostAndHostTemplateCredentials(
+                $recordInformation = match ($credential->type) {
+                    CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE => $this
+                        ->migrateHostAndHostTemplateCredentials(
+                            $credential,
+                            $existingUuids
+                        ),
+                    CredentialTypeEnum::TYPE_SERVICE => $this->migrateServiceAndServiceTemplateCredentials(
                         $credential,
                         $existingUuids
-                    );
-                } else {
-                    $recordInformation = $this->migrateServiceAndServiceTemplateCredentials(
+                    ),
+                    CredentialTypeEnum::TYPE_POLLER_MACRO => $this->migratePollerMacroPasswords(
                         $credential,
                         $existingUuids
-                    );
-                }
+                    ),
+                };
 
                 $status = new CredentialRecordedDto();
                 $status->uuid = $recordInformation['uuid'];
@@ -120,7 +138,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
     /**
      * @param CredentialDto $credential
-     * @param array{hosts: array<string>, services: array<string>} $existingUuids
+     * @param _ExistingUuids $existingUuids
      *
      * @return array{uuid: string, path: string}
      */
@@ -160,9 +178,12 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                 }
             }
         } else {
-            $updatedMacro = new Macro($credential->resourceId, $credential->name, $vaultPath);
-            $updatedMacro->setIsPassword(true);
-            $this->writeHostMacroRepository->update($updatedMacro);
+            foreach ($this->hostMacros as $hostMacro) {
+                if ($hostMacro->getOwnerId() === $credential->resourceId) {
+                    $hostMacro->setValue($vaultPath);
+                    $this->writeHostMacroRepository->update($hostMacro);
+                }
+            }
         }
 
         return [
@@ -173,7 +194,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
     /**
      * @param CredentialDto $credential
-     * @param array{hosts: array<string>, services: array<string>} $existingUuids
+     * @param _ExistingUuids $existingUuids
      *
      * @throws \Throwable
      *
@@ -194,12 +215,46 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         );
         $vaultPathPart = explode('/', $vaultPath);
         $existingUuids['services'][$credential->resourceId] = end($vaultPathPart);
-        $updatedMacro = new Macro($credential->resourceId, $credential->name, $vaultPath);
-        $updatedMacro->setIsPassword(true);
-        $this->writeServiceMacroRepository->update($updatedMacro);
+        foreach ($this->serviceMacros as $serviceMacro) {
+            if ($serviceMacro->getOwnerId() === $credential->resourceId) {
+                $serviceMacro->setValue($vaultPath);
+                $this->writeServiceMacroRepository->update($serviceMacro);
+            }
+        }
 
         return [
             'uuid' => $existingUuids['services'][$credential->resourceId],
+            'path' => $vaultPath,
+        ];
+    }
+
+    /**
+     * @param CredentialDto $credential
+     * @param _ExistingUuids $existingUuid
+     *
+     * @throws \Throwable
+     *
+     * @return array{uuid: string, path: string}
+     */
+    private function migratePollerMacroPasswords(CredentialDto $credential, array &$existingUuid): array
+    {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
+        $vaultPath = $this->writeVaultRepository->upsert(
+            $existingUuid['pollerMacro'] ?? null,
+            [$credential->name => $credential->value]
+        );
+        $vaultPathPart = explode('/', $vaultPath);
+        $existingUuid['pollerMacro'] ??= end($vaultPathPart);
+
+        foreach ($this->pollerMacros as $pollerMacro) {
+            if ($pollerMacro->getId() === $credential->resourceId) {
+                $pollerMacro->setValue($vaultPath);
+                $this->writePollerMacroRepository->update($pollerMacro);
+            }
+        }
+
+        return [
+            'uuid' => $existingUuid['pollerMacro'],
             'path' => $vaultPath,
         ];
     }

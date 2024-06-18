@@ -16,9 +16,15 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       color: theme.typography.body1.color
     },
     item: {
-      minWidth: theme.spacing(legendWidth)
+      width: 'max-content'
     },
     items: {
+      '&[data-as-list="true"]': {
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        width: 'fit-content'
+      },
       '&[data-mode="compact"]': {
         gridAutoRows: theme.spacing(legendItemHeightCompact),
         height: limitLegendRows
@@ -38,9 +44,16 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       width: '100%'
     },
     legend: {
-      marginLeft: margin.left,
-      marginRight: margin.right,
-      overflow: 'hidden'
+      '&[data-display-side="false"]': {
+        marginLeft: margin.left,
+        marginRight: margin.right,
+        overflow: 'hidden'
+      },
+      '&[data-display-side="true"]': {
+        height: '100%',
+        marginTop: `${margin.top / 2}px`,
+        overflowY: 'auto'
+      }
     },
     minMaxAvgContainer: {
       columnGap: theme.spacing(0.5),
@@ -66,6 +79,9 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
     container: {
       width: '100%'
     },
+    containerList: {
+      width: 'fit-content'
+    },
     disabled: {
       color: theme.palette.text.disabled
     },
@@ -77,6 +93,9 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       width: theme.spacing(1.5)
     },
     legendName: {
+      maxWidth: '75%'
+    },
+    legendNameSide: {
       maxWidth: '95%'
     },
     markerAndLegendName: {
@@ -95,6 +114,10 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       fontSize: '0.75rem',
       fontWeight: theme.typography.fontWeightMedium,
       lineHeight: 1
+    },
+    textList: {
+      fontSize: '0.75rem',
+      fontWeight: theme.typography.fontWeightMedium
     }
   })
 );

@@ -30,58 +30,81 @@ use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterfac
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
+use Core\PollerMacro\Domain\Model\PollerMacro;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialErrorDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialRecordedDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialTypeEnum;
 
-it('tests getIterator method with hosts, hostTemplates and service macros', function (): void {
-    $credential1 = new CredentialDto();
-    $credential1->resourceId = 1;
-    $credential1->type = CredentialTypeEnum::TYPE_HOST;
-    $credential1->name = '_HOSTSNMPCOMMUNITY';
-    $credential1->value = 'community';
 
-    $credential2 = new CredentialDto();
-    $credential2->resourceId = 2;
-    $credential2->type = CredentialTypeEnum::TYPE_HOST_TEMPLATE;
-    $credential2->name = '_HOSTSNMPCOMMUNITY';
-    $credential2->value = 'community';
+beforeEach(function (): void {
 
-    $credential3 = new CredentialDto();
-    $credential3->resourceId = 3;
-    $credential3->type = CredentialTypeEnum::TYPE_SERVICE;
-    $credential3->name = '_SERVICEMACRO';
-    $credential3->value = 'macro';
+    $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
+    $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class);
+    $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class);
+    $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class);
+    $this->writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class);
+    $this->writePollerMacroRepository = $this->createMock(WritePollerMacroRepositoryInterface::class);
 
-    $credentials = new \ArrayIterator([$credential1, $credential2, $credential3]);
+    $this->credential1 = new CredentialDto();
+    $this->credential1->resourceId = 1;
+    $this->credential1->type = CredentialTypeEnum::TYPE_HOST;
+    $this->credential1->name = '_HOSTSNMPCOMMUNITY';
+    $this->credential1->value = 'community';
 
-    $writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
-    $writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class);
-    $writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class);
-    $writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class);
-    $writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class);
+    $this->credential2 = new CredentialDto();
+    $this->credential2->resourceId = 2;
+    $this->credential2->type = CredentialTypeEnum::TYPE_HOST_TEMPLATE;
+    $this->credential2->name = '_HOSTSNMPCOMMUNITY';
+    $this->credential2->value = 'community';
 
-    $writeVaultRepository->method('upsert')->willReturn('vault/path');
+    $this->credential3 = new CredentialDto();
+    $this->credential3->resourceId = 3;
+    $this->credential3->type = CredentialTypeEnum::TYPE_SERVICE;
+    $this->credential3->name = '_SERVICEMACRO';
+    $this->credential3->value = 'macro';
 
-    $hosts = [
+    $this->hosts = [
         new Host(1, 1, 'Host1', '127.0.0.1'),
     ];
 
-    $hostTemplates = [
+    $this->hostTemplates = [
         new HostTemplate(2, 'HostTemplate1', 'HostTemplate1'),
     ];
 
+    $this->hostMacro = new Macro(1,'_MACRO_HOST1','value');
+    $this->hostMacro->setIsPassword(true);
+    $this->hostMacros = [$this->hostMacro];
+
+    $this->serviceMacro = new Macro(1,'_MACRO_SERVICE1','value');
+    $this->serviceMacro->setIsPassword(true);
+    $this->serviceMacros = [$this->serviceMacro];
+
+    $this->pollerMacro = new PollerMacro(1, '$POLLERMACRO$', 'value', null, true, true);
+    $this->pollerMacros = [$this->pollerMacro];
+});
+
+it('tests getIterator method with hosts, hostTemplates and service macros', function (): void {
+    $credentials = new \ArrayIterator([$this->credential1, $this->credential2, $this->credential3]);
+
+    $this->writeVaultRepository->method('upsert')->willReturn('vault/path');
+
     $credentialMigrator = new CredentialMigrator(
         credentials: $credentials,
-        writeVaultRepository: $writeVaultRepository,
-        writeHostRepository: $writeHostRepository,
-        writeHostTemplateRepository: $writeHostTemplateRepository,
-        writeHostMacroRepository: $writeHostMacroRepository,
-        writeServiceMacroRepository: $writeServiceMacroRepository,
-        hosts: $hosts,
-        hostTemplates: $hostTemplates
+        writeVaultRepository: $this->writeVaultRepository,
+        writeHostRepository: $this->writeHostRepository,
+        writeHostTemplateRepository: $this->writeHostTemplateRepository,
+        writeHostMacroRepository: $this->writeHostMacroRepository,
+        writeServiceMacroRepository: $this->writeServiceMacroRepository,
+        writePollerMacroRepository: $this->writePollerMacroRepository,
+        hosts: $this->hosts,
+        hostTemplates: $this->hostTemplates,
+        hostMacros: $this->hostMacros,
+        serviceMacros: $this->serviceMacros,
+        pollerMacros: $this->pollerMacros,
     );
 
     foreach ($credentialMigrator as $status) {
@@ -95,39 +118,24 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
 });
 
 it('tests getIterator method with exception', function (): void {
-    $credential = new CredentialDto();
-    $credential->resourceId = 1;
-    $credential->type = CredentialTypeEnum::TYPE_HOST;
-    $credential->name = '_HOSTSNMPCOMMUNITY';
-    $credential->value = 'community';
 
-    $credentials = new \ArrayIterator([$credential]);
+    $credentials = new \ArrayIterator([$this->credential1]);
 
-    $writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
-    $writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class);
-    $writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class);
-    $writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class);
-    $writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class);
-
-    $writeVaultRepository->method('upsert')->willThrowException(new \Exception('Test exception'));
-
-    $hosts = [
-        new Host(1, 1, 'Host1', '127.0.0.1'),
-    ];
-
-    $hostTemplates = [
-        new HostTemplate(2, 'HostTemplate1', 'HostTemplate1'),
-    ];
+    $this->writeVaultRepository->method('upsert')->willThrowException(new \Exception('Test exception'));
 
     $credentialMigrator = new CredentialMigrator(
         credentials: $credentials,
-        writeVaultRepository: $writeVaultRepository,
-        writeHostRepository: $writeHostRepository,
-        writeHostTemplateRepository: $writeHostTemplateRepository,
-        writeHostMacroRepository: $writeHostMacroRepository,
-        writeServiceMacroRepository: $writeServiceMacroRepository,
-        hosts: $hosts,
-        hostTemplates: $hostTemplates
+        writeVaultRepository: $this->writeVaultRepository,
+        writeHostRepository: $this->writeHostRepository,
+        writeHostTemplateRepository: $this->writeHostTemplateRepository,
+        writeHostMacroRepository: $this->writeHostMacroRepository,
+        writeServiceMacroRepository: $this->writeServiceMacroRepository,
+        writePollerMacroRepository: $this->writePollerMacroRepository,
+        hosts: $this->hosts,
+        hostTemplates: $this->hostTemplates,
+        hostMacros: $this->hostMacros,
+        serviceMacros: $this->serviceMacros,
+        pollerMacros: $this->pollerMacros,
     );
 
     foreach ($credentialMigrator as $status) {
