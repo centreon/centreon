@@ -54,6 +54,9 @@ export default ({
       },
       setupNodeEvents: async (on, config) => {
         on('after:spec', async (spec, results) => {
+          installLogsPrinter(on);
+          esbuildPreprocessor(on, config);
+          tasks(on);
           const testRetries = {};
           if (results && results.tests) {
             results.tests.forEach((test) => {
@@ -79,10 +82,6 @@ export default ({
               JSON.stringify(testRetries, null, 2)
             );
           }
-
-          installLogsPrinter(on);
-          await esbuildPreprocessor(on, config);
-          tasks(on);
         });
 
         return plugins(on, config);
