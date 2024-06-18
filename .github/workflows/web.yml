@@ -121,22 +121,22 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  # veracode-analysis:
-  #   needs: [get-version]
-  #   uses: ./.github/workflows/veracode-analysis.yml
-  #   with:
-  #     module_directory: centreon
-  #     module_name: centreon-web
-  #     major_version: ${{ needs.get-version.outputs.major_version }}
-  #     minor_version: ${{ needs.get-version.outputs.minor_version }}
-  #     stability: ${{ needs.get-version.outputs.stability }}
-  #   secrets:
-  #     veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
-  #     veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
-  #     veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
-  #     jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-  #     jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-  #     jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+  veracode-analysis:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-analysis.yml
+    with:
+      module_directory: centreon
+      module_name: centreon-web
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+    secrets:
+      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
+      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   frontend-web-build:
     needs: [get-version]
@@ -276,15 +276,15 @@ jobs:
         with:
           path: "centreon/junit.xml"
 
-  # frontend-component-test:
-  #   needs: [changes, get-version]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-  #   uses: ./.github/workflows/cypress-component-parallelization.yml
-  #   with:
-  #     name: component
-  #     module_name: centreon
-  #     specs_path: www/**
-  #     dependencies_lock_file: centreon/pnpm-lock.yaml
+  frontend-component-test:
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    with:
+      name: component
+      module_name: centreon
+      specs_path: www/**
+      dependencies_lock_file: centreon/pnpm-lock.yaml
 
   backend-unit-test:
     runs-on: ubuntu-22.04
@@ -373,7 +373,7 @@ jobs:
         frontend-widgets-build,
         frontend-widgets-lint,
         frontend-unit-test,
-        # frontend-component-test,
+        frontend-component-test,
       ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
