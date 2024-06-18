@@ -53,12 +53,6 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
-        // Configurez les préprocesseurs et plugins en premier
-        installLogsPrinter(on);
-        await esbuildPreprocessor(on, config);
-        tasks(on);
-
-        // Définissez l'événement after:spec pour capturer les résultats
         on('after:spec', async (spec, results) => {
           const testRetries = {};
           if (results && results.tests) {
@@ -86,23 +80,11 @@ export default ({
             );
           }
 
-          // Logique pour générer report.json
-          const reportDir = path.join(
-            __dirname,
-            '../../../../tests/e2e/results',
-            'cucumber-logs'
-          );
-          const reportPath = path.join(reportDir, 'report.json');
-          if (!fs.existsSync(reportDir)) {
-            fs.mkdirSync(reportDir, { recursive: true });
-          }
-
-          if (!fs.existsSync(reportPath)) {
-            fs.writeFileSync(reportPath, JSON.stringify(results, null, 2));
-          }
+          installLogsPrinter(on);
+          await esbuildPreprocessor(on, config);
+          tasks(on);
         });
 
-        // Retournez les plugins configurés
         return plugins(on, config);
       },
       specPattern,
