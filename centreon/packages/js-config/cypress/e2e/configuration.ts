@@ -53,9 +53,6 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
-        installLogsPrinter(on);
-        await esbuildPreprocessor(on, config);
-        tasks(on);
         on('after:spec', (spec, results) => {
           const testRetries: { [key: string]: boolean } = {};
           if (results && results.tests) {
@@ -81,6 +78,9 @@ export default ({
             JSON.stringify(testRetries, null, 2)
           );
         });
+        installLogsPrinter(on);
+        await esbuildPreprocessor(on, config);
+        tasks(on);
 
         return plugins(on, config);
       },
