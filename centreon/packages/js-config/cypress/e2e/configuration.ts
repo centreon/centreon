@@ -57,33 +57,33 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        on('after:run', (results) => {
-          const testRetries: { [key: string]: boolean } = {};
-          if ('runs' in results) {
-            results.runs.forEach((run) => {
-              run.tests.forEach((test) => {
-                if (test.attempts && test.attempts.length > 1) {
-                  const testTitle = test.title.join(' > '); // Convert the array to a string
-                  testRetries[testTitle] = true;
-                }
-              });
-            });
-          }
+        // on('after:run', (results) => {
+        //   const testRetries: { [key: string]: boolean } = {};
+        //   if ('runs' in results) {
+        //     results.runs.forEach((run) => {
+        //       run.tests.forEach((test) => {
+        //         if (test.attempts && test.attempts.length > 1) {
+        //           const testTitle = test.title.join(' > '); // Convert the array to a string
+        //           testRetries[testTitle] = true;
+        //         }
+        //       });
+        //     });
+        //   }
 
-          console.log('After run results:', results);
-          console.log('Test retries:', testRetries);
+        //   console.log('After run results:', results);
+        //   console.log('Test retries:', testRetries);
 
-          // Save the testRetries object to a file in the e2e/results directory
-          const resultFilePath = path.join(
-            __dirname,
-            '../../../../tests/e2e/results',
-            'hasRetries.json'
-          );
-          fs.writeFileSync(
-            resultFilePath,
-            JSON.stringify(testRetries, null, 2)
-          );
-        });
+        //   // Save the testRetries object to a file in the e2e/results directory
+        //   const resultFilePath = path.join(
+        //     __dirname,
+        //     '../../../../tests/e2e/results',
+        //     'hasRetries.json'
+        //   );
+        //   fs.writeFileSync(
+        //     resultFilePath,
+        //     JSON.stringify(testRetries, null, 2)
+        //   );
+        // });
 
         return plugins(on, config);
       },
