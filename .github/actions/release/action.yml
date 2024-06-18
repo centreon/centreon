@@ -197,7 +197,7 @@ runs:
             # Build JSON with release information for JIRA API
             JIRA_RELEASE_DATA=$(jq -nc \
               --arg archived "$JIRA_RELEASE_ARCHIVED" \
-              --arg description "$RELEASE_ID $TAG" \
+              --arg description "$JIRA_RELEASE_ID $TAG" \
               --arg releaseDate "$JIRA_RELEASE_DATE" \
               --arg name "$TAG" \
               --arg projectId "$JIRA_PROJECT_ID" \
