@@ -53,12 +53,18 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
-        on('after:spec', (spec, results) => {
-          const testRetries: { [key: string]: boolean } = {};
+        // Configurez les préprocesseurs et plugins en premier
+        installLogsPrinter(on);
+        await esbuildPreprocessor(on, config);
+        tasks(on);
+
+        // Définissez l'événement after:spec pour capturer les résultats
+        on('after:spec', async (spec, results) => {
+          const testRetries = {};
           if (results && results.tests) {
             results.tests.forEach((test) => {
               if (test.attempts && test.attempts.length > 1) {
-                const testTitle = test.title.join(' > '); // Convert the array to a string
+                const testTitle = test.title.join(' > ');
                 testRetries[testTitle] = true;
               }
             });
@@ -67,21 +73,36 @@ export default ({
           console.log('After spec results:', results);
           console.log('Test retries:', testRetries);
 
-          // Save the testRetries object to a file in the e2e/results directory
-          const resultFilePath = path.join(
+          // Sauvegardez les retries uniquement si nécessaire
+          if (Object.keys(testRetries).length > 0) {
+            const resultFilePath = path.join(
+              __dirname,
+              '../../../../tests/e2e/results',
+              'hasRetries.json'
+            );
+            fs.writeFileSync(
+              resultFilePath,
+              JSON.stringify(testRetries, null, 2)
+            );
+          }
+
+          // Logique pour générer report.json
+          const reportDir = path.join(
             __dirname,
             '../../../../tests/e2e/results',
-            'hasRetries.json'
+            'cucumber-logs'
           );
-          fs.writeFileSync(
-            resultFilePath,
-            JSON.stringify(testRetries, null, 2)
-          );
-        });
-        installLogsPrinter(on);
-        await esbuildPreprocessor(on, config);
-        tasks(on);
+          const reportPath = path.join(reportDir, 'report.json');
+          if (!fs.existsSync(reportDir)) {
+            fs.mkdirSync(reportDir, { recursive: true });
+          }
 
+          if (!fs.existsSync(reportPath)) {
+            fs.writeFileSync(reportPath, JSON.stringify(results, null, 2));
+          }
+        });
+
+        // Retournez les plugins configurés
         return plugins(on, config);
       },
       specPattern,
