@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable consistent-return */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -58,20 +59,6 @@ export default ({
         tasks(on);
 
         on('after:run', async (results) => {
-          const reportDir = path.join(
-            __dirname,
-            '../../../../tests/e2e/results',
-            'cucumber-logs'
-          );
-
-          const reportPath = path.join(reportDir, 'report.json');
-          if (!fs.existsSync(reportDir)) {
-            fs.mkdirSync(reportDir, { recursive: true });
-          }
-
-          if (!fs.existsSync(reportPath)) {
-            fs.writeFileSync(reportPath, '');
-          }
           const testRetries: { [key: string]: boolean } = {};
           if ('runs' in results) {
             results.runs.forEach((run) => {
@@ -97,6 +84,45 @@ export default ({
             resultFilePath,
             JSON.stringify(testRetries, null, 2)
           );
+
+          const reportDir = path.join(
+            __dirname,
+            '../../../../tests/e2e/results',
+            'cucumber-logs'
+          );
+
+          const reportPath = path.join(reportDir, 'report.json');
+          if (!fs.existsSync(reportDir)) {
+            fs.mkdirSync(reportDir, { recursive: true });
+          }
+
+          // Ensure the report.json is created and filled properly
+          const ensureReportCreated = (retries = 5) => {
+            if (fs.existsSync(reportPath)) {
+              const reportContent = fs.readFileSync(reportPath, 'utf8');
+              if (reportContent) {
+                console.log('report.json created and filled successfully.');
+
+                return true;
+              }
+            }
+            if (retries > 0) {
+              console.log(
+                `Retrying to check report.json... ${retries} retries left`
+              );
+
+              return ensureReportCreated(retries - 1);
+            }
+            console.error('Failed to create or fill report.json.');
+
+            return false;
+          };
+
+          if (!ensureReportCreated()) {
+            console.error('Error: report.json is not created or empty.');
+          } else {
+            // Continue with other tasks if needed
+          }
         });
 
         return plugins(on, config);
