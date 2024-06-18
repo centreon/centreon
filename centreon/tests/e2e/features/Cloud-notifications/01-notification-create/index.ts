@@ -302,9 +302,6 @@ When('the hard state has been reached', () => {
         }))
       );
   }
-
-  // reduce memory usage
-  cy.execInContainer({ command: 'systemctl stop centengine', name: 'web' });
 });
 
 When('the notification refresh_delay has been reached', () => {
@@ -319,11 +316,6 @@ Then(
         if (globalResourceType) {
           notificationSentCheck({ logs: `<<${data.hosts.host2.name}>>` });
         } else {
-          const logsToCheck = Array.from(
-            { length: 1000 },
-            (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
-          );
-          // notificationSentCheck({ logs: logsToCheck });
           notificationSentCount(1000);
         }
         notificationSentCheck({
@@ -336,11 +328,6 @@ Then(
             logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`
           });
         } else {
-          const logsToCheck = Array.from(
-            { length: 1000 },
-            (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
-          );
-          // notificationSentCheck({ logs: logsToCheck });
           notificationSentCount(1000);
         }
         notificationSentCheck({
