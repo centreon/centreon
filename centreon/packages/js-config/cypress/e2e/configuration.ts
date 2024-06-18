@@ -84,14 +84,20 @@ export default ({
             JSON.stringify(testRetries, null, 2)
           );
 
-          const reportPath = path.join(
+          const reportDir = path.join(
             __dirname,
             '../../../../tests/e2e/results',
-            'cucumber-logs',
-            'report.json'
+            'cucumber-logs'
           );
 
-          fs.writeFileSync(reportPath, '');
+          const reportPath = path.join(reportDir, 'report.json');
+          if (!fs.existsSync(reportDir)) {
+            fs.mkdirSync(reportDir, { recursive: true });
+          }
+
+          if (!fs.existsSync(reportPath)) {
+            fs.writeFileSync(reportPath, '');
+          }
         });
 
         return plugins(on, config);
