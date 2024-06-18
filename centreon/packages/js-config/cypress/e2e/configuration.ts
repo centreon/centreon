@@ -57,7 +57,7 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        on('after:run', (results) => {
+        on('after:run', async (results) => {
           const testRetries: { [key: string]: boolean } = {};
           if ('runs' in results) {
             results.runs.forEach((run) => {
@@ -83,6 +83,21 @@ export default ({
             resultFilePath,
             JSON.stringify(testRetries, null, 2)
           );
+
+          const reportDir = path.join(
+            __dirname,
+            '../../../../tests/e2e/results',
+            'cucumber-logs'
+          );
+
+          const reportPath = path.join(reportDir, 'report.json');
+          if (!fs.existsSync(reportDir)) {
+            fs.mkdirSync(reportDir, { recursive: true });
+          }
+
+          if (!fs.existsSync(reportPath)) {
+            fs.writeFileSync(reportPath, '');
+          }
         });
 
         return plugins(on, config);
@@ -101,8 +116,8 @@ export default ({
     execTimeout: 60000,
     requestTimeout: 20000,
     retries: {
-      runMode: 2,
-      openMode: 0
+      openMode: 0,
+      runMode: 2
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
