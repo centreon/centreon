@@ -168,20 +168,17 @@ jobs:
         id: check_retries
         if: always()
         run: |
-            retriesFile="centreon/tests/e2e/results/hasRetries.json"
+            retriesFile="${{ inputs.module_name }}/tests/e2e/results/hasRetries.json"
 
             if [ -f "$retriesFile" ]; then
               retries=$(jq '.' $retriesFile)
 
               if [ "$retries" != "{}" ]; then
                 echo "Test retries: $retries"
-                retriesHtml="<h2>:warning: Test Retries Detected</h2>"
-                retriesHtml+="<p>The following tests were retried during execution:</p>"
-                retriesHtml+="<table><tr><th>Feature</th><th>Test Scenario</th></tr>"
+                retriesHtml="<h2>:warning:The following tests were retried during execution:</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
 
-                jq -r 'to_entries[] | "<tr><td>:warning: \(.key | split(\" > \")[0])</td><td>:warning: \(.key | split(\" > \")[1])</td></tr>"' $retriesFile | while read -r line; do
-                  retriesHtml+="$line"
-                done
+                # Generate the HTML rows
+                retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>:warning: \(.key | split(" > ")[0])</td><td>:warning: \(.key | split(" > ")[1])</td></tr>"' $retriesFile)
 
                 retriesHtml+="</table>"
                 echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
