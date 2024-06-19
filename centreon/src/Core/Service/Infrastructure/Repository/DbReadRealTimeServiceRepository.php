@@ -181,7 +181,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $request .= $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0 ';
         $request .= " AND acls.group_id IN ({$bindQuery})";
 
-        $request .= ' GROUP BY services.name ';
+        $request .= ' GROUP BY services.id, services.name, services.status ';
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 

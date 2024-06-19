@@ -2,7 +2,7 @@ import Typography from '@mui/material/Typography';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { useStyles } from '../LineChart.styles';
+import { useLineChartStyles } from '../LineChart.styles';
 import { LineChartHeader } from '../models';
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 }
 
 const Header = ({ title, header }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes } = useLineChartStyles();
 
   const displayTitle = header?.displayTitle ?? true;
 

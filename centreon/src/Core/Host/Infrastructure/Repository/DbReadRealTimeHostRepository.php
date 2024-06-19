@@ -110,7 +110,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
         $request .= $search = $sqlTranslator->translateSearchParameterToSql();
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= "hosts.type = 1 AND hosts.enabled = 1 AND acls.group_id IN ({$bindQuery})";
-        $request .= ' GROUP BY hosts.name';
+        $request .= ' GROUP BY hosts.id, hosts.name, hosts.status ';
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 

@@ -4,12 +4,8 @@ import { ScaleLinear } from 'd3-scale';
 
 import { Line, TimeValue } from '../common/timeSeries/models';
 import { LineChartData } from '../common/models';
+import { AxisX, Axis as AxisYLeft, AxisYRight } from '../common/Axes/models';
 
-import {
-  AxisX,
-  Axis as AxisYLeft,
-  AxisYRight
-} from './BasicComponents/Axes/models';
 import {
   AreaRegularLines,
   AreaStackedLines
