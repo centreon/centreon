@@ -851,9 +851,9 @@ jobs:
     # if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 8
 
@@ -862,7 +862,7 @@ jobs:
           node-version: 20
 
       - name: Install redocly cli
-        run: pnpm add -g @redocly/cli@1.12.0
+        run: pnpm add -g @redocly/cli@1.16.0
         shell: bash
 
       - name: Build openapi documentation
@@ -884,12 +884,13 @@ jobs:
       - name: Copy to AWS S3
         run: |
           if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
-            echo "::warning::uncomment once PR is ready"
-            # aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/cloud/index.html
+            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud"
           else
-            echo "::warning::uncomment once PR is ready"
-            # aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}/index.html
+            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud/${{ needs.get-version.outputs.major_version }}"
           fi
+
+          # aws s3 sync --delete "index.html" "${BUCKET_PATH}/index.html"
+          # aws s3 sync --delete "index.html" "${BUCKET_PATH}/centreon-logo.png"
         shell: bash
 
       - name: Invalidate AWS Cloudfront
@@ -905,11 +906,12 @@ jobs:
         shell: bash
 
       - name: Upload built openapi doc
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: openapi-doc
           path: |
             index.html
+            centreon-logo.png
           retention-days: 1
 
   deliver-rpm:
