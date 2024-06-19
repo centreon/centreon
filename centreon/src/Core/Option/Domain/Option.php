@@ -19,15 +19,23 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
+namespace Core\Option\Domain;
 
-enum CredentialTypeEnum
+class Option
 {
-    case TYPE_HOST;
-    case TYPE_HOST_TEMPLATE;
-    case TYPE_SERVICE;
-    case TYPE_KNOWLEDGE_BASE_PASSWORD;
-    case TYPE_POLLER_MACRO;
+    public function __construct(private string $name, private ?string $value)
+    {
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
 }

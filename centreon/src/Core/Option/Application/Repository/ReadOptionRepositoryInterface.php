@@ -21,13 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
+namespace Core\Option\Application\Repository;
 
-enum CredentialTypeEnum
+use Core\Option\Domain\Option;
+
+interface ReadOptionRepositoryInterface
 {
-    case TYPE_HOST;
-    case TYPE_HOST_TEMPLATE;
-    case TYPE_SERVICE;
-    case TYPE_KNOWLEDGE_BASE_PASSWORD;
-    case TYPE_POLLER_MACRO;
+    /**
+     * find an option by its name.
+     *
+     * @param string $name
+     *
+     * @return Option|null
+     */
+    public function findByName(string $name): ?Option;
 }
