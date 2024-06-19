@@ -73,6 +73,15 @@ export const stacked: Story = {
   render: Template
 };
 
+export const stackedVertical: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceStacked,
+    orientation: 'vertical'
+  },
+  render: Template
+};
+
 export const stackedCenteredZero: Story = {
   args: {
     ...defaultArgs,
@@ -80,6 +89,18 @@ export const stackedCenteredZero: Story = {
       isCenteredZero: true
     },
     data: dataPingServiceStacked
+  },
+  render: Template
+};
+
+export const stackedVerticalCenteredZero: Story = {
+  args: {
+    ...defaultArgs,
+    axis: {
+      isCenteredZero: true
+    },
+    data: dataPingServiceStacked,
+    orientation: 'vertical'
   },
   render: Template
 };

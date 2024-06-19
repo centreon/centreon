@@ -176,8 +176,8 @@ const BarGroup = ({
                 {equals(bar.key, 'stackedRight') && (
                   <BarStack
                     barIndex={barGroup.index}
-                    barPadding={bar.x}
-                    barWidth={bar.width}
+                    barPadding={isHorizontal ? bar.x : bar.y}
+                    barWidth={isHorizontal ? bar.width : bar.height}
                     isHorizontal={isHorizontal}
                     lines={stackLinesRight}
                     timeSeries={stackedTimeSeriesRight}
@@ -187,8 +187,8 @@ const BarGroup = ({
                 {equals(bar.key, 'stackedLeft') && (
                   <BarStack
                     barIndex={barGroup.index}
-                    barPadding={bar.x}
-                    barWidth={bar.width}
+                    barPadding={isHorizontal ? bar.x : bar.y}
+                    barWidth={isHorizontal ? bar.width : bar.height}
                     isHorizontal={isHorizontal}
                     lines={stackLinesLeft}
                     timeSeries={stackedTimeSeriesLeft}

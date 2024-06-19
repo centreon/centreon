@@ -49,14 +49,24 @@ const BarStack = ({
     [...lineKeys, ...colors]
   );
 
+  const commonProps = isHorizontal
+    ? {
+        x: (d) => d.timeTick,
+        xScale,
+        yScale
+      }
+    : {
+        xScale: yScale,
+        y: (d) => d.timeTick,
+        yScale: xScale
+      };
+
   return (
     <BarStackComponent
       color={colorScale}
       data={[timeSeries[barIndex]]}
       keys={lineKeys}
-      x={(d) => d.timeTick}
-      xScale={xScale}
-      yScale={yScale}
+      {...commonProps}
     >
       {(barStacks) => {
         return barStacks.map((barStack) =>
@@ -64,11 +74,11 @@ const BarStack = ({
             return (
               <rect
                 fill={bar.color}
-                height={bar.height}
+                height={isHorizontal ? bar.height : barWidth}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
-                width={barWidth}
-                x={barPadding}
-                y={bar.y}
+                width={isHorizontal ? barWidth : bar.width}
+                x={isHorizontal ? barPadding : bar.x}
+                y={isHorizontal ? bar.y : barPadding}
               />
             );
           })
