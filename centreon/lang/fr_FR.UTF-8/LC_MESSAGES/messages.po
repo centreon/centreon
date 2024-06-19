@@ -18981,6 +18981,12 @@ msgstr "Impossible de migrer les mots de passe"
 msgid "No vault configured"
 msgstr "Aucun coffre configuré"
 
+msgid "You are not allowed to access hosts in the real time context"
+msgstr "Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps réel"
+
+msgid "You are not allowed to access services in the real time context"
+msgstr "Vous n'êtes pas autorisé à accéder aux services dans le cadre du temps réel"
+
 msgid "Value sorting"
 msgstr "Tri des valeurs"
 
