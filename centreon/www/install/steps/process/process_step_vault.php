@@ -67,7 +67,7 @@ try {
     $encryption->setFirstKey($_ENV["APP_SECRET"]);
     $writeVaultConfigurationRepository =
         new \Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository(
-            $conf_centreon['centreon_varlib'] . '/centreon/vault/vault.json',
+            $conf_centreon['centreon_varlib'] . '/vault/vault.json',
             new \Symfony\Component\Filesystem\Filesystem()
         );
     $vaultConfiguration = new \Core\Security\Vault\Domain\Model\NewVaultConfiguration(

@@ -265,7 +265,7 @@ function updateCentreonConfPmFile(string $vaultPath): void
  */
 function updateDatabaseYamlFile(string $vaultPath): void
 {
-    if (! file_exists(_CENTREON_ETC_ . 'config.d/10-database.yaml')
+    if (! file_exists(_CENTREON_ETC_ . '/config.d/10-database.yaml')
         || ($content = file_get_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml')) === false
     ) {
         throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_
