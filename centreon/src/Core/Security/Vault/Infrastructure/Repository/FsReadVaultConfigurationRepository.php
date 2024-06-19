@@ -56,7 +56,7 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
     {
         if (
             !file_exists($this->configurationFile)
-            || $vaultConfiguration = file_get_contents($this->configurationFile, true)
+            || ! $vaultConfiguration = file_get_contents($this->configurationFile, true)
         ) {
             return null;
         }
