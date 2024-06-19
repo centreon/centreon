@@ -1,4 +1,4 @@
-import { commonTickLabelProps } from '../../common';
+import { commonTickLabelProps } from '../utils';
 
 interface UnitLabelProps {
   unit: string;

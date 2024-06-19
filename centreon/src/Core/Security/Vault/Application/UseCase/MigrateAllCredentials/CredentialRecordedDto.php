@@ -27,7 +27,7 @@ class CredentialRecordedDto
 {
     public string $uuid = '';
 
-    public int $resourceId = 0;
+    public ?int $resourceId = null;
 
     public string $vaultPath = '';
 

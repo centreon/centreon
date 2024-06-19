@@ -114,6 +114,7 @@ export default ({
       WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
+    experimentalMemoryManagement: true,
     requestTimeout: 20000,
     retries: {
       openMode: 0,
