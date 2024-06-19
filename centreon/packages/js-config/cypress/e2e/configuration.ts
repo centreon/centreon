@@ -82,13 +82,13 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
+        on('after:spec', async (spec, results) => {
+          await handleTestResults(results);
+        });
         installLogsPrinter(on);
 
         await esbuildPreprocessor(on, config);
         tasks(on);
-        on('after:spec', async (spec, results) => {
-          await handleTestResults(results);
-        });
 
         return plugins(on, config);
       },
