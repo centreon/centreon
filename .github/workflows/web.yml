@@ -889,8 +889,8 @@ jobs:
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud/${{ needs.get-version.outputs.major_version }}"
           fi
 
-          # aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
-          aws s3 cp "centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
+          # aws s3 cp --acl public-read "index.html" "${BUCKET_PATH}/index.html"
+          aws s3 cp --acl public-read "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
         shell: bash
 
       - name: Invalidate AWS Cloudfront
