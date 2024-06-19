@@ -172,3 +172,9 @@ export const getStrokeDashArray = ({
 
 export const getPointRadius = (lineWidth?: number): number =>
   Math.max(Math.ceil((lineWidth ?? 2) * 1.2), 2);
+
+export const commonTickLabelProps = {
+  fontFamily: 'Roboto, sans-serif',
+  fontSize: 10,
+  textAnchor: 'middle'
+};

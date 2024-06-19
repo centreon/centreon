@@ -342,7 +342,9 @@ export const LineChartWithStepCurve: Story = {
   argTypes,
   args: {
     ...argumentsData,
-    curve: 'step'
+    lineStyle: {
+      curve: 'step'
+    }
   }
 };
 

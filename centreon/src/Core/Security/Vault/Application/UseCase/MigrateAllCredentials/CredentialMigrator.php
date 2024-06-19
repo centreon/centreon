@@ -33,6 +33,8 @@ use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
+use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
+use Core\Option\Domain\Option;
 use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\PollerMacro\Domain\Model\PollerMacro;
 
@@ -56,6 +58,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
      * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
      * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
+     * @param WriteOptionRepositoryInterface $writeOptionRepository
      * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository,
      * @param Host[] $hosts,
      * @param HostTemplate[] $hostTemplates,
@@ -70,6 +73,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
+        private readonly WriteOptionRepositoryInterface $writeOptionRepository,
         private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
         private readonly array $hosts,
         private readonly array $hostTemplates,
@@ -105,6 +109,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                         $credential,
                         $existingUuids
                     ),
+                    CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => $this->migrateKnowledgeBasePassword($credential)
                 };
 
                 $status = new CredentialRecordedDto();
@@ -146,6 +151,9 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         CredentialDto $credential,
         array &$existingUuids
     ): array {
+        if ($credential->resourceId === null) {
+            throw new \Exception('Resource ID should not be null');
+        }
         $uuid = null;
         if (array_key_exists($credential->resourceId, $existingUuids['hosts'])) {
             $uuid = $existingUuids['hosts'][$credential->resourceId];
@@ -204,6 +212,9 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         CredentialDto $credential,
         array &$existingUuids
     ): array {
+        if ($credential->resourceId === null) {
+            throw new \Exception('Resource ID should not be null');
+        }
         $uuid = null;
         if (array_key_exists($credential->resourceId, $existingUuids['services'])) {
             $uuid = $existingUuids['services'][$credential->resourceId];
@@ -255,6 +266,31 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
         return [
             'uuid' => $existingUuid['pollerMacro'],
+            'path' => $vaultPath,
+        ];
+    }
+
+    /**
+     * @param CredentialDto $credential
+     *
+     * @throws \Throwable
+     *
+     * @return array{uuid: string, path: string}
+     */
+    private function migrateKnowledgeBasePassword(CredentialDto $credential): array
+    {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::KNOWLEDGE_BASE_PATH);
+        $vaultPath = $this->writeVaultRepository->upsert(
+            null,
+            [$credential->name => $credential->value]
+        );
+        $vaultPathPart = explode('/', $vaultPath);
+        $uuid = end($vaultPathPart);
+        $option = new Option('kb_wiki_password', $vaultPath);
+        $this->writeOptionRepository->update($option);
+
+        return [
+            'uuid' => $uuid,
             'path' => $vaultPath,
         ];
     }
