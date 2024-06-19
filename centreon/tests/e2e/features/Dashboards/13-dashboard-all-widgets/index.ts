@@ -81,7 +81,7 @@ before(() => {
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
   cy.startContainers();
-  cy.enableDashboardFeature();
+  // cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
