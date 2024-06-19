@@ -18,6 +18,7 @@ import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
 import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
+import DescriptionWrapper from '../../components/DescriptionWrapper';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 
@@ -86,20 +87,44 @@ const Panel = ({
 
   const isGenericTextPanel = isGenericText(panelConfigurations?.path);
 
+  const getDescription = (): JSX.Element | null => {
+    if (!displayDescription) {
+      return null;
+    }
+
+    if (isGenericTextPanel) {
+      return (
+        <RichTextEditor
+          disabled
+          contentClassName={cx(isGenericTextPanel && classes.description)}
+          editable={false}
+          editorState={
+            panelOptionsAndData.options?.description?.content || undefined
+          }
+        />
+      );
+    }
+
+    return (
+      <DescriptionWrapper>
+        <RichTextEditor
+          disabled
+          contentClassName={cx(isGenericTextPanel && classes.description)}
+          editable={false}
+          editorState={
+            panelOptionsAndData.options?.description?.content || undefined
+          }
+          inputClassname={classes.descriptionInput}
+        />
+      </DescriptionWrapper>
+    );
+  };
+
   return useMemoComponent({
     Component: (
       <>
-        {displayDescription && (
-          <RichTextEditor
-            disabled
-            contentClassName={cx(isGenericTextPanel && classes.description)}
-            editable={false}
-            editorState={
-              panelOptionsAndData.options?.description?.content || undefined
-            }
-          />
-        )}
-        {!isGenericText(panelConfigurations.path) && (
+        {getDescription()}
+        {!isGenericTextPanel && (
           <div
             className={cx(
               displayDescription
