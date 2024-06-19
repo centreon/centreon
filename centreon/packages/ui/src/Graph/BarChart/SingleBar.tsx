@@ -14,7 +14,7 @@ const SingleBar = ({
   isCenteredZero,
   isHorizontal
 }: UseSingleBarProps): JSX.Element => {
-  const { barLength, barPadding } = useSingleBar({
+  const { barLength, barPadding, hoverBar, exitBar } = useSingleBar({
     bar,
     isCenteredZero,
     isHorizontal,
@@ -33,6 +33,8 @@ const SingleBar = ({
       width={isHorizontal ? bar.width : barLength}
       x={isHorizontal ? bar.x : barPadding}
       y={isHorizontal ? barPadding : bar.y}
+      onMouseEnter={hoverBar}
+      onMouseLeave={exitBar}
     />
   );
 };

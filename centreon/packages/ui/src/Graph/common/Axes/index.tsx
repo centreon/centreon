@@ -72,7 +72,13 @@ const Axes = ({
         top={isHorizontal ? height - 5 : 0}
       />
 
-      {axisLeft.displayUnit && <UnitLabel unit={firstUnit} x={-4} />}
+      {axisLeft.displayUnit && (
+        <UnitLabel
+          unit={firstUnit}
+          x={isHorizontal ? -8 : width + 8}
+          y={isHorizontal ? 16 : 0}
+        />
+      )}
 
       <AxisLeft
         numTicks={axisLeft?.numTicks}
@@ -83,7 +89,7 @@ const Axes = ({
           ...axisLeft.tickLabelProps(),
           angle: yAxisTickLabelRotation,
           dx: isHorizontal ? -8 : 2,
-          dy: isHorizontal ? 2 : -4
+          dy: isHorizontal ? 4 : -4
         })}
         tickLength={2}
       />
@@ -98,14 +104,20 @@ const Axes = ({
           tickLabelProps={() => ({
             ...axisRight.tickLabelProps(),
             angle: yAxisTickLabelRotation,
-            dx: isHorizontal ? -8 : -8,
-            dy: isHorizontal ? 2 : 4
+            dx: isHorizontal ? 4 : -8,
+            dy: 4
           })}
           tickLength={2}
           top={isHorizontal ? 0 : height}
         />
       )}
-      {axisRight.displayUnit && <UnitLabel unit={secondUnit} x={width} />}
+      {axisRight.displayUnit && (
+        <UnitLabel
+          unit={secondUnit}
+          x={width + 8}
+          y={isHorizontal ? 16 : -(height + 8)}
+        />
+      )}
     </g>
   );
 };

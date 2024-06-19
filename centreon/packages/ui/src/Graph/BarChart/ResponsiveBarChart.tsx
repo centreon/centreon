@@ -1,6 +1,7 @@
 import { MutableRefObject, useMemo, useRef, useState } from 'react';
 
 import { equals, flatten, isNil, pluck } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { Skeleton } from '@mui/material';
 
@@ -19,8 +20,11 @@ import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useTooltipStyles } from '../common/useTooltipStyles';
 import { margin } from '../LineChart/common';
+import { Tooltip } from '../../components';
 
 import BarGroup from './BarGroup';
+import { tooltipDataAtom } from './atoms';
+import BarChartTooltip from './Tooltip/BarChartTooltip';
 
 interface Props
   extends Pick<LineChartProps, 'tooltip' | 'legend' | 'axis' | 'header'> {
@@ -49,10 +53,12 @@ const ResponsiveBarChart = ({
 }: Props): JSX.Element => {
   const { title, timeSeries, baseAxis, lines } = graphData;
 
-  const { classes } = useTooltipStyles();
+  const { classes, cx } = useTooltipStyles();
 
   const [linesGraph, setLinesGraph] = useState<Array<Line>>(lines);
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
+
+  const tooltipData = useAtomValue(tooltipDataAtom);
 
   const { isInViewport } = useIntersection({ element: graphRef?.current });
 
@@ -173,35 +179,44 @@ const ResponsiveBarChart = ({
       setLines={setLinesGraph}
       title={title}
     >
-      <div className={classes.tooltipChildren}>
-        <ChartSvgWrapper
-          axis={axis}
-          base={baseAxis}
-          displayedLines={displayedLines}
-          graphHeight={graphHeight}
-          graphWidth={graphWidth}
-          gridLinesType={axis?.gridLinesType}
-          leftScale={leftScale}
-          orientation={orientation}
-          rightScale={rightScale}
-          showGridLines={showGridLines}
-          svgRef={graphSvgRef}
-          timeSeries={timeSeries}
-          xScale={xScale}
-        >
-          <BarGroup
-            height={isHorizontal ? graphHeight - margin.top - 5 : graphWidth}
-            isCenteredZero={axis?.isCenteredZero}
+      <Tooltip
+        classes={{
+          tooltip: cx(classes.tooltip, classes.tooltipDisablePadding)
+        }}
+        label={<BarChartTooltip base={baseAxis} timeSeries={timeSeries} />}
+        open={Boolean(tooltipData)}
+        placement="top"
+      >
+        <div className={classes.tooltipChildren}>
+          <ChartSvgWrapper
+            axis={axis}
+            base={baseAxis}
+            displayedLines={displayedLines}
+            graphHeight={graphHeight}
+            graphWidth={graphWidth - (isHorizontal ? 0 : margin.left - 15)}
+            gridLinesType={axis?.gridLinesType}
             leftScale={leftScale}
-            lines={displayedLines}
             orientation={orientation}
             rightScale={rightScale}
-            secondUnit={secondUnit}
+            showGridLines={showGridLines}
+            svgRef={graphSvgRef}
             timeSeries={timeSeries}
             xScale={xScale}
-          />
-        </ChartSvgWrapper>
-      </div>
+          >
+            <BarGroup
+              isCenteredZero={axis?.isCenteredZero}
+              leftScale={leftScale}
+              lines={displayedLines}
+              orientation={orientation}
+              rightScale={rightScale}
+              secondUnit={secondUnit}
+              size={isHorizontal ? graphHeight - margin.top - 5 : graphWidth}
+              timeSeries={timeSeries}
+              xScale={xScale}
+            />
+          </ChartSvgWrapper>
+        </div>
+      </Tooltip>
     </BaseChart>
   );
 };

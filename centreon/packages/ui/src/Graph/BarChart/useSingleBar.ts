@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
 
 import { equals, gt } from 'ramda';
+import { useSetAtom } from 'jotai';
 
 import { Line } from '../common/timeSeries/models';
 import { useDeepMemo } from '../..';
+
+import { tooltipDataAtom } from './atoms';
 
 const getInvertedBarLength = ({
   useRightScale,
@@ -62,7 +65,7 @@ export interface UseSingleBarProps {
     color: string;
     height: number;
     index: number;
-    key: string;
+    key: number;
     value: number | null;
     width: number;
     x: number;
@@ -80,6 +83,8 @@ export interface UseSingleBarProps {
 interface UseSingleBarState {
   barLength: number;
   barPadding: number;
+  exitBar: () => void;
+  hoverBar: () => void;
 }
 
 export const useSingleBar = ({
@@ -92,6 +97,8 @@ export const useSingleBar = ({
   isCenteredZero,
   isHorizontal
 }: UseSingleBarProps): UseSingleBarState => {
+  const setTooltipData = useSetAtom(tooltipDataAtom);
+
   const metric = useDeepMemo({
     deps: [lines, bar.key],
     variable: lines.find(({ metric_id }) => equals(metric_id, Number(bar.key)))
@@ -152,8 +159,26 @@ export const useSingleBar = ({
     [isHorizontal, barLength, bar.value, barLength]
   );
 
+  const hoverBar = (): void => {
+    setTooltipData({
+      data: [
+        {
+          metric,
+          value: bar.value
+        }
+      ],
+      index: bar.index
+    });
+  };
+
+  const exitBar = (): void => {
+    setTooltipData(null);
+  };
+
   return {
     barLength,
-    barPadding
+    barPadding,
+    exitBar,
+    hoverBar
   };
 };

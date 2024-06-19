@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
 import { equals, gt, pick, pluck } from 'ramda';
@@ -12,73 +12,21 @@ import { getTime } from '../common/timeSeries';
 import SingleBar from './SingleBar';
 
 interface Props {
-  height: number;
   isCenteredZero?: boolean;
   leftScale;
   lines: Array<Line>;
   orientation: 'horizontal' | 'vertical';
   rightScale;
   secondUnit?: string;
+  size: number;
   timeSeries: Array<TimeValue>;
   xScale;
 }
 
-const getInvertedBarLength = ({
-  useRightScale,
-  rightScale,
-  leftScale,
-  value
-}): number | null => {
-  const scale = useRightScale ? rightScale : leftScale;
-
-  return scale(value);
-};
-
-const getBarLength = ({
-  height,
-  value,
-  invertedBarLength,
-  lengthToMatchZero,
-  isCenteredZero,
-  isHorizontal
-}): number => {
-  if (!value) {
-    return 0;
-  }
-
-  if (!isHorizontal && gt(0, value) && isCenteredZero) {
-    return height - lengthToMatchZero - invertedBarLength;
-  }
-
-  if (!isHorizontal && gt(value, 0) && gt(invertedBarLength, 0)) {
-    return invertedBarLength;
-  }
-
-  if (!isHorizontal && gt(value, 0)) {
-    return invertedBarLength + (height - lengthToMatchZero);
-  }
-
-  if (!isHorizontal) {
-    return invertedBarLength - (height - lengthToMatchZero);
-  }
-
-  if (value < 0) {
-    return Math.abs(invertedBarLength) - (height - lengthToMatchZero);
-  }
-
-  if (isCenteredZero) {
-    const barLength = height - invertedBarLength;
-
-    return height - invertedBarLength - barLength / 2;
-  }
-
-  return height - invertedBarLength - lengthToMatchZero;
-};
-
 const BarGroup = ({
   orientation,
   timeSeries,
-  height,
+  size,
   lines,
   xScale,
   leftScale,
@@ -148,7 +96,7 @@ const BarGroup = ({
     <BarComponent<TimeValue>
       color={colorScale}
       data={displayedTimeSeries}
-      height={height}
+      height={size}
       keys={keys}
       {...barComponentBaseProps}
     >
@@ -169,7 +117,7 @@ const BarGroup = ({
                 lines={lines}
                 rightScale={rightScale}
                 secondUnit={secondUnit}
-                size={height}
+                size={size}
               />
             ))}
           </Group>
@@ -179,4 +127,46 @@ const BarGroup = ({
   );
 };
 
-export default BarGroup;
+const propsToMemoize = [
+  'orientation',
+  'timeSeries',
+  'size',
+  'lines',
+  'secondUnit',
+  'isCenteredZero'
+];
+
+export default memo(BarGroup, (prevProps, nextProps) => {
+  const prevLeftScale = [
+    ...prevProps.leftScale.domain(),
+    ...prevProps.leftScale.range()
+  ];
+  const prevRightScale = [
+    ...prevProps.rightScale.domain(),
+    ...prevProps.rightScale.range()
+  ];
+  const prevXScale = [
+    ...prevProps.xScale.domain(),
+    ...prevProps.xScale.range()
+  ];
+
+  const nextLeftScale = [
+    ...nextProps.leftScale.domain(),
+    ...nextProps.leftScale.range()
+  ];
+  const nextRightScale = [
+    ...nextProps.rightScale.domain(),
+    ...nextProps.rightScale.range()
+  ];
+  const nextXScale = [
+    ...nextProps.xScale.domain(),
+    ...nextProps.xScale.range()
+  ];
+
+  return (
+    equals(pick(propsToMemoize, prevProps), pick(propsToMemoize, nextProps)) &&
+    equals(prevLeftScale, nextLeftScale) &&
+    equals(prevRightScale, nextRightScale) &&
+    equals(prevXScale, nextXScale)
+  );
+});
