@@ -61,5 +61,12 @@ export default (
     await handleTestResults(results);
   });
 
+  // Handle after:run event
+  on('after:run', async (results) => {
+    console.log('after:run event triggered');
+    // Custom handling code
+    console.log('After run results:', results);
+  });
+
   return config;
 };
