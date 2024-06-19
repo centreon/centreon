@@ -26,6 +26,7 @@ namespace Centreon\Domain\MonitoringServer\Interfaces;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\MonitoringServerResource;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
   * @package Centreon\Domain\MonitoringServer\Interfaces
