@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable default-param-last */
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -59,13 +60,6 @@ export default (
 
   on('after:spec', async (spec, results) => {
     await handleTestResults(results);
-  });
-
-  // Handle after:run event
-  on('after:run', async (results) => {
-    console.log('after:run event triggered');
-    // Custom handling code
-    console.log('After run results:', results);
   });
 
   return config;

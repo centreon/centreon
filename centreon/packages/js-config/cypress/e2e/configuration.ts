@@ -54,10 +54,15 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
-        installLogsPrinter(on);
+        on('after:run', async (results) => {
+          console.log('after:run event triggered');
+          // Custom handling code
+          console.log('After run results:', results);
+          installLogsPrinter(on);
 
-        await esbuildPreprocessor(on, config);
-        tasks(on);
+          await esbuildPreprocessor(on, config);
+          tasks(on);
+        });
 
         return plugins(on, config);
       },
