@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2024 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -45,6 +30,7 @@ use Core\Security\Vault\Infrastructure\Repository\{
 };
 use Security\Encryption;
 use Symfony\Component\Filesystem\Filesystem;
+use Utility\UUIDGenerator;
 
 /**
  * Migrate database credentials to Vault and update the different config files.
@@ -61,14 +47,14 @@ function migrateCredentialsToVault(): void
 }
 
 /**
- * @return VaultConfiguration
- *
  * @throws Throwable
+ *
+ * @return VaultConfiguration
  */
 function getVaultConfiguration(): VaultConfiguration
 {
     $encryption = new Encryption();
-    $encryption->setFirstKey($_ENV["APP_SECRET"]);
+    $encryption->setFirstKey($_ENV['APP_SECRET']);
     $readVaultConfigurationRepository = new FsReadVaultConfigurationRepository(
         _CENTREON_VARLIB_ . '/vault/vault.json',
         new Filesystem(),
@@ -77,7 +63,7 @@ function getVaultConfiguration(): VaultConfiguration
 
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration === null) {
-        throw new \Exception('Unable to read Vault configuration');
+        throw new Exception('Unable to read Vault configuration');
     }
 
     return $vaultConfiguration;
@@ -89,8 +75,6 @@ function getVaultConfiguration(): VaultConfiguration
  * @param VaultConfiguration $vaultConfiguration
  * @param CentreonRestHttp $httpClient
  *
- * @return string
- *
  * @throws RestBadRequestException
  * @throws RestConflictException
  * @throws RestForbiddenException
@@ -98,6 +82,8 @@ function getVaultConfiguration(): VaultConfiguration
  * @throws RestMethodNotAllowedException
  * @throws RestNotFoundException
  * @throws RestUnauthorizedException
+ *
+ * @return string
  */
 function authenticateToVault(VaultConfiguration $vaultConfiguration, CentreonRestHttp $httpClient): string
 {
@@ -110,7 +96,7 @@ function authenticateToVault(VaultConfiguration $vaultConfiguration, CentreonRes
 
     $loginResponse = $httpClient->call($url, 'POST', $body);
     if (! isset($loginResponse['auth']['client_token'])) {
-        throw new \Exception('Unable to authenticate to Vault');
+        throw new Exception('Unable to authenticate to Vault');
     }
 
     return $loginResponse['auth']['client_token'];
@@ -123,8 +109,6 @@ function authenticateToVault(VaultConfiguration $vaultConfiguration, CentreonRes
  * @param string $token
  * @param CentreonRestHttp $httpClient
  *
- * @return string
- *
  * @throws RestBadRequestException
  * @throws RestConflictException
  * @throws RestForbiddenException
@@ -132,16 +116,18 @@ function authenticateToVault(VaultConfiguration $vaultConfiguration, CentreonRes
  * @throws RestMethodNotAllowedException
  * @throws RestNotFoundException
  * @throws RestUnauthorizedException
+ *
+ * @return string
  */
 function migrateDatabaseCredentials(
     VaultConfiguration $vaultConfiguration,
     string $token,
     CentreonRestHttp $httpClient
 ): string {
-    $uuidGenerator = new \Utility\UUIDGenerator();
+    $uuidGenerator = new UUIDGenerator();
     $uuid = $uuidGenerator->generateV4();
-    $vaultPathUri = $vaultConfiguration->getRootPath() . "/data/database/" . $uuid;
-    $vaultPath = "secret::hashicorp_vault::" . $vaultPathUri;
+    $vaultPathUri = $vaultConfiguration->getRootPath() . '/data/database/' . $uuid;
+    $vaultPath = 'secret::hashicorp_vault::' . $vaultPathUri;
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
     $url = 'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
         . '/v1/' . $vaultPathUri;
@@ -175,14 +161,17 @@ function updateConfigFilesWithVaultPath($vaultPath): void
 /**
  * Retrieve database credentials from config file.
  *
- * @return array{username: string, password: string
- *
  * @throws Exception
+ *
+ * @return array{username: string, password: string
  */
 function retrieveDatabaseCredentialsFromConfigFile(): array
 {
-    $content = file_get_contents("/etc/centreon/centreon.conf.php")
-        ?: throw new Exception('Unable to retrieve content of file');
+    if (! file_exists(_CENTREON_ETC_ . '/centreon.conf.php')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/centreon.conf.php')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_ . '/centreon.conf.php');
+    }
 
     preg_match(
         '/\$conf_centreon\[[\'\"]user[\'\"]\]\s*=\s*[\'\"](.*)[\'\"]\s*;/',
@@ -210,8 +199,11 @@ function retrieveDatabaseCredentialsFromConfigFile(): array
  */
 function updateCentreonConfPhpFile(string $vaultPath): void
 {
-    $content = file_get_contents("/etc/centreon/centreon.conf.php")
-        ?: throw new Exception('Unable to retrieve content of file: /etc/centreon/centreon.conf.php');
+    if (! file_exists(_CENTREON_ETC_ . '/centreon.conf.php')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/centreon.conf.php')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_ . '/centreon.conf.php');
+    }
 
     $newContentPhp = preg_replace(
         '/\$conf_centreon\[[\'\"]user[\'\"]\]\s*=\s*(.*)/',
@@ -224,8 +216,8 @@ function updateCentreonConfPhpFile(string $vaultPath): void
         $newContentPhp
     );
 
-    file_put_contents("/etc/centreon/centreon.conf.php", $newContentPhp)
-        ?: throw new Exception('Unable to update file: /etc/centreon/centreon.conf.php');
+    file_put_contents(_CENTREON_ETC_ . '/centreon.conf.php', $newContentPhp)
+        ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/centreon.conf.php');
 }
 
 /**
@@ -235,8 +227,11 @@ function updateCentreonConfPhpFile(string $vaultPath): void
  */
 function updateCentreonConfPmFile(string $vaultPath): void
 {
-    $content = file_get_contents("/etc/centreon/conf.pm")
-        ?: throw new Exception('Unable to retrieve content of file: /etc/centreon/conf.pm');
+    if (! file_exists(_CENTREON_ETC_ . '/conf.pm')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/conf.pm')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_ . '/conf.pm');
+    }
 
     $newContentPm = preg_replace(
         '/"db_user"\s*=>\s*(.*)/',
@@ -259,8 +254,8 @@ function updateCentreonConfPmFile(string $vaultPath): void
         $newContentPm
     );
 
-    file_put_contents("/etc/centreon/conf.pm", $newContentPm)
-        ?: throw new Exception('Unable to update file: /etc/centreon/conf.pm');
+    file_put_contents(_CENTREON_ETC_ . '/conf.pm', $newContentPm)
+        ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/conf.pm');
 }
 
 /**
@@ -270,9 +265,12 @@ function updateCentreonConfPmFile(string $vaultPath): void
  */
 function updateDatabaseYamlFile(string $vaultPath): void
 {
-    $content = file_get_contents("/etc/centreon/config.d/10-database.yaml")
-        ?: throw new Exception('Unable to retrieve content of file: /etc/centreon/config.d/10-database.yaml');
-
+    if (! file_exists(_CENTREON_ETC_ . 'config.d/10-database.yaml')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_
+            . '/config.d/10-database.yaml');
+    }
     $newContentYaml = preg_replace(
         '/username: (.*)/',
         'username: "' . $vaultPath . '"',
@@ -284,6 +282,6 @@ function updateDatabaseYamlFile(string $vaultPath): void
         $newContentYaml
     );
 
-    file_put_contents("/etc/centreon/config.d/10-database.yaml", $newContentYaml)
-        ?: throw new Exception('Unable to update file: /etc/centreon/config.d/10-database.yaml');
+    file_put_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml', $newContentYaml)
+        ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/config.d/10-database.yaml');
 }
