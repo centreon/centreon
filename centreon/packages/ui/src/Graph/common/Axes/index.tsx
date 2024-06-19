@@ -37,7 +37,7 @@ const Axes = ({
 
   const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
-  const [start, end] = xScale.domaine();
+  const [start, end] = xScale.domain();
 
   const tickFormat =
     data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat({ end, start });
