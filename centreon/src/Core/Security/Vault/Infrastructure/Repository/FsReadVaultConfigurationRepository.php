@@ -55,7 +55,7 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
     public function find(): ?VaultConfiguration
     {
         if (
-            !file_exists($this->configurationFile)
+            ! file_exists($this->configurationFile)
             || ! $vaultConfiguration = file_get_contents($this->configurationFile, true)
         ) {
             return null;
