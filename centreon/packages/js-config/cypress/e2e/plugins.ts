@@ -7,6 +7,11 @@
 import fs from 'fs';
 import path from 'path';
 
+import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
+
+import tasks from './tasks';
+import esbuildPreprocessor from './esbuild-preprocessor';
+
 const handleTestResults = async (results: CypressCommandLine.RunResult) => {
   const testRetries: { [key: string]: boolean } = {};
   if (results && results.tests) {
@@ -29,10 +34,10 @@ const handleTestResults = async (results: CypressCommandLine.RunResult) => {
   }
 };
 
-export default (
+export default async (
   on: Cypress.PluginEvents,
   config: Cypress.PluginConfigOptions
-): Cypress.PluginConfigOptions => {
+): Promise<Cypress.PluginConfigOptions> => {
   on('before:browser:launch', (browser, launchOptions) => {
     const width = 1920;
     const height = 1080;
@@ -61,6 +66,11 @@ export default (
   on('after:spec', async (spec, results) => {
     await handleTestResults(results);
   });
+
+  installLogsPrinter(on);
+
+  await esbuildPreprocessor(on, config);
+  tasks(on);
 
   return config;
 };

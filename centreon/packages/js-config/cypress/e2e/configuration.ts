@@ -42,6 +42,28 @@ export default ({
     .toString('utf8')
     .replace(/[\n\r\s]+$/, '');
 
+  const handleTestResults = async (results: CypressCommandLine.RunResult) => {
+    const testRetries: { [key: string]: boolean } = {};
+    if (results && results.tests) {
+      results.tests.forEach((test) => {
+        if (test.attempts && test.attempts.length > 1) {
+          const testTitle = test.title.join(' > ');
+          testRetries[testTitle] = true;
+        }
+      });
+    }
+
+    console.log('Test retries:', testRetries);
+    if (Object.keys(testRetries).length > 0) {
+      const resultFilePath = path.join(
+        __dirname,
+        '../../../../tests/e2e/results',
+        'hasRetries.json'
+      );
+      fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
+    }
+  };
+
   return defineConfig({
     chromeWebSecurity: false,
     defaultCommandTimeout: 20000,
@@ -54,16 +76,6 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
-        on('after:run', async (results) => {
-          console.log('after:run event triggered');
-          // Custom handling code
-          console.log('After run results:', results);
-          installLogsPrinter(on);
-
-          await esbuildPreprocessor(on, config);
-          tasks(on);
-        });
-
         return plugins(on, config);
       },
       specPattern,
