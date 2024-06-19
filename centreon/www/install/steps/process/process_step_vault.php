@@ -21,6 +21,7 @@
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../functions.php';
+require_once __DIR__ . '/../../install.conf.php';
 
 $requiredParameters = [
     'address',
@@ -66,7 +67,7 @@ try {
     $encryption->setFirstKey($_ENV["APP_SECRET"]);
     $writeVaultConfigurationRepository =
         new \Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository(
-            '/var/lib/centreon/vault/vault.json',
+            $conf_centreon['centreon_varlib'] . '/centreon/vault/vault.json',
             new \Symfony\Component\Filesystem\Filesystem()
         );
     $vaultConfiguration = new \Core\Security\Vault\Domain\Model\NewVaultConfiguration(

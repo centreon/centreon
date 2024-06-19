@@ -70,7 +70,7 @@ function getVaultConfiguration(): VaultConfiguration
     $encryption = new Encryption();
     $encryption->setFirstKey($_ENV["APP_SECRET"]);
     $readVaultConfigurationRepository = new FsReadVaultConfigurationRepository(
-        '/var/lib/centreon/vault/vault.json',
+        _CENTREON_VARLIB_ . '/vault/vault.json',
         new Filesystem(),
         new FsVaultConfigurationFactory($encryption)
     );
@@ -140,7 +140,7 @@ function migrateDatabaseCredentials(
 ): string {
     $uuidGenerator = new \Utility\UUIDGenerator();
     $uuid = $uuidGenerator->generateV4();
-    $vaultPathUri = "jeremy/data/database/" . $uuid;
+    $vaultPathUri = $vaultConfiguration->getRootPath() . "/data/database/" . $uuid;
     $vaultPath = "secret::hashicorp_vault::" . $vaultPathUri;
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
     $url = 'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
