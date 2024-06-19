@@ -890,7 +890,7 @@ jobs:
           fi
 
           # aws s3 sync --delete "index.html" "${BUCKET_PATH}/index.html"
-          # aws s3 sync --delete "index.html" "${BUCKET_PATH}/centreon-logo.png"
+          aws s3 sync --delete "index.html" "${BUCKET_PATH}/centreon-logo.png"
         shell: bash
 
       - name: Invalidate AWS Cloudfront
