@@ -47,3 +47,8 @@ Feature: Configuring resource table widget
     When the dashboard administrator user selects a resource and a metric for the widget to report on
     When the user saves the resource table widget
     Then the resource table widget is added to the dashboard's layout
+
+  Scenario: Access the resource status page by clicking on a resource from the widget
+    Given a dashboard with a resource table widget
+    When the dashboard administrator clicks on a random resource
+    Then the user should be redirected to the resource status screen and all the resources must be displayed

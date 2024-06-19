@@ -404,3 +404,24 @@ Then(
       .should('be.visible');
   }
 );
+
+Given('a dashboard with a group monitoring widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
+  cy.editDashboard(dashboards.default.name);
+  cy.contains('Linux-Servers').should('be.visible');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.contains('a', 'Linux-Servers')
+    .should('have.attr', 'href')
+    .then((href) => {
+      cy.visit(href);
+    });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
+  }
+);

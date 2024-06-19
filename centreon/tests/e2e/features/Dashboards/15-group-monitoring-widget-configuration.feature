@@ -39,3 +39,8 @@ Feature: Configuring group monitoring widget
     Given a dashboard configuring group monitoring widget
     When the dashboard administrator user updates the displayed resource type of the widget
     Then the widget is updated to reflect that change in displayed resource type
+
+  Scenario: Access the resource status page by clicking on a resource from the widget
+    Given a dashboard with a group monitoring widget
+    When the dashboard administrator clicks on a random resource
+    Then the user should be redirected to the resource status screen and all the resources must be displayed

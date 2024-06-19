@@ -369,3 +369,26 @@ Then(
     cy.getByTestId({ testId: 'critical-line-60-tooltip' }).should('exist');
   }
 );
+
+Given('a dashboard with a Top bottom widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.editDashboard(dashboards.default.name);
+  cy.contains('Centreon-Server_Ping').should('be.visible');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.get('[data-testid="link to Ping"]')
+    .invoke('attr', 'href')
+    .then((href) => {
+      expect(href).to.exist;
+      cy.visit(href);
+    });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('Ping').should('exist');
+    cy.contains('Centreon-Server').should('exist');
+  }
+);

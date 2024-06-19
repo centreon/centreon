@@ -46,3 +46,8 @@ Feature: Configuring status grid widget
     When the dashboard administrator user duplicates the Status Grid widget
     Then a second Status Grid widget is displayed on the dashboard
     And the second widget has the same properties as the first widget
+
+  Scenario: Access the resource status page by clicking on a resource from the widget
+    Given a dashboard with a Status Grid widget
+    When the dashboard administrator clicks on a random resource
+    Then the user should be redirected to the resource status screen and all the resources must be displayed
