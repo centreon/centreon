@@ -236,7 +236,7 @@ jobs:
               "databases": [alma9_mariadb],
             };
 
-            if (context.eventName === 'pull_request') {
+            if (context.eventName === 'schedule') {
               matrix = {
                 "main": [alma9_mariadb],
                 "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql, bullseye_mysql],
