@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { BarStack as BarStackVertical, BarStackHorizontal } from '@visx/shape';
-import { equals, keys, omit } from 'ramda';
+import { equals, gt, keys, omit } from 'ramda';
 
 import { useDeepMemo } from '../../utils';
 
@@ -71,14 +71,24 @@ const BarStack = ({
       {(barStacks) => {
         return barStacks.map((barStack) =>
           barStack.bars.map((bar) => {
+            const isNegativeValue = gt(0, bar.bar[1]);
+
+            const getPadding = (padding, size) => {
+              if (!isNegativeValue) {
+                return padding;
+              }
+
+              return padding + size;
+            };
+
             return (
               <rect
                 fill={bar.color}
-                height={isHorizontal ? bar.height : barWidth}
+                height={isHorizontal ? Math.abs(bar.height) : barWidth}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
-                width={isHorizontal ? barWidth : bar.width}
-                x={isHorizontal ? barPadding : bar.x}
-                y={isHorizontal ? bar.y : barPadding}
+                width={isHorizontal ? barWidth : Math.abs(bar.width)}
+                x={isHorizontal ? barPadding : getPadding(bar.x, bar.width)}
+                y={isHorizontal ? getPadding(bar.y, bar.height) : barPadding}
               />
             );
           })
