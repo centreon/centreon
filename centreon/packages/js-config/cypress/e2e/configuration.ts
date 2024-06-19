@@ -79,11 +79,11 @@ export default ({
         installLogsPrinter(on);
 
         await esbuildPreprocessor(on, config);
-        tasks(on);
 
         on('after:spec', async (spec, results) => {
           await handleTestResults(results);
         });
+        tasks(on);
 
         return plugins(on, config);
       },
