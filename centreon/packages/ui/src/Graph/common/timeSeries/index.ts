@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 import { Scale } from '@visx/visx';
 import { bisector } from 'd3-array';
-import { ScaleLinear, ScaleTime, ScaleBand } from 'd3-scale';
+import { ScaleLinear, ScaleTime } from 'd3-scale';
 import {
   map,
   pipe,
@@ -135,9 +135,10 @@ const toLine = ({
   metric_id,
   minimum_value,
   name: legend,
-  stackOrder: equals(ds_data.ds_stack, '1')
-    ? parseInt(ds_data.ds_order || '0', 10)
-    : null,
+  stackOrder:
+    equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
+      ? parseInt(ds_data.ds_order || '0', 10)
+      : null,
   transparency: ds_data.ds_transparency,
   unit
 });
@@ -401,7 +402,7 @@ const getLeftScale = ({
   scaleLogarithmicBase,
   isHorizontal = true
 }: AxeScale): ScaleLinear<number, number> => {
-  const [firstUnit, , thirdUnit] = getUnits(dataLines);
+  const [firstUnit, secondUnit, thirdUnit] = getUnits(dataLines);
 
   const shouldApplyThresholds =
     equals(thresholdUnit, firstUnit) ||
@@ -426,7 +427,9 @@ const getLeftScale = ({
 
   const stackedValues = firstUnitHasStackedLines
     ? getStackedMetricValues({
-        lines: getSortedStackedLines(dataLines),
+        lines: getSortedStackedLines(dataLines).filter(
+          ({ unit }) => !equals(unit, secondUnit)
+        ),
         timeSeries: dataTimeSeries
       })
     : [0];
@@ -491,7 +494,9 @@ const getRightScale = ({
 
   const stackedValues = secondUnitHasStackedLines
     ? getStackedMetricValues({
-        lines: getSortedStackedLines(dataLines),
+        lines: getSortedStackedLines(dataLines).filter(({ unit }) =>
+          equals(unit, secondUnit)
+        ),
         timeSeries: dataTimeSeries
       })
     : [0];

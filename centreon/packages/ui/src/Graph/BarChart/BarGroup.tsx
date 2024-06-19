@@ -1,15 +1,31 @@
 import { memo, useMemo } from 'react';
 
 import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
-import { equals, gt, pick, pluck } from 'ramda';
+import {
+  difference,
+  equals,
+  gt,
+  isEmpty,
+  keys,
+  omit,
+  pick,
+  pluck,
+  reduce
+} from 'ramda';
 import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { Group } from '@visx/group';
 
 import { useDeepMemo } from '../../utils';
 import { Line, TimeValue } from '../common/timeSeries/models';
-import { getTime } from '../common/timeSeries';
+import {
+  getSortedStackedLines,
+  getStackedYScale,
+  getTime,
+  getTimeSeriesForLines
+} from '../common/timeSeries';
 
 import SingleBar from './SingleBar';
+import BarStack from './BarStack';
 
 interface Props {
   isCenteredZero?: boolean;
@@ -41,38 +57,75 @@ const BarGroup = ({
     [isHorizontal]
   );
 
-  const keys = useDeepMemo({
-    deps: [lines],
-    variable: pluck('metric_id', lines)
+  const stackedYScale = getStackedYScale({ leftScale, rightScale });
+
+  const stackedLines = getSortedStackedLines(lines);
+  const notStackedLines = difference(lines, stackedLines);
+
+  const stackLinesRight = stackedLines.filter(({ unit }) =>
+    equals(unit, secondUnit)
+  );
+  const stackLinesLeft = stackedLines.filter(
+    ({ unit }) => !equals(unit, secondUnit)
+  );
+  const hasStackedLinesRight = !isEmpty(stackLinesRight)
+    ? { stackedRight: null }
+    : {};
+  const hasStackedLinesLeft = !isEmpty(stackLinesLeft)
+    ? { stackedLeft: null }
+    : {};
+
+  const stackedTimeSeriesRight = getTimeSeriesForLines({
+    lines: stackLinesRight,
+    timeSeries
+  });
+  const stackedTimeSeriesLeft = getTimeSeriesForLines({
+    lines: stackLinesLeft,
+    timeSeries
+  });
+  const notStackedTimeSeries = getTimeSeriesForLines({
+    lines: notStackedLines,
+    timeSeries
+  });
+
+  const normalizedTimeSeries = notStackedTimeSeries.map((timeSerie) => ({
+    ...timeSerie,
+    ...hasStackedLinesRight,
+    ...hasStackedLinesLeft
+  }));
+
+  const lineKeys = useDeepMemo({
+    deps: [normalizedTimeSeries],
+    variable: keys(omit(['timeTick'], normalizedTimeSeries[0]))
   });
   const colors = useDeepMemo({
-    deps: [lines],
-    variable: pluck('lineColor', lines)
+    deps: [lineKeys, lines],
+    variable: lineKeys.map((key) => {
+      const metric = lines.find(({ metric_id }) =>
+        equals(metric_id, Number(key))
+      );
+
+      return metric?.lineColor || '';
+    })
   });
+
   const colorScale = useMemo(
     () =>
       scaleOrdinal<number, string>({
-        domain: keys,
+        domain: lineKeys,
         range: colors
       }),
-    [...keys, ...colors]
+    [...lineKeys, ...colors]
   );
   const metricScale = useMemo(
     () =>
       scaleBand({
-        domain: keys,
+        domain: lineKeys,
         padding: 0.1,
         range: [0, xScale.bandwidth()]
       }),
-    [...keys, xScale.bandwidth()]
+    [...lineKeys, xScale.bandwidth()]
   );
-
-  const displayedTimeSeries = useDeepMemo({
-    deps: [timeSeries],
-    variable: timeSeries.map((timeSerie) =>
-      pick([...keys, 'timeTick'], timeSerie)
-    )
-  });
 
   const barComponentBaseProps = useMemo(
     () =>
@@ -95,9 +148,9 @@ const BarGroup = ({
   return (
     <BarComponent<TimeValue>
       color={colorScale}
-      data={displayedTimeSeries}
+      data={normalizedTimeSeries}
       height={size}
-      keys={keys}
+      keys={lineKeys}
       {...barComponentBaseProps}
     >
       {(barGroups) =>
@@ -108,17 +161,41 @@ const BarGroup = ({
             top={barGroup.y0}
           >
             {barGroup.bars.map((bar) => (
-              <SingleBar
-                bar={bar}
-                isCenteredZero={isCenteredZero}
-                isHorizontal={isHorizontal}
-                key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
-                leftScale={leftScale}
-                lines={lines}
-                rightScale={rightScale}
-                secondUnit={secondUnit}
-                size={size}
-              />
+              <>
+                <SingleBar
+                  bar={bar}
+                  isCenteredZero={isCenteredZero}
+                  isHorizontal={isHorizontal}
+                  key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
+                  leftScale={leftScale}
+                  lines={lines}
+                  rightScale={rightScale}
+                  secondUnit={secondUnit}
+                  size={size}
+                />
+                {equals(bar.key, 'stackedRight') && (
+                  <BarStack
+                    barIndex={barGroup.index}
+                    barPadding={bar.x}
+                    barWidth={bar.width}
+                    isHorizontal={isHorizontal}
+                    lines={stackLinesRight}
+                    timeSeries={stackedTimeSeriesRight}
+                    yScale={rightScale}
+                  />
+                )}
+                {equals(bar.key, 'stackedLeft') && (
+                  <BarStack
+                    barIndex={barGroup.index}
+                    barPadding={bar.x}
+                    barWidth={bar.width}
+                    isHorizontal={isHorizontal}
+                    lines={stackLinesLeft}
+                    timeSeries={stackedTimeSeriesLeft}
+                    yScale={leftScale}
+                  />
+                )}
+              </>
             ))}
           </Group>
         ))

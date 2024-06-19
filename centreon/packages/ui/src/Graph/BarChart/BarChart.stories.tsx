@@ -2,7 +2,8 @@ import { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
 
 import { LineChartData } from '../common/models';
-import dataLastDay from '../mockedData/realData.json';
+import dataPingService from '../mockedData/pingService.json';
+import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 
 import BarChart from './BarChart';
 
@@ -20,7 +21,6 @@ const defaultStart = new Date(
 const defaultEnd = new Date(Date.now()).toISOString();
 
 const defaultArgs = {
-  data: dataLastDay,
   end: defaultEnd,
   height: 500,
   loading: false,
@@ -28,7 +28,7 @@ const defaultArgs = {
 };
 
 const Template = (args): JSX.Element => (
-  <BarChart {...args} data={dataLastDay as unknown as LineChartData} />
+  <BarChart data={dataPingService as unknown as LineChartData} {...args} />
 );
 
 export const Default: Story = {
@@ -61,6 +61,25 @@ export const verticalCenteredZero: Story = {
       isCenteredZero: true
     },
     orientation: 'vertical'
+  },
+  render: Template
+};
+
+export const stacked: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceStacked
+  },
+  render: Template
+};
+
+export const stackedCenteredZero: Story = {
+  args: {
+    ...defaultArgs,
+    axis: {
+      isCenteredZero: true
+    },
+    data: dataPingServiceStacked
   },
   render: Template
 };
