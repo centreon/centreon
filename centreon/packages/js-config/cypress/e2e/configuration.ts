@@ -42,28 +42,6 @@ export default ({
     .toString('utf8')
     .replace(/[\n\r\s]+$/, '');
 
-  const handleTestResults = async (results: CypressCommandLine.RunResult) => {
-    const testRetries: { [key: string]: boolean } = {};
-    if (results && results.tests) {
-      results.tests.forEach((test) => {
-        if (test.attempts && test.attempts.length > 1) {
-          const testTitle = test.title.join(' > ');
-          testRetries[testTitle] = true;
-        }
-      });
-    }
-
-    console.log('Test retries:', testRetries);
-    if (Object.keys(testRetries).length > 0) {
-      const resultFilePath = path.join(
-        __dirname,
-        '../../../../tests/e2e/results',
-        'hasRetries.json'
-      );
-      fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
-    }
-  };
-
   return defineConfig({
     chromeWebSecurity: false,
     defaultCommandTimeout: 20000,
@@ -80,9 +58,6 @@ export default ({
 
         await esbuildPreprocessor(on, config);
         tasks(on);
-        on('after:spec', async (spec, results) => {
-          await handleTestResults(results);
-        });
 
         return plugins(on, config);
       },
