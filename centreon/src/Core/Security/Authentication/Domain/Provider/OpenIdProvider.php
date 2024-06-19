@@ -840,6 +840,21 @@ class OpenIdProvider implements OpenIdProviderInterface
         ];
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
+        if (
+            $customConfiguration->getClientId() !== null
+            && str_starts_with($customConfiguration->getClientId(), 'secret::')
+        ) {
+            $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientId());
+            $customConfiguration->setClientId($vaultData['_OPENID_CLIENT_ID']);
+        }
+
+        if (
+            $customConfiguration->getClientSecret() !== null
+            && str_starts_with($customConfiguration->getClientSecret(), 'secret::')
+        ) {
+            $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientSecret());
+            $customConfiguration->setClientSecret($vaultData['_OPENID_CLIENT_SECRET']);
+        }
         if ($customConfiguration->getAuthenticationType() === CustomConfiguration::AUTHENTICATION_BASIC) {
             $headers['Authorization'] = 'Basic ' . base64_encode(
                     $customConfiguration->getClientId() . ':' . $customConfiguration->getClientSecret()

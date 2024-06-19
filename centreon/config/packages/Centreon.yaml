@@ -320,10 +320,8 @@ services:
             tags: ['monitoring.resource.acl']
         Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface:
             tags: ['authentication.provider.repositories']
-        Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderResponse\ProviderResponseInterface:
-            tags: ['authentication.provider.responses']
-        Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter\ProviderPresenterInterface:
-            tags: ['authentication.provider.presenters']
+        Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurationsResponseFactoryInterface:
+            tags: ['authentication.provider.response.factories']
         Core\Platform\Application\Validator\RequirementValidatorInterface:
             tags: ['platform.requirement.validators']
         Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
@@ -345,10 +343,7 @@ services:
 
     Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurations:
         arguments:
-          - !tagged_iterator 'authentication.provider.responses'
-
-    Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\FindProviderConfigurationsPresenter:
-        arguments: [!tagged_iterator 'authentication.provider.presenters']
+          - !tagged_iterator 'authentication.provider.response.factories'
 
     Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator:
         class: Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator

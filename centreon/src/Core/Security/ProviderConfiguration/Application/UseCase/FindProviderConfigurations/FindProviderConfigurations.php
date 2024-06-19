@@ -28,34 +28,23 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 
-use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as CustomConfigurationOpenId;
-use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderResponse\{
-    ProviderResponseInterface
-};
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-
 final class FindProviderConfigurations
 {
     use LoggerTrait;
 
-    /** @var ProviderResponseInterface[] */
-    private array $providerResponses;
+    /** @var FindProviderConfigurationsResponseFactoryInterface[] */
+    private array $providerResponseFactories;
 
     /**
-     * @param \Traversable<ProviderResponseInterface> $providerResponses
-     * @param ReadConfigurationRepositoryInterface $readConfigurationFactory
+     * @param \Traversable<FindProviderConfigurationsResponseFactoryInterface> $providerResponseFactories
+     * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
      */
     public function __construct(
-        \Traversable $providerResponses,
-        private ReadConfigurationRepositoryInterface $readConfigurationFactory,
+        \Traversable $providerResponseFactories,
+        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository
     ) {
-        // iterate on factories instead of responses
-        // each factory will return a single response
-        // and only one presenter will manage the single response
-        $this->providerResponses = iterator_to_array($providerResponses);
+        $this->providerResponseFactories = iterator_to_array($providerResponseFactories);
     }
 
     /**
@@ -64,7 +53,7 @@ final class FindProviderConfigurations
     public function __invoke(FindProviderConfigurationsPresenterInterface $presenter): void
     {
         try {
-            $configurations = $this->readConfigurationFactory->findConfigurations();
+            $configurations = $this->readConfigurationRepository->findConfigurations();
 
             /**
              * match configuration type and response type to bind automatically corresponding configuration and response.
@@ -73,48 +62,19 @@ final class FindProviderConfigurations
              */
             $responses = [];
             foreach ($configurations as $configuration) {
-                foreach ($this->providerResponses as $providerResponse) {
-                    if ($configuration->getType() === $providerResponse->getType()) {
-                        $this->manageCredentialsFromVault($configuration);
-                        $responses[] = $providerResponse->create($configuration);
+                foreach ($this->providerResponseFactories as $providerFactory) {
+                    if ($providerFactory->isValidFor($configuration->getType())) {
+                        $responses[] = $providerFactory->createResponse($configuration);
                     }
                 }
             }
 
-            $presenter->present($responses);
+            $presenter->presentResponse($responses);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
 
             return;
         }
-    }
-
-    private function manageCredentialsFromVault(Configuration $configuration): void
-    {
-        $customConfiguration = match ($configuration->getType()) {
-            Provider::OPENID => $this->manageCredentialsForOpenId($configuration),
-            default => throw OpenIdConfigurationException::unknownProviderType($configuration->getType())
-        };
-
-
-        $configuration->setCustomConfiguration($customConfiguration);
-    }
-
-    private function manageCredentialsForOpenId(Configuration $configuration): CustomConfigurationOpenId
-    {
-        /** @var CustomConfigurationOpenId $customConfiguration */
-        $customConfiguration = $configuration->getCustomConfiguration();
-        if (str_starts_with($customConfiguration->getClientId(), 'secret::')) {
-            $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientId());
-            if (! array_key_exists('_OPENID_CLIENT_ID', $vaultData)) {
-                throw OpenIdConfigurationException::unableToRetrieveCredentialsFromVault(
-                    ['_OPENID_CLIENT_ID']
-                );
-            }
-            $customConfiguration->setClientId($vaultData['_OPENID_CLIENT_ID']);
-        }
-
-        return $customConfiguration;
     }
 }
