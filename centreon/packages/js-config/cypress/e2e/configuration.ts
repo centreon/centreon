@@ -1,4 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable consistent-return */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
+
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -6,13 +12,10 @@ import path from 'path';
 import { defineConfig } from 'cypress';
 import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
 import { config as configDotenv } from 'dotenv';
-import cucumber from 'cypress-cucumber-preprocessor';
 
 import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
 import tasks from './tasks';
-
-// Import du préprocesseur Cucumber pour Cypress
 
 interface ConfigurationOptions {
   cypressFolder?: string;
@@ -40,36 +43,31 @@ export default ({
     .replace(/[\n\r\s]+$/, '');
 
   const handleTestResults = async (results: CypressCommandLine.RunResult) => {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        const testRetries: { [key: string]: boolean } = {};
-        if (results && results.tests) {
-          results.tests.forEach((test) => {
-            if (test.attempts && test.attempts.length > 1) {
-              const testTitle = test.title.join(' > ');
-              testRetries[testTitle] = true;
-            }
-          });
-        }
-
-        console.log('Test retries:', testRetries);
-        if (Object.keys(testRetries).length > 0) {
-          const resultFilePath = path.join(
-            __dirname,
-            '../../../../tests/e2e/results',
-            'hasRetries.json'
-          );
-          fs.writeFileSync(
-            resultFilePath,
-            JSON.stringify(testRetries, null, 2)
-          );
-        }
-
-        resolve(); // Résolution de la promesse une fois le traitement terminé
-      } catch (error) {
-        reject(error); // Rejet de la promesse en cas d'erreur
+    try {
+      const testRetries: { [key: string]: boolean } = {};
+      if (results && results.tests) {
+        results.tests.forEach((test) => {
+          if (test.attempts && test.attempts.length > 1) {
+            const testTitle = test.title.join(' > ');
+            testRetries[testTitle] = true;
+          }
+        });
       }
-    });
+
+      console.log('Test retries:', testRetries);
+      if (Object.keys(testRetries).length > 0) {
+        const resultFilePath = path.join(
+          __dirname,
+          '../../../../tests/e2e/results',
+          'hasRetries.json'
+        );
+        fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
+      }
+    } catch (error) {
+      console.error('Erreur lors du traitement des résultats:', error);
+      // Gérer l'erreur selon les besoins
+      throw error;
+    }
   };
 
   return defineConfig({
@@ -79,32 +77,18 @@ export default ({
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
       fixturesFolder: 'fixtures',
-      // Reporter Cucumber JSON
-      reporter: require.resolve('cucumber-json'),
+      reporter: require.resolve('cypress-multi-reporters'),
       reporterOptions: {
-        // Chemin du fichier de rapport JSON généré
-        outputFile: `${resultsFolder}/cucumber-report.json`
+        configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
-        // Manipulation des résultats des tests après chaque spécification
-        on('after:spec', (spec, results) => {
-          // Utilisation de then() pour capturer les erreurs potentielles
-          handleTestResults(results)
-            .then(() => {
-              console.log('Handled test results successfully');
-            })
-            .catch((error) => {
-              console.error('Error while handling test results:', error);
-              // Gérer l'erreur ou la journaliser selon les besoins
-            });
-        });
-
-        // Installation du preprocessor Cucumber pour Cypress
-        on('file:preprocessor', cucumber());
-
         installLogsPrinter(on);
+
         await esbuildPreprocessor(on, config);
         tasks(on);
+        on('after:spec', async (spec, results) => {
+          await handleTestResults(results);
+        });
 
         return plugins(on, config);
       },
