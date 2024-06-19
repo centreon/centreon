@@ -4,9 +4,8 @@ import { isNil } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { getXAxisTickFormat } from '../../helpers';
-import { GraphInterval } from '../../models';
-import { getUnits } from '../../../common/timeSeries';
+import { getXAxisTickFormat } from '../../LineChart/helpers';
+import { getUnits } from '../timeSeries';
 
 import UnitLabel from './UnitLabel';
 import { Data } from './models';
@@ -14,7 +13,6 @@ import useAxisY from './useAxisY';
 
 interface Props {
   data: Data;
-  graphInterval: GraphInterval;
   height: number;
   leftScale: ScaleLinear<number, number>;
   rightScale: ScaleLinear<number, number>;
@@ -28,8 +26,7 @@ const Axes = ({
   data,
   rightScale,
   leftScale,
-  xScale,
-  graphInterval
+  xScale
 }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const { lines, showBorder, yAxisTickLabelRotation } = data;
@@ -41,7 +38,11 @@ const Axes = ({
   const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
   const tickFormat =
-    data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat(graphInterval);
+    data?.axisX?.xAxisTickFormat ??
+    getXAxisTickFormat({
+      start: xScale.domain()[0],
+      start: xScale.domain()[-1]
+    });
 
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });

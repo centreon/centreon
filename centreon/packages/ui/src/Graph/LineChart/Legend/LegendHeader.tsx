@@ -77,7 +77,9 @@ const LegendHeader = ({
             className={cx(
               classes.text,
               !isListMode && classes.legendName,
-              !isListMode && isDisplayedOnSide && classes.legendNameSide
+              !isListMode && isDisplayedOnSide && classes.legendNameSide,
+              isListMode && !isDisplayedOnSide && classes.textListBottom,
+              isListMode && isDisplayedOnSide && classes.textListSide
             )}
             data-mode={
               value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal

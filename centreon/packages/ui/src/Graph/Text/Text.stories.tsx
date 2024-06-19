@@ -17,6 +17,12 @@ const Template = (props): JSX.Element => (
   </div>
 );
 
+const SmallTemplate = (props): JSX.Element => (
+  <div style={{ height: '100px', width: '200px' }}>
+    <Text {...props} />
+  </div>
+);
+
 export const success: Story = {
   args: {
     data: dataLastWeek,
@@ -120,4 +126,30 @@ export const rawValue: Story = {
     }
   },
   render: Template
+};
+
+export const smallDisplay: Story = {
+  args: {
+    data: dataLastWeek,
+    labels: {
+      critical: 'Critical',
+      warning: 'Warning'
+    },
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 1.5
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
+  },
+  render: SmallTemplate
 };
