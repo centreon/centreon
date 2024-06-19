@@ -39,14 +39,19 @@ if (!isset($oreon)) {
 }
 
 $DBRESULT = $pearDB->query(
-    "SELECT * FROM `options` WHERE options.key LIKE 'kb_%' AND options.key <> 'kb_wiki_password' "
+    "SELECT * FROM `options` WHERE options.key LIKE 'kb_%'"
 );
+$originalPassword = null;
 while ($opt = $DBRESULT->fetchRow()) {
     $gopt[$opt["key"]] = myDecode($opt["value"]);
+
+    // store the value before occultation to be able to extract Vault Path if it is configured
+    if ($opt["key"] === "kb_wiki_password") {
+        $originalPassword = $opt["value"];
+        $gopt[$opt["key"]] = CentreonAuth::PWS_OCCULTATION;
+    }
 }
-if (isset($opt["kb_wiki_password"])) {
-    $gopt[$opt["kb_wiki_password"]] = CentreonAuth::PWS_OCCULTATION;
-}
+
 $DBRESULT->closeCursor();
 
 $attrsAdvSelect = null;
@@ -99,7 +104,7 @@ if ($form->validate()) {
     /*
      * Update in DB
      */
-    updateKnowledgeBaseData($pearDB, $form, $oreon);
+    updateKnowledgeBaseData($pearDB, $form, $oreon, $originalPassword);
 
     $o = null;
     $valid = true;

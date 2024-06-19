@@ -15,9 +15,6 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
   groupTitle: {
     fontWeight: theme.typography.fontWeightBold
   },
-  previewDescription: {
-    marginTop: theme.spacing(1)
-  },
   previewHeading: {
     display: 'block'
   },

@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 /*
  * Copyright 2005-2023 Centreon
@@ -35,8 +35,8 @@
  */
 
 use Centreon\Domain\Log\Logger;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Utility\Interfaces\UUIDGeneratorInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 const VAULT_PATH_REGEX = '^secret::[^:]*::';
 const SNMP_COMMUNITY_MACRO_NAME = '_HOSTSNMPCOMMUNITY';
@@ -1619,6 +1619,114 @@ function deletePollerMacroSecretsFromVault(
 
     } catch (Exception $ex) {
         $logger->error('Unable to delete secrets for Poller macros');
+
+        throw $ex;
+    }
+}
+
+/**
+ * Update or Insert the knowledge base password into the vault.
+ *
+ * @param string $password
+ * @param VaultConfiguration $vaultConfiguration
+ * @param Logger $logger
+ * @param string|null $uuid
+ * @param UUIDGeneratorInterface $uuidGenerator
+ *
+ * @throws \Throwable
+ */
+function upsertKnowledgeBasePasswordInVault(
+    string $password,
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    ?string $uuid,
+    UUIDGeneratorInterface $uuidGenerator
+): string {
+    global $pearDB;
+
+    $httpClient = new CentreonRestHttp();
+    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+    $uuid = $uuid ?? $uuidGenerator->generateV4();
+    writeKnowledgeBasePasswordInVault($vaultConfiguration, $uuid, $clientToken, $password, $logger, $httpClient);
+    return "secret::" . $vaultConfiguration->getName() . "::" . $vaultConfiguration->getRootPath()
+        . "/data/configuration/knowledge_base/" . $uuid;
+
+}
+
+/**
+ * Find the Knowledge Base password from the vault.
+ *
+ * @param Logger $logger
+ * @param string $kbPasswordPath
+ * @param VaultConfiguration $vaultConfiguration
+ *
+ * @return string
+ *
+ * @throws \Throwable
+ */
+function findKnowledgeBasePasswordFromVault(
+    Logger $logger,
+    string $kbPasswordPath,
+    VaultConfiguration $vaultConfiguration
+): string {
+    $httpClient = new CentreonRestHttp();
+    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+    $response = $httpClient->call(
+        'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+            . $kbPasswordPath,
+        'GET',
+        null,
+        ['X-Vault-Token: ' . $clientToken]
+    );
+    return $response['data']['data']['_KBPASSWORD'] ?? throw new \Exception(
+        'Unable to retrieve Knowledge Base password from Vault'
+    );
+}
+
+/**
+ * Write the Knowledge Base Password into the vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param string $uuid
+ * @param string $clientToken
+ * @param string $password
+ * @param Logger $logger
+ * @param CentreonRestHttp $httpClient
+ *
+ * @throws \Throwable
+ */
+function writeKnowledgeBasePasswordInVault(
+    VaultConfiguration $vaultConfiguration,
+    string $uuid,
+    string $clientToken,
+    string $password,
+    Logger $logger,
+    CentreonRestHttp $httpClient
+): void {
+    try {
+        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
+            . '/v1/' . $vaultConfiguration->getRootPath()
+            . '/data/configuration/knowledge_base/' . $uuid;
+        $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
+        $logger->info(
+            "Writing Knowledge Base Password at : " . $url,
+            ["password" => $password]
+        );
+        $httpClient->call(
+            $url,
+            "POST",
+            ['data' => ['_KBPASSWORD' => $password]],
+            ['X-Vault-Token: ' . $clientToken]
+        );
+    } catch(\Exception $ex) {
+        $logger->error(
+            "Unable to write Knowledge Base Password into vault",
+            [
+                "message" => $ex->getMessage(),
+                "trace" => $ex->getTraceAsString(),
+                "password" => $password
+            ]
+        );
 
         throw $ex;
     }
