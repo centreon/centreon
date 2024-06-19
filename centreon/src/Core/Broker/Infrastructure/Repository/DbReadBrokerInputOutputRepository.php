@@ -24,14 +24,14 @@ declare(strict_types=1);
 namespace Core\Broker\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
-use Core\Broker\Application\Repository\ReadBrokerOutputRepositoryInterface;
-use Core\Broker\Domain\Model\BrokerOutput;
-use Core\Broker\Domain\Model\BrokerOutputField;
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\Type;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 /**
- * @phpstan-type _Output array{
+ * @phpstan-type _InputOutput array{
  *      config_group_id:int,
  *      config_key:string,
  *      config_value:string,
@@ -40,7 +40,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
  *      fieldIndex:null|int
  * }
  */
-class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements ReadBrokerOutputRepositoryInterface
+class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements ReadBrokerInputOutputRepositoryInterface
 {
     /**
      * @param DatabaseConnection $db
@@ -106,22 +106,22 @@ class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements Read
          * } $result
          */
         foreach ($statement as $result) {
-            $outputField = new BrokerOutputField(
+            $field = new BrokerInputOutputField(
                 id: $result['cb_field_id'],
                 name: $result['fieldname'],
                 type: $result['fieldtype'],
                 groupId: $result['cb_fieldgroup_id'],
                 groupName: $result['groupname'],
                 isRequired: (bool) $result['is_required'],
-                isMultiple: (bool) $result['multiple'], // TODO not useful ?
+                isMultiple: (bool) $result['multiple'],
                 listDefault: $result['list_default'],
                 listValues: $result['list_values'] ? explode(',', $result['list_values']) : [],
             );
 
             if ($result['groupname'] !== null) {
-                $groupedParameters[$result['groupname']][$result['fieldname']] = $outputField;
+                $groupedParameters[$result['groupname']][$result['fieldname']] = $field;
             } else {
-                $simpleParameters[$result['fieldname']] = $outputField;
+                $simpleParameters[$result['fieldname']] = $field;
             }
         }
 
@@ -131,7 +131,7 @@ class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function findType(int $typeId): ?Type
+    public function findType(string $tag, int $typeId): ?Type
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -143,10 +143,11 @@ class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements Read
                     ON type.cb_type_id = rel.cb_type_id
                 INNER JOIN `:db`.`cb_tag` tag
                     ON tag.cb_tag_id = rel.cb_tag_id
-                WHERE tag.tagname = 'output' AND type.cb_type_id = :typeId
+                WHERE tag.tagname = :tag AND type.cb_type_id = :typeId
                 SQL
         ));
         $statement->bindValue(':typeId', $typeId, \PDO::PARAM_INT);
+        $statement->bindValue(':tag', $tag, \PDO::PARAM_STR);
         $statement->execute();
 
         if (! ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
@@ -160,7 +161,7 @@ class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function findByIdAndBrokerId(int $outputId, int $brokerId): ?BrokerOutput
+    public function findByIdAndBrokerId(string $tag, int $inputOutputId, int $brokerId): ?BrokerInputOutput
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -172,29 +173,31 @@ class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements Read
                     cfg.parent_grp_id,
                     cfg.fieldIndex
                 FROM `:db`.`cfg_centreonbroker_info` cfg
-                WHERE cfg.config_group = 'output'
+                WHERE cfg.config_group = :tag
                     AND cfg.config_id = :brokerId
-                    AND cfg.config_group_id = :outputId
+                    AND cfg.config_group_id = :inputOutputId
                 SQL
         ));
+        $statement->bindValue(':tag', $tag, \PDO::PARAM_STR);
         $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
-        $statement->bindValue(':outputId', $outputId, \PDO::PARAM_INT);
+        $statement->bindValue(':inputOutputId', $inputOutputId, \PDO::PARAM_INT);
         $statement->execute();
 
         if (! ($result = $statement->fetchAll(\PDO::FETCH_ASSOC))) {
             return null;
         }
 
-        /** @var _Output[] $result */
-        return $this->createFromArray($result);
+        /** @var _InputOutput[] $result */
+        return $this->createFromArray($result, $tag);
     }
 
     /**
-     * @param _Output[] $result
+     * @param _InputOutput[] $result
+     * @param string $tag
      *
-     * @return BrokerOutput|null
+     * @return BrokerInputOutput|null
      */
-    private function createFromArray(array $result): ?BrokerOutput
+    private function createFromArray(array $result, string $tag): ?BrokerInputOutput
     {
         $parameters = [];
         $groupedFields = [];
@@ -261,8 +264,9 @@ class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements Read
             return null;
         }
 
-        return new BrokerOutput(
+        return new BrokerInputOutput(
             $id,
+            $tag,
             new Type($typeId, $typeName),
             $outputName,
             $parameters
@@ -276,7 +280,7 @@ class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements Read
      */
     private function removePasswordValue(array $groupedField): array
     {
-if (isset($groupedField['value'], $groupedField['type']) && $groupedField['type'] === 'password') {
+        if (isset($groupedField['value'], $groupedField['type']) && $groupedField['type'] === 'password') {
             $groupedField['value'] = null;
         }
 

@@ -21,13 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Broker\Application\UseCase\AddBrokerOutput;
+namespace Core\Broker\Application\UseCase\AddBrokerInputOutput;
 
-final class TypeDto
+final class AddBrokerInputOutputRequest
 {
-    public function __construct(
-        public int $id = 0,
-        public string $name = ''
-    ) {
-    }
+    public int $brokerId = 0;
+
+    public string $tag = 'output';
+
+    public string $name = '';
+
+    public int $type = 0;
+
+    /** @var array<string,mixed> */
+    public array $parameters = [];
 }

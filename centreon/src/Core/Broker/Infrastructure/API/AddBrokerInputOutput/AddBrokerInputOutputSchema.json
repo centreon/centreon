@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "Add an output to a broker configuration",
+    "title": "Add an input or output to a broker configuration",
     "type": "object",
     "additionalProperties": false,
     "required": [
