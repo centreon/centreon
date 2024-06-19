@@ -234,7 +234,6 @@ const LineChart = ({
                   base={baseAxis}
                   displayedLines={displayedLines}
                   graphHeight={graphHeight}
-                  graphInterval={graphInterval}
                   graphWidth={graphWidth}
                   gridLinesType={axis?.gridLinesType}
                   leftScale={leftScale}
