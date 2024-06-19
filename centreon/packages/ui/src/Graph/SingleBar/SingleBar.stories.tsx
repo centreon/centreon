@@ -17,6 +17,12 @@ const Template = (props): JSX.Element => (
   </div>
 );
 
+const SmallTemplate = (props): JSX.Element => (
+  <div style={{ height: '130px', width: '130px' }}>
+    <SingleBar {...props} />
+  </div>
+);
+
 export const success: Story = {
   args: {
     data: dataLastWeek,
@@ -201,4 +207,26 @@ export const Small: Story = {
     }
   },
   render: Template
+};
+
+export const smallDisplay: Story = {
+  args: {
+    data: dataLastWeek,
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.6
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
+  },
+  render: SmallTemplate
 };
