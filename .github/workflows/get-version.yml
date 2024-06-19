@@ -219,10 +219,15 @@ jobs:
               "database": "mariadb:10.11",
               "test_tags": "not @ignore and @system"
             };
+            const bookworm_mysql = {
+              "operating_system": "bookworm",
+              "database": "mysql:8.3",
+              "test_tags": "not @ignore"
+            };
             const bullseye_mysql = {
               "operating_system": "bullseye",
               "database": "mysql:8.3",
-              "test_tags": "not @ignore"
+              "test_tags": "not @ignore and @system"
             };
 
             let matrix = {
@@ -231,12 +236,10 @@ jobs:
               "databases": [alma9_mariadb],
             };
 
-            console.log(context.eventName);
-
             if (context.eventName === 'pull_request') {
               matrix = {
                 "main": [alma9_mariadb],
-                "operating_systems": [alma9_mariadb, alma8_mariadb, bullseye_mysql],
+                "operating_systems": [alma9_mariadb, alma8_mariadb, bullseye_mysql, bullseye_mysql],
                 "databases": [alma9_mariadb, bullseye_mysql],
               };
             }
