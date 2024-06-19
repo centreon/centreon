@@ -70,6 +70,10 @@ class GenerateConfiguration
                 throw new AccessDeniedException();
             }
 
+            if (! $this->contact->hasRole(Contact::ROLE_GENERATE_CONFIGURATION)) {
+                throw new AccessDeniedException();
+            }
+
             if (! $this->contact->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
 
@@ -91,6 +95,8 @@ class GenerateConfiguration
             $this->configurationRepository->generateConfiguration($monitoringServerId);
             $this->info('Move configuration files for monitoring server #' . $monitoringServerId);
             $this->configurationRepository->moveExportFiles($monitoringServerId);
+        } catch (AccessDeniedException $ex) {
+            throw new AccessDeniedException('You are not allowed to access this resource');
         } catch (EntityNotFoundException | TimeoutException $ex) {
             if ($ex instanceof TimeoutException) {
                 throw ConfigurationMonitoringServerException::timeout($monitoringServerId, $ex->getMessage());
