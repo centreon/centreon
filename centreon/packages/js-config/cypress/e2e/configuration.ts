@@ -76,6 +76,19 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
+        // Configure pre-processors and plugins
+        await esbuildPreprocessor(on, config);
+        tasks(on);
+
+        // Register event handler for after:spec
+        on('after:spec', async (spec, results) => {
+          await handleTestResults(results);
+        });
+
+        // Install logs printer or any other necessary setup
+        installLogsPrinter(on);
+
+        // Return the configured plugins
         return plugins(on, config);
       },
       specPattern,
