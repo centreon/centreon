@@ -239,8 +239,8 @@ jobs:
             if (context.eventName === 'pull_request') {
               matrix = {
                 "main": [alma9_mariadb],
-                "operating_systems": [alma9_mariadb, alma8_mariadb, bullseye_mysql, bullseye_mysql],
-                "databases": [alma9_mariadb, bullseye_mysql],
+                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql, bullseye_mysql],
+                "databases": [alma9_mariadb, bookworm_mysql],
               };
             }
 
