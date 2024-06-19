@@ -94,7 +94,7 @@ const LineChart = ({
     pluck('value', thresholds?.critical || [])
   ]);
 
-  const { displayedLines } = useFilterLines({
+  const { displayedLines, newLines } = useFilterLines({
     displayThreshold: canDisplayThreshold(shapeLines?.areaThresholdLines),
     lines,
     linesGraph
@@ -207,7 +207,7 @@ const LineChart = ({
             }}
             legendRef={legendRef}
             limitLegend={limitLegend}
-            lines={displayedLines}
+            lines={newLines}
             setLines={setLinesGraph}
           >
             <MuiTooltip
