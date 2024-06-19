@@ -2,7 +2,7 @@ import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
 
-import { useLocaleDateTimeFormat } from '@centreon/ui';
+import { GraphInterval, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import { getXAxisTickFormat } from '../../LineChart/helpers';
 import { getUnits } from '../timeSeries';
@@ -13,6 +13,7 @@ import useAxisY from './useAxisY';
 
 interface Props {
   data: Data;
+  graphInterval: GraphInterval;
   height: number;
   leftScale: ScaleLinear<number, number>;
   rightScale: ScaleLinear<number, number>;
@@ -26,7 +27,8 @@ const Axes = ({
   data,
   rightScale,
   leftScale,
-  xScale
+  xScale,
+  graphInterval
 }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const { lines, showBorder, yAxisTickLabelRotation } = data;
@@ -38,11 +40,7 @@ const Axes = ({
   const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
   const tickFormat =
-    data?.axisX?.xAxisTickFormat ??
-    getXAxisTickFormat({
-      start: xScale.domain()[0],
-      start: xScale.domain()[-1]
-    });
+    data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat(graphInterval);
 
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });
