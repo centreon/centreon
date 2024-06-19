@@ -21,18 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Broker\Infrastructure\API\AddBrokerOutput;
+namespace Tests\Core\Broker\Infrastructure\API\AddBrokerInputOutput;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutputPresenterInterface;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutputResponse;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\AddBrokerInputOutputPresenterInterface;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\AddBrokerInputOutputResponse;
 
-class AddBrokerOutputPresenterStub extends AbstractPresenter implements AddBrokerOutputPresenterInterface
+class AddBrokerInputOutputPresenterStub extends AbstractPresenter implements AddBrokerInputOutputPresenterInterface
 {
-    public ResponseStatusInterface|AddBrokerOutputResponse $response;
+    public ResponseStatusInterface|AddBrokerInputOutputResponse $response;
 
-    public function presentResponse(ResponseStatusInterface|AddBrokerOutputResponse $response): void
+    public function presentResponse(ResponseStatusInterface|AddBrokerInputOutputResponse $response): void
     {
         $this->response = $response;
     }

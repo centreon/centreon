@@ -27,20 +27,20 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Broker\Application\Exception\BrokerException;
-use Core\Broker\Application\Repository\ReadBrokerOutputRepositoryInterface;
-use Core\Broker\Application\Repository\WriteBrokerOutputRepositoryInterface;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutput;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutputRequest;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutputResponse;
-use Core\Broker\Application\UseCase\AddBrokerOutput\BrokerOutputValidator;
-use Core\Broker\Domain\Model\BrokerOutput;
-use Core\Broker\Domain\Model\BrokerOutputField;
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\AddBrokerInputOutput;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\AddBrokerInputOutputRequest;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\AddBrokerInputOutputResponse;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\BrokerInputOutputValidator;
+use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\Type;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Tests\Core\Broker\Infrastructure\API\AddBrokerOutput\AddBrokerOutputPresenterStub;
+use Tests\Core\Broker\Infrastructure\API\AddBrokerInputOutput\AddBrokerInputOutputPresenterStub;
 
 beforeEach(function (): void {
-    $this->request = new AddBrokerOutputRequest();
+    $this->request = new AddBrokerInputOutputRequest();
     $this->request->brokerId = 1;
     $this->request->name = 'my-output-test';
     $this->request->type = 33;
@@ -49,22 +49,28 @@ beforeEach(function (): void {
     ];
 
     $this->type = new Type(33, 'lua');
-    $this->output = new BrokerOutput(1, $this->type, $this->request->name, $this->request->parameters);
+    $this->output = new BrokerInputOutput(
+        id: 1,
+        tag: 'output',
+        type: $this->type,
+        name: $this->request->name,
+        parameters: $this->request->parameters
+    );
     $this->outputFields = [
-        $this->field = new BrokerOutputField(
+        $this->field = new BrokerInputOutputField(
             1, 'path', 'text', null, null, true, false, null, []
         ),
     ];
 
-    $this->presenter = new AddBrokerOutputPresenterStub(
+    $this->presenter = new AddBrokerInputOutputPresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
     );
 
-    $this->useCase = new AddBrokerOutput(
-        $this->writeOutputRepository = $this->createMock(WriteBrokerOutputRepositoryInterface::class),
-        $this->readOutputRepository = $this->createMock(ReadBrokerOutputRepositoryInterface::class),
+    $this->useCase = new AddBrokerInputOutput(
+        $this->writeOutputRepository = $this->createMock(WriteBrokerInputOutputRepositoryInterface::class),
+        $this->readOutputRepository = $this->createMock(ReadBrokerInputOutputRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
-        $this->validator = $this->createMock(BrokerOutputValidator::class),
+        $this->validator = $this->createMock(BrokerInputOutputValidator::class),
     );
 });
 
@@ -121,7 +127,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
-        ->toBe(BrokerException::addBrokerOutput()->getMessage());
+        ->toBe(BrokerException::addBrokerInputOutput()->getMessage());
 });
 
 it('should present an ErrorResponse if the newly created output cannot be retrieved', function (): void {
@@ -162,7 +168,7 @@ it('should present an ErrorResponse if the newly created output cannot be retrie
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
-        ->toBe(BrokerException::outputNotFound($this->request->brokerId, $this->output->getId())->getMessage());
+        ->toBe(BrokerException::inputOutputNotFound($this->request->brokerId, $this->output->getId())->getMessage());
 });
 
 it('should return created object on success', function (): void {
@@ -201,7 +207,7 @@ it('should return created object on success', function (): void {
     ($this->useCase)($this->request, $this->presenter);
 
     $response = $this->presenter->response;
-    expect($this->presenter->response)->toBeInstanceOf(AddBrokerOutputResponse::class)
+    expect($this->presenter->response)->toBeInstanceOf(AddBrokerInputOutputResponse::class)
         ->and($response->name)
         ->toBe($this->output->getName())
         ->and($response->type->name)
