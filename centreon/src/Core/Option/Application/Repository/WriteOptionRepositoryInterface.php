@@ -21,13 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
+namespace Core\Option\Application\Repository;
 
-enum CredentialTypeEnum
+use Core\Option\Domain\Option;
+
+interface WriteOptionRepositoryInterface
 {
-    case TYPE_HOST;
-    case TYPE_HOST_TEMPLATE;
-    case TYPE_SERVICE;
-    case TYPE_KNOWLEDGE_BASE_PASSWORD;
-    case TYPE_POLLER_MACRO;
+    /**
+     * Update option.
+     *
+     * @param Option $option
+     *
+     * @throws \Throwable
+     */
+    public function update(Option $option): void;
 }

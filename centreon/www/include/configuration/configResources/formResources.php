@@ -45,7 +45,7 @@ if (!$centreon->user->admin &&
     return null;
 }
 
-const PASSWORD_REPLACEMENT_VALUE = '**********';
+const PASSWORD_REPLACEMENT_VALUE_FORM = '**********';
 $initialValues = array();
 
 /*
@@ -64,7 +64,7 @@ if (($o == MACRO_MODIFY || $o == MACRO_WATCH) && is_int($resourceId)) {
     $rs = array_map("myDecode", $DBRESULT->fetchRow());
     if (! empty($rs['resource_line']) && $rs['is_password']) {
         $rs['original_value'] = $rs['resource_line'];
-        $rs['resource_line'] = PASSWORD_REPLACEMENT_VALUE;
+        $rs['resource_line'] = PASSWORD_REPLACEMENT_VALUE_FORM;
     }
     $DBRESULT->closeCursor();
 }
@@ -92,18 +92,20 @@ if ($o == MACRO_ADD) {
     $form->addElement('header', 'title', _("View Resource"));
 }
 
+$isPassword = isset($rs['is_password']) && $rs['is_password'];
+
 /**
  * Resources CFG basic information
  */
 $form->addElement('header', 'information', _("General Information"));
 $form->addElement('text', 'resource_name', _("Resource Name"), $attrsText);
-$form->addElement($rs['is_password'] ? 'password' : 'text', 'resource_line', _("MACRO Expression"), $attrsText);
+$form->addElement($isPassword ? 'password' : 'text', 'resource_line', _("MACRO Expression"), $attrsText);
 $form->addElement(
     'checkbox',
     'is_password',
     _('Password'),
     null,
-    $rs['is_password'] ? ['disabled' => 'disabled'] : ['onClick' => 'javascript:change_macro_input_type(this)']
+    $isPassword ? ['disabled' => 'disabled'] : ['onClick' => 'javascript:change_macro_input_type(this)']
 );
 
 $attrPoller = array(
@@ -199,7 +201,7 @@ if ($form->validate()) {
     } elseif ($form->getSubmitValue("submitC")) {
         if ($rs['is_password']) {
             $_REQUEST['is_password'] = $rs['is_password'];
-            if ($_REQUEST['resource_line'] === PASSWORD_REPLACEMENT_VALUE) {
+            if ($_REQUEST['resource_line'] === PASSWORD_REPLACEMENT_VALUE_FORM) {
                 $_REQUEST['resource_line'] = $rs['original_value'];
             }
         }
