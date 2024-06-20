@@ -52,8 +52,6 @@ const updateHasRetriesFile = async (testRetries: {
 
 // Attendre la génération de report.json puis capturer les retries
 const waitForReportAndCaptureRetries = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 10000)); // Attendre 1 seconde
-
   const reportPath = path.join(
     __dirname,
     '../../../../tests/e2e/results/cucumber-logs',
@@ -85,7 +83,6 @@ interface ConfigurationOptions {
   specPattern: string;
 }
 
-// Configuration principale de Cypress
 export default ({
   specPattern,
   cypressFolder,
@@ -119,10 +116,10 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        on('after:run', (results) => {
-
+        // Appel de la fonction d'attente et de capture des retries dans on('after:run')
+        on('after:run', async (results) => {
           console.log('After run results:', results);
-          waitForReportAndCaptureRetries();
+          await waitForReportAndCaptureRetries();
         });
 
         return plugins(on, config);
