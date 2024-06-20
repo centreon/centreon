@@ -293,11 +293,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.editDashboard(dashboards.default.name);
   cy.wait('@performanceData');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
@@ -428,11 +424,7 @@ Then(
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
   cy.wait('@performanceData');
 });
 
@@ -473,11 +465,7 @@ Then('the thresholds are automatically hidden', () => {
 Given('a dashboard with a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
   cy.wait('@performanceData');
   cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
 });
@@ -505,21 +493,8 @@ Given('a dashboard having Metrics Graph widget with multiple hosts', () => {
     dashboards.default,
     metricsGraphWithMultipleHosts
   );
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
   cy.wait('@performanceData');
 });
 
