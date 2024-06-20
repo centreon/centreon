@@ -6,6 +6,8 @@
 /* eslint-disable import/no-unresolved */
 
 import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 import { defineConfig } from 'cypress';
 import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';

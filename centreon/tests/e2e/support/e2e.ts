@@ -31,11 +31,7 @@ Cypress.on('uncaught:exception', (err) => {
 });
 
 Cypress.on('test:after:run', (test, runnable) => {
-  const resultFilePath = path.join(
-    __dirname,
-    '../results/hasRetries.json',
-    'hasRetries.json'
-  );
+  const resultFilePath = path.join(__dirname, '../results', 'hasRetries.json');
 
   // Initialize an empty object or load existing data
   let testRetries = {};
