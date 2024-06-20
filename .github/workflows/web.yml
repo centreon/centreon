@@ -904,6 +904,9 @@ jobs:
             --role-session-name InvalidDocCache \
             --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
             --output text))
+          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
+          echo "AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN" >> $GITHUB_ENV
         shell: bash
 
       - name: Copy to AWS S3
