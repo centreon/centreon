@@ -180,6 +180,7 @@ jobs:
 
       - name: Display test retries
         run: |
+        if: always()
             echo "Displaying test retries..."
             cat "${{ inputs.module_name }}/tests/e2e/results/hasRetries.json" || echo "No retries found."
 
