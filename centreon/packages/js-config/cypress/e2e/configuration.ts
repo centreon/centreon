@@ -103,8 +103,6 @@ export default ({
     .toString('utf8')
     .replace(/[\n\r\s]+$/, '');
 
-  const afterRunCallbackRegistered = false;
-
   return defineConfig({
     chromeWebSecurity: false,
     defaultCommandTimeout: 20000,
@@ -121,9 +119,9 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        on('after:run', async (results) => {
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-          await waitForReportAndCaptureRetries();
+        on('after:run', (results) => {
+          console.log('After run results:', results);
+          waitForReportAndCaptureRetries();
         });
 
         return plugins(on, config);
