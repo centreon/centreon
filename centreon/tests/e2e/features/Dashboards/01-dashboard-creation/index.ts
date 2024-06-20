@@ -64,7 +64,7 @@ Then(
 
     cy.getByTestId({ testId: 'submit' }).should('be.disabled');
 
-    cy.getByTestId({ testId: 'cancel' }).should('be.disabled');
+    cy.getByTestId({ testId: 'cancel' }).should('be.enabled');
   }
 );
 
@@ -170,7 +170,7 @@ When('the user leaves the creation form without saving the dashboard', () => {
 });
 
 Then('the dashboard has not been created', () => {
-  cy.get('@createDashboard').should('not.be.null');
+  cy.get('@createDashboard').should('not.null');
 });
 
 Then('the user is on the dashboards overview page', () => {

@@ -50,7 +50,6 @@ export default ({
       },
       setupNodeEvents: async (on, config) => {
         installLogsPrinter(on);
-
         await esbuildPreprocessor(on, config);
         tasks(on);
 
@@ -69,6 +68,7 @@ export default ({
     },
     execTimeout: 60000,
     requestTimeout: 20000,
+    retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
     videoCompression: 0,
