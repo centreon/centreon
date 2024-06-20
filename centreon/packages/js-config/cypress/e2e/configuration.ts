@@ -120,6 +120,7 @@ export default ({
         tasks(on);
 
         on('after:run', async (results) => {
+          await new Promise((resolve) => setTimeout(resolve, 5000));
           await waitForReportAndCaptureRetries();
         });
 
