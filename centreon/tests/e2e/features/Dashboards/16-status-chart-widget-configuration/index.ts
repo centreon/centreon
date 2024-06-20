@@ -324,11 +324,7 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 Given('a dashboard that includes a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).click({ force: true });
+  cy.editWidget(1);
 });
 
 When(
@@ -425,11 +421,7 @@ Given(
   () => {
     cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.getByLabel({
-      label: 'Edit widget',
-      tag: 'li'
-    }).click({ force: true });
+    cy.editWidget(1);
   }
 );
 

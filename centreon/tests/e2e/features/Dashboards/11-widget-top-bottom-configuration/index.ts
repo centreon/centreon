@@ -163,8 +163,7 @@ Then("the Top Bottom metric widget is added in the dashboard's layout", () => {
 Given('a dashboard configured with a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
+  cy.editWidget(1);
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
 });
 
@@ -266,8 +265,7 @@ Then('only the contents of the other widget are displayed', () => {
 Given('a dashboard with a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
+  cy.editWidget(1);
 });
 
 When(
@@ -292,8 +290,7 @@ Then(
 Given('a dashboard containing a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
+  cy.editWidget(1);
 });
 
 When(
@@ -325,8 +322,7 @@ Then(
 Given('a dashboard featuring a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
+  cy.editWidget(1);
 });
 
 When(

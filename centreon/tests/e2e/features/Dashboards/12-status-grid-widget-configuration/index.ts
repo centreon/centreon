@@ -192,11 +192,7 @@ Given('a dashboard that includes a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
@@ -220,11 +216,7 @@ Given('a dashboard configuring Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
@@ -347,11 +339,7 @@ Given('a dashboard with a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(

@@ -182,11 +182,7 @@ When(
   'the dashboard administrator user updates the value format of the Single Metric widget to "raw value"',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.getByLabel({
-      label: 'Edit widget',
-      tag: 'li'
-    }).realClick();
+    cy.editWidget(1);
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
     cy.contains('Raw value').find('input').click();
   }
@@ -213,8 +209,7 @@ When(
   'the dashboard administrator user updates the custom warning threshold to a value below the current value',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.get('li[aria-label="Edit widget"]').click();
+    cy.editWidget(1);
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
     cy.contains('Custom').find('input').eq(0).click();
     cy.getByLabel({
@@ -259,8 +254,7 @@ When(
   'the dashboard administrator user changes the display type of the widget to a gauge',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.get('li[aria-label="Edit widget"]').realClick();
+    cy.editWidget(1);
     cy.getByTestId({ testId: 'SpeedIcon' }).click();
   }
 );

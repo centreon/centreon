@@ -464,7 +464,19 @@ jobs:
 
       - name: Display container logs
         if: failure()
-        run: docker compose -f ../../../.github/docker/docker-compose.yml logs
+        run: |
+          echo "::group::docker compose logs"
+          docker compose -f ../../../.github/docker/docker-compose.yml logs
+          echo "::endgroup::"
+
+          echo "::group::centreon-web.log"
+          docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/centreon-web.log 2>/dev/null || echo 'centreon-web.log does not exist'"
+          echo "::endgroup::"
+
+          echo "::group::sql-error.log"
+          docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/sql-error.log 2>/dev/null || echo 'sql-error.log does not exist'"
+          echo "::endgroup::"
+        shell: bash
 
       - name: Replace / with - in the feature path
         id: feature-path
@@ -479,7 +491,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: postman-html-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: newman-${{ inputs.os }}-html-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/newman/
 
       - name: Upload test reports
@@ -755,12 +767,12 @@ jobs:
         uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         if: ${{ contains(needs.newman-test-run.result, 'failure') }}
         with:
-          name: postman-html-reports
-          pattern: postman-html-reports-*
+          name: newman-${{ inputs.os }}-html-reports
+          pattern: newman-${{ inputs.os }}-html-reports-*
           retention-days: 1
 
       - name: Delete merged artifacts
         uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
         with:
-          name: postman-html-reports-*
+          name: newman-${{ inputs.os }}-html-reports-*
           failOnError: false

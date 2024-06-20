@@ -275,11 +275,7 @@ Then("the Group monitoring widget is added in the dashboard's layout", () => {
 Given('a dashboard that includes a configured Group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).click({ force: true });
+  cy.editWidget(1);
 });
 
 When(
@@ -376,11 +372,7 @@ Then('the second widget has the same properties as the first widget', () => {
 Given('a dashboard configuring group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
