@@ -170,7 +170,7 @@ When('the user leaves the creation form without saving the dashboard', () => {
 });
 
 Then('the dashboard has not been created', () => {
-  cy.get('@createDashboard').should('not.null');
+  cy.get('@createDashboard').should('be.null');
 });
 
 Then('the user is on the dashboards overview page', () => {
