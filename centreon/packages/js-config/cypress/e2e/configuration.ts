@@ -1,6 +1,6 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
@@ -17,6 +17,7 @@ import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
 import tasks from './tasks';
 
+// Fonction pour capturer les retries
 const captureRetries = (results: any) => {
   const testRetries: { [key: string]: boolean } = {};
   if ('runs' in results) {
@@ -33,6 +34,7 @@ const captureRetries = (results: any) => {
   return testRetries;
 };
 
+// Fonction pour mettre à jour hasRetries.json avec les retries capturés
 const updateHasRetriesFile = async (testRetries: {
   [key: string]: boolean;
 }) => {
@@ -48,15 +50,17 @@ const updateHasRetriesFile = async (testRetries: {
   console.log('hasRetries.json updated with retries information.');
 };
 
+// Attendre la génération de report.json puis capturer les retries
 const waitForReportAndCaptureRetries = async () => {
   const reportPath = path.join(
     __dirname,
-    'results/cucumber-logs',
+    '../../../../tests/e2e/results/cucumber-logs',
     'report.json'
   );
+  // Attendre que report.json soit généré
   while (!fs.existsSync(reportPath)) {
     console.log('Waiting for report.json to be generated...');
-    await new Promise((resolve) => setTimeout(resolve, 5000)); // Attendre 1 seconde
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Attendre 1 seconde
   }
 
   // Une fois que report.json est généré, lire son contenu
@@ -70,7 +74,6 @@ const waitForReportAndCaptureRetries = async () => {
   // Mettre à jour hasRetries.json avec les retries capturés
   await updateHasRetriesFile(testRetries);
 };
-
 interface ConfigurationOptions {
   cypressFolder?: string;
   env?: Record<string, unknown>;
@@ -78,7 +81,6 @@ interface ConfigurationOptions {
   isDevelopment?: boolean;
   specPattern: string;
 }
-
 export default ({
   specPattern,
   cypressFolder,
