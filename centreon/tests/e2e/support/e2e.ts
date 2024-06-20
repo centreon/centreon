@@ -31,7 +31,13 @@ Cypress.on('uncaught:exception', (err) => {
 });
 
 Cypress.on('test:after:run', (test, runnable) => {
-  const resultFilePath = path.join(__dirname, '../results', 'hasRetries.json');
+  const resultFilePath = path.join(
+    __dirname,
+    `../../../../${Cypress.env('module_name')}/tests/e2e/results`,
+    'hasRetries.json'
+  );
+
+  console.log('Result file path:', resultFilePath); // Log the path for debugging
 
   // Initialize an empty object or load existing data
   let testRetries = {};
