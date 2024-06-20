@@ -120,6 +120,7 @@ export default ({
         tasks(on);
 
         on('after:run', (results) => {
+
           console.log('After run results:', results);
           waitForReportAndCaptureRetries();
         });
