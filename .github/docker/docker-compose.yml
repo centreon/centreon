@@ -1,4 +1,3 @@
-version: "3"
 services:
   web:
     env_file:
@@ -12,7 +11,7 @@ services:
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s
-      retries: 60
+      retries: 120
       timeout: 5s
 
   db:
@@ -23,8 +22,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 300M
+          cpus: '2'
+          memory: 400M
         reservations:
           cpus: '0.25'
           memory: 100M

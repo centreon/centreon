@@ -136,42 +136,70 @@ const notificationSentCheck = ({
 }): Cypress.Chainable => {
   cy.log(`checking logs`);
 
-  return cy
-    .waitUntil(
-      () => {
-        return cy
-          .execInContainer({
-            command: `tail -n 4 ${cloudNotificationLogFile} 2> /dev/null`,
+  const command =
+    typeof logs === 'string' || logs instanceof String
+      ? `grep "${logs}" ${cloudNotificationLogFile}`
+      : logs
+          .map((log) => `grep "${log}" ${cloudNotificationLogFile}`)
+          .join(' && ');
+
+  return cy.waitUntil(
+    () => {
+      return cy
+        .task<ExecInContainerResult>(
+          'execInContainer',
+          { command, name: 'web' },
+          { timeout: 30000 }
+        )
+        .then((result) => {
+          if (contain) {
+            return cy.wrap(result.exitCode === 0);
+          }
+
+          return cy.wrap(result.exitCode !== 0);
+        });
+    },
+    { interval: 1000, timeout: 120000 }
+  );
+};
+
+const notificationSentCount = (count: number): void => {
+  cy.log(`checking notification logs count`);
+
+  let errorMessage = 'Notification count not found';
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .task<ExecInContainerResult>(
+          'execInContainer',
+          {
+            command: `grep "Sending notification" ${cloudNotificationLogFile} 2> /dev/null | wc -l || echo 0`,
             name: 'web'
-          })
-          .then((result) => {
-            cy.log(result.output);
+          },
+          { timeout: 30000 }
+        )
+        .then((result) => {
+          const match = result.output.trim().match(/(\d+)$/);
 
-            return cy.wrap(result.output.includes('INFO: Response code: 304'));
-          });
-      },
-      { interval: 20000, timeout: 300000 }
-    )
-    .then(() => {
-      const command =
-        typeof logs === 'string' || logs instanceof String
-          ? `grep "${logs}" ${cloudNotificationLogFile}`
-          : logs
-              .map((log) => `grep "${log}" ${cloudNotificationLogFile}`)
-              .join(' && ');
+          if (match === null) {
+            cy.log(`Cannot get line count of ${cloudNotificationLogFile}`);
 
-      cy.task<ExecInContainerResult>(
-        'execInContainer',
-        { command, name: 'web' },
-        { timeout: 600000 }
-      ).then((result) => {
-        if (contain) {
-          expect(result.exitCode).to.eq(0);
-        } else {
-          expect(result.exitCode).not.to.eq(0);
-        }
-      });
-    });
+            return cy.wrap(false);
+          }
+
+          const currentLineCount = +match[1];
+
+          if (currentLineCount < count) {
+            errorMessage = `Notification count: ${currentLineCount} (expected: ${{ count }})`;
+            cy.log(errorMessage);
+          }
+
+          return cy.wrap(currentLineCount >= count);
+        });
+    },
+    { errorMsg: () => errorMessage, interval: 5000, timeout: 300000 }
+  );
 };
 
 const waitUntilLogFileChange = (): Cypress.Chainable => {
@@ -366,6 +394,7 @@ export {
   enableNotificationFeature,
   initializeDataFiles,
   notificationSentCheck,
+  notificationSentCount,
   setBrokerNotificationsOutput,
   waitUntilLogFileChange
 };

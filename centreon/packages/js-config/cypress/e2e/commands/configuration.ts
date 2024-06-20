@@ -141,12 +141,12 @@ Cypress.Commands.add(
 );
 
 interface Contact {
+  GUIAccess?: boolean;
   admin?: boolean;
   alias?: string | null;
   authenticationType?: 'local' | 'ldap';
   email: string;
   enableNotifications?: boolean;
-  GUIAccess?: boolean;
   language?: string;
   name: string;
   password: string;
@@ -203,7 +203,7 @@ Cypress.Commands.add(
 
 interface ContactGroup {
   alias?: string | null;
-  contacts: string[];
+  contacts: Array<string>;
   name: string;
 }
 
@@ -449,7 +449,7 @@ Cypress.Commands.add(
 
 interface ServiceGroup {
   alias?: string | null;
-  hostsAndServices: string[][];
+  hostsAndServices: Array<Array<string>>;
   name: string;
 }
 
@@ -500,8 +500,8 @@ Cypress.Commands.add(
 
 interface ACLGroup {
   alias?: string | null;
-  contacts?: string[];
-  contactGroups?: string[];
+  contactGroups?: Array<string>;
+  contacts?: Array<string>;
   name: string;
 }
 
@@ -525,7 +525,7 @@ Cypress.Commands.add(
       })
       .then(() => {
         if (contacts) {
-          contacts.map((contact) => {
+          contacts.forEach((contact) => {
             cy.executeActionViaClapi({
               bodyContent: {
                 action: 'ADDCONTACT',
@@ -536,7 +536,7 @@ Cypress.Commands.add(
           });
         }
         if (contactGroups) {
-          contactGroups.map((contactGroup) => {
+          contactGroups.forEach((contactGroup) => {
             cy.executeActionViaClapi({
               bodyContent: {
                 action: 'ADDCONTACTGROUP',
@@ -551,11 +551,11 @@ Cypress.Commands.add(
 );
 
 interface ACLMenu {
-  name: string;
-  rule?: string[];
   alias?: string | null;
   includeChildren?: boolean;
+  name: string;
   readOnly?: boolean;
+  rule?: Array<string>;
 }
 
 Cypress.Commands.add(
@@ -580,30 +580,31 @@ Cypress.Commands.add(
         }
       })
       .then(() => {
-        if (rule.length == 0) {
+        if (rule.length === 0) {
           return cy.wrap(null);
         }
 
         let ruleCommand = '';
-        rule.map((rulePage, index) => {
+        rule.forEach((rulePage, index) => {
           ruleCommand += rulePage + (index == rule.length - 1 ? '' : ';');
         });
         cy.executeActionViaClapi({
           bodyContent: {
-            action: action,
+            action,
             object: 'ACLMENU',
             values: `${name};${children};${ruleCommand}`
           }
         });
+
         return cy.wrap(null);
       });
   }
 );
 
 interface ACLAction {
-  name: string;
+  actions?: Array<Action>;
   description: string;
-  actions?: Action[];
+  name: string;
 }
 
 Cypress.Commands.add(
@@ -618,12 +619,12 @@ Cypress.Commands.add(
         }
       })
       .then(() => {
-        if (actions.length == 0) {
+        if (actions.length === 0) {
           return cy.wrap(null);
         }
 
         let actionCommand = '';
-        actions.map((action, index) => {
+        actions.forEach((action, index) => {
           actionCommand += action + (index == actions.length - 1 ? '' : '|');
         });
         cy.executeActionViaClapi({
@@ -633,20 +634,22 @@ Cypress.Commands.add(
             values: `${name};${actionCommand}`
           }
         });
+
         return cy.wrap(null);
       });
   }
 );
 
 interface ACLResource {
-  name: string;
   alias?: string | null;
+  name: string;
 }
 
 Cypress.Commands.add(
   'addACLResource',
   ({ name, alias = null }: ACLResource): Cypress.Chainable => {
     const ACLResourcesAlias = alias === null ? name : alias;
+
     return cy.executeActionViaClapi({
       bodyContent: {
         action: 'ADD',
