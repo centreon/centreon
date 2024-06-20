@@ -12,12 +12,14 @@ const SingleBar = ({
   rightScale,
   size,
   isCenteredZero,
-  isHorizontal
+  isHorizontal,
+  isTooltipHidden
 }: UseSingleBarProps): JSX.Element => {
-  const { barLength, barPadding, hoverBar, exitBar } = useSingleBar({
+  const { barLength, barPadding, listeners } = useSingleBar({
     bar,
     isCenteredZero,
     isHorizontal,
+    isTooltipHidden,
     leftScale,
     lines,
     rightScale,
@@ -33,8 +35,7 @@ const SingleBar = ({
       width={isHorizontal ? bar.width : barLength}
       x={isHorizontal ? bar.x : barPadding}
       y={isHorizontal ? barPadding : bar.y}
-      onMouseEnter={hoverBar}
-      onMouseLeave={exitBar}
+      {...listeners}
     />
   );
 };
@@ -45,7 +46,8 @@ const propsToMemoize = [
   'secondUnit',
   'size',
   'isCenteredZero',
-  'isHorizontal'
+  'isHorizontal',
+  'isTooltipHidden'
 ];
 
 export default memo(SingleBar, (prevProps, nextProps) =>

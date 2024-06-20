@@ -5,5 +5,6 @@ export interface TooltipData {
     metric: Line;
     value: number | null;
   }>;
+  highlightedMetric: number;
   index: number;
 }

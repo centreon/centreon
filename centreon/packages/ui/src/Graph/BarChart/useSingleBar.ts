@@ -73,6 +73,7 @@ export interface UseSingleBarProps {
   };
   isCenteredZero?: boolean;
   isHorizontal: boolean;
+  isTooltipHidden: boolean;
   leftScale;
   lines: Array<Line>;
   rightScale;
@@ -83,8 +84,10 @@ export interface UseSingleBarProps {
 interface UseSingleBarState {
   barLength: number;
   barPadding: number;
-  exitBar: () => void;
-  hoverBar: () => void;
+  listeners: {
+    onMouseEnter: () => void;
+    onMouseLeave: () => void;
+  };
 }
 
 export const useSingleBar = ({
@@ -95,14 +98,15 @@ export const useSingleBar = ({
   rightScale,
   size,
   isCenteredZero,
-  isHorizontal
+  isHorizontal,
+  isTooltipHidden
 }: UseSingleBarProps): UseSingleBarState => {
   const setTooltipData = useSetAtom(tooltipDataAtom);
 
   const metric = useDeepMemo({
     deps: [lines, bar.key],
     variable: lines.find(({ metric_id }) => equals(metric_id, Number(bar.key)))
-  });
+  }) as Line;
 
   const useRightScale = useMemo(
     () => equals(secondUnit, metric?.unit),
@@ -167,6 +171,7 @@ export const useSingleBar = ({
           value: bar.value
         }
       ],
+      highlightedMetric: metric?.metric_id,
       index: bar.index
     });
   };
@@ -175,10 +180,20 @@ export const useSingleBar = ({
     setTooltipData(null);
   };
 
+  const listeners = useMemo(
+    () =>
+      isTooltipHidden
+        ? {}
+        : {
+            onMouseEnter: hoverBar,
+            onMouseLeave: exitBar
+          },
+    [isTooltipHidden]
+  );
+
   return {
     barLength,
     barPadding,
-    exitBar,
-    hoverBar
+    listeners
   };
 };

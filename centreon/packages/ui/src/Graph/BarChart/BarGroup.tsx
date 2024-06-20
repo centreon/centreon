@@ -1,17 +1,7 @@
 import { memo, useMemo } from 'react';
 
 import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
-import {
-  difference,
-  equals,
-  gt,
-  isEmpty,
-  keys,
-  omit,
-  pick,
-  pluck,
-  reduce
-} from 'ramda';
+import { difference, equals, isEmpty, keys, omit, pick } from 'ramda';
 import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { Group } from '@visx/group';
 
@@ -19,7 +9,6 @@ import { useDeepMemo } from '../../utils';
 import { Line, TimeValue } from '../common/timeSeries/models';
 import {
   getSortedStackedLines,
-  getStackedYScale,
   getTime,
   getTimeSeriesForLines
 } from '../common/timeSeries';
@@ -29,6 +18,7 @@ import BarStack from './BarStack';
 
 interface Props {
   isCenteredZero?: boolean;
+  isTooltipHidden: boolean;
   leftScale;
   lines: Array<Line>;
   orientation: 'horizontal' | 'vertical';
@@ -48,7 +38,8 @@ const BarGroup = ({
   leftScale,
   rightScale,
   secondUnit,
-  isCenteredZero
+  isCenteredZero,
+  isTooltipHidden
 }: Props): JSX.Element => {
   const isHorizontal = equals(orientation, 'horizontal');
 
@@ -56,8 +47,6 @@ const BarGroup = ({
     () => (isHorizontal ? VisxBarGroup : BarGroupHorizontal),
     [isHorizontal]
   );
-
-  const stackedYScale = getStackedYScale({ leftScale, rightScale });
 
   const stackedLines = getSortedStackedLines(lines);
   const notStackedLines = difference(lines, stackedLines);
@@ -166,6 +155,7 @@ const BarGroup = ({
                   bar={bar}
                   isCenteredZero={isCenteredZero}
                   isHorizontal={isHorizontal}
+                  isTooltipHidden={isTooltipHidden}
                   key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
                   leftScale={leftScale}
                   lines={lines}
@@ -179,6 +169,7 @@ const BarGroup = ({
                     barPadding={isHorizontal ? bar.x : bar.y}
                     barWidth={isHorizontal ? bar.width : bar.height}
                     isHorizontal={isHorizontal}
+                    isTooltipHidden={isTooltipHidden}
                     lines={stackLinesRight}
                     timeSeries={stackedTimeSeriesRight}
                     yScale={rightScale}
@@ -190,6 +181,7 @@ const BarGroup = ({
                     barPadding={isHorizontal ? bar.x : bar.y}
                     barWidth={isHorizontal ? bar.width : bar.height}
                     isHorizontal={isHorizontal}
+                    isTooltipHidden={isTooltipHidden}
                     lines={stackLinesLeft}
                     timeSeries={stackedTimeSeriesLeft}
                     yScale={leftScale}

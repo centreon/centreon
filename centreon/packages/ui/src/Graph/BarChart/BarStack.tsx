@@ -1,16 +1,30 @@
-import { useMemo } from 'react';
+import { memo } from 'react';
 
-import { scaleBand, scaleOrdinal } from '@visx/scale';
-import { BarStack as BarStackVertical, BarStackHorizontal } from '@visx/shape';
-import { equals, gt, keys, omit } from 'ramda';
+import { scaleBand } from '@visx/scale';
+import { equals, gt, pick } from 'ramda';
 
-import { useDeepMemo } from '../../utils';
+import { useBarStack, UseBarStackProps } from './useBarStack';
 
 const xScale = scaleBand<number>({
   domain: [0, 0],
   padding: 0,
   range: [0, 0]
 });
+
+interface Props extends Omit<UseBarStackProps, 'xScale'> {
+  barIndex: number;
+  barPadding: number;
+  barWidth: number;
+  isTooltipHidden: boolean;
+}
+
+const getPadding = ({ padding, size, isNegativeValue }): number => {
+  if (!isNegativeValue) {
+    return padding;
+  }
+
+  return padding + size;
+};
 
 const BarStack = ({
   timeSeries,
@@ -19,67 +33,29 @@ const BarStack = ({
   lines,
   barWidth,
   barPadding,
-  barIndex
-}): JSX.Element => {
-  const BarStackComponent = isHorizontal
-    ? BarStackVertical
-    : BarStackHorizontal;
-
-  const lineKeys = useDeepMemo({
-    deps: [timeSeries],
-    variable: keys(omit(['timeTick'], timeSeries[0]))
-  });
-  const colors = useDeepMemo({
-    deps: [lineKeys, lines],
-    variable: lineKeys.map((key) => {
-      const metric = lines.find(({ metric_id }) =>
-        equals(metric_id, Number(key))
-      );
-
-      return metric?.lineColor || '';
-    })
-  });
-
-  const colorScale = useMemo(
-    () =>
-      scaleOrdinal<number, string>({
-        domain: lineKeys,
-        range: colors
-      }),
-    [...lineKeys, ...colors]
-  );
-
-  const commonProps = isHorizontal
-    ? {
-        x: (d) => d.timeTick,
-        xScale,
-        yScale
-      }
-    : {
-        xScale: yScale,
-        y: (d) => d.timeTick,
-        yScale: xScale
-      };
+  barIndex,
+  isTooltipHidden
+}: Props): JSX.Element => {
+  const {
+    BarStackComponent,
+    commonBarStackProps,
+    colorScale,
+    lineKeys,
+    exitBar,
+    hoverBar
+  } = useBarStack({ isHorizontal, lines, timeSeries, xScale, yScale });
 
   return (
     <BarStackComponent
       color={colorScale}
       data={[timeSeries[barIndex]]}
       keys={lineKeys}
-      {...commonProps}
+      {...commonBarStackProps}
     >
       {(barStacks) => {
         return barStacks.map((barStack) =>
           barStack.bars.map((bar) => {
             const isNegativeValue = gt(0, bar.bar[1]);
-
-            const getPadding = (padding, size) => {
-              if (!isNegativeValue) {
-                return padding;
-              }
-
-              return padding + size;
-            };
 
             return (
               <rect
@@ -87,8 +63,33 @@ const BarStack = ({
                 height={isHorizontal ? Math.abs(bar.height) : barWidth}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
                 width={isHorizontal ? barWidth : Math.abs(bar.width)}
-                x={isHorizontal ? barPadding : getPadding(bar.x, bar.width)}
-                y={isHorizontal ? getPadding(bar.y, bar.height) : barPadding}
+                x={
+                  isHorizontal
+                    ? barPadding
+                    : getPadding({
+                        isNegativeValue,
+                        padding: bar.x,
+                        size: bar.width
+                      })
+                }
+                y={
+                  isHorizontal
+                    ? getPadding({
+                        isNegativeValue,
+                        padding: bar.y,
+                        size: bar.height
+                      })
+                    : barPadding
+                }
+                onMouseEnter={
+                  isTooltipHidden
+                    ? undefined
+                    : hoverBar({
+                        barIndex,
+                        highlightedMetric: Number(bar.key)
+                      })
+                }
+                onMouseLeave={isTooltipHidden ? undefined : exitBar}
               />
             );
           })
@@ -98,4 +99,27 @@ const BarStack = ({
   );
 };
 
-export default BarStack;
+const propsToMemoize = [
+  'timeSeries',
+  'isHorizontal',
+  'barWidth',
+  'lines',
+  'barPadding',
+  'barIndex',
+  'isTooltipHidden'
+];
+
+export default memo(BarStack, (prevProps, nextProps) => {
+  const prevYScaleDomain = prevProps.yScale.domain();
+  const prevYScaleRange = prevProps.yScale.range();
+  const nextYScaleDomain = nextProps.yScale.domain();
+  const nextYScaleRange = nextProps.yScale.range();
+
+  return (
+    equals(
+      [...prevYScaleDomain, ...prevYScaleRange],
+      [...nextYScaleDomain, ...nextYScaleRange]
+    ) &&
+    equals(pick(propsToMemoize, prevProps), pick(propsToMemoize, nextProps))
+  );
+});

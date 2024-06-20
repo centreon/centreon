@@ -49,7 +49,8 @@ const ResponsiveBarChart = ({
   thresholds,
   header,
   limitLegend,
-  orientation
+  orientation,
+  tooltip
 }: Props): JSX.Element => {
   const { title, timeSeries, baseAxis, lines } = graphData;
 
@@ -161,6 +162,8 @@ const ResponsiveBarChart = ({
     );
   }
 
+  const isTooltipHidden = equals(tooltip?.mode, 'hidden');
+
   return (
     <BaseChart
       base={baseAxis}
@@ -183,7 +186,14 @@ const ResponsiveBarChart = ({
         classes={{
           tooltip: cx(classes.tooltip, classes.tooltipDisablePadding)
         }}
-        label={<BarChartTooltip base={baseAxis} timeSeries={timeSeries} />}
+        label={
+          <BarChartTooltip
+            base={baseAxis}
+            mode={tooltip?.mode}
+            sortOrder={tooltip?.sortOrder}
+            timeSeries={timeSeries}
+          />
+        }
         open={Boolean(tooltipData)}
         placement="top"
       >
@@ -205,6 +215,7 @@ const ResponsiveBarChart = ({
           >
             <BarGroup
               isCenteredZero={axis?.isCenteredZero}
+              isTooltipHidden={isTooltipHidden}
               leftScale={leftScale}
               lines={displayedLines}
               orientation={orientation}
