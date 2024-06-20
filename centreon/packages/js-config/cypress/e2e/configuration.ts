@@ -6,8 +6,6 @@
 /* eslint-disable import/no-unresolved */
 
 import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
 
 import { defineConfig } from 'cypress';
 import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
@@ -57,47 +55,6 @@ export default ({
         installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
         tasks(on);
-
-        on('after:run', async (results) => {
-          const testRetries: { [key: string]: boolean } = {};
-          if ('runs' in results) {
-            results.runs.forEach((run) => {
-              run.tests.forEach((test) => {
-                if (test.attempts && test.attempts.length > 1) {
-                  const testTitle = test.title.join(' > '); // Convert the array to a string
-                  testRetries[testTitle] = true;
-                }
-              });
-            });
-          }
-          console.log('After run results:', results);
-          console.log('Test retries:', testRetries);
-          // Save the testRetries object to a file in the e2e/results directory
-          const resultFilePath = path.join(
-            __dirname,
-            '../../../../tests/e2e/results',
-            'hasRetries.json'
-          );
-          fs.writeFileSync(
-            resultFilePath,
-            JSON.stringify(testRetries, null, 2)
-          );
-
-          const reportDir = path.join(
-            __dirname,
-            '../../../../tests/e2e/results',
-            'cucumber-logs'
-          );
-
-          const reportPath = path.join(reportDir, 'report.json');
-          if (!fs.existsSync(reportDir)) {
-            fs.mkdirSync(reportDir, { recursive: true });
-          }
-
-          if (!fs.existsSync(reportPath)) {
-            fs.writeFileSync(reportPath, '');
-          }
-        });
 
         return plugins(on, config);
       },

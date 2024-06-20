@@ -178,6 +178,11 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
+      - name: Display test retries
+        run: |
+            echo "Displaying test retries..."
+            cat tests/e2e/results/hasRetries.json || echo "No retries found."
+
       - name: Check for test retries
         id: check_retries
         if: always()
