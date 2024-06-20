@@ -1,7 +1,7 @@
 import { MutableRefObject, useMemo, useRef, useState } from 'react';
 
-import { equals, flatten, isNil, pluck } from 'ramda';
-import { useAtomValue } from 'jotai';
+import { equals, flatten, has, isNil, pluck } from 'ramda';
+import { useAtom } from 'jotai';
 
 import { Skeleton } from '@mui/material';
 
@@ -21,13 +21,16 @@ import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useTooltipStyles } from '../common/useTooltipStyles';
 import { margin } from '../LineChart/common';
 import { Tooltip } from '../../components';
+import Thresholds from '../common/Thresholds/Thresholds';
 
 import BarGroup from './BarGroup';
 import { tooltipDataAtom } from './atoms';
 import BarChartTooltip from './Tooltip/BarChartTooltip';
+import { BarStyle } from './models';
 
 interface Props
   extends Pick<LineChartProps, 'tooltip' | 'legend' | 'axis' | 'header'> {
+  barStyle: BarStyle;
   graphData: Data;
   graphRef: MutableRefObject<HTMLDivElement | null>;
   height: number;
@@ -50,7 +53,8 @@ const ResponsiveBarChart = ({
   header,
   limitLegend,
   orientation,
-  tooltip
+  tooltip,
+  barStyle
 }: Props): JSX.Element => {
   const { title, timeSeries, baseAxis, lines } = graphData;
 
@@ -59,7 +63,7 @@ const ResponsiveBarChart = ({
   const [linesGraph, setLinesGraph] = useState<Array<Line>>(lines);
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
-  const tooltipData = useAtomValue(tooltipDataAtom);
+  const [tooltipData, setTooltipData] = useAtom(tooltipDataAtom);
 
   const { isInViewport } = useIntersection({ element: graphRef?.current });
 
@@ -170,6 +174,7 @@ const ResponsiveBarChart = ({
       graphWidth={graphWidth}
       header={header}
       height={height}
+      isHorizontal={isHorizontal}
       legend={{
         displayLegend,
         mode: legend?.mode,
@@ -184,7 +189,10 @@ const ResponsiveBarChart = ({
     >
       <Tooltip
         classes={{
-          tooltip: cx(classes.tooltip, classes.tooltipDisablePadding)
+          tooltip: cx(
+            classes.tooltip,
+            has('data', tooltipData) && classes.tooltipDisablePadding
+          )
         }}
         label={
           <BarChartTooltip
@@ -214,6 +222,7 @@ const ResponsiveBarChart = ({
             xScale={xScale}
           >
             <BarGroup
+              barStyle={barStyle}
               isCenteredZero={axis?.isCenteredZero}
               isTooltipHidden={isTooltipHidden}
               leftScale={leftScale}
@@ -225,6 +234,23 @@ const ResponsiveBarChart = ({
               timeSeries={timeSeries}
               xScale={xScale}
             />
+            {thresholds?.enabled && (
+              <Thresholds
+                displayedLines={displayedLines}
+                hideTooltip={() => setTooltipData(null)}
+                isHorizontal={isHorizontal}
+                leftScale={leftScale}
+                rightScale={rightScale}
+                showTooltip={({ tooltipData: thresholdLabel }) =>
+                  setTooltipData({
+                    thresholdLabel
+                  })
+                }
+                thresholdUnit={thresholdUnit}
+                thresholds={thresholds as ThresholdsModel}
+                width={isHorizontal ? graphWidth : graphHeight - margin.top}
+              />
+            )}
           </ChartSvgWrapper>
         </div>
       </Tooltip>

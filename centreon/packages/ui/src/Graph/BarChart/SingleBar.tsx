@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { equals, pick } from 'ramda';
 
 import { useSingleBar, UseSingleBarProps } from './useSingleBar';
+import { BarStyle } from './models';
 
 const SingleBar = ({
   lines,
@@ -13,8 +14,11 @@ const SingleBar = ({
   size,
   isCenteredZero,
   isHorizontal,
-  isTooltipHidden
-}: UseSingleBarProps): JSX.Element => {
+  isTooltipHidden,
+  barStyle
+}: UseSingleBarProps & {
+  barStyle: BarStyle;
+}): JSX.Element => {
   const { barLength, barPadding, listeners } = useSingleBar({
     bar,
     isCenteredZero,
@@ -31,7 +35,8 @@ const SingleBar = ({
     <rect
       fill={bar.color}
       height={isHorizontal ? barLength : bar.height}
-      rx={(isHorizontal ? bar.width : bar.height) * 0.2}
+      opacity={barStyle.opacity}
+      rx={(isHorizontal ? bar.width : bar.height) * barStyle.radius}
       width={isHorizontal ? bar.width : barLength}
       x={isHorizontal ? bar.x : barPadding}
       y={isHorizontal ? barPadding : bar.y}
@@ -47,7 +52,8 @@ const propsToMemoize = [
   'size',
   'isCenteredZero',
   'isHorizontal',
-  'isTooltipHidden'
+  'isTooltipHidden',
+  'barStyle'
 ];
 
 export default memo(SingleBar, (prevProps, nextProps) =>

@@ -24,6 +24,7 @@ interface Props {
   graphWidth: number;
   header?: LineChartHeader;
   height: number | null;
+  isHorizontal?: boolean;
   legend: {
     displayLegend: boolean;
     mode?: 'grid' | 'list';
@@ -50,9 +51,10 @@ const BaseChart = ({
   children,
   legendRef,
   title,
-  header
+  header,
+  isHorizontal = true
 }: Props): JSX.Element => {
-  const { classes } = useBaseChartStyles();
+  const { classes, cx } = useBaseChartStyles();
 
   const legendItemsWidth = useMemo(
     () => reduce((acc) => acc + legendWidth * 8 + 24, 0, lines),
@@ -82,7 +84,14 @@ const BaseChart = ({
           {legend.displayLegend &&
             (equals(legend?.placement, 'left') ||
               equals(legend?.placement, 'right')) && (
-              <div ref={legendRef} style={{ maxWidth: '60%' }}>
+              <div
+                className={cx(
+                  classes.legendContainer,
+                  equals(legend?.placement, 'right') &&
+                    classes.legendContainerVerticalSide
+                )}
+                ref={legendRef}
+              >
                 <Legend
                   base={base}
                   height={height}

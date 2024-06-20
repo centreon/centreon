@@ -18,6 +18,7 @@ import useLineChartData from '../LineChart/useLineChartData';
 import LoadingSkeleton from '../LineChart/LoadingSkeleton';
 
 import ResponsiveBarChart from './ResponsiveBarChart';
+import { BarStyle } from './models';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -27,6 +28,7 @@ interface Props
   extends Partial<
     Pick<LineChartProps, 'tooltip' | 'legend' | 'height' | 'axis' | 'header'>
   > {
+  barStyle?: BarStyle;
   data?: LineChartData;
   end: string;
   limitLegend?: false | number;
@@ -50,7 +52,11 @@ const BarChart = ({
   thresholdUnit,
   thresholds,
   orientation = 'horizontal',
-  header
+  header,
+  barStyle = {
+    opacity: 1,
+    radius: 0.2
+  }
 }: Props): JSX.Element => {
   const { adjustedData } = useLineChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
@@ -73,6 +79,7 @@ const BarChart = ({
         {({ height: responsiveHeight, width }) => (
           <ResponsiveBarChart
             axis={axis}
+            barStyle={barStyle}
             graphData={adjustedData}
             graphRef={lineChartRef}
             header={header}

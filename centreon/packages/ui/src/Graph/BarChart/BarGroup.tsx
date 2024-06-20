@@ -15,8 +15,10 @@ import {
 
 import SingleBar from './SingleBar';
 import BarStack from './BarStack';
+import { BarStyle } from './models';
 
 interface Props {
+  barStyle: BarStyle;
   isCenteredZero?: boolean;
   isTooltipHidden: boolean;
   leftScale;
@@ -39,7 +41,8 @@ const BarGroup = ({
   rightScale,
   secondUnit,
   isCenteredZero,
-  isTooltipHidden
+  isTooltipHidden,
+  barStyle
 }: Props): JSX.Element => {
   const isHorizontal = equals(orientation, 'horizontal');
 
@@ -153,6 +156,7 @@ const BarGroup = ({
               <>
                 <SingleBar
                   bar={bar}
+                  barStyle={barStyle}
                   isCenteredZero={isCenteredZero}
                   isHorizontal={isHorizontal}
                   isTooltipHidden={isTooltipHidden}
@@ -202,7 +206,8 @@ const propsToMemoize = [
   'size',
   'lines',
   'secondUnit',
-  'isCenteredZero'
+  'isCenteredZero',
+  'barStyle'
 ];
 
 export default memo(BarGroup, (prevProps, nextProps) => {

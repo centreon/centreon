@@ -49,9 +49,9 @@ export const withCenteredZero: Story = {
 export const vertical: Story = {
   args: {
     ...defaultArgs,
+    height: 800,
     orientation: 'vertical'
   },
-  height: 800,
   render: Template
 };
 
@@ -61,9 +61,9 @@ export const verticalCenteredZero: Story = {
     axis: {
       isCenteredZero: true
     },
+    height: 800,
     orientation: 'vertical'
   },
-  height: 800,
   render: Template
 };
 
@@ -79,9 +79,9 @@ export const stackedVertical: Story = {
   args: {
     ...defaultArgs,
     data: dataPingServiceStacked,
+    height: 800,
     orientation: 'vertical'
   },
-  height: 800,
   render: Template
 };
 
@@ -105,6 +105,91 @@ export const stackedVerticalCenteredZero: Story = {
     data: dataPingServiceStacked,
     height: 800,
     orientation: 'vertical'
+  },
+  render: Template
+};
+
+export const thresholds: Story = {
+  args: {
+    ...defaultArgs,
+    thresholdUnit: 'ms',
+    thresholds: {
+      critical: [
+        {
+          label: 'critical 1',
+          value: 0.1
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'warning 1',
+          value: 0.05
+        }
+      ]
+    }
+  },
+  render: Template
+};
+
+export const thresholdsVertical: Story = {
+  args: {
+    ...defaultArgs,
+    axis: {
+      isCenteredZero: true
+    },
+    orientation: 'vertical',
+    thresholdUnit: 'ms',
+    thresholds: {
+      critical: [
+        {
+          label: 'critical 1',
+          value: 0.1
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'warning 1',
+          value: 0.05
+        }
+      ]
+    }
+  },
+  render: Template
+};
+
+export const thresholdStacked: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceStacked,
+    thresholdUnit: 'ms',
+    thresholds: {
+      critical: [
+        {
+          label: 'critical 1',
+          value: 0.1
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'warning 1',
+          value: 0.05
+        }
+      ]
+    }
+  },
+  render: Template
+};
+
+export const customBarStyle: Story = {
+  args: {
+    ...defaultArgs,
+    barStyle: {
+      opacity: 0.5,
+      radius: 0.5
+    }
   },
   render: Template
 };

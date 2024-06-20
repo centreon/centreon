@@ -5,6 +5,7 @@ import {
   equals,
   filter,
   gt,
+  has,
   isNil,
   path,
   prop,
@@ -42,7 +43,9 @@ const BarChartTooltip = ({
     return null;
   }
 
-  console.log(sortOrder);
+  if (has('thresholdLabel', tooltipData)) {
+    return <Typography>{tooltipData.thresholdLabel}</Typography>;
+  }
 
   const date = timeSeries[tooltipData.index].timeTick;
   const formattedDateTime = `${toDate(date)} / ${toTime(date)}`;

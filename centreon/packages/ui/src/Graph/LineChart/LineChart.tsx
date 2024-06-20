@@ -18,6 +18,7 @@ import { useTooltipStyles } from '../common/useTooltipStyles';
 import BaseChart from '../common/BaseChart/BaseChart';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
+import Thresholds from '../common/Thresholds/Thresholds';
 
 import Lines from './BasicComponents/Lines';
 import { canDisplayThreshold } from './BasicComponents/Lines/Threshold/models';
@@ -28,7 +29,6 @@ import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import { margin } from './common';
 import { Data, GlobalAreaLines, GraphInterval, LineChartProps } from './models';
 import { useIntersection } from './useLineChartIntersection';
-import Thresholds from './BasicComponents/Thresholds';
 import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 import { useLineChartStyles } from './LineChart.styles';
 
