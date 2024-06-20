@@ -87,23 +87,23 @@ runs:
       run: mkdir -p ${{ inputs.module }}/tests/e2e/results/cucumber-logs/
       shell: bash
 
-    - name: Rename JSON report
-      if: ${{ always() }}
-      run: |
-        feature_name=$(basename "${{ inputs.feature_file_path }}")
-        report_path="${{ inputs.module }}/tests/e2e/results/cucumber-logs/report.json"
-        report_path_updated="${{ inputs.module }}/tests/e2e/results/cucumber-logs/${feature_name}-report.json"
+    # - name: Rename JSON report
+    #   if: ${{ always() }}
+    #   run: |
+    #     feature_name=$(basename "${{ inputs.feature_file_path }}")
+    #     report_path="${{ inputs.module }}/tests/e2e/results/cucumber-logs/report.json"
+    #     report_path_updated="${{ inputs.module }}/tests/e2e/results/cucumber-logs/${feature_name}-report.json"
 
-        if [ -f "$report_path" ]; then
-          jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
-          rm "$report_path"
+    #     if [ -f "$report_path" ]; then
+    #       jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
+    #       rm "$report_path"
 
-          # Show the content of the modified file
-          echo "::group::${feature_name}-report.json"
-          cat "$report_path_updated"
-          echo "::endgroup::"
-        else
-          echo "Report file not found: $report_path"
-          exit 1
-        fi
-      shell: bash
+    #       # Show the content of the modified file
+    #       echo "::group::${feature_name}-report.json"
+    #       cat "$report_path_updated"
+    #       echo "::endgroup::"
+    #     else
+    #       echo "Report file not found: $report_path"
+    #       exit 1
+    #     fi
+    #   shell: bash
