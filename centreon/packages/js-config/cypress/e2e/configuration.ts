@@ -1,12 +1,13 @@
-/* eslint-disable no-await-in-loop */
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
 
 import { execSync } from 'child_process';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 
 import { defineConfig } from 'cypress';
@@ -16,6 +17,15 @@ import { config as configDotenv } from 'dotenv';
 import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
 import tasks from './tasks';
+import { on } from 'process';
+
+interface ConfigurationOptions {
+  cypressFolder?: string;
+  env?: Record<string, unknown>;
+  envFile?: string;
+  isDevelopment?: boolean;
+  specPattern: string;
+}
 
 // Fonction pour capturer les retries
 const captureRetries = (results: any) => {
@@ -43,44 +53,46 @@ const updateHasRetriesFile = async (testRetries: {
     '../../../../tests/e2e/results',
     'hasRetries.json'
   );
-  await fs.promises.writeFile(
-    resultFilePath,
-    JSON.stringify(testRetries, null, 2)
-  );
+  await fs.writeFile(resultFilePath, JSON.stringify(testRetries, null, 2));
   console.log('hasRetries.json updated with retries information.');
 };
 
-// Attendre la génération de report.json puis capturer les retries
+// Fonction pour attendre la génération de report.json et capturer les retries
 const waitForReportAndCaptureRetries = async () => {
   const reportPath = path.join(
     __dirname,
     '../../../../tests/e2e/results/cucumber-logs',
     'report.json'
   );
-  // Attendre que report.json soit généré
-  while (!fs.existsSync(reportPath)) {
-    console.log('Waiting for report.json to be generated...');
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Attendre 1 seconde
+
+  try {
+    // Attendre que report.json soit généré
+    while (true) {
+      try {
+        await fs.access(reportPath); // Vérifier l'existence de report.json
+        break; // Si le fichier existe, sortir de la boucle
+      } catch (error) {
+        console.log('Waiting for report.json to be generated...');
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Attendre 1 seconde
+      }
+    }
+
+    // Une fois que report.json est généré, lire son contenu
+    const reportData = await fs.readFile(reportPath, 'utf8');
+    const reportResults = JSON.parse(reportData);
+
+    // Capturer les retries à partir des résultats
+    const testRetries = captureRetries(reportResults);
+    console.log('Test retries captured:', testRetries);
+
+    // Mettre à jour hasRetries.json avec les retries capturés
+    await updateHasRetriesFile(testRetries);
+  } catch (error) {
+    console.error('Error while waiting for report.json:', error);
   }
-
-  // Une fois que report.json est généré, lire son contenu
-  const reportData = await fs.promises.readFile(reportPath, 'utf8');
-  const results = JSON.parse(reportData);
-
-  // Capturer les retries à partir des résultats
-  const testRetries = captureRetries(results);
-  console.log('Test retries captured:', testRetries);
-
-  // Mettre à jour hasRetries.json avec les retries capturés
-  await updateHasRetriesFile(testRetries);
 };
-interface ConfigurationOptions {
-  cypressFolder?: string;
-  env?: Record<string, unknown>;
-  envFile?: string;
-  isDevelopment?: boolean;
-  specPattern: string;
-}
+
+// Configuration principale de Cypress
 export default ({
   specPattern,
   cypressFolder,
@@ -114,11 +126,6 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        // Appel de la fonction d'attente et de capture des retries dans on('after:run')
-        on('after:run', async (results) => {
-          await waitForReportAndCaptureRetries();
-        });
-
         return plugins(on, config);
       },
       specPattern,
@@ -143,3 +150,7 @@ export default ({
     viewportWidth: 1920
   });
 };
+
+on('after:run', async (results) => {
+  await waitForReportAndCaptureRetries();
+});
