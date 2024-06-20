@@ -98,3 +98,4 @@ Feature: Configuring metrics graph widget
     Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
     When the dashboard administrator selects the list display mode
     Then the Metrics Graph widget should refresh to display items in a list format
+    
