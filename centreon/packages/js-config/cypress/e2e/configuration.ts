@@ -52,6 +52,8 @@ const updateHasRetriesFile = async (testRetries: {
 
 // Attendre la génération de report.json puis capturer les retries
 const waitForReportAndCaptureRetries = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 10000)); // Attendre 1 seconde
+
   const reportPath = path.join(
     __dirname,
     '../../../../tests/e2e/results/cucumber-logs',
