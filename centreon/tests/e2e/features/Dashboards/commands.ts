@@ -57,6 +57,29 @@ Cypress.Commands.add('editDashboard', (name) => {
   }).should('be.visible');
 });
 
+Cypress.Commands.add('editWidget', (nameOrPosition) => {
+  if (typeof nameOrPosition === 'string') {
+    cy.contains('div.react-grid-item', nameOrPosition).as('widgetItem');
+  } else {
+    cy.get('div.react-grid-item')
+      .eq(nameOrPosition - 1)
+      .as('widgetItem');
+  }
+
+  cy.get('@widgetItem').within(() => {
+    cy.getByTestId({ testId: 'More actions' }).should('be.visible').click();
+  });
+
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  })
+    .should('be.visible')
+    .realClick();
+
+  cy.contains('Widget properties').should('be.visible');
+});
+
 Cypress.Commands.add(
   'waitUntilForDashboardRoles',
   (accessRightsTestId, expectedElementCount) => {
@@ -302,6 +325,7 @@ declare global {
     interface Chainable {
       applyAcl: () => Cypress.Chainable;
       editDashboard: (name: string) => Cypress.Chainable;
+      editWidget: (nameOrPosition: string | number) => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
       getCellContent: (rowIndex: number, colIndex: number) => Cypress.Chainable;
       insertDashboardWithWidget: (
