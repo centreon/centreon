@@ -160,11 +160,14 @@ const GraphActions = ({
             <SaveAsImageIcon fontSize="inherit" />
           </IconButton>
           <FederatedComponent
-            end={end}
             path="/anomaly-detection/configuration-button"
+            styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
+          />
+          <FederatedComponent
+            end={end}
+            path="/anomaly-detection/modal"
             resourceEndpoint={selectedResourceDetailsEndpoint}
             start={start}
-            styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
             type={resource?.type}
           />
           <Menu
