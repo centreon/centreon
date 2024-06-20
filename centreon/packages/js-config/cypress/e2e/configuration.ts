@@ -101,7 +101,7 @@ export default ({
     .toString('utf8')
     .replace(/[\n\r\s]+$/, '');
 
-  let afterRunCallbackRegistered = false;
+  const afterRunCallbackRegistered = false;
 
   return defineConfig({
     chromeWebSecurity: false,
@@ -119,13 +119,9 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        // Register after:run callback only once
-        if (!afterRunCallbackRegistered) {
-          afterRunCallbackRegistered = true;
-          on('after:run', async (results) => {
-            await waitForReportAndCaptureRetries();
-          });
-        }
+        on('after:run', async (results) => {
+          await waitForReportAndCaptureRetries();
+        });
 
         return plugins(on, config);
       },
