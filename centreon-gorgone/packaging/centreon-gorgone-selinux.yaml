@@ -24,6 +24,13 @@ conflicts:
 provides:
   - centreon-gorgone-selinux-debuginfo
 
+overrides:
+  rpm:
+    depends:
+      - centreon-gorgoned-selinux
+    provides:
+      - centreon-gorgoned-selinux
+
 contents:
   - src: "../selinux/centreon-gorgoned.pp"
     dst: "/usr/share/selinux/packages/centreon/centreon-gorgoned.pp"
