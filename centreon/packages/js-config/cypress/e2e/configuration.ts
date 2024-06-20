@@ -17,64 +17,6 @@ import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
 import tasks from './tasks';
 
-// Fonction pour capturer les retries
-const captureRetries = (results: any) => {
-  const testRetries: { [key: string]: boolean } = {};
-  if ('runs' in results) {
-    results.runs.forEach((run: any) => {
-      run.tests.forEach((test: any) => {
-        if (test.attempts && test.attempts.length > 1) {
-          const testTitle = test.title.join(' > '); // Convert the array to a string
-          testRetries[testTitle] = true;
-        }
-      });
-    });
-  }
-
-  return testRetries;
-};
-
-// Fonction pour mettre à jour hasRetries.json avec les retries capturés
-const updateHasRetriesFile = async (testRetries: {
-  [key: string]: boolean;
-}) => {
-  const resultFilePath = path.join(
-    __dirname,
-    '../../../../tests/e2e/results',
-    'hasRetries.json'
-  );
-  await fs.promises.writeFile(
-    resultFilePath,
-    JSON.stringify(testRetries, null, 2)
-  );
-  console.log('hasRetries.json updated with retries information.');
-};
-
-// Attendre la génération de report.json puis capturer les retries
-const waitForReportAndCaptureRetries = async () => {
-  const reportPath = path.join(
-    __dirname,
-    '../../../../tests/e2e/results/cucumber-logs',
-    'report.json'
-  );
-  // Attendre que report.json soit généré
-  while (!fs.existsSync(reportPath)) {
-    console.log('Waiting for report.json to be generated...');
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Attendre 1 seconde
-  }
-
-  // Une fois que report.json est généré, lire son contenu
-  const reportData = await fs.promises.readFile(reportPath, 'utf8');
-  const results = JSON.parse(reportData);
-
-  // Capturer les retries à partir des résultats
-  const testRetries = captureRetries(results);
-  console.log('Test retries captured:', testRetries);
-
-  // Mettre à jour hasRetries.json avec les retries capturés
-  await updateHasRetriesFile(testRetries);
-};
-
 interface ConfigurationOptions {
   cypressFolder?: string;
   env?: Record<string, unknown>;
@@ -116,10 +58,45 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        // Appel de la fonction d'attente et de capture des retries dans on('after:run')
         on('after:run', async (results) => {
+          const testRetries: { [key: string]: boolean } = {};
+          if ('runs' in results) {
+            results.runs.forEach((run) => {
+              run.tests.forEach((test) => {
+                if (test.attempts && test.attempts.length > 1) {
+                  const testTitle = test.title.join(' > '); // Convert the array to a string
+                  testRetries[testTitle] = true;
+                }
+              });
+            });
+          }
           console.log('After run results:', results);
-          await waitForReportAndCaptureRetries();
+          console.log('Test retries:', testRetries);
+          // Save the testRetries object to a file in the e2e/results directory
+          const resultFilePath = path.join(
+            __dirname,
+            '../../../../tests/e2e/results',
+            'hasRetries.json'
+          );
+          fs.writeFileSync(
+            resultFilePath,
+            JSON.stringify(testRetries, null, 2)
+          );
+
+          const reportDir = path.join(
+            __dirname,
+            '../../../../tests/e2e/results',
+            'cucumber-logs'
+          );
+
+          const reportPath = path.join(reportDir, 'report.json');
+          if (!fs.existsSync(reportDir)) {
+            fs.mkdirSync(reportDir, { recursive: true });
+          }
+
+          if (!fs.existsSync(reportPath)) {
+            fs.writeFileSync(reportPath, '');
+          }
         });
 
         return plugins(on, config);
@@ -137,7 +114,10 @@ export default ({
     },
     execTimeout: 60000,
     requestTimeout: 20000,
-    retries: 0,
+    retries: {
+      openMode: 0,
+      runMode: 2
+    },
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
     videoCompression: 0,
