@@ -894,6 +894,7 @@ jobs:
             exit 1
           fi
 
+          echo "Building API doc from $OPENAPI_FILE"
           redocly build-docs --theme.openapi.hideDownloadButton=true $OPENAPI_FILE -o index.html
         shell: bash
 
