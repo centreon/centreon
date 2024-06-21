@@ -901,10 +901,12 @@ jobs:
           aws-region: eu-west-1
           role-to-assume: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           role-session-name: InvalidDocCache
+          role-skip-session-tagging: true
           role-duration-seconds: 900
 
       - name: Copy to AWS S3 centreon-documentation-api
         run: |
+          echo "RELEASE CLOUD : ${{ needs.get-version.outputs.release_cloud }}"
           if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud"
           else
