@@ -267,21 +267,32 @@ export default (on: Cypress.PluginEvents): void => {
 
       let currentData: RetryTestInfo[] = [];
 
+      // Vérifier si le dossier results existe, sinon le créer de manière récursive
+      if (!fs.existsSync(resultsDir)) {
+        fs.mkdirSync(resultsDir, { recursive: true });
+      }
+
+      // Vérifier si le fichier hasRetries.json existe
       if (fs.existsSync(retryReportFile)) {
+        // Lire les données actuelles du fichier
         const fileData = fs.readFileSync(retryReportFile, 'utf8');
         if (fileData.trim()) {
           try {
+            // Parser les données JSON du fichier dans currentData
             currentData = JSON.parse(fileData) as RetryTestInfo[];
           } catch (error) {
-            console.error("Error parsing JSON data:", error);
+            console.error("Erreur lors du parsing des données JSON :", error);
           }
         }
       }
 
+      // Ajouter les nouvelles informations de retry à currentData
       currentData.push(retryTestInfo);
 
+      // Écrire les données mises à jour dans le fichier hasRetries.json
       fs.writeFileSync(retryReportFile, JSON.stringify(currentData, null, 2));
 
+      // Retourner null ou gérer toute autre réponse selon les besoins
       return null;
     }
   });

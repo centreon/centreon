@@ -181,6 +181,7 @@ jobs:
       - name: Display test retrieS
         if: always()
         run: |
+            ls -l tests/e2e/results
             echo "Displaying test retries..."
             cat "${{ inputs.module_name }}/tests/e2e/results/hasRetries.json" || echo "No retries found."
 
