@@ -883,7 +883,7 @@ jobs:
 
       - name: Build openapi documentation
         run: |
-          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
+          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "0" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
             OPENAPI_FILE="centreon/doc/API/centreon-cloud-api.yaml"
           elif [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
             OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
@@ -915,7 +915,6 @@ jobs:
 
       - name: Copy to AWS S3 centreon-documentation-api
         run: |
-          echo "RELEASE CLOUD : ${{ needs.get-version.outputs.release_cloud }}"
           if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud"
           else
