@@ -21,11 +21,11 @@ on:
       - synchronize
       - reopened
       - ready_for_review
-    # paths:
-    #   - "centreon/**"
-    #   - "!centreon/.veracode-exclusions"
-    #   - "!centreon/veracode.json"
-    #   - "!centreon/packages/**"
+    paths:
+      - "centreon/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -863,7 +863,7 @@ jobs:
   publish-openapi-documentation:
     runs-on: [self-hosted, infra]
     needs: [get-version]
-    # if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -921,7 +921,7 @@ jobs:
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}"
           fi
 
-          # aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
+          aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
           aws s3 cp "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
         shell: bash
 
