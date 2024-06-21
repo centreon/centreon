@@ -3,6 +3,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import 'cypress-wait-until';
 import 'cypress-real-events';
+import 'cypress-on-fix';
+
 import './commands';
 
 interface RetryTestInfo {
@@ -33,22 +35,20 @@ Cypress.on('uncaught:exception', (err) => {
 
   return true;
 });
-const path = require('path')
-const fs = require('fs');
 
-Cypress.on('test:after:run', (test, runnable) => {
-  if (test.state === 'failed' && test.retries > 0) {
-    const testName = test.title;
-    const featureName = runnable.parent?.title || '';
+// Cypress.on('test:after:run', (test, runnable) => {
+//   if (test.state === 'failed' && test.retries > 0) {
+//     const testName = test.title;
+//     const featureName = runnable.parent?.title || '';
 
-    const retryTestInfo: RetryTestInfo = {
-      testName,
-      featureName,
-    };
+//     const retryTestInfo: RetryTestInfo = {
+//       testName,
+//       featureName,
+//     };
 
-    cy.task('writeRetryInfo', { retryTestInfo })
-      .then(() => {
-        console.log('Retry information stored successfully');
-      });
-  }
-});
+//     cy.task('writeRetryInfo', { retryTestInfo })
+//       .then(() => {
+//         console.log('Retry information stored successfully');
+//       });
+//   }
+// });
