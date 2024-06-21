@@ -2,6 +2,7 @@
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
+const fs = require('fs');
 
 import tar from 'tar-fs';
 import {
@@ -50,6 +51,11 @@ export default (on: Cypress.PluginEvents): void => {
 
   interface StopContainerProps {
     name: string;
+  }
+
+  interface RetryTestInfo {
+    testName: string;
+    featureName: string;
   }
 
   on('task', {
@@ -252,6 +258,29 @@ export default (on: Cypress.PluginEvents): void => {
     },
     waitOn: async (url: string) => {
       execSync(`npx wait-on ${url}`);
+
+      return null;
+    },
+    writeRetryInfo({ retryTestInfo }: { retryTestInfo: RetryTestInfo }) {
+      const resultsDir = path.join(__dirname, '../../../../tests/e2e/results');
+      const retryReportFile = path.join(resultsDir, 'hasRetries.json');
+
+      let currentData: RetryTestInfo[] = [];
+
+      if (fs.existsSync(retryReportFile)) {
+        const fileData = fs.readFileSync(retryReportFile, 'utf8');
+        if (fileData.trim()) {
+          try {
+            currentData = JSON.parse(fileData) as RetryTestInfo[];
+          } catch (error) {
+            console.error("Error parsing JSON data:", error);
+          }
+        }
+      }
+
+      currentData.push(retryTestInfo);
+
+      fs.writeFileSync(retryReportFile, JSON.stringify(currentData, null, 2));
 
       return null;
     }

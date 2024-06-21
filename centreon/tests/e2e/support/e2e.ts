@@ -4,8 +4,12 @@
 import 'cypress-wait-until';
 import 'cypress-real-events';
 import './commands';
-const fs = require('fs');
-const path = require('path');
+
+interface RetryTestInfo {
+  testName: string;
+  featureName: string;
+}
+
 
 before(() => {
   Cypress.config('baseUrl', 'http://127.0.0.1:4000');
@@ -29,28 +33,22 @@ Cypress.on('uncaught:exception', (err) => {
 
   return true;
 });
+const path = require('path')
+const fs = require('fs');
 
 Cypress.on('test:after:run', (test, runnable) => {
-  const resultFilePath = path.join(
-    __dirname,
-    `../../../../${Cypress.env('module_name')}/tests/e2e/results`,
-    'hasRetries.json'
-  );
+  if (test.state === 'failed' && test.retries > 0) {
+    const testName = test.title;
+    const featureName = runnable.parent?.title || '';
 
-  console.log('Result file path:', resultFilePath); // Log the path for debugging
+    const retryTestInfo: RetryTestInfo = {
+      testName,
+      featureName,
+    };
 
-  // Initialize an empty object or load existing data
-  let testRetries = {};
-  if (fs.existsSync(resultFilePath)) {
-    testRetries = JSON.parse(fs.readFileSync(resultFilePath, 'utf-8'));
+    cy.task('writeRetryInfo', { retryTestInfo })
+      .then(() => {
+        console.log('Retry information stored successfully');
+      });
   }
-
-  // Check if the test has retries
-  if (test.attempts && test.attempts.length > 1) {
-    const testTitle = test.title.join(' > '); // Convert the array to a string
-    testRetries[testTitle] = true;
-  }
-
-  // Save updated testRetries object to a file
-  fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
 });
