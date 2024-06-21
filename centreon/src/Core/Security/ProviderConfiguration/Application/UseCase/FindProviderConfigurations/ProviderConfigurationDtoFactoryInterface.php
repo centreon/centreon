@@ -25,7 +25,7 @@ namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderCo
 
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 
-interface FindProviderConfigurationsResponseFactoryInterface
+interface ProviderConfigurationDtoFactoryInterface
 {
     /**
      * Validate Factory is valid for provider type.
@@ -33,7 +33,7 @@ interface FindProviderConfigurationsResponseFactoryInterface
      * @param string $type
      * @return bool
      */
-    public function isValidFor(string $type): bool;
+    public function supports(string $type): bool;
 
-    public function createResponse(Configuration $configuration): FindProviderConfigurationsResponse;
+    public function createResponse(Configuration $configuration): ProviderConfigurationDto;
 }

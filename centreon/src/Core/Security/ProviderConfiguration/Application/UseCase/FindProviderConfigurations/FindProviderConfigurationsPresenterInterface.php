@@ -29,8 +29,8 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 interface FindProviderConfigurationsPresenterInterface extends PresenterInterface
 {
     /**
-     * @param FindProviderConfigurationsResponse[]|ResponseStatusInterface $data
+     * @param FindProviderConfigurationsResponse|ResponseStatusInterface $data
      * @return void
      */
-    public function presentResponse(array|ResponseStatusInterface $data): void;
+    public function presentResponse(FindProviderConfigurationsResponse|ResponseStatusInterface $data): void;
 }

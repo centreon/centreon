@@ -32,19 +32,19 @@ final class FindProviderConfigurations
 {
     use LoggerTrait;
 
-    /** @var FindProviderConfigurationsResponseFactoryInterface[] */
+    /** @var ProviderConfigurationDtoFactoryInterface[] */
     private array $providerResponseFactories;
 
     /**
-     * @param \Traversable<FindProviderConfigurationsResponseFactoryInterface> $providerResponseFactories
+     * @param \Traversable<ProviderConfigurationDtoFactoryInterface> $providerDtoFactories
      * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
      */
     public function __construct(
-        \Traversable $providerResponseFactories,
+        \Traversable $providerDtoFactories,
         private ReadConfigurationRepositoryInterface $readConfigurationRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository
     ) {
-        $this->providerResponseFactories = iterator_to_array($providerResponseFactories);
+        $this->providerResponseFactories = iterator_to_array($providerDtoFactories);
     }
 
     /**
@@ -56,20 +56,23 @@ final class FindProviderConfigurations
             $configurations = $this->readConfigurationRepository->findConfigurations();
 
             /**
-             * match configuration type and response type to bind automatically corresponding configuration and response.
+             * match configuration type and provider type to bind automatically corresponding configuration and Dto.
              * e.g configuration type 'local' will match response type 'local',
              * LocalProviderResponse::create will take LocalConfiguration.
              */
             $responses = [];
             foreach ($configurations as $configuration) {
                 foreach ($this->providerResponseFactories as $providerFactory) {
-                    if ($providerFactory->isValidFor($configuration->getType())) {
+                    if ($providerFactory->supports($configuration->getType())) {
                         $responses[] = $providerFactory->createResponse($configuration);
                     }
                 }
             }
 
-            $presenter->presentResponse($responses);
+            $response = new FindProviderConfigurationsResponse();
+            $response->providerConfigurations = $responses;
+
+            $presenter->presentResponse($response);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));

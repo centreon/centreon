@@ -320,7 +320,7 @@ services:
             tags: ['monitoring.resource.acl']
         Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface:
             tags: ['authentication.provider.repositories']
-        Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurationsResponseFactoryInterface:
+        Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface:
             tags: ['authentication.provider.response.factories']
         Core\Platform\Application\Validator\RequirementValidatorInterface:
             tags: ['platform.requirement.validators']

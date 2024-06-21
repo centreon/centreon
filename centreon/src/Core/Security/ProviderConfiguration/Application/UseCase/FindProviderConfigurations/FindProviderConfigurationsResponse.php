@@ -4,5 +4,8 @@ namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderCo
 
 class FindProviderConfigurationsResponse
 {
-
+    /**
+     * @var ProviderConfigurationDto[]
+     */
+    public array $providerConfigurations = [];
 }

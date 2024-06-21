@@ -29,7 +29,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{
-    FindProviderConfigurationsPresenterInterface, FindProviderConfigurationsResponse};
+    FindProviderConfigurationsPresenterInterface, FindProviderConfigurationsResponse, ProviderConfigurationDto};
 use Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter\{
     ProviderPresenterInterface
 };
@@ -39,23 +39,23 @@ class FindProviderConfigurationsPresenter extends AbstractPresenter implements F
     /**
      * @inheritDoc
      */
-    public function presentResponse(ResponseStatusInterface|array $data): void
+    public function presentResponse(ResponseStatusInterface|FindProviderConfigurationsResponse $data): void
     {
         if ($data instanceof ResponseStatusInterface) {
             $this->setResponseStatus($data);
         } else {
             $this->present(array_map(
-                function (FindProviderConfigurationsResponse $response): array {
+                function (ProviderConfigurationDto $dto): array {
                     return [
-                        'id' => $response->id,
-                        'type' => $response->type,
-                        'name' => $response->name,
-                        'authentication_uri' => $response->authenticationUri,
-                        'is_active' => $response->isActive,
-                        'is_forced' => $response->isForced
+                        'id' => $dto->id,
+                        'type' => $dto->type,
+                        'name' => $dto->name,
+                        'authentication_uri' => $dto->authenticationUri,
+                        'is_active' => $dto->isActive,
+                        'is_forced' => $dto->isForced
                     ];
                 },
-                $data
+                $data->providerConfigurations
             ));
         }
     }

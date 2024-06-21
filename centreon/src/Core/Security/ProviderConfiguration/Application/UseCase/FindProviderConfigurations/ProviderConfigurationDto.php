@@ -26,7 +26,7 @@ namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderCo
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
-class FindProviderConfigurationsResponse
+class ProviderConfigurationDto
 {
     public int $id = 0;
     public string $type = '';

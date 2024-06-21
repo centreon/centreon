@@ -5,6 +5,8 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderCon
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurationsResponse;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurationsResponseFactoryInterface;
+use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDto;
+use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
@@ -13,7 +15,7 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class OpenIdProviderResponseFactory implements FindProviderConfigurationsResponseFactoryInterface
+class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterface
 {
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -23,7 +25,7 @@ class OpenIdProviderResponseFactory implements FindProviderConfigurationsRespons
 
     }
 
-    public function isValidFor(string $type): bool
+    public function supports(string $type): bool
     {
         return $type === Provider::OPENID;
     }
@@ -36,19 +38,19 @@ class OpenIdProviderResponseFactory implements FindProviderConfigurationsRespons
      *
      * @return FindProviderConfigurationsResponse
      */
-    public function createResponse(Configuration $configuration): FindProviderConfigurationsResponse
+    public function createResponse(Configuration $configuration): ProviderConfigurationDto
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $configuration->getCustomConfiguration();
-        $response = new FindProviderConfigurationsResponse();
-        $response->id = $configuration->getId();
-        $response->type = $configuration->getType();
-        $response->name = $configuration->getName();
-        $response->authenticationUri = $this->buildAuthenticationUri($customConfiguration);
-        $response->isActive = $configuration->isActive();
-        $response->isForced = $configuration->isForced();
+        $dto = new ProviderConfigurationDto();
+        $dto->id = $configuration->getId();
+        $dto->type = $configuration->getType();
+        $dto->name = $configuration->getName();
+        $dto->authenticationUri = $this->buildAuthenticationUri($customConfiguration);
+        $dto->isActive = $configuration->isActive();
+        $dto->isForced = $configuration->isForced();
 
-        return $response;
+        return $dto;
     }
 
     /**

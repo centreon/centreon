@@ -40,6 +40,9 @@ use Core\Macro\Domain\Model\Macro;
 use Core\PollerMacro\Application\Repository\ReadPollerMacroRepositoryInterface;
 use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\PollerMacro\Domain\Model\PollerMacro;
+use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
@@ -57,11 +60,13 @@ final class MigrateAllCredentials
      * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
      * @param ReadServiceMacroRepositoryInterface $readServiceMacroRepository
      * @param ReadPollerMacroRepositoryInterface $readPollerMacroRepository
+     * @param ReadOpenIdConfigurationRepositoryInterface $readOpenIdConfigurationRepository
      * @param WriteHostRepositoryInterface $writeHostRepository
      * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
      * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
      * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository
+     * @param WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository
      */
     public function __construct(
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
@@ -71,11 +76,13 @@ final class MigrateAllCredentials
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
         private readonly ReadPollerMacroRepositoryInterface $readPollerMacroRepository,
+        private readonly ReadOpenIdConfigurationRepositoryInterface $readOpenIdConfigurationRepository,
         private readonly WriteHostRepositoryInterface $writeHostRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
+        private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
     )
     {
         $this->response = new MigrateAllCredentialsResponse();
