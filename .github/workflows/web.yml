@@ -912,7 +912,7 @@ jobs:
           fi
 
           # aws s3 cp --acl public-read "index.html" "${BUCKET_PATH}/index.html"
-          aws s3 cp --acl public-read "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
+          aws s3 cp "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
 
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_ID_DOC_API }} --paths "/*"
         shell: bash
