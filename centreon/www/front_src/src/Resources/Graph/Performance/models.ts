@@ -2,6 +2,8 @@ import { ReactNode } from 'react';
 
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
+import { LineChartData } from '@centreon/ui';
+
 import { ResourceDetails } from '../../Details/models';
 import { Resource } from '../../models';
 
@@ -96,11 +98,13 @@ export interface GetYScaleProps {
 }
 
 export interface LinesProps {
+  data?: LineChartData;
+  end: string;
   graphHeight: number;
   leftScale: ScaleLinear<number, number, never>;
   lines: Array<Line>;
   rightScale: ScaleLinear<number, number, never>;
-  timeSeries: Array<TimeValue>;
+  start: string;
   xScale: ScaleTime<number, number, never>;
 }
 

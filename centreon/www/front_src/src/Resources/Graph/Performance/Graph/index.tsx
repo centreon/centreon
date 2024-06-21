@@ -30,6 +30,7 @@ import { grey } from '@mui/material/colors';
 
 import {
   dateTimeFormat,
+  LineChartData,
   useLocaleDateTimeFormat,
   useMemoComponent
 } from '@centreon/ui';
@@ -197,6 +198,7 @@ interface GraphContentProps {
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
+  performanceGraphData?: LineChartData;
   renderAdditionalLines?: (additionalLinesProps: LinesProps) => ReactNode;
   resource: Resource | ResourceDetails;
   showAddCommentTooltip: (args) => void;
@@ -234,7 +236,8 @@ const GraphContent = ({
   displayTimeValues,
   renderAdditionalLines,
   end,
-  start
+  start,
+  performanceGraphData
 }: GraphContentProps): JSX.Element => {
   const { classes } = useStyles({ onAddComment });
   const { t } = useTranslation();
@@ -462,11 +465,13 @@ const GraphContent = ({
   const commentTitle = isCommentPermitted ? '' : t(labelActionNotPermitted);
 
   const additionalLinesProps = {
+    data: performanceGraphData,
+    end,
     graphHeight,
     leftScale,
     lines,
     rightScale,
-    timeSeries,
+    start,
     xScale
   };
 

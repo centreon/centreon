@@ -168,6 +168,7 @@ const GraphActions = ({
             path="/anomaly-detection/modal"
             resourceEndpoint={selectedResourceDetailsEndpoint}
             start={start}
+            styleMenuSkeleton={{ height: 0, width: 0 }}
             type={resource?.type}
           />
           <Menu

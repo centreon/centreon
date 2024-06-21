@@ -30,6 +30,7 @@ import { Skeleton, Typography } from '@mui/material';
 
 import {
   getData,
+  LineChartData,
   ParentSize,
   timeFormat,
   useLocaleDateTimeFormat,
@@ -170,6 +171,8 @@ const PerformanceGraph = <T,>({
   const [lineData, setLineData] = useState<Array<LineModel>>();
   const [title, setTitle] = useState<string>();
   const [base, setBase] = useState<number>();
+  const [performanceGraphData, setPerformanceGraphData] =
+    useState<LineChartData>();
 
   const performanceGraphRef = useRef<HTMLDivElement | null>(null);
   const performanceGraphHeightRef = useRef<number>(0);
@@ -197,6 +200,7 @@ const PerformanceGraph = <T,>({
       endpoint
     })
       .then((graphData) => {
+        setPerformanceGraphData(graphData);
         setTimeSeries(getTimeSeries(graphData));
         setBase(graphData.global.base);
         setTitle(graphData.global.title);
@@ -389,6 +393,7 @@ const PerformanceGraph = <T,>({
               interactWithGraph={interactWithGraph}
               lines={displayedLines}
               loading={sendingGetGraphDataRequest}
+              performanceGraphData={performanceGraphData}
               renderAdditionalLines={renderAdditionalLines}
               resource={resource}
               start={start}

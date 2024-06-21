@@ -84,7 +84,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
               renderAdditionalLines={(props): JSX.Element => (
                 <FederatedComponent
                   {...props}
-                  path="/anomaly-detection/theresholdLines"
+                  path="/anomaly-detection/thresholdLines"
                 />
               )}
               resource={details}
