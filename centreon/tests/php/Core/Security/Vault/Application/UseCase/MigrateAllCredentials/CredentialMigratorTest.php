@@ -30,6 +30,7 @@ use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterfac
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\PollerMacro\Domain\Model\PollerMacro;
@@ -48,6 +49,7 @@ beforeEach(function (): void {
     $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class);
     $this->writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class);
     $this->writePollerMacroRepository = $this->createMock(WritePollerMacroRepositoryInterface::class);
+    $this->writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class);
 
     $this->credential1 = new CredentialDto();
     $this->credential1->resourceId = 1;
@@ -99,6 +101,7 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         writeHostTemplateRepository: $this->writeHostTemplateRepository,
         writeHostMacroRepository: $this->writeHostMacroRepository,
         writeServiceMacroRepository: $this->writeServiceMacroRepository,
+        writeOptionRepository: $this->writeOptionRepository,
         writePollerMacroRepository: $this->writePollerMacroRepository,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,
@@ -130,6 +133,7 @@ it('tests getIterator method with exception', function (): void {
         writeHostTemplateRepository: $this->writeHostTemplateRepository,
         writeHostMacroRepository: $this->writeHostMacroRepository,
         writeServiceMacroRepository: $this->writeServiceMacroRepository,
+        writeOptionRepository: $this->writeOptionRepository,
         writePollerMacroRepository: $this->writePollerMacroRepository,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,

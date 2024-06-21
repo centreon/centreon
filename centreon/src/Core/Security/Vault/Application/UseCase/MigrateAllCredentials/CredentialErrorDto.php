@@ -25,7 +25,7 @@ namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 class CredentialErrorDto
 {
-    public int $resourceId = 0;
+    public ?int $resourceId = null;
 
     public CredentialTypeEnum $type = CredentialTypeEnum::TYPE_HOST;
 

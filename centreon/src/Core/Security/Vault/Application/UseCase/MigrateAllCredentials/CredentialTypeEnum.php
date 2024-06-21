@@ -28,5 +28,6 @@ enum CredentialTypeEnum
     case TYPE_HOST;
     case TYPE_HOST_TEMPLATE;
     case TYPE_SERVICE;
+    case TYPE_KNOWLEDGE_BASE_PASSWORD;
     case TYPE_POLLER_MACRO;
 }
