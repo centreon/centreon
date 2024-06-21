@@ -4,7 +4,7 @@ import { Grid } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
 import { includes } from 'ramda';
 
-import { LineChartAxis } from '../../models';
+import { LineChartAxis } from '../../LineChart/models';
 
 interface Props extends Pick<LineChartAxis, 'gridLinesType'> {
   height: number;

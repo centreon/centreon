@@ -265,7 +265,9 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
         // Exclude severities from the results
         $concatenator->appendWhere('hc.level IS NOT NULL');
 
-        // Settup for search, pagination, order
+        $concatenator->defineOrderBy('ORDER BY hc.hc_id ASC');
+
+        // Setup for search, pagination, order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
         $sqlTranslator?->setConcordanceArray([
             'id' => 'hc.hc_id',

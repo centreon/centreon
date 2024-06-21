@@ -37,6 +37,9 @@ use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
+use Core\Option\Application\Repository\ReadOptionRepositoryInterface;
+use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
+use Core\Option\Domain\Option;
 use Core\PollerMacro\Application\Repository\ReadPollerMacroRepositoryInterface;
 use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\PollerMacro\Domain\Model\PollerMacro;
@@ -59,12 +62,14 @@ final class MigrateAllCredentials
      * @param ReadHostMacroRepositoryInterface $readHostMacroRepository
      * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
      * @param ReadServiceMacroRepositoryInterface $readServiceMacroRepository
+     * @param ReadOptionRepositoryInterface $readOptionRepository
      * @param ReadPollerMacroRepositoryInterface $readPollerMacroRepository
      * @param ReadOpenIdConfigurationRepositoryInterface $readOpenIdConfigurationRepository
      * @param WriteHostRepositoryInterface $writeHostRepository
      * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
      * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
+     * @param WriteOptionRepositoryInterface $writeOptionRepository
      * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository
      * @param WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository
      */
@@ -75,12 +80,14 @@ final class MigrateAllCredentials
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        private readonly ReadOptionRepositoryInterface $readOptionRepository,
         private readonly ReadPollerMacroRepositoryInterface $readPollerMacroRepository,
         private readonly ReadOpenIdConfigurationRepositoryInterface $readOpenIdConfigurationRepository,
         private readonly WriteHostRepositoryInterface $writeHostRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
+        private readonly WriteOptionRepositoryInterface $writeOptionRepository,
         private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
         private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
     )
@@ -96,63 +103,22 @@ final class MigrateAllCredentials
 
                 return;
             }
+
             $hosts = $this->readHostRepository->findAll();
             $hostTemplates = $this->readHostTemplateRepository->findAll();
             $hostMacros = $this->readHostMacroRepository->findPasswords();
             $serviceMacros = $this->readServiceMacroRepository->findPasswords();
+            $knowledgeBasePasswordOption = $this->readOptionRepository->findByName('kb_wiki_password');
             $pollerMacros = $this->readPollerMacroRepository->findPasswords();
 
-            /**
-             * @var \ArrayIterator<int, CredentialDto> $credentials
-             */
-            $credentials = new \ArrayIterator([]);
-
-            $resources = [
-                ['data' => $hosts,
-                    'type' => CredentialTypeEnum::TYPE_HOST,
-                    'name' => '_HOSTSNMPCOMMUNITY',
-                    'getter' => 'getSnmpCommunity',
-                    'idGetter' => 'getId',
-                ],
-                ['data' => $hostTemplates,
-                    'type' => CredentialTypeEnum::TYPE_HOST_TEMPLATE,
-                    'name' => '_HOSTSNMPCOMMUNITY',
-                    'getter' => 'getSnmpCommunity',
-                    'idGetter' => 'getId',
-                ],
-                ['data' => $hostMacros,
-                    'type' => CredentialTypeEnum::TYPE_HOST,
-                    'name' => null,
-                    'getter' => 'getValue',
-                    'idGetter' => 'getOwnerId',
-                ],
-                ['data' => $serviceMacros,
-                    'type' => CredentialTypeEnum::TYPE_SERVICE,
-                    'name' => null,
-                    'getter' => 'getValue',
-                    'idGetter' => 'getOwnerId',
-                ],
-                ['data' => $pollerMacros,
-                    'type' => CredentialTypeEnum::TYPE_POLLER_MACRO,
-                    'name' => null,
-                    'getter' => 'getValue',
-                    'idGetter' => 'getId',
-                ],
-            ];
-            foreach ($resources as $resource) {
-                foreach ($resource['data'] as $item) {
-                    $value = $item->{$resource['getter']}();
-                    if ($value !== '' && ! str_starts_with($value, 'secret::')) {
-                        $credential = new CredentialDto();
-                        $credential->resourceId = $item->{$resource['idGetter']}();
-                        $credential->type = $resource['type'];
-                        $credential->name = $resource['name'] ?? $item->getName();
-                        $credential->value = $value;
-
-                        $credentials[] = $credential;
-                    }
-                }
-            }
+            $credentials = $this->createCredentialDtos(
+                $hosts,
+                $hostTemplates,
+                $hostMacros,
+                $serviceMacros,
+                $pollerMacros,
+                $knowledgeBasePasswordOption
+            );
 
             $this->migrateCredentials(
                 $credentials,
@@ -196,6 +162,7 @@ final class MigrateAllCredentials
             $this->writeHostTemplateRepository,
             $this->writeHostMacroRepository,
             $this->writeServiceMacroRepository,
+            $this->writeOptionRepository,
             $this->writePollerMacroRepository,
             $hosts,
             $hostTemplates,
@@ -203,5 +170,186 @@ final class MigrateAllCredentials
             $serviceMacros,
             $pollerMacros,
         );
+    }
+
+    /**
+     * @param Host[] $hosts
+     * @param HostTemplate[] $hostTemplates
+     * @param Macro[] $hostMacros
+     * @param Macro[] $serviceMacros
+     * @param PollerMacro[] $pollerMacros
+     * @param Option|null $knowledgeBasePasswordOption
+     *
+     * @return \ArrayIterator<int, CredentialDto> $credentials
+     */
+    private function createCredentialDtos(
+        array $hosts,
+        array $hostTemplates,
+        array $hostMacros,
+        array $serviceMacros,
+        array $pollerMacros,
+        ?Option $knowledgeBasePasswordOption
+    ): \ArrayIterator {
+
+        $hostSNMPCommunityCredentialDtos = $this->createHostSNMPCommunityCredentialDtos($hosts);
+        $hostTemplateSNMPCommunityCredentialDtos = $this->createHostTemplateSNMPCommunityCredentialDtos($hostTemplates);
+        $hostMacroCredentialDtos = $this->createHostMacroCredentialDtos($hostMacros);
+        $serviceMacroCredentialDtos = $this->createServiceMacroCredentialDtos($serviceMacros);
+        $pollerMacroCredentialDtos = $this->createPollerMacroCredentialDtos($pollerMacros);
+        $knowledgeBasePasswordCredentialDto = $this->createKnowledgeBasePasswordCredentialDto(
+            $knowledgeBasePasswordOption
+        );
+
+        return new \ArrayIterator(array_merge(
+            $hostSNMPCommunityCredentialDtos,
+            $hostTemplateSNMPCommunityCredentialDtos,
+            $hostMacroCredentialDtos,
+            $serviceMacroCredentialDtos,
+            $pollerMacroCredentialDtos,
+            $knowledgeBasePasswordCredentialDto
+        ));
+    }
+
+    /**
+     * @param Host[] $hosts
+     *
+     * @return CredentialDto[]
+     */
+    private function createHostSNMPCommunityCredentialDtos(array $hosts): array
+    {
+        $credentials = [];
+        foreach ($hosts as $host) {
+            if ($host->getSnmpCommunity() === '' || str_starts_with($host->getSnmpCommunity(), 'secret::')) {
+                continue;
+            }
+            $credential = new CredentialDto();
+            $credential->resourceId = $host->getId();
+            $credential->type = CredentialTypeEnum::TYPE_HOST;
+            $credential->name = '_HOSTSNMPCOMMUNITY';
+            $credential->value = $host->getSnmpCommunity();
+            $credentials[] = $credential;
+        }
+
+        return $credentials;
+    }
+
+    /**
+     * @param HostTemplate[] $hostTemplates
+     *
+     * @return CredentialDto[]
+     */
+    private function createHostTemplateSNMPCommunityCredentialDtos(array $hostTemplates): array
+    {
+        $credentials = [];
+        foreach ($hostTemplates as $hostTemplate) {
+            if (
+                $hostTemplate->getSnmpCommunity() === ''
+                || str_starts_with($hostTemplate->getSnmpCommunity(), 'secret::'))
+            {
+                continue;
+            }
+            $credential = new CredentialDto();
+            $credential->resourceId = $hostTemplate->getId();
+            $credential->type = CredentialTypeEnum::TYPE_HOST_TEMPLATE;
+            $credential->name = '_HOSTSNMPCOMMUNITY';
+            $credential->value = $hostTemplate->getSnmpCommunity();
+            $credentials[] = $credential;
+        }
+
+        return $credentials;
+    }
+
+    /**
+     * @param Macro[] $hostMacros
+     *
+     * @return CredentialDto[]
+     */
+    private function createHostMacroCredentialDtos(array $hostMacros): array
+    {
+        $credentials = [];
+        foreach ($hostMacros as $hostMacro) {
+            if ($hostMacro->getValue() === '' || str_starts_with($hostMacro->getValue(), 'secret::')) {
+                continue;
+            }
+            $credential = new CredentialDto();
+            $credential->resourceId = $hostMacro->getOwnerId();
+            $credential->type = CredentialTypeEnum::TYPE_HOST;
+            $credential->name = $hostMacro->getName();
+            $credential->value = $hostMacro->getValue();
+            $credentials[] = $credential;
+        }
+
+        return $credentials;
+    }
+
+    /**
+     * @param Macro[] $serviceMacros
+     *
+     * @return CredentialDto[]
+     */
+    private function createServiceMacroCredentialDtos(array $serviceMacros): array
+    {
+        $credentials = [];
+        foreach ($serviceMacros as $serviceMacro) {
+            if ($serviceMacro->getValue() === '' || str_starts_with($serviceMacro->getValue(), 'secret::')) {
+                continue;
+            }
+            $credential = new CredentialDto();
+            $credential->resourceId = $serviceMacro->getOwnerId();
+            $credential->type = CredentialTypeEnum::TYPE_SERVICE;
+            $credential->name = $serviceMacro->getName();
+            $credential->value = $serviceMacro->getValue();
+            $credentials[] = $credential;
+        }
+
+        return $credentials;
+    }
+
+    /**
+     * @param PollerMacro[] $pollerMacros
+     *
+     * @return CredentialDto[]
+     */
+    private function createPollerMacroCredentialDtos(array $pollerMacros): array
+    {
+        $credentials = [];
+        foreach ($pollerMacros as $pollerMacro) {
+            if ($pollerMacro->getValue() === '' || str_starts_with($pollerMacro->getValue(), 'secret::')) {
+                continue;
+            }
+            $credential = new CredentialDto();
+            $credential->resourceId = $pollerMacro->getId();
+            $credential->type = CredentialTypeEnum::TYPE_POLLER_MACRO;
+            $credential->name = $pollerMacro->getName();
+            $credential->value = $pollerMacro->getValue();
+            $credentials[] = $credential;
+        }
+
+        return $credentials;
+    }
+
+    /**
+     * @param Option|null $knowledgeBasePasswordOption
+     *
+     * @return CredentialDto[]
+     */
+    private function createKnowledgeBasePasswordCredentialDto(?Option $knowledgeBasePasswordOption): array
+    {
+        $credentials = [];
+        if (
+            $knowledgeBasePasswordOption === null
+            || $knowledgeBasePasswordOption->getValue() === null
+            || str_starts_with($knowledgeBasePasswordOption->getValue(), 'secret::')
+        ){
+            return $credentials;
+        }
+
+        $credential = new CredentialDto();
+        $credential->type = CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD;
+        $credential->name = '_KBPASSWORD';
+        $credential->value = $knowledgeBasePasswordOption->getValue();
+        $credentials[] = $credential;
+
+        return $credentials;
     }
 }

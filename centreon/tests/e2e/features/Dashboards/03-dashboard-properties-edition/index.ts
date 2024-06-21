@@ -73,21 +73,27 @@ Then(
 When(
   'the user fills in the name and description fields with new compliant values',
   () => {
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      '{selectall}{backspace}dashboard-edited'
-    );
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      '{selectall}{backspace}dashboard-edited'
-    );
+    cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+      cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+        '{selectall}{backspace}dashboard-edited'
+      );
+      cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+        '{selectall}{backspace}dashboard-edited'
+      );
+    });
   }
 );
 
 Then('the user is allowed to update the dashboard', () => {
-  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+  cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+  });
 });
 
 When('the user saves the dashboard with its new values', () => {
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  });
 });
 
 Then(
