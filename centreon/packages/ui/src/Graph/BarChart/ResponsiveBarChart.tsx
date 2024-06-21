@@ -221,37 +221,37 @@ const ResponsiveBarChart = ({
             timeSeries={timeSeries}
             xScale={xScale}
           >
-          <>
-            <BarGroup
-              barStyle={barStyle}
-              isCenteredZero={axis?.isCenteredZero}
-              isTooltipHidden={isTooltipHidden}
-              leftScale={leftScale}
-              lines={displayedLines}
-              orientation={orientation}
-              rightScale={rightScale}
-              secondUnit={secondUnit}
-              size={isHorizontal ? graphHeight - margin.top - 5 : graphWidth}
-              timeSeries={timeSeries}
-              xScale={xScale}
-            />
-            {thresholds?.enabled && (
-              <Thresholds
-                displayedLines={displayedLines}
-                hideTooltip={() => setTooltipData(null)}
-                isHorizontal={isHorizontal}
+            <>
+              <BarGroup
+                barStyle={barStyle}
+                isCenteredZero={axis?.isCenteredZero}
+                isTooltipHidden={isTooltipHidden}
                 leftScale={leftScale}
+                lines={displayedLines}
+                orientation={orientation}
                 rightScale={rightScale}
-                showTooltip={({ tooltipData: thresholdLabel }) =>
-                  setTooltipData({
-                    thresholdLabel
-                  })
-                }
-                thresholdUnit={thresholdUnit}
-                thresholds={thresholds as ThresholdsModel}
-                width={isHorizontal ? graphWidth : graphHeight - margin.top}
+                secondUnit={secondUnit}
+                size={isHorizontal ? graphHeight - margin.top - 5 : graphWidth}
+                timeSeries={timeSeries}
+                xScale={xScale}
               />
-            )}
+              {thresholds?.enabled && (
+                <Thresholds
+                  displayedLines={displayedLines}
+                  hideTooltip={() => setTooltipData(null)}
+                  isHorizontal={isHorizontal}
+                  leftScale={leftScale}
+                  rightScale={rightScale}
+                  showTooltip={({ tooltipData: thresholdLabel }) =>
+                    setTooltipData({
+                      thresholdLabel
+                    })
+                  }
+                  thresholdUnit={thresholdUnit}
+                  thresholds={thresholds as ThresholdsModel}
+                  width={isHorizontal ? graphWidth : graphHeight - margin.top}
+                />
+              )}
             </>
           </ChartSvgWrapper>
         </div>
