@@ -870,11 +870,9 @@ jobs:
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
-          version: 8
-
-      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
-        with:
-          node-version: 20
+          version: 9
+          run_install: false
+          standalone: true
 
       - name: Install redocly cli
         run: pnpm add -g @redocly/cli@1.16.0
@@ -882,11 +880,18 @@ jobs:
 
       - name: Build openapi documentation
         run: |
-          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
-            redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-cloud-api.yaml -o index.html
+          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-cloud-api.yaml"
+          elif [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
+          elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-version.outputs.major_version }}.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-api-v${{ needs.get-version.outputs.major_version }}.yaml"
           else
-            redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-api.yaml -o index.html
+            echo "::error::openapi file not found"
+            exit 1
           fi
+
+          redocly build-docs --theme.openapi.hideDownloadButton=true $OPENAPI_FILE -o index.html
         shell: bash
 
       - name: Setup awscli
@@ -910,7 +915,7 @@ jobs:
           if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud"
           else
-            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud/${{ needs.get-version.outputs.major_version }}"
+            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}"
           fi
 
           # aws s3 cp --acl public-read "index.html" "${BUCKET_PATH}/index.html"
