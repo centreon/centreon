@@ -39,7 +39,6 @@ use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInt
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
-use Utility\SqlConcatenator;
 
 /**
  * @phpstan-type _ServiceTemplate array{
