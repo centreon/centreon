@@ -71,6 +71,9 @@ jobs:
       - id: get_version
         run: |
           set -x
+          GORGONE_DOCKER_VERSION=$(cat .github/docker/Dockerfile.gorgone-testing-* | md5sum | cut -c1-8)
+          echo "gorgone_docker_version=GORGONE_DOCKER_VERSION" >> $GITHUB_OUTPUT
+
           if [[ "${{ inputs.version_file }}" == */.version ]]; then
             . .version
             . ${{ inputs.version_file }}

@@ -48,4 +48,4 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/gorgone-testing-${{ matrix.distrib }}:${{ needs.get-version.outputs.major_version }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/gorgone-testing-${{ matrix.distrib }}:${{ needs.get-version.outputs.gorgone_docker_version }}
