@@ -901,7 +901,6 @@ jobs:
           aws-region: eu-west-1
           role-to-assume: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           role-session-name: InvalidDocCache
-          role-skip-session-tagging: true
           role-duration-seconds: 900
 
       - name: Copy to AWS S3 centreon-documentation-api
