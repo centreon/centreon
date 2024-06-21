@@ -900,7 +900,8 @@ jobs:
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
-          role-session-name: SyncS3Bucket
+          role-session-name: InvalidDocCache
+          role-skip-session-tagging: true
           role-duration-seconds: 120
 
       - name: Copy to AWS S3 and invalid cloudfront
