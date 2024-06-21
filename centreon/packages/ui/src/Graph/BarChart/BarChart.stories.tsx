@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { LineChartData } from '../common/models';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
+import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 
 import BarChart from './BarChart';
 
@@ -190,6 +191,23 @@ export const customBarStyle: Story = {
       opacity: 0.5,
       radius: 0.5
     }
+  },
+  render: Template
+};
+
+export const mixedStacked: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceMixedStacked
+  },
+  render: Template
+};
+
+export const mixedStackedVertical: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceMixedStacked,
+    orientation: 'vertical'
   },
   render: Template
 };

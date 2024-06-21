@@ -59,6 +59,7 @@ const BarStack = ({
 
             return (
               <rect
+                data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}`}
                 fill={bar.color}
                 height={isHorizontal ? Math.abs(bar.height) : barWidth}
                 key={`bar-stack-${barStack.index}-${bar.index}`}

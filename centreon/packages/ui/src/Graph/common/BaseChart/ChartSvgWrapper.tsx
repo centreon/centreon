@@ -47,7 +47,12 @@ const ChartSvgWrapper = ({
   const isHorizontal = equals(orientation, 'horizontal');
 
   return (
-    <svg height={graphHeight + margin.top} ref={svgRef} width="100%">
+    <svg
+      aria-label="graph"
+      height={graphHeight + margin.top}
+      ref={svgRef}
+      width="100%"
+    >
       <Group.Group left={margin.left + extraMargin / 2} top={margin.top}>
         {showGridLines && (
           <Grids

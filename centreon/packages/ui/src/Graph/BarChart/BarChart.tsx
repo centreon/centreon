@@ -24,7 +24,7 @@ dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
-interface Props
+export interface BarChartProps
   extends Partial<
     Pick<LineChartProps, 'tooltip' | 'legend' | 'height' | 'axis' | 'header'>
   > {
@@ -57,7 +57,7 @@ const BarChart = ({
     opacity: 1,
     radius: 0.2
   }
-}: Props): JSX.Element => {
+}: BarChartProps): JSX.Element => {
   const { adjustedData } = useLineChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
 

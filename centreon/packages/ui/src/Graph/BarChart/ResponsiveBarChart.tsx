@@ -202,7 +202,7 @@ const ResponsiveBarChart = ({
             timeSeries={timeSeries}
           />
         }
-        open={Boolean(tooltipData)}
+        open={!equals(tooltip?.mode, 'hidden') && Boolean(tooltipData)}
         placement="top"
       >
         <div className={classes.tooltipChildren}>

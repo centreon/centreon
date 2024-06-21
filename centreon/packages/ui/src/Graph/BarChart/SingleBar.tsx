@@ -33,6 +33,7 @@ const SingleBar = ({
 
   return (
     <rect
+      data-testid={`single-bar-${bar.key}-${bar.index}-${bar.value}`}
       fill={bar.color}
       height={isHorizontal ? barLength : bar.height}
       opacity={barStyle.opacity}
