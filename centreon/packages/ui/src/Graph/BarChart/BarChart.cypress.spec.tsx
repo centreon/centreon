@@ -54,7 +54,7 @@ describe('Bar chart', () => {
 
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
-      cy.contains('11:40').should('be.visible');
+      cy.contains(':40 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -64,7 +64,7 @@ describe('Bar chart', () => {
 
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
-      cy.contains('11:40').should('be.visible');
+      cy.contains(':40 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -74,7 +74,7 @@ describe('Bar chart', () => {
 
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
-      cy.contains('11:40').should('be.visible');
+      cy.contains(':40 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -84,7 +84,7 @@ describe('Bar chart', () => {
 
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
-      cy.contains('11:40').should('be.visible');
+      cy.contains(':40 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -98,7 +98,7 @@ describe('Bar chart', () => {
 
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
-      cy.contains('11:40').should('be.visible');
+      cy.contains(':40 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -112,7 +112,7 @@ describe('Bar chart', () => {
 
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
-      cy.contains('11:40').should('be.visible');
+      cy.contains(':40 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -126,7 +126,7 @@ describe('Bar chart', () => {
 
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
-      cy.contains('11:40').should('be.visible');
+      cy.contains(':40 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -139,7 +139,7 @@ describe('Bar chart', () => {
 
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
-    cy.contains('11:40').should('be.visible');
+    cy.contains(':40 AM').should('be.visible');
 
     cy.findByTestId('single-bar-3-2-0.11372').realHover();
 
@@ -164,7 +164,7 @@ describe('Bar chart', () => {
 
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
-    cy.contains('11:40').should('be.visible');
+    cy.contains(':40 AM').should('be.visible');
 
     cy.findByTestId('stacked-bar-1-0-0.05296').realHover();
 
@@ -185,7 +185,7 @@ describe('Bar chart', () => {
 
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
-    cy.contains('11:40').should('be.visible');
+    cy.contains(':40 AM').should('be.visible');
 
     cy.findByTestId('stacked-bar-1-0-0.05296').realHover();
 
@@ -218,7 +218,7 @@ describe('Bar chart', () => {
 
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
-    cy.contains('11:40').should('be.visible');
+    cy.contains(':40 AM').should('be.visible');
 
     cy.findByTestId('stacked-bar-1-0-0.05296').realHover();
 
