@@ -41,8 +41,7 @@ final class FindProviderConfigurations
      */
     public function __construct(
         \Traversable $providerDtoFactories,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
-        private readonly ReadVaultRepositoryInterface $readVaultRepository
+        private readonly ReadConfigurationRepositoryInterface $readConfigurationRepository,
     ) {
         $this->providerResponseFactories = iterator_to_array($providerDtoFactories);
     }

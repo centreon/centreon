@@ -22,27 +22,38 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations;
 
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{
-    FindProviderConfigurations,
+use Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\Factory\OpenIdProviderDtoFactory;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{FindProviderConfigurations,
     FindProviderConfigurationsPresenterInterface,
-    ProviderResponse\LocalProviderResponse
-};
+    FindProviderConfigurationsResponse,
+    ProviderConfigurationDto,
+    ProviderConfigurationDtoFactoryInterface,
+    ProviderResponse\LocalProviderResponse};
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 beforeEach(function () {
     $this->readProviderConfigurationRepository = $this->createMock(
         ReadProviderConfigurationsRepositoryInterface::class
     );
-    $this->providerResponse = new LocalProviderResponse();
+    $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+    $this->readVaultConfigurationRepositoryInterface = $this->createMock(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $this->readVaultRepositoryInterface = $this->createMock(ReadVaultRepositoryInterface::class);
+
+    $this->providerDtoFactory = $this->createMock(ProviderConfigurationDtoFactoryInterface::class);
     $this->presenter = $this->createMock(FindProviderConfigurationsPresenterInterface::class);
     $this->localConfiguration = $this->createMock(Configuration::class);
     $this->readConfigurationRepository = $this->createMock(ReadConfigurationRepositoryInterface::class);
 
     $this->useCase = new FindProviderConfigurations(
-        new \ArrayObject([$this->providerResponse]),
+        new \ArrayObject([$this->providerDtoFactory]),
         $this->readConfigurationRepository
     );
 });
@@ -69,10 +80,13 @@ it('presents an empty array when configurations are not found', function () {
         ->method('findConfigurations')
         ->willReturn([]);
 
+    $response = new FindProviderConfigurationsResponse();
+    $response->providerConfigurations = [];
+
     $this->presenter
         ->expects($this->once())
-        ->method('present')
-        ->with([]);
+        ->method('presentResponse')
+        ->with($response);
 
     ($this->useCase)($this->presenter);
 });
@@ -84,41 +98,36 @@ it('presents found configurations', function () {
         ->willReturn([$this->localConfiguration]);
 
     $this->localConfiguration
-        ->expects($this->exactly(2))
+        ->expects($this->once())
         ->method('getType')
         ->willReturn('local');
 
-    $this->localConfiguration
-        ->expects($this->once())
-        ->method('getId')
-        ->willReturn(1);
+    $providerConfigurationDto = new ProviderConfigurationDto();
+    $providerConfigurationDto->id = 1;
+    $providerConfigurationDto->type = 'local';
+    $providerConfigurationDto->name = 'local';
+    $providerConfigurationDto->isActive = true;
+    $providerConfigurationDto->isForced = true;
 
-    $this->localConfiguration
+    $this->providerDtoFactory
         ->expects($this->once())
-        ->method('getName')
-        ->willReturn('local');
-
-    $this->localConfiguration
-        ->expects($this->once())
-        ->method('isActive')
+        ->method('supports')
+        ->with('local')
         ->willReturn(true);
 
-    $this->localConfiguration
+    $this->providerDtoFactory
         ->expects($this->once())
-        ->method('isForced')
-        ->willReturn(true);
+        ->method('createResponse')
+        ->with($this->localConfiguration)
+        ->willReturn($providerConfigurationDto);
 
-    $providerResponse = new LocalProviderResponse();
-    $providerResponse->id = 1;
-    $providerResponse->type = 'local';
-    $providerResponse->name = 'local';
-    $providerResponse->isActive = true;
-    $providerResponse->isForced = true;
+    $response = new FindProviderConfigurationsResponse();
+    $response->providerConfigurations = [$providerConfigurationDto];
 
     $this->presenter
         ->expects($this->once())
-        ->method('present')
-        ->with([$providerResponse]);
+        ->method('presentResponse')
+        ->with($response);
 
     ($this->useCase)($this->presenter);
 });

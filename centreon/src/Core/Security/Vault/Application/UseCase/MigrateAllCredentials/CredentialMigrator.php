@@ -37,6 +37,9 @@ use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
 use Core\Option\Domain\Option;
 use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\PollerMacro\Domain\Model\PollerMacro;
+use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 /**
  * @implements \IteratorAggregate<CredentialRecordedDto|CredentialErrorDto>
@@ -75,11 +78,13 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly WriteOptionRepositoryInterface $writeOptionRepository,
         private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
+        private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
         private readonly array $hosts,
         private readonly array $hostTemplates,
         private readonly array $hostMacros,
         private readonly array $serviceMacros,
         private readonly array $pollerMacros,
+        private readonly Configuration $openIdProviderConfiguration,
     ) {
     }
 
@@ -89,6 +94,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             'hosts' => [],
             'services' => [],
             'pollerMacro' => null,
+            'openId' => null,
         ];
         /**
          * @var CredentialDto $credential
@@ -109,7 +115,13 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                         $credential,
                         $existingUuids
                     ),
-                    CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => $this->migrateKnowledgeBasePassword($credential)
+                    CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => $this->migrateKnowledgeBasePassword(
+                        $credential
+                    ),
+                    CredentialTypeEnum::TYPE_OPEN_ID => $this->migrateOpenIdCredentials(
+                        $credential,
+                        $existingUuids
+                    ),
                 };
 
                 $status = new CredentialRecordedDto();
@@ -247,15 +259,15 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      *
      * @return array{uuid: string, path: string}
      */
-    private function migratePollerMacroPasswords(CredentialDto $credential, array &$existingUuid): array
+    private function migratePollerMacroPasswords(CredentialDto $credential, array &$existingUuids): array
     {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
         $vaultPath = $this->writeVaultRepository->upsert(
-            $existingUuid['pollerMacro'] ?? null,
+            $existingUuids['pollerMacro'] ?? null,
             [$credential->name => $credential->value]
         );
         $vaultPathPart = explode('/', $vaultPath);
-        $existingUuid['pollerMacro'] ??= end($vaultPathPart);
+        $existingUuids['pollerMacro'] ??= end($vaultPathPart);
 
         foreach ($this->pollerMacros as $pollerMacro) {
             if ($pollerMacro->getId() === $credential->resourceId) {
@@ -265,7 +277,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         }
 
         return [
-            'uuid' => $existingUuid['pollerMacro'],
+            'uuid' => $existingUuids['pollerMacro'],
             'path' => $vaultPath,
         ];
     }
@@ -291,6 +303,36 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
         return [
             'uuid' => $uuid,
+            'path' => $vaultPath,
+        ];
+    }
+
+    private function migrateOpenIdCredentials(CredentialDto $credential, array &$existingUuids): array
+    {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::OPEN_ID_CREDENTIALS_VAULT_PATH);
+        $vaultPath = $this->writeVaultRepository->upsert(
+            $existingUuids['openId'] ?? null,
+            [$credential->name => $credential->value]
+        );
+        $vaultPathPart = explode('/', $vaultPath);
+        $existingUuids['openId'] ??= end($vaultPathPart);
+
+        /**
+         * @var CustomConfiguration $customConfiguration
+         */
+        $customConfiguration = $this->openIdProviderConfiguration->getCustomConfiguration();
+        if ($credential->value === $customConfiguration->getClientId()) {
+            $customConfiguration->setClientId($vaultPath);
+        }
+        if ($credential->value === $customConfiguration->getClientSecret()) {
+            $customConfiguration->setClientSecret($vaultPath);
+        }
+
+        $this->openIdProviderConfiguration->setCustomConfiguration($customConfiguration);
+        $this->writeOpenIdConfigurationRepository->updateConfiguration($this->openIdProviderConfiguration);
+
+        return [
+            'uuid' => $existingUuids['openId'],
             'path' => $vaultPath,
         ];
     }

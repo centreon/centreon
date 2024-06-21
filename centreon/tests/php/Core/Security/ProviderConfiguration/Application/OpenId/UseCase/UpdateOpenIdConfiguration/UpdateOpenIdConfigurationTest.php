@@ -26,14 +26,19 @@ namespace Tests\Core\Security\ProviderConfiguration\Application\OpenId\UseCase\U
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration\{UpdateOpenIdConfiguration,
     UpdateOpenIdConfigurationPresenterInterface,
     UpdateOpenIdConfigurationRequest
@@ -47,9 +52,15 @@ beforeEach(function () {
     $this->presenter = $this->createMock(UpdateOpenIdConfigurationPresenterInterface::class);
     $this->readOpenIdRepository = $this->createMock(ReadOpenIdConfigurationRepositoryInterface::class);
     $this->contactTemplateRepository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
+    $this->contactTemplateRepository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
+    $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
+    $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
     $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
     $this->contactGroup = new ContactGroup(1, 'contact_group');
     $this->contactTemplate = new ContactTemplate(1, 'contact_template');
+    $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
+    $this->configuration = $this->createMock(Configuration::class);
+    $this->customConfig = $this->createMock(CustomConfiguration::class);
 });
 
 it('should present a NoContentResponse when the use case is executed correctly', function () {
@@ -81,11 +92,27 @@ it('should present a NoContentResponse when the use case is executed correctly',
         'relations' => []
     ];
 
+    $this->providerFactory
+        ->expects($this->once())
+        ->method('create')
+        ->willReturn($this->provider);
+
+    $this->provider
+        ->expects($this->once())
+        ->method('getConfiguration')
+        ->willReturn($this->configuration);
+
+    $this->configuration
+        ->expects($this->once())
+        ->method('getCustomConfiguration')
+        ->willReturn($this->customConfig);
+
     $this->contactTemplateRepository
         ->expects($this->once())
         ->method('find')
         ->with(1)
         ->willReturn($this->contactTemplate);
+
 
     $this->presenter
         ->expects($this->once())
@@ -97,7 +124,9 @@ it('should present a NoContentResponse when the use case is executed correctly',
         $this->contactTemplateRepository,
         $this->contactGroupRepository,
         $this->accessGroupRepository,
-        $this->providerFactory
+        $this->providerFactory,
+        $this->readVaultConfigurationRepository,
+        $this->writeVaultRepository
     );
     $useCase($this->presenter, $request);
 });
@@ -157,7 +186,9 @@ it('should present an ErrorResponse when an error occured during the use case ex
         $this->contactTemplateRepository,
         $this->contactGroupRepository,
         $this->accessGroupRepository,
-        $this->providerFactory
+        $this->providerFactory,
+        $this->readVaultConfigurationRepository,
+        $this->writeVaultRepository
     );
 
     $useCase($this->presenter, $request);
@@ -197,6 +228,21 @@ it('should present an Error Response when auto import is enable and mandatory pa
         'fullname_bind_attribute',
     ];
 
+    $this->providerFactory
+        ->expects($this->once())
+        ->method('create')
+        ->willReturn($this->provider);
+
+    $this->provider
+        ->expects($this->once())
+        ->method('getConfiguration')
+        ->willReturn($this->configuration);
+
+    $this->configuration
+        ->expects($this->once())
+        ->method('getCustomConfiguration')
+        ->willReturn($this->customConfig);
+
     $this->presenter
         ->expects($this->once())
         ->method('setResponseStatus')
@@ -209,7 +255,9 @@ it('should present an Error Response when auto import is enable and mandatory pa
         $this->contactTemplateRepository,
         $this->contactGroupRepository,
         $this->accessGroupRepository,
-        $this->providerFactory
+        $this->providerFactory,
+        $this->readVaultConfigurationRepository,
+        $this->writeVaultRepository
     );
 
     $useCase($this->presenter, $request);
@@ -254,7 +302,9 @@ it('should present an Error Response when auto import is enable and the contact 
         $this->contactTemplateRepository,
         $this->contactGroupRepository,
         $this->accessGroupRepository,
-        $this->providerFactory
+        $this->providerFactory,
+        $this->readVaultConfigurationRepository,
+        $this->writeVaultRepository
     );
 
     $useCase($this->presenter, $request);
