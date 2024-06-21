@@ -221,6 +221,7 @@ const ResponsiveBarChart = ({
             timeSeries={timeSeries}
             xScale={xScale}
           >
+          <>
             <BarGroup
               barStyle={barStyle}
               isCenteredZero={axis?.isCenteredZero}
@@ -251,6 +252,7 @@ const ResponsiveBarChart = ({
                 width={isHorizontal ? graphWidth : graphHeight - margin.top}
               />
             )}
+            </>
           </ChartSvgWrapper>
         </div>
       </Tooltip>

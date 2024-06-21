@@ -1,4 +1,3 @@
-import { equals } from 'ramda';
 import dayjs from 'dayjs';
 
 import dataPingService from '../mockedData/pingService.json';

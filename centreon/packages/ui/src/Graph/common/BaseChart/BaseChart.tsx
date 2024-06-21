@@ -23,8 +23,8 @@ interface Props {
   children: JSX.Element;
   graphWidth: number;
   header?: LineChartHeader;
-  height: number | null;
   isHorizontal?: boolean;
+  height: number | null;
   legend: {
     displayLegend: boolean;
     mode?: 'grid' | 'list';
@@ -87,7 +87,7 @@ const BaseChart = ({
               <div
                 className={cx(
                   classes.legendContainer,
-                  equals(legend?.placement, 'right') &&
+                  equals(legend?.placement, 'right') && !isHorizontal &&
                     classes.legendContainerVerticalSide
                 )}
                 ref={legendRef}
