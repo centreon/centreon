@@ -2,7 +2,6 @@
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
-const fs = require('fs');
 
 import tar from 'tar-fs';
 import {
@@ -51,11 +50,6 @@ export default (on: Cypress.PluginEvents): void => {
 
   interface StopContainerProps {
     name: string;
-  }
-
-  interface RetryTestInfo {
-    testName: string;
-    featureName: string;
   }
 
   on('task', {
@@ -261,42 +255,5 @@ export default (on: Cypress.PluginEvents): void => {
 
       return null;
     },
-    writeRetryInfo({ retryTestInfo }: { retryTestInfo: RetryTestInfo }) {
-      const resultsDir = path.join(__dirname, '../../../../tests/e2e/results');
-      const retryReportFile = path.join(resultsDir, 'hasRetries.json');
-
-      let currentData: RetryTestInfo[] = [];
-
-      // Assurez-vous que le dossier results existe, sinon le créer de manière récursive
-      if (!fs.existsSync(resultsDir)) {
-        fs.mkdirSync(resultsDir, { recursive: true });
-      }
-
-      // Vérifiez si le fichier hasRetries.json existe
-      if (fs.existsSync(retryReportFile)) {
-        // Lire les données actuelles du fichier
-        const fileData = fs.readFileSync(retryReportFile, 'utf8');
-        if (fileData.trim()) {
-          try {
-            // Parser les données JSON du fichier dans currentData
-            currentData = JSON.parse(fileData) as RetryTestInfo[];
-          } catch (error) {
-            console.error("Erreur lors du parsing des données JSON :", error);
-          }
-        }
-      } else {
-        // Si le fichier n'existe pas, créer un fichier vide avec un tableau JSON
-        fs.writeFileSync(retryReportFile, '[]', 'utf8');
-      }
-
-      // Ajouter les nouvelles informations de retry à currentData
-      currentData.push(retryTestInfo);
-
-      // Écrire les données mises à jour dans le fichier hasRetries.json
-      fs.writeFileSync(retryReportFile, JSON.stringify(currentData, null, 2));
-
-      // Retourner null ou gérer toute autre réponse selon les besoins
-      return null;
-    }
   });
 };
