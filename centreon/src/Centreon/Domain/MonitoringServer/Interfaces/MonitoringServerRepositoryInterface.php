@@ -42,6 +42,15 @@ interface MonitoringServerRepositoryInterface
     public function findServersWithRequestParameters(): array;
 
     /**
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return MonitoringServer[]
+     */
+    public function findServersWithRequestParametersAndAccessGroups(array $accessGroups): array;
+
+    /**
      * Find monitoring servers without taking into account the request parameters.
      *
      * @return MonitoringServer[]
