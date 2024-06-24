@@ -80,10 +80,15 @@ export default ({
             '../../../../tests/e2e/results',
             'hasRetries.json'
           );
-          fs.writeFileSync(
-            resultFilePath,
-            JSON.stringify(testRetries, null, 2)
-          );
+          if (results.totalFailed > 0) {
+            fs.writeFileSync(resultFilePath, '{}');
+          } else if (Object.keys(testRetries).length > 0) {
+            // If tests succeeded but there were retries, write the retries to the file
+            fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
+          } else {
+            // If no retries, empty the file
+            fs.writeFileSync(resultFilePath, '{}');
+          }
         });
         return plugins(on, config);
       },
