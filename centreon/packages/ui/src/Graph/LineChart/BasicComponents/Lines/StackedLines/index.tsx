@@ -45,10 +45,8 @@ const StackLines = ({
     >
       {({ stacks, path: linePath }): Array<JSX.Element> => {
         return stacks.map((stack, index) => {
-          const { areaColor, transparency, lineColor, highlight } = nth(
-            index,
-            lines
-          ) as Line;
+          const { areaColor, transparency, lineColor, highlight, metric_id } =
+            nth(index, lines) as Line;
 
           return (
             <g key={`stack-${prop('key', stack)}`}>
@@ -65,6 +63,7 @@ const StackLines = ({
               )}
               <path
                 d={linePath(stack) || ''}
+                data-metric={metric_id}
                 fill={getFillColor({ areaColor, transparency })}
                 opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
