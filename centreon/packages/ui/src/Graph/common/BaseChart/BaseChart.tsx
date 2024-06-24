@@ -115,7 +115,7 @@ const BaseChart = ({
       {legend.displayLegend && displayLegendInBottom && (
         <div
           ref={legendRef}
-          style={{ height: legend?.legendHeight ?? 'unset' }}
+          style={{ height: legend?.legendHeight ?? 'undefined' }}
         >
           <Legend
             base={base}
