@@ -11,6 +11,7 @@ export const useTooltipStyles = makeStyles()((theme) => ({
     maxWidth: 'none',
     padding: theme.spacing(0.5, 1)
   },
+  tooltipChildren: { height: '100%', width: '100%' },
   tooltipDisablePadding: {
     padding: theme.spacing(0)
   }
