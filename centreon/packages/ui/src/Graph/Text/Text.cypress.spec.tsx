@@ -1,4 +1,4 @@
-import dataLastWeek from '../LineChart/mockedData/lastWeek.json';
+import dataLastWeek from '../mockedData/lastWeek.json';
 import {
   criticalThresholds,
   rangedThresholds,

@@ -194,11 +194,7 @@ Given('a dashboard that includes a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
   cy.wait('@resourceRequest');
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(0)
@@ -269,11 +265,7 @@ Then('only the services must be displayed', () => {
 Given('a dashboard containing a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
   cy.wait('@resourceRequest');
 });
 

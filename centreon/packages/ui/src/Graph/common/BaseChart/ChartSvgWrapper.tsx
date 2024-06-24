@@ -1,6 +1,7 @@
 import { MutableRefObject } from 'react';
 
 import { Group } from '@visx/visx';
+import { equals } from 'ramda';
 
 import { margin } from '../../LineChart/common';
 import Grids from '../Grids';
@@ -19,6 +20,7 @@ interface Props {
   graphWidth: number;
   gridLinesType?: string;
   leftScale;
+  orientation?: 'horizontal' | 'vertical';
   rightScale;
   showGridLines: boolean;
   svgRef: MutableRefObject<SVGSVGElement | null>;
@@ -39,18 +41,26 @@ const ChartSvgWrapper = ({
   displayedLines,
   timeSeries,
   axis,
-  children
+  children,
+  orientation = 'horizontal'
 }: Props): JSX.Element => {
+  const isHorizontal = equals(orientation, 'horizontal');
+
   return (
-    <svg height={graphHeight + margin.top} ref={svgRef} width="100%">
+    <svg
+      aria-label="graph"
+      height={graphHeight + margin.top}
+      ref={svgRef}
+      width="100%"
+    >
       <Group.Group left={margin.left + extraMargin / 2} top={margin.top}>
         {showGridLines && (
           <Grids
             gridLinesType={gridLinesType}
             height={graphHeight - margin.top}
-            leftScale={leftScale}
+            leftScale={isHorizontal ? leftScale : xScale}
             width={graphWidth}
-            xScale={xScale}
+            xScale={isHorizontal ? xScale : leftScale}
           />
         )}
         <Axes
@@ -62,6 +72,7 @@ const ChartSvgWrapper = ({
           }}
           height={graphHeight - margin.top}
           leftScale={leftScale}
+          orientation={orientation}
           rightScale={rightScale}
           width={graphWidth}
           xScale={xScale}
