@@ -27,6 +27,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Application\Configuration\Notification\Repository\ReadHostNotificationRepositoryInterface;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Pimple\Container;
 
 class LegacyReadHostNotificationRepository extends AbstractDbReadNotificationRepository implements ReadHostNotificationRepositoryInterface
@@ -63,6 +64,18 @@ class LegacyReadHostNotificationRepository extends AbstractDbReadNotificationRep
     /**
      * @inheritDoc
      */
+    public function findNotifiedContactsByIdAndAccessGroups(int $hostId, array $accessGroups): array
+    {
+        if (! isset($this->notifiedContacts[$hostId])) {
+            $this->fetchNotifiedContactsAndContactGroups($hostId, $accessGroups);
+        }
+
+        return $this->notifiedContacts[$hostId];
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findNotifiedContactGroupsById(int $hostId): array
     {
         if (! isset($this->notifiedContactGroups[$hostId])) {
@@ -73,11 +86,24 @@ class LegacyReadHostNotificationRepository extends AbstractDbReadNotificationRep
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findNotifiedContactGroupsByIdAndAccessGroups(int $hostId, array $accessGroups): array
+    {
+        if (! isset($this->notifiedContactGroups[$hostId])) {
+            $this->fetchNotifiedContactsAndContactGroups($hostId, $accessGroups);
+        }
+
+        return $this->notifiedContactGroups[$hostId];
+    }
+
+    /**
      * Initialize notified contacts and contactgroups for given host id.
      *
      * @param int $hostId
+     * @param AccessGroup[] $accessGroups
      */
-    private function fetchNotifiedContactsAndContactGroups(int $hostId): void
+    private function fetchNotifiedContactsAndContactGroups(int $hostId, array $accessGroups = []): void
     {
         /**
          * Call to Legacy code to get the contacts and contactgroups
@@ -91,7 +117,18 @@ class LegacyReadHostNotificationRepository extends AbstractDbReadNotificationRep
             'cg' => $notifiedContactGroupIds,
         ] = $hostInstance->getCgAndContacts($hostId);
 
-        $this->notifiedContacts[$hostId] = $this->findContactsByIds($notifiedContactIds);
-        $this->notifiedContactGroups[$hostId] = $this->findContactGroupsByIds($notifiedContactGroupIds);
+        if ($accessGroups === []) {
+            $this->notifiedContacts[$hostId] = $this->findContactsByIds($notifiedContactIds);
+            $this->notifiedContactGroups[$hostId] = $this->findContactGroupsByIds($notifiedContactGroupIds);
+        } else {
+            $this->notifiedContacts[$hostId] = $this->findContactsByIdsAndAccessGroups(
+                $notifiedContactIds,
+                $accessGroups
+            );
+            $this->notifiedContactGroups[$hostId] = $this->findContactGroupsByIdsAndAccessGroups(
+                $notifiedContactGroupIds,
+                $accessGroups
+            );
+        }
     }
 }
