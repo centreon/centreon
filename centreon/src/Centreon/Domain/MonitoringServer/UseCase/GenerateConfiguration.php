@@ -70,10 +70,6 @@ class GenerateConfiguration
                 throw new AccessDeniedException();
             }
 
-            if (! $this->contact->hasRole(Contact::ROLE_GENERATE_CONFIGURATION)) {
-                throw new AccessDeniedException();
-            }
-
             if (! $this->contact->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
 
