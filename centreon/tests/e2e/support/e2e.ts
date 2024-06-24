@@ -1,5 +1,9 @@
+/* eslint-disable import/newline-after-import */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'cypress-wait-until';
 import 'cypress-real-events';
+import 'cypress-on-fix';
 
 import './commands';
 

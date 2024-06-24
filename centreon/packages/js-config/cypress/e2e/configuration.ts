@@ -48,7 +48,8 @@ export default ({
       reporterOptions: {
         configFile: `${__dirname}/reporter-config.js`
       },
-      setupNodeEvents: async (on, config) => {
+      setupNodeEvents: async (cypressOn, config) => {
+        const on = require('cypress-on-fix')(cypressOn)
         installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
         tasks(on);
@@ -67,9 +68,11 @@ export default ({
       WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
-    experimentalMemoryManagement: true,
     requestTimeout: 20000,
-    retries: 0,
+    retries: {
+      openMode: 0,
+      runMode: 2
+    },
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
     videoCompression: 0,
