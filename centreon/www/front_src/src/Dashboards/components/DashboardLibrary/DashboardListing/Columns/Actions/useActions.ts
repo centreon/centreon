@@ -1,23 +1,27 @@
 import { useState } from 'react';
 
-import { isNil } from 'ramda';
-import { useSetAtom } from 'jotai';
+import { isNil, isNotNil } from 'ramda';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDashboardConfig } from '../../../DashboardConfig/useDashboardConfig';
 import { unformatDashboard } from '../../utils';
 import { askBeforeRevokeAtom } from '../../atom';
 import {
+  dashboardToAddToPlaylistAtom,
   dashboardToDeleteAtom,
   dashboardToDuplicateAtom,
   isSharesOpenAtom
 } from '../../../../../atoms';
+import { platformVersionsAtom } from '../../../../../../Main/atoms/platformVersionsAtom';
 
 interface UseActionsState {
   closeMoreActions: () => void;
   editAccessRights: () => void;
   editDashboard: () => void;
+  hasIEEEInstalled: boolean;
   isNestedRow: boolean;
   moreActionsOpen: HTMLElement | null;
+  openAddToPlaylistModal: () => void;
   openAskBeforeRevoke: () => void;
   openDeleteModal: () => void;
   openDuplicateModal: () => void;
@@ -26,13 +30,15 @@ interface UseActionsState {
 
 const useActions = (row): UseActionsState => {
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
-  const setAskBeforeRevoke = useSetAtom(askBeforeRevokeAtom);
 
   const { editDashboard } = useDashboardConfig();
-  const setIsSharesOpen = useSetAtom(isSharesOpenAtom);
 
+  const platformVersions = useAtomValue(platformVersionsAtom);
+  const setAskBeforeRevoke = useSetAtom(askBeforeRevokeAtom);
+  const setIsSharesOpen = useSetAtom(isSharesOpenAtom);
   const seDashboardToDuplicate = useSetAtom(dashboardToDuplicateAtom);
   const seDashboardToDelete = useSetAtom(dashboardToDeleteAtom);
+  const setDashboardToAddToPlaylist = useSetAtom(dashboardToAddToPlaylistAtom);
 
   const openDuplicateModal = (): void =>
     seDashboardToDuplicate(unformatDashboard(row));
@@ -48,6 +54,10 @@ const useActions = (row): UseActionsState => {
 
   const unformattedDashboard = isNestedRow ? row : unformatDashboard(row);
 
+  const hasIEEEInstalled = isNotNil(
+    platformVersions?.modules['centreon-it-edition-extensions']
+  );
+
   const openAskBeforeRevoke = (): void => {
     setAskBeforeRevoke({
       dashboardId: row.dashboardId,
@@ -59,12 +69,18 @@ const useActions = (row): UseActionsState => {
     });
   };
 
+  const openAddToPlaylistModal = (): void => {
+    setDashboardToAddToPlaylist(unformattedDashboard);
+  };
+
   return {
     closeMoreActions,
     editAccessRights: openShares(unformattedDashboard),
     editDashboard: editDashboard(unformattedDashboard),
+    hasIEEEInstalled,
     isNestedRow,
     moreActionsOpen,
+    openAddToPlaylistModal,
     openAskBeforeRevoke,
     openDeleteModal,
     openDuplicateModal,

@@ -1,14 +1,17 @@
 import { useState } from 'react';
 
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isNotNil } from 'ramda';
 
 import {
+  dashboardToAddToPlaylistAtom,
   dashboardToDeleteAtom,
   dashboardToDuplicateAtom,
   isSharesOpenAtom
 } from '../../../atoms';
 import { Dashboard } from '../../../api/models';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
+import { platformVersionsAtom } from '../../../../Main/atoms/platformVersionsAtom';
 
 interface Props {
   dashboard: Dashboard;
@@ -16,7 +19,9 @@ interface Props {
 
 interface useDashboardCardActionsState {
   closeMoreActions: () => void;
+  hasIEEEInstalled: boolean;
   moreActionsOpen: HTMLElement | null;
+  openAddToPlaylistModal: () => void;
   openDeleteModal: () => void;
   openDuplicateModal: () => void;
   openEditAccessRightModal: () => void;
@@ -34,9 +39,15 @@ const useDashboardCardActions = ({
 
   const { editDashboard } = useDashboardConfig();
 
+  const platformVersions = useAtomValue(platformVersionsAtom);
   const setIsSharesOpenAtom = useSetAtom(isSharesOpenAtom);
   const setDashboardToDelete = useSetAtom(dashboardToDeleteAtom);
   const setDashboardToDuplicate = useSetAtom(dashboardToDuplicateAtom);
+  const setDashboardToAddToPlaylist = useSetAtom(dashboardToAddToPlaylistAtom);
+
+  const hasIEEEInstalled = isNotNil(
+    platformVersions?.modules['centreon-it-edition-extensions']
+  );
 
   const openDeleteModal = (): void => {
     setDashboardToDelete(dashboard);
@@ -57,9 +68,15 @@ const useDashboardCardActions = ({
     setIsSharesOpenAtom(dashboard);
   };
 
+  const openAddToPlaylistModal = (): void => {
+    setDashboardToAddToPlaylist(dashboard);
+  };
+
   return {
     closeMoreActions,
+    hasIEEEInstalled,
     moreActionsOpen,
+    openAddToPlaylistModal,
     openDeleteModal,
     openDuplicateModal,
     openEditAccessRightModal,
