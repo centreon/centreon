@@ -15,23 +15,30 @@ import { legendWidth } from '../../LineChart/Legend/Legend.styles';
 import { Line } from '../timeSeries/models';
 
 import { useBaseChartStyles } from './useBaseChartStyles';
+import Header from './Header';
+import { LineChartHeader } from './Header/models';
 
 interface Props {
   base?: number;
   children: JSX.Element;
   graphWidth: number;
+  header?: LineChartHeader;
   height: number | null;
+  isHorizontal?: boolean;
   legend: {
     displayLegend: boolean;
     legendHeight?: number;
-    mode: 'grid' | 'list';
-    placement: string;
+    mode?: 'grid' | 'list';
+    placement?: 'left' | 'right' | 'bottom';
     renderExtraComponent?: ReactNode;
   };
   legendRef: MutableRefObject<HTMLDivElement | null>;
   limitLegend?: number | false;
   lines: Array<Line>;
-  setLines: Dispatch<SetStateAction<Array<Line> | null>>;
+  setLines:
+    | Dispatch<SetStateAction<Array<Line> | null>>
+    | Dispatch<SetStateAction<Array<Line>>>;
+  title: string;
 }
 
 const BaseChart = ({
@@ -43,9 +50,12 @@ const BaseChart = ({
   limitLegend = false,
   setLines,
   children,
-  legendRef
+  legendRef,
+  title,
+  header,
+  isHorizontal = true
 }: Props): JSX.Element => {
-  const { classes } = useBaseChartStyles();
+  const { classes, cx } = useBaseChartStyles();
 
   const legendItemsWidth = useMemo(
     () => reduce((acc) => acc + legendWidth * 8 + 24, 0, lines),
@@ -67,6 +77,7 @@ const BaseChart = ({
 
   return (
     <>
+      <Header header={header} title={title} />
       <div className={classes.container}>
         <Stack
           direction={equals(legend?.placement, 'left') ? 'row' : 'row-reverse'}
@@ -74,7 +85,15 @@ const BaseChart = ({
           {legend.displayLegend &&
             (equals(legend?.placement, 'left') ||
               equals(legend?.placement, 'right')) && (
-              <div ref={legendRef} style={{ maxWidth: '60%' }}>
+              <div
+                className={cx(
+                  classes.legendContainer,
+                  equals(legend?.placement, 'right') &&
+                    !isHorizontal &&
+                    classes.legendContainerVerticalSide
+                )}
+                ref={legendRef}
+              >
                 <Legend
                   base={base}
                   height={height}

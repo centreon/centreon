@@ -2,10 +2,11 @@ import { equals } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
-import { margin } from '../common';
+import { margin } from '../../LineChart/common';
 
 interface Props {
   hideTooltip: () => void;
+  isHorizontal: boolean;
   label: string;
   showTooltip: (args) => void;
   thresholdType: string;
@@ -21,7 +22,8 @@ export const ThresholdLine = ({
   thresholdType,
   showTooltip,
   hideTooltip,
-  width
+  width,
+  isHorizontal
 }: Props): JSX.Element => {
   const theme = useTheme();
 
@@ -38,6 +40,20 @@ export const ThresholdLine = ({
     ? theme.palette.warning.main
     : theme.palette.error.main;
 
+  const coordinates = isHorizontal
+    ? {
+        x1: 0,
+        x2: width,
+        y1: scaledValue,
+        y2: scaledValue
+      }
+    : {
+        x1: scaledValue,
+        x2: scaledValue,
+        y1: 0,
+        y2: width
+      };
+
   return (
     <>
       <line
@@ -45,21 +61,15 @@ export const ThresholdLine = ({
         stroke={lineColor}
         strokeDasharray="5,5"
         strokeWidth={2}
-        x1={0}
-        x2={width}
-        y1={scaledValue}
-        y2={scaledValue}
+        {...coordinates}
       />
       <line
         data-testid={`${thresholdType}-line-${value}-tooltip`}
         stroke="transparent"
         strokeWidth={5}
-        x1={0}
-        x2={width}
-        y1={scaledValue}
-        y2={scaledValue}
         onMouseEnter={onMouseEnter}
         onMouseLeave={hideTooltip}
+        {...coordinates}
       />
     </>
   );

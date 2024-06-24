@@ -1,9 +1,9 @@
 import { LineChartData } from '../common/models';
+import dataLastDay from '../mockedData/lastDay.json';
+import dataLastDayWithNullValues from '../mockedData/lastDayWithNullValues.json';
+import dataLastDayWithIncompleteValues from '../mockedData/lastDayWithIncompleteValues.json';
+import dataCurvesWithSameColor from '../mockedData/curvesWithSameColor.json';
 
-import dataLastDay from './mockedData/lastDay.json';
-import dataLastDayWithNullValues from './mockedData/lastDayWithNullValues.json';
-import dataLastDayWithIncompleteValues from './mockedData/lastDayWithIncompleteValues.json';
-import dataCurvesWithSameColor from './mockedData/curvesWithSameColor.json';
 import { args as argumentsData } from './helpers/doc';
 import { LineChartProps } from './models';
 

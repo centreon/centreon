@@ -1,6 +1,6 @@
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -15,6 +15,7 @@ interface Props {
   data: Data;
   height: number;
   leftScale: ScaleLinear<number, number>;
+  orientation: 'horizontal' | 'vertical';
   rightScale: ScaleLinear<number, number>;
   width: number;
   xScale: ScaleLinear<number, number>;
@@ -26,7 +27,8 @@ const Axes = ({
   data,
   rightScale,
   leftScale,
-  xScale
+  xScale,
+  orientation
 }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const { lines, showBorder, yAxisTickLabelRotation } = data;
@@ -48,47 +50,72 @@ const Axes = ({
   const hasMoreThanTwoUnits = !isNil(thirdUnit);
   const displayAxisRight = !isNil(secondUnit) && !hasMoreThanTwoUnits;
 
+  const isHorizontal = equals(orientation, 'horizontal');
+
+  const AxisBottom = isHorizontal ? Axis.AxisBottom : Axis.AxisLeft;
+  const AxisLeft = isHorizontal ? Axis.AxisLeft : Axis.AxisTop;
+  const AxisRight = isHorizontal ? Axis.AxisRight : Axis.AxisBottom;
+
   return (
     <g>
-      <Axis.AxisBottom
+      <AxisBottom
         numTicks={xTickCount}
         scale={xScale}
         strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
         tickFormat={formatAxisTick}
-        top={height - 5}
+        tickLabelProps={() => ({
+          ...axisLeft.tickLabelProps(),
+          dx: isHorizontal ? 16 : -4
+        })}
+        top={isHorizontal ? height - 5 : 0}
       />
 
-      {axisLeft.displayUnit && <UnitLabel unit={firstUnit} x={-4} />}
+      {axisLeft.displayUnit && (
+        <UnitLabel
+          unit={firstUnit}
+          x={isHorizontal ? -8 : width + 8}
+          y={isHorizontal ? 16 : 0}
+        />
+      )}
 
-      <Axis.AxisLeft
+      <AxisLeft
         numTicks={axisLeft?.numTicks}
-        orientation="left"
         scale={leftScale}
         strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
         tickFormat={axisLeft.tickFormat}
         tickLabelProps={() => ({
           ...axisLeft.tickLabelProps(),
-          angle: yAxisTickLabelRotation
+          angle: yAxisTickLabelRotation,
+          dx: isHorizontal ? -8 : 2,
+          dy: isHorizontal ? 4 : -4
         })}
         tickLength={2}
       />
 
       {displayAxisRight && (
-        <Axis.AxisRight
-          left={width}
+        <AxisRight
+          left={isHorizontal ? width : 0}
           numTicks={axisRight?.numTicks}
-          orientation="right"
           scale={rightScale}
           strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
           tickFormat={axisRight.tickFormat}
           tickLabelProps={() => ({
             ...axisRight.tickLabelProps(),
-            angle: yAxisTickLabelRotation
+            angle: yAxisTickLabelRotation,
+            dx: isHorizontal ? 4 : -8,
+            dy: 4
           })}
           tickLength={2}
+          top={isHorizontal ? 0 : height}
         />
       )}
-      {axisRight.displayUnit && <UnitLabel unit={secondUnit} x={width} />}
+      {axisRight.displayUnit && (
+        <UnitLabel
+          unit={secondUnit}
+          x={width + 8}
+          y={isHorizontal ? 16 : -(height + 8)}
+        />
+      )}
     </g>
   );
 };
