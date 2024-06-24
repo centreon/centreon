@@ -26,6 +26,7 @@ namespace Centreon\Domain\MonitoringServer\Interfaces;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\MonitoringServerResource;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
   * @package Centreon\Domain\MonitoringServer\Interfaces
@@ -39,6 +40,15 @@ interface MonitoringServerRepositoryInterface
      * @throws \Exception
      */
     public function findServersWithRequestParameters(): array;
+
+    /**
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return MonitoringServer[]
+     */
+    public function findServersWithRequestParametersAndAccessGroups(array $accessGroups): array;
 
     /**
      * Find monitoring servers without taking into account the request parameters.
