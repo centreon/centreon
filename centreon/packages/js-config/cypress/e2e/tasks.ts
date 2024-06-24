@@ -254,6 +254,6 @@ export default (on: Cypress.PluginEvents): void => {
       execSync(`npx wait-on ${url}`);
 
       return null;
-    },
+    }
   });
 };
