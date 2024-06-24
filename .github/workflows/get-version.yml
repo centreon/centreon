@@ -29,6 +29,9 @@ on:
       release_cloud:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-version.outputs.release_cloud }}
+      gorgone_docker_version:
+        description: "md5 of gorgone dockerfile"
+        value: ${{ jobs.get-version.outputs.gorgone_docker_version }}
 
 jobs:
   get-version:
