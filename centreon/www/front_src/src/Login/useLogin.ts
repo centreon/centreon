@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useCookies } from 'react-cookie';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -17,12 +17,7 @@ import {
   prop
 } from 'ramda';
 
-import {
-  useSnackbar,
-  useFetchQuery,
-  ResponseError,
-  useDeepCompare
-} from '@centreon/ui';
+import { useSnackbar, useFetchQuery, ResponseError } from '@centreon/ui';
 
 import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
@@ -206,15 +201,9 @@ const useLogin = (): UseLoginState => {
     );
   }, []);
 
-  const forcedProviders = useMemo(
-    () => getForcedProviders(providers || []),
-    useDeepCompare([providers])
-  );
+  const forcedProviders = getForcedProviders(providers || []);
 
-  const externalProviders = useMemo(
-    () => getExternalProviders(providers || []),
-    useDeepCompare([providers])
-  );
+  const externalProviders = getExternalProviders(providers || []);
 
   const activeProviders = getActiveProviders(externalProviders || []);
 
@@ -247,16 +236,13 @@ const useLogin = (): UseLoginState => {
     navigate(cookies.REDIRECT_URI);
   }, [cookies]);
 
-  useEffect(
-    () => {
-      if (isEmpty(forcedProviders) || authenticationError) {
-        return;
-      }
+  useEffect(() => {
+    if (isEmpty(forcedProviders) || authenticationError) {
+      return;
+    }
 
-      window.location.replace(forcedProviders[0].authenticationUri);
-    },
-    useDeepCompare([forcedProviders, authenticationError])
-  );
+    window.location.replace(forcedProviders[0].authenticationUri);
+  }, [forcedProviders, authenticationError]);
 
   return {
     authenticationError,
