@@ -18,18 +18,17 @@ import { useTooltipStyles } from '../common/useTooltipStyles';
 import BaseChart from '../common/BaseChart/BaseChart';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
+import Thresholds from '../common/Thresholds/Thresholds';
 
 import Lines from './BasicComponents/Lines';
 import { canDisplayThreshold } from './BasicComponents/Lines/Threshold/models';
 import useFilterLines from './BasicComponents/useFilterLines';
-import Header from './Header';
 import InteractionWithGraph from './InteractiveComponents';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import { margin } from './common';
 import { Data, GlobalAreaLines, GraphInterval, LineChartProps } from './models';
 import { useIntersection } from './useLineChartIntersection';
-import Thresholds from './BasicComponents/Thresholds';
 import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 import { useLineChartStyles } from './LineChart.styles';
 
@@ -190,134 +189,131 @@ const LineChart = ({
   }
 
   return (
-    <>
-      <Header header={header} title={title} />
-      <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
-        <>
-          <BaseChart
-            base={baseAxis}
-            graphWidth={graphWidth}
-            height={height}
-            legend={{
-              displayLegend,
-              mode: legend?.mode,
-              placement: legend?.placement,
-              renderExtraComponent: legend?.renderExtraComponent
+    <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
+      <>
+        <BaseChart
+          base={baseAxis}
+          graphWidth={graphWidth}
+          header={header}
+          height={height}
+          legend={{
+            displayLegend,
+            mode: legend?.mode,
+            placement: legend?.placement,
+            renderExtraComponent: legend?.renderExtraComponent
+          }}
+          legendRef={legendRef}
+          limitLegend={limitLegend}
+          lines={displayedLines}
+          setLines={setLinesGraph}
+          title={title}
+        >
+          <MuiTooltip
+            classes={{
+              tooltip: cx(
+                tooltipClasses.tooltip,
+                tooltipClasses.tooltipDisablePadding
+              )
             }}
-            legendRef={legendRef}
-            limitLegend={limitLegend}
-            lines={displayedLines}
-            setLines={setLinesGraph}
-          >
-            <MuiTooltip
-              classes={{
-                tooltip: cx(
-                  tooltipClasses.tooltip,
-                  tooltipClasses.tooltipDisablePadding
-                )
-              }}
-              placement="top-start"
-              title={
-                equals('hidden', tooltip?.mode) ? null : (
-                  <GraphValueTooltip
-                    base={baseAxis}
-                    isSingleMode={equals('single', tooltip?.mode)}
-                    sortOrder={tooltip?.sortOrder}
-                  />
-                )
-              }
-            >
-              <div className={classes.tooltipChildren}>
-                <ChartSvgWrapper
-                  axis={axis}
+            placement="top-start"
+            title={
+              equals('hidden', tooltip?.mode) ? null : (
+                <GraphValueTooltip
                   base={baseAxis}
-                  displayedLines={displayedLines}
-                  graphHeight={graphHeight}
-                  graphWidth={graphWidth}
-                  gridLinesType={axis?.gridLinesType}
-                  leftScale={leftScale}
-                  rightScale={rightScale}
-                  showGridLines={showGridLines}
-                  svgRef={graphSvgRef}
-                  timeSeries={timeSeries}
-                  xScale={xScale}
-                >
-                  <>
-                    <Lines
-                      areaTransparency={lineStyle?.areaTransparency}
-                      curve={lineStyle?.curve || 'linear'}
-                      dashLength={lineStyle?.dashLength}
-                      dashOffset={lineStyle?.dashOffset}
-                      displayAnchor={displayAnchor}
+                  isSingleMode={equals('single', tooltip?.mode)}
+                  sortOrder={tooltip?.sortOrder}
+                />
+              )
+            }
+          >
+            <div className={classes.tooltipChildren}>
+              <ChartSvgWrapper
+                axis={axis}
+                base={baseAxis}
+                displayedLines={displayedLines}
+                graphHeight={graphHeight}
+                graphWidth={graphWidth}
+                gridLinesType={axis?.gridLinesType}
+                leftScale={leftScale}
+                rightScale={rightScale}
+                showGridLines={showGridLines}
+                svgRef={graphSvgRef}
+                timeSeries={timeSeries}
+                xScale={xScale}
+              >
+                <>
+                  <Lines
+                    areaTransparency={lineStyle?.areaTransparency}
+                    curve={lineStyle?.curve || 'linear'}
+                    dashLength={lineStyle?.dashLength}
+                    dashOffset={lineStyle?.dashOffset}
+                    displayAnchor={displayAnchor}
+                    displayedLines={displayedLines}
+                    dotOffset={lineStyle?.dotOffset}
+                    graphSvgRef={graphSvgRef}
+                    height={graphHeight - margin.top}
+                    leftScale={leftScale}
+                    lineWidth={lineStyle?.lineWidth}
+                    rightScale={rightScale}
+                    showArea={lineStyle?.showArea}
+                    showPoints={lineStyle?.showPoints}
+                    timeSeries={timeSeries}
+                    width={graphWidth}
+                    xScale={xScale}
+                    {...shapeLines}
+                  />
+                  <InteractionWithGraph
+                    annotationData={{ ...annotationEvent }}
+                    commonData={{
+                      graphHeight,
+                      graphSvgRef,
+                      graphWidth,
+                      leftScale,
+                      lines: displayedLines,
+                      rightScale,
+                      timeSeries,
+                      xScale
+                    }}
+                    timeShiftZonesData={{
+                      ...timeShiftZones,
+                      graphInterval
+                    }}
+                    zoomData={{ ...zoomPreview }}
+                  />
+                  {thresholds?.enabled && (
+                    <Thresholds
                       displayedLines={displayedLines}
-                      dotOffset={lineStyle?.dotOffset}
-                      graphSvgRef={graphSvgRef}
-                      height={graphHeight - margin.top}
+                      hideTooltip={hideThresholdTooltip}
                       leftScale={leftScale}
-                      lineWidth={lineStyle?.lineWidth}
                       rightScale={rightScale}
-                      showArea={lineStyle?.showArea}
-                      showPoints={lineStyle?.showPoints}
-                      timeSeries={timeSeries}
+                      showTooltip={showThresholdTooltip}
+                      thresholdUnit={thresholdUnit}
+                      thresholds={thresholds as ThresholdsModel}
                       width={graphWidth}
-                      xScale={xScale}
-                      {...shapeLines}
                     />
-                    <InteractionWithGraph
-                      annotationData={{ ...annotationEvent }}
-                      commonData={{
-                        graphHeight,
-                        graphSvgRef,
-                        graphWidth,
-                        leftScale,
-                        lines: displayedLines,
-                        rightScale,
-                        timeSeries,
-                        xScale
-                      }}
-                      timeShiftZonesData={{
-                        ...timeShiftZones,
-                        graphInterval
-                      }}
-                      zoomData={{ ...zoomPreview }}
-                    />
-                    {thresholds?.enabled && (
-                      <Thresholds
-                        displayedLines={displayedLines}
-                        hideTooltip={hideThresholdTooltip}
-                        leftScale={leftScale}
-                        rightScale={rightScale}
-                        showTooltip={showThresholdTooltip}
-                        thresholdUnit={thresholdUnit}
-                        thresholds={thresholds as ThresholdsModel}
-                        width={graphWidth}
-                      />
-                    )}
-                  </>
-                </ChartSvgWrapper>
-              </div>
-            </MuiTooltip>
-          </BaseChart>
-          {displayTooltip && (
-            <GraphTooltip {...tooltip} {...graphTooltipData} />
-          )}
-          <Fade in={thresholdTooltipOpen}>
-            <Tooltip.Tooltip
-              left={thresholdTooltipLeft}
-              style={{
-                ...baseStyles,
-                backgroundColor: theme.palette.background.paper,
-                color: theme.palette.text.primary,
-                transform: `translate(${graphWidth / 2}px, -10px)`
-              }}
-              top={thresholdTooltipTop}
-            >
-              {thresholdTooltipData}
-            </Tooltip.Tooltip>
-          </Fade>
-        </>
-      </ClickAwayListener>
-    </>
+                  )}
+                </>
+              </ChartSvgWrapper>
+            </div>
+          </MuiTooltip>
+        </BaseChart>
+        {displayTooltip && <GraphTooltip {...tooltip} {...graphTooltipData} />}
+        <Fade in={thresholdTooltipOpen}>
+          <Tooltip.Tooltip
+            left={thresholdTooltipLeft}
+            style={{
+              ...baseStyles,
+              backgroundColor: theme.palette.background.paper,
+              color: theme.palette.text.primary,
+              transform: `translate(${graphWidth / 2}px, -10px)`
+            }}
+            top={thresholdTooltipTop}
+          >
+            {thresholdTooltipData}
+          </Tooltip.Tooltip>
+        </Fade>
+      </>
+    </ClickAwayListener>
   );
 };
 

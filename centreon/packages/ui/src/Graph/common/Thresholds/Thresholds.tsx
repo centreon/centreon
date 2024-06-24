@@ -1,14 +1,15 @@
 import { equals, isNil } from 'ramda';
 
-import { getUnits, getYScale } from '../../common/timeSeries';
-import { Line } from '../../common/timeSeries/models';
-import { Thresholds as ThresholdsModel } from '../../common/models';
+import { getUnits, getYScale } from '../timeSeries';
+import { Line } from '../timeSeries/models';
+import { Thresholds as ThresholdsModel } from '../models';
 
 import { ThresholdLine } from './ThresholdLine';
 
 interface Props {
   displayedLines: Array<Line>;
   hideTooltip: () => void;
+  isHorizontal?: boolean;
   leftScale: (value: number) => number;
   rightScale: (value: number) => number;
   showTooltip: (props) => void;
@@ -25,7 +26,8 @@ const Thresholds = ({
   displayedLines,
   thresholdUnit,
   showTooltip,
-  hideTooltip
+  hideTooltip,
+  isHorizontal = true
 }: Props): JSX.Element => {
   const [firstUnit, secondUnit, thirdUnit] = getUnits(
     displayedLines as Array<Line>
@@ -49,6 +51,7 @@ const Thresholds = ({
       {thresholds.warning.map(({ value, label }) => (
         <ThresholdLine
           hideTooltip={hideTooltip}
+          isHorizontal={isHorizontal}
           key={`warning-${value}`}
           label={label}
           showTooltip={showTooltip}
@@ -61,6 +64,7 @@ const Thresholds = ({
       {thresholds.critical.map(({ value, label }) => (
         <ThresholdLine
           hideTooltip={hideTooltip}
+          isHorizontal={isHorizontal}
           key={`critical-${value}`}
           label={label}
           showTooltip={showTooltip}

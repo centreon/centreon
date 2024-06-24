@@ -34,5 +34,11 @@ export const useBaseChartStyles = makeStyles()((theme) => ({
     },
     fill: theme.palette.text.primary,
     position: 'relative'
+  },
+  legendContainer: {
+    maxWidth: '60%'
+  },
+  legendContainerVerticalSide: {
+    marginRight: theme.spacing(6)
   }
 }));
