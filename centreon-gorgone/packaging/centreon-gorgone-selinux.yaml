@@ -19,19 +19,12 @@ depends:
   - centreon-common-selinux
 replaces:
   - centreon-gorgone-selinux-debuginfo
+  - centreon-gorgoned-selinux
 conflicts:
   - centreon-gorgone-selinux-debuginfo
 provides:
   - centreon-gorgone-selinux-debuginfo
-
-overrides:
-  rpm:
-    depends:
-      - centreon-gorgoned-selinux
-    provides:
-      - centreon-gorgoned-selinux
-    replaces:
-      - centreon-gorgoned-selinux
+  - centreon-gorgoned-selinux
 
 contents:
   - src: "../selinux/centreon-gorgoned.pp"
