@@ -105,12 +105,14 @@ class OpenIdConfigurationException extends \Exception
         )));
     }
 
-    public static function unableToRetrieveCredentialsFromVault(array $credentials): self
+    /**
+     * @param string $credential
+     *
+     * @return self
+     */
+    public static function unableToRetrieveCredentialFromVault(string $credential): self
     {
-        return new self(_(sprintf(
-            'Unable to retrieve credentials from vault: %s',
-            implode(', ', $credentials)
-        )));
+        return new self(_(sprintf("Unable to retrieve credentials ['%s'] from vault", $credential)));
     }
 
     public static function unknownProviderType(string $type): self

@@ -23,15 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations;
 
-use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-
 class ProviderConfigurationDto
 {
     public int $id = 0;
+
     public string $type = '';
+
     public string $name = '';
+
     public string $authenticationUri = '';
+
     public bool $isActive = false;
+
     public bool $isForced = false;
 }

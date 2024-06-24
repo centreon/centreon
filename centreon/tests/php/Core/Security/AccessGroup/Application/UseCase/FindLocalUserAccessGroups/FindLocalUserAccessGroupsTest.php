@@ -23,24 +23,20 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups;
 
-use Core\Application\Common\UseCase\ErrorResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\FindLocalUserAccessGroups;
 use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\FindLocalUserAccessGroupsResponse;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Tests\Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\{
-    FindLocalUserAccessGroupsPresenterStub
-};
-
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present an ErrorResponse while an exception occured', function () {
+it('should present an ErrorResponse while an exception occured', function (): void {
     $useCase = new FindLocalUserAccessGroups($this->repository, $this->user);
     $this->user
         ->expects($this->once())
@@ -61,7 +57,7 @@ it('should present an ErrorResponse while an exception occured', function () {
     );
 });
 
-it('should call the method findAllWithFilter if the user is admin', function () {
+it('should call the method findAllWithFilter if the user is admin', function (): void {
     $useCase = new FindLocalUserAccessGroups($this->repository, $this->user);
     $this->user
         ->expects($this->once())
@@ -76,7 +72,7 @@ it('should call the method findAllWithFilter if the user is admin', function () 
     $useCase($presenter);
 });
 
-it('should call the method findByContact if the user is not admin', function () {
+it('should call the method findByContact if the user is not admin', function (): void {
     $useCase = new FindLocalUserAccessGroups($this->repository, $this->user);
 
     $this->user
@@ -93,7 +89,7 @@ it('should call the method findByContact if the user is not admin', function () 
     $useCase($presenter);
 });
 
-it('should present a FindLocalUserAccessGroupsResponse when no error occured', function () {
+it('should present a FindLocalUserAccessGroupsResponse when no error occured', function (): void {
     $useCase = new FindLocalUserAccessGroups($this->repository, $this->user);
 
     $accessGroup = (new AccessGroup(1, 'access_group', 'access_group_alias'))
@@ -118,7 +114,7 @@ it('should present a FindLocalUserAccessGroupsResponse when no error occured', f
             'name' => 'access_group',
             'alias' => 'access_group_alias',
             'has_changed' => false,
-            'is_activated' => true
+            'is_activated' => true,
         ]
     );
 });

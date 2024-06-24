@@ -45,8 +45,8 @@ use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\PollerMacro\Domain\Model\PollerMacro;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
@@ -92,8 +92,7 @@ final class MigrateAllCredentials
         private readonly WriteOptionRepositoryInterface $writeOptionRepository,
         private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
         private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
-    )
-    {
+    ) {
         $this->response = new MigrateAllCredentialsResponse();
     }
 
@@ -151,6 +150,7 @@ final class MigrateAllCredentials
      * @param Macro[] $hostMacros
      * @param Macro[] $serviceMacros
      * @param PollerMacro[] $pollerMacros
+     * @param Configuration $openIdConfiguration
      */
     private function migrateCredentials(
         \Traversable&\Countable $credentials,
@@ -189,6 +189,7 @@ final class MigrateAllCredentials
      * @param Macro[] $serviceMacros
      * @param PollerMacro[] $pollerMacros
      * @param Option|null $knowledgeBasePasswordOption
+     * @param Configuration $openIdConfiguration
      *
      * @return \ArrayIterator<int, CredentialDto> $credentials
      */
@@ -199,7 +200,7 @@ final class MigrateAllCredentials
         array $serviceMacros,
         array $pollerMacros,
         ?Option $knowledgeBasePasswordOption,
-        ?Configuration $openIdConfiguration
+        Configuration $openIdConfiguration
     ): \ArrayIterator {
 
         $hostSNMPCommunityCredentialDtos = $this->createHostSNMPCommunityCredentialDtos($hosts);
@@ -366,7 +367,12 @@ final class MigrateAllCredentials
         return $credentials;
     }
 
-    private function createOpenIdConfigurationCredentialDtos(?Configuration $openIdConfiguration): array
+    /**
+     * @param Configuration $openIdConfiguration
+     *
+     * @return CredentialDto[]
+     */
+    private function createOpenIdConfigurationCredentialDtos(Configuration $openIdConfiguration): array
     {
         $credentials = [];
 
@@ -376,8 +382,8 @@ final class MigrateAllCredentials
         $customConfiguration = $openIdConfiguration->getCustomConfiguration();
 
         if (
-            $customConfiguration->getClientId() !== null &&
-            ! str_starts_with($customConfiguration->getClientId(), 'secret::')
+            $customConfiguration->getClientId() !== null
+            && ! str_starts_with($customConfiguration->getClientId(), 'secret::')
         ) {
             $credential = new CredentialDto();
             $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;
@@ -387,8 +393,8 @@ final class MigrateAllCredentials
         }
 
         if (
-            $customConfiguration->getClientSecret() !== null &&
-            ! str_starts_with($customConfiguration->getClientSecret(), 'secret::')
+            $customConfiguration->getClientSecret() !== null
+            && ! str_starts_with($customConfiguration->getClientSecret(), 'secret::')
         ) {
             $credential = new CredentialDto();
             $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;

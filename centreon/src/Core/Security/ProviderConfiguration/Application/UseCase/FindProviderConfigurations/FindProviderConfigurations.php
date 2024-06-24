@@ -25,7 +25,6 @@ namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderCo
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 
 final class FindProviderConfigurations
@@ -55,9 +54,10 @@ final class FindProviderConfigurations
             $configurations = $this->readConfigurationRepository->findConfigurations();
 
             /**
-             * match configuration type and provider type to bind automatically corresponding configuration and Dto.
-             * e.g configuration type 'local' will match response type 'local',
-             * LocalProviderResponse::create will take LocalConfiguration.
+             * match configuration type and factory supporting type to bind automatically corresponding
+             * configuration and Factory.
+             * e.g configuration type 'local' will match LocalProviderDtoFactory,
+             * ProviderConfigurationDtoFactoryInterface::createResponse will take LocalConfiguration.
              */
             $responses = [];
             foreach ($configurations as $configuration) {

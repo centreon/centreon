@@ -36,14 +36,13 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
     UpdateVaultConfiguration,
     UpdateVaultConfigurationRequest,
 };
-use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
+use Core\Security\Vault\Domain\Model\{VaultConfiguration};
 use Security\Encryption;
 
 beforeEach(function (): void {
@@ -118,7 +117,7 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
         ->willReturn(true);
 
     $encryption = new Encryption();
-    $encryption->setFirstKey("myFirstKey");
+    $encryption->setFirstKey('myFirstKey');
 
     $salt = $encryption->generateRandomString(VaultConfiguration::SALT_LENGTH);
     $vaultConfiguration = new VaultConfiguration(
@@ -196,7 +195,7 @@ it('should present NoContentResponse when vault configuration is created with su
         ->willReturn(true);
 
     $encryption = new Encryption();
-    $encryption->setFirstKey("myFirstKey");
+    $encryption->setFirstKey('myFirstKey');
 
     $vaultConfiguration = new VaultConfiguration(
         $encryption,

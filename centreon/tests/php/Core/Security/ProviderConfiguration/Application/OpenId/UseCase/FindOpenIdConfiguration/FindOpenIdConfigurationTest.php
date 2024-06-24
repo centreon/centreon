@@ -41,7 +41,7 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Security\Domain\Authentication\Exceptions\ProviderException;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadOpenIdConfigurationRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->readConfiguration = $this->createMock(ReadConfigurationRepositoryInterface::class);
@@ -49,7 +49,7 @@ beforeEach(function () {
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
 });
 
-it('should present a provider configuration', function () {
+it('should present a provider configuration', function (): void {
     $configuration = new Configuration(1, 'openid', 'openid', '{}', true, true);
     $customConfiguration = new CustomConfiguration([
         'is_active' => true,
@@ -78,8 +78,8 @@ it('should present a provider configuration', function () {
             []
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
-        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), []),
-        'redirect_url' => null
+        'groups_mapping' => new GroupsMapping(false, '', new Endpoint(), []),
+        'redirect_url' => null,
     ]);
     $configuration->setCustomConfiguration($customConfiguration);
 
@@ -123,7 +123,7 @@ it('should present a provider configuration', function () {
     expect($presenter->response->redirectUrl)->toBeNull();
 });
 
-it('should present an ErrorResponse when an error occured during the process', function () {
+it('should present an ErrorResponse when an error occured during the process', function (): void {
     $this->providerFactory
         ->expects($this->once())
         ->method('create')

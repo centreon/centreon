@@ -23,19 +23,16 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups;
 
-use Symfony\Component\HttpFoundation\Response;
-use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\FindLocalUserAccessGroupsResponse;
-use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\FindLocalUserAccessGroupsPresenterInterface;
 use Core\Application\Common\UseCase\{
     AbstractPresenter
 };
+use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\FindLocalUserAccessGroupsPresenterInterface;
+use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\FindLocalUserAccessGroupsResponse;
+use Symfony\Component\HttpFoundation\Response;
 
-class FindLocalUserAccessGroupsPresenterStub extends AbstractPresenter implements
-    FindLocalUserAccessGroupsPresenterInterface
+class FindLocalUserAccessGroupsPresenterStub extends AbstractPresenter implements FindLocalUserAccessGroupsPresenterInterface
 {
-    /**
-     * @var FindLocalUserAccessGroupsResponse
-     */
+    /** @var FindLocalUserAccessGroupsResponse */
     public $response;
 
     /**

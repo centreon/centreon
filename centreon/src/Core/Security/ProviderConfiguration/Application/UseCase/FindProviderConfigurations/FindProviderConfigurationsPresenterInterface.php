@@ -30,7 +30,6 @@ interface FindProviderConfigurationsPresenterInterface extends PresenterInterfac
 {
     /**
      * @param FindProviderConfigurationsResponse|ResponseStatusInterface $data
-     * @return void
      */
     public function presentResponse(FindProviderConfigurationsResponse|ResponseStatusInterface $data): void;
 }

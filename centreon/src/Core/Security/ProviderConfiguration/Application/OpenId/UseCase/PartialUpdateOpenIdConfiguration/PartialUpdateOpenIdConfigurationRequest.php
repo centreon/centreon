@@ -63,7 +63,6 @@ use Core\Common\Application\Type\NoValue;
  *      custom_endpoint:string|null
  *  }
  * }
- *
  * @phpstan-type _PartialUpdateOpenIdConfigurationRequest array{
  *      is_active:NoValue|bool,
  *      is_forced:NoValue|bool,

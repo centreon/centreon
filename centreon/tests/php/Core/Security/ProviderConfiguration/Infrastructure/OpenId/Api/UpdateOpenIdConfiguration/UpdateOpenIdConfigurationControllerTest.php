@@ -24,20 +24,20 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\UpdateOpenIdConfiguration;
 
 use Centreon\Domain\Contact\Contact;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\UpdateOpenIdConfiguration\{
-    UpdateOpenIdConfigurationController
-};
 use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration\{
     UpdateOpenIdConfiguration,
     UpdateOpenIdConfigurationPresenterInterface
 };
+use Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\UpdateOpenIdConfiguration\{
+    UpdateOpenIdConfigurationController
+};
+use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->presenter = $this->createMock(UpdateOpenIdConfigurationPresenterInterface::class);
     $this->useCase = $this->createMock(UpdateOpenIdConfiguration::class);
     $this->request = $this->createMock(Request::class);
@@ -86,7 +86,7 @@ beforeEach(function () {
         );
 });
 
-it('should thrown an exception when the request body is invalid', function () {
+it('should thrown an exception when the request body is invalid', function (): void {
         $controller = new UpdateOpenIdConfigurationController();
         $controller->setContainer($this->container);
 
@@ -100,7 +100,7 @@ it('should thrown an exception when the request body is invalid', function () {
         $controller($this->useCase, $this->request, $this->presenter);
 });
 
-it('should execute the usecase properly', function () {
+it('should execute the usecase properly', function (): void {
         $controller = new UpdateOpenIdConfigurationController();
         $controller->setContainer($this->container);
 
@@ -129,31 +129,31 @@ it('should execute the usecase properly', function () {
                 'attribute_path' => '',
                 'endpoint' => [
                     'type' => 'introspection_endpoint',
-                    'custom_endpoint' => ''
+                    'custom_endpoint' => '',
                 ],
-                'relations' => []
+                'relations' => [],
             ],
-            "authentication_conditions" => [
-                "is_enabled" => false,
-                "attribute_path" => "",
-                "endpoint" => [
-                    "type" => "introspection_endpoint",
-                    "custom_endpoint" => null
+            'authentication_conditions' => [
+                'is_enabled' => false,
+                'attribute_path' => '',
+                'endpoint' => [
+                    'type' => 'introspection_endpoint',
+                    'custom_endpoint' => null,
                 ],
-                "authorized_values" => [],
-                "trusted_client_addresses" => [],
-                "blacklist_client_addresses" => []
+                'authorized_values' => [],
+                'trusted_client_addresses' => [],
+                'blacklist_client_addresses' => [],
             ],
-            "groups_mapping" => [
-                "is_enabled" => false,
-                "attribute_path" => "",
-                "endpoint" => [
-                    "type" => "introspection_endpoint",
-                    "custom_endpoint" => null
+            'groups_mapping' => [
+                'is_enabled' => false,
+                'attribute_path' => '',
+                'endpoint' => [
+                    'type' => 'introspection_endpoint',
+                    'custom_endpoint' => null,
                 ],
-                "relations" => []
+                'relations' => [],
             ],
-            'redirect_url' => null
+            'redirect_url' => null,
         ]);
 
         $this->request

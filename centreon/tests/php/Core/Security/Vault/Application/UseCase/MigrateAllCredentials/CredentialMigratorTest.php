@@ -31,17 +31,17 @@ use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterfac
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
-use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
+use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
 use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\PollerMacro\Domain\Model\PollerMacro;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialErrorDto;
@@ -49,9 +49,7 @@ use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigr
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialRecordedDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialTypeEnum;
 
-
 beforeEach(function (): void {
-
     $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
     $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class);
     $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class);
@@ -124,8 +122,8 @@ beforeEach(function (): void {
             []
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
-        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), []),
-        'redirect_url' => null
+        'groups_mapping' => new GroupsMapping(false, '', new Endpoint(), []),
+        'redirect_url' => null,
     ]);
     $this->openIdProviderConfiguration = new Configuration(1,
         type: Provider::OPENID,
@@ -171,7 +169,6 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
 });
 
 it('tests getIterator method with exception', function (): void {
-
     $credentials = new \ArrayIterator([$this->credential1]);
 
     $this->writeVaultRepository->method('upsert')->willThrowException(new \Exception('Test exception'));

@@ -45,7 +45,6 @@ use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\Attr
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\Conditions;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\GroupsMapping as GroupsMappingSecurityAccess;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\RolesMapping;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use DateInterval;
 use Exception;
 use Pimple\Container;
@@ -113,6 +112,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @param RolesMapping $rolesMapping
      * @param GroupsMappingSecurityAccess $groupsMapping
      * @param AttributePathFetcher $attributePathFetcher
+     * @param ReadVaultRepositoryInterface $readVaultRepository
      */
     public function __construct(
         private HttpClientInterface $client,
@@ -124,7 +124,6 @@ class OpenIdProvider implements OpenIdProviderInterface
         private readonly RolesMapping $rolesMapping,
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly AttributePathFetcher $attributePathFetcher,
-        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
     ) {
         $pearDB = $this->dependencyInjector['configuration_db'];

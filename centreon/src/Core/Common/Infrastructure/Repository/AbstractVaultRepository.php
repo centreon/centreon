@@ -36,7 +36,6 @@ abstract class AbstractVaultRepository
     public const SERVICE_VAULT_PATH = 'monitoring/services';
     public const KNOWLEDGE_BASE_PATH = 'configuration/knowledge_base';
     public const POLLER_MACRO_VAULT_PATH = 'monitoring/pollerMacros';
-
     public const OPEN_ID_CREDENTIALS_VAULT_PATH = 'configuration/openid';
     protected const DEFAULT_SCHEME = 'https';
 
@@ -46,7 +45,7 @@ abstract class AbstractVaultRepository
         self::SERVICE_VAULT_PATH,
         self::KNOWLEDGE_BASE_PATH,
         self::POLLER_MACRO_VAULT_PATH,
-        self::OPEN_ID_CREDENTIALS_VAULT_PATH
+        self::OPEN_ID_CREDENTIALS_VAULT_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;

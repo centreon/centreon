@@ -61,10 +61,6 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
             return null;
         }
 
-        if ($vaultConfiguration === false) {
-            throw new \Exception('Vault Configuration Not Found');
-        }
-
         $record = json_decode($vaultConfiguration, true)
             ?: throw new \Exception('Invalid vault configuration');
 

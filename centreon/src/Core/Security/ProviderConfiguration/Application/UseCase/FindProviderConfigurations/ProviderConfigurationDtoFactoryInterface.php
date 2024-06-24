@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations;
 
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
 
 interface ProviderConfigurationDtoFactoryInterface
 {
@@ -31,9 +32,18 @@ interface ProviderConfigurationDtoFactoryInterface
      * Validate Factory is valid for provider type.
      *
      * @param string $type
+     *
      * @return bool
      */
     public function supports(string $type): bool;
 
+    /**
+     * @param Configuration $configuration
+     *
+     * @throws OpenIdConfigurationException
+     * @throws \Throwable
+     *
+     * @return ProviderConfigurationDto
+     */
     public function createResponse(Configuration $configuration): ProviderConfigurationDto;
 }

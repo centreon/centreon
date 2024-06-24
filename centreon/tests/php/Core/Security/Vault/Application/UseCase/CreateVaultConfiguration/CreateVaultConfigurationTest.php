@@ -30,14 +30,12 @@ use Core\Application\Common\UseCase\{
     CreatedResponse,
     ErrorResponse,
     ForbiddenResponse,
-    InvalidArgumentResponse,
-    NotFoundResponse
+    InvalidArgumentResponse
 };
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
@@ -45,7 +43,7 @@ use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
     CreateVaultConfigurationRequest,
     NewVaultConfigurationFactory
 };
-use Core\Security\Vault\Domain\Model\{NewVaultConfiguration, Vault, VaultConfiguration};
+use Core\Security\Vault\Domain\Model\{NewVaultConfiguration};
 use Security\Encryption;
 
 beforeEach(function (): void {
@@ -63,7 +61,7 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
         ->willReturn(false);
 
     $encryption = new Encryption();
-    $encryption->setFirstKey("myFirstKey");
+    $encryption->setFirstKey('myFirstKey');
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
@@ -88,7 +86,7 @@ it('should present InvalidArgumentResponse when vault configuration already exis
         ->willReturn(true);
 
     $encryption = new Encryption();
-    $encryption->setFirstKey("myFirstKey");
+    $encryption->setFirstKey('myFirstKey');
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
@@ -150,7 +148,7 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
             new InvalidArgumentException(
                 AssertionException::minLength(
                     $invalidName,
-                    strlen($invalidName),
+                    mb_strlen($invalidName),
                     NewVaultConfiguration::MIN_LENGTH,
                     'NewVaultConfiguration::name'
                 )->getMessage(),
@@ -164,7 +162,7 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
         AssertionException::minLength(
             $invalidName,
-            strlen($invalidName),
+            mb_strlen($invalidName),
             NewVaultConfiguration::MIN_LENGTH,
             'NewVaultConfiguration::name'
         )->getMessage()

@@ -30,6 +30,5 @@ enum CredentialTypeEnum
     case TYPE_SERVICE;
     case TYPE_KNOWLEDGE_BASE_PASSWORD;
     case TYPE_POLLER_MACRO;
-
     case TYPE_OPEN_ID;
 }

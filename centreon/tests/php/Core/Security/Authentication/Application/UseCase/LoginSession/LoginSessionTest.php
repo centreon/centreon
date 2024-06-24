@@ -22,37 +22,37 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Authentication\Application\UseCase\LoginSession;
 
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Centreon\Domain\Menu\Model\Page;
-use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Centreon\Domain\Authentication\Exception\AuthenticationException as LegacyAuthenticationException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
-use Core\Application\Common\UseCase\UnauthorizedResponse;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Core\Security\Authentication\Domain\Model\NewProviderToken;
-use Security\Domain\Authentication\Exceptions\ProviderException;
-use Core\Security\Authentication\Application\UseCase\Login\Login;
+use Centreon\Domain\Menu\Model\Page;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
+use Core\Security\Authentication\Application\UseCase\Login\Login;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
+use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
+use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
+use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
-use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
-use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
-use Centreon\Domain\Authentication\Exception\AuthenticationException as LegacyAuthenticationException;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Security\Domain\Authentication\Exceptions\ProviderException;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
     $this->menuService = $this->createMock(MenuServiceInterface::class);
@@ -62,9 +62,9 @@ beforeEach(function () {
     $session = new Session(new MockArraySessionStorage());
     $session->setId('session_abcd');
     $this->requestStack
-            ->expects($this->any())
-            ->method('getSession')
-            ->willReturn($session);
+        ->expects($this->any())
+        ->method('getSession')
+        ->willReturn($session);
 
     $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
     $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class);
@@ -88,14 +88,13 @@ beforeEach(function () {
         $this->thirdPartyLoginForm,
     );
 
-    $this->authenticationRequest = LoginRequest::createForLocal("admin", "password", '127.0.0.1');
+    $this->authenticationRequest = LoginRequest::createForLocal('admin', 'password', '127.0.0.1');
 
     $formater = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new LoginPresenterStub($formater);
-
 });
 
-it('should present an error response when the provider configuration is not found', function () {
+it('should present an error response when the provider configuration is not found', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -120,8 +119,7 @@ it('should present an error response when the provider configuration is not foun
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
 });
 
-
-it('should present an UnauthorizedResponse when the authentication fails', function () {
+it('should present an UnauthorizedResponse when the authentication fails', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -151,7 +149,7 @@ it('should present an UnauthorizedResponse when the authentication fails', funct
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
 });
 
-it('should present a PasswordExpiredResponse when the user password is expired', function () {
+it('should present a PasswordExpiredResponse when the user password is expired', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -181,7 +179,7 @@ it('should present a PasswordExpiredResponse when the user password is expired',
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(PasswordExpiredResponse::class);
 });
 
-it('should present an UnauthorizedResponse when user is not authorized to log in', function () {
+it('should present an UnauthorizedResponse when user is not authorized to log in', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -199,8 +197,7 @@ it('should present an UnauthorizedResponse when user is not authorized to log in
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
 });
 
-
-it("should present an UnauthorizedResponse when user doesn't exist", function () {
+it("should present an UnauthorizedResponse when user doesn't exist", function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -233,7 +230,7 @@ it("should present an UnauthorizedResponse when user doesn't exist", function ()
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
 });
 
-it('should create a user when auto import is enabled', function () {
+it('should create a user when auto import is enabled', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -275,7 +272,7 @@ it('should create a user when auto import is enabled', function () {
     $useCase($this->authenticationRequest, $this->presenter);
 });
 
-it('should create authentication tokens when user is correctly authenticated', function () {
+it('should create authentication tokens when user is correctly authenticated', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -335,7 +332,7 @@ it('should create authentication tokens when user is correctly authenticated', f
     $useCase($this->authenticationRequest, $this->presenter);
 });
 
-it('should present the default page when user is correctly authenticated', function () {
+it('should present the default page when user is correctly authenticated', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -381,7 +378,7 @@ it('should present the default page when user is correctly authenticated', funct
     expect($this->presenter->getPresentedData()->getRedirectUri())->toBe('/monitoring/resources');
 });
 
-it('should present the custom redirection page when user is authenticated', function () {
+it('should present the custom redirection page when user is authenticated', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,

@@ -134,8 +134,8 @@ it('should present a MigrateAllCredentialsResponse when no error occurs', functi
             []
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
-        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), []),
-        'redirect_url' => null
+        'groups_mapping' => new GroupsMapping(false, '', new Endpoint(), []),
+        'redirect_url' => null,
     ]);
     $openIdProviderConfiguration = new Configuration(1,
         type: Provider::OPENID,

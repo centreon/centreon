@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration;
 
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration\FindConfiguration;
@@ -31,24 +30,16 @@ use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class FindConfigurationTest extends TestCase
 {
-    /**
-     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory;
 
-    /**
-     * @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationInterface $providerAuthentication;
 
-    /**
-     * @return void
-     */
     public function setUp(): void
     {
         $this->providerAuthenticationFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);

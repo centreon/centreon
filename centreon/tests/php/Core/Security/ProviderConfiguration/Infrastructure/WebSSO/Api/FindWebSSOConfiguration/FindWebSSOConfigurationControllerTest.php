@@ -24,11 +24,6 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\WebSSO\Api\FindWebSSOConfiguration;
 
 use Centreon\Domain\Contact\Contact;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOConfiguration\{
     FindWebSSOConfiguration,
     FindWebSSOConfigurationPresenterInterface
@@ -36,8 +31,13 @@ use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOCon
 use Core\Security\ProviderConfiguration\Infrastructure\WebSSO\Api\FindWebSSOConfiguration\{
     FindWebSSOConfigurationController
 };
+use Psr\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = $this->createMock(FindWebSSOConfiguration::class);
     $this->presenter = $this->createMock(FindWebSSOConfigurationPresenterInterface::class);
 
@@ -85,7 +85,7 @@ beforeEach(function () {
     $this->request = $this->createMock(Request::class);
 });
 
-it('should call the use case', function () {
+it('should call the use case', function (): void {
     $controller = new FindWebSSOConfigurationController();
     $controller->setContainer($this->container);
 

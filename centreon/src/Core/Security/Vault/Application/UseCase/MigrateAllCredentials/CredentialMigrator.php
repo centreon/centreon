@@ -48,6 +48,7 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
  *      hosts: string[],
  *      services:string[],
  *      pollerMacro: ?string,
+ *      openId: ?string
  * }
  */
 class CredentialMigrator implements \IteratorAggregate, \Countable
@@ -68,6 +69,8 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @param Macro[] $hostMacros
      * @param Macro[] $serviceMacros
      * @param PollerMacro[] $pollerMacros,
+     * @param WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository
+     * @param Configuration $openIdProviderConfiguration
      */
     public function __construct(
         private readonly \Traversable&\Countable $credentials,
@@ -253,7 +256,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
     /**
      * @param CredentialDto $credential
-     * @param _ExistingUuids $existingUuid
+     * @param _ExistingUuids $existingUuids
      *
      * @throws \Throwable
      *
@@ -307,6 +310,14 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         ];
     }
 
+    /**
+     * @param CredentialDto $credential
+     * @param _ExistingUuids $existingUuids
+     *
+     * @throws \Throwable
+     *
+     * @return array{uuid: string, path: string}
+     */
     private function migrateOpenIdCredentials(CredentialDto $credential, array &$existingUuids): array
     {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::OPEN_ID_CREDENTIALS_VAULT_PATH);

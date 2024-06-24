@@ -36,16 +36,16 @@ use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFact
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration\{UpdateOpenIdConfiguration,
     UpdateOpenIdConfigurationPresenterInterface,
     UpdateOpenIdConfigurationRequest
 };
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(WriteOpenIdConfigurationRepositoryInterface::class);
     $this->contactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -63,7 +63,7 @@ beforeEach(function () {
     $this->customConfig = $this->createMock(CustomConfiguration::class);
 });
 
-it('should present a NoContentResponse when the use case is executed correctly', function () {
+it('should present a NoContentResponse when the use case is executed correctly', function (): void {
     $request = new UpdateOpenIdConfigurationRequest();
     $request->isActive = true;
     $request->isForced = true;
@@ -87,9 +87,9 @@ it('should present a NoContentResponse when the use case is executed correctly',
         'attribute_path' => '',
         'endpoint' => [
             'type' => 'introspection_endpoint',
-            'custom_endpoint' => ''
+            'custom_endpoint' => '',
         ],
-        'relations' => []
+        'relations' => [],
     ];
 
     $this->providerFactory
@@ -113,7 +113,6 @@ it('should present a NoContentResponse when the use case is executed correctly',
         ->with(1)
         ->willReturn($this->contactTemplate);
 
-
     $this->presenter
         ->expects($this->once())
         ->method('setResponseStatus')
@@ -131,7 +130,7 @@ it('should present a NoContentResponse when the use case is executed correctly',
     $useCase($this->presenter, $request);
 });
 
-it('should present an ErrorResponse when an error occured during the use case execution', function () {
+it('should present an ErrorResponse when an error occured during the use case execution', function (): void {
     $request = new UpdateOpenIdConfigurationRequest();
     $request->isActive = true;
     $request->isForced = true;
@@ -155,17 +154,17 @@ it('should present an ErrorResponse when an error occured during the use case ex
         'attribute_path' => '',
         'endpoint' => [
             'type' => 'introspection_endpoint',
-            'custom_endpoint' => ''
+            'custom_endpoint' => '',
         ],
-        'relations' => []
+        'relations' => [],
     ];
     $request->authenticationConditions = [
-        "is_enabled" => true,
-        "attribute_path" => "info.groups",
-        "endpoint" => ["type" => "introspection_endpoint", "custom_endpoint" => null],
-        "authorized_values" => ["groupsA"],
-        "trusted_client_addresses" => ['abcd_.@'],
-        "blacklist_client_addresses" => []
+        'is_enabled' => true,
+        'attribute_path' => 'info.groups',
+        'endpoint' => ['type' => 'introspection_endpoint', 'custom_endpoint' => null],
+        'authorized_values' => ['groupsA'],
+        'trusted_client_addresses' => ['abcd_.@'],
+        'blacklist_client_addresses' => [],
     ];
 
     $this->contactTemplateRepository
@@ -194,7 +193,7 @@ it('should present an ErrorResponse when an error occured during the use case ex
     $useCase($this->presenter, $request);
 });
 
-it('should present an Error Response when auto import is enable and mandatory parameters are missing', function () {
+it('should present an Error Response when auto import is enable and mandatory parameters are missing', function (): void {
     $request = new UpdateOpenIdConfigurationRequest();
     $request->isActive = true;
     $request->isForced = true;
@@ -217,9 +216,9 @@ it('should present an Error Response when auto import is enable and mandatory pa
         'attribute_path' => '',
         'endpoint' => [
             'type' => 'introspection_endpoint',
-            'custom_endpoint' => ''
+            'custom_endpoint' => '',
         ],
-        'relations' => []
+        'relations' => [],
     ];
 
     $missingParameters = [
@@ -263,7 +262,7 @@ it('should present an Error Response when auto import is enable and mandatory pa
     $useCase($this->presenter, $request);
 });
 
-it('should present an Error Response when auto import is enable and the contact template doesn\'t exist', function () {
+it('should present an Error Response when auto import is enable and the contact template doesn\'t exist', function (): void {
     $request = new UpdateOpenIdConfigurationRequest();
     $request->isActive = true;
     $request->isForced = true;
@@ -280,7 +279,7 @@ it('should present an Error Response when auto import is enable and the contact 
     $request->authenticationType = 'client_secret_post';
     $request->verifyPeer = false;
     $request->isAutoImportEnabled = true;
-    $request->contactTemplate = ['id' => 1, "name" => 'contact_template'];
+    $request->contactTemplate = ['id' => 1, 'name' => 'contact_template'];
     $request->emailBindAttribute = 'email';
     $request->userNameBindAttribute = 'name';
 

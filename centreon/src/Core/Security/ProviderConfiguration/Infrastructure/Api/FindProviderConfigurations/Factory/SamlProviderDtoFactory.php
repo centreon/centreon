@@ -1,9 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\Factory;
 
-use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurationsResponse;
-use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurationsResponseFactoryInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDto;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
@@ -16,11 +14,17 @@ class SamlProviderDtoFactory implements ProviderConfigurationDtoFactoryInterface
     {
     }
 
+    /**
+     * @inheritDoc
+     */
     public function supports(string $type): bool
     {
         return $type === Provider::SAML;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function createResponse(Configuration $configuration): ProviderConfigurationDto
     {
         $dto = new ProviderConfigurationDto();

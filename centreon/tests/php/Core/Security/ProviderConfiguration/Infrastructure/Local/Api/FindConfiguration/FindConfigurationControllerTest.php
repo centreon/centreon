@@ -23,31 +23,25 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\Local\Api\FindConfiguration;
 
-use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Centreon\Domain\Contact\Contact;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration\FindConfiguration;
-use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\FindConfiguration\FindConfigurationController;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration\FindConfigurationPresenterInterface;
+use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\FindConfiguration\FindConfigurationController;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class FindConfigurationControllerTest extends TestCase
 {
-    /**
-     * @var FindConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var FindConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
-    /**
-     * @var FindConfiguration&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var FindConfiguration&\PHPUnit\Framework\MockObject\MockObject */
     private $useCase;
 
-    /**
-     * @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $container;
 
     public function setUp(): void
@@ -100,7 +94,7 @@ class FindConfigurationControllerTest extends TestCase
     }
 
     /**
-     * Test that the controller calls properly the usecase
+     * Test that the controller calls properly the usecase.
      */
     public function testFindControllerExecute(): void
     {

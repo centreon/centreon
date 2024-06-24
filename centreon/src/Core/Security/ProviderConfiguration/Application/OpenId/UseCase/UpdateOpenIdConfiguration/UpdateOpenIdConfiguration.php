@@ -55,6 +55,8 @@ use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryI
  * @phpstan-import-type _GroupMapping from UpdateOpenIdConfigurationRequest
  * @phpstan-import-type _AuthenticationConditions from UpdateOpenIdConfigurationRequest
  * @phpstan-import-type _UpdateOpenIdConfigurationRequest from UpdateOpenIdConfigurationRequest
+ *
+ * @phpstan-type _ConfigurationAsArray  array<string, mixed>
  */
 class UpdateOpenIdConfiguration
 {
@@ -66,6 +68,8 @@ class UpdateOpenIdConfiguration
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
+     * @param ReadVaultConfigurationRepositoryInterface $vaultConfigurationRepository
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
      */
     public function __construct(
         private WriteOpenIdConfigurationRepositoryInterface $repository,
@@ -113,6 +117,10 @@ class UpdateOpenIdConfiguration
              * @var CustomConfiguration $customConfiguration
              */
             $customConfiguration = $configuration->getCustomConfiguration();
+
+            /**
+             * @var _ConfigurationAsArray $requestArray
+             */
             $requestArray = $this->manageClientIdAndClientSecretIntoVault($requestArray, $customConfiguration);
 
             $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
@@ -413,12 +421,12 @@ class UpdateOpenIdConfiguration
      * This method will upsert the client id and the client secret if one of those values change and are not already
      * stored into the vault.
      *
-     * @param _UpdateOpenIdConfigurationRequest $requestArray
+     * @param _ConfigurationAsArray $requestArray
      * @param CustomConfiguration $customConfiguration
      *
-     * @return _UpdateOpenIdConfigurationRequest
-     *
      * @throws \Throwable
+     *
+     * @return _ConfigurationAsArray
      */
     private function manageClientIdAndClientSecretIntoVault(
         array $requestArray,
@@ -431,16 +439,14 @@ class UpdateOpenIdConfiguration
 
         // Retrieve the uuid from the vault path if the client id or client secret is already stored
         $uuid = null;
-        if (
-            ($customConfiguration->getClientId() !== null
-                && str_starts_with($customConfiguration->getClientId(), 'secret::'))
-            || ($customConfiguration->getClientSecret() !== null
-                && str_starts_with($customConfiguration->getClientSecret(), 'secret::'))
-        ) {
-            $vaultPathPart = explode(
-                '/',
-                $customConfiguration->getClientId() ?? $customConfiguration->getClientSecret()
-            );
+        $clientId = $customConfiguration->getClientId();
+        $clientSecret = $customConfiguration->getClientSecret();
+
+        if ($clientId !== null && str_starts_with($clientId, 'secret::')) {
+            $vaultPathPart = explode('/', $clientId);
+            $uuid = end($vaultPathPart);
+        } elseif ($clientSecret !== null && str_starts_with($clientSecret, 'secret::')) {
+            $vaultPathPart = explode('/', $clientSecret);
             $uuid = end($vaultPathPart);
         }
 

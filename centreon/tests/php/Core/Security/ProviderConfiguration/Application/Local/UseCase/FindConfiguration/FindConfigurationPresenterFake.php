@@ -30,19 +30,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FindConfigurationPresenterFake implements FindConfigurationPresenterInterface
 {
-    /**
-     * @var FindConfigurationResponse
-     */
+    /** @var FindConfigurationResponse */
     public $response;
 
-    /**
-     * @var ResponseStatusInterface|null
-     */
+    /** @var ResponseStatusInterface|null */
     private $responseStatus;
 
-    /**
-     * @var mixed[]
-     */
+    /** @var mixed[] */
     private $responseHeaders;
 
     /**

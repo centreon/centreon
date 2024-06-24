@@ -23,17 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations;
 
-use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{
     FindProviderConfigurationsPresenterInterface, FindProviderConfigurationsResponse, ProviderConfigurationDto};
-use Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter\{
-    ProviderPresenterInterface
-};
-
 class FindProviderConfigurationsPresenter extends AbstractPresenter implements FindProviderConfigurationsPresenterInterface
 {
     /**
@@ -52,7 +45,7 @@ class FindProviderConfigurationsPresenter extends AbstractPresenter implements F
                         'name' => $dto->name,
                         'authentication_uri' => $dto->authenticationUri,
                         'is_active' => $dto->isActive,
-                        'is_forced' => $dto->isForced
+                        'is_forced' => $dto->isForced,
                     ];
                 },
                 $data->providerConfigurations

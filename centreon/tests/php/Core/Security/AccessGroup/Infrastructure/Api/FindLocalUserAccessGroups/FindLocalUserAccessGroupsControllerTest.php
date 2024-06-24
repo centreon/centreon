@@ -29,11 +29,11 @@ use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\Find
 use Core\Security\AccessGroup\Infrastructure\Api\FindLocalUserAccessGroups\FindLocalUserAccessGroupsController;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = $this->createMock(FindLocalUserAccessGroups::class);
     $this->presenter = $this->createMock(FindLocalUserAccessGroupsPresenterInterface::class);
 
@@ -77,7 +77,7 @@ beforeEach(function () {
     $this->request = $this->createMock(Request::class);
 });
 
-it('should call the use case', function () {
+it('should call the use case', function (): void {
     $controller = new FindLocalUserAccessGroupsController();
     $controller->setContainer($this->container);
 

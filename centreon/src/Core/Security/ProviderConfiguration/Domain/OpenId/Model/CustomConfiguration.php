@@ -107,7 +107,7 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
     private ?string $redirectUrl;
 
     /**
-     * @param array<string,mixed> $json
+     * @param array<string, mixed> $json
      *
      * @throws ConfigurationException
      */

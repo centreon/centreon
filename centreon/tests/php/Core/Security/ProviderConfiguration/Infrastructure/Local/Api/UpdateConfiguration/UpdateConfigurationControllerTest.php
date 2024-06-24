@@ -23,39 +23,31 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\Local\Api\UpdateConfiguration;
 
-use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Centreon\Domain\Contact\Contact;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\UpdateConfiguration;
-use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\UpdateConfiguration\UpdateConfigurationController;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\{
     UpdateConfigurationPresenterInterface
 };
+use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\UpdateConfiguration\UpdateConfigurationController;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class UpdateConfigurationControllerTest extends TestCase
 {
-    /**
-     * @var Request&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var Request&\PHPUnit\Framework\MockObject\MockObject */
     private $request;
 
-    /**
-     * @var UpdateConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var UpdateConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
-    /**
-     * @var UpdateConfiguration&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var UpdateConfiguration&\PHPUnit\Framework\MockObject\MockObject */
     private $useCase;
 
-    /**
-     * @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $container;
 
     public function setUp(): void
@@ -137,21 +129,21 @@ class UpdateConfigurationControllerTest extends TestCase
 
         $validPayload = json_encode([
             'password_security_policy' => [
-                "password_min_length" => 12,
-                "has_uppercase" => true,
-                "has_lowercase" => true,
-                "has_number" => true,
-                "has_special_character" => true,
-                "attempts" => 6,
-                "blocking_duration" => 900,
-                "password_expiration" => [
+                'password_min_length' => 12,
+                'has_uppercase' => true,
+                'has_lowercase' => true,
+                'has_number' => true,
+                'has_special_character' => true,
+                'attempts' => 6,
+                'blocking_duration' => 900,
+                'password_expiration' => [
                     'expiration_delay' => 15552000,
                     'excluded_users' => [
                         'admin',
                     ],
                 ],
-                "can_reuse_passwords" => true,
-                "delay_before_new_password" => 3600,
+                'can_reuse_passwords' => true,
+                'delay_before_new_password' => 3600,
             ],
         ]);
 

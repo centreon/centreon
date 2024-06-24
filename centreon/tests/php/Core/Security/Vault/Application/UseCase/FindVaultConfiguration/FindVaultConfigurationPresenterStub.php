@@ -28,9 +28,7 @@ use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConf
 
 class FindVaultConfigurationPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var FindVaultConfigurationResponse
-     */
+    /** @var FindVaultConfigurationResponse */
     public FindVaultConfigurationResponse $response;
 
     /**

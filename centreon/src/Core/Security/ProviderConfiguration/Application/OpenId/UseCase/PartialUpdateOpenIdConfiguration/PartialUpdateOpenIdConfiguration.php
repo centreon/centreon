@@ -57,6 +57,8 @@ use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryI
  * @phpstan-import-type _GroupsMapping from PartialUpdateOpenIdConfigurationRequest
  * @phpstan-import-type _AuthConditions from PartialUpdateOpenIdConfigurationRequest
  * @phpstan-import-type _PartialUpdateOpenIdConfigurationRequest from PartialUpdateOpenIdConfigurationRequest
+ *
+ * @phpstan-type _CustomConfigurationAsArray array<string, mixed>
  */
 final class PartialUpdateOpenIdConfiguration
 {
@@ -68,6 +70,8 @@ final class PartialUpdateOpenIdConfiguration
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
+     * @param ReadVaultConfigurationRepositoryInterface $vaultConfigurationRepository
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
      */
     public function __construct(
         private WriteOpenIdConfigurationRepositoryInterface $repository,
@@ -140,13 +144,17 @@ final class PartialUpdateOpenIdConfiguration
         CustomConfigurationInterface $customConfig,
         PartialUpdateOpenIdConfigurationRequest $request
     ): CustomConfiguration {
-        /** @var CustomConfiguration $customConfig */
+
         $requestArray = $request->toArray();
+
+        /** @var CustomConfiguration $customConfig */
         $oldConfigArray = $customConfig->toArray();
+
+        $customConfigurationAsArray = [];
 
         foreach ($requestArray as $paramName => $paramValue) {
             if ($paramName === 'contact_template') {
-                $requestArray['contact_template']
+                $customConfigurationAsArray['contact_template']
                     = $paramValue instanceof NoValue
                     ? $customConfig->getContactTemplate()
                     : (
@@ -155,28 +163,30 @@ final class PartialUpdateOpenIdConfiguration
                             : null
                     );
             } elseif ($paramName === 'roles_mapping') {
-                $requestArray['roles_mapping'] = $this->createUpdatedAclConditions(
+                $customConfigurationAsArray['roles_mapping'] = $this->createUpdatedAclConditions(
                     $paramValue,
                     $customConfig->getACLConditions()
                 );
             } elseif ($paramName === 'authentication_conditions') {
-                $requestArray['authentication_conditions'] = $this->createUpdatedAuthenticationConditions(
+                $customConfigurationAsArray['authentication_conditions'] = $this->createUpdatedAuthenticationConditions(
                     $paramValue,
                     $customConfig->getAuthenticationConditions()
                 );
             } elseif ($paramName === 'groups_mapping') {
-                $requestArray['groups_mapping'] = $this->createUpdatedGroupsMapping(
+                $customConfigurationAsArray['groups_mapping'] = $this->createUpdatedGroupsMapping(
                     $paramValue,
                     $customConfig->getGroupsMapping()
                 );
             } elseif ($paramValue instanceOf NoValue) {
-                $requestArray[$paramName] = $oldConfigArray[$paramName];
+                $customConfigurationAsArray[$paramName] = $oldConfigArray[$paramName];
+            } else {
+                $customConfigurationAsArray[$paramName] = $requestArray[$paramName];
             }
         }
 
-        $requestArray = $this->manageClientIdAndClientSecretIntoVault($requestArray, $customConfig);
+        $customConfigurationAsArray = $this->manageClientIdAndClientSecretIntoVault($customConfigurationAsArray, $customConfig);
 
-        return new CustomConfiguration($requestArray);
+        return new CustomConfiguration($customConfigurationAsArray);
     }
 
     /**
@@ -485,12 +495,12 @@ final class PartialUpdateOpenIdConfiguration
      * This method will upsert the client id and the client secret if one of those values change and are not already
      * stored into the vault.
      *
-     * @param _PartialUpdateOpenIdConfigurationRequest $requestArray
+     * @param _CustomConfigurationAsArray $requestArray
      * @param CustomConfiguration $customConfiguration
      *
-     * @return _PartialUpdateOpenIdConfigurationRequest
-     *
      * @throws \Throwable
+     *
+     * @return _CustomConfigurationAsArray
      */
     private function manageClientIdAndClientSecretIntoVault(
         array $requestArray,
@@ -503,16 +513,14 @@ final class PartialUpdateOpenIdConfiguration
 
         // Retrieve the uuid from the vault path if the client id or client secret is already stored
         $uuid = null;
-        if (
-            ($customConfiguration->getClientId() !== null
-                && str_starts_with($customConfiguration->getClientId(), 'secret::'))
-            || ($customConfiguration->getClientSecret() !== null
-                && str_starts_with($customConfiguration->getClientSecret(), 'secret::'))
-        ) {
-            $vaultPathPart = explode(
-                '/',
-                $customConfiguration->getClientId() ?? $customConfiguration->getClientSecret()
-            );
+        $clientId = $customConfiguration->getClientId();
+        $clientSecret = $customConfiguration->getClientSecret();
+
+        if ($clientId !== null && str_starts_with($clientId, 'secret::')) {
+            $vaultPathPart = explode('/', $clientId);
+            $uuid = end($vaultPathPart);
+        } elseif ($clientSecret !== null && str_starts_with($clientSecret, 'secret::')) {
+            $vaultPathPart = explode('/', $clientSecret);
             $uuid = end($vaultPathPart);
         }
 

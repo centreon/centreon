@@ -1,13 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\Factory;
 
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurationsResponse;
-use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurationsResponseFactoryInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDto;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface;
-use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
@@ -25,18 +22,16 @@ class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterfa
 
     }
 
+    /**
+     * @inheritDoc
+     */
     public function supports(string $type): bool
     {
         return $type === Provider::OPENID;
     }
 
     /**
-     * @param Configuration $configuration
-     *
-     * @throws OpenIdConfigurationException
-     * @throws \Throwable
-     *
-     * @return FindProviderConfigurationsResponse
+     * @inheritDoc
      */
     public function createResponse(Configuration $configuration): ProviderConfigurationDto
     {
@@ -60,12 +55,11 @@ class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterfa
      * @throws \Throwable
      *
      * @return string
-     *
      */
     private function buildAuthenticationUri(CustomConfiguration $customConfiguration): string
     {
         $redirectUri = $customConfiguration->getRedirectUrl() !== null
-            ? $response->redirectUrl . $this->urlGenerator->generate(
+            ? $customConfiguration->getRedirectUrl() . $this->urlGenerator->generate(
                 'centreon_security_authentication_login_openid',
                 [],
                 UrlGeneratorInterface::ABSOLUTE_PATH
@@ -90,7 +84,7 @@ class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterfa
         ) {
             $openIDCredentialsFromVault = $this->readVaultRepository->findFromPath($customConfiguration->getClientId());
             if (! array_key_exists('_OPENID_CLIENT_ID', $openIDCredentialsFromVault)) {
-                throw OpenIdConfigurationException::unableToRetrieveCredentialsFromVault(['_OPENID_CLIENT_ID']);
+                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault('_OPENID_CLIENT_ID');
             }
             $customConfiguration->setClientId($openIDCredentialsFromVault['_OPENID_CLIENT_ID']);
         }
@@ -119,8 +113,8 @@ class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterfa
             $queryParams .= '&' . $authorizationEndpointParts;
         }
 
-        return $customConfiguration->getBaseUrl() . '/' .
-            ltrim($authorizationEndpointBase ?? '', '/')
+        return $customConfiguration->getBaseUrl() . '/'
+            . ltrim($authorizationEndpointBase ?? '', '/')
             . '?' . $queryParams
             . (! empty($customConfiguration->getConnectionScopes())
                 ? '&scope=' . implode('%20', $customConfiguration->getConnectionScopes())

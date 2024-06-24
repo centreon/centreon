@@ -27,10 +27,10 @@ use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\Local\Repository\WriteConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\{
-    UpdateConfigurationPresenterInterface};
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\UpdateConfiguration;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\UpdateConfigurationRequest;
+use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\{
+    UpdateConfigurationPresenterInterface};
 use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
@@ -39,29 +39,19 @@ use PHPUnit\Framework\TestCase;
 
 class UpdateConfigurationTest extends TestCase
 {
-    /**
-     * @var WriteConfigurationRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var WriteConfigurationRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $writeConfigurationRepository;
 
-    /**
-     * @var ReadUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $readUserRepository;
 
-    /**
-     * @var UpdateConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var UpdateConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
-    /**
-     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory;
 
-    /**
-     * @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $provider;
 
     public function setUp(): void

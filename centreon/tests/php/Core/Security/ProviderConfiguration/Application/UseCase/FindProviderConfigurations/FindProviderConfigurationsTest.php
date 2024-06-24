@@ -22,22 +22,21 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations;
 
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\Factory\OpenIdProviderDtoFactory;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{FindProviderConfigurations,
     FindProviderConfigurationsPresenterInterface,
     FindProviderConfigurationsResponse,
     ProviderConfigurationDto,
-    ProviderConfigurationDtoFactoryInterface,
-    ProviderResponse\LocalProviderResponse};
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface;
+    ProviderConfigurationDtoFactoryInterface
+    };
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readProviderConfigurationRepository = $this->createMock(
         ReadProviderConfigurationsRepositoryInterface::class
     );
@@ -58,7 +57,7 @@ beforeEach(function () {
     );
 });
 
-it('returns error when there is an issue during configurations search', function () {
+it('returns error when there is an issue during configurations search', function (): void {
     $errorMessage = 'error during configurations search';
 
     $this->readConfigurationRepository
@@ -74,7 +73,7 @@ it('returns error when there is an issue during configurations search', function
     ($this->useCase)($this->presenter);
 });
 
-it('presents an empty array when configurations are not found', function () {
+it('presents an empty array when configurations are not found', function (): void {
     $this->readConfigurationRepository
         ->expects($this->once())
         ->method('findConfigurations')
@@ -91,7 +90,7 @@ it('presents an empty array when configurations are not found', function () {
     ($this->useCase)($this->presenter);
 });
 
-it('presents found configurations', function () {
+it('presents found configurations', function (): void {
     $this->readConfigurationRepository
         ->expects($this->once())
         ->method('findConfigurations')

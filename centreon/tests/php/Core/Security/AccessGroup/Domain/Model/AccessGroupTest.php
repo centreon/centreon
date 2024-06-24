@@ -27,10 +27,10 @@ use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-it('should throw an Exception when an access group name is empty', function () {
+it('should throw an Exception when an access group name is empty', function (): void {
     new AccessGroup(1, '', 'alias');
 })->throws(InvalidArgumentException::class, AssertionException::notEmpty('AccessGroup::name')->getMessage());
 
-it('should thrown an Exception when an access group alias is empty', function () {
+it('should thrown an Exception when an access group alias is empty', function (): void {
     new AccessGroup(1, 'access_group', '');
 })->throws(InvalidArgumentException::class, AssertionException::notEmpty('AccessGroup::alias')->getMessage());

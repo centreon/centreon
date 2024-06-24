@@ -24,28 +24,26 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse, ForbiddenResponse};
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
-    ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface
+    ReadVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
     FindVaultConfiguration,
-    FindVaultConfigurationRequest,
     FindVaultConfigurationResponse
 };
-use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
+use Core\Security\Vault\Domain\Model\{VaultConfiguration};
 use Security\Encryption;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present Forbidden Response when user is not admin', function () {
+it('should present Forbidden Response when user is not admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -63,7 +61,7 @@ it('should present Forbidden Response when user is not admin', function () {
     expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
 });
 
-it('should present NotFound Response when vault configuration does not exist for a given id', function () {
+it('should present NotFound Response when vault configuration does not exist for a given id', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -88,7 +86,7 @@ it('should present NotFound Response when vault configuration does not exist for
     );
 });
 
-it('should present ErrorResponse when an unhandled error occurs', function () {
+it('should present ErrorResponse when an unhandled error occurs', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -113,14 +111,14 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
     );
 });
 
-it('should present FindVaultConfigurationResponse', function () {
+it('should present FindVaultConfigurationResponse', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
 
     $encryption = new Encryption();
-    $encryption->setFirstKey("myFirstKey");
+    $encryption->setFirstKey('myFirstKey');
 
     $vaultConfiguration = new VaultConfiguration(
         $encryption,
@@ -132,7 +130,6 @@ it('should present FindVaultConfigurationResponse', function () {
         'myEncryptedRoleId',
         'myEncryptedSecretId'
     );
-
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
@@ -155,7 +152,7 @@ it('should present FindVaultConfigurationResponse', function () {
         'name' => $vaultConfiguration->getName(),
         'url' => $vaultConfiguration->getAddress(),
         'port' => $vaultConfiguration->getPort(),
-        'root_path' => $vaultConfiguration->getRootPath()
+        'root_path' => $vaultConfiguration->getRootPath(),
     ];
 
     $useCase($presenter);
