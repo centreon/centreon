@@ -74,16 +74,6 @@ class GenerateConfigurationTest extends TestCase
     public function testErrorRetrievingMonitoringServerException(): void
     {
         $this->user
-            ->expects($this->any())
-            ->method('hasTopologyRole')
-            ->willReturn(true);
-
-        $this->user
-            ->expects($this->once())
-            ->method('hasRole')
-            ->willReturn(true);
-
-        $this->user
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -109,16 +99,6 @@ class GenerateConfigurationTest extends TestCase
     public function testErrorOnGeneration(): void
     {
         $repositoryException = new RepositoryException('Test exception message');
-
-        $this->user
-            ->expects($this->any())
-            ->method('hasTopologyRole')
-            ->willReturn(true);
-
-        $this->user
-            ->expects($this->once())
-            ->method('hasRole')
-            ->willReturn(true);
 
         $this->user
             ->expects($this->once())
@@ -150,61 +130,8 @@ class GenerateConfigurationTest extends TestCase
         $useCase->execute($this->monitoringServer->getId());
     }
 
-    public function testErrorOnInsufficientTopologyRights(): void
-    {
-        $this->user
-            ->expects($this->any())
-            ->method('hasTopologyRole')
-            ->willReturn(false);
-
-        $useCase = new GenerateConfiguration(
-            $this->monitoringServerRepository,
-            $this->monitoringServerConfigurationRepository,
-            $this->readAccessGroupsRepository,
-            $this->user
-        );
-
-        $this->expectException(AccessDeniedException::class);
-
-        $useCase->execute($this->monitoringServer->getId());
-    }
-
-    public function testErrorOnInsufficientActionRights(): void
-    {
-        $this->user
-            ->expects($this->any())
-            ->method('hasTopologyRole')
-            ->willReturn(true);
-
-        $this->user
-            ->expects($this->any())
-            ->method('hasRole')
-            ->willReturn(false);
-
-        $useCase = new GenerateConfiguration(
-            $this->monitoringServerRepository,
-            $this->monitoringServerConfigurationRepository,
-            $this->readAccessGroupsRepository,
-            $this->user
-        );
-
-        $this->expectException(AccessDeniedException::class);
-
-        $useCase->execute($this->monitoringServer->getId());
-    }
-
     public function testSuccessAsAdminUser(): void
     {
-        $this->user
-            ->expects($this->any())
-            ->method('hasTopologyRole')
-            ->willReturn(true);
-
-        $this->user
-            ->expects($this->once())
-            ->method('hasRole')
-            ->willReturn(true);
-
         $this->user
             ->expects($this->once())
             ->method('isAdmin')
@@ -236,16 +163,6 @@ class GenerateConfigurationTest extends TestCase
 
     public function testSuccessAsNonAdminUser(): void
     {
-        $this->user
-            ->expects($this->any())
-            ->method('hasTopologyRole')
-            ->willReturn(true);
-
-        $this->user
-            ->expects($this->once())
-            ->method('hasRole')
-            ->willReturn(true);
-
         $this->user
             ->expects($this->once())
             ->method('isAdmin')
