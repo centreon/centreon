@@ -21,14 +21,15 @@ runs:
       with:
         python-version: "3.10"
 
+    - id: install-aws-cli
+      uses: unfor19/install-aws-cli-action@27d6061dae5d39e89be4d2246824f15e111a7e06
+      with:
+        version: 2
+        verbose: false
+        arch: amd64
+
     - name: "Setup AWS context"
       run: |
-        sudo apt update -y 1>&-
-        sudo apt install -y unzip 1>&-
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 1>&-
-        unzip awscliv2.zip 1>&-
-        sudo ./aws/install --update 1>&-
-        rm -rf awscliv2.zip aws 1>&-
         if [[ "$GITHUB_REF_NAME" != "develop" && "$GITHUB_REF_NAME" != "master" ]]; then
           VERSION=$(echo $GITHUB_REF_NAME | grep -oE '([0-9]{2}\.[0-9]{2})').x
         else
