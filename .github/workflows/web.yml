@@ -811,7 +811,6 @@ jobs:
           dependencies_lock_file: centreon/pnpm-lock.yaml
 
       - name: Publish report to S3
-        if: ${{ github.event_name == 'push' }}
         uses: ./.github/actions/lighthouse-to-s3
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
