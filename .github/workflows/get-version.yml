@@ -42,6 +42,7 @@ jobs:
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
       release_type: ${{ steps.get_version.outputs.release_type }}
       release_cloud: ${{ steps.get_version.outputs.release_cloud}}
+      gorgone_docker_version: ${{ steps.get_version.outputs.gorgone_docker_version}}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -72,7 +73,7 @@ jobs:
         run: |
           set -x
           GORGONE_DOCKER_VERSION=$(cat .github/docker/Dockerfile.gorgone-testing-* | md5sum | cut -c1-8)
-          echo "gorgone_docker_version=GORGONE_DOCKER_VERSION" >> $GITHUB_OUTPUT
+          echo "gorgone_docker_version=$GORGONE_DOCKER_VERSION" >> $GITHUB_OUTPUT
 
           if [[ "${{ inputs.version_file }}" == */.version ]]; then
             . .version
