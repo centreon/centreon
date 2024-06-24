@@ -607,7 +607,7 @@ Then('the line style should be updated based on the changed values', () => {
   cy.get('path[stroke-dasharray="7 7"]').should('exist');
 });
 
-When('the dashboard administrator clicks on zero-centred button', () => {
+When('the dashboard administrator clicks on the zero-centred button', () => {
   cy.getByTestId({ testId: '-summary' }).eq(2).click();
   cy.getByLabel({
     label: 'Zero-centered',

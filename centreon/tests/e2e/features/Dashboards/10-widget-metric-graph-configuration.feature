@@ -90,7 +90,7 @@ Feature: Configuring metrics graph widget
   @TEST_MON-119912
   Scenario: Update Metrics Graph Style by centering values around 0
     Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
-    When the dashboard administrator clicks on zero-centred button
+    When the dashboard administrator clicks on the zero-centred button
     Then the Metrics Graph widget should be refreshed to center the values around 0
 
   @TEST_MON-119934
@@ -98,4 +98,3 @@ Feature: Configuring metrics graph widget
     Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
     When the dashboard administrator selects the list display mode
     Then the Metrics Graph widget should refresh to display items in a list format
-    
