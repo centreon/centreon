@@ -29,6 +29,7 @@ import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import { useDashboardStyles } from './Dashboard.styles';
 import DeleteWidgetModal from './components/DeleteWidgetModal';
 import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
+import Favorite from './components/Favorite/Favorite';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
@@ -81,6 +82,7 @@ const Dashboard = (): ReactElement => {
               description={dashboard?.description || ''}
               title={dashboard?.name || ''}
             />
+            <Favorite />
           </PageHeader.Main>
           <DashboardNavbar />
         </PageHeader>

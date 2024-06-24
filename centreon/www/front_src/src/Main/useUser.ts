@@ -52,7 +52,12 @@ const useUser = (): (() => null | Promise<void>) => {
 
         setUser({
           alias,
-          dashboard,
+          dashboard: dashboard
+            ? {
+                ...dashboard,
+                favorites: dashboard?.favorites ?? []
+              }
+            : null,
           default_page: defaultPage || '/monitoring/resources',
           id,
           isAdmin,

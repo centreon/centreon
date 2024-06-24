@@ -13,6 +13,7 @@ export enum DashboardGlobalRole {
 
 export interface DashboardRolesAndPermissions {
   createDashboards: boolean;
+  favorites: Array<number>;
   globalUserRole: DashboardGlobalRole;
   manageAllDashboards: boolean;
   viewDashboards: boolean;
