@@ -11,7 +11,7 @@ Nodes are either servers running Gorgone daemon or simple equipment with SSH ser
 There is no specific configuration in the Gorgone daemon configuration file, only a directive to set a path to a dedicated configuration file.
 
 | Directive    | Description                                  | Default value |
-| :----------- | :------------------------------------------- | :------------ |
+|:-------------|:---------------------------------------------|:--------------|
 | config\_file | Path to the configuration file listing nodes |               |
 
 #### Example
@@ -28,9 +28,9 @@ Nodes are listed in a separate configuration file in a `nodes` table as below:
 ##### Using ZMQ (Gorgone running on node)
 
 | Directive       | Description                                                                |
-| :-------------- | :------------------------------------------------------------------------- |
+|:----------------|:---------------------------------------------------------------------------|
 | id              | Unique identifier of the node (can be Poller’s ID if using prevail option) |
-| type            | Way for the daemon to connect to the node (push\_zmq)                      |
+| type            | Way for the daemon to connect to the node (push\_zmq, pull, wss)           |
 | address         | IP address of the node                                                     |
 | port            | Port to connect to on the node                                             |
 | server\_pubkey  | Server public key (Default: ask the server pubkey when it connects)        |
@@ -59,7 +59,7 @@ nodes:
 ##### Using SSH
 
 | Directive                | Description                                                                                       |
-| :----------------------- | :------------------------------------------------------------------------------------------------ |
+|:-------------------------|:--------------------------------------------------------------------------------------------------|
 | id                       | Unique identifier of the node (can be Poller’s ID if using prevail option)                        |
 | type                     | Way for the daemon to connect to the node (push\_ssh)                                             |
 | address                  | IP address of the node                                                                            |
