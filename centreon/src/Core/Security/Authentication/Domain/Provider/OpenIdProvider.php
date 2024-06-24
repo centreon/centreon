@@ -852,6 +852,9 @@ class OpenIdProvider implements OpenIdProviderInterface
             && str_starts_with($customConfiguration->getClientId(), 'secret::')
         ) {
             $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientId());
+            if (! array_key_exists('_OPENID_CLIENT_ID', $vaultData)) {
+                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault('_OPENID_CLIENT_ID');
+            }
             $customConfiguration->setClientId($vaultData['_OPENID_CLIENT_ID']);
         }
 
@@ -860,6 +863,9 @@ class OpenIdProvider implements OpenIdProviderInterface
             && str_starts_with($customConfiguration->getClientSecret(), 'secret::')
         ) {
             $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientSecret());
+            if (! array_key_exists('_OPENID_CLIENT_SECRET', $vaultData)) {
+                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault('_OPENID_CLIENT_SECRET');
+            }
             $customConfiguration->setClientSecret($vaultData['_OPENID_CLIENT_SECRET']);
         }
         if ($customConfiguration->getAuthenticationType() === CustomConfiguration::AUTHENTICATION_BASIC) {
