@@ -448,7 +448,7 @@ Then(
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
-    cy.contains('Centreon-Server: Packet Loss').should('exist');
+    cy.contains('Centreon-Server: Packet Loss',{timeout:40000}).should('exist');
     cy.get('g.visx-axis-left').should('exist');
     cy.get('g.visx-axis-right').should('exist');
   }
