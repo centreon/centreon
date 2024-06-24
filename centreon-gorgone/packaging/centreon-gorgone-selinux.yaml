@@ -30,6 +30,8 @@ overrides:
       - centreon-gorgoned-selinux
     provides:
       - centreon-gorgoned-selinux
+    replaces:
+      - centreon-gorgoned-selinux
 
 contents:
   - src: "../selinux/centreon-gorgoned.pp"
