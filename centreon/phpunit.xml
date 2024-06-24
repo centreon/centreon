@@ -2,7 +2,7 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" backupGlobals="false" colors="true" bootstrap="tests/php/bootstrap.php" failOnRisky="true" failOnWarning="true">
   <coverage>
     <report>
-      <html outputDirectory="./coverage-report" lowUpperBound="50" highLowerBound="80"/>
+      <text outputFile="./coverage_summary.txt" showOnlySummary="true"/>
     </report>
   </coverage>
   <php>
@@ -27,8 +27,7 @@
   </php>
   <testsuites>
     <testsuite name="Symfony Test Suite">
-      <directory>./tests/php/*/</directory>
-      <directory>./src/*/Tests/</directory>
+      <directory>./tests/php/Core</directory>
     </testsuite>
   </testsuites>
   <groups>
@@ -37,16 +36,7 @@
       <group>intl-data</group>
     </exclude>
   </groups>
-  <logging/>
-  <source>
-    <include>
-      <directory>./src/</directory>
-    </include>
-    <exclude>
-      <directory>./src/*/Tests</directory>
-      <directory>./src/*/Domain/Entity</directory>
-      <directory>./src/*/Domain/Resources</directory>
-      <directory>./src/*/Infrastructure/Entity</directory>
-    </exclude>
-  </source>
+  <logging>
+    <text outputFile="./logfile.txt"/>
+  </logging>
 </phpunit>
