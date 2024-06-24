@@ -1,5 +1,4 @@
-@ignore
-@REQ_MON-21200
+@REQ_MON-38501
 Feature: ACL Permissions for Administrators
 
   As an Administrator
@@ -8,12 +7,15 @@ Feature: ACL Permissions for Administrators
 
   Background:
     Given I am logged in as an Administrator
-    And I am on the ACL menu
 
-  Scenario: Verify "Manage Organization Token" Menu Action in ACL
-    When I navigate to "Administration" > "ACL" > "Menus Actions"
-    Then I see "Manage organization token" listed as an action
+  @TEST_MON-38420
+  Scenario: Verify "Manage API tokens" action in ACL
+    When I navigate to "Administration" > "ACL" > "Actions Access"
+    And I click on the "Add" button
+    Then I see "Manage API tokens" listed as an action
 
-  Scenario: Verify "API Token" Menu Access in ACL
-    When I navigate to "Administration" > "Menus Access"
-    Then I see "API token" listed under the "Administration" section
+  @TEST_MON-38421
+  Scenario: Verify "API Tokens" Menu Access in ACL
+    When I navigate to "Administration" > "ACL" > "Menus Access"
+    And I click on the "Add" button
+    Then I see "API Tokens" listed under the "Administration" section

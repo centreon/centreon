@@ -233,7 +233,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
     /**
      * Truncate the data
      */
-    public function truncate()
+    public function truncate(): void
     {
         $sql = <<<SQL
 TRUNCATE TABLE `nagios_server`;

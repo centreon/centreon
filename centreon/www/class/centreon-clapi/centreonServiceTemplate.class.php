@@ -1255,8 +1255,8 @@ class CentreonServiceTemplate extends CentreonObject
             array('service_description'),
             -1,
             0,
-            null,
-            null,
+            'service_description,host_name',
+            'ASC',
             $filters_hostRel,
             "AND"
         );

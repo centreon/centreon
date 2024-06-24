@@ -51,7 +51,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     /**
      * Register CentreonLegacy services.
      *
-     * @param \Pimple\Container $pimple
+     * @param Container $pimple
      */
     public function register(Container $pimple): void
     {
@@ -190,7 +190,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
             $locator = new ServiceLocator($container, $services);
 
-            return new Module\License($locator);
+            return new License($locator);
         });
 
         // alias to centreon.legacy.module.license service

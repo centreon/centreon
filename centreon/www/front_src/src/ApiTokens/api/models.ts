@@ -1,7 +1,7 @@
 import { ListingParameters, QueryParameter } from '@centreon/ui';
 
 export interface BuildListEndpoint {
-  customQueryParameters?: Array<QueryParameter>;
+  customQueryParameters?: Array<QueryParameter> | null;
   endpoint: string;
   parameters: ListingParameters;
 }

@@ -12,6 +12,9 @@ import AuthenticationDenied from '../FallbackPages/AuthenticationDenied';
 const LoginPage = lazy(() => import('../Login'));
 const ResetPasswordPage = lazy(() => import('../ResetPassword'));
 const AppPage = lazy(() => import('./InitializationPage'));
+// const PublicPagesManager = lazy(
+//   () => import('../publicPages/PublicPagesManager')
+// );
 const Main = lazy(() => import('.'));
 
 export const store = createStore();
@@ -50,6 +53,10 @@ const Provider = (): JSX.Element | null => {
             Component: ResetPasswordPage,
             path: routeMap.resetPassword
           },
+          // {
+          //   Component: PublicPagesManager,
+          //   path: routeMap.publicPages
+          // },
           {
             Component: AppPage,
             path: '*'

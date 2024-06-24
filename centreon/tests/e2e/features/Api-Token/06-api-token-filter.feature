@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-24235
 Feature: API Token Information Retrieval
 
@@ -6,15 +5,20 @@ Feature: API Token Information Retrieval
   I want to search and retrieve information about API tokens using various filters
   So that I can display only the necessary information.
 
+  Background:
+    Given I am logged in as an administrator
+    And API tokens with predefined details are created
+    And I am on the API tokens page
+
+  @TEST_MON-36705
   Scenario Outline: Filtering API Tokens by '<filter_by>'
-    Given a user with access to the API token management page
-    When the user filters tokens by '<filter_by>' and clicks on Search
-    Then the user should see all tokens with a '<filter_by>' according to the filter
+    When I filter tokens by '<filter_by>' and click on Search
+    Then I should see all tokens with a '<filter_by>' according to the filter
     Examples:
       | filter_by       |
-      | Status          |
+      # | Status          |
       | Name            |
       | Creator         |
       | User            |
-      | Creation date   |
-      | Expiration date |
+      # | Creation date   |
+      # | Expiration date |

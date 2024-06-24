@@ -50,3 +50,21 @@ properties:
     type: string
     enum: [ viewer, editor ]
     description: "The role current user owns on this dashboard."
+
+  panels:
+    type: array
+    items:
+      allOf:
+        - $ref: 'Panel/DashboardPanel.WithoutId.yaml'
+
+  refresh:
+    type: object
+    properties:
+      type:
+        type: string
+        enum: [ global, manual ]
+        example: 'manual'
+      interval:
+        type: integer
+        nullable: true
+        example: 10

@@ -25,7 +25,6 @@ const waitToExport = 5000;
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const versionApi = 'latest';
-const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 const apiLogout = '/centreon/api/latest/authentication/logout';
 
 let servicesFoundStepCount = 0;
@@ -477,6 +476,7 @@ export {
   checkMetricsAreMonitored,
   checkServicesAreMonitored,
   getStatusNumberFromString,
+  getStatusTypeNumberFromString,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,

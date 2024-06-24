@@ -798,6 +798,10 @@ $form->addElement('textarea', 'host_comment', _('Comments'), $attrsTextarea);
 
 $form->addElement('select2', 'host_hgs', _('Host Groups'), [], $attributes['host_groups']);
 
+if ($isCloudPlatform) {
+    $form->addRule('host_hgs', _('Mandatory field for ACL purpose.'), 'required');
+}
+
 if ($o === HOST_MASSIVE_CHANGE) {
     $mc_mod_hhg = [];
     $mc_mod_hhg[] = $form->createElement('radio', 'mc_mod_hhg', null, _('Incremental'), '0');

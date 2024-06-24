@@ -26,7 +26,6 @@ namespace Core\ResourceAccess\Application\UseCase\DeleteRule;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
@@ -48,14 +47,14 @@ final class DeleteRule
      * @param WriteResourceAccessRepositoryInterface $writeRepository
      * @param ContactInterface $user
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
-     * @param DataStorageEngineInterface $dataStorageEngine
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ReadResourceAccessRepositoryInterface $readRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeRepository,
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly DataStorageEngineInterface $dataStorageEngine
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -66,11 +65,6 @@ final class DeleteRule
     public function __invoke(int $ruleId, PresenterInterface $presenter): void
     {
         try {
-            /**
-             * Check if current user is authorized to perform the action.
-             * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
-             * are authorized to add a Resource Access Rule.
-             */
             if (! $this->isAuthorized()) {
                 $this->error(
                     "User doesn't have sufficient rights to delete a resource access rule",
@@ -102,10 +96,18 @@ final class DeleteRule
     }
 
     /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
      * @return bool
      */
     private function isAuthorized(): bool
     {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
         $userAccessGroupNames = array_map(
             static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
             $this->accessGroupRepository->findByContact($this->user)
@@ -117,7 +119,8 @@ final class DeleteRule
          *     - authorized to reach the Resource Access Management page.
          */
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
+            && $this->isCloudPlatform;
     }
 
     /**
@@ -129,24 +132,6 @@ final class DeleteRule
     private function deleteRule(int $ruleId): void
     {
         $this->debug('Starting transaction');
-        $this->dataStorageEngine->startTransaction();
-
-        try {
-            /**
-             * Here are the deletions (on cascade or not) that will occur on rule deletion
-             *     - Contact relations (ON DELETE CASCADE)
-             *     - Contact Group relations (ON DELETE CASCADE)
-             *     - Datasets relations + datasets (NEED MANUAL DELETION)
-             *     - DatasetFilters (ON DELETE CASCADE).
-             */
-            $this->writeRepository->deleteRuleAndDatasets($ruleId);
-            $this->debug('Commit transaction');
-            $this->dataStorageEngine->commitTransaction();
-        } catch (\Throwable $exception) {
-            $this->debug('Rollback transaction');
-            $this->dataStorageEngine->rollbackTransaction();
-
-            throw $exception;
-        }
+        $this->writeRepository->deleteRuleAndDatasets($ruleId);
     }
 }

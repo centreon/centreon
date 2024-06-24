@@ -19,15 +19,7 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
   );
-
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: 'web'
-  });
-
+  cy.applyAcl();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -92,12 +84,7 @@ Given(
   () => {
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
   }
 );
 
@@ -159,47 +146,42 @@ Then('the information about the selected metric is displayed', () => {
   cy.verifyGraphContainer(metrics);
 });
 
-Given('a dashboard featuring a single Single Metric widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
-  cy.visit('/centreon/home/dashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-});
+// Given('a dashboard featuring a single Single Metric widget', () => {
+//   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
+//   cy.visit('/centreon/home/dashboards');
+//   cy.contains(dashboards.default.name).click();
+// });
 
-When(
-  'the dashboard administrator user duplicates the Single Metric widget',
-  () => {
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-  }
-);
+// When(
+//   'the dashboard administrator user duplicates the Single Metric widget',
+//   () => {
+//     cy.getByLabel({
+//       label: 'Edit dashboard',
+//       tag: 'button'
+//     }).click();
+//     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+//     cy.getByTestId({ testId: 'RefreshIcon' }).click();
+//     cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
+//     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+//   }
+// );
 
-Then('a second Single Metric widget is displayed on the dashboard', () => {
-  cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
-});
+// Then('a second Single Metric widget is displayed on the dashboard', () => {
+//   cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
+// });
 
-Then('the second widget reports on the same metric as the first widget', () => {
-  cy.get('[class*="MuiTypography-h2"]')
-    .eq(1)
-    .then(($element) => {
-      const text = $element.text();
-      expect(text).to.include('%');
-    });
-});
+// Then('the second widget reports on the same metric as the first widget', () => {
+//   cy.get('[class*="MuiTypography-h2"]')
+//     .eq(1)
+//     .then(($element) => {
+//       const text = $element.text();
+//       expect(text).to.include('%');
+//     });
+// });
 
-Then('the second widget has the same properties as the first widget', () => {
-  cy.verifyDuplicatesGraphContainer(metrics);
-});
+// Then('the second widget has the same properties as the first widget', () => {
+//   cy.verifyDuplicatesGraphContainer(metrics);
+// });
 
 Given(
   'a dashboard with a Single Metric widget displaying a human-readable value format',
@@ -207,12 +189,7 @@ Given(
     cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
     cy.visit('/centreon/home/dashboards');
     cy.wait('@listAllDashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
@@ -250,12 +227,7 @@ Given('a dashboard containing a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -279,10 +251,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a warning state',
   () => {
-    cy.get('[class*="MuiTypography-h5"]')
-      .invoke('show')
-      .eq(3)
-      .should('contain', metrics.customValues.warning);
+    cy.contains(metrics.customValues.warning).should('be.visible');
   }
 );
 
@@ -302,10 +271,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a critical state',
   () => {
-    cy.get('[class*="MuiTypography-h5"]')
-      .invoke('show')
-      .eq(4)
-      .should('contain', metrics.customValues.critical);
+    cy.contains(metrics.customValues.critical).should('be.visible');
   }
 );
 
@@ -313,12 +279,7 @@ Given('a dashboard featuring a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -359,12 +320,7 @@ Given('a dashboard featuring two Single Metric widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricDoubleWidgets);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'

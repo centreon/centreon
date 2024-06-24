@@ -10,9 +10,12 @@ info:
     + Added host endpoint (PATCH)
     + Added service enpdoint (PATCH)
     + Added service severity configuration endpoint (PUT)
+    + Added hosts status count endpoint (GET)
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
+    + Handle new filters for the /configuration/hosts/groups endpoint
+    + Handle new filters for the /configuration/services/groups endpoint
     +
     +
     # Information
@@ -67,7 +70,6 @@ tags:
   - name: Host template
   - name: Media
   - name: Monitoring server
-  - name: Notification
   - name: Proxy
   - name: Service
   - name: Service group
@@ -251,24 +253,16 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/broker/{brokerId}/outputs:
+    $ref: "./v24.04/Configuration/Broker/AddBrokerOutput.yaml"
+  /configuration/broker/{brokerId}/outputs/{outputId}/file:
+    $ref: "./v24.04/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:
     $ref: "./v24.04/Configuration/Command/AddAndFindCommands.yaml"
   /configuration/graphs/templates:
     $ref: "./v24.04/Configuration/GraphTemplate/FindGraphTemplates.yaml"
   /configuration/connectors:
     $ref: "./v24.04/Configuration/Connector/FindConnectors.yaml"
-  /configuration/notifications:
-    $ref: "./v24.04/Configuration/Notification/Notifications.yaml"
-  /configuration/notifications/_delete:
-    $ref: "./v24.04/Configuration/Notification/DeleteNotifications.yaml"
-  /configuration/notifications/{notification_id}:
-    $ref: "./v24.04/Configuration/Notification/Notification.yaml"
-  /configuration/notifications/resources:
-    $ref: "./v24.04/Configuration/Notification/FindNotifiableResources.yaml"
-  /configuration/notifications/{notification_id}/rules:
-    $ref: "./v24.04/Configuration/Notification/FindNotifiableRule.yaml"
-  /configuration/notifications/contact_groups:
-    $ref: "./v24.04/Configuration/Notification/FindNotifiableContactGroups.yaml"
   /configuration/hosts/{host_id}:
     $ref: './v24.04/Configuration/Host/DeleteAndPartialUpdateHost.yaml'
   /configuration/hosts/templates:
@@ -290,6 +284,8 @@ paths:
         * name
         * alias
         * is_activated
+        * hostgroup.name
+        * hostgroup.id
       responses:
         "200":
           description: "OK"
@@ -414,6 +410,14 @@ paths:
         * name
         * alias
         * is_activated
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
+        * servicegroup.id
+        * servicegroup.name
       responses:
         "200":
           description: "OK"
@@ -662,11 +666,16 @@ paths:
         * name
         * alias
         * is_activated
+        * hostcategory.id
+        * hostcategory.name
 
         Changes in 23.04 :
 
         * `icon` was renamed `icon_id` and is no longer an object but the image ID
         * `icon_map` was renamed `icon_map_id` and is no longer an object but the image ID
+
+        *This endpoint has a specific behaviour on Cloud environments.*
+        *Please check the dedicated Cloud API documentation.*
       responses:
         "200":
           description: "OK"
@@ -697,6 +706,9 @@ paths:
         * name
 
         `Since Centreon web 23.04`
+
+        *This endpoint has a specific behaviour on Cloud environments.*
+        *Please check the dedicated Cloud API documentation.*
       requestBody:
         required: true
         content:
@@ -729,6 +741,9 @@ paths:
         `Since Centreon web 23.10`
 
         Get host group.
+
+        *This endpoint has a specific behaviour on Cloud environments.*
+        *Please check the dedicated Cloud API documentation.*
       parameters:
         - $ref: '#/components/parameters/HostGroupId'
       responses:
@@ -775,6 +790,9 @@ paths:
         `Since Centreon web 23.10`
 
         Update host group.
+
+        *This endpoint has a specific behaviour on Cloud environments.*
+        *Please check the dedicated Cloud API documentation.*
       parameters:
         - $ref: '#/components/parameters/HostGroupId'
       requestBody:
@@ -810,6 +828,14 @@ paths:
         * name
         * alias
         * is_activated
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
+        * servicecategory.id
+        * servicecategory.name
       responses:
         "200":
           description: "OK"
@@ -1554,12 +1580,8 @@ paths:
     $ref: './v24.04/Configuration/Dashboard/Dashboard.yaml'
   /configuration/dashboards/{dashboard_id}/shares:
     $ref: './v24.04/Configuration/Dashboard/ShareDashboard.yaml'
-  /configuration/dashboards/{dashboard_id}/access_rights/contacts:
-    $ref: './v24.04/Configuration/Dashboard/DashboardShareContacts.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
     $ref: './v24.04/Configuration/Dashboard/DashboardShareContact.yaml'
-  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups:
-    $ref: './v24.04/Configuration/Dashboard/DashboardShareContactGroups.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
     $ref: './v24.04/Configuration/Dashboard/DashboardShareContactGroup.yaml'
   /configuration/dashboards/contacts:
@@ -1972,6 +1994,10 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/hosts/status:
+    $ref: './v24.04/Realtime/Resources/FindHostsStatus.yaml'
+  /monitoring/services/status:
+    $ref: './v24.04/Realtime/Resources/FindServicesStatus.yaml'
   /monitoring/services:
     get:
       tags:
@@ -4423,40 +4449,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /administration/authentication/providers/openid:
-    get:
-      tags:
-        - Administration
-      summary: get openid provider configuration
-      responses:
-        '200':
-            description: "OK"
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ReadAuthenticationOpenIdProvider'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    put:
-      tags:
-        - Administration
-      summary: update openid provider configuration
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/WriteAuthenticationOpenIdProvider'
-      responses:
-        '204':
-            description: "Configuration updated"
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v24.04/Administration/Authentication/OpenIdProvider/OpenIdProvider.yaml'
   /administration/authentication/providers/saml:
     get:
       tags:
@@ -5415,328 +5408,6 @@ components:
               minimum: 3600
               maximum: 604800
               default: 3600
-    AuthenticationOpenIdProvider:
-      type: object
-      required:
-        - is_active
-        - is_forced
-        - base_url
-        - authorization_endpoint
-        - token_endpoint
-        - introspection_token_endpoint
-        - userinfo_endpoint
-        - endsession_endpoint
-        - connection_scopes
-        - login_claim
-        - client_id
-        - client_secret
-        - authentication_type
-        - verify_peer
-        - auto_import
-        - contact_template
-        - email_bind_attribute
-        - fullname_bind_attribute
-        - redirect_url
-      properties:
-        is_active:
-          type: boolean
-          description: "Indicates whether the provider is active or not"
-          example: true
-        is_forced:
-          type: boolean
-          description: "Indicates whether the provider is forced or not"
-          example: false
-        base_url:
-          type: string
-          description: "Base URL of the provider"
-          example: "https://localhost:8080"
-          nullable: true
-        authorization_endpoint:
-          type: string
-          description: "Authorization endpoint of the provider"
-          example: "/authorize"
-          nullable: true
-        token_endpoint:
-          type: string
-          description: "Token endpoint of the provider"
-          example: "/token"
-          nullable: true
-        introspection_token_endpoint:
-          type: string
-          description: "Introspection token endpoint of the provider"
-          example: "/introspect"
-          nullable: true
-        userinfo_endpoint:
-          type: string
-          description: "Userinfo endpoint of the provider"
-          example: "/userinfo"
-          nullable: true
-        endsession_endpoint:
-          type: string
-          description: "Endsession endpoint of the provider"
-          example: "/logout"
-          nullable: true
-        connection_scopes:
-          type: array
-          description: "List of scopes to request"
-          items:
-            type: string
-            description: "Scope"
-            example: "openid"
-        login_claim:
-          type: string
-          description: "Claim used to login"
-          example: "sub"
-          nullable: true
-        client_id:
-          type: string
-          description: "Client ID"
-          example: "client_id"
-          nullable: true
-        client_secret:
-          type: string
-          description: "Client secret"
-          example: "client_secret"
-          nullable: true
-        authentication_type:
-          type: string
-          description: "Authentication type"
-          example: "client_secret_post"
-          nullable: true
-          enum:
-            - client_secret_post
-            - client_secret_basic
-        verify_peer:
-          type: boolean
-          description: "Verify peer"
-          example: true
-        auto_import:
-          type: boolean
-          description: "Auto import user from external provider"
-          example: true
-        contact_template:
-          type: object
-          nullable: true
-          properties:
-            id:
-              type: integer
-              description: "Contact template ID"
-              example: 1
-            name:
-              type: string
-              description: "Contact template name"
-              example: "Default"
-        email_bind_attribute:
-          type: string
-          description: "Email bind attribute"
-          example: "email"
-          nullable: true
-        fullname_bind_attribute:
-          type: string
-          description: "Fullname bind attribute"
-          example: "name"
-          nullable: true
-        authentication_conditions:
-          type: object
-          required:
-            - trusted_client_addresses
-            - blacklist_client_addresses
-            - is_enabled
-            - attribute_path
-            - endpoint
-            - authorized_values
-          properties:
-            trusted_client_addresses:
-              type: array
-              description: "List of trusted client addresses"
-              items:
-                type: string
-                description: "IP address"
-                example: "127.0.0.1"
-            blacklist_client_addresses:
-              type: array
-              description: "List of blacklisted client addresses"
-              items:
-                type: string
-                description: "IP address"
-                example: "127.0.0.1"
-            is_enabled:
-              type: boolean
-            attribute_path:
-              type: string
-              example: info.items.prop1
-            endpoint:
-              type: object
-              properties:
-                type:
-                  type: string
-                  enum: [introspection_endpoint, user_information_endpoint, custom_endpoint]
-                custom_endpoint:
-                  type: string
-                  nullable: true
-            authorized_values:
-              type: array
-              items:
-                type: string
-        groups_mapping:
-          type: object
-          required:
-            - is_enabled
-            - attribute_path
-            - endpoint
-            - relations
-          properties:
-            is_enabled:
-              type: boolean
-            attribute_path:
-              type: string
-              nullable: false
-              example: info.items.groups
-            endpoint:
-              type: object
-              properties:
-                type:
-                  type: string
-                  enum: [introspection_endpoint, user_information_endpoint, custom_endpoint]
-                custom_endpoint:
-                  type: string
-                  nullable: true
-            relations:
-              type: array
-              items:
-                type: object
-                properties:
-                  group_value:
-                    type: string
-                    description: "Attribute group value"
-                    example: "group1"
-        roles_mapping:
-          type: object
-          required:
-            - is_enabled
-            - apply_only_first_role
-            - attribute_path
-            - endpoint
-            - relations
-          properties:
-            is_enabled:
-              type: boolean
-            apply_only_first_role:
-              type: boolean
-            attribute_path:
-              type: string
-              example: info.items.role
-            endpoint:
-              type: object
-              properties:
-                type:
-                  type: string
-                  enum: [introspection_endpoint, user_information_endpoint, custom_endpoint]
-                custom_endpoint:
-                  type: string
-                  nullable: true
-            relations:
-              type: array
-              items:
-                type: object
-                properties:
-                  claim_value:
-                    type: string
-                    description: "Authorization claim value"
-                    example: "scope"
-                  priority:
-                    type: number
-                    description: "priority of the role"
-                    example: 1
-        redirect_url:
-          type: string
-          description: "custom redirect url"
-          example: "https://my_custom_domain.com"
-          nullable: true
-    ReadAuthenticationOpenIdProvider:
-      allOf:
-        - $ref: '#/components/schemas/AuthenticationOpenIdProvider'
-        - properties:
-            groups_mapping:
-              type: object
-              properties:
-                relations:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      group_value:
-                        type: string
-                        description: "Attribute group value"
-                        example: "group1"
-                      contact_group:
-                        type: object
-                        description: "Contact group"
-                        properties:
-                          id:
-                            type: integer
-                            description: "Contact group ID"
-                            example: 1
-                          name:
-                            type: string
-                            description: "Contact group name"
-                            example: "cg1"
-            roles_mapping:
-              type: object
-              properties:
-                relations:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      claim_value:
-                        type: string
-                        description: "Authorization claim value"
-                        example: "scope"
-                      access_group:
-                        type: object
-                        description: "Access group"
-                        properties:
-                          id:
-                            type: integer
-                            description: "Access group ID"
-                            example: 1
-                          name:
-                            type: string
-                            description: "Access group name"
-                            example: "Default"
-    WriteAuthenticationOpenIdProvider:
-      allOf:
-        - $ref: '#/components/schemas/AuthenticationOpenIdProvider'
-        - properties:
-            groups_mapping:
-              type: object
-              properties:
-                relations:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      group_value:
-                        type: string
-                        description: "Attribute group value"
-                        example: "group1"
-                      contact_group_id:
-                        type: integer
-                        description: "Contact group id"
-                        example: 1
-            roles_mapping:
-              type: object
-              properties:
-                relations:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      access_group_id:
-                        type: integer
-                        description: "Access group id"
-                        example: 1
     AuthenticationSAMLProvider:
       type: object
       required:
@@ -6356,7 +6027,7 @@ components:
           description: "Check command timeperiod ID"
           example: 1
           nullable: true
-        max_check_attemps:
+        max_check_attempts:
           type: integer
           nullable: true
           description: "Define the number of times that monitoring engine will retry the host check command if it returns any non-OK state"

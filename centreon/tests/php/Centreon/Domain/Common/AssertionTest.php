@@ -219,7 +219,7 @@ $failDataProvider = [
 // We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.
 foreach ($failDataProvider as $name => [$failAssertion, $failMessage, $failCode]) {
     it(
-        'should throw an exception for ' . $name,
+        'should throw an exception for ' . $name . ' (' . rand(1,10000). ')',
         function () use ($propertyPath, $failAssertion, $failMessage, $failCode): void {
             try {
                 $failAssertion();
@@ -376,7 +376,7 @@ $successDataProvider = [
 // We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.
 foreach ($successDataProvider as $name => [$successAssertion]) {
     it(
-        'should not throw an exception for ' . $name,
+        'should not throw an exception for ' . $name . ' (' . rand(1,10000). ')',
         function () use ($successAssertion): void {
             try {
                 $successAssertion();

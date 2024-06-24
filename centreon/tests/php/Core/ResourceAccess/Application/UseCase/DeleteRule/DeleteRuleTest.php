@@ -24,7 +24,6 @@ declare(strict_types = 1);
 namespace Tests\Core\ResourceAccess\Application\UseCase\DeleteRule;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
@@ -44,7 +43,7 @@ beforeEach(closure: function (): void {
         writeRepository: $this->writeRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         accessGroupRepository: $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class)
+        isCloudPlatform: true
     );
 
     $this->presenter = new DeleteRulePresenterStub($this->createMock(PresenterFormatterInterface::class));
@@ -131,19 +130,11 @@ it('should present a ErrorResponse when deletion goes wrong', function (): void 
         ->method('exists')
         ->willReturn(true);
 
-    $this->dataStorageEngine
-        ->expects($this->once())
-        ->method('startTransaction');
-
     $this->writeRepository
         ->expects($this->once())
         ->method('deleteRuleAndDatasets')
         ->with(1)
         ->willThrowException(new \Exception());
-
-    $this->dataStorageEngine
-        ->expects($this->once())
-        ->method('rollbackTransaction');
 
     ($this->useCase)(1, $this->presenter);
 
@@ -171,18 +162,10 @@ it('should present a NoContentResponse when deletion goes well', function (): vo
         ->method('exists')
         ->willReturn(true);
 
-    $this->dataStorageEngine
-        ->expects($this->once())
-        ->method('startTransaction');
-
     $this->writeRepository
         ->expects($this->once())
         ->method('deleteRuleAndDatasets')
         ->with(1);
-
-    $this->dataStorageEngine
-        ->expects($this->once())
-        ->method('commitTransaction');
 
     ($this->useCase)(1, $this->presenter);
 

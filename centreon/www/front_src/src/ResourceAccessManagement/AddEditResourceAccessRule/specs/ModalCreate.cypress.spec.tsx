@@ -7,6 +7,7 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { modalStateAtom } from '../../atom';
 import { AddEditResourceAccessRuleModal } from '..';
 import {
+  findBusinessViewsEndpoint,
   findContactGroupsEndpoint,
   findContactsEndpoint,
   findHostCategoriesEndpoint,
@@ -29,11 +30,24 @@ import {
   labelResourceAccessRuleAddedSuccess,
   labelSave,
   labelSelectResource,
-  labelSelectResourceType
+  labelSelectResourceType,
+  labelAllResourcesSelected,
+  labelAllHostGroups,
+  labelAllHostGroupsSelected,
+  labelBusinessView,
+  labelAllBusinessViews,
+  labelAllBusinessViewsSelected,
+  labelAllContacts,
+  labelAllContactGroups,
+  labelExit,
+  labelYourFormHasUnsavedChanges,
+  labelDoYouWantToQuitWithoutSaving
 } from '../../translatedLabels';
 import { ModalMode } from '../../models';
 
 import {
+  allResourcesFormData,
+  findBusinessViewsResponse,
   findContactGroupsResponse,
   findContactsResponse,
   findHostCategoriesResponse,
@@ -43,8 +57,16 @@ import {
   findServiceCategoriesResponse,
   findServiceGroupsResponse,
   findServicesResponse,
-  formData
+  formData,
+  formDataWithAllBusinessViews,
+  formDataWithBusinessViews,
+  platformVersions,
+  formDataWithAllContactGroups,
+  formDataWithAllContacts,
+  formDataWithAllHostGroups
 } from './testUtils';
+
+import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 const store = createStore();
 store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
@@ -134,6 +156,13 @@ const initialize = (): void => {
     response: findContactGroupsResponse
   });
 
+  cy.interceptAPIRequest({
+    alias: 'findBusinessViewsEndpoint',
+    method: Method.GET,
+    path: `${findBusinessViewsEndpoint}**`,
+    response: findBusinessViewsResponse
+  });
+
   cy.viewport('macbook-13');
 
   cy.mount({
@@ -206,10 +235,8 @@ describe('Create modal', () => {
     cy.findByLabelText(labelAddNewDataset).should('be.disabled');
 
     cy.findByLabelText(labelContacts).should('have.value', '');
-    cy.findByLabelText(labelContacts).should('have.attr', 'required');
 
     cy.findByLabelText(labelContactGroups).should('have.value', '');
-    cy.findByLabelText(labelContactGroups).should('have.attr', 'required');
 
     cy.makeSnapshot();
   });
@@ -278,22 +305,6 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
-  it('confirms that the Refine filter button is disabled and the Add new dataset button is enabled when a dataset for a service is selected', () => {
-    cy.findByText(labelAddFilter).should('be.disabled');
-    cy.findByText(labelAddNewDataset).should('be.disabled');
-
-    cy.findByLabelText(labelSelectResourceType).click();
-    cy.findByText('Service').click();
-    cy.findByTestId(labelSelectResource).click();
-    cy.waitForRequest('@findServicesEndpoint');
-    cy.findByText('Ping').click();
-
-    cy.findByText(labelAddFilter).should('be.disabled');
-    cy.findByText(labelAddNewDataset).should('not.be.disabled');
-
-    cy.makeSnapshot();
-  });
-
   it('confirms that the Delete dataset filters button is visible when at least two dataset filters are selected', () => {
     fillFormRequiredFields();
 
@@ -346,6 +357,255 @@ describe('Create modal', () => {
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to add a new Resource Access Rule when All resources are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+
+    cy.findByLabelText(labelName).type('rule#0');
+    cy.findByLabelText(labelDescription).type('rule#0: Lorem ipsum...');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('All resources').click();
+    cy.findByLabelText(labelAllResourcesSelected).should('be.visible');
+    cy.findAllByTestId(labelSelectResource).should('be.disabled');
+
+    cy.findByLabelText(labelAddFilter).should('be.disabled');
+    cy.findByLabelText(labelAddNewDataset).should('be.disabled');
+
+    cy.findByTestId(labelContacts).click();
+    cy.waitForRequest('@findContactsEndpoint');
+    cy.findByText('centreon-gorgone').click();
+    cy.findByTestId(labelContacts).click();
+
+    cy.findByTestId(labelContactGroups).click();
+    cy.waitForRequest('@findContactGroupsEndpoint');
+    cy.findByText('Supervisors').click();
+    cy.findByTestId(labelContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(allResourcesFormData);
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to add a new Resource Access Rule when all host groups are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('Host group').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findHostGroupsEndpoint');
+    cy.findByText('Linux-Servers').click();
+
+    cy.findByTestId(labelContacts).click();
+    cy.waitForRequest('@findContactsEndpoint');
+    cy.findByText('centreon-gorgone').click();
+    cy.findByTestId(labelContacts).click();
+
+    cy.findByTestId(labelContactGroups).click();
+    cy.waitForRequest('@findContactGroupsEndpoint');
+    cy.findByText('Supervisors').click();
+    cy.findByTestId(labelContactGroups).click();
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(formDataWithAllHostGroups);
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the business view resource type when the BAM module is installed', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    store.set(platformVersionsAtom, platformVersions);
+    cy.findByLabelText(labelSelectResourceType).click();
+
+    cy.findByText(labelBusinessView).should('be.visible').click();
+    cy.findByText(labelAllBusinessViews).should('be.visible');
+    cy.findByText(labelAddFilter).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to create a new Resource Access Rule when business views are selected', () => {
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText(labelBusinessView).click();
+
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findBusinessViewsEndpoint');
+    cy.findByText('BV1').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.findByText('BV2').click();
+
+    cy.findByTestId(labelContacts).click();
+    cy.waitForRequest('@findContactsEndpoint');
+    cy.findByText('centreon-gorgone').click();
+    cy.findByTestId(labelContacts).click();
+
+    cy.findByTestId(labelContactGroups).click();
+    cy.waitForRequest('@findContactGroupsEndpoint');
+    cy.findByText('Supervisors').click();
+    cy.findByTestId(labelContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(formDataWithBusinessViews);
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to add a new Resource Access Rule when all contacts are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('Host group').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findHostGroupsEndpoint');
+    cy.findByText('Linux-Servers').click();
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelAllContacts).click();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(formDataWithAllContacts);
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to create a new Resource Access Rule when all business views are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText(labelBusinessView).click();
+    cy.findByText(labelAllBusinessViews).click();
+
+    cy.findByLabelText(labelAllBusinessViewsSelected).should('be.visible');
+    cy.findByLabelText(labelAllBusinessViewsSelected).should('be.disabled');
+
+    cy.findByTestId(labelContacts).click();
+    cy.waitForRequest('@findContactsEndpoint');
+    cy.findByText('centreon-gorgone').click();
+    cy.findByTestId(labelContacts).click();
+
+    cy.findByTestId(labelContactGroups).click();
+    cy.waitForRequest('@findContactGroupsEndpoint');
+    cy.findByText('Supervisors').click();
+    cy.findByTestId(labelContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        formDataWithAllBusinessViews
+      );
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to add a new Resource Access Rule when all contact groups are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('Host group').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findHostGroupsEndpoint');
+    cy.findByText('Linux-Servers').click();
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelAllContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        formDataWithAllContactGroups
+      );
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation dialog when the form is filled and the Exit button is clicked', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    fillFormRequiredFields();
+
+    cy.findByLabelText(labelExit).click();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByText('Cancel').click();
+  });
+
+  it('displays a confirmation dialog when the form is filled and the Close button is clicked', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    fillFormRequiredFields();
+
+    cy.findByLabelText('close').click();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByText('Cancel').click();
+  });
+
+  it('dispalys a confirmation dialog when the form is filled and a click occurs outside the modal', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    fillFormRequiredFields();
+
+    cy.clickOutside();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
 
     cy.makeSnapshot();
   });

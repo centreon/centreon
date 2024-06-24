@@ -142,13 +142,7 @@ before(() => {
   ]);
 
   cy.logoutViaAPI();
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: 'web'
-  });
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -197,12 +191,7 @@ Given('a dashboard that includes a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -236,12 +225,7 @@ Given('a dashboard configuring Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -285,12 +269,7 @@ Given('a dashboard featuring two Status Grid widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoStatusGridWidgets);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -318,12 +297,7 @@ Given(
   () => {
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
   }
 );
 
@@ -391,12 +365,7 @@ Given('a dashboard with a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -431,12 +400,7 @@ Given('a dashboard having a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
 });
 
 When(

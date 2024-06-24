@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { or } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -31,7 +31,9 @@ import useResources from './useResources';
 const Resources = ({
   propertyName,
   singleResourceType,
-  restrictedResourceTypes
+  restrictedResourceTypes,
+  required,
+  useAdditionalResources
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
@@ -50,13 +52,20 @@ const Resources = ({
     deleteResourceItem,
     getResourceStatic,
     changeResource,
-    singleMetricSelection,
-    singleHostPerMetric
-  } = useResources({ propertyName, restrictedResourceTypes });
+    singleResourceSelection
+  } = useResources({
+    propertyName,
+    required,
+    restrictedResourceTypes,
+    useAdditionalResources
+  });
 
   const { canEditField } = useCanEditProperties();
 
-  const deleteButtonHidden = or(!canEditField, value.length <= 1);
+  const deleteButtonHidden =
+    !canEditField ||
+    (value.length <= 1 && (required || isNil(required))) ||
+    equals(value.length, 1);
 
   return (
     <div className={classes.resourcesContainer}>
@@ -99,7 +108,7 @@ const Resources = ({
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
-              {singleMetricSelection && singleHostPerMetric ? (
+              {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
                   allowUniqOption
                   chipProps={{

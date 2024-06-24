@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -141,17 +141,18 @@ function removeRelationLastHostgroupDependency(int $hgId): void
     $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
               FROM dependency_hostgroupParent_relation
               WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostgroupParent_relation
-                                         WHERE hostgroup_hg_id =  ' . $hgId . ')';
+                                         WHERE hostgroup_hg_id =  ' . $hgId . ')
+              GROUP BY dependency_dep_id';
     $dbResult = $pearDB->query($query);
     $result = $dbResult->fetch();
 
     //is last parent
-    if ($result['nb_dependency'] == 1) {
+    if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
         $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
     }
 }
 
-function deleteHostGroupInDB($hostGroups = array())
+function deleteHostGroupInDB(bool $isCloudPlatform, array $hostGroups = [])
 {
     global $pearDB, $centreon;
 
@@ -159,22 +160,101 @@ function deleteHostGroupInDB($hostGroups = array())
         $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId((int) $hostgroupId);
 
         removeRelationLastHostgroupDependency((int) $hostgroupId);
-        $rq = "SELECT @nbr := (SELECT COUNT( * ) FROM host_service_relation WHERE service_service_id = " .
-            "hsr.service_service_id GROUP BY service_service_id ) AS nbr, hsr.service_service_id FROM " .
-            "host_service_relation hsr WHERE hsr.hostgroup_hg_id = '" . $hostgroupId . "'";
-        $dbResult = $pearDB->query($rq);
+        $rq = <<<'SQL'
+            SELECT @nbr := (
+                SELECT COUNT( * )
+                FROM host_service_relation
+                WHERE service_service_id = hsr.service_service_id
+                GROUP BY service_service_id
+            ) AS nbr,
+                hsr.service_service_id
+            FROM host_service_relation hsr
+            WHERE hsr.hostgroup_hg_id = :hostgroup_id
+            SQL;
+        $stmt= $pearDB->prepare($rq);
+        $stmt->bindValue(":hostgroup_id", (int) $hostgroupId, \PDO::PARAM_INT);
+        $stmt->execute();
 
         $statement = $pearDB->prepare("DELETE FROM service WHERE service_id = :service_id");
-        while ($row = $dbResult->fetch()) {
+        while ($row = $stmt->fetch()) {
             if ($row["nbr"] == 1) {
                 $statement->bindValue(':service_id', (int) $row["service_service_id"], \PDO::PARAM_INT);
                 $statement->execute();
             }
         }
-        $dbResult3 = $pearDB->query("SELECT hg_name FROM `hostgroup` WHERE `hg_id` = '" . $hostgroupId . "' LIMIT 1");
-        $row = $dbResult3->fetch();
 
-        $pearDB->query("DELETE FROM hostgroup WHERE hg_id = '" . $hostgroupId . "'");
+        $statement = $pearDB->prepare(
+            <<<'SQL'
+                SELECT hg_name
+                FROM hostgroup
+                WHERE hg_id = :hostgroup_id
+                LIMIT 1
+                SQL
+        );
+        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
+        $statement->execute();
+        $row = $statement->fetch();
+
+        if ($isCloudPlatform) {
+            if ($pearDB->beginTransaction()) {
+                try {
+                    $stmt = $pearDB->prepare(
+                        <<<'SQL'
+                            SELECT * FROM dataset_filters
+                            INNER JOIN acl_resources_hg_relations arhr
+                                ON arhr.acl_res_id = dataset_filters.acl_resource_id
+                            WHERE hg_hg_id = :hostgroup_id
+                            SQL
+                    );
+                    $stmt->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
+                    $stmt->execute();
+
+                    while ($datasetFilter = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                        $resourceIds = explode(',', $datasetFilter['resource_ids']);
+                        $updatedResourcesIds = array_filter(
+                            $resourceIds,
+                            fn ($id) => trim($id) !== (string) $hostgroupId
+                        );
+                        $resourcesIdsAsString = implode(',', $updatedResourcesIds);
+                        if (! empty($resourcesIdsAsString)) {
+                            $stmt = $pearDB->prepare(
+                                <<<'SQL'
+                                    UPDATE dataset_filters
+                                    SET resource_ids = :resource_ids
+                                    WHERE id = :id
+                                    SQL
+                            );
+                            $stmt->bindValue(':resource_ids', $resourcesIdsAsString, \PDO::PARAM_STR);
+                            $stmt->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+
+                            $stmt->execute();
+                        } else {
+                            $stmt = $pearDB->prepare(
+                                <<<'SQL'
+                                    DELETE FROM dataset_filters
+                                    WHERE id = :id
+                                    SQL
+                            );
+                            $stmt->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+
+                            $stmt->execute();
+                        }
+                    }
+                    $pearDB->commit();
+                } catch (\Throwable $exception) {
+                    $pearDB->rollBack();
+                    throw $exception;
+                }
+            }
+        }
+
+        $statement = $pearDB->prepare(
+            <<<'SQL'
+                DELETE FROM hostgroup WHERE hg_id = :hostgroup_id
+                SQL
+        );
+        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
+        $statement->execute();
 
         signalConfigurationChange('hostgroup', (int) $hostgroupId, $previousPollerIds);
         $centreon->CentreonLogAction->insertLog("hostgroup", $hostgroupId, $row['hg_name'], "d");
@@ -264,180 +344,699 @@ function multipleHostGroupInDB($hostGroups = array(), $nbrDup = array())
     $centreon->user->access->updateACL();
 }
 
-function insertHostGroupInDB($ret = array())
+function insertHostGroupInDBForCloud(array $submittedValues = []): int
 {
-    global $centreon;
+    global $pearDB, $centreon;
 
-    $hg_id = insertHostGroup($ret);
-    updateHostGroupHosts($hg_id, $ret);
+    $submittedValues['hg_name'] = $centreon->checkIllegalChar($submittedValues['hg_name']);
 
-    signalConfigurationChange('hostgroup', $hg_id);
-    $centreon->user->access->updateACL();
-
-    return $hg_id;
-}
-
-function updateHostGroupInDB($hg_id = null, $ret = array(), $increment = false)
-{
-    global $centreon;
-    if (!$hg_id) {
-        return;
-    }
-    $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId($hg_id);
-
-    updateHostGroup($hg_id, $ret);
-    updateHostGroupHosts($hg_id, $ret, $increment);
-
-    signalConfigurationChange('hostgroup', $hg_id, $previousPollerIds);
-    $centreon->user->access->updateACL();
-}
-
-function insertHostGroup($ret = array())
-{
-    global $form, $pearDB, $centreon, $is_admin;
-
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
-    }
-
-    $ret["hg_name"] = $centreon->checkIllegalChar($ret["hg_name"]);
-
-    $rq = "INSERT INTO hostgroup ";
-    $rq .= "(hg_name, hg_alias, hg_notes, hg_notes_url, hg_action_url, hg_icon_image, hg_map_icon_image, " .
-        "hg_rrd_retention, hg_comment, geo_coords, hg_activate) ";
-    $rq .= "VALUES (";
-    isset($ret["hg_name"]) && $ret["hg_name"]
-        ? $rq .= "'" . $pearDB->escape($ret["hg_name"]) . "', "
-        : $rq .= "NULL,";
-    isset($ret["hg_alias"]) && $ret["hg_alias"]
-        ? $rq .= "'" . $pearDB->escape($ret["hg_alias"]) . "', "
-        : $rq .= "NULL,";
-    isset($ret["hg_notes"]) && $ret["hg_notes"]
-        ? $rq .= "'" . $pearDB->escape($ret["hg_notes"]) . "', "
-        : $rq .= "NULL,";
-    isset($ret["hg_notes_url"]) && $ret["hg_notes_url"]
-        ? $rq .= "'" . $pearDB->escape($ret["hg_notes_url"]) . "', "
-        : $rq .= "NULL,";
-    isset($ret["hg_action_url"]) && $ret["hg_action_url"]
-        ? $rq .= "'" . $pearDB->escape($ret["hg_action_url"]) . "', "
-        : $rq .= "NULL,";
-    isset($ret["hg_icon_image"]) && $ret["hg_icon_image"]
-        ? $rq .= "'" . $pearDB->escape($ret["hg_icon_image"]) . "', "
-        : $rq .= "NULL,";
-    isset($ret["hg_map_icon_image"]) && $ret["hg_map_icon_image"]
-        ? $rq .= "'" . $pearDB->escape($ret["hg_map_icon_image"]) . "', "
-        : $rq .= "NULL,";
-    isset($ret["hg_rrd_retention"]) && $ret["hg_rrd_retention"]
-        ? $rq .= "'" . $pearDB->escape($ret["hg_rrd_retention"]) . "', "
-        : $rq .= "NULL,";
-    isset($ret["hg_comment"]) && $ret["hg_comment"]
-        ? $rq .= "'" . $pearDB->escape($ret["hg_comment"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["geo_coords"]) && $ret["geo_coords"]
-        ? $rq .= "'" . $pearDB->escape($ret["geo_coords"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["hg_activate"]["hg_activate"]) && $ret["hg_activate"]["hg_activate"]
-        ? $rq .= "'" . $ret["hg_activate"]["hg_activate"] . "'"
-        : $rq .= "'0'";
-    $rq .= ")";
-
-    $pearDB->query($rq);
-    $dbResult = $pearDB->query("SELECT MAX(hg_id) FROM hostgroup");
-    $hg_id = $dbResult->fetch();
-
-    if (!$centreon->user->admin) {
-        $resource_list = $centreon->user->access->getResourceGroups();
-        if (count($resource_list)) {
-            $query = "INSERT INTO `acl_resources_hg_relations` (acl_res_id, hg_hg_id)
-                VALUES (:acl_res_id, :hg_hg_id)";
-            $statement = $pearDB->prepare($query);
-            foreach ($resource_list as $res_id => $res_name) {
-                $statement->bindValue(':acl_res_id', (int) $res_id, \PDO::PARAM_INT);
-                $statement->bindValue(':hg_hg_id', (int) $hg_id["MAX(hg_id)"], \PDO::PARAM_INT);
-                $statement->execute();
-            }
-            unset($resource_list);
-        }
-    }
-
-    /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog(
-        "hostgroup",
-        $hg_id["MAX(hg_id)"],
-        CentreonDB::escape($ret["hg_name"]),
-        "a",
-        $fields
+    $statement = $pearDB->prepare(
+        'INSERT INTO hostgroup (hg_name, hg_alias, geo_coords) VALUES (:hg_name, :hg_alias, :geo_coords)'
     );
 
-    return ($hg_id["MAX(hg_id)"]);
+    $statement->bindValue(
+        ':hg_name',
+        ! empty($submittedValues['hg_name']) ? $pearDB->escape($submittedValues['hg_name']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':hg_alias',
+        ! empty($submittedValues['hg_alias']) ? $pearDB->escape($submittedValues['hg_alias']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':geo_coords',
+        ! empty($submittedValues['geo_coords']) ? $pearDB->escape($submittedValues['geo_coords']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->execute();
+
+    $statement = $pearDB->query('SELECT MAX(hg_id) FROM hostgroup');
+    $record = $statement->fetch(\PDO::FETCH_ASSOC);
+
+    $centreon->CentreonLogAction->insertLog(
+        object_type: 'hostgroup',
+        object_id: $record['MAX(hg_id)'],
+        object_name: CentreonDB::escape($submittedValues['hg_name']),
+        action_type: 'a',
+        fields: CentreonLogAction::prepareChanges($submittedValues)
+    );
+
+    return ($record["MAX(hg_id)"]);
 }
 
-function updateHostGroup($hg_id, $ret = array())
+function insertHostGroupInDBForOnPrem(array $submittedValues = []): int
 {
-    global $form, $pearDB, $centreon;
+    global $pearDB, $centreon;
 
-    if (!$hg_id) {
+    $submittedValues['hg_name'] = $centreon->checkIllegalChar($submittedValues['hg_name']);
+
+    $request = <<<'SQL'
+        INSERT INTO hostgroup
+        (
+            hg_name,
+            hg_alias,
+            hg_notes,
+            hg_notes_url,
+            hg_action_url,
+            hg_icon_image,
+            hg_map_icon_image,
+            hg_rrd_retention,
+            hg_comment,
+            geo_coords,
+            hg_activate
+        ) VALUES
+        (
+            :name,
+            :alias,
+            :notes,
+            :notesUrl,
+            :actionUrl,
+            :iconImage,
+            :mapIconImage,
+            :rrdRetention,
+            :comment,
+            :geoCoords,
+            :isActivated
+        )
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+
+    $statement->bindValue(
+        ':name',
+        ! empty($submittedValues['hg_name']) ? $pearDB->escape($submittedValues['hg_name']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':alias',
+        ! empty($submittedValues['hg_alias']) ? $pearDB->escape($submittedValues['hg_alias']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':notes',
+        ! empty($submittedValues['hg_notes']) ? $pearDB->escape($submittedValues['hg_notes']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':notesUrl',
+        ! empty($submittedValues['hg_notes_url']) ? $pearDB->escape($submittedValues['hg_notes_url']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':actionUrl',
+        ! empty($submittedValues['hg_action_url']) ? $pearDB->escape($submittedValues['hg_action_url']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':iconImage',
+        ! empty($submittedValues['hg_icon_image']) ? $pearDB->escape($submittedValues['hg_icon_image']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':mapIconImage',
+        ! empty($submittedValues['hg_map_icon_image']) ? $pearDB->escape($submittedValues['hg_map_icon_image']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':rrdRetention',
+        ! empty($submittedValues['hg_rrd_retention']) ? $pearDB->escape($submittedValues['hg_rrd_retention']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':comment',
+        ! empty($submittedValues['hg_comment']) ? $pearDB->escape($submittedValues['hg_comment']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':geoCoords',
+        ! empty($submittedValues['geo_coords']) ? $pearDB->escape($submittedValues['geo_coords']) : null,
+        \PDO::PARAM_STR
+    );
+
+    $statement->bindValue(
+        ':isActivated',
+        isset($submittedValues['hg_activate']['hg_activate']) && $submittedValues['hg_activate']['hg_activate']
+            ? $submittedValues['hg_activate']['hg_activate']
+            : '0',
+        \PDO::PARAM_STR
+    );
+
+    $statement->execute();
+
+    $statement = $pearDB->query('SELECT MAX(hg_id) FROM hostgroup');
+    $record = $statement->fetch(\PDO::FETCH_ASSOC);
+
+    $centreon->CentreonLogAction->insertLog(
+        object_type: 'hostgroup',
+        object_id: $record['MAX(hg_id)'],
+        object_name: CentreonDB::escape($submittedValues['hg_name']),
+        action_type: 'a',
+        fields: CentreonLogAction::prepareChanges($submittedValues)
+    );
+
+    return ($record["MAX(hg_id)"]);
+}
+
+function insertHostGroup(array $submittedValues, bool $isCloudPlatform): int
+{
+    return $isCloudPlatform
+        ? insertHostGroupInDBForCloud($submittedValues)
+        : insertHostGroupInDBForOnPrem($submittedValues);
+}
+
+/**
+ * @param array $submittedValues
+ * @param bool $isCloudPlatform
+ */
+function insertHostGroupInDB(bool $isCloudPlatform, array $submittedValues = []): int
+{
+    global $centreon, $form;
+
+    $submittedValues = $submittedValues ?: $form->getSubmitValues();
+
+    $hostGroupId = insertHostGroup($submittedValues, $isCloudPlatform);
+    updateHostGroupHosts($hostGroupId, $submittedValues);
+    updateHostgroupAcl($hostGroupId, $isCloudPlatform, $submittedValues);
+    signalConfigurationChange('hostgroup', $hostGroupId);
+    $centreon->user->access->updateACL();
+
+    return $hostGroupId;
+}
+
+function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedValues = [])
+{
+    global $centreon, $pearDB;
+
+    if ($isCloudPlatform) {
+        $ruleIds = $submittedValues['resource_access_rules'];
+
+        foreach ($ruleIds as $ruleId) {
+            // get datasets configured and linked dataset filters
+            $datasets = findDatasetsByRuleId($ruleId);
+
+            /**
+             * see if at least a dataset filter saved is of type hostgroup
+             * if so then add the new hostgroup to the dataset
+             * otherwise create a new dataset for this hostgroup
+             */
+            $hostGroupDatasetFilters = array_filter(
+                $datasets,
+                fn (array $dataset) => $dataset['dataset_filter_type'] === 'hostgroup'
+            );
+
+            // No dataset_filter of type hostgroup found. Create a new one
+            if ($hostGroupDatasetFilters === []) {
+                // get the dataset with the highest ID (last one added) which is the first element of the datasets array
+                $lastDatasetAdded = $datasets[0];
+
+                preg_match('/dataset_for_rule_\d+_(\d+)/', $lastDatasetAdded['dataset_name'], $matches);
+
+                // calculate the new dataset_name
+                $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . (int) $matches[1] + 1;
+
+                if ($pearDB->beginTransaction()) {
+                    try {
+                        $datasetId = createNewDataset(datasetName: $newDatasetName);
+                        linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
+                        linkHostGroupToDataset(datasetId: $datasetId, hostGroupId: $hostGroupId);
+                        createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
+                        $pearDB->commit();
+                    } catch (\Throwable $exception) {
+                        $pearDB->rollBack();
+                        throw $exception;
+                    }
+                }
+            } else {
+                $datasetFilterToPopulate = null;
+                foreach ($hostGroupDatasetFilters as $hostGroupDatasetFilter) {
+                    $childDatasetFilter = array_filter(
+                        $datasets,
+                        fn (array $dataset) =>
+                            $dataset['dataset_filter_parent_id'] === $hostGroupDatasetFilter['dataset_filter_id']
+                    );
+
+                    $parentDatasetFilter = array_filter(
+                        $datasets,
+                        fn (array $dataset) =>
+                            $dataset['dataset_filter_id'] === $hostGroupDatasetFilter['dataset_filter_parent_id']
+                    );
+
+                    if ($childDatasetFilter !== [] || $parentDatasetFilter !== []) {
+                        continue;
+                    }
+
+                    $datasetFilterToPopulate = $hostGroupDatasetFilter;
+                }
+
+                if ($datasetFilterToPopulate === null) {
+                    $lastDatasetAdded = end($datasets);
+
+                    preg_match('/dataset_for_rule_\d+_(\d+)/', $lastDatasetAdded['dataset_name'], $matches);
+
+                    // calculate the new dataset_name
+                    $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . (int) $matches[1] + 1;
+
+                    if ($pearDB->beginTransaction()) {
+                        try {
+                            $datasetId = createNewDataset(datasetName: $newDatasetName);
+                            linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
+                            linkHostGroupToDataset(datasetId: $datasetId, hostGroupId: $hostGroupId);
+                            createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
+                            $pearDB->commit();
+                        } catch (\Throwable $exception) {
+                            $pearDB->rollBack();
+                            throw $exception;
+                        }
+                    }
+                } else {
+                    if (! empty($datasetFilterToPopulate['dataset_filter_resources'])) {
+                        if ($pearDB->beginTransaction()) {
+                            try {
+                                linkHostGroupToDataset(
+                                    datasetId: $datasetFilterToPopulate['dataset_id'],
+                                    hostGroupId: $hostGroupId
+                                );
+                                // Expend the existing hostgroup dataset_filter
+                                $expendedResourceIds = $datasetFilterToPopulate['dataset_filter_resources'] . ', '
+                                    . $hostGroupId;
+
+                                updateDatasetFiltersResourceIds(
+                                    datasetFilterId: $datasetFilterToPopulate['dataset_filter_id'],
+                                    resourceIds: $expendedResourceIds
+                                );
+                                $pearDB->commit();
+                            } catch (\Throwable $exception) {
+                                $pearDB->rollBack();
+                                throw $exception;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        if (! $centreon->user->admin) {
+            $userResourceAccesses = $centreon->user->access->getResourceGroups();
+            if ($userResourceAccesses !== []) {
+                if ($pearDB->beginTransaction()) {
+                    try {
+                        $statement = $pearDB->prepare(<<<SQL
+                            INSERT INTO `acl_resources_hg_relations` (acl_res_id, hg_hg_id)
+                            VALUES (:aclResourceId, :hostGroupId)
+                            SQL
+                        );
+                        foreach ($userResourceAccesses as $resourceAccessId => $resourceAccessName) {
+                            $statement->bindValue(':aclResourceId', (int) $resourceAccessId, \PDO::PARAM_INT);
+                            $statement->bindValue(':hostGroupId', (int) $hostGroupId, \PDO::PARAM_INT);
+                            $statement->execute();
+                        }
+                        unset($userResourceAccesses);
+                    } catch (\Throwable $exception) {
+                        $pearDB->rollBack();
+                        throw $exception;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * @param int $datasetFilterId
+ * @param string $resourceIds
+ */
+function updateDatasetFiltersResourceIds(int $datasetFilterId, string $resourceIds): void
+{
+    global $pearDB;
+
+    $request = <<<'SQL'
+        UPDATE dataset_filters SET resource_ids = :resourceIds WHERE `id` = :datasetFilterId
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':datasetFilterId', $datasetFilterId, \PDO::PARAM_INT);
+    $statement->bindValue(':resourceIds', $resourceIds, \PDO::PARAM_STR);
+    $statement->execute();
+}
+
+/**
+ * @param int $ruleId
+ *
+ * @throws \PDOException
+ *
+ * @return list<array{
+ *     dataset_name: string,
+ *     dataset_filter_id: int,
+ *     dataset_filter_parent_id: int|null,
+ *     dataset_filter_type: string,
+ *     dataset_filter_resources: string,
+ *     dataset_id: int,
+ *     rule_id: int
+ * }>|array{} */
+function findDatasetsByRuleId(int $ruleId): array
+{
+    global $pearDB;
+
+    $request = <<<'SQL'
+        SELECT
+            dataset.acl_res_name AS dataset_name,
+            id AS dataset_filter_id,
+            parent_id AS dataset_filter_parent_id,
+            type AS dataset_filter_type,
+            resource_ids AS dataset_filter_resources,
+            acl_resource_id AS dataset_id,
+            acl_group_id AS rule_id
+        FROM dataset_filters
+        INNER JOIN acl_resources AS dataset
+            ON dataset.acl_res_id = dataset_filters.acl_resource_id
+        WHERE dataset_filters.acl_group_id = :ruleId
+        ORDER BY dataset_id DESC
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+    $statement->execute();
+
+    if ($record = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
+        return $record;
+    }
+
+    return [];
+}
+
+/**
+ * @param int $datasetId
+ * @param int $hostGroupId
+ */
+function linkHostGroupToDataset(int $datasetId, int $hostGroupId): void
+{
+    global $pearDB;
+
+    $query = <<<SQL
+        INSERT INTO acl_resources_hg_relations (hg_hg_id, acl_res_id) VALUES (:hostgroupId, :datasetId)
+    SQL;
+
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
+    $statement->bindValue(':hostgroupId', $hostGroupId, \PDO::PARAM_INT);
+    $statement->execute();
+}
+
+/**
+ * @param int $datasetId
+ * @param int $ruleId
+ */
+function linkDatasetToRule(int $datasetId, int $ruleId): void
+{
+    global $pearDB;
+
+    // link dataset to the rule
+    $query = <<<SQL
+        INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id) VALUES (:datasetId, :ruleId)
+    SQL;
+
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+    $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
+    $statement->execute();
+}
+
+/**
+ * @param string $datasetName
+ * @return int
+ */
+function createNewDataset(string $datasetName): int
+{
+    global $pearDB;
+    // create new dataset
+    $query = <<<'SQL'
+        INSERT INTO acl_resources (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, acl_res_activate, changed, cloud_specific)
+        VALUES (:name, '0', '0', '0', '1', 1, 1)
+    SQL;
+
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':name', $datasetName, \PDO::PARAM_STR);
+    $statement->execute();
+
+    return $pearDB->lastInsertId();
+}
+
+/**
+ * @param int $datasetId
+ * @param int $ruleId
+ * @param int $hostGroupId
+ */
+function createNewDatasetFilter(int $datasetId, int $ruleId, int $hostGroupId): void
+{
+    global $pearDB;
+
+    $query = <<<SQL
+        INSERT INTO dataset_filters (`type`, acl_resource_id, acl_group_id, resource_ids)
+        VALUES ('hostgroup', :datasetId, :ruleId, :hostgroupId)
+    SQL;
+
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
+    $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+    $statement->bindValue(':hostgroupId', $hostGroupId, \PDO::PARAM_STR);
+
+    $statement->execute();
+}
+
+function updateHostGroupInDBForCloud(int $hostGroupId, array $submittedValues, bool $increment = false): void
+{
+    global $pearDB, $centreon, $form;
+
+    $request = <<<'SQL'
+        UPDATE hostgroup SET
+            hg_notes = NULL,
+            hg_notes_url = NULL,
+            hg_action_url = NULL,
+            hg_icon_image = NULL,
+            hg_map_icon_image = NULL,
+            hg_rrd_retention = NULL,
+            hg_comment = NULL
+    SQL;
+
+    $bindValues = [];
+
+    if ($submittedValues === []) {
+        $submittedValues = $form->getSubmitValues();
+    }
+
+    if (isset($submittedValues['hg_name'])) {
+        $request .= ', hg_name = :name';
+        $bindValues[':name'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['hg_name'])
+        ];
+    }
+
+    if (isset($submittedValues['hg_alias'])) {
+        $request .= ', hg_alias = :alias';
+        $bindValues[':alias'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['hg_alias'])
+        ];
+    }
+
+    if (isset($submittedValues['geo_coords'])) {
+        $request .= ', geo_coords = :geoCoords';
+        $bindValues[':geoCoords'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['geo_coords'])
+        ];
+
+    }
+
+    $request .= ' WHERE hg_id = :hostGroupId';
+
+    $bindValues[':hostGroupId'] = [
+        \PDO::PARAM_INT,
+        $hostGroupId
+    ];
+
+    $statement = $pearDB->prepare($request);
+
+    foreach ($bindValues as $bindName => $bindParams) {
+        [$bindType, $bindValue] = $bindParams;
+        $statement->bindValue($bindName, $bindValue, $bindType);
+    }
+
+    $statement->execute();
+
+    $centreon->CentreonLogAction->insertLog(
+        object_type: 'hostgroup',
+        object_id: $hostGroupId,
+        object_name: $pearDB->escape($submittedValues['hg_name']),
+        action_type: 'c',
+        fields: CentreonLogAction::prepareChanges($submittedValues)
+    );
+}
+
+function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, bool $increment = false): void
+{
+    global $pearDB, $centreon, $form;
+
+    $request = <<<'SQL'
+        UPDATE hostgroup SET
+    SQL;
+
+    $bindValues = [];
+
+    $submittedValues = $submittedValues ?: $form->getSubmitValues();
+
+    if (isset($submittedValues['hg_name'])) {
+        $request .= ' hg_name = :name';
+        $bindValues[':name'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['hg_name'])
+        ];
+    }
+
+    if (isset($submittedValues['hg_alias'])) {
+        $request .= ', hg_alias = :alias';
+        $bindValues[':alias'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['hg_alias'])
+        ];
+    }
+
+    if (isset($submittedValues['hg_notes'])) {
+        $request .= ', hg_notes = :notes';
+        $bindValues[':notes'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['hg_notes'])
+        ];
+    }
+
+    if (isset($submittedValues['hg_notes_url'])) {
+        $request .= ', hg_notes_url = :notesUrl';
+        $bindValues[':notesUrl'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['hg_notes_url'])
+        ];
+    }
+
+    if (isset($submittedValues['hg_action_url'])) {
+        $request .= ', hg_action_url = :actionUrl';
+        $bindValues[':actionUrl'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['hg_action_url'])
+        ];
+    }
+
+    if (isset($submittedValues['hg_icon_image'])) {
+        $request .= ', hg_icon_image = :iconImage';
+        $bindValues[':iconImage'] = [
+            \PDO::PARAM_STR,
+            $submittedValues['hg_icon_image'] ? $pearDB->escape($submittedValues['hg_icon_image']) : null
+        ];
+    }
+
+    if (isset($submittedValues['hg_map_icon_image'])) {
+        $request .= ', hg_map_icon_image = :mapIconImage';
+        $bindValues[':mapIconImage'] = [
+            \PDO::PARAM_STR,
+            $submittedValues['hg_map_icon_image'] ? $pearDB->escape($submittedValues['hg_map_icon_image']) : null
+        ];
+    }
+
+    if (isset($submittedValues['hg_rrd_retention'])) {
+        $request .= ', hg_rrd_retention = :rrdRetention';
+        $bindValues[':rrdRetention'] = [
+            \PDO::PARAM_STR,
+            $submittedValues['hg_rrd_retention'] ? $pearDB->escape($submittedValues['hg_rrd_retention']): null
+        ];
+    }
+
+    if (isset($submittedValues['geo_coords'])) {
+        $request .= ', geo_coords = :geoCoords';
+        $bindValues[':geoCoords'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['geo_coords'])
+        ];
+    }
+
+    if (isset($submittedValues['hg_comment'])) {
+        $request .= ', hg_comment = :comment';
+        $bindValues[':comment'] = [
+            \PDO::PARAM_STR,
+            $pearDB->escape($submittedValues['hg_comment'])
+        ];
+    }
+
+    if (
+        isset($submittedValues['hg_activate']['hg_activate'])
+        && $submittedValues['hg_activate']['hg_activate'] !== null
+    ) {
+        $request .= ', hg_activate = :isActivated';
+        $bindValues[':isActivated'] = [
+            \PDO::PARAM_STR,
+            $submittedValues['hg_activate']['hg_activate']
+        ];
+    }
+
+    $request .= ' WHERE hg_id = :hostGroupId';
+
+    $bindValues[':hostGroupId'] = [
+        \PDO::PARAM_INT,
+        $hostGroupId
+    ];
+
+    $statement = $pearDB->prepare($request);
+
+    foreach ($bindValues as $bindName => $bindParams) {
+        [$bindType, $bindValue] = $bindParams;
+        $statement->bindValue($bindName, $bindValue, $bindType);
+    }
+
+    $statement->execute();
+
+    $centreon->CentreonLogAction->insertLog(
+        object_type: 'hostgroup',
+        object_id: $hostGroupId,
+        object_name: $pearDB->escape($submittedValues['hg_name']),
+        action_type: 'c',
+        fields: CentreonLogAction::prepareChanges($submittedValues)
+    );
+}
+
+function updateHostGroupInDB($hostGroupId = null, bool $isCloudPlatform, array $submittedValues = [], $increment = false)
+{
+    global $centreon;
+
+    if (! $hostGroupId) {
         return;
     }
 
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
-    }
+    $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId($hostGroupId);
 
-    $ret["hg_name"] = $centreon->checkIllegalChar($ret["hg_name"]);
+    updateHostGroup($hostGroupId, $submittedValues, $isCloudPlatform);
+    updateHostGroupHosts($hostGroupId, $submittedValues, $increment);
 
-    $rq = "UPDATE hostgroup SET ";
-    $rq .= "hg_name = ";
-    isset($ret["hg_name"]) && $ret["hg_name"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["hg_name"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "hg_alias = ";
-    isset($ret["hg_alias"]) && $ret["hg_alias"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["hg_alias"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "hg_notes = ";
-    isset($ret["hg_notes"]) && $ret["hg_notes"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["hg_notes"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "hg_notes_url = ";
-    isset($ret["hg_notes_url"]) && $ret["hg_notes_url"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["hg_notes_url"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "hg_action_url = ";
-    isset($ret["hg_action_url"]) && $ret["hg_action_url"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["hg_action_url"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "hg_icon_image = ";
-    isset($ret["hg_icon_image"]) && $ret["hg_icon_image"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["hg_icon_image"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "hg_map_icon_image = ";
-    isset($ret["hg_map_icon_image"]) && $ret["hg_map_icon_image"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["hg_map_icon_image"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "hg_rrd_retention = ";
-    $rq .= isset($ret["hg_rrd_retention"]) && $ret["hg_rrd_retention"]
-        ? "'" . $pearDB->escape($ret["hg_rrd_retention"]) . "', "
-        : "NULL, ";
-    $rq .= "geo_coords = ";
-    isset($ret["geo_coords"]) && $ret["geo_coords"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["geo_coords"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "hg_comment = ";
-    isset($ret["hg_comment"]) && $ret["hg_comment"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["hg_comment"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "hg_activate = ";
-    isset($ret["hg_activate"]["hg_activate"]) && $ret["hg_activate"]["hg_activate"] != null
-        ? $rq .= "'" . $ret["hg_activate"]["hg_activate"] . "'"
-        : $rq .= "NULL ";
-    $rq .= " WHERE hg_id = '" . $hg_id . "'";
-    $dbResult = $pearDB->query($rq);
+    signalConfigurationChange('hostgroup', $hostGroupId, $previousPollerIds);
+    $centreon->user->access->updateACL();
+}
 
-    /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("hostgroup", $hg_id, $pearDB->escape($ret["hg_name"]), "c", $fields);
+function updateHostGroup($hostGroupId = null, array $submittedValues = [], bool $isCloudPlatform)
+{
+    return $isCloudPlatform
+        ? updateHostGroupInDBForCloud($hostGroupId, $submittedValues)
+        : updateHostGroupInDBForOnPrem($hostGroupId, $submittedValues);
 }
 
 function updateHostGroupHosts($hg_id, $ret = array(), $increment = false)

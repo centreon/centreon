@@ -1,16 +1,19 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find } from 'ramda';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { propEq, find, path, equals } from 'ramda';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../models';
-import { FederatedWidgetOptionType } from '../../../../../federatedModules/models';
+import {
+  FederatedWidgetOption,
+  FederatedWidgetOptionType
+} from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,
-  singleHostPerMetricAtom,
+  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
@@ -29,7 +32,8 @@ import {
   WidgetRadio,
   WidgetCheckboxes,
   WidgetTiles,
-  DisplayType
+  WidgetDisplayType,
+  WidgetSwitch
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -51,7 +55,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.radio]: WidgetRadio,
   [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
   [FederatedWidgetOptionType.tiles]: WidgetTiles,
-  [FederatedWidgetOptionType.displayType]: DisplayType
+  [FederatedWidgetOptionType.displayType]: WidgetDisplayType,
+  [FederatedWidgetOptionType.switch]: WidgetSwitch
 };
 
 const DefaultComponent = (): JSX.Element => (
@@ -63,47 +68,57 @@ export const useWidgetInputs = (
 ): Array<WidgetPropertiesRenderer> | null => {
   const { values, validateForm } = useFormikContext<Widget>();
 
-  const [widgetProperties, setWidgetProperties] = useAtom(widgetPropertiesAtom);
+  const widgetProperties = useAtomValue(widgetPropertiesAtom);
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
-  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
+  const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
   const selectedWidget = find(
     propEq(values.moduleName, 'moduleName'),
     federatedWidgetsProperties || []
   );
 
-  const selectedWidgetProperties = selectedWidget?.[widgetKey] || null;
+  const selectedWidgetProperties: {
+    [key: string]: FederatedWidgetOption;
+  } | null = selectedWidget?.[widgetKey] || null;
 
   const inputs = useMemo(
     () =>
       selectedWidgetProperties
-        ? Object.entries(selectedWidgetProperties).map(([key, value]) => {
-            const Component =
-              propertiesInputType[value.type] || DefaultComponent;
-
-            return {
-              Component,
-              key,
-              props: {
-                ...(value as WidgetPropertyProps),
-                propertyName: key,
-                propertyType: widgetKey
+        ? Object.entries(selectedWidgetProperties)
+            .filter(([, value]) => {
+              if (!value.hiddenCondition) {
+                return true;
               }
-            };
-          })
-        : null,
-    [selectedWidgetProperties]
-  );
 
-  useEffect(
-    () => {
-      setWidgetProperties(inputs);
-    },
-    useDeepCompare([inputs])
+              return !equals(
+                path(value.hiddenCondition.when.split('.'), values),
+                value.hiddenCondition.matches
+              );
+            })
+            .map(([key, value]) => {
+              const Component =
+                propertiesInputType[value.type] || DefaultComponent;
+
+              return {
+                Component,
+                key,
+                props: {
+                  ...(value as Omit<
+                    WidgetPropertyProps,
+                    'propertyName' | 'propertyType'
+                  >),
+                  propertyName: key,
+                  propertyType: widgetKey
+                }
+              };
+            })
+        : null,
+    [selectedWidgetProperties, values]
   );
 
   useEffect(
@@ -120,11 +135,15 @@ export const useWidgetInputs = (
       }
 
       setSingleMetricSection(selectedWidget.singleMetricSelection);
-      setSingleHostPerMetric(selectedWidget.singleHostPerMetric);
+      setSingleResourceSelection(selectedWidget.singleResourceSelection);
       setCustomBaseColor(selectedWidget.customBaseColor);
     },
     useDeepCompare([selectedWidget])
   );
+
+  useEffect(() => {
+    setWidgetProperties(selectedWidget);
+  }, []);
 
   return inputs;
 };

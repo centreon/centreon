@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -167,7 +168,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
      * @param int|null $userId
      * @param RequestParametersInterface $requestParameters
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      *
      * @return list<Token>
      */
@@ -185,6 +186,8 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
             'expiration_date' => 'provider_token.expiration_date',
             'is_revoked' => 'sat.is_revoked',
         ]);
+        $this->addDateNormalizer($sqlRequestTranslator, ['creation_date', 'expiration_date']);
+
         $request = <<<'SQL'
             SELECT SQL_CALC_FOUND_ROWS
                 sat.token_name,
@@ -274,5 +277,30 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
             expirationDate: (new \DateTimeImmutable())->setTimestamp((int) $data['provider_token_expiration_date']),
             isRevoked: (bool) $data['is_revoked']
         );
+    }
+
+    /**
+     * @param SqlRequestParametersTranslator $sqlRequestTranslator
+     * @param string[] $parameters
+     */
+    private function addDateNormalizer(SqlRequestParametersTranslator $sqlRequestTranslator, array $parameters): void
+    {
+        foreach ($parameters as $parameterName) {
+            $sqlRequestTranslator->addNormalizer(
+                $parameterName,
+                new class implements NormalizerInterface
+                {
+                    /**
+                     * @inheritDoc
+                     */
+                    public function normalize($valueToNormalize)
+                    {
+                        $date = new \DateTime((string) $valueToNormalize);
+
+                        return $date->getTimestamp();
+                    }
+                }
+            );
+        }
     }
 }

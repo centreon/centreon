@@ -316,7 +316,14 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     AND host.host_register = '1'
                 WHERE service.service_id = :id
                     AND service.service_register = '1'
-                GROUP BY service.service_id
+                GROUP BY
+                    service.service_id,
+                    esi.esi_action_url,
+                    esi.esi_icon_image,
+                    esi.esi_icon_image_alt,
+                    esi.esi_notes,
+                    esi.esi_notes_url,
+                    esi.graph_id
             SQL;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':id', $serviceId, \PDO::PARAM_INT);
@@ -553,7 +560,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
                     GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
                     GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
-                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as 'groups'
+                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as sg_host_concat
                 FROM `:db`.service
                 SQL
         );
@@ -661,7 +668,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 categoryIds: $result['category_ids']
                     ? array_map('intval', explode(',', $result['category_ids']))
                     : [],
-                groups: $result['groups']
+                groups: $result['sg_host_concat']
                     ? array_map(
                         static function (string $sgRel) use ($result): ServiceGroupRelation {
                             [$sgId, $hostId] = explode('-', $sgRel);
@@ -672,7 +679,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                                 hostId: (int) $hostId
                             );
                         },
-                        explode(',', $result['groups'])
+                        explode(',', $result['sg_host_concat'])
                     )
                     : [],
                 serviceTemplate: $result['service_template_id'] !== null

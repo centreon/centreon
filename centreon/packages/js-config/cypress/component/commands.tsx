@@ -62,6 +62,7 @@ interface Query {
 
 export interface InterceptAPIRequestProps<T> {
   alias: string;
+  delay?: number;
   method: Method;
   path: string;
   query?: Query;
@@ -77,7 +78,8 @@ Cypress.Commands.add(
     response,
     alias,
     query,
-    statusCode = 200
+    statusCode = 200,
+    delay = 500
   }: InterceptAPIRequestProps<T>): void => {
     cy.interceptRequest(
       method,
@@ -86,14 +88,14 @@ Cypress.Commands.add(
         const getQuery = req?.url?.searchParams?.get(query?.name);
         if (query && equals(query.value, getQuery)) {
           return res(
-            ctx.delay(500),
+            ctx.delay(delay),
             ctx.json(response),
             ctx.status(statusCode)
           );
         }
         if (!getQuery && isNil(query)) {
           return res(
-            ctx.delay(500),
+            ctx.delay(delay),
             ctx.json(response),
             ctx.status(statusCode)
           );

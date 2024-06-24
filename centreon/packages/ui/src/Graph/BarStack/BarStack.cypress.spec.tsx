@@ -10,13 +10,6 @@ const defaultData = [
   { color: '#FF6666', label: 'Down', value: 62 }
 ];
 
-const dataWithNullValues = [
-  { color: '#88B922', label: 'Ok', value: 0 },
-  { color: '#999999', label: 'Unknown', value: 0 },
-  { color: '#F7931A', label: 'Warning', value: 0 },
-  { color: '#FF6666', label: 'Down', value: 0 }
-];
-
 const total = Math.floor(
   defaultData.reduce((acc, { value }) => acc + value, 0)
 );
@@ -140,14 +133,6 @@ describe('Bar stack', () => {
 
     initialize({});
     cy.findByTestId('Title').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-
-  it('displays a message "No Data Available" when all values are null', () => {
-    initialize({ data: dataWithNullValues, title: 'host' });
-
-    cy.contains('No Data Available');
 
     cy.makeSnapshot();
   });

@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
+import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +15,7 @@ import {
 } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
-import { buildListEndpoint, listConfiguredUser } from '../api/endpoints';
+import { getEndpointConfiguredUser } from '../api/endpoints';
 import {
   labelCancel,
   labelClose,
@@ -24,12 +25,12 @@ import {
   labelUser
 } from '../translatedLabels';
 
-import CustomTimePeriod from './CustomTimePeriod/CustomTimePeriod';
 import Title from './Title';
 import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
 import { useStyles } from './tokenCreation.styles';
 import useCreateTokenFormValues from './useTokenFormValues';
+import InputCalendar from './InputCalendar/inputCalendar';
 
 interface Props {
   closeDialog: () => void;
@@ -53,11 +54,8 @@ const FormCreation = ({
     ref: document.getElementById('root')
   });
 
-  const [open, setOpen] = useState(true);
   const [isDisplayingDateTimePicker, setIsDisplayingDateTimePicker] =
     useState(false);
-  const refSingleAutocompleteField = useRef<HTMLDivElement | null>(null);
-  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
 
   const {
     values,
@@ -66,8 +64,7 @@ const FormCreation = ({
     handleChange,
     setFieldValue,
     handleSubmit,
-    resetForm,
-    errors
+    resetForm
   } = useFormikContext<CreateTokenFormValues>();
 
   const { token, duration, tokenName, user } = useCreateTokenFormValues({
@@ -75,31 +72,27 @@ const FormCreation = ({
     values
   });
 
-  const getEndpointConfiguredUser = (dataConfiguredUser): string => {
-    return buildListEndpoint({
-      endpoint: listConfiguredUser,
-      parameters: { ...dataConfiguredUser, limit: 10 }
-    });
-  };
-
   const close = (): void => {
     resetForm();
     closeDialog();
   };
 
-  const handleCustomizeCase = (value): void => {
+  const selectCustomizeCase = (value): void => {
     setIsDisplayingDateTimePicker(true);
-    setAnchorEl(refSingleAutocompleteField?.current);
-    setOpen(true);
+
+    if (dayjs(values.duration?.name).isValid()) {
+      return;
+    }
     setFieldValue('duration', value);
   };
 
   const changeDuration = (_, value): void => {
     if (equals(value.id, 'customize')) {
-      handleCustomizeCase(value);
+      selectCustomizeCase(value);
 
       return;
     }
+    setFieldValue('customizeDate', null);
 
     setFieldValue('duration', value);
   };
@@ -114,6 +107,7 @@ const FormCreation = ({
   }));
 
   const labelConfirm = token ? t(labelClose) : t(labelGenerateNewToken);
+
   const confirmDisabled = !dirty || !isValid || isRefetching || isMutating;
 
   return (
@@ -145,20 +139,16 @@ const FormCreation = ({
         className={classes.input}
         dataTestId={labelDuration}
         disabled={Boolean(token) || isDisplayingDateTimePicker}
-        error={errors?.duration?.invalidDate}
         getOptionItemLabel={(option) => option?.name}
         id="duration"
         label={t(labelDuration)}
         options={options}
-        ref={refSingleAutocompleteField}
         required={!token}
         value={duration}
         onChange={changeDuration}
       />
       {isDisplayingDateTimePicker && (
-        <CustomTimePeriod
-          anchorElDuration={{ anchorEl, setAnchorEl }}
-          openPicker={{ open, setOpen }}
+        <InputCalendar
           setIsDisplayingDateTimePicker={setIsDisplayingDateTimePicker}
           windowHeight={height}
         />

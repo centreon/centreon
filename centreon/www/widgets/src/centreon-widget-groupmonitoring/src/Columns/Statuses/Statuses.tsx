@@ -1,9 +1,7 @@
 import { equals, flatten, pluck, project } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import { Group, RowProps } from '../../models';
 import { getStatusesCountFromResources } from '../../utils';
-import { statusesAtom } from '../../atoms';
 import { useStatusesColumnStyles } from '../Columns.styles';
 
 import Status from './Status';
@@ -35,7 +33,7 @@ const Statuses = ({
 }: { resourceType: string } & RowProps): JSX.Element => {
   const { classes } = useStatusesColumnStyles();
 
-  const statuses = useAtomValue(statusesAtom);
+  const { statuses } = row;
 
   const resources = getResources({ resourceType, row });
 

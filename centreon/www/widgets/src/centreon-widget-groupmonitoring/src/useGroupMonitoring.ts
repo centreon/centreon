@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { inc, isEmpty, pluck } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import {
   ListingModel,
@@ -9,10 +10,12 @@ import {
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { SortOrder } from '../../models';
+import { getWidgetEndpoint } from '../../utils';
 
-import { Group, WidgetProps } from './models';
+import { FormattedGroup, Group, WidgetProps } from './models';
 import { getEndpoint } from './api/endpoints';
 import { groupsDecoder } from './api/decoders';
 import { getResourceTypeName } from './utils';
@@ -29,7 +32,7 @@ interface UseGroupMonitoringState {
   hasResourceTypeDefined: boolean;
   isLoading: boolean;
   limit: number;
-  listing?: ListingModel<Group>;
+  listing?: ListingModel<FormattedGroup>;
   page: number;
   sortField: string;
   sortOrder: SortOrder;
@@ -41,10 +44,15 @@ export const useGroupMonitoring = ({
   panelData,
   isFromPreview,
   setPanelOptions,
-  refreshCount
+  refreshCount,
+  dashboardId,
+  id,
+  playlistHash
 }: Omit<WidgetProps, 'store'>): UseGroupMonitoringState => {
   const isFirstMountRef = useRef(true);
   const limitRef = useRef(10);
+
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
@@ -55,59 +63,68 @@ export const useGroupMonitoring = ({
   const resource = panelData.resources[0];
   const hasResourceTypeDefined = !!resource?.resourceType;
   const hasResourcesDefined = !isEmpty(resource?.resources);
-  const { limit, page, sortField, sortOrder } = panelOptions;
+  const { limit, page, sortField, sortOrder, statuses } = panelOptions;
 
   const limitToUse = limit || 10;
   const pageToUse = page || 0;
   const sortFieldToUse = sortField || 'name';
   const sortOrderToUse = sortOrder || SortOrder.Asc;
 
+  const key = [
+    'groupmonitoring',
+    resource?.resourceType,
+    JSON.stringify(resource?.resources),
+    JSON.stringify(statuses),
+    limitToUse,
+    pageToUse,
+    sortFieldToUse,
+    sortOrderToUse,
+    refreshCount
+  ];
+
   const { data, isLoading } = useFetchQuery<ListingModel<Group>>({
     decoder: groupsDecoder,
     getEndpoint: () =>
-      buildListingEndpoint({
-        baseEndpoint: getEndpoint(resource?.resourceType),
-        customQueryParameters: [
-          {
-            name: 'show_service',
-            value: true
-          },
-          {
-            name: 'show_host',
-            value: true
+      getWidgetEndpoint({
+        dashboardId,
+        defaultEndpoint: buildListingEndpoint({
+          baseEndpoint: getEndpoint(resource?.resourceType),
+          customQueryParameters: [
+            {
+              name: 'show_service',
+              value: true
+            },
+            {
+              name: 'show_host',
+              value: true
+            }
+          ],
+          parameters: {
+            limit: limitToUse,
+            page: inc(pageToUse),
+            search: hasResourcesDefined
+              ? {
+                  lists: [
+                    {
+                      field: 'name',
+                      values: pluck('name', resource?.resources)
+                    }
+                  ]
+                }
+              : undefined,
+            sort: {
+              [sortFieldToUse]: sortOrderToUse.toUpperCase()
+            }
           }
-        ],
-        parameters: {
-          limit: limitToUse,
-          page: inc(pageToUse),
-          search: hasResourcesDefined
-            ? {
-                lists: [
-                  {
-                    field: 'name',
-                    values: pluck('name', resource?.resources)
-                  }
-                ]
-              }
-            : undefined,
-          sort: {
-            [sortFieldToUse]: sortOrderToUse.toUpperCase()
-          }
-        }
+        }),
+        isOnPublicPage,
+        playlistHash,
+        widgetId: id
       }),
-    getQueryKey: () => [
-      'groupmonitoring',
-      resource?.resourceType,
-      resource?.resources.length,
-      limitToUse,
-      pageToUse,
-      sortFieldToUse,
-      sortOrderToUse,
-      refreshCount
-    ],
+    getQueryKey: () => key,
     queryOptions: {
       enabled: hasResourceTypeDefined,
-      refetchInterval: !isFromPreview && refreshIntervalToUse,
+      refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
       suspense: false
     }
   });
@@ -141,6 +158,14 @@ export const useGroupMonitoring = ({
     useDeepCompare([resource?.resources])
   );
 
+  const formattedListing: ListingModel<FormattedGroup> | undefined = data && {
+    ...data,
+    result: data.result.map((hosts) => ({
+      ...hosts,
+      statuses
+    }))
+  };
+
   return {
     changeLimit,
     changePage,
@@ -150,7 +175,7 @@ export const useGroupMonitoring = ({
     hasResourceTypeDefined,
     isLoading,
     limit: limitToUse,
-    listing: data,
+    listing: formattedListing,
     page: pageToUse,
     sortField: sortFieldToUse,
     sortOrder: sortOrderToUse

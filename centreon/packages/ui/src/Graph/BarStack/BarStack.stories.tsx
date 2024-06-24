@@ -58,11 +58,6 @@ export const WithoutTitle: Story = {
   render: Template
 };
 
-export const WithPencentage: Story = {
-  args: { data, title: 'hosts', unit: 'percentage' },
-  render: Template
-};
-
 export const WithoutLegend: Story = {
   args: { data, displayLegend: false, title: 'hosts' },
 
@@ -71,6 +66,11 @@ export const WithoutLegend: Story = {
 
 export const withDisplayedValues: Story = {
   args: { data, displayValues: true, title: 'hosts' },
+  render: Template
+};
+
+export const WithPencentage: Story = {
+  args: { data, displayValues: true, title: 'hosts', unit: 'percentage' },
   render: Template
 };
 

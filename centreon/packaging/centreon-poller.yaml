@@ -61,7 +61,7 @@ contents:
     file_info:
       owner: "centreon"
       group: "centreon"
-      mode: 0664
+      mode: 0640
 
   - src: ./src/sudoersCentreon
     dst: /etc/sudoers.d/centreon

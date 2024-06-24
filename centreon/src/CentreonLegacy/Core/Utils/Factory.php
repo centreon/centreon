@@ -40,7 +40,7 @@ class Factory
     }
 
     /**
-     * @return \CentreonLegacy\Core\Utils\Utils
+     * @return Utils
      */
     public function newUtils()
     {

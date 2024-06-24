@@ -377,6 +377,24 @@ final class SqlConcatenator implements \Stringable
     }
 
     /**
+     * @return string
+     */
+    public function concatForUnion(): string
+    {
+        $sql = rtrim(
+            $this->concatSelect()
+            . $this->concatFrom()
+            . $this->concatJoins()
+            . $this->concatWhere()
+            . $this->concatGroupBy()
+            . $this->concatHaving()
+            . $this->concatOrderBy()
+        );
+
+        return $this->bindArrayReplacements($sql);
+    }
+
+    /**
      * @param string $sql
      *
      * @return string

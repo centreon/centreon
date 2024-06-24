@@ -42,6 +42,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final class FindDashboard
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
@@ -51,6 +52,7 @@ final class FindDashboard
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -61,7 +63,7 @@ final class FindDashboard
     public function __invoke(int $dashboardId, FindDashboardPresenterInterface $presenter): void
     {
         try {
-            if ($this->rights->hasAdminRole()) {
+            if ($this->isUserAdmin()) {
                 $response = $this->findDashboardAsAdmin($dashboardId);
             } elseif ($this->rights->canAccess()) {
                 $response = $this->findDashboardAsViewer($dashboardId);
@@ -199,5 +201,25 @@ final class FindDashboard
         }
 
         return $contactIds;
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

@@ -451,10 +451,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      */
     private function createDashboardFromArray(array $result): Dashboard
     {
-        return new Dashboard(
+        $dashboard = new Dashboard(
             id: $result['id'],
             name: $result['name'],
-            description: (string) $result['description'],
             createdBy: $result['created_by'],
             updatedBy: $result['updated_by'],
             createdAt: $this->timestampToDateTimeImmutable($result['created_at']),
@@ -464,5 +463,11 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                 $result['refresh_interval'],
             )
         );
+
+        if ($result['description'] !== null) {
+            $dashboard->setDescription($result['description']);
+        }
+
+        return $dashboard;
     }
 }

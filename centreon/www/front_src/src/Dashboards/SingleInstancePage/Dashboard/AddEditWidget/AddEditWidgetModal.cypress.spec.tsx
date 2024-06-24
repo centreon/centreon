@@ -20,11 +20,9 @@ import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbo
 import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
   labelSave,
   labelDelete,
@@ -443,6 +441,19 @@ describe('AddEditWidgetModal', () => {
         cy.contains(title).should('exist');
         cy.contains(description).should('exist');
       });
+
+      cy.makeSnapshot();
+    });
+
+    it('hides a property when an option value matches the condition', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('Sort by').should('exist');
+
+      cy.findByLabelText('Show thresholds').click();
+
+      cy.contains('Sort by').should('not.exist');
 
       cy.makeSnapshot();
     });

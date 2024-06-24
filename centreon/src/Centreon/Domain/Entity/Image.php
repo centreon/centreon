@@ -31,17 +31,17 @@ class Image
     public const SERIALIZER_GROUP_LIST = 'image-list';
 
     /**
-     * @Serializer\SerializedName("id")
-     * @Serializer\Groups({Image::SERIALIZER_GROUP_LIST})
      * @var int
      */
+    #[Serializer\SerializedName('id')]
+    #[Serializer\Groups([Image::SERIALIZER_GROUP_LIST])]
     private $img_id;
 
     /**
-     * @Serializer\SerializedName("name")
-     * @Serializer\Groups({Image::SERIALIZER_GROUP_LIST})
      * @var string
      */
+    #[Serializer\SerializedName('name')]
+    #[Serializer\Groups([Image::SERIALIZER_GROUP_LIST])]
     private $img_name;
 
     /**
@@ -99,10 +99,10 @@ class Image
     }
 
     /**
-     * @Serializer\Groups({Image::SERIALIZER_GROUP_LIST})
-     * @Serializer\SerializedName("preview")
      * @return string
      */
+    #[Serializer\Groups([Image::SERIALIZER_GROUP_LIST])]
+    #[Serializer\SerializedName('preview')]
     public function getPreview(): string
     {
         return static::MEDIA_DIR

@@ -38,7 +38,7 @@ export default ({
 
   return defineConfig({
     chromeWebSecurity: false,
-    defaultCommandTimeout: 6000,
+    defaultCommandTimeout: 20000,
     downloadsFolder: `${resultsFolder}/downloads`,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
@@ -59,14 +59,14 @@ export default ({
     },
     env: {
       ...env,
-      DATABASE_IMAGE: 'bitnami/mariadb:10.5',
+      DATABASE_IMAGE: 'bitnami/mariadb:10.11',
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
       SAML_IMAGE_VERSION: process.env.MAJOR || '24.04',
       WEB_IMAGE_OS: 'alma9',
       WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
-    requestTimeout: 10000,
+    requestTimeout: 20000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,

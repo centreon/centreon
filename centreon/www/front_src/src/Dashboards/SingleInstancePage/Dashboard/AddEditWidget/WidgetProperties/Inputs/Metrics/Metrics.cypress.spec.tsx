@@ -1,8 +1,11 @@
+/* eslint-disable import/no-unresolved */
+
 import { Provider, createStore } from 'jotai';
 import { Formik } from 'formik';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { T, always, cond } from 'ramda';
+import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
@@ -13,13 +16,12 @@ import {
   labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
+  labelThresholdsAreAutomaticallyHidden,
+  labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
-import {
-  singleHostPerMetricAtom,
-  singleMetricSelectionAtom
-} from '../../../atoms';
+import { widgetPropertiesAtom } from '../../../atoms';
 
 import Metrics from './Metrics';
 
@@ -127,6 +129,11 @@ const initializeComponent = ({
 describe('Metrics', () => {
   it('displays metrics with included hosts when resources are fulfilled', () => {
     initializeComponent({});
+    store.set(widgetPropertiesAtom, {
+      ...widgetDataProperties,
+      singleMetricSelection: true,
+      singleResourceSelection: true
+    });
     cy.waitForRequest('@getServiceMetrics');
 
     cy.findByTestId(labelSelectMetric).click();
@@ -139,8 +146,11 @@ describe('Metrics', () => {
   describe('Single metric selection with single resource', () => {
     beforeEach(() => {
       initializeComponent({});
-      store.set(singleHostPerMetricAtom, true);
-      store.set(singleMetricSelectionAtom, true);
+      store.set(widgetPropertiesAtom, {
+        ...widgetDataProperties,
+        singleMetricSelection: true,
+        singleResourceSelection: true
+      });
     });
 
     it('displays the retrieved metrics', () => {
@@ -211,8 +221,11 @@ describe('Metrics', () => {
 
   describe('Single metric selection with several resources', () => {
     beforeEach(() => {
-      store.set(singleHostPerMetricAtom, false);
-      store.set(singleMetricSelectionAtom, true);
+      store.set(widgetPropertiesAtom, {
+        ...widgetDataProperties,
+        singleMetricSelection: true,
+        singleResourceSelection: false
+      });
       initializeComponent({});
     });
 
@@ -259,8 +272,11 @@ describe('Metrics', () => {
 
   describe('Multiple metrics selection with several resources', () => {
     beforeEach(() => {
-      store.set(singleHostPerMetricAtom, false);
-      store.set(singleMetricSelectionAtom, false);
+      store.set(widgetPropertiesAtom, {
+        ...widgetDataProperties,
+        singleMetricSelection: false,
+        singleResourceSelection: false
+      });
 
       initializeComponent({});
     });
@@ -395,6 +411,25 @@ describe('Metrics', () => {
         .find('input')
         .should('have.attr', 'data-indeterminate', 'false');
       cy.findByTestId('pl').should('have.attr', 'data-checked', 'true');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays metrics with other units as disabled when the maximum of units are selected', () => {
+      cy.findByTestId(labelSelectMetric).click();
+
+      cy.findByTestId('rtmax').click();
+      cy.findByTestId('pl').click();
+
+      cy.findByTestId('rtmin').should('have.attr', 'data-checked', 'false');
+      cy.findByTestId('rtmin').find('input').should('be.disabled');
+      cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('exist');
+      cy.contains(labelThresholdsAreAutomaticallyHidden).should('exist');
+
+      cy.findByTestId('rtmin-summary').click();
+      cy.findByTestId('rtmin_Centreon-1:Ping')
+        .find('input')
+        .should('be.disabled');
 
       cy.makeSnapshot();
     });

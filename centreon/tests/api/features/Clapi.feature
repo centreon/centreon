@@ -29,8 +29,8 @@ Feature:
     And the CLAPI export of "STPL" filtered on "addhosttemplate;ServiceTemplate" should be
     """
     STPL;addhosttemplate;ServiceTemplate1;HostTemplate1
-    STPL;addhosttemplate;ServiceTemplate2;HostTemplate1
     STPL;addhosttemplate;ServiceTemplate1;HostTemplate2
+    STPL;addhosttemplate;ServiceTemplate2;HostTemplate1
     STPL;addhosttemplate;ServiceTemplate2;HostTemplate2
     """
 

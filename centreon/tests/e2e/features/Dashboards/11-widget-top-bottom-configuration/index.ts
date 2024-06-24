@@ -19,13 +19,7 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
   );
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: 'web'
-  });
+  cy.applyAcl();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -112,12 +106,7 @@ Given(
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards');
     cy.wait('@listAllDashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
   }
 );
 
@@ -179,12 +168,7 @@ Given('a dashboard configured with a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -246,12 +230,7 @@ Given('a dashboard having a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
 });
 
 When(
@@ -269,12 +248,8 @@ When(
 );
 
 Then('a second Top Bottom widget is displayed on the dashboard', () => {
-  cy.getByTestId({ testId: 'warning-line-200-tooltip' })
-    .eq(1)
-    .should('exist');
-  cy.getByTestId({ testId: 'critical-line-400-tooltip' })
-    .eq(1)
-    .should('exist');
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).eq(1).should('exist');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).eq(1).should('exist');
 });
 
 Given('a dashboard featuring two Top Bottom widgets', () => {
@@ -284,12 +259,7 @@ Given('a dashboard featuring two Top Bottom widgets', () => {
   );
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -315,12 +285,7 @@ Given('a dashboard with a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -352,12 +317,7 @@ Given('a dashboard containing a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -396,12 +356,7 @@ Given('a dashboard featuring a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'

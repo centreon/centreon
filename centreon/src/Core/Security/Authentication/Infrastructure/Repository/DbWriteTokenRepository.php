@@ -99,33 +99,33 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
             )
         );
         // Update Provider Token
-        $updateTokenStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);
+        $updateTokenStatement->bindValue(':token', $providerToken->getToken(), PDO::PARAM_STR);
         $updateTokenStatement->bindValue(
             ':creationDate',
             $providerToken->getCreationDate()->getTimestamp(),
-            \PDO::PARAM_INT
+            PDO::PARAM_INT
         );
         $updateTokenStatement->bindValue(
             ':expirationDate',
             $providerToken->getExpirationDate()?->getTimestamp(),
-            \PDO::PARAM_INT
+            PDO::PARAM_INT
         );
-        $updateTokenStatement->bindValue(':tokenId', $providerToken->getId(), \PDO::PARAM_INT);
+        $updateTokenStatement->bindValue(':tokenId', $providerToken->getId(), PDO::PARAM_INT);
         $updateTokenStatement->execute();
 
         // Update Refresh Token
-        $updateTokenStatement->bindValue(':token', $providerRefreshToken->getToken(), \PDO::PARAM_STR);
+        $updateTokenStatement->bindValue(':token', $providerRefreshToken->getToken(), PDO::PARAM_STR);
         $updateTokenStatement->bindValue(
             ':creationDate',
             $providerRefreshToken->getCreationDate()->getTimestamp(),
-            \PDO::PARAM_INT
+            PDO::PARAM_INT
         );
         $updateTokenStatement->bindValue(
             ':expirationDate',
             $providerRefreshToken->getExpirationDate()?->getTimestamp(),
-            \PDO::PARAM_INT
+            PDO::PARAM_INT
         );
-        $updateTokenStatement->bindValue(':tokenId', $providerRefreshToken->getId(), \PDO::PARAM_INT);
+        $updateTokenStatement->bindValue(':tokenId', $providerRefreshToken->getId(), PDO::PARAM_INT);
         $updateTokenStatement->execute();
     }
 
@@ -142,9 +142,9 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         $updateStatement->bindValue(
             ':expiredAt',
             $providerToken->getExpirationDate() !== null ? $providerToken->getExpirationDate()->getTimestamp() : null,
-            \PDO::PARAM_INT
+            PDO::PARAM_INT
         );
-        $updateStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);
+        $updateStatement->bindValue(':token', $providerToken->getToken(), PDO::PARAM_STR);
         $updateStatement->execute();
     }
 
@@ -155,7 +155,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
                 'DELETE FROM `:db`.security_token WHERE token = :token'
             )
         );
-        $deleteSecurityTokenStatement->bindValue(':token', $token, \PDO::PARAM_STR);
+        $deleteSecurityTokenStatement->bindValue(':token', $token, PDO::PARAM_STR);
         $deleteSecurityTokenStatement->execute();
     }
 

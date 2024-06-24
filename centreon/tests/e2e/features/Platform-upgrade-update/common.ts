@@ -35,9 +35,7 @@ const getCentreonStableMinorVersions = (
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     commandResult = cy
       .execInContainer({
-        command: `bash -e <<EOF
-          dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
-EOF`,
+        command: `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'`,
         name: 'web'
       })
       .execInContainer({
@@ -47,11 +45,11 @@ EOF`,
   } else {
     commandResult = cy
       .execInContainer({
-        command: `bash -e <<EOF
-          mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
-          mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
-          apt-get update
-EOF`,
+        command: [
+          `mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak`,
+          `mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak`,
+          `apt-get update`
+        ],
         name: 'web'
       })
       .execInContainer({
@@ -72,18 +70,16 @@ EOF`,
 
     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
       cy.execInContainer({
-        command: `bash -e <<EOF
-            dnf config-manager --set-enabled 'centreon-*'
-EOF`,
+        command: "dnf config-manager --set-enabled 'centreon-*'",
         name: 'web'
       });
     } else {
       cy.execInContainer({
-        command: `bash -e <<EOF
-            mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list
-            mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list
-            apt-get update
-EOF`,
+        command: [
+          `mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list`,
+          `mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list`,
+          `apt-get update`
+        ],
         name: 'web'
       });
     }
@@ -97,44 +93,40 @@ const installCentreon = (version: string): Cypress.Chainable => {
 
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.execInContainer({
-      command: `bash -e <<EOF
-        dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
-        dnf install -y centreon-web-${version}
-        dnf install -y centreon-broker-cbd
-        echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
-        /etc/init.d/mysql start
-        mkdir -p /run/php-fpm
-        systemctl start php-fpm
-        systemctl start httpd
-        mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-        dnf config-manager --set-enabled 'centreon-*'
-EOF`,
+      command: [
+        `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'`,
+        `dnf install -y centreon-web-${version}`,
+        `dnf install -y centreon-broker-cbd`,
+        `echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini`,
+        `/etc/init.d/mysql start`,
+        `mkdir -p /run/php-fpm`,
+        `systemctl start php-fpm || systemctl restart php-fpm`,
+        `systemctl start httpd || systemctl restart httpd`,
+        `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
+        `dnf config-manager --set-enabled 'centreon-*'`
+      ],
       name: 'web'
     });
   } else {
     cy.execInContainer({
-      command: `bash -e <<EOF
-        mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
-        mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
-        apt-get update
-        apt-get install -y \\
-          centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')} \\
-          centreon-web-apache=${version}-${Cypress.env('WEB_IMAGE_OS')} \\
-          centreon-web=${version}-${Cypress.env('WEB_IMAGE_OS')} \\
-          centreon-common=${version}-${Cypress.env('WEB_IMAGE_OS')}
-        mkdir -p /usr/lib/centreon-connector
-        echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
-        sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
-        service mysql start
-        mkdir -p /run/php
-        systemctl start php8.1-fpm
-        systemctl start apache2
-        mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-        mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list
-        mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list
-        apt-get update
-        usermod -a -G centreon-broker www-data # temporary fix (MON-20769)
-EOF`,
+      command: [
+        `mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak`,
+        `mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak`,
+        `apt-get update`,
+        `apt-get install -y centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web-apache=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-common=${version}-${Cypress.env('WEB_IMAGE_OS')}`,
+        `mkdir -p /usr/lib/centreon-connector`,
+        `echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini`,
+        `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
+        `service mysql start`,
+        `mkdir -p /run/php`,
+        `systemctl start php8.1-fpm`,
+        `systemctl start apache2`,
+        `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
+        `mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list`,
+        `mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list`,
+        `apt-get update`,
+        `usermod -a -G centreon-broker www-data` // temporary fix (MON-20769)
+      ],
       name: 'web'
     });
   }
@@ -216,11 +208,11 @@ EOF`,
     .setUserTokenApiV1()
     .applyPollerConfiguration()
     .execInContainer({
-      command: `bash -e <<EOF
-        systemctl restart cbd
-        systemctl restart centengine
-        systemctl restart gorgoned
-EOF`,
+      command: [
+        `systemctl restart cbd`,
+        `systemctl restart centengine`,
+        `systemctl restart gorgoned`
+      ],
       name: 'web'
     });
 };
@@ -237,7 +229,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
         return cy.execInContainer({
           command: [
-            `rm -f /tmp/packages-update-centreon/centreon-${major_version}*.rpm /tmp/packages-update-centreon/centreon-central-${major_version}*.rpm`,
+            `rm -f /tmp/packages-update-centreon/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
             'dnf install -y /tmp/packages-update-centreon/*.rpm'
           ],
           name: 'web'
@@ -246,7 +238,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
 
       return cy.execInContainer({
         command: [
-          `rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb`,
+          `rm -f /tmp/packages-update-centreon/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
           'apt-get update',
           'apt-get install -y /tmp/packages-update-centreon/centreon-*.deb'
         ],

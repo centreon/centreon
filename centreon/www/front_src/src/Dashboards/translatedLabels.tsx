@@ -6,20 +6,24 @@ export const labelCancel = 'Cancel';
 export const labelCreate = 'Create';
 export const labelUpdate = 'Update';
 export const labelDelete = 'Delete';
+export const labelDuplicate = 'Duplicate';
 export const labelName = 'Name';
 export const labelDescription = 'Description';
 export const labelCreateDashboard = 'Create dashboard';
 export const labelUpdateDashboard = 'Update dashboard';
 export const labelDeleteDashboard = 'Delete dashboard';
+export const labelDuplicateDashboard = 'Duplicate dashboard';
 export const labelDescriptionDeleteDashboard =
   'The {{name}} dashboard will be permanently deleted.';
-
 export const labelDashboardCreated = 'Dashboard created';
 export const labelDashboardUpdated = 'Dashboard updated';
 export const labelDashboardDeleted = 'Dashboard deleted';
+export const labelDashboardDuplicated = 'Dashboard duplicated';
 export const labelFailedToCreateDashboard = 'Failed to create the dashboard';
 export const labelFailedToUpdateDashboard = 'Failed to update the dashboard';
 export const labelFailedToDeleteDashboard = 'Failed to delete the dashboard';
+export const labelFailedToDuplicateDashboard =
+  'Failed to duplicate the dashboard';
 export const labelShareTheDashboard = 'Share the dashboard';
 
 export const labelEditAccessRights = 'Manage access rights';
@@ -61,3 +65,4 @@ export const labelDeleteUser = 'Delete user';
 export const labelYouAreGoingToDeleteUser =
   'You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard.';
 export const labelUserDeleted = 'User deleted';
+export const labelShareWithContacts = 'Share with contacts';

@@ -4,7 +4,7 @@ su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
 
 curl -s http://localhost/centreon/login
 
-centreon -d -u admin -p Centreon\!2021 -a APPLYCFG -v 1
+su - www-data -s /bin/bash -c "centreon -d -u admin -p Centreon\!2021 -a APPLYCFG -v 1"
 su - centreon-gorgone -s /bin/bash -c "sudo service centengine reload"
 
 API_TOKEN=$(curl -s -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' -H "Content-Type: application/json" -X POST http://127.0.0.1/centreon/api/latest/login | jq -r .security.token)
@@ -13,6 +13,8 @@ curl -s -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14}
 apt-get update
 apt search centreon
 apt-get clean
+
+lua /usr/share/centreon-broker/lua/centreon-cloud-notifications.lua
 
 systemctl stop gorgoned
 systemctl stop centengine

@@ -53,7 +53,7 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
                 $result[] = [
                     'id' => $dashboard->id,
                     'name' => $dashboard->name,
-                    'description' => $this->emptyStringAsNull($dashboard->description),
+                    'description' => $dashboard->description,
                     'created_by' => $this->userToOptionalArray($dashboard->createdBy),
                     'updated_by' => $this->userToOptionalArray($dashboard->updatedBy),
                     'created_at' => $this->formatDateToIso8601($dashboard->createdAt),

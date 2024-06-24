@@ -54,9 +54,25 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     /**
      * @inheritDoc
      */
+    public function updateDatasetAccess(int $ruleId, int $datasetId, string $resourceType, bool $fullAccess): void
+    {
+        foreach ($this->repositoryProviders as $repositoryProvider) {
+            if ($repositoryProvider->isValidFor($resourceType) === true) {
+                $repositoryProvider->updateDatasetAccess(ruleId: $ruleId, datasetId: $datasetId, fullAccess: $fullAccess);
+            }
+        }
+    }
+
+    /**
+     * @inheritDoc
+     * Here are the deletions (on cascade or not) that will occur on rule deletion
+     *     - Contact relations (ON DELETE CASCADE)
+     *     - Contact Group relations (ON DELETE CASCADE)
+     *     - Datasets relations + datasets (NEED MANUAL DELETION)
+     *     - DatasetFilters (ON DELETE CASCADE).
+     */
     public function deleteRuleAndDatasets(int $ruleId): void
     {
-
         $datasetIds = $this->findDatasetIdsByRuleId($ruleId);
         $alreadyInTransaction = $this->db->inTransaction();
 
@@ -219,16 +235,26 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     /**
      * @inheritDoc
      */
-    public function addDataset(string $name): int
-    {
+    public function addDataset(
+        string $name,
+        bool $accessAllHosts = false,
+        bool $accessAllHostGroups = false,
+        bool $accessAllServiceGroups = false,
+    ): int {
         $request = $this->translateDbName(
             <<<'SQL'
-                    INSERT INTO `:db`.acl_resources (acl_res_name, acl_res_activate, changed, cloud_specific) VALUES (:name, '1', 1, 1)
+                INSERT INTO `:db`.acl_resources
+                    (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, acl_res_activate, changed, cloud_specific)
+                VALUES (:name, :allHosts, :allHostGroups, :allServiceGroups, '1', 1, 1)
                 SQL
         );
 
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', $name, \PDO::PARAM_STR);
+        $statement->bindValue(':allHosts', $accessAllHosts ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allHostGroups', $accessAllHostGroups ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allServiceGroups', $accessAllServiceGroups ? '1' : '0', \PDO::PARAM_STR);
+
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
@@ -390,7 +416,9 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
                         acl_group_changed = '1',
                         cloud_description = :description,
                         acl_group_activate = :status,
-                        cloud_specific = 1
+                        cloud_specific = 1,
+                        all_contacts = :applyToAllContacts,
+                        all_contact_groups = :applyToAllContactGroups
                     WHERE
                         acl_group_id = :ruleId
                 SQL
@@ -406,6 +434,8 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         );
         $statement->bindValue(':status', $rule->isEnabled() ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':ruleId', $rule->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':applyToAllContacts', $rule->doesApplyToAllContacts() ? 1 : 0, \PDO::PARAM_INT);
+        $statement->bindValue(':applyToAllContactGroups', $rule->doesApplyToAllContactGroups() ? 1 : 0, \PDO::PARAM_INT);
 
         $statement->execute();
     }
@@ -423,8 +453,26 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         $request = $this->translateDbName(
             <<<'SQL'
                     INSERT INTO `:db`.acl_groups
-                    (acl_group_name, acl_group_alias, acl_group_changed, cloud_description, acl_group_activate, cloud_specific) VALUES
-                    (:name, :alias, '1', :description, :status, 1)
+                        (
+                            acl_group_name,
+                            acl_group_alias,
+                            acl_group_changed,
+                            cloud_description,
+                            acl_group_activate,
+                            cloud_specific,
+                            all_contacts,
+                            all_contact_groups
+                        ) VALUES
+                        (
+                            :name,
+                            :alias,
+                            '1',
+                            :description,
+                            :status,
+                            1,
+                            :applyToAllContacts,
+                            :applyToAllContactGroups
+                        )
                 SQL
         );
 
@@ -438,6 +486,8 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
             \PDO::PARAM_STR
         );
         $statement->bindValue(':status', $rule->isEnabled() ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':applyToAllContacts', $rule->doesApplyToAllContacts() ? 1 : 0, \PDO::PARAM_INT);
+        $statement->bindValue(':applyToAllContactGroups', $rule->doesApplyToAllContactGroups() ? 1 : 0, \PDO::PARAM_INT);
 
         $statement->execute();
 

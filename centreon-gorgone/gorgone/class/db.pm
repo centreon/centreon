@@ -185,17 +185,20 @@ sub transaction_mode {
 sub commit {
     my ($self) = @_;
 
-    if (!defined($self->{instance})) {
+    # Commit only if autocommit isn't enabled
+    if ($self->{instance}->{AutoCommit} != 1) {
+        if (!defined($self->{instance})) {
+            $self->{transaction_begin} = 0;
+            return -1;
+        }
+
+        my $status = $self->{instance}->commit();
         $self->{transaction_begin} = 0;
-        return -1;
-    }
 
-    my $status = $self->{instance}->commit();
-    $self->{transaction_begin} = 0;
-
-    if (!$status) {
-        $self->error($self->{instance}->errstr, 'commit');
-        return -1;
+        if (!$status) {
+            $self->error($self->{instance}->errstr, 'commit');
+            return -1;
+        }
     }
 
     return 0;

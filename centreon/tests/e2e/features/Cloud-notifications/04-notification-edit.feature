@@ -33,8 +33,8 @@ Feature: Editing Notification Rule configuration
 
     Examples:
       | action  | prefix  |
-      | enable  | no more |
-      | disable | one     |
+      | enable  | one     |
+      | disable | no more |
 
   @TEST_MON-33213
   Scenario Outline: Toggling Notification Rule status on edition

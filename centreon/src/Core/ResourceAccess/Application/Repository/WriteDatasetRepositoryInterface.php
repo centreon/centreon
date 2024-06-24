@@ -38,4 +38,11 @@ interface WriteDatasetRepositoryInterface
      * @return bool
      */
     public function isValidFor(string $type): bool;
+
+    /**
+     * @param int $ruleId
+     * @param int $datasetId
+     * @param bool $fullAccess
+     */
+    public function updateDatasetAccess(int $ruleId, int $datasetId, bool $fullAccess): void;
 }

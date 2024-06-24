@@ -29,6 +29,7 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
@@ -39,6 +40,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements ReadAccessGroupRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
@@ -240,5 +242,31 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
         $this->debug('Access group found: ' . count($accessGroups));
 
         return $accessGroups;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasAccessToResources(array $accessGroupIds): bool
+    {
+        if ([] === $accessGroupIds) {
+            return false;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':accessGroupIds');
+        $statement = $this->db->prepare(
+            <<<SQL
+                SELECT 1 FROM acl_res_group_relations
+                WHERE acl_group_id IN ({$bindQuery})
+                SQL
+        );
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 }

@@ -18,7 +18,11 @@ patch:
   tags:
     - Service
   summary: "Partial update of a service"
-  description: "Partial update of a service configuration"
+  description: |
+    Partial update of a service configuration
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
   parameters:
     - $ref: 'QueryParameter/ServiceId.yaml'
   requestBody:

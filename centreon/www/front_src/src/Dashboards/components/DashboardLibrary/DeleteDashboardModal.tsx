@@ -47,8 +47,8 @@ const DeleteDashboardModal = (): JSX.Element => {
       <Modal.Actions
         isDanger
         labels={{
-          cancel: labelCancel,
-          confirm: labelDelete
+          cancel: t(labelCancel),
+          confirm: t(labelDelete)
         }}
         onCancel={close}
         onConfirm={confirm}

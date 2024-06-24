@@ -16,7 +16,7 @@ export const useBarStackStyles = makeStyles()((theme) => ({
   svgContainer: {
     alignItems: 'center',
     backgroundColor: theme.palette.background.panelGroups,
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.spacing(1.25),
     display: 'flex',
     justifyContent: 'center'
   },
@@ -31,6 +31,7 @@ export const useBarStackStyles = makeStyles()((theme) => ({
     fontSize: theme.typography.h6.fontSize,
     fontWeight: theme.typography.fontWeightMedium,
     margin: 0,
-    padding: 0
+    padding: 0,
+    textAlign: 'center'
   }
 }));

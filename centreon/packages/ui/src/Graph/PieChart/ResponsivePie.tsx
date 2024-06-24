@@ -7,13 +7,12 @@ import numeral from 'numeral';
 import { always, equals, gt, ifElse, lt } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 
 import { Tooltip } from '../../components';
 import { Legend as LegendComponent } from '../Legend';
 import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
-import { labelNoDataFound } from '../translatedLabels';
 
 import { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
@@ -70,8 +69,7 @@ const ResponsivePie = ({
     svgWrapperWidth,
     total,
     innerRadius,
-    isContainsExactlyOneNonZeroValue,
-    areAllValuesNull
+    isContainsExactlyOneNonZeroValue
   } = useResponsivePie({
     data,
     defaultInnerRadius,
@@ -83,14 +81,6 @@ const ResponsivePie = ({
   });
 
   const { classes } = usePieStyles({ svgSize });
-
-  if (areAllValuesNull) {
-    return (
-      <div className={classes.container} style={{ height, width }}>
-        <Typography variant="h3">{t(labelNoDataFound)}</Typography>
-      </div>
-    );
-  }
 
   return (
     <div
@@ -109,7 +99,7 @@ const ResponsivePie = ({
       >
         {equals(variant, 'pie') && title && (
           <div className={classes.title} data-testid="Title" ref={titleRef}>
-            {`${numeral(total).format('0a').toUpperCase()} `} {title}
+            {`${numeral(total).format('0a').toUpperCase()} `} {t(title)}
           </div>
         )}
         <div
@@ -178,6 +168,7 @@ const ResponsivePie = ({
                       >
                         <g data-testid={arc.data.label} onClick={onClick}>
                           <path
+                            cursor="pointer"
                             d={pie.path(arc) as string}
                             fill={arc.data.color}
                           />
@@ -189,6 +180,7 @@ const ResponsivePie = ({
                                 dy=".33em"
                                 fill="#000"
                                 fontSize={12}
+                                fontWeight={600}
                                 pointerEvents="none"
                                 textAnchor="middle"
                                 x={x}
@@ -224,7 +216,7 @@ const ResponsivePie = ({
                     fill={theme.palette.text.primary}
                     textAnchor="middle"
                   >
-                    {title}
+                    {t(title)}
                   </Text>
                 </>
               )}

@@ -1,0 +1,15 @@
+{
+    "down" : {
+        "total" : 42 
+    },
+    "unreachable" : {
+        "total" : 18 
+    },
+    "pending" : {
+        "total" : 29 
+    },
+    "up" : {
+        "total" : 123 
+    },
+    "total" : 212
+}

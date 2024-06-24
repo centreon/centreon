@@ -2,7 +2,7 @@ import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 
 import { Duration } from '../TokenCreation/models';
 
-import { Fields, SortOrder } from './Actions/Search/Filter/models';
+import { Fields, SortOrder } from './Actions/Filter/models';
 
 export interface DataListing {
   isError: boolean;

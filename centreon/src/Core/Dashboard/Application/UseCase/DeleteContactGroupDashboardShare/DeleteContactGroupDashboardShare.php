@@ -39,18 +39,23 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class DeleteContactGroupDashboardShare
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -60,7 +65,7 @@ final class DeleteContactGroupDashboardShare
         DeleteContactGroupDashboardSharePresenterInterface $presenter
     ): void {
         try {
-            if ($this->rights->hasAdminRole()) {
+            if ($this->isUserAdmin()) {
                 if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
                     $this->info(
                         'Delete a contact group share for dashboard',
@@ -151,10 +156,37 @@ final class DeleteContactGroupDashboardShare
             );
         }
 
+        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
+
+        if (! $this->readContactGroupRepository->existsInAccessGroups($group->getId(), $accessGroupIds)) {
+            return new NotFoundResponse('Contact Group');
+        }
+
         if (! $this->writeDashboardShareRepository->deleteContactGroupShare($group->getId(), $dashboard->getId())) {
             return new NotFoundResponse('Dashboard share');
         }
 
         return new NoContentResponse();
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }
