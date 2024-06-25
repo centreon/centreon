@@ -74,7 +74,7 @@ Cypress.Commands.add('editWidget', (nameOrPosition) => {
     label: 'Edit widget',
     tag: 'li'
   })
-    .should('be.visible')
+    .should('exist') // do not check with "be.visible" because it can be hidden by the tooltip of "more actions" button
     .realClick();
 
   cy.contains('Widget properties').should('be.visible');
