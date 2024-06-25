@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useAtom } from 'jotai';
 import { useParams } from 'react-router';
@@ -9,8 +9,24 @@ import { Method, useMutationQuery } from '@centreon/ui';
 
 import { userParametersEndpoint } from '../../../../api/endpoints';
 
+interface ToggleFavoritesProps {
+  dashboardId: number;
+  favorites: Array<number>;
+}
+
+const addToFavorites = ({
+  dashboardId,
+  favorites
+}: ToggleFavoritesProps): Array<number> => append(dashboardId, favorites);
+const removeFromFavorites = ({
+  dashboardId,
+  favorites
+}: ToggleFavoritesProps): Array<number> =>
+  reject((dashboard) => equals(dashboard, Number(dashboardId)), favorites);
+
 interface UseFavoriteState {
   isFavorite?: boolean;
+  toggleFavorite: () => void;
 }
 
 export const useFavorite = (): UseFavoriteState => {
@@ -27,10 +43,10 @@ export const useFavorite = (): UseFavoriteState => {
         dashboard: currentUser.dashboard
           ? {
               ...currentUser.dashboard,
-              favorites: reject(
-                (dashboard) => equals(dashboard, Number(dashboardId)),
-                currentUser.dashboard.favorites
-              )
+              favorites: removeFromFavorites({
+                dashboardId: Number(dashboardId),
+                favorites: currentUser.dashboard.favorites
+              })
             }
           : null
       }));
@@ -41,10 +57,10 @@ export const useFavorite = (): UseFavoriteState => {
         dashboard: currentUser.dashboard
           ? {
               ...currentUser.dashboard,
-              favorites: append(
-                Number(dashboardId),
-                currentUser.dashboard.favorites
-              )
+              favorites: addToFavorites({
+                dashboardId: Number(dashboardId),
+                favorites: currentUser.dashboard.favorites
+              })
             }
           : null
       }));
@@ -56,7 +72,27 @@ export const useFavorite = (): UseFavoriteState => {
     [user]
   );
 
+  const toggleFavorite = useCallback(() => {
+    mutateAsync({
+      payload: {
+        dashboard: {
+          ...(user?.dashboard || {}),
+          favorites: isFavorite
+            ? removeFromFavorites({
+                dashboardId: Number(dashboardId),
+                favorites: user.dashboard?.favorites || []
+              })
+            : addToFavorites({
+                dashboardId: Number(dashboardId),
+                favorites: user.dashboard?.favorites || []
+              })
+        }
+      }
+    });
+  }, [user?.dashboard?.favorites]);
+
   return {
-    isFavorite
+    isFavorite,
+    toggleFavorite
   };
 };

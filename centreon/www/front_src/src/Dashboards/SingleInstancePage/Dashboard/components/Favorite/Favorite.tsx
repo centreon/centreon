@@ -7,13 +7,14 @@ import { useFavoriteStyle } from './Favorite.styles';
 
 const Favorite = (): JSX.Element => {
   const { classes } = useFavoriteStyle();
-  const { isFavorite } = useFavorite();
+  const { isFavorite, toggleFavorite } = useFavorite();
 
   return (
     <IconButton
       className={classes.button}
       icon={<FavoriteIcon color={isFavorite ? 'success' : 'disabled'} />}
       size="medium"
+      onClick={toggleFavorite}
     />
   );
 };
