@@ -76,8 +76,20 @@ class FindHostNotificationPolicy
             return;
         }
 
-        $notifiedContacts = $this->readHostNotificationRepository->findNotifiedContactsById($hostId);
-        $notifiedContactGroups = $this->readHostNotificationRepository->findNotifiedContactGroupsById($hostId);
+        if (! $this->contact->isAdmin()) {
+            $accessGroups = $this->accessGroupRepository->findByContact($this->contact);
+            $notifiedContacts = $this->readHostNotificationRepository->findNotifiedContactsByIdAndAccessGroups(
+                $hostId,
+                $accessGroups
+            );
+            $notifiedContactGroups = $this->readHostNotificationRepository->findNotifiedContactGroupsByIdAndAccessGroups(
+                $hostId,
+                $accessGroups
+            );
+        } else {
+            $notifiedContacts = $this->readHostNotificationRepository->findNotifiedContactsById($hostId);
+            $notifiedContactGroups = $this->readHostNotificationRepository->findNotifiedContactGroupsById($hostId);
+        }
 
         $realtimeHost = $this->readRealTimeHostRepository->findHostById($hostId);
         if ($realtimeHost === null) {

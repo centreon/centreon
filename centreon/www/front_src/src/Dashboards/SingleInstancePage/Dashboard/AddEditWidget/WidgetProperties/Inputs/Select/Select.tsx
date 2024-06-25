@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
@@ -6,6 +8,7 @@ import { SelectField } from '@centreon/ui';
 
 import { WidgetPropertyProps } from '../../../models';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import Subtitle from '../../../../components/Subtitle';
 
 import useSelect from './useSelect';
 import { useSelectStyles } from './Select.styles';
@@ -13,7 +16,8 @@ import { useSelectStyles } from './Select.styles';
 const Select = ({
   propertyName,
   label,
-  options
+  options,
+  isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useSelectStyles();
   const { t } = useTranslation();
@@ -27,11 +31,11 @@ const Select = ({
     name: t(name)
   }));
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div className={classes.container}>
-      <Typography>
-        <strong>{t(label)}</strong>
-      </Typography>
+      <Label>{t(label)}</Label>
       <SelectField
         dataTestId={label}
         disabled={!canEditField}
