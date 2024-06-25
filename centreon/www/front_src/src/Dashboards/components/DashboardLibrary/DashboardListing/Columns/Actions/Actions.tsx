@@ -6,6 +6,7 @@ import {
   MoreHoriz as MoreIcon
 } from '@mui/icons-material';
 import { Box } from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
@@ -30,7 +31,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     openAskBeforeRevoke,
     closeMoreActions,
     moreActionsOpen,
-    openMoreActions
+    openMoreActions,
+    isFavorite
   } = useActions(row);
 
   if (isNestedRow) {
@@ -54,6 +56,10 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       >
         <ShareIcon className={classes.icon} />
       </IconButton>
+      <FavoriteIcon
+        color={isFavorite ? 'success' : 'disabled'}
+        fontSize="small"
+      />
       <IconButton
         ariaLabel={t(labelMoreActions)}
         title={t(labelMoreActions)}

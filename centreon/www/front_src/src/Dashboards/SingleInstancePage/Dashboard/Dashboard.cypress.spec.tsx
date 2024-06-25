@@ -31,7 +31,8 @@ import {
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
   dashboardSharesEndpoint,
-  getDashboardEndpoint
+  getDashboardEndpoint,
+  userParametersEndpoint
 } from '../../api/endpoints';
 import {
   labelAddAContact,
@@ -53,7 +54,6 @@ import {
   labelViewProperties,
   labelYourRightsOnlyAllowToView,
   labelPleaseContactYourAdministrator,
-  labelRefresh,
   labelDuplicate,
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
@@ -105,6 +105,7 @@ interface InitializeAndMountProps {
   globalRole?: DashboardGlobalRole;
   isBlocked?: boolean;
   ownRole?: DashboardRole;
+  isFavorite?: boolean;
 }
 
 const editorRoles = {
@@ -146,7 +147,8 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   isBlocked = false,
-  detailsWithData = false
+  detailsWithData = false,
+  isFavorite = false
 }: InitializeAndMountProps): {
   blockNavigation;
   proceedNavigation;
@@ -160,7 +162,8 @@ const initializeAndMount = ({
       createDashboards: canCreateDashboard,
       globalUserRole: globalRole,
       manageAllDashboards: canAdministrateDashboard,
-      viewDashboards: canViewDashboard
+      viewDashboards: canViewDashboard,
+      favorites: isFavorite ? [1] : []
     },
     isExportButtonEnabled: true,
     locale: 'en',
@@ -197,6 +200,20 @@ const initializeAndMount = ({
         own_role: ownRole
       }
     });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'patchDashboardDetails',
+    method: Method.PATCH,
+    path: getDashboardEndpoint('1'),
+    statusCode: 201
+  });
+
+cy.interceptAPIRequest({
+    alias: 'patchUserParameters',
+    method: Method.PATCH,
+    path: userParametersEndpoint,
+    statusCode: 201
   });
 
   cy.interceptAPIRequest({
@@ -497,6 +514,10 @@ describe('Dashboard', () => {
 
     cy.contains('Generic text').should('be.visible');
     cy.contains('Description').should('be.visible');
+
+    cy.findByTestId('FavoriteIcon').should('have.class', 'MuiSvgIcon-colorDisabled');
+
+    cy.makeSnapshot()
   });
 
   it('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
@@ -539,6 +560,26 @@ describe('Dashboard', () => {
 
     cy.makeSnapshot();
   });
+
+  it('toggles the favorite status when the corresponding icon is clicked', () => {
+    initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains('Generic text').should('be.visible');
+    cy.contains('Description').should('be.visible');
+
+    cy.findByTestId('FavoriteIcon').click();
+
+    cy.findByTestId('FavoriteIcon').should('have.class', 'MuiSvgIcon-colorSuccess');
+
+    cy.waitForRequest('@patchUserParameters').then(({ request }) => {
+      expect(request.body).to.equal('{"dashboard":{"createDashboards":true,"globalUserRole":"creator","manageAllDashboards":false,"viewDashboards":true,"favorites":[1]}}')
+    });
+
+    cy.makeSnapshot();
+
+  })
 
   describe('Route blocking', () => {
     it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {

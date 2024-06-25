@@ -8,6 +8,7 @@ import {
   ContentCopy as DuplicateIcon,
   MoreHoriz as MoreIcon
 } from '@mui/icons-material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import {
   ActionsList,
@@ -44,7 +45,8 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
     openEditAccessRightModal,
     openEditModal,
     openMoreActions,
-    closeMoreActions
+    closeMoreActions,
+    isFavorite
   } = useDashboardCardActions({ dashboard });
 
   const labels = {
@@ -64,6 +66,10 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
       >
         <ShareIcon fontSize="small" />
       </IconButton>
+      <FavoriteIcon
+        color={isFavorite ? 'success' : 'disabled'}
+        fontSize="small"
+      />
       <IconButton
         ariaLabel={labels.labelMoreActions}
         title={labels.labelMoreActions}

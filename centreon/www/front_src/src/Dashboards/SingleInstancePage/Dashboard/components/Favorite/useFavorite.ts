@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from 'react';
 
 import { useAtom } from 'jotai';
-import { useParams } from 'react-router';
 import { append, equals, reject } from 'ramda';
 
 import { userAtom } from '@centreon/ui-context';
 import { Method, useMutationQuery } from '@centreon/ui';
 
 import { userParametersEndpoint } from '../../../../api/endpoints';
+import { routerParams } from '../../hooks/useDashboardDetails';
 
 interface ToggleFavoritesProps {
   dashboardId: number;
@@ -32,7 +32,7 @@ interface UseFavoriteState {
 export const useFavorite = (): UseFavoriteState => {
   const [user, setUser] = useAtom(userAtom);
 
-  const { dashboardId } = useParams();
+  const { dashboardId } = routerParams.useParams();
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => userParametersEndpoint,

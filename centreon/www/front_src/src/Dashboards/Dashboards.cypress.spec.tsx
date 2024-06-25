@@ -82,6 +82,7 @@ const initializeAndMount = ({
     alias: 'admin',
     dashboard: {
       createDashboards: canCreateDashboard,
+      favorites: [1],
       globalUserRole: globalRole,
       manageAllDashboards: canAdministrateDashboard,
       viewDashboards: canViewDashboard
@@ -311,6 +312,14 @@ describe('Dashboards', () => {
       cy.contains('My Dashboard').should('be.visible');
       cy.contains('My Dashboard 2').should('be.visible');
 
+      cy.findAllByTestId('FavoriteIcon')
+        .eq(1)
+        .should('have.class', 'MuiSvgIcon-colorDisabled');
+
+      cy.findAllByTestId('FavoriteIcon')
+        .eq(0)
+        .should('have.class', 'MuiSvgIcon-colorSuccess');
+
       cy.makeSnapshot();
     });
 
@@ -328,6 +337,14 @@ describe('Dashboards', () => {
 
       cy.contains('My Dashboard').should('be.visible');
       cy.contains('My Dashboard 2').should('be.visible');
+
+      cy.findAllByTestId('FavoriteIcon')
+        .eq(1)
+        .should('have.class', 'MuiSvgIcon-colorDisabled');
+
+      cy.findAllByTestId('FavoriteIcon')
+        .eq(0)
+        .should('have.class', 'MuiSvgIcon-colorSuccess');
 
       cy.makeSnapshot();
     });

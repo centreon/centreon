@@ -1,7 +1,10 @@
 import { useState } from 'react';
 
 import { isNil } from 'ramda';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+
+import { userAtom } from '@centreon/ui-context';
+import { useDeepMemo } from '@centreon/ui';
 
 import { useDashboardConfig } from '../../../DashboardConfig/useDashboardConfig';
 import { unformatDashboard } from '../../utils';
@@ -16,6 +19,7 @@ interface UseActionsState {
   closeMoreActions: () => void;
   editAccessRights: () => void;
   editDashboard: () => void;
+  isFavorite?: boolean;
   isNestedRow: boolean;
   moreActionsOpen: HTMLElement | null;
   openAskBeforeRevoke: () => void;
@@ -26,6 +30,7 @@ interface UseActionsState {
 
 const useActions = (row): UseActionsState => {
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
+  const user = useAtomValue(userAtom);
   const setAskBeforeRevoke = useSetAtom(askBeforeRevokeAtom);
 
   const { editDashboard } = useDashboardConfig();
@@ -59,10 +64,16 @@ const useActions = (row): UseActionsState => {
     });
   };
 
+  const isFavorite = useDeepMemo({
+    deps: [user],
+    variable: user.dashboard?.favorites.includes(row.id)
+  });
+
   return {
     closeMoreActions,
     editAccessRights: openShares(unformattedDashboard),
     editDashboard: editDashboard(unformattedDashboard),
+    isFavorite,
     isNestedRow,
     moreActionsOpen,
     openAskBeforeRevoke,
