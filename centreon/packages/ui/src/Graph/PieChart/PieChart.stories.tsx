@@ -144,6 +144,10 @@ const TemplateForSmallDimensions = (args): JSX.Element => {
   return <ResponsivePie height={130} width={130} {...args} />;
 };
 
+const SmallTemplate = (args): JSX.Element => {
+  return <ResponsivePie height={100} width={100} {...args} />;
+};
+
 export const PieWithSmallDimensions: Story = {
   args: {
     data,
@@ -187,4 +191,14 @@ export const donutWithOneNoZeroValue: Story = {
     variant: 'donut'
   },
   render: Template
+};
+
+export const smallDisplay: Story = {
+  args: {
+    data,
+    displayLegend: false,
+    title: 'hosts',
+    variant: 'donut'
+  },
+  render: SmallTemplate
 };

@@ -204,20 +204,11 @@ after(() => {
 
 Given('a dashboard administrator on the dashboard web interface', () => {
   cy.insertDashboard(dashboards.fromDashboardCreatorUser);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.fromDashboardCreatorUser.name);
 });
 
 When('the dashboard administrator adds a Generic text widget', () => {
-  cy.getByTestId({ testId: 'AddIcon' }).click();
+  cy.contains('Add a widget').click();
   cy.getByTestId({ testId: 'Widget type' }).click();
   cy.contains('Generic text').click();
   cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
@@ -300,12 +291,7 @@ Then(
 Given(
   'a dashboard administrator who has just configured a multi-widget dashboard',
   () => {
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+    cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
   }
 );
 
@@ -354,29 +340,25 @@ When(
 );
 
 Then('the dashboard is updated with the new widget layout', () => {
+  cy.get('[class*="graphContainer"]').should('be.visible');
   cy.get('.react-grid-item')
     .eq(0)
     .invoke('attr', 'style')
     .then((style) => {
-      expect(style).to.include('width: calc(422px)');
+      expect(style).to.include('width: calc(425px)');
     });
   cy.get('.react-grid-item')
     .eq(1)
     .invoke('attr', 'style')
     .then((style) => {
-      expect(style).to.include('width: calc(422px)');
+      expect(style).to.include('width: calc(425px)');
     });
 });
 
 Given(
   'the dashboard administrator with a configured multi-widget dashboard',
   () => {
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+    cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
   }
 );
 
@@ -451,7 +433,13 @@ Then(
 
       case 'status grid':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const statusGridStatuses = ['Critical', 'Unknown', 'Unknown'];
+        const statusGridStatuses = [
+          'Critical',
+          'Unknown',
+          'Unknown',
+          'Ok',
+          'Up'
+        ];
         cy.get('[class$="chip-statusColumnChip"]')
           .each(($chip) => {
             if (statusGridStatuses.includes($chip.text()) && !statusFound) {

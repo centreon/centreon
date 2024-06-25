@@ -92,9 +92,27 @@ class FindServiceNotificationPolicy
             return;
         }
 
-        $notifiedContacts = $this->readServiceNotificationRepository->findNotifiedContactsById($hostId, $serviceId);
-        $notifiedContactGroups = $this->readServiceNotificationRepository->findNotifiedContactGroupsById($hostId,
-            $serviceId);
+        if (! $this->contact->isAdmin()) {
+            $accessGroups = $this->accessGroupRepository->findByContact($this->contact);
+
+            $notifiedContacts = $this->readServiceNotificationRepository->findNotifiedContactsByIdAndAccessGroups(
+                $hostId,
+                $serviceId,
+                $accessGroups
+            );
+
+            $notifiedContactGroups = $this->readServiceNotificationRepository->findNotifiedContactGroupsByIdAndAccessGroups(
+                $hostId,
+                $serviceId,
+                $accessGroups
+            );
+        } else {
+            $notifiedContacts = $this->readServiceNotificationRepository->findNotifiedContactsById($hostId, $serviceId);
+            $notifiedContactGroups = $this->readServiceNotificationRepository->findNotifiedContactGroupsById(
+                $hostId,
+                $serviceId
+            );
+        }
 
         $realtimeService = $this->readRealTimeServiceRepository->findServiceById($hostId, $serviceId);
         if ($realtimeService === null) {

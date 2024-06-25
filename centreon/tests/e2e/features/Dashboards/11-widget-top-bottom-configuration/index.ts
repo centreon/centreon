@@ -102,12 +102,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -167,18 +162,8 @@ Then("the Top Bottom metric widget is added in the dashboard's layout", () => {
 
 Given('a dashboard configured with a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
 });
 
@@ -232,12 +217,7 @@ Then(
 
 Given('a dashboard having a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
+  cy.visitDashboard(dashboards.default.name);
 });
 
 When(
@@ -264,16 +244,7 @@ Given('a dashboard featuring two Top Bottom widgets', () => {
     dashboards.default,
     dashbboardWithTwoTopBottomWidgets
   );
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@dashboardMetricsTop');
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
@@ -293,15 +264,8 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard with a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
 });
 
 When(
@@ -325,15 +289,8 @@ Then(
 
 Given('a dashboard containing a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
 });
 
 When(
@@ -364,18 +321,8 @@ Then(
 
 Given('a dashboard featuring a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
 });
 
 When(
@@ -416,5 +363,28 @@ Then(
   () => {
     cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('exist');
     cy.getByTestId({ testId: 'critical-line-60-tooltip' }).should('exist');
+  }
+);
+
+Given('a dashboard with a Top bottom widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.editDashboard(dashboards.default.name);
+  cy.contains('Centreon-Server_Ping').should('be.visible');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.get('[data-testid="link to Ping"]')
+    .invoke('attr', 'href')
+    .then((href) => {
+      expect(href).to.exist;
+      cy.visit(href);
+    });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('Ping').should('exist');
+    cy.contains('Centreon-Server').should('exist');
   }
 );

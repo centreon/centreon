@@ -87,8 +87,19 @@ class Information
 
     public function nextStepContent()
     {
-        $step = $this->getStep() + 1;
+        if ($this->getStep() === '6Vault') {
+            $step = 7;
+        } else {
+            $step = $this->getStep() + 1;
+        }
         $this->setStep($step);
+
+        return $this->getStepContent();
+    }
+
+    public function vaultStepContent()
+    {
+        $this->setStep('6Vault');
 
         return $this->getStepContent();
     }
