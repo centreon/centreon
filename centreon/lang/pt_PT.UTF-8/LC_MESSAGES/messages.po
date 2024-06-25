@@ -17441,7 +17441,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Broker configuration #%d not found"
 #  msgstr ""
 
-#  msgid "Missing the input/output parameter: %s"
+#  msgid "Missing input/output parameter: %s"
 #  msgstr ""
 
 #  msgid "Parameter '%s' (%s) is invalid"
@@ -17450,7 +17450,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Parameter '%s' of type %s is invalid"
 #  msgstr ""
 
-#  msgid "Input/Output #%d is not found for the Broker configuration #%d"
+#  msgid "Input/Output #%d not found for Broker configuration #%d"
 #  msgstr ""
 
 # msgid "Delete rule"

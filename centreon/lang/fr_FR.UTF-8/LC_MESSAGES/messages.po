@@ -18783,8 +18783,8 @@ msgstr "Vous n'êtes pas autorisé à éditer une configuration Broker"
 msgid "Broker configuration #%d not found"
 msgstr "Configuration Broker #%d introuvable"
 
-msgid "Missing the input/output parameter: %s"
-msgstr "Ce paramètre d'entrée/sortie est manquant : %s"
+msgid "Missing input/output parameter: %s"
+msgstr "Paramètre d'entrée/sortie manquant : %s"
 
 msgid "Parameter '%s' (%s) is invalid"
 msgstr "Le paramètre '%s' (%s) est invalide"
@@ -18792,8 +18792,8 @@ msgstr "Le paramètre '%s' (%s) est invalide"
 msgid "Parameter '%s' of type %s is invalid"
 msgstr "Le paramètre '%s' de type %s est invalide"
 
-msgid "Input/Output #%d is not found for the Broker configuration #%d"
-msgstr "L'entrée/sortie #%d est introuvable pour la configuration Broker #%d"
+msgid "Input/Output #%d not found for Broker configuration #%d"
+msgstr "Entrée/sortie #%d introuvable pour la configuration Broker #%d"
 
 msgid "Display resources with this unit"
 msgstr "Afficher les ressources avec cette unité"

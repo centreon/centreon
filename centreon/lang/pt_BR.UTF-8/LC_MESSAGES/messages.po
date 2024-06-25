@@ -17477,7 +17477,7 @@ msgstr ""
 #  msgid "Broker configuration #%d not found"
 #  msgstr ""
 
-#  msgid "Missing the input/output parameter: %s"
+#  msgid "Missing input/output parameter: %s"
 #  msgstr ""
 
 #  msgid "Parameter '%s' (%s) is invalid"
@@ -17486,7 +17486,7 @@ msgstr ""
 #  msgid "Parameter '%s' of type %s is invalid"
 #  msgstr ""
 
-#  msgid "Input/Output #%d is not found for the Broker configuration #%d"
+#  msgid "Input/Output #%d not found for Broker configuration #%d"
 #  msgstr ""
 
 # msgid "Rules are used to allow users to access resources."

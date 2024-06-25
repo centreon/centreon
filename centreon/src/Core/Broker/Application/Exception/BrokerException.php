@@ -84,7 +84,7 @@ class BrokerException extends \Exception
     public static function missingParameter(string $propertyName): self
     {
         return new self(
-            sprintf(_('Missing the input/output parameter: %s'), $propertyName),
+            sprintf(_('Missing input/output parameter: %s'), $propertyName),
             self::CODE_INVALID
         );
     }
@@ -129,7 +129,7 @@ class BrokerException extends \Exception
      */
     public static function inputOutputNotFound(int $brokerId, int $outputId): self
     {
-        return new self(sprintf(_('Input/Output #%d is not found for the Broker configuration #%d'), $outputId, $brokerId));
+        return new self(sprintf(_('Input/Output #%d not found for Broker configuration #%d'), $outputId, $brokerId));
     }
 
     /**
