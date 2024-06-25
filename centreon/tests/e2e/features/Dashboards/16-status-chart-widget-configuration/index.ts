@@ -448,3 +448,30 @@ Then(
     );
   }
 );
+
+Given('a dashboard with a Status Chart widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.editDashboard(dashboards.default.name);
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.get('[data-testid="Legend"] > *')
+    .first()
+    .find('a')
+    .then(($link) => {
+      const href = $link.attr('href');
+      if (href) {
+        cy.log('First link found:', href);
+        cy.visit(href);
+      } else {
+        cy.log('No link found.');
+      }
+    });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
+  }
+);

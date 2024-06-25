@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -393,3 +394,25 @@ Then('the second widget has the same properties as the first widget', () => {
   cy.get('[class*="resourceName"]').eq(4).contains('host2').should('exist');
   cy.get('[class*="resourceName"]').eq(5).contains('host3').should('exist');
 });
+
+Given('a dashboard with a Status Grid widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.get('[data-testid="link to host2"]')
+    .invoke('attr', 'href')
+    .then((href) => {
+      expect(href).to.exist;
+      cy.visit(href);
+    });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
+  }
+);

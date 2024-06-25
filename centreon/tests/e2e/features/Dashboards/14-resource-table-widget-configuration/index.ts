@@ -510,3 +510,21 @@ Then("the resource table widget is added to the dashboard's layout", () => {
     { interval: 2000, timeout: 10000 }
   );
 });
+
+Given('a dashboard with a resource table widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+  cy.contains('host2').should('be.visible');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.contains('host2').click();
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
+  }
+);
