@@ -577,16 +577,16 @@ Given(
   }
 );
 
-// When('the admin user appoints one of the users as an editor', () => {
-//   cy.getByLabel({ label: 'Open', tag: 'button' }).click();
-//   cy.contains(dashboardCreatorUser.login).click();
-//   cy.getByTestId({ testId: 'add' }).should('be.enabled');
-//   cy.getByTestId({ testId: 'add' }).click();
-//   cy.getByTestId({ testId: `role-${dashboardCreatorUser.login}` }).realClick();
-//   cy.get('[role="listbox"]').contains('Editor').click();
-//   cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
-//   cy.wait('@updateShares');
-// });
+When('the admin user appoints one of the users as an editor', () => {
+  cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+  cy.contains(dashboardCreatorUser.login).click();
+  cy.getByTestId({ testId: 'add' }).should('be.enabled');
+  cy.getByTestId({ testId: 'add' }).click();
+  cy.getByTestId({ testId: `role-${dashboardCreatorUser.login}` }).realClick();
+  cy.get('[role="listbox"]').contains('Editor').click();
+  cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
+  cy.wait('@updateShares');
+});
 
 Then(
   'the newly appointed editor user can appoint another user as an editor',
@@ -623,37 +623,37 @@ Then(
       .contains(dashboardCGMember3.login)
       .should('exist');
 
-//     cy.get('[data-state="added"]').should('not.exist');
-//     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
-//   }
-// );
+    cy.get('[data-state="added"]').should('not.exist');
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+  }
+);
 
-// Then(
-//   'the newly appointed editor user can appoint another user as a viewer',
-//   () => {
-//     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-//     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
-//     cy.contains(dashboardViewerUser.login).click();
-//     cy.getByTestId({ testId: 'add' }).should('be.enabled');
-//     cy.getByTestId({ testId: 'add' }).click();
-//     cy.getByTestId({ testId: `role-${dashboardViewerUser.login}` }).realClick();
-//     cy.get('[role="listbox"]').contains('Viewer').click();
-//     cy.getByLabel({ label: 'Save', tag: 'button' })
-//       .should('be.enabled')
-//       .click();
-//     cy.wait('@updateShares');
-//     cy.wait('@getDashboard');
-//     cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
-//     cy.get('.MuiAlert-message').should('not.exist');
-//     cy.waitUntilForDashboardRoles('share', 5);
-//     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-//     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-//       .eq(1)
-//       .children()
-//       .contains(dashboardViewerUser.login)
-//       .should('exist');
+Then(
+  'the newly appointed editor user can appoint another user as a viewer',
+  () => {
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains(dashboardViewerUser.login).click();
+    cy.getByTestId({ testId: 'add' }).should('be.enabled');
+    cy.getByTestId({ testId: 'add' }).click();
+    cy.getByTestId({ testId: `role-${dashboardViewerUser.login}` }).realClick();
+    cy.get('[role="listbox"]').contains('Viewer').click();
+    cy.getByLabel({ label: 'Save', tag: 'button' })
+      .should('be.enabled')
+      .click();
+    cy.wait('@updateShares');
+    cy.wait('@getDashboard');
+    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+    cy.get('.MuiAlert-message').should('not.exist');
+    cy.waitUntilForDashboardRoles('share', 5);
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
+      .eq(1)
+      .children()
+      .contains(dashboardViewerUser.login)
+      .should('exist');
 
-//     cy.get('[data-state="added"]').should('not.exist');
-//     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
-//   }
-// );
+    cy.get('[data-state="added"]').should('not.exist');
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+  }
+);
