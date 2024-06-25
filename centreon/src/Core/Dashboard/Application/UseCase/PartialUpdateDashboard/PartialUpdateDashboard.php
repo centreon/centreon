@@ -225,7 +225,12 @@ final class PartialUpdateDashboard
                     $dashboard->getRefresh()->getRefreshInterval()
                 )
                 : new Refresh($request->refresh->refreshType, $request->refresh->refreshInterval)
-        ))->setDescription(NoValue::coalesce($request->description, $dashboard->getDescription()));
+        ))->setDescription(
+            NoValue::coalesce(
+                $request->description !== '' ? $request->description : null,
+                $dashboard->getDescription(),
+            ),
+        );
     }
 
     /**
