@@ -12,17 +12,13 @@ import { WidgetResourceType } from '../../../models';
 import {
   labelAddFilter,
   labelDelete,
-  labelHostCategory,
-  labelHostGroup,
   labelResourceType,
-  labelSelectAResource,
-  labelServiceCategory,
-  labelServiceGroup
+  labelSelectAResource
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import Resources from './Resources';
-import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';
+import { resourceTypeBaseEndpoints } from './useResources';
 
 import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
 

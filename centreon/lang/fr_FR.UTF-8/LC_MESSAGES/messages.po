@@ -19109,3 +19109,9 @@ msgstr "Axe"
 
 msgid "Tooltip"
 msgstr "Infobulle"
+
+msgid "Add filter"
+msgstr "Ajouter un filtre"
+
+msgid "Add resource dataset"
+msgstr "Ajouter un jeu de données de ressources"
