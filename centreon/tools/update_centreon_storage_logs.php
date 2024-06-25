@@ -60,18 +60,19 @@ $temporaryPath = null;
 /**
  * Check if the directory exist and add the character / at the end if it not exist
  *
- * @param string &$path Path to check
+ * @param string &$temporaryPath Path to check
+ *
  * @throws \Exception
  */
-function checkTemporaryDirectory(&$path)
+function checkTemporaryDirectory(&$temporaryPath)
 {
-    if (is_dir($path) === false) {
+    if (is_dir($temporaryPath) === false) {
         throw new \Exception(
-            'This path for temporary files (' . $path . ') does not exist'
+            'This path for temporary files (' . $temporaryPath . ') does not exist'
         );
     }
-    if (substr($path, -1, 1) != '/') {
-        $path .= '/';
+    if (substr($temporaryPath, -1, 1) != '/') {
+        $temporaryPath .= '/';
     }
 }
 
@@ -309,11 +310,11 @@ try {
         if (is_dir(TEMP_DIRECTORY) === false) {
             $temporaryPath = __DIR__;
         }
-        $path = askQuestion(
+        $pathDirectory = askQuestion(
             "Please to give the directory for temporary files [$temporaryPath]\n",
             false
         );
-        $temporaryPath = empty($path) ? $temporaryPath : $path;
+        $temporaryPath = empty($pathDirectory) ? $temporaryPath : $pathDirectory;
     }
 
     checkTemporaryDirectory($temporaryPath);

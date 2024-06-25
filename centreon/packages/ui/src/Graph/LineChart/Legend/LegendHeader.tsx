@@ -63,7 +63,10 @@ const LegendHeader = ({
         placement="top"
       >
         <div className={classes.markerAndLegendName}>
-          <div className={cx(classes.icon, { [classes.disabled]: disabled })} />
+          <div
+            data-icon
+            className={cx(classes.icon, { [classes.disabled]: disabled })}
+          />
           <EllipsisTypography
             className={cx(classes.text, classes.legendName)}
             data-mode={

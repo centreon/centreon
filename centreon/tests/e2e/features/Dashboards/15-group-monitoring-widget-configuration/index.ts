@@ -191,7 +191,10 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
   }
@@ -276,7 +279,10 @@ Then("the Group monitoring widget is added in the dashboard's layout", () => {
 
 Given('a dashboard that includes a configured Group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -322,7 +328,10 @@ Then(
 
 Given('a dashboard featuring two group monitoring widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoGroupMonitoringwidgets);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -353,7 +362,10 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard having a configured group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
 });
@@ -361,6 +373,8 @@ Given('a dashboard having a configured group monitoring widget', () => {
 When(
   'the dashboard administrator user duplicates the group monitoring widget',
   () => {
+    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
@@ -389,7 +403,10 @@ Then('the second widget has the same properties as the first widget', () => {
 
 Given('a dashboard configuring group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
