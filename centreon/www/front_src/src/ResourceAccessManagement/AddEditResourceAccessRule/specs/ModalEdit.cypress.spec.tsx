@@ -176,11 +176,11 @@ describe('Edit modal', () => {
     cy.findByText('Host').should('be.visible');
     cy.findByText('Centreon-Server').should('be.visible');
 
-    cy.findByText('Service category').should('be.visible');
-    cy.findByText('Ping').should('be.visible');
-    cy.findByText('Traffic').should('be.visible');
-    cy.findByText('Disk').should('be.visible');
-    cy.findByText('Memory').should('be.visible');
+    cy.findByText('Service').should('be.visible');
+    cy.findByText('Disk-/var').should('be.visible');
+    cy.findByText('Disk-/usr').should('be.visible');
+    cy.findByText('Disk-/opt').should('be.visible');
+    cy.findByText('Disk-/').should('be.visible');
 
     cy.makeSnapshot();
   });

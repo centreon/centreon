@@ -20,7 +20,11 @@ import {
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 
-import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
+import {
+  QueryParameter,
+  SelectEntry,
+  buildListingEndpoint
+} from '@centreon/ui';
 import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import {
@@ -60,12 +64,17 @@ interface UseResourcesState {
   deleteResource: (index: number) => () => void;
   deleteResourceItem: ({ index, option, resources }) => void;
   error: string | null;
-  getResourceResourceBaseEndpoint: (
-    resourceType: string
-  ) => (parameters) => string;
+  getResourceResourceBaseEndpoint: ({
+    index,
+    resourceType
+  }: {
+    index: number;
+    resourceType: string;
+  }) => (parameters) => string;
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
-  getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
+  getResourceTypeOptions: (index, resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
+  isLastResourceInTree: boolean;
   singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
 }
@@ -74,33 +83,6 @@ interface ResourceTypeOption {
   id: WidgetResourceType;
   name: string;
 }
-
-const resourceTypeOptions = [
-  {
-    id: WidgetResourceType.hostGroup,
-    name: labelHostGroup
-  },
-  {
-    id: WidgetResourceType.hostCategory,
-    name: labelHostCategory
-  },
-  {
-    id: WidgetResourceType.host,
-    name: labelHost
-  },
-  {
-    id: WidgetResourceType.serviceGroup,
-    name: labelServiceGroup
-  },
-  {
-    id: WidgetResourceType.serviceCategory,
-    name: labelServiceCategory
-  },
-  {
-    id: WidgetResourceType.service,
-    name: labelService
-  }
-];
 
 export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.host]: '/resources',
@@ -247,6 +229,13 @@ const useResources = ({
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
+      const isNotLastResourceTypeChanged = value?.length || 0 - 1 > index;
+
+      if (isNotLastResourceTypeChanged) {
+        const newValue = value?.slice(0, index + 1);
+        setFieldValue(`data.${propertyName}`, newValue);
+      }
+
       setFieldValue(
         `data.${propertyName}.${index}.resourceType`,
         e.target.value
@@ -361,7 +350,7 @@ const useResources = ({
   };
 
   const getResourceResourceBaseEndpoint =
-    (resourceType: string) =>
+    ({ index, resourceType }) =>
     (parameters): string => {
       const additionalResource = find(
         ({ resourceType: additionalResourceType }) =>
@@ -390,9 +379,7 @@ const useResources = ({
 
       return buildListingEndpoint({
         baseEndpoint: endpoint,
-        customQueryParameters: equals(resourceType, WidgetResourceType.service)
-          ? getServiceQueryParameters(hasMetricInputType)
-          : undefined,
+        customQueryParameters: getCustomQueryParameters(index, resourceType),
         parameters: {
           ...parameters,
           limit: 30,
@@ -516,6 +503,7 @@ const useResources = ({
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
+    isLastResourceInTree,
     singleResourceSelection: widgetProperties?.singleResourceSelection,
     value: value || []
   };

@@ -305,6 +305,22 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
+  it('confirms that the Refine filter button is disabled and the Add new dataset button is enabled when a dataset for a service is selected', () => {
+    cy.findByText(labelAddFilter).should('be.disabled');
+    cy.findByText(labelAddNewDataset).should('be.disabled');
+
+    cy.findByLabelText(labelSelectResourceType).click();
+    cy.findByText('Service').click();
+    cy.findByTestId(labelSelectResource).click();
+    cy.waitForRequest('@findServicesEndpoint');
+    cy.findByText('Ping').click();
+
+    cy.findByText(labelAddFilter).should('be.disabled');
+    cy.findByText(labelAddNewDataset).should('not.be.disabled');
+
+    cy.makeSnapshot();
+  });
+
   it('confirms that the Delete dataset filters button is visible when at least two dataset filters are selected', () => {
     fillFormRequiredFields();
 

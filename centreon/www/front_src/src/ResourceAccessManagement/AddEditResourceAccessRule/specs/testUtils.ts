@@ -414,12 +414,12 @@ export const findResourceAccessRuleResponse = (): object => ({
     {
       dataset_filter: null,
       resources: [
-        { id: 1, name: 'Ping' },
-        { id: 2, name: 'Traffic' },
-        { id: 3, name: 'Disk' },
-        { id: 4, name: 'Memory' }
+        { id: 23, name: 'Disk-/var' },
+        { id: 22, name: 'Disk-/usr' },
+        { id: 21, name: 'Disk-/opt' },
+        { id: 19, name: 'Disk-/' }
       ],
-      type: 'service_category'
+      type: 'service'
     }
   ],
   description: 'First rule',

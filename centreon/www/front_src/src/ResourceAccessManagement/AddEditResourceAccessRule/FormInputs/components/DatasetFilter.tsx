@@ -57,9 +57,7 @@ const DatasetFilter = ({
       <ItemComposition
         IconAdd={<AddIcon />}
         addbuttonDisabled={
-          !areResourcesFilled(datasetFilter) ||
-          lowestResourceTypeReached() ||
-          equals(datasetFilter[0].resourceType, ResourceTypeEnum.All)
+          !areResourcesFilled(datasetFilter) || lowestResourceTypeReached()
         }
         labelAdd={t(labelAddFilter)}
         onAddItem={addResource}

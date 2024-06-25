@@ -11,6 +11,7 @@ export enum ResourceTypeEnum {
   HostCategory = 'host_category',
   HostGroup = 'hostgroup',
   MetaService = 'meta_service',
+  Service = 'service',
   ServiceCategory = 'service_category',
   ServiceGroup = 'servicegroup'
 }
