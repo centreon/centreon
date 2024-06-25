@@ -1,3 +1,4 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -11,6 +12,7 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
 import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
 import metricsGraphWithMultipleHosts from '../../../fixtures/dashboards/creation/widgets/metricsGraphWithMultipleHosts.json';
+import metricsGraphWithMultipleMetrics from '../../../fixtures/dashboards/creation/widgets/dashboardWithMetricsGraphWidgetWithMultipleMetrics.json';
 
 const services = {
   serviceCritical: {
@@ -510,5 +512,126 @@ Then(
   'only the services associated with the selected hosts should be displayed',
   () => {
     cy.contains('Ping').should('be.visible');
+  }
+);
+
+Given(
+  'a dashboard featuring a configured Metrics Graph widget with multiple metrics',
+  () => {
+    cy.insertDashboardWithWidget(
+      dashboards.default,
+      metricsGraphWithMultipleMetrics
+    );
+    cy.editDashboard(dashboards.default.name);
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByLabel({
+      label: 'Edit widget',
+      tag: 'li'
+    }).realClick();
+    cy.wait('@performanceData');
+  }
+);
+
+When('the dashboard administrator activates the curve points settings', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByLabel({
+    label: 'Display curve points',
+    tag: 'input'
+  }).click();
+});
+
+Then('the curve points should be displayed on the graph', () => {
+  cy.get('circle').should('have.length.greaterThan', 0);
+});
+
+When('the dashboard administrator clicks on the custom button', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByLabel({
+    label: 'Display curve points',
+    tag: 'input'
+  }).realClick();
+  cy.getByLabel({
+    label: 'Custom',
+    tag: 'button'
+  }).click();
+});
+
+When(
+  'the dashboard administrator updates the line width settings using the gauge',
+  () => {
+    cy.get('#sliderinput').eq(0).type('10');
+  }
+);
+
+Then('the line width should be updated in the graph', () => {
+  cy.get('path[stroke-width="10"]').should('exist');
+});
+
+When('the dashboard administrator clicks on the show button', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByTestId({ testId: 'show' }).click();
+});
+
+When('the dashboard administrator updates the opacity using the gauge', () => {
+  cy.get('#sliderinput').eq(0).type('100%');
+});
+
+Then('the opacity should be updated in the graph', () => {
+  cy.get('path[fill^="rgba"][fill$=", 1)"]').should('exist');
+});
+
+When('the dashboard administrator clicks on the Dashed button', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByTestId({ testId: 'dash' }).click();
+});
+
+When(
+  'the dashboard administrator updates the dash and space input values',
+  () => {
+    cy.getByLabel({
+      label: 'Dash width',
+      tag: 'input'
+    })
+      .clear()
+      .type('7');
+    cy.getByLabel({
+      label: 'Space',
+      tag: 'input'
+    })
+      .clear()
+      .type('7');
+  }
+);
+
+Then('the line style should be updated based on the changed values', () => {
+  cy.get('path[stroke-dasharray="7 7"]').should('exist');
+});
+
+When('the dashboard administrator clicks on the zero-centred button', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByLabel({
+    label: 'Zero-centered',
+    tag: 'input'
+  }).click();
+});
+
+Then(
+  'the Metrics Graph widget should be refreshed to center the values around 0',
+  () => {
+    cy.get('text').contains('tspan', '0 ms').should('exist');
+  }
+);
+
+When('the dashboard administrator selects the list display mode', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByTestId({ testId: 'list' }).click();
+});
+
+Then(
+  'the Metrics Graph widget should refresh to display items in a list format',
+  () => {
+    cy.get(
+      'div[class$="-items"][data-as-list="true"][data-mode="normal"]'
+    ).should('exist');
   }
 );
