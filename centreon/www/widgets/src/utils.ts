@@ -250,9 +250,23 @@ export const formatStatusFilter = cond([
   [T, identity]
 ]) as (b: SeverityStatus) => Array<string>;
 
+export const formatBAStatusFilter = cond([
+  [equals(SeverityStatus.Success), always('ok')],
+  [equals(SeverityStatus.Warning), always('warning')],
+  [equals(SeverityStatus.Problem), always('critical')],
+  [equals(SeverityStatus.Undefined), always('unknown')],
+  [equals(SeverityStatus.Pending), always('pending')],
+  [T, identity]
+]) as (b: SeverityStatus) => string;
+
 export const formatStatus = pipe(
   map(formatStatusFilter),
   flatten,
+  map((status) => status.toLocaleUpperCase())
+);
+
+export const formatBAStatus = pipe(
+  map(formatBAStatusFilter),
   map((status) => status.toLocaleUpperCase())
 );
 

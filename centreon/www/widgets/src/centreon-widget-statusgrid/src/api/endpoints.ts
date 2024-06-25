@@ -1,4 +1,12 @@
-import { equals, flatten, includes, isEmpty, pluck, toUpper } from 'ramda';
+import {
+  equals,
+  flatten,
+  includes,
+  isEmpty,
+  isNil,
+  pluck,
+  toUpper
+} from 'ramda';
 
 import {
   ListingParameters,
@@ -7,10 +15,16 @@ import {
 } from '@centreon/ui';
 
 import { Resource } from '../../../models';
-import { formatStatus } from '../../../utils';
+import { formatBAStatus, formatStatus } from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const hostsEndpoint = '/monitoring/resources/hosts';
+
+export const baIndicatorsEndpoint =
+  '/bam/monitoring/business-activities/indicators';
+export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
+export const getBAEndpoint = (id): string =>
+  `/bam/monitoring/business-activities/${id}`;
 
 interface BuildResourcesEndpointProps {
   baseEndpoint: string;
@@ -197,8 +211,59 @@ export const buildCondensedViewEndpoint = ({
   });
 };
 
-export const baIndicatorsEndpoint =
-  '/bam/monitoring/business-activities/indicators';
-export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
-export const getBAEndpoint = (id): string =>
-  `/bam/monitoring/business-activities/${id}`;
+export const buildBAsEndpoint = ({
+  limit,
+  statuses,
+  type,
+  resources,
+  sortBy
+}): string => {
+  const baseEndpoint = equals(type, 'business-activity')
+    ? baIndicatorsEndpoint
+    : businessActivitiesEndpoint;
+
+  const formattedStatuses = formatBAStatus(statuses || []);
+
+  const sortOrder = equals(sortBy, 'status_severity_code') ? 'DESC' : 'ASC';
+  const sortField = equals(sortBy, 'status_severity_code') ? 'status' : 'name';
+
+  const resourcesSearchValue =
+    isEmpty(resources) || isNil(resources)
+      ? []
+      : [
+          {
+            [`${type.replace('-', '_')}.name`]: {
+              $in: pluck('name', resources)
+            }
+          }
+        ];
+  const statusesSearchValue =
+    isEmpty(statuses) || isNil(statuses)
+      ? []
+      : [
+          {
+            status: {
+              $in: formattedStatuses
+            }
+          }
+        ];
+
+  const search = {
+    name: 'search',
+    value: [...resourcesSearchValue, ...statusesSearchValue]
+  };
+
+  return buildListingEndpoint({
+    baseEndpoint,
+    customQueryParameters: [search],
+    parameters: {
+      limit,
+      sort:
+        sortField && sortOrder
+          ? {
+              [sortField]: sortOrder
+            }
+          : undefined
+    }
+  });
+};

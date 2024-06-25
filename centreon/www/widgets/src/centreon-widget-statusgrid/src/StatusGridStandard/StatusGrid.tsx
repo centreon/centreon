@@ -15,9 +15,8 @@ import {
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import {
-  baIndicatorsEndpoint,
+  buildBAsEndpoint,
   buildResourcesEndpoint,
-  businessActivitiesEndpoint,
   hostsEndpoint,
   resourcesEndpoint
 } from '../api/endpoints';
@@ -78,33 +77,30 @@ const StatusGrid = ({
     'business-activity'
   );
 
-  const getBaseEndpoint = (): string => {
-    if (isBVResourceType) {
-      return businessActivitiesEndpoint;
-    }
-    if (isBAResourceType) {
-      return baIndicatorsEndpoint;
-    }
-    if (equals(resourceType, 'host')) {
-      return hostsEndpoint;
-    }
-
-    return resourcesEndpoint;
-  };
-
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       getWidgetEndpoint({
         dashboardId,
-        defaultEndpoint: buildResourcesEndpoint({
-          baseEndpoint: getBaseEndpoint(),
-          limit: tiles,
-          resources,
-          sortBy,
-          states: [],
-          statuses,
-          type: resourceType
-        }),
+        defaultEndpoint:
+          isBVResourceType || isBAResourceType
+            ? buildBAsEndpoint({
+                limit: tiles,
+                resources: last(panelData?.resources)?.resources,
+                sortBy,
+                statuses,
+                type: lastSelectedResourceType
+              })
+            : buildResourcesEndpoint({
+                baseEndpoint: equals(resourceType, 'host')
+                  ? hostsEndpoint
+                  : resourcesEndpoint,
+                limit: tiles,
+                resources,
+                sortBy,
+                states: [],
+                statuses,
+                type: resourceType
+              }),
         isOnPublicPage,
         playlistHash,
         widgetId
@@ -161,7 +157,7 @@ const StatusGrid = ({
               is_acknowledged,
               is_in_downtime,
               metricsEndpoint: links?.endpoints.metrics,
-              name,
+              name: name || resource?.name,
               parentId: parent?.id || resource?.parent_id,
               parentName: parent?.name || resource?.parent_name,
               parentStatus: parent?.status?.severity_code,
