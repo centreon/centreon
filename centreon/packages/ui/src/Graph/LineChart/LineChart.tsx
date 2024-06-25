@@ -93,11 +93,10 @@ const LineChart = ({
     pluck('value', thresholds?.critical || [])
   ]);
 
-  const { displayedLines } = useFilterLines({
+  const { displayedLines, newLines } = useFilterLines({
     displayThreshold: canDisplayThreshold(shapeLines?.areaThresholdLines),
     lines,
-    linesGraph,
-    setLinesGraph
+    linesGraph
   });
 
   const [, secondUnit] = getUnits(displayedLines);
@@ -106,6 +105,7 @@ const LineChart = ({
     hasSecondUnit: Boolean(secondUnit),
     height,
     legendDisplay: legend?.display,
+    legendHeight: legend?.height,
     legendPlacement: legend?.placement,
     width
   });
@@ -198,13 +198,14 @@ const LineChart = ({
           height={height}
           legend={{
             displayLegend,
+            legendHeight: legend?.height,
             mode: legend?.mode,
             placement: legend?.placement,
             renderExtraComponent: legend?.renderExtraComponent
           }}
           legendRef={legendRef}
           limitLegend={limitLegend}
-          lines={displayedLines}
+          lines={newLines}
           setLines={setLinesGraph}
           title={title}
         >
