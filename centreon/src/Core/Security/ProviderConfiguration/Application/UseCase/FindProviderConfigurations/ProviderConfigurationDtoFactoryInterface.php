@@ -21,21 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderResponse;
+namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations;
 
-interface ProviderResponseInterface
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+
+interface ProviderConfigurationDtoFactoryInterface
 {
     /**
-     * Get provider type (ex: local, openid, ...).
+     * Validate Factory is valid for provider type.
      *
-     * @return string
+     * @param string $type
+     *
+     * @return bool
      */
-    public function getType(): string;
+    public function supports(string $type): bool;
 
     /**
-     * @param mixed $configuration
+     * @param Configuration $configuration
      *
-     * @return self
+     * @throws OpenIdConfigurationException
+     * @throws \Throwable
+     *
+     * @return ProviderConfigurationDto
      */
-    public static function create(mixed $configuration): self;
+    public function createResponse(Configuration $configuration): ProviderConfigurationDto;
 }
