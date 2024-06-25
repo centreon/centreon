@@ -18774,7 +18774,7 @@ msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
 msgid "Error while retrieving the number of services by status"
 msgstr "Erreur lors de la récupération du nombre de services par statut"
 
-msgid "Error while adding a broker input/output"
+msgid "Error while adding a Broker input/output"
 msgstr "Erreur lors de l'ajout d'une entrée/sortie Centreon Broker"
 
 msgid "You are not allowed to edit a broker configuration"
@@ -18783,8 +18783,8 @@ msgstr "Vous n'êtes pas autorisé à éditer une configuration Broker"
 msgid "Broker configuration #%d not found"
 msgstr "Configuration Broker #%d introuvable"
 
-msgid "Missing input/output parameter: %s"
-msgstr "Paramètre d'entrée/sortie manquant: %s"
+msgid "Missing the input/output parameter: %s"
+msgstr "Ce paramètre d'entrée/sortie est manquant : %s"
 
 msgid "Parameter '%s' (%s) is invalid"
 msgstr "Le paramètre '%s' (%s) est invalide"
@@ -18792,8 +18792,8 @@ msgstr "Le paramètre '%s' (%s) est invalide"
 msgid "Parameter '%s' of type %s is invalid"
 msgstr "Le paramètre '%s' de type %s est invalide"
 
-msgid "Input/Output #%d not found for broker configuration #%d"
-msgstr "Entrée/Sortie #%d introuvable pour la configuration Broker #%d"
+msgid "Input/Output #%d is not found for the Broker configuration #%d"
+msgstr "L'entrée/sortie #%d est introuvable pour la configuration Broker #%d"
 
 msgid "Display resources with this unit"
 msgstr "Afficher les ressources avec cette unité"
@@ -18855,7 +18855,7 @@ msgstr "Toutes les ressources"
 msgid "All resources selected"
 msgstr "Toutes les ressources sont sélectionnées"
 
-msgid "Error while updating a broker input/output"
+msgid "Error while updating a Broker input/output"
 msgstr "Erreur lors de la mise à jour d'une entrée/sortie Centreon Broker"
 
 msgid "Action not permitted for output of type '%s'"

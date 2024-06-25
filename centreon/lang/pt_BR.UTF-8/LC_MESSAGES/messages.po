@@ -17468,7 +17468,7 @@ msgstr ""
 # msgid "The resource access rule was successfully deleted"
 # msgstr ""
 
-#  msgid "Error while adding a broker input/output"
+#  msgid "Error while adding a Broker input/output"
 #  msgstr ""
 
 #  msgid "You are not allowed to edit a broker configuration"
@@ -17477,7 +17477,7 @@ msgstr ""
 #  msgid "Broker configuration #%d not found"
 #  msgstr ""
 
-#  msgid "Missing input/output parameter: %s"
+#  msgid "Missing the input/output parameter: %s"
 #  msgstr ""
 
 #  msgid "Parameter '%s' (%s) is invalid"
@@ -17486,7 +17486,7 @@ msgstr ""
 #  msgid "Parameter '%s' of type %s is invalid"
 #  msgstr ""
 
-#  msgid "Input/Output #%d not found for broker configuration #%d"
+#  msgid "Input/Output #%d is not found for the Broker configuration #%d"
 #  msgstr ""
 
 # msgid "Rules are used to allow users to access resources."
@@ -17546,7 +17546,7 @@ msgstr ""
 # msgid "All resources selected"
 # msgstr ""
 
-#  msgid "Error while updating a broker input/output"
+#  msgid "Error while updating a Broker input/output"
 #  msgstr ""
 
 #  msgid "Action not permitted for output of type '%s'"

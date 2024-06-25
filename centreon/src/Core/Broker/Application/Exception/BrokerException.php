@@ -33,7 +33,7 @@ class BrokerException extends \Exception
      */
     public static function addBrokerInputOutput(): self
     {
-        return new self(_('Error while adding a broker input/output'));
+        return new self(_('Error while adding a Broker input/output'));
     }
 
     /**
@@ -41,7 +41,7 @@ class BrokerException extends \Exception
      */
     public static function updateBrokerInputOutput(): self
     {
-        return new self(_('Error while updating a broker input/output'));
+        return new self(_('Error while updating a Broker input/output'));
     }
 
     /**
@@ -84,7 +84,7 @@ class BrokerException extends \Exception
     public static function missingParameter(string $propertyName): self
     {
         return new self(
-            sprintf(_('Missing input/output parameter: %s'), $propertyName),
+            sprintf(_('Missing the input/output parameter: %s'), $propertyName),
             self::CODE_INVALID
         );
     }
@@ -129,7 +129,7 @@ class BrokerException extends \Exception
      */
     public static function inputOutputNotFound(int $brokerId, int $outputId): self
     {
-        return new self(sprintf(_('Input/Output #%d not found for broker configuration #%d'), $outputId, $brokerId));
+        return new self(sprintf(_('Input/Output #%d is not found for the Broker configuration #%d'), $outputId, $brokerId));
     }
 
     /**
