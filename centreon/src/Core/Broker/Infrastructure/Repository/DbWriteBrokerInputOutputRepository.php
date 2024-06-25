@@ -24,16 +24,16 @@ declare(strict_types=1);
 namespace Core\Broker\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
-use Core\Broker\Application\Repository\WriteBrokerOutputRepositoryInterface;
-use Core\Broker\Domain\Model\BrokerOutput;
-use Core\Broker\Domain\Model\BrokerOutputField;
-use Core\Broker\Domain\Model\NewBrokerOutput;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
+use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\BrokerInputOutputField;
+use Core\Broker\Domain\Model\NewBrokerInputOutput;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 /**
- * @phpstan-import-type _BrokerOutputParameter from \Core\Broker\Domain\Model\BrokerOutput
+ * @phpstan-import-type _BrokerInputOutputParameter from \Core\Broker\Domain\Model\BrokerInputOutput
  */
-class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements WriteBrokerOutputRepositoryInterface
+class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implements WriteBrokerInputOutputRepositoryInterface
 {
     /**
      * @param DatabaseConnection $db
@@ -46,52 +46,59 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function add(NewBrokerOutput $output, int $brokerId, array $outputFields): int
+    public function add(NewBrokerInputOutput $inputOutput, int $brokerId, array $fields): int
     {
-        $outputId = $this->getNextOutputId($brokerId);
+        $inputOutputId = $this->getNextOutputId($brokerId, $inputOutput->getTag());
 
-        $this->addOutput($brokerId, $outputId, $output, $outputFields);
+        $this->addOutput($brokerId, $inputOutputId, $inputOutput, $fields);
 
-        return $outputId;
+        return $inputOutputId;
     }
 
     /**
      * @inheritDoc
      */
-    public function update(BrokerOutput $output, int $brokerId, array $outputFields): void
+    public function update(BrokerInputOutput $inputOutput, int $brokerId, array $fields): void
     {
-        $this->delete($brokerId, $output->getId());
-        $this->addOutput($brokerId, $output->getId(), $output, $outputFields);
+        $this->delete($brokerId, $inputOutput->getTag(), $inputOutput->getId());
+        $this->addOutput($brokerId, $inputOutput->getId(), $inputOutput, $fields);
     }
 
     /**
      * @inheritDoc
      */
-    public function delete(int $brokerId, int $outputId): void
+    public function delete(int $brokerId, string $tag, int $inputOutputId): void
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 DELETE FROM cfg_centreonbroker_info
                 WHERE config_id = :brokerId
                     AND config_group_id = :outputId
+                    AND config_group = :tag
                 SQL
         ));
 
-        $statement->bindValue(':outputId', $outputId, \PDO::PARAM_INT);
+        $statement->bindValue(':outputId', $inputOutputId, \PDO::PARAM_INT);
         $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
+        $statement->bindValue(':tag', $tag, \PDO::PARAM_STR);
 
         $statement->execute();
     }
 
     /**
      * @param int $brokerId
-     * @param int $outputId
-     * @param BrokerOutput|NewBrokerOutput $output
-     * @param array<string,BrokerOutputField|array<string,BrokerOutputField>> $outputFields
+     * @param int $inputOutputId
+     * @param BrokerInputOutput|NewBrokerInputOutput $inputOutput
+     * @param array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>> $fields
      *
      * @throws \Throwable
      */
-    private function addOutput(int $brokerId, int $outputId, BrokerOutput|NewBrokerOutput $output, array $outputFields): void
+    private function addOutput(
+        int $brokerId,
+        int $inputOutputId,
+        BrokerInputOutput|NewBrokerInputOutput $inputOutput,
+        array $fields
+    ): void
     {
         $query = <<<'SQL'
             INSERT INTO `:db`.`cfg_centreonbroker_info` (
@@ -109,26 +116,28 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
 
         $inserts = [];
         $inserts[] = <<<'SQL'
-            (:brokerId, 'type', :typeName, 'output', :outputId, 0, null, null, null)
+            (:brokerId, 'type', :typeName, :tag, :inputOutputId, 0, null, null, null)
             SQL;
         $inserts[] = <<<'SQL'
-            (:brokerId, 'name', :name, 'output', :outputId, 0, null, null, null)
+            (:brokerId, 'name', :name, :tag, :inputOutputId, 0, null, null, null)
             SQL;
         $inserts[] = <<<'SQL'
-            (:brokerId, 'blockId', :blockId, 'output', :outputId, 0, null, null, null)
+            (:brokerId, 'blockId', :blockId, :tag, :inputOutputId, 0, null, null, null)
             SQL;
 
-        [$paramInserts, $bindValues] = $this->getInsertQueries($outputFields, $output->getParameters());
+        [$paramInserts, $bindValues] = $this->getInsertQueries($fields, $inputOutput->getParameters());
         $inserts = [...$inserts, ...$paramInserts];
 
         $request = $query . ' ' . implode(',', $inserts);
         $statement = $this->db->prepare($this->translateDbName($request));
 
-        $statement->bindValue(':outputId', $outputId, \PDO::PARAM_INT);
+        $statement->bindValue(':inputOutputId', $inputOutputId, \PDO::PARAM_INT);
         $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
-        $statement->bindValue(':typeName', $output->getType()->name, \PDO::PARAM_STR);
-        $statement->bindValue(':name', $output->getName(), \PDO::PARAM_STR);
-        $statement->bindValue(':blockId', "1_{$output->getType()->id}", \PDO::PARAM_STR);
+        $statement->bindValue(':typeName', $inputOutput->getType()->name, \PDO::PARAM_STR);
+        $statement->bindValue(':tag', $inputOutput->getTag(), \PDO::PARAM_STR);
+        $statement->bindValue(':name', $inputOutput->getName(), \PDO::PARAM_STR);
+        $blockId = ($inputOutput->getTag() === 'input' ? '2' : '1') . "_{$inputOutput->getType()->id}";
+        $statement->bindValue(':blockId', $blockId, \PDO::PARAM_STR);
         foreach ($bindValues as $key => $value) {
             if (str_starts_with($key, ':key_') || str_starts_with($key, ':value_')) {
                 $statement->bindValue($key, $value, \PDO::PARAM_STR);
@@ -141,13 +150,13 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
     }
 
     /**
-     * Build the insert elements of the add output query.
+     * Build the insert elements of the add input/output query.
      * Return an array containing :
      * - an array of the query elements
      * - an array of all the values to bind.
      *
-     * @param array<string,BrokerOutputField|array<string,BrokerOutputField>> $fields expected fields informations for the output
-     * @param _BrokerOutputParameter[] $values output parameter values
+     * @param array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>> $fields expected fields informations for the input/output
+     * @param _BrokerInputOutputParameter[] $values input/output parameter values
      *
      * @return array{string[],array<int|string|null>}
      */
@@ -178,7 +187,7 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
                     $multiselectBindValues = [];
 
                     $multiselectInserts[] = <<<SQL
-                        (:brokerId, :key_{$index}, :value_{$index}, 'output', :outputId, 0, 1, null, null)
+                        (:brokerId, :key_{$index}, :value_{$index}, :tag, :inputOutputId, 0, 1, null, null)
                         SQL;
 
                     $multiselectBindValues[":key_{$index}"] = $fieldName;
@@ -196,8 +205,8 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
                                 :brokerId,
                                 :key_{$composedIndex},
                                 :value_{$composedIndex},
-                                'output',
-                                :outputId,
+                                :tag,
+                                :inputOutputId,
                                 1,
                                 null,
                                 1,
@@ -256,8 +265,8 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
                                     :brokerId,
                                     :key_{$composedIndex},
                                     :value_{$composedIndex},
-                                    'output',
-                                    :outputId,
+                                    :tag,
+                                    :inputOutputId,
                                     0,
                                     null,
                                     null,
@@ -294,7 +303,7 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
 
                 // simple field
                 $inserts[] = <<<SQL
-                    (:brokerId, :key_{$index}, :value_{$index}, 'output', :outputId, 0, null, null, null)
+                    (:brokerId, :key_{$index}, :value_{$index}, :tag, :inputOutputId, 0, null, null, null)
                     SQL;
 
                 $bindValues[":key_{$index}"] = $fieldName;
@@ -307,16 +316,17 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
         return [$inserts, $bindValues];
     }
 
-    private function getNextOutputId(int $brokerId): int
+    private function getNextOutputId(int $brokerId, string $tag): int
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 SELECT MAX(config_group_id)
                 FROM `:db`.`cfg_centreonbroker_info`
-                WHERE config_id = :brokerId && config_group = 'output'
+                WHERE config_id = :brokerId && config_group = :tag
                 SQL
         ));
         $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
+        $statement->bindValue(':tag', $tag, \PDO::PARAM_STR);
         $statement->execute();
 
        return ((int) $statement->fetchColumn()) + 1;

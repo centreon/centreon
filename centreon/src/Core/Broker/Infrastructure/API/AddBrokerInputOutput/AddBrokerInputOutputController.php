@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,28 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Core\Broker\Infrastructure\API\AddBrokerOutput;
+namespace Core\Broker\Infrastructure\API\AddBrokerInputOutput;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Broker\Application\Exception\BrokerException;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutput;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutputRequest;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\AddBrokerInputOutput;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\AddBrokerInputOutputRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-final class AddBrokerOutputController extends AbstractController
+final class AddBrokerInputOutputController extends AbstractController
 {
     use LoggerTrait;
 
     /**
      * @param int $brokerId
+     * @param string $tag
      * @param Request $request
-     * @param AddBrokerOutput $useCase
-     * @param AddBrokerOutputPresenter $presenter
+     * @param AddBrokerInputOutput $useCase
+     * @param AddBrokerInputOutputPresenter $presenter
      *
      * @throws AccessDeniedException
      *
@@ -50,13 +51,14 @@ final class AddBrokerOutputController extends AbstractController
      */
     public function __invoke(
         int $brokerId,
+        string $tag,
         Request $request,
-        AddBrokerOutput $useCase,
-        AddBrokerOutputPresenter $presenter,
+        AddBrokerInputOutput $useCase,
+        AddBrokerInputOutputPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $dto = new AddBrokerOutputRequest();
+        $dto = new AddBrokerInputOutputRequest();
 
         try {
             /**
@@ -66,9 +68,10 @@ final class AddBrokerOutputController extends AbstractController
              *     parameters: array<string,mixed>
              * } $data
              */
-            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddBrokerOutputSchema.json');
+            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddBrokerInputOutputSchema.json');
 
             $dto->brokerId = $brokerId;
+            $dto->tag = $tag === 'inputs' ? 'input' : 'output';
             $dto->name = $data['name'];
             $dto->type = $data['type'];
             $dto->parameters = $data['parameters'];
@@ -78,7 +81,7 @@ final class AddBrokerOutputController extends AbstractController
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse(BrokerException::addBrokerOutput()));
+            $presenter->setResponseStatus(new ErrorResponse(BrokerException::addBrokerInputOutput()));
         }
 
         $useCase($dto, $presenter);

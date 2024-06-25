@@ -77,7 +77,7 @@ final class UpdateStreamConnectorFileController extends AbstractController
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse(BrokerException::updateBrokerOutput()));
+            $presenter->setResponseStatus(new ErrorResponse(BrokerException::updateBrokerInputOutput()));
         }
 
         return $presenter->show();

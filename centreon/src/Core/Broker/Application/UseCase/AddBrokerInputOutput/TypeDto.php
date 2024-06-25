@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Broker\Application\UseCase\AddBrokerOutput;
+namespace Core\Broker\Application\UseCase\AddBrokerInputOutput;
 
 final class TypeDto
 {

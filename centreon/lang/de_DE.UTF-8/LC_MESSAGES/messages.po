@@ -16596,7 +16596,7 @@ msgstr "Erweiterter Modus"
 # msgid "The resource access rule was successfully deleted"
 # msgstr ""
 
-#  msgid "Error while adding a broker output"
+#  msgid "Error while adding a Broker input/output"
 #  msgstr ""
 
 #  msgid "You are not allowed to edit a broker configuration"
@@ -16605,7 +16605,7 @@ msgstr "Erweiterter Modus"
 #  msgid "Broker configuration #%d not found"
 #  msgstr ""
 
-#  msgid "Missing output parameter: %s"
+#  msgid "Missing input/output parameter: %s"
 #  msgstr ""
 
 #  msgid "Parameter '%s' (%s) is invalid"
@@ -16614,7 +16614,7 @@ msgstr "Erweiterter Modus"
 #  msgid "Parameter '%s' of type %s is invalid"
 #  msgstr ""
 
-#  msgid "Output #%d not found for broker configuration #%d"
+#  msgid "Input/Output #%d not found for Broker configuration #%d"
 #  msgstr ""
 
 # msgid "Displays a detailed view of the current status for selected resources as a chart."
@@ -16745,7 +16745,7 @@ msgstr "Erweiterter Modus"
 # msgid "All resources selected"
 # msgstr ""
 
-#  msgid "Error while updating a broker output"
+#  msgid "Error while updating a Broker input/output"
 #  msgstr ""
 
 #  msgid "Action not permitted for output of type '%s'"
