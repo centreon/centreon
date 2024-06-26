@@ -31,6 +31,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\MonitoringServer\Infrastructure\Repository\MonitoringServerRepositoryTrait;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
@@ -40,7 +41,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  */
 class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements MonitoringServerRepositoryInterface
 {
-    use SqlMultipleBindTrait;
+    use MonitoringServerRepositoryTrait, SqlMultipleBindTrait;
 
     /**
      * @var SqlRequestParametersTranslator
@@ -282,6 +283,10 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
+
+        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+            return $this->findServer($monitoringServerId);
+        }
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group_id_');
 
