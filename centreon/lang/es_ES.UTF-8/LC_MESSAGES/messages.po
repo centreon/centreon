@@ -17357,3 +17357,8 @@ msgstr "Modo avanzado"
 # msgid "Not marked as favorite"
 # msgstr ""
 
+# msgid "Add filter"
+# msgstr ""
+
+# msgid "Add resource dataset"
+# msgstr ""

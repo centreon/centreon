@@ -43,6 +43,7 @@ beforeEach(closure: function (): void {
         writeRepository: $this->writeRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         accessGroupRepository: $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        isCloudPlatform: true
     );
 
     $this->presenter = new DeleteRulePresenterStub($this->createMock(PresenterFormatterInterface::class));

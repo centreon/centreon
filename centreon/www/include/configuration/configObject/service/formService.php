@@ -793,11 +793,12 @@ if ($o === SERVICE_MASSIVE_CHANGE) {
 $sgReadOnly = false;
 if ($form_service_type === 'BYHOST') {
     if ($isCloudPlatform) {
+        $defaultDataset = [];
         if ($service_id !== false) {
             $hostsBounded = findHostsOfService($service_id);
             $defaultDataset = (! empty($hostsBounded))
-            ? ['0' => $hostsBounded[0]]
-            : [];
+                ? ['0' => $hostsBounded[0]]
+                : [];
         };
         $form->addElement(
             'select2',
