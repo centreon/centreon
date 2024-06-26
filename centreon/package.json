@@ -146,6 +146,7 @@
     "file-saver": "^2.0.5",
     "formik": "^2.4.5",
     "html-react-parser": "^5.1.10",
+    "html-to-image": "^1.11.11",
     "i18next": "^23.11.3",
     "intl-pluralrules": "^2.0.1",
     "jotai": "2.8.0",
