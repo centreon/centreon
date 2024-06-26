@@ -312,11 +312,11 @@ describe('Dashboards', () => {
       cy.contains('My Dashboard').should('be.visible');
       cy.contains('My Dashboard 2').should('be.visible');
 
-      cy.findAllByTestId('FavoriteIcon')
+      cy.findAllByTestId('BookmarkIcon')
         .eq(1)
         .should('have.class', 'MuiSvgIcon-colorDisabled');
 
-      cy.findAllByTestId('FavoriteIcon')
+      cy.findAllByTestId('BookmarkIcon')
         .eq(0)
         .should('have.class', 'MuiSvgIcon-colorSuccess');
 
@@ -338,11 +338,11 @@ describe('Dashboards', () => {
       cy.contains('My Dashboard').should('be.visible');
       cy.contains('My Dashboard 2').should('be.visible');
 
-      cy.findAllByTestId('FavoriteIcon')
+      cy.findAllByTestId('BookmarkIcon')
         .eq(1)
         .should('have.class', 'MuiSvgIcon-colorDisabled');
 
-      cy.findAllByTestId('FavoriteIcon')
+      cy.findAllByTestId('BookmarkIcon')
         .eq(0)
         .should('have.class', 'MuiSvgIcon-colorSuccess');
 

@@ -516,7 +516,7 @@ describe('Dashboard', () => {
     cy.contains('Generic text').should('be.visible');
     cy.contains('Description').should('be.visible');
 
-    cy.findByTestId('FavoriteIcon').should(
+    cy.findByTestId('BookmarkAddIcon').should(
       'have.class',
       'MuiSvgIcon-colorDisabled'
     );
@@ -573,9 +573,9 @@ describe('Dashboard', () => {
     cy.contains('Generic text').should('be.visible');
     cy.contains('Description').should('be.visible');
 
-    cy.findByTestId('FavoriteIcon').click();
+    cy.findByTestId('BookmarkAddIcon').click();
 
-    cy.findByTestId('FavoriteIcon').should(
+    cy.findByTestId('BookmarkRemoveIcon').should(
       'have.class',
       'MuiSvgIcon-colorSuccess'
     );
