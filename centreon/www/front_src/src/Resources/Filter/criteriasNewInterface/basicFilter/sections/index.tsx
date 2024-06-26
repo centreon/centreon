@@ -54,7 +54,6 @@ const SectionWrapper = ({
                     ? BasicCriteria.parentNames
                     : BasicCriteria.names
                 }
-                isDeactivated={deactivateInput(sectionType)}
                 searchData={searchData}
                 sectionType={sectionType}
               />
