@@ -21,11 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Broker\Application\UseCase\AddBrokerOutput;
+namespace Core\Broker\Application\UseCase\AddBrokerInputOutput;
 
-final class AddBrokerOutputRequest
+final class AddBrokerInputOutputRequest
 {
     public int $brokerId = 0;
+
+    public string $tag = 'output';
 
     public string $name = '';
 

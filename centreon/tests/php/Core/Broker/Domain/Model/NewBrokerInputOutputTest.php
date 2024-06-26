@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\Broker\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Broker\Domain\Model\BrokerOutput;
-use Core\Broker\Domain\Model\NewBrokerOutput;
+use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\NewBrokerInputOutput;
 use Core\Broker\Domain\Model\Type;
 
 beforeEach(function (): void {
@@ -37,7 +37,7 @@ beforeEach(function (): void {
 });
 
 it('should return properly set broker output instance', function (): void {
-    $output = new NewBrokerOutput($this->type, $this->name, $this->parameters);
+    $output = new NewBrokerInputOutput('output', $this->type, $this->name, $this->parameters);
 
     expect($output->getName())->toBe($this->name)
         ->and($output->getType()->name)->toBe($this->type->name)
@@ -45,20 +45,20 @@ it('should return properly set broker output instance', function (): void {
 });
 
 it('should throw an exception when broker output name is empty', function (): void {
-    new NewBrokerOutput($this->type, '', $this->parameters);
+    new NewBrokerInputOutput('output', $this->type, '', $this->parameters);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('NewBrokerOutput::name')->getMessage()
+    AssertionException::notEmptyString('NewBrokerInputOutput::name')->getMessage()
 );
 
 it('should throw an exception when broker output name is too long', function (): void {
-    new NewBrokerOutput($this->type, str_repeat('a', BrokerOutput::NAME_MAX_LENGTH + 1), $this->parameters);
+    new NewBrokerInputOutput('output', $this->type, str_repeat('a', BrokerInputOutput::NAME_MAX_LENGTH + 1), $this->parameters);
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(
-        str_repeat('a', BrokerOutput::NAME_MAX_LENGTH + 1),
-        BrokerOutput::NAME_MAX_LENGTH + 1,
-        BrokerOutput::NAME_MAX_LENGTH,
-        'NewBrokerOutput::name'
+        str_repeat('a', BrokerInputOutput::NAME_MAX_LENGTH + 1),
+        BrokerInputOutput::NAME_MAX_LENGTH + 1,
+        BrokerInputOutput::NAME_MAX_LENGTH,
+        'NewBrokerInputOutput::name'
     )->getMessage()
 );

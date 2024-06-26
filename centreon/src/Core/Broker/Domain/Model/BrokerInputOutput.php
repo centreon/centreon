@@ -27,25 +27,44 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
 /**
- * @phpstan-import-type _BrokerOutputParameter from BrokerOutput
+ * @phpstan-type _BrokerInputOutputParameter int|string|string[]|array<array<int|string>>
  */
-class NewBrokerOutput
+class BrokerInputOutput
 {
+    public const NAME_MAX_LENGTH = 255;
+
     /**
+     * @param int $id
+     * @param string $tag
      * @param Type $type
      * @param string $name
-     * @param _BrokerOutputParameter[] $parameters
+     * @param _BrokerInputOutputParameter[] $parameters
      *
      * @throws AssertionFailedException
      */
     public function __construct(
-        private Type $type,
+        private readonly int $id,
+        private readonly string $tag,
+        private readonly Type $type,
         private string $name,
         private array $parameters,
     ) {
+        Assertion::positiveInt($id, 'BrokerInputOutput::id');
+        Assertion::inArray($tag, ['input', 'output'], 'BrokerInputOutput::tag');
+
         $this->name = trim($name);
-        Assertion::notEmptyString($this->name, 'NewBrokerOutput::name');
-        Assertion::maxLength($this->name, BrokerOutput::NAME_MAX_LENGTH, 'NewBrokerOutput::name');
+        Assertion::notEmptyString($this->name, 'BrokerInputOutput::name');
+        Assertion::maxLength($this->name, self::NAME_MAX_LENGTH, 'BrokerInputOutput::name');
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getTag(): string
+    {
+        return $this->tag;
     }
 
     public function getType(): Type
@@ -59,10 +78,18 @@ class NewBrokerOutput
     }
 
     /**
-     * @return _BrokerOutputParameter[]
+     * @return _BrokerInputOutputParameter[]
      */
     public function getParameters(): array
     {
         return $this->parameters;
+    }
+
+    /**
+     * @param _BrokerInputOutputParameter[] $parameters
+     */
+    public function setParameters(array $parameters): void
+    {
+        $this->parameters = $parameters;
     }
 }

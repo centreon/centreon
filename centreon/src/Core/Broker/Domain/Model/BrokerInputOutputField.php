@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Broker\Domain\Model;
 
-class BrokerOutputField
+class BrokerInputOutputField
 {
     /**
      * @param int $id
