@@ -246,7 +246,7 @@ describe('Filter storage', () => {
 
     cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByLabelText(labelHost).click();
+    cy.findByTestId(labelHost).click();
     cy.waitForRequest('@getResourcesByHostType');
     const hostName = cy.findByText(resourcesByHostType.name);
     hostName.should('exist');

@@ -16,6 +16,11 @@ on:
   schedule:
     - cron: "0 3 * * *"
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     paths:
       - "centreon/**"
       - "!centreon/.veracode-exclusions"
@@ -476,7 +481,7 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
-        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.3
+        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
         shell: bash
 
       - name: Build standard slim image

@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Common\Domain\YesNoDefault;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTemplateResponse;
@@ -40,11 +41,13 @@ use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Tests\Core\ServiceTemplate\Infrastructure\API\FindServiceTemplates\FindServiceTemplatesPresenterStub;
 
 beforeEach(closure: function (): void {
+    $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->repository = $this->createMock(ReadServiceTemplateRepositoryInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
     $this->presenter = new FindServiceTemplatesPresenterStub($this->createMock(PresenterFormatterInterface::class));
 
     $this->useCase = new FindServiceTemplates(
+        $this->readAccessGroupRepository,
         $this->repository,
         $this->createMock(RequestParametersInterface::class),
         $this->user
@@ -144,6 +147,11 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->method('hasTopologyRole')
         ->willReturn(true);
 
+    $this->user
+        ->expects($this->any())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->repository
         ->expects($this->once())
         ->method('findByRequestParameter')
@@ -187,9 +195,14 @@ it('should present a FindServiceTemplatesResponse when user has read-only rights
             ]
         );
 
+    $this->user
+        ->expects($this->any())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->repository
         ->expects($this->once())
-        ->method('findByRequestParameter')
+        ->method('findByRequestParametersAndAccessGroups')
         ->willReturn([$this->serviceTemplateFound]);
 
     ($this->useCase)($this->presenter);
@@ -208,9 +221,14 @@ it('should present a FindHostTemplatesResponse when user has read-write rights',
             ]
         );
 
+    $this->user
+        ->expects($this->any())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->repository
         ->expects($this->once())
-        ->method('findByRequestParameter')
+        ->method('findByRequestParametersAndAccessGroups')
         ->willReturn([$this->serviceTemplateFound]);
 
     ($this->useCase)($this->presenter);
@@ -229,9 +247,14 @@ it('should present a FindHostTemplatesResponse when user has read or write right
             ]
         );
 
+    $this->user
+        ->expects($this->any())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->repository
         ->expects($this->once())
-        ->method('findByRequestParameter')
+        ->method('findByRequestParametersAndAccessGroups')
         ->willReturn([$this->serviceTemplateFound]);
 
     ($this->useCase)($this->presenter);
