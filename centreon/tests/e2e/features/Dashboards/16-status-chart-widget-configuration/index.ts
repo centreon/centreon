@@ -203,7 +203,10 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
   }
@@ -325,7 +328,10 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 
 Given('a dashboard that includes a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -362,7 +368,10 @@ Then('the unit of the resources already displayed should be updated', () => {
 
 Given('a dashboard featuring two Status Chart widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoStatuschartWidgets);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -409,7 +418,10 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard having a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
 });
@@ -421,7 +433,9 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -454,7 +468,10 @@ Given(
   'a dashboard administrator user configuring a Status Chart widget',
   () => {
     cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-    cy.visit('/centreon/home/dashboards');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
     cy.getByLabel({
