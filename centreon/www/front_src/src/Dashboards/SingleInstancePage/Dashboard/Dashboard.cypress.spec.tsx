@@ -104,8 +104,8 @@ interface InitializeAndMountProps {
   detailsWithData?: boolean;
   globalRole?: DashboardGlobalRole;
   isBlocked?: boolean;
-  ownRole?: DashboardRole;
   isFavorite?: boolean;
+  ownRole?: DashboardRole;
 }
 
 const editorRoles = {
@@ -160,10 +160,10 @@ const initializeAndMount = ({
     alias: 'admin',
     dashboard: {
       createDashboards: canCreateDashboard,
+      favorites: isFavorite ? [1] : [],
       globalUserRole: globalRole,
       manageAllDashboards: canAdministrateDashboard,
-      viewDashboards: canViewDashboard,
-      favorites: isFavorite ? [1] : []
+      viewDashboards: canViewDashboard
     },
     isExportButtonEnabled: true,
     locale: 'en',
@@ -209,7 +209,7 @@ const initializeAndMount = ({
     statusCode: 201
   });
 
-cy.interceptAPIRequest({
+  cy.interceptAPIRequest({
     alias: 'patchUserParameters',
     method: Method.PATCH,
     path: userParametersEndpoint,
@@ -515,9 +515,12 @@ describe('Dashboard', () => {
     cy.contains('Generic text').should('be.visible');
     cy.contains('Description').should('be.visible');
 
-    cy.findByTestId('FavoriteIcon').should('have.class', 'MuiSvgIcon-colorDisabled');
+    cy.findByTestId('FavoriteIcon').should(
+      'have.class',
+      'MuiSvgIcon-colorDisabled'
+    );
 
-    cy.makeSnapshot()
+    cy.makeSnapshot();
   });
 
   it('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
@@ -571,15 +574,19 @@ describe('Dashboard', () => {
 
     cy.findByTestId('FavoriteIcon').click();
 
-    cy.findByTestId('FavoriteIcon').should('have.class', 'MuiSvgIcon-colorSuccess');
+    cy.findByTestId('FavoriteIcon').should(
+      'have.class',
+      'MuiSvgIcon-colorSuccess'
+    );
 
     cy.waitForRequest('@patchUserParameters').then(({ request }) => {
-      expect(request.body).to.equal('{"dashboard":{"createDashboards":true,"globalUserRole":"creator","manageAllDashboards":false,"viewDashboards":true,"favorites":[1]}}')
+      expect(request.body).to.equal(
+        '{"dashboard":{"createDashboards":true,"globalUserRole":"creator","manageAllDashboards":false,"viewDashboards":true,"favorites":[1]}}'
+      );
     });
 
     cy.makeSnapshot();
-
-  })
+  });
 
   describe('Route blocking', () => {
     it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
