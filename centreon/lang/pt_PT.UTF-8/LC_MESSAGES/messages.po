@@ -17432,7 +17432,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "You are not allowed to access the Resources Status page"
 
-#  msgid "Error while adding a broker output"
+#  msgid "Error while adding a Broker input/output"
 #  msgstr ""
 
 #  msgid "You are not allowed to edit a broker configuration"
@@ -17441,7 +17441,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Broker configuration #%d not found"
 #  msgstr ""
 
-#  msgid "Missing output parameter: %s"
+#  msgid "Missing input/output parameter: %s"
 #  msgstr ""
 
 #  msgid "Parameter '%s' (%s) is invalid"
@@ -17450,7 +17450,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Parameter '%s' of type %s is invalid"
 #  msgstr ""
 
-#  msgid "Output #%d not found for broker configuration #%d"
+#  msgid "Input/Output #%d not found for Broker configuration #%d"
 #  msgstr ""
 
 # msgid "Delete rule"
@@ -17527,7 +17527,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "All resources selected"
 # msgstr ""
 
-#  msgid "Error while updating a broker output"
+#  msgid "Error while updating a Broker input/output"
 #  msgstr ""
 
 #  msgid "Action not permitted for output of type '%s'"

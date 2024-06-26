@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Broker\Application\UseCase\AddBrokerOutput;
+namespace Core\Broker\Application\UseCase\AddBrokerInputOutput;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface AddBrokerOutputPresenterInterface
+interface AddBrokerInputOutputPresenterInterface
 {
-    public function presentResponse(AddBrokerOutputResponse|ResponseStatusInterface $response): void;
+    public function presentResponse(AddBrokerInputOutputResponse|ResponseStatusInterface $response): void;
 }

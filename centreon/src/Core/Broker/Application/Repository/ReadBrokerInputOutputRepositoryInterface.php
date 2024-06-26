@@ -23,44 +23,46 @@ declare(strict_types=1);
 
 namespace Core\Broker\Application\Repository;
 
-use Core\Broker\Domain\Model\BrokerOutput;
-use Core\Broker\Domain\Model\BrokerOutputField;
+use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\Type;
 
-interface ReadBrokerOutputRepositoryInterface
+interface ReadBrokerInputOutputRepositoryInterface
 {
     /**
-     * Find parameters of an output by type.
+     * Find parameters of an input or output by type.
      * Result key is the parameter fieldname, in case of grouped fields the groupname is used as a key.
      *
      * @param int $typeId
      *
      * @throws \Throwable
      *
-     * @return array<string,BrokerOutputField|array<string,BrokerOutputField>>
+     * @return array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>>
      */
     public function findParametersByType(int $typeId): array;
 
     /**
-     * Find an output stream type by its ID.
+     * Find an input or output stream type by its ID.
      *
+     * @param string $tag
      * @param int $typeId
      *
      * @throws \Throwable
      *
      * @return ?Type
      */
-    public function findType(int $typeId): ?Type;
+    public function findType(string $tag, int $typeId): ?Type;
 
     /**
-     * Find a broker output configuration by its ID and its broker ID.
+     * Find a broker input or output configuration by its ID and its broker ID.
      *
+     * @param string $tag
      * @param int $outputId
      * @param int $brokerId
      *
      * @throws \Throwable
      *
-     * @return null|BrokerOutput
+     * @return null|BrokerInputOutput
      */
-    public function findByIdAndBrokerId(int $outputId, int $brokerId): ?BrokerOutput;
+    public function findByIdAndBrokerId(string $tag, int $outputId, int $brokerId): ?BrokerInputOutput;
 }

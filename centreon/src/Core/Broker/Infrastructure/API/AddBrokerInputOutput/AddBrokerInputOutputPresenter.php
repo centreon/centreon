@@ -21,23 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Broker\Infrastructure\API\AddBrokerOutput;
+namespace Core\Broker\Infrastructure\API\AddBrokerInputOutput;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutputPresenterInterface;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutputResponse;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\AddBrokerInputOutputPresenterInterface;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\AddBrokerInputOutputResponse;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
-class AddBrokerOutputPresenter extends AbstractPresenter implements AddBrokerOutputPresenterInterface
+class AddBrokerInputOutputPresenter extends AbstractPresenter implements AddBrokerInputOutputPresenterInterface
 {
     use PresenterTrait;
 
     /**
      * @inheritDoc
      */
-    public function presentResponse(AddBrokerOutputResponse|ResponseStatusInterface $response): void
+    public function presentResponse(AddBrokerInputOutputResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);

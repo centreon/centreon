@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Broker\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Broker\Domain\Model\BrokerOutput;
+use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Broker\Domain\Model\Type;
 
 beforeEach(function (): void {
@@ -36,7 +36,7 @@ beforeEach(function (): void {
 });
 
 it('should return properly set broker output instance', function (): void {
-    $output = new BrokerOutput(1, $this->type, $this->name, $this->parameters);
+    $output = new BrokerInputOutput(1, 'output', $this->type, $this->name, $this->parameters);
 
     expect($output->getId())->toBe(1)
         ->and($output->getName())->toBe($this->name)
@@ -45,27 +45,33 @@ it('should return properly set broker output instance', function (): void {
 });
 
 it('should throw an exception when broker output ID is invalid', function (): void {
-    new BrokerOutput(0, $this->type, $this->name, $this->parameters);
+    new BrokerInputOutput(0, 'output', $this->type, $this->name, $this->parameters);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::positiveInt(0, 'BrokerOutput::id')->getMessage()
+    AssertionException::positiveInt(0, 'BrokerInputOutput::id')->getMessage()
 );
 
 it('should throw an exception when broker output name is empty', function (): void {
-    new BrokerOutput(1, $this->type, '', $this->parameters);
+    new BrokerInputOutput(1, 'output', $this->type, '', $this->parameters);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('BrokerOutput::name')->getMessage()
+    AssertionException::notEmptyString('BrokerInputOutput::name')->getMessage()
 );
 
 it('should throw an exception when broker output name is too long', function (): void {
-    new BrokerOutput(1, $this->type, str_repeat('a', BrokerOutput::NAME_MAX_LENGTH + 1), $this->parameters);
+    new BrokerInputOutput(
+        1,
+        'output',
+        $this->type,
+        str_repeat('a', BrokerInputOutput::NAME_MAX_LENGTH + 1),
+        $this->parameters
+    );
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(
-        str_repeat('a', BrokerOutput::NAME_MAX_LENGTH + 1),
-        BrokerOutput::NAME_MAX_LENGTH + 1,
-        BrokerOutput::NAME_MAX_LENGTH,
-        'BrokerOutput::name'
+        str_repeat('a', BrokerInputOutput::NAME_MAX_LENGTH + 1),
+        BrokerInputOutput::NAME_MAX_LENGTH + 1,
+        BrokerInputOutput::NAME_MAX_LENGTH,
+        'BrokerInputOutput::name'
     )->getMessage()
 );
