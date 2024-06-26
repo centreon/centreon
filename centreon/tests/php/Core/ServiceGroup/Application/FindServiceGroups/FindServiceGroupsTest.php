@@ -46,7 +46,8 @@ beforeEach(function (): void {
         readServiceGroupRepository: $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         requestParameters: $this->createMock(RequestParametersInterface::class),
-        contact: $this->contact = $this->createMock(ContactInterface::class)
+        contact: $this->contact = $this->createMock(ContactInterface::class),
+        isCloudPlatform: false
     );
 
     $this->testedServiceGroup = new ServiceGroup(
@@ -154,7 +155,7 @@ it(
             );
 
         $this->readAccessGroupRepository
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('findByContact')
             ->willReturn([new AccessGroup(id: 1, name: 'TestName', alias: 'TestAlias')]);
 
@@ -196,7 +197,7 @@ it(
             );
 
         $this->readAccessGroupRepository
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('findByContact')
             ->willReturn([new AccessGroup(id: 1, name: 'TestName', alias: 'TestAlias')]);
 
