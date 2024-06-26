@@ -17789,3 +17789,19 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Tooltip"
 # msgstr ""
+
+# msgid "Mark as favorite"
+# msgstr ""
+
+# msgid "Unmark as favorite"
+# msgstr ""
+
+# msgid "Dashboard marked as favorite"
+# msgstr ""
+
+# msgid "Marked as favorite"
+# msgstr ""
+
+# msgid "Not marked as favorite"
+# msgstr ""
+
