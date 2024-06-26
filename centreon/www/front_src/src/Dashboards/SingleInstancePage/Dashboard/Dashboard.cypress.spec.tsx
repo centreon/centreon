@@ -59,7 +59,8 @@ import {
   labelManualRefreshOnly,
   labelInterval,
   labelDoYouWantToSaveChanges,
-  labelIfYouClickOnDiscard
+  labelIfYouClickOnDiscard,
+  labelDashboardMarkedAsFavorite
 } from './translatedLabels';
 import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
@@ -584,6 +585,8 @@ describe('Dashboard', () => {
         '{"dashboard":{"createDashboards":true,"favorites":[1],"globalUserRole":"creator","manageAllDashboards":false,"viewDashboards":true}}'
       );
     });
+
+    cy.contains(labelDashboardMarkedAsFavorite).should('be.visible');
 
     cy.makeSnapshot();
   });

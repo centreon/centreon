@@ -135,3 +135,4 @@ export const labelIfYouClickOnDiscard =
   'If you click on Discard, your changes will not be saved.';
 export const labelMarkAsFavorite = 'Mark as favorite';
 export const labelUnmarkAsFavorite = 'Unmark as favorite';
+export const labelDashboardMarkedAsFavorite = 'Dashboard marked as favorite';

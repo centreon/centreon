@@ -2,12 +2,14 @@ import { useCallback, useMemo } from 'react';
 
 import { useAtom } from 'jotai';
 import { append, equals, reject } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { userAtom } from '@centreon/ui-context';
-import { Method, useMutationQuery } from '@centreon/ui';
+import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { userParametersEndpoint } from '../../../../api/endpoints';
 import { routerParams } from '../../hooks/useDashboardDetails';
+import { labelDashboardMarkedAsFavorite } from '../../translatedLabels';
 
 interface ToggleFavoritesProps {
   dashboardId: number;
@@ -30,9 +32,11 @@ interface UseFavoriteState {
 }
 
 export const useFavorite = (): UseFavoriteState => {
+  const { t } = useTranslation();
   const [user, setUser] = useAtom(userAtom);
 
   const { dashboardId } = routerParams.useParams();
+  const { showSuccessMessage } = useSnackbar();
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => userParametersEndpoint,
@@ -64,6 +68,9 @@ export const useFavorite = (): UseFavoriteState => {
             }
           : null
       }));
+    },
+    onSuccess: () => {
+      showSuccessMessage(t(labelDashboardMarkedAsFavorite));
     }
   });
 
