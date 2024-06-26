@@ -21,6 +21,7 @@
 
 namespace Tests\Centreon\Application\Controller\Monitoring;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Monitoring\Host;
@@ -39,10 +40,12 @@ use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\View\View;
 use Psr\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class TimelineControllerTest extends TestCase
 {
-    protected Contact $adminContact;
+    protected MockObject|ContactInterface $contact;
+    protected MockObject|UserInterface $user;
     protected Host $host;
 
     /**
@@ -79,11 +82,8 @@ class TimelineControllerTest extends TestCase
     {
         $timezone = new \DateTimeZone('Europe/Paris');
 
-        $this->adminContact = (new Contact())
-            ->setId(1)
-            ->setName('admin')
-            ->setAdmin(true)
-            ->setTimezone($timezone);
+        $this->contact = $this->createMock(ContactInterface::class);
+        $this->user = $this->createMock(UserInterface::class);
 
         $this->host = (new Host())
             ->setId(1);
@@ -118,7 +118,7 @@ class TimelineControllerTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->expects($this->any())
             ->method('getUser')
-            ->willReturn($this->adminContact);
+            ->willReturn($this->user);
         $tokenStorage = $this->createMock(TokenStorageInterface::class);
         $tokenStorage->expects($this->any())
             ->method('getToken')
@@ -151,7 +151,11 @@ class TimelineControllerTest extends TestCase
             ->method('findTimelineEventsByHost')
             ->willReturn([$this->timelineEvent]);
 
-        $timelineController = new TimelineController($this->monitoringService, $this->timelineService);
+        $timelineController = new TimelineController($this->monitoringService, $this->timelineService, $this->contact);
+        $this->contact
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
         $timelineController->setContainer($this->container);
 
         $view = $timelineController->getHostTimeline(1, $this->requestParameters);
@@ -182,7 +186,11 @@ class TimelineControllerTest extends TestCase
             ->method('findTimelineEventsByService')
             ->willReturn([$this->timelineEvent]);
 
-        $timelineController = new TimelineController($this->monitoringService, $this->timelineService);
+        $this->contact
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+        $timelineController = new TimelineController($this->monitoringService, $this->timelineService, $this->contact);
         $timelineController->setContainer($this->container);
 
         $view = $timelineController->getServiceTimeline(1, 1, $this->requestParameters);
@@ -218,8 +226,12 @@ class TimelineControllerTest extends TestCase
             ->method('findTimelineEventsByService')
             ->willReturn([$this->timelineEvent]);
 
-        $controller = new TimelineController($this->monitoringService, $this->timelineService);
+        $controller = new TimelineController($this->monitoringService, $this->timelineService, $this->contact);
         //buffer output for streamed response
+        $this->contact
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
         ob_start();
         $controller->setContainer($this->container);
         $response = $controller->downloadServiceTimeline(1, 1, $this->requestParameters);

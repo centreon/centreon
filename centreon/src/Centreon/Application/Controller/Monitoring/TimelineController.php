@@ -23,6 +23,9 @@ declare(strict_types=1);
 namespace Centreon\Application\Controller\Monitoring;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
 use Centreon\Domain\Monitoring\ResourceStatus;
@@ -40,45 +43,48 @@ use Centreon\Domain\Monitoring\Timeline\TimelineEvent;
  */
 class TimelineController extends AbstractController
 {
+    use LoggerTrait;
     public const SERIALIZER_GROUPS_MAIN = ['timeline_main', 'contact_main', 'resource_status_main'];
-
-    /**
-     * @var MonitoringServiceInterface
-     */
-    private $monitoringService;
-
-    /**
-     * @var TimelineServiceInterface
-     */
-    private $timelineService;
 
     /**
      * TimelineController constructor.
      *
      * @param MonitoringServiceInterface $monitoringService
      * @param TimelineServiceInterface $timelineService
+     * @param ContactInterface $user
      */
     public function __construct(
-        MonitoringServiceInterface $monitoringService,
-        TimelineServiceInterface $timelineService
+        private readonly MonitoringServiceInterface $monitoringService,
+        private readonly TimelineServiceInterface $timelineService,
+        private readonly ContactInterface $user,
     ) {
-        $this->monitoringService = $monitoringService;
-        $this->timelineService = $timelineService;
     }
 
     /**
-     * Entry point to get timeline for a host
+     * Entry point to get timeline for a host.
      *
-     * @param int $hostId id of host
-     * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @return View
+     * @param int $hostId
+     * @param RequestParametersInterface $requestParameters
+     *
      * @throws EntityNotFoundException
+     * @return View
      */
     public function getHostTimeline(
         int $hostId,
         RequestParametersInterface $requestParameters
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
+
+        if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
+            $this->error('User doesn\'t have sufficient rights to see the host timeline', [
+                    'user_id' => $this->user->getId(),
+                ]);
+            throw $this->createAccessDeniedException();
+        }
+        $this->info(
+            'Get host timeline',
+            ['user_id' => $this->user->getId(), 'host_id' => $hostId]
+        );
 
         $host = $this->getHostById($hostId);
         $timeline = $this->timelineService->findTimelineEventsByHost($host);
@@ -94,13 +100,14 @@ class TimelineController extends AbstractController
     }
 
     /**
-     * Entry point to get timeline for a service
+     * Entry point to get timeline for a service.
      *
-     * @param int $hostId id of host
-     * @param int $serviceId id of service
-     * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @return View
+     * @param int $hostId
+     * @param int $serviceId
+     * @param RequestParametersInterface $requestParameters
+     *
      * @throws EntityNotFoundException
+     * @return View
      */
     public function getServiceTimeline(
         int $hostId,
@@ -109,13 +116,24 @@ class TimelineController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+        if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
+            $this->error('User doesn\'t have sufficient rights to see the service timeline', [
+                    'user_id' => $this->user->getId(),
+                ]);
+            throw $this->createAccessDeniedException();
+        }
+        $this->info(
+            'Get service timeline',
+            ['user_id' => $this->user->getId(), 'host_id' => $hostId, 'service_id' => $serviceId]
+        );
+
         $context = (new Context())
             ->setGroups(static::SERIALIZER_GROUPS_MAIN)
             ->enableMaxDepth();
 
         return $this->view(
             [
-                'result' => $this->getTimelinesByHostIdAndServiceId($hostId, $serviceId),
+                'result' => $this->getTimelinesByHostIdAndServiceId($this->user, $hostId, $serviceId),
                 'meta' => $requestParameters->toArray()
             ]
         )->setContext($context);
@@ -124,11 +142,19 @@ class TimelineController extends AbstractController
     /**
      * @param int $hostId
      * @param RequestParametersInterface $requestParameters
+     *
+     * @throws EntityNotFoundException
      * @return StreamedResponse
      */
     public function downloadHostTimeline(int $hostId, RequestParametersInterface $requestParameters): StreamedResponse
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
+        if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
+            $this->error('User doesn\'t have sufficient rights to see the host timeline', [
+                    'user_id' => $this->user->getId(),
+                ]);
+            throw $this->createAccessDeniedException();
+        }
         $this->addDownloadParametersInRequestParameters($requestParameters);
         $timeLines = $this->formatTimeLinesForDownload($this->getTimelinesByHostId($hostId));
 
@@ -148,8 +174,19 @@ class TimelineController extends AbstractController
         RequestParametersInterface $requestParameters
     ): StreamedResponse {
         $this->denyAccessUnlessGrantedForApiRealtime();
+        if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
+            $this->error('User doesn\'t have sufficient rights to see the host timeline', [
+                    'user_id' => $this->user->getId(),
+                ]);
+            throw $this->createAccessDeniedException();
+        }
         $this->addDownloadParametersInRequestParameters($requestParameters);
-        $timeLines = $this->formatTimeLinesForDownload($this->getTimelinesByHostIdAndServiceId($hostId, $serviceId));
+        $timeLines = $this->formatTimeLinesForDownload(
+            $this->getTimelinesByHostIdAndServiceId(
+                $this->user,
+                $hostId,
+                $serviceId)
+        );
 
         return $this->streamTimeLines($timeLines);
     }
@@ -280,20 +317,23 @@ class TimelineController extends AbstractController
     }
 
     /**
+     * @param ContactInterface $user
      * @param int $hostId
      * @param int $serviceId
-     * @return TimelineEvent[]
+     *
      * @throws EntityNotFoundException
+     * @return TimelineEvent[]
      */
-    private function getTimelinesByHostIdAndServiceId(int $hostId, int $serviceId): array
+    private function getTimelinesByHostIdAndServiceId(ContactInterface $user, int $hostId, int $serviceId): array
     {
-        $host = $this->getHostById($hostId);
+        $this->monitoringService->filterByContact($user);
 
         $service = $this->monitoringService->findOneService($hostId, $serviceId);
         if ($service === null) {
             $errorMsg = sprintf(_('Service %d on host %d not found'), $hostId, $serviceId);
             throw new EntityNotFoundException($errorMsg);
         }
+        $host = $this->getHostById($hostId);
         $service->setHost($host);
 
         return $this->timelineService->findTimelineEventsByService($service);
