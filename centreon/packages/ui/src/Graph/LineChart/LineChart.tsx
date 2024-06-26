@@ -1,7 +1,7 @@
-import { MutableRefObject, useMemo, useRef, useState } from 'react';
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Tooltip } from '@visx/visx';
-import { equals, flatten, isNil, pluck } from 'ramda';
+import { equals, flatten, isNil, pluck, reject } from 'ramda';
 
 import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
@@ -19,10 +19,15 @@ import BaseChart from '../common/BaseChart/BaseChart';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import Thresholds from '../common/Thresholds/Thresholds';
+import { useDeepCompare } from '../../utils';
 
 import Lines from './BasicComponents/Lines';
-import { canDisplayThreshold } from './BasicComponents/Lines/Threshold/models';
-import useFilterLines from './BasicComponents/useFilterLines';
+import {
+  canDisplayThreshold,
+  findLineOfOriginMetricThreshold,
+  lowerLineName,
+  upperLineName
+} from './BasicComponents/Lines/Threshold/models';
 import InteractionWithGraph from './InteractiveComponents';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
@@ -45,6 +50,23 @@ interface Props extends LineChartProps {
 const baseStyles = {
   ...Tooltip.defaultStyles,
   textAlign: 'center'
+};
+
+const filterLines = (lines: Array<Line>, displayThreshold): Array<Line> => {
+  if (!displayThreshold) {
+    return lines;
+  }
+  const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
+
+  const findLinesUpperLower = lines.map((line) =>
+    equals(line.name, lowerLineName) || equals(line.name, upperLineName)
+      ? line
+      : null
+  );
+
+  const linesUpperLower = reject((element) => !element, findLinesUpperLower);
+
+  return [...lineOriginMetric, ...linesUpperLower] as Array<Line>;
 };
 
 const LineChart = ({
@@ -72,7 +94,11 @@ const LineChart = ({
 
   const theme = useTheme();
 
-  const [linesGraph, setLinesGraph] = useState<Array<Line> | null>(null);
+  const { title, timeSeries, baseAxis, lines } = graphData;
+
+  const [linesGraph, setLinesGraph] = useState<Array<Line>>(
+    filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
+  );
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const { isInViewport } = useIntersection({ element: graphRef?.current });
@@ -86,21 +112,12 @@ const LineChart = ({
     showTooltip: showThresholdTooltip
   } = Tooltip.useTooltip();
 
-  const { title, timeSeries, baseAxis, lines } = graphData;
-
   const thresholdValues = flatten([
     pluck('value', thresholds?.warning || []),
     pluck('value', thresholds?.critical || [])
   ]);
 
-  const { displayedLines } = useFilterLines({
-    displayThreshold: canDisplayThreshold(shapeLines?.areaThresholdLines),
-    lines,
-    linesGraph,
-    setLinesGraph
-  });
-
-  const [, secondUnit] = getUnits(displayedLines);
+  const [, secondUnit] = getUnits(linesGraph);
 
   const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
     hasSecondUnit: Boolean(secondUnit),
@@ -117,6 +134,11 @@ const LineChart = ({
         valueWidth: graphWidth
       }),
     [timeSeries, graphWidth]
+  );
+
+  const displayedLines = useMemo(
+    () => linesGraph.filter(({ display }) => display),
+    [linesGraph]
   );
 
   const leftScale = useMemo(
@@ -164,6 +186,15 @@ const LineChart = ({
     ]
   );
 
+  useEffect(
+    () => {
+      setLinesGraph(
+        filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
+      );
+    },
+    useDeepCompare([lines])
+  );
+
   const graphTooltipData = useGraphTooltip({
     graphWidth,
     timeSeries,
@@ -204,7 +235,7 @@ const LineChart = ({
           }}
           legendRef={legendRef}
           limitLegend={limitLegend}
-          lines={displayedLines}
+          lines={linesGraph}
           setLines={setLinesGraph}
           title={title}
         >
@@ -269,7 +300,7 @@ const LineChart = ({
                       graphSvgRef,
                       graphWidth,
                       leftScale,
-                      lines: displayedLines,
+                      lines: linesGraph,
                       rightScale,
                       timeSeries,
                       xScale
