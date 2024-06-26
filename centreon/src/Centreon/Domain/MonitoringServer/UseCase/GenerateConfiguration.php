@@ -64,7 +64,7 @@ class GenerateConfiguration
             if (! $this->contact->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
 
-                $monitoringServer = $this->monitoringServerRepository->findServerByIdAndAccessGroups(
+                $monitoringServer = $this->monitoringServerRepository->findByIdAndAccessGroups(
                     $monitoringServerId,
                     $accessGroups
                 );

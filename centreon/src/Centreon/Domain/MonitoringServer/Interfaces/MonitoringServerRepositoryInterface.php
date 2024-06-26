@@ -102,7 +102,7 @@ interface MonitoringServerRepositoryInterface
      *
      * @return MonitoringServer|null
      */
-    public function findServerByIdAndAccessGroups(int $monitoringServerId, array $accessGroups): ?MonitoringServer;
+    public function findByIdAndAccessGroups(int $monitoringServerId, array $accessGroups): ?MonitoringServer;
 
     /**
      * Find a monitoring server by its name.

@@ -273,7 +273,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
     /**
      * @inheritDoc
      */
-    public function findServerByIdAndAccessGroups(int $monitoringServerId, array $accessGroups): ?MonitoringServer
+    public function findByIdAndAccessGroups(int $monitoringServerId, array $accessGroups): ?MonitoringServer
     {
         if ($accessGroups === []) {
             return null;

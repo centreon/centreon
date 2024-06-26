@@ -34,7 +34,6 @@ use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerExce
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class GenerateConfigurationTest extends TestCase
 {
@@ -175,7 +174,7 @@ class GenerateConfigurationTest extends TestCase
 
         $this->monitoringServerRepository
             ->expects($this->once())
-            ->method('findServerByIdAndAccessGroups')
+            ->method('findByIdAndAccessGroups')
             ->willReturn($this->monitoringServer);
 
         $this->monitoringServerConfigurationRepository
