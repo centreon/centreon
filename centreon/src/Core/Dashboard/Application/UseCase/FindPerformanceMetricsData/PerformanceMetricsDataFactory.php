@@ -81,7 +81,8 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  * @phpstan-type _MetricData array{
  *     global: array{
  *         base: int,
- *         title: string
+ *         title: string,
+ *         host_name: string
  *     },
  *     metrics: array<_Metrics>,
  *     times: string[]
@@ -124,9 +125,7 @@ class PerformanceMetricsDataFactory
         $times = [];
         foreach ($metricsData as $index => $metricData) {
             $metricBases[] = $metricData['global']['base'];
-            \preg_match('/^[[:ascii:]]+ graph on ([[:ascii:]]+)$/', $metricData['global']['title'], $matches);
-            $hostName = $matches[1];
-            $metrics['index:' . $index . ';host_name:' . $hostName] = $metricData['metrics'];
+            $metrics['index:' . $index . ';host_name:' . $metricData['global']['host_name']] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
 
