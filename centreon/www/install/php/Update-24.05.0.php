@@ -19,15 +19,5 @@
  *
  */
 
-declare(strict_types=1);
-
-namespace Core\Broker\Application\UseCase\AddBrokerOutput;
-
-final class TypeDto
-{
-    public function __construct(
-        public int $id = 0,
-        public string $name = ''
-    ) {
-    }
-}
+require_once __DIR__ . '/../../../bootstrap.php';
+require_once __DIR__ . '/../../class/centreonLog.class.php';

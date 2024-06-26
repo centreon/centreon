@@ -27,36 +27,33 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
 /**
- * @phpstan-type _BrokerOutputParameter int|string|string[]|array<array<int|string>>
+ * @phpstan-import-type _BrokerInputOutputParameter from BrokerInputOutput
  */
-class BrokerOutput
+class NewBrokerInputOutput
 {
-    public const NAME_MAX_LENGTH = 255;
-
     /**
-     * @param int $id
+     * @param string $tag
      * @param Type $type
      * @param string $name
-     * @param _BrokerOutputParameter[] $parameters
+     * @param _BrokerInputOutputParameter[] $parameters
      *
      * @throws AssertionFailedException
      */
     public function __construct(
-        private readonly int $id,
+        private string $tag,
         private Type $type,
         private string $name,
         private array $parameters,
     ) {
-        Assertion::positiveInt($id, 'BrokerOutput::id');
-
+        Assertion::inArray($tag, ['input', 'output'], 'NewBrokerInputOutput::tag');
         $this->name = trim($name);
-        Assertion::notEmptyString($this->name, 'BrokerOutput::name');
-        Assertion::maxLength($this->name, self::NAME_MAX_LENGTH, 'BrokerOutput::name');
+        Assertion::notEmptyString($this->name, 'NewBrokerInputOutput::name');
+        Assertion::maxLength($this->name, BrokerInputOutput::NAME_MAX_LENGTH, 'NewBrokerInputOutput::name');
     }
 
-    public function getId(): int
+    public function getTag(): string
     {
-        return $this->id;
+        return $this->tag;
     }
 
     public function getType(): Type
@@ -70,18 +67,10 @@ class BrokerOutput
     }
 
     /**
-     * @return _BrokerOutputParameter[]
+     * @return _BrokerInputOutputParameter[]
      */
     public function getParameters(): array
     {
         return $this->parameters;
-    }
-
-    /**
-     * @param _BrokerOutputParameter[] $parameters
-     */
-    public function setParameters(array $parameters): void
-    {
-        $this->parameters = $parameters;
     }
 }
