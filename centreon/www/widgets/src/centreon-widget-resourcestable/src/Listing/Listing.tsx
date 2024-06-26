@@ -12,6 +12,9 @@ import useListing from './useListing';
 import { defaultSelectedColumnIds } from './Columns';
 import { DisplayType as DisplayTypeEnum } from './models';
 import DisplayType from './DisplayType';
+import AcknowledgeForm from './Actions/Acknowledge';
+import DowntimeForm from './Actions/Downtime';
+import Actions from './Actions/Actions';
 
 interface ListingProps
   extends Pick<
@@ -66,7 +69,15 @@ const Listing = ({
     isLoading,
     data,
     goToResourceStatusPage,
-    hasMetaService
+    hasMetaService,
+    selectedResources,
+    setSelectedResources,
+    resourcesToAcknowledge,
+    resourcesToSetDowntime,
+    cancelAcknowledge,
+    confirmAcknowledge,
+    cancelSetDowntime,
+    confirmSetDowntime
   } = useListing({
     changeViewMode,
     dashboardId,
@@ -87,53 +98,74 @@ const Listing = ({
   });
 
   return (
-    <MemoizedListing
-      columnConfiguration={{
-        selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
-        sortable: true
-      }}
-      columns={columns}
-      currentPage={(page || 1) - 1}
-      getHighlightRowCondition={({ status }): boolean =>
-        equals(status?.severity_code, SeverityCode.High)
-      }
-      limit={limit}
-      loading={isLoading}
-      memoProps={[
-        data,
-        sortField,
-        sortOrder,
-        page,
-        isLoading,
-        columns,
-        displayType
-      ]}
-      rowColorConditions={rowColorConditions(theme)}
-      rows={data?.result}
-      sortField={sortField}
-      sortOrder={sortOrder}
-      subItems={{
-        canCheckSubItems: true,
-        enable: true,
-        getRowProperty: (): string => 'parent_resource',
-        labelCollapse: 'Collapse',
-        labelExpand: 'Expand'
-      }}
-      totalRows={data?.meta?.total}
-      visualizationActions={
-        <DisplayType
-          displayType={displayType}
-          hasMetaService={hasMetaService}
-          setPanelOptions={setPanelOptions}
+    <>
+      <MemoizedListing
+        checkable
+        actions={<Actions />}
+        columnConfiguration={{
+          selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
+          sortable: true
+        }}
+        columns={columns}
+        currentPage={(page || 1) - 1}
+        getHighlightRowCondition={({ status }): boolean =>
+          equals(status?.severity_code, SeverityCode.High)
+        }
+        limit={limit}
+        loading={isLoading}
+        memoProps={[
+          data,
+          sortField,
+          sortOrder,
+          page,
+          isLoading,
+          columns,
+          displayType,
+          selectedResources
+        ]}
+        rowColorConditions={rowColorConditions(theme)}
+        rows={data?.result}
+        selectedRows={selectedResources}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        subItems={{
+          canCheckSubItems: true,
+          enable: true,
+          getRowProperty: (): string => 'parent_resource',
+          labelCollapse: 'Collapse',
+          labelExpand: 'Expand'
+        }}
+        totalRows={data?.meta?.total}
+        visualizationActions={
+          <DisplayType
+            displayType={displayType}
+            hasMetaService={hasMetaService}
+            setPanelOptions={setPanelOptions}
+          />
+        }
+        onLimitChange={changeLimit}
+        onPaginate={changePage}
+        onResetColumns={resetColumns}
+        onRowClick={goToResourceStatusPage}
+        onSelectColumns={selectColumns}
+        onSelectRows={setSelectedResources}
+        onSort={changeSort}
+      />
+      {resourcesToAcknowledge.length > 0 && (
+        <AcknowledgeForm
+          resources={resourcesToAcknowledge}
+          onClose={cancelAcknowledge}
+          onSuccess={confirmAcknowledge}
         />
-      }
-      onLimitChange={changeLimit}
-      onPaginate={changePage}
-      onResetColumns={resetColumns}
-      onRowClick={goToResourceStatusPage}
-      onSelectColumns={selectColumns}
-      onSort={changeSort}
-    />
+      )}
+      {resourcesToSetDowntime.length > 0 && (
+        <DowntimeForm
+          resources={resourcesToSetDowntime}
+          onClose={cancelSetDowntime}
+          onSuccess={confirmSetDowntime}
+        />
+      )}
+    </>
   );
 };
 

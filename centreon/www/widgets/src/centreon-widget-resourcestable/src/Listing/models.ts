@@ -96,3 +96,10 @@ export interface Resource extends NamedEntity {
 }
 
 export type ResourceListing = ListingModel<Resource>;
+
+export enum ResourceCategory {
+  'anomaly-detection' = 'anomaly-detection',
+  'host' = 'host',
+  'metaservice' = 'metaservice',
+  'service' = 'service'
+}
