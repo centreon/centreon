@@ -33,6 +33,7 @@ runs:
         # Variables
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
+        declare -a TMP_STABLE_TAGS=()
         declare -a NEW_STABLE_TAGS=()
         declare -a PREVIOUS_STABLE_TAGS=()
         SCOPE_VERSION="OSS"
@@ -67,15 +68,32 @@ runs:
             PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
           fi
           # New stable tags array
-          NEW_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
+          TMP_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
         done
 
         echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
-        echo "New releases are: ${NEW_STABLE_TAGS[*]}"
+        echo "Temporary new releases are: ${TMP_STABLE_TAGS[*]}"
 
-        # TODO: Check that NEW_STABLE_TAGS are fully different from PREVIOUS_STABLE_TAGS
-        # re use the part from check version ??
-        # or use the check-version action after turning this release action into a real workflow ?
+        # Building final NEW_STABLE_TAGS with the new version tags only
+        # Iterate over elements of TMP_STABLE_TAGS
+        for new_tag in "${TMP_STABLE_TAGS[@]}"; do
+          found=false
+          # Iterate over elements of PREVIOUS_STABLE_TAGS
+          for old_tag in "${PREVIOUS_STABLE_TAGS[@]}"; do
+            # Compare elements
+            if [ "$new_tag" == "$old_tag" ]; then
+              found=true
+              break
+            fi
+          done
+          # If element not found in PREVIOUS_STABLE_TAGS, add it to NEW_STABLE_TAGS
+          if ! $found; then
+            NEW_STABLE_TAGS+=("$new_tag")
+          fi
+        done
+
+        echo "New tags to be published from new release that were not in previous releases:"
+        printf '%s\n' "${NEW_STABLE_TAGS[@]}"
 
         # Make NEW_STABLE_TAGS available for other steps
         echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
@@ -198,6 +216,7 @@ runs:
     - name: Trigger release communication for new releases
       run: |
         set -eux
+
         MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION
 
         # Webhook url
