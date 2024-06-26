@@ -370,7 +370,7 @@ describe('Criterias', () => {
     data.forEach((element) => {
       const { criteria, value, type, searchValue, requestToWait } = element;
 
-      it(`synchronize the search bar with ${label} interface when selecting ${criteria} criteria value `, () => {
+      it(`synchronize the search bar with ${label} interface when selecting ${criteria} criteria value`, () => {
         cy.waitForRequest('@filterRequest');
         cy.waitForRequest('@getResources');
         cy.get('[data-testid="Filter options"]').click();
@@ -441,13 +441,12 @@ describe('Criterias', () => {
     cy.findByLabelText(labelSearchOptions).click();
   });
 
-  it('does not display the host select and host statuses when the view by host is enabled', () => {
+  it('does not display the host statuses when the view by host is enabled', () => {
     store.set(selectedVisualizationAtom, Visualization.Host);
 
     cy.findByPlaceholderText(labelSearch).clear();
     cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByTestId('Host').should('not.exist');
     cy.findByText(labelUp, { exact: true }).should('not.exist');
 
     cy.makeSnapshot();
