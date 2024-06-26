@@ -17805,3 +17805,8 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Not marked as favorite"
 # msgstr ""
 
+# msgid "Add filter"
+# msgstr ""
+
+# msgid "Add resource dataset"
+# msgstr ""
