@@ -17795,3 +17795,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Add resource dataset"
 # msgstr ""
+
+# msgid "Check command sent!"
+# msgstr ""
+
+# msgid "Forced check command sent!"
+# msgstr ""
