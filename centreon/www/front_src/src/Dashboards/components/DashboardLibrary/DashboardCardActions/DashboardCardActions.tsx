@@ -8,7 +8,6 @@ import {
   ContentCopy as DuplicateIcon,
   MoreHoriz as MoreIcon
 } from '@mui/icons-material';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import {
   ActionsList,
@@ -26,6 +25,7 @@ import {
   labelEditProperties,
   labelMoreActions
 } from '../DashboardListing/translatedLabels';
+import Favorite from '../../Favorite';
 
 import { useStyles } from './DashboardCardActions.styles';
 import useDashboardCardActions from './useDashboardCardActions';
@@ -66,10 +66,7 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
       >
         <ShareIcon fontSize="small" />
       </IconButton>
-      <FavoriteIcon
-        color={isFavorite ? 'success' : 'disabled'}
-        fontSize="small"
-      />
+      <Favorite isFavorite={isFavorite} />
       <IconButton
         ariaLabel={labels.labelMoreActions}
         title={labels.labelMoreActions}

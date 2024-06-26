@@ -133,4 +133,5 @@ export const labelDiscard = 'Discard';
 export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
 export const labelIfYouClickOnDiscard =
   'If you click on Discard, your changes will not be saved.';
-export const labelFavorite = 'Favorite';
+export const labelMarkAsFavorite = 'Mark as favorite';
+export const labelUnmarkAsFavorite = 'Unmark as favorite';

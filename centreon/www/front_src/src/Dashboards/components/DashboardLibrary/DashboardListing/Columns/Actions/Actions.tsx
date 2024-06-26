@@ -6,7 +6,6 @@ import {
   MoreHoriz as MoreIcon
 } from '@mui/icons-material';
 import { Box } from '@mui/material';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
@@ -17,6 +16,7 @@ import {
 } from '../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
 import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
+import Favorite from '../../../../Favorite';
 
 import useActions from './useActions';
 import MoreActions from './MoreActions';
@@ -56,10 +56,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       >
         <ShareIcon className={classes.icon} />
       </IconButton>
-      <FavoriteIcon
-        color={isFavorite ? 'success' : 'disabled'}
-        fontSize="small"
-      />
+      <Favorite isFavorite={isFavorite} />
       <IconButton
         ariaLabel={t(labelMoreActions)}
         title={t(labelMoreActions)}
