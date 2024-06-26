@@ -111,12 +111,12 @@ const SelectInput = ({
       return currentValue;
     });
 
+    updateResourceType(updatedValue);
+
     changeCriteria({
       filterName,
       updatedValue: newValue
     });
-
-    updateResourceType(updatedValue);
   };
 
   const onDelete = (_, option): void => {
