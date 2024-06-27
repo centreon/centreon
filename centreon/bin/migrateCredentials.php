@@ -9,6 +9,7 @@ use Centreon\Domain\Log\Logger;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use Utility\Interfaces\UUIDGeneratorInterface;
 
 try {
     if (posix_getuid() !== 0) {
@@ -44,9 +45,13 @@ function migrateAndUpdateDatabaseCredentials(): void {
      * @var Logger $logger
      */
     $logger = $kernel->getContainer()->get(Logger::class);
+    /**
+     * @var UUIDGeneratorInterface $uuidGenerator
+     */
+    $uuidGenerator = $kernel->getContainer()->get(UUIDGeneratorInterface::class);
     $httpClient = new CentreonRestHttp();
     echo('Migration of database credentials' . PHP_EOL);
-    $vaultPath = migrateDatabaseCredentialsToVault($vaultConfiguration, $logger, $httpClient);
+    $vaultPath = migrateDatabaseCredentialsToVault($vaultConfiguration, $logger, $httpClient, $uuidGenerator);
     updateConfigFilesWithVaultPath($vaultPath);
     echo('Migration of database credentials completed' . PHP_EOL);
 }

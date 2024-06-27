@@ -37,7 +37,6 @@
 use Centreon\Domain\Log\Logger;
 use Utility\Interfaces\UUIDGeneratorInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Utility\UUIDGenerator;
 
 const VAULT_PATH_REGEX = '^secret::[^:]*::';
 const SNMP_COMMUNITY_MACRO_NAME = '_HOSTSNMPCOMMUNITY';
@@ -1741,10 +1740,11 @@ function writeKnowledgeBasePasswordInVault(
 function migrateDatabaseCredentialsToVault(
     VaultConfiguration $vaultConfiguration,
     Logger $logger,
-    CentreonRestHttp $httpClient
+    CentreonRestHttp $httpClient,
+    UUIDGeneratorInterface $uuidGenerator
 ): string {
     $vaultToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-    return migrateDatabaseCredentials($vaultConfiguration, $vaultToken, $httpClient);
+    return migrateDatabaseCredentials($vaultConfiguration, $vaultToken, $httpClient, $uuidGenerator);
 }
 
 /**
@@ -1761,9 +1761,9 @@ function migrateDatabaseCredentialsToVault(
 function migrateDatabaseCredentials(
     VaultConfiguration $vaultConfiguration,
     string $token,
-    CentreonRestHttp $httpClient
+    CentreonRestHttp $httpClient,
+    UUIDGeneratorInterface $uuidGenerator
 ): string {
-    $uuidGenerator = new UUIDGenerator();
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
 
     if (
