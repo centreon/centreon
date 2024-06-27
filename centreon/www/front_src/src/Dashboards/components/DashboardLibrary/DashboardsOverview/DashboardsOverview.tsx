@@ -77,6 +77,8 @@ const DashboardsOverview = (): ReactElement => {
     );
   }
 
+  console.log(dashboards);
+
   const GridTable = (
     <DataTable isEmpty={isEmptyList} variant="grid">
       {dashboards.map((dashboard) => (
@@ -86,6 +88,7 @@ const DashboardsOverview = (): ReactElement => {
           description={dashboard.description ?? undefined}
           hasActions={hasEditPermission(dashboard)}
           key={dashboard.id}
+          thumbnail={dashboard.thumbnail}
           title={dashboard.name}
           onClick={navigateToDashboard(dashboard)}
         />

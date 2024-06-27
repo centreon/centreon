@@ -68,6 +68,7 @@ export type Dashboard = NamedEntity & {
     type: 'global' | 'manual';
     interval: number | null;
   };
+  thumbnail?: string;
 };
 
 export type PublicDashboard = NamedEntity & {

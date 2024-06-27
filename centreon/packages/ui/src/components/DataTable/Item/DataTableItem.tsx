@@ -1,6 +1,7 @@
 import React, { forwardRef, ReactElement, RefObject, useMemo } from 'react';
 
 import {
+  CardMedia,
   Card as MuiCard,
   CardActionArea as MuiCardActionArea,
   CardActions as MuiCardActions,
@@ -16,6 +17,7 @@ export interface DataTableItemProps {
   hasActions?: boolean;
   hasCardAction?: boolean;
   onClick?: () => void;
+  thumbnail?: string;
   title: string;
 }
 
@@ -27,7 +29,8 @@ const DataTableItem = forwardRef(
       hasCardAction = false,
       hasActions = false,
       onClick,
-      Actions
+      Actions,
+      thumbnail
     }: DataTableItemProps,
     ref
   ): ReactElement => {
@@ -46,15 +49,26 @@ const DataTableItem = forwardRef(
         variant="outlined"
       >
         <ActionArea aria-label="view" onClick={() => onClick?.()}>
-          <MuiCardContent>
+          {thumbnail && (
+            <img
+              alt={`thumbnail-${title}`}
+              className={classes.thumbnail}
+              src={thumbnail}
+            />
+          )}
+          <MuiCardContent className={classes.cardContent}>
             <MuiTypography fontWeight={500} variant="h5">
               {title}
             </MuiTypography>
-            {description && <MuiTypography>{description}</MuiTypography>}
+            {description && (
+              <MuiTypography className={classes.description}>
+                {description}
+              </MuiTypography>
+            )}
           </MuiCardContent>
         </ActionArea>
         {hasActions && (
-          <MuiCardActions>
+          <MuiCardActions className={classes.cardActions}>
             <span />
             <span>{Actions}</span>
           </MuiCardActions>
