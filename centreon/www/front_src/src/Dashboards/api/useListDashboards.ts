@@ -1,7 +1,5 @@
 import { useAtomValue } from 'jotai';
 
-import ClassNameGenerator from '@mui/utils/ClassNameGenerator';
-
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
 import {

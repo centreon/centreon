@@ -1,7 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { toJpeg, toPng } from 'html-to-image';
+import { toJpeg } from 'html-to-image';
 
 import { useTheme } from '@mui/material';
 
@@ -52,32 +52,6 @@ interface UseSaveDashboardState {
   saveDashboard: () => void;
 }
 
-const filterNode = (node): boolean => {
-  if (node instanceof Text) {
-    return true;
-  }
-
-  return (
-    [
-      'div',
-      'span',
-      'p',
-      'i',
-      'strong',
-      'main',
-      'aside',
-      'article',
-      'pre',
-      'code',
-      'time',
-      'address',
-      'header',
-      'footer',
-      'svg'
-    ].includes(node.tagName.toLowerCase()) || /^h[123456]$/i.test(node.tagName)
-  );
-};
-
 const useSaveDashboard = (): UseSaveDashboardState => {
   const { t } = useTranslation();
   const { dashboardId } = routerParams.useParams();
@@ -99,10 +73,11 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   });
 
   const saveDashboard = (): void => {
-    const node = document.querySelector('.react-grid-layout') as Element;
+    const node = document.querySelector('.react-grid-layout') as HTMLElement;
     toJpeg(node, {
       backgroundColor: theme.palette.background.default,
-      quality: 0.3
+      height: 360,
+      quality: 0.2
     }).then((data) => {
       mutateAsync({
         payload: {
