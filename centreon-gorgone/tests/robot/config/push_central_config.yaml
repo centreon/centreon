@@ -22,14 +22,3 @@ gorgone:
         enabled: true
         subnets:
           - 127.0.0.1/32
-
-centreon:
-  database:
-    db_configuration:
-      dsn: "mysql:host=@DBHOST@:port=3306;dbname=@DBNAME@"
-      username: "@DBUSER@"
-      password: "@DBPASSWORD@"
-    db_realtime:
-      dsn: "mysql:host=@DBHOST@:port=3306;dbname=centreon_storage"
-      username: "@DBUSER@"
-      password: "@DBPASSWORD@"

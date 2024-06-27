@@ -26,7 +26,7 @@ check statistic module add all centengine data in db ${communication_mode}
     # It don't wait for the action module to send back data or for the processing of the response to be finished.
     # So I added a log each time a poller stat have finished to be processed. In this test I know
     # I have 2 log because there is the central and one poller.
-    ${log}    Create List    poller . engine data was integrated in rrd and sql database.    poller . engine data was integrated in rrd and sql database.
+    ${log}    Create List    poller 1 engine data was integrated in rrd and sql database.    poller 2 engine data was integrated in rrd and sql database.
     
     ${result}    Ctn Find In Log With Timeout    /var/log/centreon-gorgone/${communication_mode}_gorgone_central/gorgoned.log    ${log}    regex=1
     ${nb_logs}    Get Length    ${result}

@@ -44,7 +44,6 @@ sub new {
     bless $connector, $class;
 
     $connector->{log_pace} = 3;
-    $connector->{logger}->writeLogDebug("EVAN : " . Dumper($class));
 
     $connector->set_signal_handlers();
     return $connector;
@@ -334,9 +333,6 @@ sub write_broker_stats {
 
 sub write_engine_stats {
     my ($self, %options) = @_;
-    $self->{logger}->writeLogDebug("[statistics][EVAN] here are the option of write_engine_stats ");
-    use Data::Dumper;
-    $self->{logger}->writeLogDebug(Dumper(\%options));
 
     return if (!defined($options{data}->{result}->{exit_code}) || $options{data}->{result}->{exit_code} != 0 ||
         !defined($options{data}->{metadata}->{poller_id}));
