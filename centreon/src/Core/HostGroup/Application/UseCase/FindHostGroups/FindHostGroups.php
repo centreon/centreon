@@ -41,12 +41,21 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final class FindHostGroups
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
+    /**
+     * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param RequestParametersInterface $requestParameters
+     * @param ContactInterface $contact
+     * @param bool $isCloudPlatform
+     */
     public function __construct(
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -63,7 +72,7 @@ final class FindHostGroups
                     'request' => $this->requestParameters->toArray(),
                 ]
             );
-            if ($this->contact->isAdmin()) {
+            if ($this->isUserAdmin()) {
                 $presenter->present($this->findHostGroupAsAdmin());
             } elseif ($this->contactCanExecuteThisUseCase()) {
                 $presenter->present($this->findHostGroupAsContact());
@@ -94,6 +103,26 @@ final class FindHostGroups
         return $this->createResponse(
             $this->readHostGroupRepository->findAll($this->requestParameters)
         );
+    }
+
+    /**
+     * Indicates if the current user is admin or not (cloud + onPremise context).
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->contact->isAdmin()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
+            && $this->isCloudPlatform;
     }
 
     /**

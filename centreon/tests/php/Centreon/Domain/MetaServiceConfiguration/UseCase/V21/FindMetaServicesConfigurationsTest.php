@@ -24,7 +24,9 @@ namespace Tests\Centreon\Domain\MetaServiceConfiguration\UseCase\V21;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\MetaServiceConfiguration\MetaServiceConfigurationService;
+use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindMetaServicesConfigurations;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use PHPUnit\Framework\TestCase;
 use Tests\Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfigurationTest;
 
@@ -33,19 +35,17 @@ use Tests\Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguratio
  */
 class FindMetaServicesConfigurationsTest extends TestCase
 {
-    /**
-     * @var MetaServiceConfigurationService&\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $metaServiceConfigurationService;
-    /**
-     * @var \Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration
-     */
-    private $metaServiceConfiguration;
+    private MetaServiceConfigurationService&\PHPUnit\Framework\MockObject\MockObject $metaServiceConfigurationService;
+
+    private MetaServiceConfiguration $metaServiceConfiguration;
+
+    private ReadAccessGroupRepositoryInterface $accessGroupRepository;
 
     protected function setUp(): void
     {
         $this->metaServiceConfigurationService = $this->createMock(MetaServiceConfigurationService::class);
         $this->metaServiceConfiguration = MetaServiceConfigurationTest::createEntity();
+        $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     }
 
     /**
@@ -62,7 +62,9 @@ class FindMetaServicesConfigurationsTest extends TestCase
         $contact->setAdmin(true);
         $findMetaServiceConfigurations = new FindMetaServicesConfigurations(
             $this->metaServiceConfigurationService,
-            $contact
+            $contact,
+            $this->accessGroupRepository,
+            false
         );
         $response = $findMetaServiceConfigurations->execute();
         $this->assertCount(1, $response->getMetaServicesConfigurations());
@@ -82,7 +84,9 @@ class FindMetaServicesConfigurationsTest extends TestCase
         $contact->setAdmin(false);
         $findMetaServiceConfigurations = new FindMetaServicesConfigurations(
             $this->metaServiceConfigurationService,
-            $contact
+            $contact,
+            $this->accessGroupRepository,
+            false
         );
         $response = $findMetaServiceConfigurations->execute();
         $this->assertCount(1, $response->getMetaServicesConfigurations());

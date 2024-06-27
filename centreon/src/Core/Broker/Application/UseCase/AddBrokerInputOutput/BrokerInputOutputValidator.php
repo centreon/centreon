@@ -21,13 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Broker\Application\UseCase\AddBrokerOutput;
+namespace Core\Broker\Application\UseCase\AddBrokerInputOutput;
 
 use Core\Broker\Application\Exception\BrokerException;
 use Core\Broker\Application\Repository\ReadBrokerRepositoryInterface;
-use Core\Broker\Domain\Model\BrokerOutputField;
+use Core\Broker\Domain\Model\BrokerInputOutputField;
 
-class BrokerOutputValidator
+class BrokerInputOutputValidator
 {
     public function __construct(
         private readonly ReadBrokerRepositoryInterface $readBrokerRepository,
@@ -42,7 +42,7 @@ class BrokerOutputValidator
     }
 
     /**
-     * @param array<string,BrokerOutputField|array<string,BrokerOutputField>> $fields
+     * @param array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>> $fields
      * @param array<string,mixed> $values
      *
      * @throws BrokerException
@@ -111,11 +111,11 @@ class BrokerOutputValidator
     /**
      * @param string $name
      * @param mixed $value
-     * @param BrokerOutputField $field
+     * @param BrokerInputOutputField $field
      *
      * @throws BrokerException
      */
-    private function validateFieldOrFail(string $name, mixed $value, BrokerOutputField $field): void
+    private function validateFieldOrFail(string $name, mixed $value, BrokerInputOutputField $field): void
     {
         if ($field->isRequired() && (! isset($value) || '' === $value)) {
             throw BrokerException::missingParameter($name);

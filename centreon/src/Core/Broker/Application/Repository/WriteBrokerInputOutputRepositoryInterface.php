@@ -23,44 +23,44 @@ declare(strict_types=1);
 
 namespace Core\Broker\Application\Repository;
 
-use Core\Broker\Domain\Model\Broker;
-use Core\Broker\Domain\Model\BrokerOutput;
-use Core\Broker\Domain\Model\BrokerOutputField;
-use Core\Broker\Domain\Model\NewBrokerOutput;
+use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\BrokerInputOutputField;
+use Core\Broker\Domain\Model\NewBrokerInputOutput;
 
-interface WriteBrokerOutputRepositoryInterface
+interface WriteBrokerInputOutputRepositoryInterface
 {
     /**
-     * Add an output to a broker configuration.
+     * Add an input or output to a broker configuration.
      *
-     * @param NewBrokerOutput $output
+     * @param NewBrokerInputOutput $inputOutput
      * @param int $brokerId
-     * @param array<string,BrokerOutputField|array<string,BrokerOutputField>> $parameters
+     * @param array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>> $parameters
      *
      * @throws \Throwable
      *
      * @return int
      */
-    public function add(NewBrokerOutput $output, int $brokerId, array $parameters): int;
+    public function add(NewBrokerInputOutput $inputOutput, int $brokerId, array $parameters): int;
 
     /**
-     * Delete a broker output configuration.
+     * Delete a broker input or output configuration.
      *
      * @param int $brokerId
-     * @param int $outputId
+     * @param string $tag
+     * @param int $inputOutputId
      *
      * @throws \Throwable
      */
-    public function delete(int $brokerId, int $outputId): void;
+    public function delete(int $brokerId, string $tag, int $inputOutputId): void;
 
     /**
-     * Update a broker output configuration.
+     * Update a broker input or output configuration.
      *
-     * @param BrokerOutput $output
+     * @param BrokerInputOutput $inputOutput
      * @param int $brokerId
-     * @param array<string,BrokerOutputField|array<string,BrokerOutputField>> $outputFields
+     * @param array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>> $fields
      *
      * @throws \Throwable
      */
-    public function update(BrokerOutput $output, int $brokerId, array $outputFields): void;
+    public function update(BrokerInputOutput $inputOutput, int $brokerId, array $fields): void;
 }
