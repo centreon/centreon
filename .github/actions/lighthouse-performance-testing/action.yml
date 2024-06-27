@@ -45,7 +45,7 @@ runs:
         php-version: 8.1
         extensions: yaml, xml, mysql, dom, mbstring, intl, pdo, zip
         coverage: none
-        tools: composer:v2.6
+        tools: composer:v2
 
     - name: Start Centreon Web and database containers
       env:
