@@ -19115,3 +19115,9 @@ msgstr "Ajouter un filtre"
 
 msgid "Add resource dataset"
 msgstr "Ajouter un jeu de données de ressources"
+
+msgid "Check command sent!"
+msgstr "Commande de contrôle envoyée !"
+
+msgid "Forced check command sent!"
+msgstr "Commande de vérification forcée envoyée !"

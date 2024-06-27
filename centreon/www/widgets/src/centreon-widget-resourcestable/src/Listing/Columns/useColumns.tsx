@@ -58,7 +58,11 @@ const useColumns = ({
 
   const columns = [
     {
-      Component: StatusColumn({ classes: statusClasses, displayType, t }),
+      Component: StatusColumn({
+        classes: statusClasses,
+        displayType,
+        t
+      }),
       clickable: true,
       getRenderComponentOnRowUpdateCondition: T,
       hasHoverableComponent: true,

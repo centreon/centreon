@@ -2,12 +2,18 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useAtom } from 'jotai';
 
 import { Column, useSnackbar } from '@centreon/ui';
 
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import { PanelOptions } from '../models';
+import {
+  resourcesToAcknowledgeAtom,
+  resourcesToSetDowntimeAtom,
+  selectedResourcesAtom
+} from '../atom';
 
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import { DisplayType, ResourceListing } from './models';
@@ -15,17 +21,25 @@ import { defaultSelectedColumnIds, useColumns } from './Columns';
 import useLoadResources from './useLoadResources';
 
 interface UseListingState {
+  cancelAcknowledge: () => void;
+  cancelSetDowntime: () => void;
   changeLimit: (value) => void;
   changePage: (updatedPage) => void;
   changeSort: ({ sortOrder, sortField }) => void;
   columns: Array<Column>;
+  confirmAcknowledge: () => void;
+  confirmSetDowntime: () => void;
   data: ResourceListing | undefined;
   goToResourceStatusPage?: (row) => void;
   hasMetaService: boolean;
   isLoading: boolean;
   page: number | undefined;
   resetColumns: () => void;
+  resourcesToAcknowledge;
+  resourcesToSetDowntime;
   selectColumns: (updatedColumnIds: Array<string>) => void;
+  selectedResources;
+  setSelectedResources;
 }
 
 interface UseListingProps
@@ -69,6 +83,16 @@ const useListing = ({
   const { t } = useTranslation();
 
   const [page, setPage] = useState(1);
+  const [selectedResources, setSelectedResources] = useAtom(
+    selectedResourcesAtom
+  );
+
+  const [resourcesToAcknowledge, setResourcesToAcknowledge] = useAtom(
+    resourcesToAcknowledgeAtom
+  );
+  const [resourcesToSetDowntime, setResourcesToSetDowntime] = useAtom(
+    resourcesToSetDowntimeAtom
+  );
 
   const { data, isLoading } = useLoadResources({
     dashboardId,
@@ -151,18 +175,46 @@ const useListing = ({
     setPanelOptions?.({ displayType: DisplayType.All });
   }, [hasMetaService]);
 
+  const cancelAcknowledge = (): void => {
+    setResourcesToAcknowledge([]);
+  };
+
+  const cancelSetDowntime = (): void => {
+    setResourcesToSetDowntime([]);
+  };
+
+  const confirmSetDowntime = (): void => {
+    setResourcesToSetDowntime([]);
+
+    setSelectedResources([]);
+  };
+
+  const confirmAcknowledge = (): void => {
+    setResourcesToAcknowledge([]);
+
+    setSelectedResources([]);
+  };
+
   return {
+    cancelAcknowledge,
+    cancelSetDowntime,
     changeLimit,
     changePage,
     changeSort,
     columns,
+    confirmAcknowledge,
+    confirmSetDowntime,
     data,
     goToResourceStatusPage,
     hasMetaService,
     isLoading,
     page,
     resetColumns,
-    selectColumns
+    resourcesToAcknowledge,
+    resourcesToSetDowntime,
+    selectColumns,
+    selectedResources,
+    setSelectedResources
   };
 };
 
