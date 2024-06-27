@@ -148,9 +148,6 @@ class Configuration
                         ? port
                         : $configuration[$parameterName];
                     break;
-                case static::CENTREON_PATH:
-                    $configuration[$parameterName] = $this->centreonPath;
-                    break;
             }
         }
 
