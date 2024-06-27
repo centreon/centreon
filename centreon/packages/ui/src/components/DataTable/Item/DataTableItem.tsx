@@ -1,7 +1,6 @@
 import React, { forwardRef, ReactElement, RefObject, useMemo } from 'react';
 
 import {
-  CardMedia,
   Card as MuiCard,
   CardActionArea as MuiCardActionArea,
   CardActions as MuiCardActions,

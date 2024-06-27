@@ -49,9 +49,14 @@ const useStyles = makeStyles()((theme) => ({
     overflow: 'hidden'
   },
   thumbnail: {
+    '&:hover': {
+      transform: 'scale(1.1)',
+      transformOrigin: 'center'
+    },
     height: theme.spacing(10),
     objectFit: 'cover',
     objectPosition: 'top',
+    transition: 'transform 150ms ease-out',
     width: '100%'
   }
 }));
