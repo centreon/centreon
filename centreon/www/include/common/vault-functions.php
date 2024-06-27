@@ -1738,11 +1738,13 @@ function writeKnowledgeBasePasswordInVault(
  *
  * @throws Throwable
  */
-function migrateDatabaseCredentialsToVault(VaultConfiguration $vaultConfiguration, Logger $logger, CentreonRestHttp $httpClient): void
-{
+function migrateDatabaseCredentialsToVault(
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    CentreonRestHttp $httpClient
+): string {
     $vaultToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-    $vaultPath = migrateDatabaseCredentials($vaultConfiguration, $vaultToken, $httpClient);
-    updateConfigFilesWithVaultPath($vaultPath);
+    return migrateDatabaseCredentials($vaultConfiguration, $vaultToken, $httpClient);
 }
 
 /**
@@ -1752,13 +1754,7 @@ function migrateDatabaseCredentialsToVault(VaultConfiguration $vaultConfiguratio
  * @param string $token
  * @param CentreonRestHttp $httpClient
  *
- * @throws RestBadRequestException
- * @throws RestConflictException
- * @throws RestForbiddenException
- * @throws RestInternalServerErrorException
- * @throws RestMethodNotAllowedException
- * @throws RestNotFoundException
- * @throws RestUnauthorizedException
+ * @throws Throwable
  *
  * @return string
  */
@@ -1768,21 +1764,28 @@ function migrateDatabaseCredentials(
     CentreonRestHttp $httpClient
 ): string {
     $uuidGenerator = new UUIDGenerator();
-    $uuid = $uuidGenerator->generateV4();
-    $vaultPathUri = $vaultConfiguration->getRootPath() . '/data/database/' . $uuid;
-    $vaultPath = 'secret::hashicorp_vault::' . $vaultPathUri;
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
-    $url = 'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-        . '/v1/' . $vaultPathUri;
-    $headers = [
-        'X-Vault-Token: ' . $token,
-    ];
 
-    $body = [
-        'data' => ['_DBUSERNAME' => $credentials['username'], '_DBPASSWORD' => $credentials['password']],
-    ];
+    if (
+        str_starts_with($credentials['username'], 'secret::')
+    ) {
+        return $credentials['username'];
+    }
 
-    $httpClient->call($url, 'POST', $body, $headers);
+    $uuid = $uuidGenerator->generateV4();
+    $vaultPathEndpoint = '/data/database/' . $uuid;
+    $vaultPath = 'secret::' . $vaultConfiguration->getName() . '::' . $vaultConfiguration->getRootPath()
+        . $vaultPathEndpoint;
+    $vaultPathUrl = 'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+        . $vaultConfiguration->getRootPath() . $vaultPathEndpoint;
+    $httpClient->call(
+        $vaultPathUrl,
+        'POST',
+        ['data' => [
+            '_DBUSERNAME' => $credentials['username'],
+            '_DBPASSWORD' => $credentials['password'],
+        ]],
+        ['X-Vault-Token: ' . $token]);
 
     return $vaultPath;
 }
