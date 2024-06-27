@@ -21,19 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Broker\Infrastructure\API\AddBrokerOutput;
+namespace Core\Broker\Application\UseCase\AddBrokerInputOutput;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutputPresenterInterface;
-use Core\Broker\Application\UseCase\AddBrokerOutput\AddBrokerOutputResponse;
-
-class AddBrokerOutputPresenterStub extends AbstractPresenter implements AddBrokerOutputPresenterInterface
+/**
+ * @phpstan-import-type _BrokerInputOutputParameter from \Core\Broker\Domain\Model\BrokerInputOutput
+ */
+final class AddBrokerInputOutputResponse
 {
-    public ResponseStatusInterface|AddBrokerOutputResponse $response;
-
-    public function presentResponse(ResponseStatusInterface|AddBrokerOutputResponse $response): void
-    {
-        $this->response = $response;
+    /**
+     * @param int $id
+     * @param int $brokerId
+     * @param string $name
+     * @param TypeDto $type
+     * @param _BrokerInputOutputParameter[] $parameters
+     */
+    public function __construct(
+        public int $id = 0,
+        public int $brokerId = 0,
+        public string $name = '',
+        public TypeDto $type = new TypeDto(),
+        public array $parameters = [],
+    ) {
     }
 }

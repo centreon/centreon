@@ -21,31 +21,31 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Broker\Application\UseCase\AddBrokerOutput;
+namespace Tests\Core\Broker\Application\UseCase\AddBrokerInputOutput;
 
 use Core\Broker\Application\Exception\BrokerException;
 use Core\Broker\Application\Repository\ReadBrokerRepositoryInterface;
-use Core\Broker\Application\UseCase\AddBrokerOutput\BrokerOutputValidator;
-use Core\Broker\Domain\Model\BrokerOutputField;
+use Core\Broker\Application\UseCase\AddBrokerInputOutput\BrokerInputOutputValidator;
+use Core\Broker\Domain\Model\BrokerInputOutputField;
 
 beforeEach(function (): void {
-    $this->validator = new BrokerOutputValidator(
+    $this->validator = new BrokerInputOutputValidator(
         $this->readBrokerRepository = $this->createMock(ReadBrokerRepositoryInterface::class),
     );
 
     $this->outputFields = [
-        'mandatory-field' => new BrokerOutputField(1, 'mandatory-field', 'text', null, null, true, false, null, []),
-        'optional-field' => new BrokerOutputField(2, 'optional-field', 'text', null, null, false, false, null, []),
-        'integer-field' => new BrokerOutputField(3, 'integer-field', 'int', null, null, false, false, null, []),
-        'password-field' => new BrokerOutputField(4, 'password-field', 'password', null, null, false, false, null, []),
-        'select-field' => new BrokerOutputField(5, 'select-field', 'select', null, null, false, false, 'a', ['a', 'b', 'c']),
-        'radio-field' => new BrokerOutputField(6, 'radio-field', 'radio', null, null, false, false, 'A', ['A', 'B', 'C']),
+        'mandatory-field' => new BrokerInputOutputField(1, 'mandatory-field', 'text', null, null, true, false, null, []),
+        'optional-field' => new BrokerInputOutputField(2, 'optional-field', 'text', null, null, false, false, null, []),
+        'integer-field' => new BrokerInputOutputField(3, 'integer-field', 'int', null, null, false, false, null, []),
+        'password-field' => new BrokerInputOutputField(4, 'password-field', 'password', null, null, false, false, null, []),
+        'select-field' => new BrokerInputOutputField(5, 'select-field', 'select', null, null, false, false, 'a', ['a', 'b', 'c']),
+        'radio-field' => new BrokerInputOutputField(6, 'radio-field', 'radio', null, null, false, false, 'A', ['A', 'B', 'C']),
         'multiselect-field' => [
-            'subfield' => new BrokerOutputField(3, 'subfield', 'multiselect', null, null, false, false, null, ['X', 'Y', 'Z']),
+            'subfield' => new BrokerInputOutputField(3, 'subfield', 'multiselect', null, null, false, false, null, ['X', 'Y', 'Z']),
         ],
         'group-field' => [
-            'field-A' => new BrokerOutputField(3, 'field-A', 'text', null, null, false, false, null, []),
-            'field-B' => new BrokerOutputField(3, 'field-B', 'text', null, null, false, false, null, []),
+            'field-A' => new BrokerInputOutputField(3, 'field-A', 'text', null, null, false, false, null, []),
+            'field-B' => new BrokerInputOutputField(3, 'field-B', 'text', null, null, false, false, null, []),
         ],
     ];
 

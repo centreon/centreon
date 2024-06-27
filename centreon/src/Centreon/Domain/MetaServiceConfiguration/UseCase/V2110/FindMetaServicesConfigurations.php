@@ -26,6 +26,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindMetaServicesConfigurationsResponse;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * This class is designed to represent a use case to find all host categories.
@@ -34,27 +36,20 @@ use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationE
  */
 class FindMetaServicesConfigurations
 {
-    /**
-     * @var MetaServiceConfigurationServiceInterface
-     */
-    private $metaServiceConfigurationService;
-    /**
-     * @var ContactInterface
-     */
-    private $contact;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
-     * FindMetaServiceConfiguration constructor.
-     *
      * @param MetaServiceConfigurationServiceInterface $metaServiceConfigurationService
      * @param ContactInterface $contact
+     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
-        MetaServiceConfigurationServiceInterface $metaServiceConfigurationService,
-        ContactInterface $contact
+        private readonly MetaServiceConfigurationServiceInterface $metaServiceConfigurationService,
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
-        $this->metaServiceConfigurationService = $metaServiceConfigurationService;
-        $this->contact = $contact;
     }
 
     /**
@@ -66,10 +61,30 @@ class FindMetaServicesConfigurations
     public function execute(): FindMetaServicesConfigurationsResponse
     {
         $response = new FindMetaServicesConfigurationsResponse();
-        $metaServicesConfigurations = ($this->contact->isAdmin())
+        $metaServicesConfigurations = $this->isUserAdmin()
             ? $this->metaServiceConfigurationService->findAllWithoutAcl()
             : $this->metaServiceConfigurationService->findAllWithAcl();
         $response->setMetaServicesConfigurations($metaServicesConfigurations);
         return $response;
+    }
+
+   /**
+     * Indicates if the current user is admin or not (cloud + onPremise context).
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->contact->isAdmin()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->accessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
+            && $this->isCloudPlatform;
     }
 }

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Broker\Application\UseCase\AddBrokerOutput;
+namespace Core\Broker\Application\UseCase\AddBrokerInputOutput;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
@@ -32,31 +32,31 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Broker\Application\Exception\BrokerException;
-use Core\Broker\Application\Repository\ReadBrokerOutputRepositoryInterface;
-use Core\Broker\Application\Repository\WriteBrokerOutputRepositoryInterface;
-use Core\Broker\Domain\Model\BrokerOutput;
-use Core\Broker\Domain\Model\NewBrokerOutput;
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
+use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\NewBrokerInputOutput;
 
 /**
- * @phpstan-import-type _BrokerOutputParameter from \Core\Broker\Domain\Model\BrokerOutput
+ * @phpstan-import-type _BrokerInputOutputParameter from \Core\Broker\Domain\Model\BrokerInputOutput
  */
-final class AddBrokerOutput
+final class AddBrokerInputOutput
 {
     use LoggerTrait;
 
     public function __construct(
-        private readonly WriteBrokerOutputRepositoryInterface $writeOutputRepository,
-        private readonly ReadBrokerOutputRepositoryInterface $readOutputRepository,
+        private readonly WriteBrokerInputOutputRepositoryInterface $writeOutputRepository,
+        private readonly ReadBrokerInputOutputRepositoryInterface $readOutputRepository,
         private readonly ContactInterface $user,
-        private readonly BrokerOutputValidator $validator,
+        private readonly BrokerInputOutputValidator $validator,
     ) {
     }
 
     /**
-     * @param AddBrokerOutputRequest $request
-     * @param AddBrokerOutputPresenterInterface $presenter
+     * @param AddBrokerInputOutputRequest $request
+     * @param AddBrokerInputOutputPresenterInterface $presenter
      */
-    public function __invoke(AddBrokerOutputRequest $request, AddBrokerOutputPresenterInterface $presenter): void
+    public function __invoke(AddBrokerInputOutputRequest $request, AddBrokerInputOutputPresenterInterface $presenter): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_BROKER_RW)) {
@@ -74,7 +74,7 @@ final class AddBrokerOutput
             $this->validator->brokerIsValidOrFail($request->brokerId);
 
             if (
-                null === ($type = $this->readOutputRepository->findType($request->type))
+                null === ($type = $this->readOutputRepository->findType($request->tag, $request->type))
                 || [] === ($outputFields = $this->readOutputRepository->findParametersByType($request->type))
             ) {
                 throw BrokerException::idDoesNotExist('type', $request->type);
@@ -82,11 +82,12 @@ final class AddBrokerOutput
 
             $this->validator->validateParameters($outputFields, $request->parameters);
 
-            /** @var _BrokerOutputParameter[] $validatedParameters */
+            /** @var _BrokerInputOutputParameter[] $validatedParameters */
             $validatedParameters = $request->parameters;
 
             $outputId = $this->writeOutputRepository->add(
-                new NewBrokerOutput(
+                new NewBrokerInputOutput(
+                    tag: $request->tag,
                     type: $type,
                     name: $request->name,
                     parameters: $validatedParameters
@@ -95,8 +96,12 @@ final class AddBrokerOutput
                 $outputFields
             );
 
-            if (! ($output = $this->readOutputRepository->findByIdAndBrokerId($outputId, $request->brokerId))) {
-                throw BrokerException::outputNotFound($request->brokerId, $outputId);
+            if (! ($output = $this->readOutputRepository->findByIdAndBrokerId(
+                $request->tag,
+                $outputId,
+                $request->brokerId
+            ))) {
+                throw BrokerException::inputOutputNotFound($request->brokerId, $outputId);
             }
 
             $presenter->presentResponse(
@@ -116,15 +121,15 @@ final class AddBrokerOutput
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
-                new ErrorResponse(BrokerException::addBrokerOutput())
+                new ErrorResponse(BrokerException::addBrokerInputOutput())
             );
             $this->error((string) $ex);
         }
     }
 
-    private function createResponse(BrokerOutput $output, int $brokerId): AddBrokerOutputResponse
+    private function createResponse(BrokerInputOutput $output, int $brokerId): AddBrokerInputOutputResponse
     {
-        return new AddBrokerOutputResponse(
+        return new AddBrokerInputOutputResponse(
             id: $output->getId(),
             brokerId: $brokerId,
             name: $output->getName(),
