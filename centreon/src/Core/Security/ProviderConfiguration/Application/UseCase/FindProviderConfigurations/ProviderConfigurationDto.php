@@ -23,13 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations;
 
-use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-
-interface FindProviderConfigurationsPresenterInterface extends PresenterInterface
+class ProviderConfigurationDto
 {
-    /**
-     * @param FindProviderConfigurationsResponse|ResponseStatusInterface $data
-     */
-    public function presentResponse(FindProviderConfigurationsResponse|ResponseStatusInterface $data): void;
+    public int $id = 0;
+
+    public string $type = '';
+
+    public string $name = '';
+
+    public string $authenticationUri = '';
+
+    public bool $isActive = false;
+
+    public bool $isForced = false;
 }
