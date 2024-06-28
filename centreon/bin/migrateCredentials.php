@@ -76,10 +76,13 @@ function migrateApplicationCredentials(): void
             'sudo -u apache php ' . _CENTREON_PATH_ . '/bin/console ' . $migrationCommand
         );
         $process->setWorkingDirectory(_CENTREON_PATH_);
-        $process->mustRun();
-        if (! empty($process->getOutput())) {
-            echo ($process->getOutput() . PHP_EOL);
-        }
+        $process->mustRun(function ($type, $buffer): void {
+            if (Process::ERR === $type) {
+                echo 'ERROR: ' . $buffer . PHP_EOL;
+            } else {
+                echo $buffer;
+            }
+        });
     }
     echo('Migration of application credentials completed' . PHP_EOL);
 }
