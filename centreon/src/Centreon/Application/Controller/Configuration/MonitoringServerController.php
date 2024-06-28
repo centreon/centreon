@@ -216,9 +216,10 @@ class MonitoringServerController extends AbstractController
          */
         $user = $this->getUser();
         try {
-            if (! $user->isAdmin() && ! $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION)) {
+            if (! $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION)) {
                 throw new AccessDeniedException('Insufficient rights (required: ROLE_GENERATE_CONFIGURATION)');
             }
+
             $callable();
         } catch (TimeoutException $ex) {
             $this->error($ex->getMessage());

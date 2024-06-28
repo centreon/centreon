@@ -8,7 +8,7 @@ Feature:
     And the endpoints are described in Centreon Web API documentation
 
   Scenario: Generate and move configuration for a monitoring server
-    Given I am logged in
+    Given I am logged in as an administrator
     And the following CLAPI import data:
     """
     HOST;ADD;host_test;Test host;127.0.0.1;generic-host;central;
