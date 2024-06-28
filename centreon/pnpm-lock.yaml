@@ -235,8 +235,8 @@ importers:
         specifier: ^1.6.5
         version: 1.6.5
       '@swc/core-linux-x64-gnu':
-        specifier: ^1.3.105
-        version: 1.4.8
+        specifier: ^1.6.5
+        version: 1.6.5
       '@swc/jest':
         specifier: ^0.2.36
         version: 0.2.36(@swc/core@1.6.5)
@@ -421,8 +421,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.6(@swc/core@1.6.5)(webpack@5.90.3)
       swc-plugin-coverage-instrument:
-        specifier: ^0.0.20
-        version: 0.0.20
+        specifier: ^0.0.21
+        version: 0.0.21
       terser-webpack-plugin:
         specifier: ^5.3.10
         version: 5.3.10(@swc/core@1.6.5)(webpack@5.90.3)
@@ -8808,6 +8808,7 @@ packages:
     os: [linux]
     requiresBuild: true
     dev: true
+    optional: true
 
   /@swc/core-linux-x64-gnu@1.6.5:
     resolution: {integrity: sha512-G6HmUn/RRIlXC0YYFfBz2qh6OZkHS/KUPkhoG4X9ADcgWXXjOFh6JrefwsYj8VBAJEnr5iewzjNfj+nztwHaeA==}
@@ -8815,7 +8816,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    optional: true
 
   /@swc/core-linux-x64-musl@1.4.8:
     resolution: {integrity: sha512-p4yxvVS05rBNCrBaSTa20KK88vOwtg8ifTW7ec/yoab0bD5EwzzB8KbDmLLxE6uziFa0sdjF0dfRDwSZPex37Q==}
@@ -14732,7 +14732,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.6.2
     dev: true
 
   /dot-prop@5.3.0:
@@ -22114,7 +22114,7 @@ packages:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.6.2
     dev: true
 
   /pascalcase@0.1.1:
@@ -25269,8 +25269,8 @@ packages:
       webpack: 5.90.3(@swc/core@1.6.5)(webpack-cli@5.1.4)
     dev: true
 
-  /swc-plugin-coverage-instrument@0.0.20:
-    resolution: {integrity: sha512-WXTGILCZE2hW61yrmxi6doN/UB4RT2K1JJSQVPn9JMJ6X4WJpZsesHi4lHy6qRKVsNIlHZvTWofkpuRi/WQUig==}
+  /swc-plugin-coverage-instrument@0.0.21:
+    resolution: {integrity: sha512-KC1VX4PhSnjoOYY/5HKRL08KwO3GsFfMFpcOxatY9EeeEycsmKQFRj2kNAv/602d9l1Qgodhz1BDAdsT7OQrUA==}
     dev: true
 
   /symbol-tree@3.2.4:
