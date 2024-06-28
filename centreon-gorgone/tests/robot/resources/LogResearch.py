@@ -2,8 +2,7 @@ from robot.api import logger
 import re
 import time
 from dateutil import parser
-from datetime import datetime, timedelta
-from robot.libraries.BuiltIn import BuiltIn
+from datetime import datetime
 
 TIMEOUT = 30
 
@@ -78,7 +77,7 @@ def ctn_extract_date_from_log(line: str):
     if m is None:
         return None
     try:
-        return parser.parse((m.group(1)))
+        return parser.parse(m.group(1))
     except parser.ParserError:
         logger.console(f"Unable to parse the date from the line {line}")
         return None
