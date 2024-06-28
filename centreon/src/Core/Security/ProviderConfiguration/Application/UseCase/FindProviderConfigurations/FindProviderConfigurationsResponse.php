@@ -21,25 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter;
+namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations;
 
-interface ProviderPresenterInterface
+final class FindProviderConfigurationsResponse
 {
-    /**
-     * Validate that the presenter will handle the correct responst.
-     *
-     * @param mixed $response
-     *
-     * @return bool
-     */
-    public function isValidFor(mixed $response): bool;
-
-    /**
-     * Format response.
-     *
-     * @param mixed $response
-     *
-     * @return array<string,mixed>
-     */
-    public function present(mixed $response): array;
+    /** @var ProviderConfigurationDto[] */
+    public array $providerConfigurations = [];
 }

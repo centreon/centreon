@@ -19110,6 +19110,12 @@ msgstr "Axe"
 msgid "Tooltip"
 msgstr "Infobulle"
 
+msgid "Unable to retrieve credentials ['%s'] from vault"
+msgstr "Impossible de récupérer les informations d'identification ['%s'] du coffre"
+
+msgid "Unknown provider type: %s"
+msgstr "Type de fournisseur inconnu : %s"
+
 msgid "Add filter"
 msgstr "Ajouter un filtre"
 
