@@ -65,4 +65,16 @@ interface ReadBrokerInputOutputRepositoryInterface
      * @return null|BrokerInputOutput
      */
     public function findByIdAndBrokerId(string $tag, int $outputId, int $brokerId): ?BrokerInputOutput;
+
+    /**
+     * Return the vault path corresponding to a broker configuration ID.
+     *
+     * @param int $brokerId
+     *
+     * @throws \Throwable
+     *
+     * @return string|null
+     */
+    public function findVaultPathByBrokerId(int $brokerId): ?string;
+
 }

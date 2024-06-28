@@ -192,6 +192,71 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findVaultPathByBrokerId(int $brokerId): ?string
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    cfg.config_value
+                FROM `:db`.`cfg_centreonbroker_info` cfg
+                WHERE cfg.config_id = :brokerId
+                    AND cfg.config_value LIKE 'secret::%'
+                LIMIT 1
+                SQL
+        ));
+        $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetchColumn();
+        /** @var string|null|false $result */
+
+        return $result !== false ? $result : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAll(): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    cfg.config_id,
+                    cfg.config_group,
+                    cfg.config_group_id,
+                    cfg.config_key,
+                    cfg.config_value,
+                    cfg.subgrp_id,
+                    cfg.parent_grp_id,
+                    cfg.fieldIndex
+                FROM `:db`.`cfg_centreonbroker_info` cfg
+                SQL
+        ));
+        $statement->execute();
+
+        $data = [];
+        while (($row = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var _ExtendedInputOutput $row */
+            $data[$row['config_id'] . '_' . $row['config_group']. '_' . $row['config_group_id']][] = $row;
+        }
+
+        $results = [];
+        foreach ($data as $values) {
+            $firstElem = current($values);
+
+            /** @var _ExtendedInputOutput[] $values */
+            $inputOutput = $this->createFromArray($values, $firstElem['config_group'], true);
+            if ($inputOutput !== null) {
+                $results[$firstElem['config_id']][] = $inputOutput;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * @param _InputOutput[] $result
      * @param string $tag
      *
