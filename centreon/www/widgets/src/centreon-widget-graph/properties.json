@@ -302,6 +302,60 @@
             }
           ]
         },
+        "orientation": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "label": "Orientation",
+          "defaultValue": "auto",
+          "options": [
+            {
+              "id": "auto",
+              "name": "Auto"
+            },
+            {
+              "id": "horizontal",
+              "name": "Horizontal"
+            },
+            {
+              "id": "vertical",
+              "name": "Vertical"
+            }
+          ],
+          "hiddenCondition": {
+            "when": "options.displayType",
+            "matches": "line"
+          }
+        },
+        "barRadius": {
+          "group": "graphStyles",
+          "type": "slider",
+          "label": "Bar radius",
+          "defaultValue": 0,
+          "slider": {
+            "min": 0,
+            "max": 100,
+            "unit": "%"
+          },
+          "hiddenCondition": {
+            "when": "options.displayType",
+            "matches": "line"
+          }
+        },
+        "barOpacity": {
+          "group": "graphStyles",
+          "type": "slider",
+          "label": "Bar background opacity",
+          "defaultValue": 100,
+          "slider": {
+            "min": 0,
+            "max": 100,
+            "unit": "%"
+          },
+          "hiddenCondition": {
+            "when": "options.displayType",
+            "matches": "line"
+          }
+        },
         "showAxisBorder": {
           "type": "switch",
           "label": "Show axis border",
