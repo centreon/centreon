@@ -124,7 +124,7 @@ export const useWidgetInputs = (
                 group: value.group,
                 key,
                 props: {
-                  ...(value as Omit<
+                  ...(value as unknown as Omit<
                     WidgetPropertyProps,
                     'propertyName' | 'propertyType'
                   >),
