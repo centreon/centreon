@@ -338,7 +338,10 @@
           },
           "hiddenCondition": {
             "when": "options.displayType",
-            "matches": "line"
+            "matches": [
+              "line",
+              "bar-stacked"
+            ]
           }
         },
         "barOpacity": {

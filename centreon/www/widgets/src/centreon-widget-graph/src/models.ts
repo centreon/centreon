@@ -13,9 +13,12 @@ export interface FormTimePeriod {
 
 export interface PanelOptions {
   areaOpacity: number;
+  barOpacity: number;
+  barRadius: number;
   curveType: 'linear' | 'step' | 'natural';
   dashLength?: number;
   dashOffset?: number;
+  displayType: 'line' | 'bar' | 'bar-stacked';
   dotOffset?: number;
   globalRefreshInterval?: number;
   gridLinesType: 'horizontal' | 'vertical' | 'all';
@@ -25,12 +28,11 @@ export interface PanelOptions {
   lineStyleMode: 'solid' | 'dash' | 'dots';
   lineWidth?: number;
   lineWidthMode: 'auto' | 'custom';
+  orientation: 'auto' | 'horizontal' | 'vertical';
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   scale: 'linear' | 'logarithmic';
   scaleLogarithmicBase: string;
-  showArea: 'auto' | 'show' | 'hide';
-  showAxisBorder: boolean;
   showGridLines: boolean;
   showLegend: boolean;
   showPoints: boolean;
@@ -39,6 +41,8 @@ export interface PanelOptions {
   tooltipMode: 'all' | 'single' | 'hidden';
   tooltipSortOrder: 'name' | 'ascending' | 'descending';
   yAxisTickLabelRotation: number;
+  showAxisBorder: boolean;
+  showArea: 'auto' | 'show' | 'hide';
 }
 
 export interface FormThreshold {

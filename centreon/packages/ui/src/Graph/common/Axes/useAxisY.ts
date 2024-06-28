@@ -27,15 +27,24 @@ interface AxisY {
 interface Props {
   data: Omit<Data, 'timeSeries'>;
   graphHeight?: number;
+  graphWidth?: number;
+  isHorizontal: boolean;
 }
 
-const useAxisY = ({ data, graphHeight }: Props): AxisY => {
+const useAxisY = ({
+  data,
+  graphHeight,
+  graphWidth,
+  isHorizontal
+}: Props): AxisY => {
   const theme = useTheme();
 
   const { lines } = data;
   const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
 
-  const numTicks = graphHeight && Math.ceil(graphHeight / 30);
+  const numTicks = isHorizontal
+    ? graphHeight && Math.ceil(graphHeight / 30)
+    : graphWidth && Math.ceil(graphWidth / 60);
 
   const hasMoreThanTwoUnits = !isNil(thirdUnit);
   const hasTwoUnits = !isNil(secondUnit) && !hasMoreThanTwoUnits;
