@@ -73,6 +73,11 @@ class GenerateConfigurationTest extends TestCase
     public function testErrorRetrievingMonitoringServerException(): void
     {
         $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->user
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -98,6 +103,11 @@ class GenerateConfigurationTest extends TestCase
     public function testErrorOnGeneration(): void
     {
         $repositoryException = new RepositoryException('Test exception message');
+
+        $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
 
         $this->user
             ->expects($this->once())
@@ -132,6 +142,11 @@ class GenerateConfigurationTest extends TestCase
     public function testSuccessAsAdminUser(): void
     {
         $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->user
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -162,6 +177,11 @@ class GenerateConfigurationTest extends TestCase
 
     public function testSuccessAsNonAdminUser(): void
     {
+        $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
         $this->user
             ->expects($this->once())
             ->method('isAdmin')

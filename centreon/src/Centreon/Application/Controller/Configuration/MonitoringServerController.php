@@ -220,14 +220,6 @@ class MonitoringServerController extends AbstractController
                 throw new AccessDeniedException('Insufficient rights (required: ROLE_GENERATE_CONFIGURATION)');
             }
 
-            if (
-                ! $user->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
-                && ! $user->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
-            ) {
-                throw new AccessDeniedException(
-                    'Insufficient rights (required: ROLE_CONFIGURATION_MONITORING_SERVER_READ or ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)'
-                );
-            }
             $callable();
         } catch (TimeoutException $ex) {
             $this->error($ex->getMessage());
