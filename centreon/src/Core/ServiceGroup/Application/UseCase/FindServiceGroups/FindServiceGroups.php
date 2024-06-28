@@ -40,12 +40,21 @@ use Core\ServiceGroup\Infrastructure\API\FindServiceGroups\FindServiceGroupsPres
 final class FindServiceGroups
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
+    /**
+     * @param ReadServiceGroupRepositoryInterface $readServiceGroupRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param RequestParametersInterface $requestParameters
+     * @param ContactInterface $contact
+     * @param bool $isCloudPlatform
+     */
     public function __construct(
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -55,7 +64,7 @@ final class FindServiceGroups
     public function __invoke(PresenterInterface $presenter): void
     {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->isUserAdmin()) {
                 $this->info(
                     'Find service groups as admin',
                     ['request' => $this->requestParameters->toArray()]
@@ -83,6 +92,26 @@ final class FindServiceGroups
             $presenter->setResponseStatus(new ErrorResponse(ServiceGroupException::errorWhileSearching()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
+    }
+
+    /**
+     * Indicates if the current user is admin or not (cloud + onPremise context).
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->contact->isAdmin()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
+            && $this->isCloudPlatform;
     }
 
     /**

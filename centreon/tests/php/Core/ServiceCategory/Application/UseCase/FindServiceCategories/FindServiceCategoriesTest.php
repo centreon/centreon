@@ -48,7 +48,8 @@ beforeEach(function () {
         $this->serviceCategoryRepository,
         $this->accessGroupRepository,
         $this->requestParameters,
-        $this->user
+        $this->user,
+        false
     );
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
     $this->serviceCategoryName = 'sc-name';

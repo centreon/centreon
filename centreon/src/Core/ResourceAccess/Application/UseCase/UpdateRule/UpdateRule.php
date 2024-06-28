@@ -57,6 +57,7 @@ final class UpdateRule
      * @param UpdateRuleValidation $validator
      * @param DatasetFilterValidator $datasetValidator
      * @param DataStorageEngineInterface $dataStorageEngine
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -65,7 +66,8 @@ final class UpdateRule
         private readonly WriteResourceAccessRepositoryInterface $writeRepository,
         private readonly UpdateRuleValidation $validator,
         private readonly DatasetFilterValidator $datasetValidator,
-        private readonly DataStorageEngineInterface $dataStorageEngine
+        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -572,6 +574,7 @@ final class UpdateRule
         );
 
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
+            && $this->isCloudPlatform;
     }
 }

@@ -33,7 +33,7 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.intercept(
     'HEAD',
-    'https://cdn.eu.pendo.io/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
+    'https://guide.centreon.com/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
   ).as('pendoRequest');
 });
 
