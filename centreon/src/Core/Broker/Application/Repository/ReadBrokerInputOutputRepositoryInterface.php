@@ -77,4 +77,12 @@ interface ReadBrokerInputOutputRepositoryInterface
      */
     public function findVaultPathByBrokerId(int $brokerId): ?string;
 
+    /**
+     * Return all the broker inputs and outputs ordered by broker configuration ID.
+     *
+     * @throws \Throwable
+     *
+     * @return array<int,BrokerInputOutput[]>
+     */
+    public function findAll(): array;
 }

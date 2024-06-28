@@ -39,6 +39,16 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
  *      parent_grp_id:null|int,
  *      fieldIndex:null|int
  * }
+ * @phpstan-type _ExtendedInputOutput array{
+ *      config_id:int,
+ *      config_group:string,
+ *      config_group_id:int,
+ *      config_key:string,
+ *      config_value:string,
+ *      subgrp_id:null|int,
+ *      parent_grp_id:null|int,
+ *      fieldIndex:null|int
+ * }
  */
 class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements ReadBrokerInputOutputRepositoryInterface
 {
@@ -259,10 +269,11 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
     /**
      * @param _InputOutput[] $result
      * @param string $tag
+     * @param bool $withPasswords
      *
      * @return BrokerInputOutput|null
      */
-    private function createFromArray(array $result, string $tag): ?BrokerInputOutput
+    private function createFromArray(array $result, string $tag, bool $withPasswords = false): ?BrokerInputOutput
     {
         $parameters = [];
         $groupedFields = [];
@@ -316,12 +327,14 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
             }
         }
 
-        // removing password values
-        foreach (array_keys($groupedFields) as $groupedFieldName) {
-            $parameters[$groupedFieldName] = array_map(
-                $this->removePasswordValue(...),
-                array_values($parameters[$groupedFieldName])
-            );
+        if (false === $withPasswords) {
+            // removing password values
+            foreach (array_keys($groupedFields) as $groupedFieldName) {
+                $parameters[$groupedFieldName] = array_map(
+                    $this->removePasswordValue(...),
+                    array_values($parameters[$groupedFieldName])
+                );
+            }
         }
 
         // for phpstan, should never happen
