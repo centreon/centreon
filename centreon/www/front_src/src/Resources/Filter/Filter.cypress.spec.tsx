@@ -469,7 +469,7 @@ describe('Custom filters', () => {
 });
 
 views.forEach(({ name, initSearch, ids }) => {
-  describe(`Criterias , view by ${name}`, () => {
+  describe(`Criterias, view by ${name}`, () => {
     beforeEach(() => {
       const updatedStore = setView({ name, store: getStore() });
 
