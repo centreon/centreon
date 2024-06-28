@@ -1,17 +1,4 @@
-import { useMemo } from 'react';
-
-import {
-  always,
-  cond,
-  equals,
-  F,
-  head,
-  isNil,
-  lensPath,
-  pluck,
-  set,
-  T
-} from 'ramda';
+import { always, cond, equals, F, head, lensPath, pluck, set, T } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import {
