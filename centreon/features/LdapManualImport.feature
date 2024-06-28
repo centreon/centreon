@@ -1,3 +1,4 @@
+@system
 Feature: LDAPManualImport
     As a company administrator
     I want to import manually users

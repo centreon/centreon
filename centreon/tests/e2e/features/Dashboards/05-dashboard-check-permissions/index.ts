@@ -136,16 +136,20 @@ Then(
 Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-    `{selectall}{backspace}${dashboards.fromAdminUser.name}-edited`
-  );
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-    `{selectall}{backspace}${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
-  );
+  cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+    cy.get('input[aria-label="Name"]').type(
+      `{selectall}{backspace}${dashboards.fromAdminUser.name}-edited`
+    );
 
-  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+    cy.get('textarea[aria-label="Description"]').type(
+      `{selectall}{backspace}${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
+    );
 
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
+  });
+
   cy.getByLabel({ label: 'page header title' })
     .should('contain.text', `${dashboards.fromAdminUser.name}-edited`)
     .should('be.visible');
@@ -299,16 +303,18 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.name}-edited`
-    );
+    cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+      cy.get('input[aria-label="Name"]').type(
+        `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.name}-edited`
+      );
 
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
-    );
+      cy.get('textarea[aria-label="Description"]').type(
+        `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
+      );
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+      cy.get('button[aria-label="Update"]').should('be.enabled').click();
+    });
+
     cy.getByLabel({ label: 'page header title' })
       .should('be.visible')
       .should(
@@ -464,6 +470,7 @@ Then(
     cy.location('search').should('include', 'edit=true');
     cy.get('button[type=button]').contains('Add a widget').should('exist');
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+    cy.getByTestId({ testId: 'edit_dashboard' }).should('be.visible');
   }
 );
 
@@ -472,17 +479,17 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.get('div.MuiDialog-container input[aria-label="Name"]').type(
-      `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.name}-edited`
-    );
+    cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+      cy.get('input[aria-label="Name"]').type(
+        `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.name}-edited`
+      );
 
-    cy.get('div.MuiDialog-container textarea[aria-label="Description"]').type(
-      `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
-    );
+      cy.get('textarea[aria-label="Description"]').type(
+        `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
+      );
 
-    cy.getByLabel({ label: 'Update', tag: 'button' })
-      .should('be.enabled')
-      .click();
+      cy.get('button[aria-label="Update"]').should('be.enabled').click();
+    });
 
     cy.getByLabel({ label: 'page header title' })
       .should(

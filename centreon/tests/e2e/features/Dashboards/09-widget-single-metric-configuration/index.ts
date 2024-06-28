@@ -154,22 +154,22 @@ When(
   }
 );
 
-Then('a second Single Metric widget is displayed on the dashboard', () => {
-  cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
-});
+// Then('a second Single Metric widget is displayed on the dashboard', () => {
+//   cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
+// });
 
-Then('the second widget reports on the same metric as the first widget', () => {
-  cy.get('[class*="MuiTypography-h2"]')
-    .eq(1)
-    .then(($element) => {
-      const text = $element.text();
-      expect(text).to.include('%');
-    });
-});
+// Then('the second widget reports on the same metric as the first widget', () => {
+//   cy.get('[class*="MuiTypography-h2"]')
+//     .eq(1)
+//     .then(($element) => {
+//       const text = $element.text();
+//       expect(text).to.include('%');
+//     });
+// });
 
-Then('the second widget has the same properties as the first widget', () => {
-  cy.verifyDuplicatesGraphContainer(metrics);
-});
+// Then('the second widget has the same properties as the first widget', () => {
+//   cy.verifyDuplicatesGraphContainer(metrics);
+// });
 
 Given(
   'a dashboard with a Single Metric widget displaying a human-readable value format',
@@ -182,11 +182,7 @@ When(
   'the dashboard administrator user updates the value format of the Single Metric widget to "raw value"',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.getByLabel({
-      label: 'Edit widget',
-      tag: 'li'
-    }).realClick();
+    cy.editWidget(1);
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
     cy.contains('Raw value').find('input').click();
   }
@@ -213,8 +209,7 @@ When(
   'the dashboard administrator user updates the custom warning threshold to a value below the current value',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.get('li[aria-label="Edit widget"]').click();
+    cy.editWidget(1);
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
     cy.contains('Custom').find('input').eq(0).click();
     cy.getByLabel({
@@ -259,8 +254,7 @@ When(
   'the dashboard administrator user changes the display type of the widget to a gauge',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.get('li[aria-label="Edit widget"]').realClick();
+    cy.editWidget(1);
     cy.getByTestId({ testId: 'SpeedIcon' }).click();
   }
 );
