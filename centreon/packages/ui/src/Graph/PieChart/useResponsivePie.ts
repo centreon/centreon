@@ -22,7 +22,6 @@ interface ResponsivePieState {
   legendScale: LegendScale;
   svgContainerSize: number;
   svgSize: number;
-  svgWrapperWidth: number;
   total: number;
 }
 export const useResponsivePie = ({
@@ -44,7 +43,6 @@ export const useResponsivePie = ({
     height - heightOfTitle - verticalGap,
     width - widthOfLegend - horizontalGap
   );
-  const svgWrapperWidth = svgContainerSize;
 
   const outerRadius = Math.min(32, svgContainerSize / 6);
 
@@ -75,7 +73,6 @@ export const useResponsivePie = ({
     legendScale,
     svgContainerSize,
     svgSize,
-    svgWrapperWidth,
     total
   };
 };

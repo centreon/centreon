@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction, useMemo } from 'react';
 
-import { equals, prop, slice, sortBy } from 'ramda';
+import { equals, lt, prop, slice, sortBy } from 'ramda';
 
 import { Box, alpha, useTheme } from '@mui/material';
 
@@ -81,14 +81,30 @@ const MainLegend = ({
       ? LegendDisplayMode.Compact
       : LegendDisplayMode.Normal;
 
+  const legendMaxHeight = useMemo(() => {
+    if (!isListMode || !equals(placement, 'bottom')) {
+      return 'none';
+    }
+
+    if (lt(height || 0, 220)) {
+      return 40;
+    }
+
+    return 90;
+  }, [height, isListMode, placement]);
+
+  const overflow = equals(legendMaxHeight, 'none') ? 'hidden' : 'auto';
+
   return (
     <div
       className={classes.legend}
       data-display-side={!equals(placement, 'bottom')}
       style={{
         height: !equals(placement, 'bottom')
-          ? height - margin.top / 2
-          : undefined
+          ? (height || 0) - margin.top / 2
+          : undefined,
+        maxHeight: legendMaxHeight,
+        overflow
       }}
     >
       <div

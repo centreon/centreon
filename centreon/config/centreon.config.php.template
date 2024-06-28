@@ -25,8 +25,6 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Security\Encryption;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpClient\CurlHttpClient;
-use Symfony\Component\Yaml\Yaml;
-
 
 // Define constants
 $constants = [
@@ -89,7 +87,7 @@ $retrieveDatabaseCredentialsFromVault = function(
     $credentialsResponse = $httpClient->request('GET', $databaseCredentialsUrl, ['headers' => ['X-Vault-Token' => $token]]);
     $credentialContent = json_decode($credentialsResponse->getContent(), true);
     if (! isset($credentialContent['data']['data']['_DBUSERNAME'], $credentialContent['data']['data']['_DBPASSWORD'])) {
-        error_log($url . ' Unable to retrieve database credentials from Vault');
+        error_log('Unable to retrieve database credentials from Vault');
 
         throw new \Exception('Unable to retrieve database credentials from Vault');
     }
@@ -125,14 +123,18 @@ if (file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
         && str_starts_with($conf_centreon['user'], 'secret::')
         && str_starts_with($conf_centreon['password'], 'secret::')
     ) {
-        $vaultConfiguration = $createVaultConfiguration();
-        $httpClient = new CurlHttpClient();
-        $token = $authenticateToVault($httpClient, $vaultConfiguration);
-        $databaseVaultPathPart = explode("::", $conf_centreon['user']);
-        $vaultPath = end($databaseVaultPathPart);
-        $credentialContent = $retrieveDatabaseCredentialsFromVault($token, $vaultPath, $httpClient, $vaultConfiguration);
-        $conf_centreon['user'] = $credentialContent['username'];
-        $conf_centreon['password'] = $credentialContent['password'];
+        try {
+            $vaultConfiguration = $createVaultConfiguration();
+            $httpClient = new CurlHttpClient();
+            $token = $authenticateToVault($httpClient, $vaultConfiguration);
+            $databaseVaultPathPart = explode("::", $conf_centreon['user']);
+            $vaultPath = end($databaseVaultPathPart);
+            $credentialContent = $retrieveDatabaseCredentialsFromVault($token, $vaultPath, $httpClient, $vaultConfiguration);
+            $conf_centreon['user'] = $credentialContent['username'];
+            $conf_centreon['password'] = $credentialContent['password'];
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
     }
 
     if (!defined('user')) {

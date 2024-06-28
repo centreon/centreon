@@ -71,7 +71,9 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
             CredentialTypeEnum::TYPE_HOST => 'host',
             CredentialTypeEnum::TYPE_SERVICE => 'service',
             CredentialTypeEnum::TYPE_HOST_TEMPLATE => 'host_template',
+            CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => 'knowledge_base',
             CredentialTypeEnum::TYPE_POLLER_MACRO => 'poller_macro',
+            CredentialTypeEnum::TYPE_OPEN_ID => 'open_id',
         };
     }
 
@@ -91,7 +93,9 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
         return match ($dto->type) {
             CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE => '_HOST' . $dto->credentialName,
             CredentialTypeEnum::TYPE_SERVICE => '_SERVICE' . $dto->credentialName,
-            CredentialTypeEnum::TYPE_POLLER_MACRO => $dto->credentialName
+            CredentialTypeEnum::TYPE_POLLER_MACRO,
+            CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD,
+            CredentialTypeEnum::TYPE_OPEN_ID => $dto->credentialName
         };
 
     }

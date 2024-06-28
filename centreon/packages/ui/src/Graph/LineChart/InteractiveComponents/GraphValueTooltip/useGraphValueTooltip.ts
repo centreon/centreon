@@ -7,7 +7,8 @@ import {
   isNil,
   prop,
   reverse,
-  sortBy
+  sortBy,
+  T
 } from 'ramda';
 
 import { graphTooltipDataAtom } from '../interactionWithGraphAtoms';
@@ -29,7 +30,7 @@ export const useGraphValueTooltip = ({
   const { toDate, toTime } = useLocaleDateTimeFormat();
   const graphTooltipData = useAtomValue(graphTooltipDataAtom);
 
-  if (isNil(graphTooltipData)) {
+  if (isNil(graphTooltipData) || isNil(graphTooltipData.metrics)) {
     return null;
   }
 
@@ -48,7 +49,8 @@ export const useGraphValueTooltip = ({
     [
       equals('descending'),
       always(reverse(sortBy(prop('value'), filteredMetrics)))
-    ]
+    ],
+    [T, always(filteredMetrics)]
   ])(sortOrder);
 
   return {

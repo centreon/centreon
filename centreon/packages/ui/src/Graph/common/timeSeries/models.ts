@@ -76,6 +76,7 @@ export interface AxeScale
   > {
   dataLines: Array<Line>;
   dataTimeSeries: Array<TimeValue>;
+  isHorizontal?: boolean;
   thresholdUnit?: string;
   thresholds: Array<number>;
   valueGraphHeight: number;

@@ -11,8 +11,18 @@ import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import TimePeriod from '../../TimePeriods';
 import { LineChartData } from '../common/models';
+import annotationData from '../mockedData/annotationData.json';
+import exclusionPeriodFirstPeriod from '../mockedData/exclusionPeriodFirstPeriod.json';
+import exclusionPeriodSecondPeriod from '../mockedData/exclusionPeriodSecondPeriod.json';
+import exclusionPeriodThirdPeriod from '../mockedData/exclusionPeriodThirdPeriod.json';
+import dataLastDayForword from '../mockedData/lastDayForward.json';
+import dataLastDayThreshold from '../mockedData/lastDayThreshold.json';
+import dataLastMonth from '../mockedData/lastMonth.json';
+import dataLastWeek from '../mockedData/lastWeek.json';
+import dataZoomPreview from '../mockedData/zoomPreview.json';
+import dataLastDay from '../mockedData/lastDay.json';
+import dataCurvesSameColor from '../mockedData/curvesWithSameColor.json';
 
-import { dateTimeFormat } from './common';
 import {
   argTypes,
   args as argumentsData,
@@ -23,17 +33,7 @@ import {
   lastDayForwardDate,
   zoomPreviewDate
 } from './helpers/doc';
-import annotationData from './mockedData/annotationData.json';
-import exclusionPeriodFirstPeriod from './mockedData/exclusionPeriodFirstPeriod.json';
-import exclusionPeriodSecondPeriod from './mockedData/exclusionPeriodSecondPeriod.json';
-import exclusionPeriodThirdPeriod from './mockedData/exclusionPeriodThirdPeriod.json';
-import dataLastDayForword from './mockedData/lastDayForward.json';
-import dataLastDayThreshold from './mockedData/lastDayThreshold.json';
-import dataLastMonth from './mockedData/lastMonth.json';
-import dataLastWeek from './mockedData/lastWeek.json';
-import dataZoomPreview from './mockedData/zoomPreview.json';
-import dataLastDay from './mockedData/lastDay.json';
-import dataCurvesSameColor from './mockedData/curvesWithSameColor.json';
+import { dateTimeFormat } from './common';
 import { Interval, ThresholdType, TooltipData } from './models';
 
 import WrapperLineChart from './index';
@@ -342,7 +342,9 @@ export const LineChartWithStepCurve: Story = {
   argTypes,
   args: {
     ...argumentsData,
-    curve: 'step'
+    lineStyle: {
+      curve: 'step'
+    }
   }
 };
 

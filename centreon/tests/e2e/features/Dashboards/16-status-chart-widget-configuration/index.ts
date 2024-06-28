@@ -324,11 +324,7 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 Given('a dashboard that includes a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).click({ force: true });
+  cy.editWidget(1);
 });
 
 When(
@@ -425,11 +421,7 @@ Given(
   () => {
     cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.getByLabel({
-      label: 'Edit widget',
-      tag: 'li'
-    }).click({ force: true });
+    cy.editWidget(1);
   }
 );
 
@@ -454,5 +446,32 @@ Then(
       ],
       ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
     );
+  }
+);
+
+Given('a dashboard with a Status Chart widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.editDashboard(dashboards.default.name);
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.get('[data-testid="Legend"] > *')
+    .first()
+    .find('a')
+    .then(($link) => {
+      const href = $link.attr('href');
+      if (href) {
+        cy.log('First link found:', href);
+        cy.visit(href);
+      } else {
+        cy.log('No link found.');
+      }
+    });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
   }
 );

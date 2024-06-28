@@ -163,7 +163,7 @@ if (
         [],
         [
             'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list&use_ram=true&all_servicegroups_filter=true',
+            'availableDatasetRoute' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list&use_ram=true',
             'defaultDataset' => [],
             'multiple' => true,
         ]

@@ -68,7 +68,7 @@ beforeEach(closure: function (): void {
     $this->presenter = new FindRulesPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 
-    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters, $this->accessGroupRepository);
+    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters, $this->accessGroupRepository, true);
 });
 
 it('should present a Forbidden response when user does not have sufficient rights (missing page access)', function (): void {

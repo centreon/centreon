@@ -65,6 +65,7 @@ beforeEach(closure: function (): void {
        $this->hostCategoryRepository,
        $this->hostTemplateRepository,
        $this->hostGroupRepository,
+       false
    );
 });
 

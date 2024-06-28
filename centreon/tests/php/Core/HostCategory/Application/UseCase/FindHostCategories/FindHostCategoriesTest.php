@@ -48,7 +48,8 @@ beforeEach(function () {
         $this->hostCategoryRepository,
         $this->accessGroupRepository,
         $this->requestParameters,
-        $this->user
+        $this->user,
+        false
     );
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
     $this->hostCategoryName = 'hc-name';
@@ -125,7 +126,7 @@ it('should present a FindHostGroupsResponse when a non-admin user has read only 
         );
 
     $this->accessGroupRepository
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('findByContact')
         ->willReturn($this->accessGroups);
 
@@ -163,7 +164,7 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
         );
 
     $this->accessGroupRepository
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('findByContact')
         ->willReturn($this->accessGroups);
 
