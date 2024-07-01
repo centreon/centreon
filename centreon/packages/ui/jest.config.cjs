@@ -10,14 +10,11 @@ module.exports = {
   },
   reporters: ['default', ['jest-junit', { outputName: 'junit.xml' }]],
   roots: ['<rootDir>/src/', '<rootDir>/test/'],
-  setupFilesAfterEnv: [
-    '<rootDir>/test/setupTests.js',
-    '@testing-library/jest-dom/extend-expect'
-  ],
+  setupFilesAfterEnv: ['<rootDir>/test/setupTests.js'],
   testResultsProcessor: 'jest-junit',
   transform: {
-    ...baseConfig.transform,
-    '^.+\\.mdx?$': '@storybook/addon-docs/jest-transform-mdx'
+    ...baseConfig.transform
+    // '^.+\\.mdx?$': '@storybook/addon-docs/jest-transform-mdx'
   },
   transformIgnorePatterns: [
     '<rootDir>/../../node_modules/(?!d3-array|d3-scale|d3-interpolation|d3-interpolate)'

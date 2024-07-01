@@ -766,12 +766,18 @@ importers:
       axios-mock-adapter:
         specifier: ^1.22.0
         version: 1.22.0(axios@1.7.2)
+      chai:
+        specifier: ^5.1.1
+        version: 5.1.1
       cypress:
         specifier: ^13.12.0
         version: 13.12.0
       identity-obj-proxy:
         specifier: ^3.0.0
         version: 3.0.0
+      jest-transform-mdx:
+        specifier: link:@storybook/addon-docs/jest-transform-mdx
+        version: link:@storybook/addon-docs/jest-transform-mdx
       jest-transform-stub:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4216,14 +4222,14 @@ packages:
       '@jest/test-result': 28.1.3
       '@jest/transform': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 20.14.7
+      '@types/node': 20.14.9
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 3.9.0
       exit: 0.1.2
       graceful-fs: 4.2.11
       jest-changed-files: 28.1.3
-      jest-config: 28.1.3(@types/node@20.14.7)
+      jest-config: 28.1.3(@types/node@20.14.9)
       jest-haste-map: 28.1.3
       jest-message-util: 28.1.3
       jest-regex-util: 28.0.2
@@ -4299,7 +4305,7 @@ packages:
     dependencies:
       '@jest/fake-timers': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 20.14.7
+      '@types/node': 20.14.9
       jest-mock: 28.1.3
 
   /@jest/environment@29.7.0:
@@ -4348,7 +4354,7 @@ packages:
     dependencies:
       '@jest/types': 28.1.3
       '@sinonjs/fake-timers': 9.1.2
-      '@types/node': 20.14.7
+      '@types/node': 20.14.9
       jest-message-util: 28.1.3
       jest-mock: 28.1.3
       jest-util: 28.1.3
@@ -4589,7 +4595,7 @@ packages:
       '@jest/schemas': 28.1.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 20.14.7
+      '@types/node': 20.14.9
       '@types/yargs': 17.0.32
       chalk: 4.1.2
 
@@ -10602,7 +10608,7 @@ packages:
   /@types/jsdom@16.2.15:
     resolution: {integrity: sha512-nwF87yjBKuX/roqGYerZZM0Nv1pZDMAT5YhOHYeM/72Fic+VEqJh4nyoqoapzJnW3pUlfxPY5FhgsJtM+dRnQQ==}
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.9
       '@types/parse5': 6.0.3
       '@types/tough-cookie': 4.0.5
     dev: true
@@ -10691,6 +10697,7 @@ packages:
     resolution: {integrity: sha512-uTr2m2IbJJucF3KUxgnGOZvYbN0QgkGyWxG6973HCpMYFy2KfcgYuIwkJQMQkt1VbBMlvWRbpshFTLxnxCZjKQ==}
     dependencies:
       undici-types: 5.26.5
+    dev: true
 
   /@types/node@20.14.9:
     resolution: {integrity: sha512-06OCtnTXtWOZBJlRApleWndH4JsRVs1pDCc8dLSQp+7PpUpX3ePdHyeNSFTeSe7FtKyQkrlPvHwJOW3SLd8Oyg==}
@@ -12585,6 +12592,11 @@ packages:
     resolution: {integrity: sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==}
     dev: true
 
+  /assertion-error@2.0.1:
+    resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
+    engines: {node: '>=12'}
+    dev: true
+
   /ast-types-flow@0.0.8:
     resolution: {integrity: sha512-OH/2E5Fg20h2aPrbe+QL8JZQFko0YZaF+j4mnQ7BGhfavO7OpSLa8a0y9sBwomHdSbkhTS8TQNayBfnW5DwbvQ==}
 
@@ -13406,6 +13418,17 @@ packages:
       type-detect: 4.0.8
     dev: true
 
+  /chai@5.1.1:
+    resolution: {integrity: sha512-pT1ZgP8rPNqUgieVaEY+ryQr6Q4HXNg8Ei9UnLUrjN4IA7dvQC5JB+/kxVcPNDHyBcc/26CXPkbNzq3qwrOEKA==}
+    engines: {node: '>=12'}
+    dependencies:
+      assertion-error: 2.0.1
+      check-error: 2.1.1
+      deep-eql: 5.0.2
+      loupe: 3.1.1
+      pathval: 2.0.0
+    dev: true
+
   /chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
     engines: {node: '>=4'}
@@ -13486,6 +13509,11 @@ packages:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
     dependencies:
       get-func-name: 2.0.2
+    dev: true
+
+  /check-error@2.1.1:
+    resolution: {integrity: sha512-OAlb+T7V4Op9OwdkjmguYRqncdlx5JiofwOAUkmTF+jNdHwzTaTs4sRAGpzLF3oOz5xAyDGrPgeIDFQmDOTiJw==}
+    engines: {node: '>= 16'}
     dev: true
 
   /check-more-types@2.24.0:
@@ -14898,6 +14926,11 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       type-detect: 4.0.8
+    dev: true
+
+  /deep-eql@5.0.2:
+    resolution: {integrity: sha512-h5k/5U50IJJFpzfL6nO9jaaumfjO/f2NjK/oYB2Djzm4p9L+3T9qWpZqZ2hAbLPuuYq9wrU08WQyBTL5GbPk5Q==}
+    engines: {node: '>=6'}
     dev: true
 
   /deep-equal@2.2.3:
@@ -19076,7 +19109,7 @@ packages:
       exit: 0.1.2
       graceful-fs: 4.2.11
       import-local: 3.1.0
-      jest-config: 28.1.3(@types/node@20.14.7)
+      jest-config: 28.1.3(@types/node@20.14.9)
       jest-util: 28.1.3
       jest-validate: 28.1.3
       prompts: 2.4.2
@@ -19114,7 +19147,7 @@ packages:
       - ts-node
     dev: true
 
-  /jest-config@28.1.3(@types/node@20.14.7):
+  /jest-config@28.1.3(@types/node@20.14.9):
     resolution: {integrity: sha512-MG3INjByJ0J4AsNBm7T3hsuxKQqFIiRo/AUqb1q9LRKI5UU6Aar9JHbr9Ivn1TVwfUD9KirRoM/T6u8XlcQPHQ==}
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     peerDependencies:
@@ -19129,7 +19162,7 @@ packages:
       '@babel/core': 7.24.7
       '@jest/test-sequencer': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 20.14.7
+      '@types/node': 20.14.9
       babel-jest: 28.1.3(@babel/core@7.24.7)
       chalk: 4.1.2
       ci-info: 3.9.0
@@ -19466,7 +19499,7 @@ packages:
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     dependencies:
       '@jest/types': 28.1.3
-      '@types/node': 20.14.7
+      '@types/node': 20.14.9
 
   /jest-mock@29.7.0:
     resolution: {integrity: sha512-ITOMZn+UkYS4ZFh83xYAOzWStloNzJFO2s8DWrE4lhtGD+AorgnbkiKERe4wQVBydIGPx059g6riW5Btp6Llnw==}
@@ -19786,7 +19819,7 @@ packages:
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     dependencies:
       '@jest/types': 28.1.3
-      '@types/node': 20.14.7
+      '@types/node': 20.14.9
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -20698,6 +20731,12 @@ packages:
 
   /loupe@2.3.7:
     resolution: {integrity: sha512-zSMINGVYkdpYSOBmLi0D1Uo7JU9nVdQKrHxC8eYlV+9YKK9WePqAlL7lSlorG/U2Fw1w0hTBmaa/jrQ3UbPHtA==}
+    dependencies:
+      get-func-name: 2.0.2
+    dev: true
+
+  /loupe@3.1.1:
+    resolution: {integrity: sha512-edNu/8D5MKVfGVFRhFf8aAxiTM6Wumfz5XsaatSxlD3w4R1d/WEKUTydCdPGbl9K7QG/Ca3GnDV2sIKIpXRQcw==}
     dependencies:
       get-func-name: 2.0.2
     dev: true
@@ -22738,6 +22777,11 @@ packages:
 
   /pathval@1.1.1:
     resolution: {integrity: sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==}
+    dev: true
+
+  /pathval@2.0.0:
+    resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
+    engines: {node: '>= 14.16'}
     dev: true
 
   /peek-readable@5.0.0:
