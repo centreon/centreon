@@ -12,7 +12,11 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 
-import { buildResourcesEndpoint, resourcesEndpoint } from '../api/endpoints';
+import {
+  buildResourcesEndpoint,
+  hostsEndpoint,
+  resourcesEndpoint
+} from '../api/endpoints';
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
   labelNoHostsFound,
@@ -53,7 +57,9 @@ const StatusGrid = ({
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       buildResourcesEndpoint({
-        baseEndpoint: resourcesEndpoint,
+        baseEndpoint: equals(resourceType, 'host')
+          ? hostsEndpoint
+          : resourcesEndpoint,
         limit: tiles,
         resources,
         sortBy,
