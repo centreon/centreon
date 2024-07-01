@@ -56,7 +56,7 @@ const WidgetLineChart = ({
   });
 
   const metricNames = pluck('name', panelData.metrics);
-  const isLineChart = equals(panelOptions.displayType, 'line');
+  const isLineChart = equals(panelOptions.displayType || 'line', 'line');
 
   const areResourcesOk = areResourcesFullfilled(panelData.resources);
 
