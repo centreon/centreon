@@ -42,8 +42,8 @@ const Axes = ({
   const tickFormat =
     data?.axisX?.xAxisTickFormat ??
     getXAxisTickFormat({
-      start: xScale.domain()[0],
-      start: xScale.domain()[-1]
+      end: xScale.domain()[-1],
+      start: xScale.domain()[0]
     });
 
   const formatAxisTick = (tick): string =>
