@@ -109,7 +109,8 @@ beforeEach(closure: function (): void {
         contactRepository: $this->contactRepository,
         contactGroupRepository: $this->contactGroupRepository,
         datasetFilterValidator: $datasetValidator,
-        repositoryProviders: $providers
+        repositoryProviders: $providers,
+        isCloudPlatform: true
     );
 });
 

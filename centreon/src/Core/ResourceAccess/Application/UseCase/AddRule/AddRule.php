@@ -54,6 +54,7 @@ final class AddRule
      * @param AddRuleValidation $validator
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param DatasetFilterValidator $datasetValidator
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ReadResourceAccessRepositoryInterface $readRepository,
@@ -62,7 +63,8 @@ final class AddRule
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly AddRuleValidation $validator,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly DatasetFilterValidator $datasetValidator
+        private readonly DatasetFilterValidator $datasetValidator,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -184,7 +186,8 @@ final class AddRule
         );
 
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
+            && $this->isCloudPlatform;
     }
 
     /**

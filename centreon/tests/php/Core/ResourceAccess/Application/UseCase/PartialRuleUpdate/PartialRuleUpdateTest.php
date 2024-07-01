@@ -73,6 +73,7 @@ beforeEach(closure: function (): void {
         readRepository: $this->readRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
         writeRepository: $this->writeRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         validator: $this->validator = $this->createMock(UpdateRuleValidation::class),
+        isCloudPlatform: true
     );
 
     $this->request = new PartialRuleUpdateRequest();

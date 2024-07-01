@@ -232,6 +232,7 @@ class CentreonServicegroups
     {
         global $centreon;
         $items = [];
+        $sgAcl = [];
 
         # get list of authorized servicegroups
         if (
@@ -291,8 +292,8 @@ class CentreonServicegroups
             $hide = false;
             if (
                 ! $centreon->user->access->admin
-                && !in_array($record['sg_id'], $sgAcl)
                 && $centreon->user->access->hasAccessToAllServiceGroups === false
+                && ! in_array($record['sg_id'], $sgAcl)
             ) {
                 $hide = true;
             }
