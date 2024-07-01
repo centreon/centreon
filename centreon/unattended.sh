@@ -1401,15 +1401,24 @@ install)
 		setup_before_installation
 	fi
 
+	case $version in
+		"22.10"|"23.04"|"23.10")
+			gorgone_selinux_package_name="centreon-gorgoned-selinux"
+			;;
+		*)
+			gorgone_selinux_package_name="centreon-gorgone-selinux"
+			;;
+	esac
+
 	case $topology in
 	central)
-		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
+		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
 		install_central
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/installation/web-and-post-installation/#web-installation"
 		;;
 
 	poller)
-		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
+		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
 		install_poller
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/monitoring/monitoring-servers/add-a-poller-to-configuration/"
 		;;
