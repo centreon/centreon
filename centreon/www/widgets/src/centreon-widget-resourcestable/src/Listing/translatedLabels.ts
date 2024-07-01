@@ -71,3 +71,6 @@ export const labelForcedCheckDescription =
   'Check selected resources even outside configured check period';
 export const labelCheckDescription = `Check selected resources only within configured check period`;
 export const labelCheck = 'Check';
+export const labelOpenTicket = 'Open ticket';
+export const labelOpenTicketForHost = 'Open ticket for host';
+export const labelOpenTicketForService = 'Open ticket for service';

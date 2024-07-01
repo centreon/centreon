@@ -16,9 +16,11 @@ import {
   labelService,
   labelHost,
   labelServices,
-  labelInformation
+  labelInformation,
+  labelOpenTicket
 } from '../translatedLabels';
 import { DisplayType } from '../models';
+import useIOpenTicketInstalled from '../useIsOpenTicketInstalled';
 
 import StateColumn from './State';
 import StatusColumn from './Status';
@@ -28,16 +30,24 @@ import ParentResourceColumn from './Parent';
 import SubItem from './ServiceSubItemColumn/SubItem';
 import useStyles, { useStatusStyles } from './Columns.styles';
 import truncate from './truncate';
+import OpenTicket from './OpenTicket';
 
 interface ColumnProps {
   displayType?: DisplayType;
 }
 
+interface ColumnsState {
+  columns: Array<Column>;
+  defaultSelectedColumnIds: Array<string>;
+}
+
 const useColumns = ({
   displayType = DisplayType.All
-}: ColumnProps): Array<Column> => {
+}: ColumnProps): ColumnsState => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+
+  const isOpenTicketInstalled = useIOpenTicketInstalled();
 
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
@@ -96,6 +106,17 @@ const useColumns = ({
       sortable: true,
       type: ColumnType.component
     },
+    ...(isOpenTicketInstalled
+      ? [
+          {
+            Component: OpenTicket,
+            clickable: true,
+            id: 'open_ticket',
+            label: t(labelOpenTicket),
+            type: ColumnType.component
+          }
+        ]
+      : []),
     {
       getFormattedString: ({ duration }): string => duration,
       id: 'duration',
@@ -154,6 +175,17 @@ const useColumns = ({
     }
   ];
 
-  return columns;
+  const defaultSelectedColumnIds = [
+    'status',
+    'resource',
+    'parent_resource',
+    ...(isOpenTicketInstalled ? ['open_ticket'] : []),
+    'state',
+    'severity',
+    'duration',
+    'last_check'
+  ];
+
+  return { columns, defaultSelectedColumnIds };
 };
 export default useColumns;

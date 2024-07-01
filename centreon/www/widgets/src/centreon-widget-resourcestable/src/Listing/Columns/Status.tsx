@@ -31,7 +31,7 @@ import {
 } from '../../atom';
 import useAclQuery from '../Actions/aclQuery';
 
-import IconDowntime from './IconDowntime';
+import IconDowntime from './Icons/Downtime';
 import { useStyles } from './Status.styles';
 
 const StatusColumnOnHover = ({

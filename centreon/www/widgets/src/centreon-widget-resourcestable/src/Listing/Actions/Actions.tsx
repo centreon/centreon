@@ -20,7 +20,7 @@ import {
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../../atom';
-import IconDowntime from '../Columns/IconDowntime';
+import IconDowntime from '../Columns/Icons/Downtime';
 
 import { Action, CheckActionModel } from './model';
 import useAclQuery from './aclQuery';

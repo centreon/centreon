@@ -17801,3 +17801,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Forced check command sent!"
 # msgstr ""
+
+# msgid "Open ticket"
+# msgstr ""
+
+# msgid "Open ticket for host"
+# msgstr ""
+
+# msgid "Open ticket for service"
+# msgstr ""

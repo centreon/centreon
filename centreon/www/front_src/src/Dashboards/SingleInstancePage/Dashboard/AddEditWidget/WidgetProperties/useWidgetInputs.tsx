@@ -1,10 +1,20 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find, path, equals } from 'ramda';
+import {
+  propEq,
+  find,
+  path,
+  equals,
+  has,
+  pluck,
+  difference,
+  isEmpty
+} from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import {
@@ -37,7 +47,8 @@ import {
   WidgetSelect,
   WidgetButtonGroup,
   WidgetSlider,
-  WidgetText
+  WidgetText,
+  WidgetConnectedAutocomplete
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -64,7 +75,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.select]: WidgetSelect,
   [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup,
   [FederatedWidgetOptionType.slider]: WidgetSlider,
-  [FederatedWidgetOptionType.text]: WidgetText
+  [FederatedWidgetOptionType.text]: WidgetText,
+  [FederatedWidgetOptionType.connectedAutocomplete]: WidgetConnectedAutocomplete
 };
 
 export const DefaultComponent = (): JSX.Element => (
@@ -80,6 +92,7 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
+  const { modules } = useAtomValue(platformVersionsAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
@@ -103,10 +116,24 @@ export const useWidgetInputs = (
                 return true;
               }
 
-              return !equals(
-                path(value.hiddenCondition.when.split('.'), values),
-                value.hiddenCondition.matches
-              );
+              const { target, method, when, matches } = value.hiddenCondition;
+
+              if (equals(target, 'modules')) {
+                return !equals(
+                  has(value.hiddenCondition.when, modules),
+                  matches
+                );
+              }
+
+              if (equals(method, 'includes')) {
+                const items = value.hiddenCondition?.property
+                  ? pluck('property', path(when.split('.'), values))
+                  : path(when.split('.'), values);
+
+                return isEmpty(difference(items, matches));
+              }
+
+              return !equals(path(when.split('.'), values), matches);
             })
             .map(([key, value]) => {
               const Component =

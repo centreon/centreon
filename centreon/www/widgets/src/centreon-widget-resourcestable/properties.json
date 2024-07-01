@@ -54,6 +54,99 @@
         "unhandled_problems"
       ]
     },
+    "statusTypes": {
+      "type": "checkbox",
+      "label": "Display resources with this status type",
+      "options": [
+        {
+          "id": "hard",
+          "name": "Hard"
+        },
+        {
+          "id": "soft",
+          "name": "Soft"
+        }
+      ],
+      "defaultValue": []
+    },
+    "severities":{
+      "type": "connected-autocomplete",
+      "label": "Severities",
+      "secondaryLabel": "Select severities",
+      "baseEndpoint": "/monitoring/resources",
+      "isSingleAutocomplete" : false
+    },
+    "openTicket": {
+      "type": "switch",
+      "label": "Active open ticket",
+      "defaultValue": false,
+      "hiddenCondition": {
+        "target" : "modules",
+        "when": "centreon-open-tickets",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "provider":{
+      "type": "connected-autocomplete",
+      "label": "Ticket provider",
+      "secondaryLabel": "Select a provider",
+      "baseEndpoint": "/monitoring/resources",
+      "isSingleAutocomplete" : true,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.openTicket",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "displayResources": {
+      "type": "radio",
+      "label": "Display resources",
+      "options": [
+        {
+          "id": "all",
+          "name": "All resources"
+        },
+        {
+          "id": "ticket",
+          "name": "Resources linked to a ticket"
+        },
+        {
+          "id": "noTicket",
+          "name": "Resources with no ticket"
+        }
+      ],
+      "defaultValue": "all",
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.openTicket",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "hideDownHost": {
+      "type": "switch",
+      "label": "hide services with Down host",
+      "defaultValue": false,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.openTicket",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "hideUnreachableHost": {
+      "type": "switch",
+      "label": "hide services with Unreachable host",
+      "defaultValue": false,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.openTicket",
+        "method": "equals",
+        "matches": false
+      }
+    },
     "refreshInterval": {
       "type": "refresh-interval",
       "defaultValue": "default",

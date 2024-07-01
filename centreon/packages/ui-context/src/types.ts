@@ -129,3 +129,16 @@ export interface FederatedModule {
   remoteEntry: string;
   remoteUrl?: string;
 }
+
+interface Version {
+  fix: string;
+  major: string;
+  minor: string;
+  version: string;
+}
+
+export interface PlatformVersions {
+  modules: Record<string, Version>;
+  web: Version;
+  widgets: Record<string, Version | null>;
+}

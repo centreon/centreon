@@ -15,6 +15,7 @@ interface BuildResourcesEndpointProps {
   resources: Array<Resource>;
   sort;
   states: Array<string>;
+  statusTypes: Array<'soft' | 'hard'>;
   statuses: Array<string>;
   type: DisplayType;
 }
@@ -48,7 +49,8 @@ export const buildResourcesEndpoint = ({
   sort,
   limit,
   resources,
-  page
+  page,
+  statusTypes
 }: BuildResourcesEndpointProps): string => {
   const baseEndpoint = equals(type, 'host')
     ? viewByHostEndpoint
@@ -80,6 +82,7 @@ export const buildResourcesEndpoint = ({
     customQueryParameters: [
       { name: 'types', value: formattedType },
       { name: 'statuses', value: formattedStatuses },
+      { name: 'status_types', value: statusTypes },
       { name: 'states', value: states },
       ...resourcesToApplyToCustomParameters.map(
         ({ resourceType, resources: resourcesToApply }) => ({

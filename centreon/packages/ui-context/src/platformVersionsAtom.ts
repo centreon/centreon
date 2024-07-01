@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
 
-import { PlatformVersions } from '../../api/models';
+import { PlatformVersions } from './types';
 
 export const platformVersionsAtom = atom<PlatformVersions | null>(null);

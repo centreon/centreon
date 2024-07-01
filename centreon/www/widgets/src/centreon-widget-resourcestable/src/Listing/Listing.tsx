@@ -9,7 +9,7 @@ import { PanelOptions } from '../models';
 
 import { rowColorConditions } from './colors';
 import useListing from './useListing';
-import { defaultSelectedColumnIds } from './Columns';
+import useColumns from './Columns/useColumns';
 import { DisplayType as DisplayTypeEnum } from './models';
 import DisplayType from './DisplayType';
 import AcknowledgeForm from './Actions/Acknowledge';
@@ -33,6 +33,7 @@ interface ListingProps
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;
+  statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
   widgetPrefixQuery: string;
 }
@@ -54,7 +55,8 @@ const Listing = ({
   playlistHash,
   dashboardId,
   id,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  statusTypes
 }: ListingProps): JSX.Element => {
   const theme = useTheme();
 
@@ -93,9 +95,12 @@ const Listing = ({
     sortField,
     sortOrder,
     states,
+    statusTypes,
     statuses,
     widgetPrefixQuery
   });
+
+  const { defaultSelectedColumnIds } = useColumns({ displayType });
 
   return (
     <>

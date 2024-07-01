@@ -25,6 +25,7 @@ interface LoadResourcesProps
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;
+  statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
 }
 
@@ -47,7 +48,8 @@ const useLoadResources = ({
   playlistHash,
   dashboardId,
   id,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  statusTypes
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
@@ -63,6 +65,7 @@ const useLoadResources = ({
           resources,
           sort: sort || { status_severity_code: SortOrder.Desc },
           states,
+          statusTypes,
           statuses,
           type: displayType
         }),
@@ -81,6 +84,7 @@ const useLoadResources = ({
       displayType,
       JSON.stringify(states),
       JSON.stringify(statuses),
+      JSON.stringify(statusTypes),
       sortField,
       sortOrder,
       limit,

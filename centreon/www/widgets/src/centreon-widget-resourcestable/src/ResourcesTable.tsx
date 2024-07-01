@@ -27,7 +27,8 @@ const ResourceTable = ({
     limit,
     sortField,
     sortOrder,
-    selectedColumnIds
+    selectedColumnIds,
+    statusTypes
   } = panelOptions;
 
   const refreshIntervalToUse = useRefreshInterval({
@@ -54,6 +55,7 @@ const ResourceTable = ({
         sortField={sortField}
         sortOrder={sortOrder}
         states={states}
+        statusTypes={statusTypes}
         statuses={statuses}
         widgetPrefixQuery={widgetPrefixQuery}
       />

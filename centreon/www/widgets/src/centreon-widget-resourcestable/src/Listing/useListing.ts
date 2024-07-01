@@ -17,7 +17,7 @@ import {
 
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import { DisplayType, ResourceListing } from './models';
-import { defaultSelectedColumnIds, useColumns } from './Columns';
+import useColumns from './Columns/useColumns';
 import useLoadResources from './useLoadResources';
 
 interface UseListingState {
@@ -58,6 +58,7 @@ interface UseListingProps
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;
+  statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
 }
 
@@ -77,7 +78,8 @@ const useListing = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  statusTypes
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
@@ -94,6 +96,8 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
+  const { defaultSelectedColumnIds } = useColumns({ displayType });
+
   const { data, isLoading } = useLoadResources({
     dashboardId,
     displayType,
@@ -107,6 +111,7 @@ const useListing = ({
     sortField,
     sortOrder,
     states,
+    statusTypes,
     statuses,
     widgetPrefixQuery
   });
@@ -149,7 +154,7 @@ const useListing = ({
     setPage(updatedPage + 1);
   };
 
-  const columns = useColumns({
+  const { columns } = useColumns({
     displayType
   });
 

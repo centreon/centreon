@@ -15,6 +15,7 @@ export interface PanelOptions {
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;
+  statusTypes: Array<'soft' | 'hard'>;
   statuses: Array<string>;
 }
 
