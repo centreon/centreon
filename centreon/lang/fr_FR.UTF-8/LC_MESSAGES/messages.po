@@ -19122,9 +19122,6 @@ msgstr "Ajouter un filtre"
 msgid "Add resource dataset"
 msgstr "Ajouter un jeu de données de ressources"
 
-msgid "Line"
-msgstr "Ligne"
-
 msgid "Bar"
 msgstr "Barre"
 
