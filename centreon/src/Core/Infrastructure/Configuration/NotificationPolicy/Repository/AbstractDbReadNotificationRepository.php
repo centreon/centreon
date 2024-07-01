@@ -26,12 +26,14 @@ namespace Core\Infrastructure\Configuration\NotificationPolicy\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDRB
 {
-    use LoggerTrait;
+    use LoggerTrait, SqlMultipleBindTrait;
 
     /**
      * Find contacts from ids.
@@ -99,6 +101,82 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
     }
 
     /**
+     * Find contacts from ids and access groups.
+     *
+     * @param int[] $contactIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return NotifiedContact[]
+     */
+    protected function findContactsByIdsAndAccessGroups(array $contactIds, array $accessGroups): array
+    {
+        $this->info('Fetching contacts from database');
+
+        $contacts = [];
+        if ($contactIds === [] || $accessGroups === []) {
+            return $contacts;
+        }
+
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        [$contactsBindValues, $contactsBindQuery] = $this->createMultipleBindQuery($contactIds, ':contact_id_');
+        [$aclBindValues, $aclBindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT
+                    c.contact_id,
+                    c.contact_alias,
+                    c.contact_name,
+                    c.contact_email,
+                    c.contact_admin,
+                    c.contact_host_notification_options,
+                    c.contact_service_notification_options,
+                    t1.tp_id as host_timeperiod_id,
+                    t1.tp_name as host_timeperiod_name,
+                    t1.tp_alias as host_timeperiod_alias,
+                    t2.tp_id as service_timeperiod_id,
+                    t2.tp_name as service_timeperiod_name,
+                    t2.tp_alias as service_timeperiod_alias
+                FROM `:db`.contact c
+                INNER JOIN `:db`.timeperiod t1
+                    ON t1.tp_id = c.timeperiod_tp_id
+                INNER JOIN `:db`.timeperiod t2
+                    ON t2.tp_id = c.timeperiod_tp_id2
+                INNER JOIN `:db`.acl_group_contacts_relations agcr
+                    ON agcr.contact_contact_id = c.contact_id
+                WHERE contact_id IN ({$contactsBindQuery})
+                    AND agcr.acl_group_id IN ({$aclBindQuery})
+                    AND contact_activate = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($contactsBindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        foreach ($aclBindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array<string,int|string|null> $row */
+            $contacts[] = DbNotifiedContactFactory::createFromRecord($row);
+        }
+
+        return $contacts;
+    }
+
+    /**
      * Find contact groups from ids.
      *
      * @param int[] $contactGroupIds
@@ -141,7 +219,68 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
         $collector->bind($statement);
         $statement->execute();
 
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array<string,int|string|null> $row */
+            $contactGroups[] = DbNotifiedContactGroupFactory::createFromRecord($row);
+        }
+
+        return $contactGroups;
+    }
+
+    /**
+     * Find contact groups from and access groups.
+     *
+     * @param int[] $contactGroupIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return NotifiedContactGroup[]
+     */
+    protected function findContactGroupsByIdsAndAccessGroups(array $contactGroupIds, array $accessGroups): array
+    {
+        $this->info('Fetching contact groups from database');
+
         $contactGroups = [];
+
+        if ($contactGroupIds === [] || $accessGroups === []) {
+            return $contactGroups;
+        }
+
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        [$cgBindValues, $cgBindQuery] = $this->createMultipleBindQuery($contactGroupIds, ':cg_id_');
+        [$aclBindValues, $aclBindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group_id_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT
+                    cg_id AS `id`,
+                    cg_name AS `name`,
+                    cg_alias AS `alias`,
+                    cg_activate AS `activated`
+                FROM `:db`.contactgroup
+                INNER JOIN `:db`.acl_group_contactgroups_relations agcgr
+                    ON agcgr.cg_cg_id = contactgroup.cg_id
+                WHERE cg_id IN ({$cgBindQuery})
+                    AND agcgr.acl_group_id IN ({$aclBindQuery})
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($cgBindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        foreach ($aclBindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
         while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /** @var array<string,int|string|null> $row */
             $contactGroups[] = DbNotifiedContactGroupFactory::createFromRecord($row);
