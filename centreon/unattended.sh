@@ -207,12 +207,15 @@ function parse_subcommand_options() {
 			;;
     V)
       vault=$OPTARG
-      IFS='::' read -r -a array_vault <<<"$vault"
-      vault_address = ${array_vault[0]}
-      vault_port = ${array_vault[1]}
-      vault_root_path = ${array_vault[2]}
-      vault_role_id = ${array_vault[3]}
-      vault_secret_id = ${array_vault[4]}
+      oldIFS=$IFS
+      IFS=';' read -r -a array_vault <<<"$vault"
+      vault_address=${array_vault[0]}
+      vault_port=${array_vault[1]}
+      vault_root_path=${array_vault[2]}
+      vault_role_id=${array_vault[3]}
+      vault_secret_id=${array_vault[4]}
+      use_vault=1
+      IFS=$oldIFS
       ;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
@@ -442,7 +445,7 @@ function set_required_prerequisite() {
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
-
+#     replace by /tmp/***.repo
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
 			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
 			PHP_SERVICE_UNIT="php-fpm"
@@ -495,7 +498,7 @@ function set_required_prerequisite() {
 			fi
 
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
-
+      # REplace by /tmp/***.repo
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
 			PHP_SERVICE_UNIT="php-fpm"
 			HTTP_SERVICE_UNIT="httpd"
@@ -872,7 +875,9 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_cbmod=%2Fusr%2Flib64%2Fnagios%2Fcbmod.so&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
 	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${centreon_admin_password}&confirm_password=${centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
 	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${db_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${db_centreon_password}&db_password_confirm=${db_centreon_password}"
-	install_wizard_post ${sessionID} "process_step_vault.php" "address=${vault_address}&port=${vault_port}&role_id=${vault_role_id}&secret_id=${vault_secret_id}&root_path='${vault_root_path}"
+	if [[ -v use_vault ]]; then
+	  install_wizard_post ${sessionID} "process_step_vault.php" "address=${vault_address}&port=${vault_port}&role_id=${vault_role_id}&secret_id=${vault_secret_id}&root_path=${vault_root_path}"
+	fi
 	install_wizard_post ${sessionID} "configFileSetup.php"
 	install_wizard_post ${sessionID} "installConfigurationDb.php"
 	install_wizard_post ${sessionID} "installStorageDb.php"
