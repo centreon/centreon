@@ -1,10 +1,40 @@
 FROM centos:7 AS web_fresh
 
+RUN bash -e <<'EOF'
+for file in $(grep -l mirrorlist /etc/yum.repos.d/CentOS-*);do
+  if [[ "$file" == "/etc/yum.repos.d/CentOS-CR.repo" ]];then
+    echo "Enabling vault.centos.org in $file"
+    sed -i 's/baseurl\=http\:\/\/mirror\.centos\.org/baseurl\=http\:\/\/vault\.centos\.org/g' $file
+  else
+    echo "Disabling mirrorlist.centos.org in $file"
+    sed -i 's/mirrorlist\=/\#mirrorlist\=/g' $file
+    echo "Enabling vault.centos.org in $file"
+    sed -i 's/\#baseurl\=http\:\/\/mirror\.centos\.org/baseurl\=http\:\/\/vault\.centos\.org/g' $file
+  fi
+done
+EOF
+
 RUN bash -e <<EOF
+  yum clean all --enablerepo=*
+  yum install -y centos-release-scl
+EOF
 
-yum clean all --enablerepo=*
-
-yum install -y centos-release-scl
+RUN bash -e <<'EOF'
+for file in $(grep -l mirrorlist /etc/yum.repos.d/CentOS-SCLo*);do
+  echo "Disabling mirrorlist.centos.org in $file"
+  sed -i 's/mirrorlist\=/\#mirrorlist\=/g' $file
+  if [[ "$file" == "/etc/yum.repos.d/CentOS-SCLo-scl.repo" ]];then
+    echo "Enabling vault.centos.org in scl."
+    sed -i 's/\#\ baseurl\=http\:\/\/mirror\.centos\.org/baseurl\=http\:\/\/vault\.centos\.org/g' $file
+  elif [[ "$file" == "/etc/yum.repos.d/CentOS-SCLo-scl-rh.repo" ]];then
+    echo "Enabling vault.centos.org in scl-rh"
+    sed -i 's/\#baseurl\=http\:\/\/mirror\.centos\.org/baseurl\=http\:\/\/vault\.centos\.org/g' $file
+  else
+    echo "Not a SCL repo file"
+  fi
+done
+EOF
+RUN bash -e <<EOF
 
 curl -o remi-release-7.rpm https://rpms.remirepo.net/enterprise/remi-release-7.rpm
 yum install -y remi-release-7.rpm
