@@ -566,14 +566,14 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
+      - name: Restore gorgone files
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
           key: ${{ github.sha }}-gorgone-${{ github.head_ref || github.ref_name }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
-      - name: Restore gorgone files
+      - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
