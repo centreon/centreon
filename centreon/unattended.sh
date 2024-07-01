@@ -85,7 +85,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.04> (default: 24.04)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>::<port>::<root_path>::<role_id>::<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.04> (default: 24.04)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -93,7 +93,7 @@ function usage() {
 	echo
 	echo " $script_short_name install -r unstable,testing == install the central to the $version from the unstable & testing repository"
 	echo
-	echo " $script_short_name install -V vault-example.com::8200::my_storage::my-role-id::my-secret-id == configuring a vault to store your application and database credentials"
+	echo " $script_short_name install -V vault-example.com;8200;my_storage;my-role-id;my-secret-id == configuring a vault to store your application and database credentials"
 	exit 1
 }
 #======== end of function usage()
@@ -445,7 +445,6 @@ function set_required_prerequisite() {
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
-#     replace by /tmp/***.repo
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
 			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
 			PHP_SERVICE_UNIT="php-fpm"
@@ -498,7 +497,6 @@ function set_required_prerequisite() {
 			fi
 
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
-      # REplace by /tmp/***.repo
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
 			PHP_SERVICE_UNIT="php-fpm"
 			HTTP_SERVICE_UNIT="httpd"
