@@ -17,28 +17,34 @@ interface UsePageResolverState {
   parameters: Parameters;
 }
 
+const { log } = console;
+
 export const usePageResolver = (): UsePageResolverState => {
   const { pathname } = usePageResolver.useLocation();
   const parametersNamesRef = useRef<Array<string>>([]);
 
   const formattedPathname = pathname.replace('/public', '');
 
-  const matchedRoute = useMemo(
-    () =>
-      Object.entries(routes).find(([key]) => {
-        parametersNamesRef.current = Array.from(
-          key.matchAll(/\[(?<param>\w+|\w+(-|_)\w+)\]/g) || []
-        ).map((match) => match[1]);
+  log('Coucou MedWass :)');
 
-        return formattedPathname.match(getURLMatchRegExp(key));
-      }),
-    [formattedPathname]
-  );
+  const matchedRoute = useMemo(() => {
+    log('useMemo', routes);
+
+    return Object.entries(routes).find(([key]) => {
+      log('use memo 2', key, key.matchAll(/\[(?<param>\w+|\w+(-|_)\w+)\]/g));
+
+      parametersNamesRef.current = Array.from(
+        key.matchAll(/\[(?<param>\w+|\w+(-|_)\w+)\]/g) || []
+      ).map((match) => match[1]);
+
+      return formattedPathname.match(getURLMatchRegExp(key));
+    });
+  }, [formattedPathname]);
 
   const parameterValues = matchedRoute
-    ? formattedPathname
-        .matchAll(getURLMatchRegExp(matchedRoute[0]))
-        .toArray()[0]
+    ? Array.from(
+        formattedPathname.matchAll(getURLMatchRegExp(matchedRoute[0])) || []
+      )[0]
         .slice(1)
         .filter((v) => v)
     : [];
