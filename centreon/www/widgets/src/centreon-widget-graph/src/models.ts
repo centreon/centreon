@@ -33,6 +33,8 @@ export interface PanelOptions {
   refreshIntervalCustom?: number;
   scale: 'linear' | 'logarithmic';
   scaleLogarithmicBase: string;
+  showArea: 'auto' | 'show' | 'hide';
+  showAxisBorder: boolean;
   showGridLines: boolean;
   showLegend: boolean;
   showPoints: boolean;
@@ -41,8 +43,6 @@ export interface PanelOptions {
   tooltipMode: 'all' | 'single' | 'hidden';
   tooltipSortOrder: 'name' | 'ascending' | 'descending';
   yAxisTickLabelRotation: number;
-  showAxisBorder: boolean;
-  showArea: 'auto' | 'show' | 'hide';
 }
 
 export interface FormThreshold {
