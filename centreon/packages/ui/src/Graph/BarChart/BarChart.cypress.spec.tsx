@@ -1,8 +1,6 @@
 import dayjs from 'dayjs';
 import { equals } from 'ramda';
 
-import { width } from '@mui/system';
-
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';

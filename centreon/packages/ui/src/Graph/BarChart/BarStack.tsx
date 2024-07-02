@@ -3,8 +3,6 @@ import { memo } from 'react';
 import { scaleBand } from '@visx/scale';
 import { equals, gt, pick } from 'ramda';
 
-import { width } from '@mui/system';
-
 import { useBarStack, UseBarStackProps } from './useBarStack';
 import { BarStyle } from './models';
 
