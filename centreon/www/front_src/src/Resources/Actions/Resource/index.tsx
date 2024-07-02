@@ -295,7 +295,7 @@ const ResourceActions = ({
           </div>
         )}
         {displayCheck && (
-          <div className={classes.action}>
+          <div className={cx({ [classes.action]: !displayCondensed })}>
             <CheckActionButton
               displayCondensed={displayCondensed}
               resources={resources}

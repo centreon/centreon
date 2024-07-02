@@ -30,7 +30,10 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
 
   return (
     <Grid container className={classes.container}>
-      <Grid item className={classes.gridItem}>
+      <Grid
+        item
+        className={cx(classes.gridItem, { [classes.extraMargin]: smallSize })}
+      >
         <Grid item>
           <Suspense fallback={<ResourceActionsSkeleton />}>
             <WrapperResourceActions

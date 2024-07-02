@@ -5,6 +5,9 @@ export const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     flexWrap: 'nowrap'
   },
+  extraMargin: {
+    marginRight: theme.spacing(0.5)
+  },
   gridItem: {
     alignItems: 'center',
     display: 'flex',
