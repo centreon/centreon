@@ -3,6 +3,8 @@ import { memo } from 'react';
 import { scaleBand } from '@visx/scale';
 import { equals, gt, pick } from 'ramda';
 
+import { width } from '@mui/system';
+
 import { useBarStack, UseBarStackProps } from './useBarStack';
 import { BarStyle } from './models';
 
@@ -64,11 +66,13 @@ const BarStack = ({
               <rect
                 data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}`}
                 fill={bar.color}
-                height={isHorizontal ? Math.abs(bar.height) : barWidth}
+                height={Math.ceil(
+                  isHorizontal ? Math.abs(bar.height) : barWidth
+                )}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
                 opacity={barStyle.opacity}
-                width={isHorizontal ? barWidth : Math.abs(bar.width)}
-                x={
+                width={Math.ceil(isHorizontal ? barWidth : Math.abs(bar.width))}
+                x={Math.ceil(
                   isHorizontal
                     ? barPadding
                     : getPadding({
@@ -76,8 +80,8 @@ const BarStack = ({
                         padding: bar.x,
                         size: bar.width
                       })
-                }
-                y={
+                )}
+                y={Math.ceil(
                   isHorizontal
                     ? getPadding({
                         isNegativeValue,
@@ -85,7 +89,7 @@ const BarStack = ({
                         size: bar.height
                       })
                     : barPadding
-                }
+                )}
                 onMouseEnter={
                   isTooltipHidden
                     ? undefined

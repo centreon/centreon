@@ -132,8 +132,6 @@ describe('Pie chart', () => {
 
     initialize({});
     cy.findByTestId('Title').should('not.exist');
-
-    cy.makeSnapshot();
   });
 
   it('adjusts outer radius when chart dimensions are too small', () => {
