@@ -189,7 +189,7 @@ jobs:
           esac
 
           case "$BRANCHNAME" in
-            develop | dev-[2-9][0-9].[0-9][0-9].x)
+            develop | dev-[2-9][0-9].[0-9][0-9].x |prepare-release-cloud-24.07.0-tun)
               STABILITY="unstable"
               ENV="development"
               ;;
