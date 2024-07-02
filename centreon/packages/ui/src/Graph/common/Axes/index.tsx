@@ -45,12 +45,10 @@ const Axes = ({
 
   const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
+  const [start, end] = xScale.domain();
+
   const tickFormat =
-    data?.axisX?.xAxisTickFormat ??
-    getXAxisTickFormat({
-      end: xScale.domain()[-1],
-      start: xScale.domain()[0]
-    });
+    data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat({ end, start });
 
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });
