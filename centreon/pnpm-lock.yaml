@@ -772,9 +772,6 @@ importers:
       identity-obj-proxy:
         specifier: ^3.0.0
         version: 3.0.0
-      jest-transform-mdx:
-        specifier: link:@storybook/addon-docs/jest-transform-mdx
-        version: link:@storybook/addon-docs/jest-transform-mdx
       jest-transform-stub:
         specifier: ^2.0.0
         version: 2.0.0
