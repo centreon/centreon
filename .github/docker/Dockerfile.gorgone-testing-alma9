@@ -2,8 +2,7 @@ FROM almalinux:9
 
 RUN bash -e <<EOF
 
-dnf install -y dnf-plugins-core zstd mariadb iproute
-dnf install -y epel-release 
+dnf install -y dnf-plugins-core zstd mariadb iproute epel-release 
 dnf config-manager --set-enabled crb
 dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/23.10/el9/centreon-23.10.repo
 dnf -y --enablerepo=*
