@@ -165,6 +165,17 @@ jobs:
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               fi
               ;;
+            prepare-release-cloud*)
+              # Set release cloud to 1 (0=not-cloud, 1=cloud)
+              GITHUB_RELEASE_CLOUD=1
+              # Debug
+              echo "GITHUB_RELEASE_TYPE is: $GITHUB_RELEASE_TYPE"
+              echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
+              # Github ouputs
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+              ;;
             *)
               # Any branch name
               GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
