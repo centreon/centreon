@@ -19125,8 +19125,29 @@ msgstr "Marqué comme favori"
 msgid "Not marked as favorite"
 msgstr "Non marqué comme favori"
 
+msgid "Unable to retrieve credentials ['%s'] from vault"
+msgstr "Impossible de récupérer les informations d'identification ['%s'] du coffre"
+
+msgid "Unknown provider type: %s"
+msgstr "Type de fournisseur inconnu : %s"
+
 msgid "Add filter"
 msgstr "Ajouter un filtre"
 
 msgid "Add resource dataset"
 msgstr "Ajouter un jeu de données de ressources"
+
+msgid "Bar"
+msgstr "Barre"
+
+msgid "Stacked bar"
+msgstr "Barre empilée"
+
+msgid "Orientation"
+msgstr "Orientation"
+
+msgid "Bar radius"
+msgstr "Radius de la barre"
+
+msgid "Bar background opacity"
+msgstr "Opacité du fond de la barre"

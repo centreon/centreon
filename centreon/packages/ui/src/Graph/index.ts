@@ -1,4 +1,5 @@
 export { default as LineChart } from './LineChart';
+export { default as BarChart } from './BarChart/BarChart';
 export { Gauge } from './Gauge';
 export { SingleBar } from './SingleBar';
 export { Text as GraphText } from './Text';

@@ -43,6 +43,11 @@ use Core\Option\Domain\Option;
 use Core\PollerMacro\Application\Repository\ReadPollerMacroRepositoryInterface;
 use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\PollerMacro\Domain\Model\PollerMacro;
+use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
@@ -61,12 +66,14 @@ final class MigrateAllCredentials
      * @param ReadServiceMacroRepositoryInterface $readServiceMacroRepository
      * @param ReadOptionRepositoryInterface $readOptionRepository
      * @param ReadPollerMacroRepositoryInterface $readPollerMacroRepository
+     * @param ReadConfigurationRepositoryInterface $readProviderConfigurationRepository
      * @param WriteHostRepositoryInterface $writeHostRepository
      * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
      * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
      * @param WriteOptionRepositoryInterface $writeOptionRepository
      * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository
+     * @param WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository
      */
     public function __construct(
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
@@ -77,12 +84,14 @@ final class MigrateAllCredentials
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
         private readonly ReadOptionRepositoryInterface $readOptionRepository,
         private readonly ReadPollerMacroRepositoryInterface $readPollerMacroRepository,
+        private readonly ReadConfigurationRepositoryInterface $readProviderConfigurationRepository,
         private readonly WriteHostRepositoryInterface $writeHostRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly WriteOptionRepositoryInterface $writeOptionRepository,
         private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
+        private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
     ) {
         $this->response = new MigrateAllCredentialsResponse();
     }
@@ -102,6 +111,9 @@ final class MigrateAllCredentials
             $serviceMacros = $this->readServiceMacroRepository->findPasswords();
             $knowledgeBasePasswordOption = $this->readOptionRepository->findByName('kb_wiki_password');
             $pollerMacros = $this->readPollerMacroRepository->findPasswords();
+            $openIdConfiguration = $this->readProviderConfigurationRepository->getConfigurationByType(
+                Provider::OPENID
+            );
 
             $credentials = $this->createCredentialDtos(
                 $hosts,
@@ -109,7 +121,8 @@ final class MigrateAllCredentials
                 $hostMacros,
                 $serviceMacros,
                 $pollerMacros,
-                $knowledgeBasePasswordOption
+                $knowledgeBasePasswordOption,
+                $openIdConfiguration
             );
 
             $this->migrateCredentials(
@@ -120,6 +133,7 @@ final class MigrateAllCredentials
                 $hostMacros,
                 $serviceMacros,
                 $pollerMacros,
+                $openIdConfiguration
             );
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
@@ -136,6 +150,7 @@ final class MigrateAllCredentials
      * @param Macro[] $hostMacros
      * @param Macro[] $serviceMacros
      * @param PollerMacro[] $pollerMacros
+     * @param Configuration $openIdConfiguration
      */
     private function migrateCredentials(
         \Traversable&\Countable $credentials,
@@ -145,6 +160,7 @@ final class MigrateAllCredentials
         array $hostMacros,
         array $serviceMacros,
         array $pollerMacros,
+        Configuration $openIdConfiguration
     ): void {
 
         $response->results = new CredentialMigrator(
@@ -156,11 +172,13 @@ final class MigrateAllCredentials
             $this->writeServiceMacroRepository,
             $this->writeOptionRepository,
             $this->writePollerMacroRepository,
+            $this->writeOpenIdConfigurationRepository,
             $hosts,
             $hostTemplates,
             $hostMacros,
             $serviceMacros,
             $pollerMacros,
+            $openIdConfiguration
         );
     }
 
@@ -171,6 +189,7 @@ final class MigrateAllCredentials
      * @param Macro[] $serviceMacros
      * @param PollerMacro[] $pollerMacros
      * @param Option|null $knowledgeBasePasswordOption
+     * @param Configuration $openIdConfiguration
      *
      * @return \ArrayIterator<int, CredentialDto> $credentials
      */
@@ -180,7 +199,8 @@ final class MigrateAllCredentials
         array $hostMacros,
         array $serviceMacros,
         array $pollerMacros,
-        ?Option $knowledgeBasePasswordOption
+        ?Option $knowledgeBasePasswordOption,
+        Configuration $openIdConfiguration
     ): \ArrayIterator {
 
         $hostSNMPCommunityCredentialDtos = $this->createHostSNMPCommunityCredentialDtos($hosts);
@@ -191,6 +211,7 @@ final class MigrateAllCredentials
         $knowledgeBasePasswordCredentialDto = $this->createKnowledgeBasePasswordCredentialDto(
             $knowledgeBasePasswordOption
         );
+        $openIdConfigurationCredentialDtos = $this->createOpenIdConfigurationCredentialDtos($openIdConfiguration);
 
         return new \ArrayIterator(array_merge(
             $hostSNMPCommunityCredentialDtos,
@@ -198,7 +219,8 @@ final class MigrateAllCredentials
             $hostMacroCredentialDtos,
             $serviceMacroCredentialDtos,
             $pollerMacroCredentialDtos,
-            $knowledgeBasePasswordCredentialDto
+            $knowledgeBasePasswordCredentialDto,
+            $openIdConfigurationCredentialDtos
         ));
     }
 
@@ -341,6 +363,45 @@ final class MigrateAllCredentials
         $credential->name = '_KBPASSWORD';
         $credential->value = $knowledgeBasePasswordOption->getValue();
         $credentials[] = $credential;
+
+        return $credentials;
+    }
+
+    /**
+     * @param Configuration $openIdConfiguration
+     *
+     * @return CredentialDto[]
+     */
+    private function createOpenIdConfigurationCredentialDtos(Configuration $openIdConfiguration): array
+    {
+        $credentials = [];
+
+        /**
+         * @var CustomConfiguration $customConfiguration
+         */
+        $customConfiguration = $openIdConfiguration->getCustomConfiguration();
+
+        if (
+            $customConfiguration->getClientId() !== null
+            && ! str_starts_with($customConfiguration->getClientId(), 'secret::')
+        ) {
+            $credential = new CredentialDto();
+            $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;
+            $credential->name = '_OPENID_CLIENT_ID';
+            $credential->value = $customConfiguration->getClientId();
+            $credentials[] = $credential;
+        }
+
+        if (
+            $customConfiguration->getClientSecret() !== null
+            && ! str_starts_with($customConfiguration->getClientSecret(), 'secret::')
+        ) {
+            $credential = new CredentialDto();
+            $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;
+            $credential->name = '_OPENID_CLIENT_SECRET';
+            $credential->value = $customConfiguration->getClientSecret();
+            $credentials[] = $credential;
+        }
 
         return $credentials;
     }
