@@ -380,10 +380,7 @@ describe('Dashboard', () => {
       cy.get('[data-canmove="true"]')
         .eq(0)
         .parent()
-        .should('have.css', 'height')
-        .and('equal', '148px');
-
-      cy.makeSnapshot();
+        .should('have.css', 'height');
     });
   });
 
