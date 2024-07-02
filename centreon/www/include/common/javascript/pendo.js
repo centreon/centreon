@@ -19,7 +19,7 @@ function checkConnection(url) {
 const apiKey = 'b06b875d-4a10-4365-7edf-8efeaf53dfdd';
 // Pendo.io
 if (navigator.onLine ) {
-  checkConnection('https://cdn.eu.pendo.io/agent/static/'+apiKey+'/pendo.js').then(function() {
+  checkConnection('https://guide.centreon.com/agent/static/'+apiKey+'/pendo.js').then(function() {
 
       const initPendo = (data) => {
         (function (apiKey, platformData) {
@@ -35,7 +35,7 @@ if (navigator.onLine ) {
             })(v[w]);
             y = e.createElement(n);
             y.async = !0;
-            y.src = 'https://cdn.eu.pendo.io/agent/static/' + apiKey + '/pendo.js';
+            y.src = 'https://guide.centreon.com/agent/static/' + apiKey + '/pendo.js';
             z = e.getElementsByTagName(n)[0];
             z.parentNode.insertBefore(y, z);
           })(window, document, 'script', 'pendo');
