@@ -4,6 +4,7 @@ gorgone:
     external_com_path: "*:5556"
     authorized_clients:
       - key: @KEYTHUMBPRINT@
+    id: 1
     
   modules:
     - name: register
