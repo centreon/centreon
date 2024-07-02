@@ -455,12 +455,12 @@ export const findResourceAccessRuleResponseDecoded = (): object => ({
     },
     {
       datasetFilter: null,
-      resourceType: 'service_category',
+      resourceType: 'service',
       resources: [
-        { id: 1, name: 'Ping' },
-        { id: 2, name: 'Traffic' },
-        { id: 3, name: 'Disk' },
-        { id: 4, name: 'Memory' }
+        { id: 23, name: 'Disk-/var' },
+        { id: 22, name: 'Disk-/usr' },
+        { id: 21, name: 'Disk-/opt' },
+        { id: 19, name: 'Disk-/' }
       ]
     }
   ],
