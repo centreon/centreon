@@ -351,7 +351,9 @@ class Engine extends AbstractObject
         $result = $this->stmt_engine->fetchAll(PDO::FETCH_ASSOC);
 
         $this->engine = array_pop($result);
-        $this->engine['enable_notifications'] = $this->shouldEngineNotificationsBeDisabled() ? '0' : '1'; 
+        if ($this->shouldEngineNotificationsBeDisabled() && $this->engine['enable_notifications'] == 1) {
+            $this->engine['enable_notifications'] = 0;
+         }
 
         if (is_null($this->engine)) {
             throw new Exception(
