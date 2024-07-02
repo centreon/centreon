@@ -1,0 +1,33 @@
+gorgone:
+  gorgonecore:
+    external_com_type: tcp
+    external_com_path: "*:5556"
+    authorized_clients:
+      - key: @KEYTHUMBPRINT@
+    
+  modules:
+    - name: register
+      package: "gorgone::modules::core::register::hooks"
+      enable: true
+      config_file: /etc/centreon-gorgone/@UNIQ_ID_FROM_ROBOT_TESTING_CONFIG_FILE@/config.d/pull_node_register_one_node.yaml
+
+    - name: proxy
+      package: "gorgone::modules::core::proxy::hooks"
+      enable: true
+
+    - name: nodes
+      package: "gorgone::modules::centreon::nodes::hooks"
+      enable: true
+
+    - name: httpserver
+      package: "gorgone::modules::core::httpserver::hooks"
+      enable: true
+      address: "0.0.0.0"
+      port: "8085"
+      ssl: false
+      auth:
+        enabled: false
+      allowed_hosts:
+        enabled: true
+        subnets:
+          - 127.0.0.1/32

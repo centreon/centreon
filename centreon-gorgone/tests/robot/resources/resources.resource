@@ -3,6 +3,7 @@ Documentation       Centreon Gorgone library for Robot Framework
 
 Library            Process
 Library            RequestsLibrary
+Library            OperatingSystem
 
 *** Variables ***
 ${gorgone_binary}             /usr/bin/gorgoned
@@ -102,6 +103,9 @@ Check Poller Communicate
         Sleep    5
         ${response}=    GET  http://127.0.0.1:8085/api/internal/constatus
         Log    ${response.json()}
+        IF    not ${response.json()}[data]
+            CONTINUE
+        END
         IF    ${response.json()}[data][${poller_id}][ping_failed] > 0 or ${response.json()}[data][${poller_id}][ping_ok] > 0
             BREAK
         END
@@ -135,9 +139,15 @@ Setup Two Gorgone Instances
         Start Gorgone    debug    ${poller_name}
         Check Poller Is Connected    port=8086    expected_nb=2
         Check Poller Communicate     2
+    ELSE IF    '${communication_mode}' == 'pull'
+        Setup Gorgone Config    ${pull_central_config}    ${ROOT_CONFIG}pull_node_register_one_node.yaml    ${gorgone_core_config}    gorgone_name=${central_name}    sql_file=${ROOT_CONFIG}pull_db_1_poller.sql
+        Setup Gorgone Config    ${gorgone_core_config}    ${pull_poller_config}    gorgone_name=${poller_name}
 
-    ELSE
-        Fail    pull mode is not yet implemented.
+        Start Gorgone    debug    ${central_name}
+        Wait Until Port Is Bind    5556
+        Start Gorgone    debug    ${poller_name}
+        Check Poller Is Connected    port=5556    expected_nb=2
+        Check Poller Communicate     2
     END
 
 Wait Until Port Is Bind
