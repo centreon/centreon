@@ -25,7 +25,7 @@ runs:
         php-version: 8.1
         extensions: yaml, xml, common, mysql, cli, dom, mbstring, intl, pdo, zip
         coverage: none
-        tools: composer:v2.6
+        tools: composer:v2
 
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
@@ -40,7 +40,7 @@ runs:
     - name: Setup and run centreon-injector
       run: |
         cd centreon-injector
-        composer install
+        composer install --no-plugins --no-scripts
         cd ..
         docker cp centreon-injector lighthouse-tests-centreon:/usr/share
         docker exec lighthouse-tests-centreon sed -i 's/127.0.0.1/localhost/g' /usr/share/centreon-injector/.env
