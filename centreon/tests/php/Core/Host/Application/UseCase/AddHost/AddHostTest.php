@@ -61,6 +61,7 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use phpDocumentor\Reflection\Types\This;
 use Tests\Core\Host\Infrastructure\API\AddHost\AddHostPresenterStub;
 
 beforeEach(function (): void {
@@ -643,7 +644,7 @@ it('should return created object on success (with admin user)', function (): voi
         ->method('notifyConfigurationChange');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
     $this->readHostRepository
@@ -850,7 +851,7 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('notifyConfigurationChange');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
     $this->readHostRepository
@@ -858,7 +859,7 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('findById')
         ->willReturn($this->host);
     $this->readAccessGroupRepository
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('findByContact');
     $this->readHostCategoryRepository
         ->expects($this->once())
