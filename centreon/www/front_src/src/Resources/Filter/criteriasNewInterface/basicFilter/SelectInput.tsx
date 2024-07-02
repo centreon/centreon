@@ -1,5 +1,6 @@
 import { equals, find, isEmpty, isNil, propEq, reject, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
 
@@ -9,6 +10,8 @@ import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { ChangedCriteriaParams, DeactivateProps, SectionType } from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
+import { selectedVisualizationAtom } from '../../../Actions/actionsAtoms';
+import { Visualization } from '../../../models';
 
 import useSectionsData from './sections/useSections';
 import { useStyles } from './sections/sections.style';
@@ -34,6 +37,9 @@ const SelectInput = ({
 }: Props & DeactivateProps): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+
+  const visualization = useAtomValue(selectedVisualizationAtom);
+
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
   const { dataByFilterName } = useInputData({
     data: sectionData,
@@ -54,6 +60,10 @@ const SelectInput = ({
   }
 
   const updateResourceType = (updatedValue): void => {
+    if (!equals(visualization, Visualization.All)) {
+      return;
+    }
+
     if (isNil(resourceTypesCriteria)) {
       return;
     }
