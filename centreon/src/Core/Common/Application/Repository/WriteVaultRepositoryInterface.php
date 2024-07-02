@@ -38,9 +38,9 @@ interface WriteVaultRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return string
+     * @return string[] array of paths
      */
-    public function upsert(?string $uuid = null, array $inserts = [], array $deletes = []): string;
+    public function upsert(?string $uuid = null, array $inserts = [], array $deletes = []): array;
 
     /**
      * Delete secrets.

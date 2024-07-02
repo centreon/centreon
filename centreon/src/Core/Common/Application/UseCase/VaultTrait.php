@@ -25,16 +25,16 @@ namespace Core\Common\Application\UseCase;
 
 trait VaultTrait
 {
-    private string $vault_path_regex = '^secret::[^:]*::';
+    private string $vaultPathRegex = '^secret::[^:]*::';
+
+    private string $uuidExtractRegex = '^(.*)\/(.*)::(.*)$';
 
     private ?string $uuid = null;
 
     private function getUuidFromPath(string $value): ?string
     {
-        if (preg_match('/' . $this->vault_path_regex . '/', $value)) {
-            $pathPart = explode('/', $value);
-
-            return end($pathPart);
+        if (preg_match('/' . $this->uuidExtractRegex . '/', $value, $matches) && isset($matches[2])) {
+            return $matches[2];
         }
 
         return null;
@@ -42,6 +42,6 @@ trait VaultTrait
 
     private function isAVaultPath(string $value): bool
     {
-        return (bool) (preg_match('/' . $this->vault_path_regex . '/', $value));
+        return (bool) (preg_match('/' . $this->vaultPathRegex . '/', $value));
     }
 }

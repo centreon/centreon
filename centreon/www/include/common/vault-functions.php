@@ -1671,9 +1671,11 @@ function findKnowledgeBasePasswordFromVault(
 ): string {
     $httpClient = new CentreonRestHttp();
     $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+        . $kbPasswordPath;
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
     $response = $httpClient->call(
-        'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-            . $kbPasswordPath,
+        $url,
         'GET',
         null,
         ['X-Vault-Token: ' . $clientToken]

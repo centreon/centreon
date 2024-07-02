@@ -53,6 +53,7 @@ use Core\Macro\Domain\Model\Macro;
 use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class AddHostTemplate
 {
@@ -161,7 +162,7 @@ final class AddHostTemplate
             : 0;
 
         if ($this->writeVaultRepository->isVaultConfigured() === true && $request->snmpCommunity !== '') {
-            $vaultPath = $this->writeVaultRepository->upsert(null, ['_HOSTSNMPCOMMUNITY' => $request->snmpCommunity], []);
+            $vaultPath = $this->writeVaultRepository->upsert(null, [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $request->snmpCommunity], []);
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
             $request->snmpCommunity = $vaultPath;
         }

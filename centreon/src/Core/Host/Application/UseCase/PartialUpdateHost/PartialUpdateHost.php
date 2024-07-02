@@ -68,6 +68,7 @@ use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Utility\Difference\BasicDifference;
 
 final class PartialUpdateHost
@@ -404,7 +405,7 @@ final class PartialUpdateHost
         if ($this->writeVaultRepository->isVaultConfigured() && ! $dto->snmpCommunity instanceOf NoValue) {
             $vaultPath = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
-                ['_HOSTSNMPCOMMUNITY' => $host->getSnmpCommunity()]
+                [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $host->getSnmpCommunity()]
             );
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
             $host->setSnmpCommunity($vaultPath);

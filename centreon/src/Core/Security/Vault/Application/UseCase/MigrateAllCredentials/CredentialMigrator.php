@@ -40,6 +40,7 @@ use Core\PollerMacro\Domain\Model\PollerMacro;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
  * @implements \IteratorAggregate<CredentialRecordedDto|CredentialErrorDto>
@@ -177,14 +178,14 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         $vaultPath = $this->writeVaultRepository->upsert(
             $uuid,
             [
-                $credential->name === '_HOSTSNMPCOMMUNITY'
+                $credential->name === VaultConfiguration::HOST_SNMP_COMMUNITY_KEY
                     ? $credential->name
                     : '_HOST' . $credential->name => $credential->value,
             ]
         );
         $vaultPathPart = explode('/', $vaultPath);
         $existingUuids['hosts'][$credential->resourceId] = end($vaultPathPart);
-        if ($credential->name === '_HOSTSNMPCOMMUNITY') {
+        if ($credential->name === VaultConfiguration::HOST_SNMP_COMMUNITY_KEY) {
             if ($credential->type === CredentialTypeEnum::TYPE_HOST) {
                 foreach ($this->hosts as $host) {
                     if ($host->getId() === $credential->resourceId) {

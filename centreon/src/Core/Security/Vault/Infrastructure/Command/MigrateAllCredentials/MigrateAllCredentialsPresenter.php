@@ -30,6 +30,7 @@ use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialReco
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialTypeEnum;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentialsPresenterInterface;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentialsResponse;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements MigrateAllCredentialsPresenterInterface
 {
@@ -86,7 +87,7 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
      */
     private function prefixMacroName(CredentialRecordedDto|CredentialErrorDto $dto): string
     {
-        if ($dto->credentialName === '_HOSTSNMPCOMMUNITY') {
+        if ($dto->credentialName === VaultConfiguration::HOST_SNMP_COMMUNITY_KEY) {
             return $dto->credentialName;
         }
 

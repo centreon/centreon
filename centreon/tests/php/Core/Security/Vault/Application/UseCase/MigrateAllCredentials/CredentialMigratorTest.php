@@ -48,6 +48,7 @@ use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialErro
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialRecordedDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialTypeEnum;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 beforeEach(function (): void {
     $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
@@ -62,13 +63,13 @@ beforeEach(function (): void {
     $this->credential1 = new CredentialDto();
     $this->credential1->resourceId = 1;
     $this->credential1->type = CredentialTypeEnum::TYPE_HOST;
-    $this->credential1->name = '_HOSTSNMPCOMMUNITY';
+    $this->credential1->name = VaultConfiguration::HOST_SNMP_COMMUNITY_KEY;
     $this->credential1->value = 'community';
 
     $this->credential2 = new CredentialDto();
     $this->credential2->resourceId = 2;
     $this->credential2->type = CredentialTypeEnum::TYPE_HOST_TEMPLATE;
-    $this->credential2->name = '_HOSTSNMPCOMMUNITY';
+    $this->credential2->name = VaultConfiguration::HOST_SNMP_COMMUNITY_KEY;
     $this->credential2->value = 'community';
 
     $this->credential3 = new CredentialDto();
@@ -164,7 +165,7 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         expect($status->resourceId)->toBeIn([1, 2, 3]);
         expect($status->vaultPath)->toBe('vault/path');
         expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE, CredentialTypeEnum::TYPE_SERVICE]);
-        expect($status->credentialName)->toBeIn(['_HOSTSNMPCOMMUNITY', '_SERVICEMACRO']);
+        expect($status->credentialName)->toBeIn([VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, '_SERVICEMACRO']);
     }
 });
 
@@ -195,7 +196,7 @@ it('tests getIterator method with exception', function (): void {
         expect($status)->toBeInstanceOf(CredentialErrorDto::class);
         expect($status->resourceId)->toBe(1);
         expect($status->type)->toBe(CredentialTypeEnum::TYPE_HOST);
-        expect($status->credentialName)->toBe('_HOSTSNMPCOMMUNITY');
+        expect($status->credentialName)->toBe(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY);
         expect($status->message)->toBe('Test exception');
     }
 });

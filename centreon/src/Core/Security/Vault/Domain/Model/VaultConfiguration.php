@@ -39,6 +39,8 @@ class VaultConfiguration
     public const SALT_LENGTH = 128;
     public const NAME_VALIDATION_REGEX = NewVaultConfiguration::NAME_VALIDATION_REGEX;
 
+    public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
+
     private ?string $secretId;
 
     private ?string $roleId;
