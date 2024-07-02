@@ -39,7 +39,6 @@ my ($connector);
 
 sub new {
     my ($class, %options) = @_;
-    use Data::Dumper;
     $connector = $class->SUPER::new(%options);
     bless $connector, $class;
 
