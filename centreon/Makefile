@@ -1,4 +1,4 @@
-TARGET = input.json
+TARGET = composer.lock
 SOURCE = composer.json
 MY_FLAG = 3
 
@@ -35,16 +35,16 @@ else
 endif
 
 install: ## Do a composer install if vendor is missing
-	test -s vendor &&  echo "vendor's file is good :)" || composer install
+	@test -s vendor &&  echo "vendor's file is good :" || composer install
 
 update: check ## Do a composer update if composer.json change
 
 check: $(TARGET)
-	@echo "Le fichier $(SOURCE) est opérationnel"
+	@echo "the $(SOURCE)'s file is operational"
 
 $(TARGET): $(SOURCE)
-	composer update
-	@touch $(TARGET)
+	@composer update >dev\null
+	
 
 phpstan: ## Do a analyse on all modified files in the current commit (Do a LEVEL= 1-8 to select the level of analyse you want, default level = 4 )
 ifeq ($(FILES),)
@@ -90,17 +90,18 @@ fixer_unstrict: ## Do a unstrict fix on all modified files in the current commit
 ifeq ($(FILES),)
 	@echo "nothing to fix"
 else
-	vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --dry-run --diff $(FILES) || true
+	@vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --dry-run --diff $(FILES) || true
 endif
 
 
-coverage: ## Do a coverage of all src/Core or can be adjust with FILTER=<folder> for having the coverage of this folder
-	@XDEBUG_MODE=coverage ./vendor/bin/pest >/dev/null --coverage-filter=$(FILTER) --coverage-text=coverage_summary.txt || true
+coverage: ## Do a coverage of all src/Core or can be adjust with FILTERPATH=<folder> for having the coverage of this folder
+	@XDEBUG_MODE=coverage ./vendor/bin/pest >/dev/null --coverage-filter=$(FILTERPATH) --coverage-text=coverage_summary.txt || true
 	@echo ''
 	@sed -n '9p' coverage_summary.txt
 	@echo ''
-	@echo "  In $(FILTER)'s directory"
+	@echo "  In $(FILTERPATH)'s directory"
 	@echo ''
+	@rm ./coverage_summary.txt
 
 
 
@@ -113,9 +114,11 @@ if [ $$RETVAL -eq 0 ]; then \
 	echo ''; \
 	sed -n '9p' ./coverage_summary.txt ; \
 	echo ''; \
+	rm ./coverage_summary.txt; \
 else \
   	echo ''; \
 	grep "^  Tests:" test-info.txt ; \
 	echo ''; \
 	echo "Pest tests failed"; \
+	rm test-info.txt ; \
 fi
