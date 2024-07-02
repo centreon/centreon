@@ -29,7 +29,6 @@
   "author": {
     "name": "centreon@centreon.com"
   },
-  "type": "module",
   "baseCodeCoveragePercentage": 60,
   "license": "GPL-2.0",
   "bugs": {
@@ -40,7 +39,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./components": "./src/components/index.ts",
-    "./fonts/*": "./public/fonts/*",
+    "./fonts/*": "./src/fonts/*",
     "./test/testRenderer": "./test/testRenderer.tsx"
   },
   "files": [
@@ -116,6 +115,7 @@
     "@lexical/rich-text": "^0.16.1",
     "@lexical/selection": "^0.16.1",
     "@lexical/utils": "^0.16.1",
+    "@mui/material": "^5.15.21",
     "@react-spring/web": "^9.7.3",
     "@visx/clip-path": "^3.3.0",
     "@visx/curve": "^3.3.0",
@@ -133,6 +133,7 @@
     "@visx/zoom": "^3.3.0",
     "anylogger": "^1.0.11",
     "d3-array": "3.2.4",
+    "dayjs": "^1.11.11",
     "humanize-duration": "^3.32.1",
     "lexical": "^0.16.1",
     "notistack": "^3.0.1",
@@ -141,6 +142,7 @@
     "react-grid-layout": "^1.4.4",
     "react-html-parser": "^2.0.2",
     "react-resizable": "^3.0.5",
+    "react-router-dom": "^6.24.0",
     "react-transition-group": "^4.4.5",
     "sanitize-html": "^2.13.0",
     "ulog": "^2.0.0-beta.19"

@@ -51,10 +51,5 @@ export default defineConfig({
       requireEnv: false
     })
   ],
-  resolve: {
-    alias: {
-      '@centreon/ui/fonts': path.resolve(__dirname, '/fonts')
-    }
-  },
   root: '.'
 });
