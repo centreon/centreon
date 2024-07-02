@@ -31,6 +31,7 @@ import {
   Action,
   CheckActionModel,
   ExtraActionsInformation,
+  MoreSecondaryActions,
   ResourceActions
 } from '../model';
 
@@ -58,8 +59,9 @@ const ResourceActions = ({
   success,
   mainActions,
   secondaryActions,
-  displayCondensed = false
-}: ResourceActions): JSX.Element => {
+  displayCondensed = false,
+  renderMoreSecondaryActions
+}: ResourceActions & MoreSecondaryActions): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const { cancel } = useCancelTokenSource();
@@ -379,6 +381,7 @@ const ResourceActions = ({
                   prepareToAddComment();
                 }}
               />
+              {renderMoreSecondaryActions?.({ close })}
             </>
           )}
         </PopoverMenu>

@@ -5,7 +5,7 @@ export const useStyles = makeStyles()((theme) => ({
     alignItems: 'center'
   },
   condensed: {
-    marginRight: theme.spacing(2)
+    marginRight: theme.spacing(1)
   },
   container: {
     '& .MuiButton-root': {
