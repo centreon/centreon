@@ -194,7 +194,8 @@ final class AddBrokerInputOutput
                     }
                 }
             } elseif (
-                $inputOutputFields[$paramName]->getType() === 'password'
+                array_key_exists($paramName, $inputOutputFields)
+                && $inputOutputFields[$paramName]->getType() === 'password'
             ) {
                 if (! is_string($paramValue) && ! is_int($paramValue)) {
                     // for phpstan, should not happen.
