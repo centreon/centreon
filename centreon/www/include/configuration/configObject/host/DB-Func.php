@@ -43,7 +43,11 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 
 /**
  * Quickform rule that checks whether or not monitoring server can be set
@@ -1521,7 +1525,6 @@ function updateHost_MC($hostId = null)
         $uuid = retrieveHostUuidFromDatabase($pearDB, $hostId, $vaultConfiguration->getName());
     }
 
-    $submittedValues = [];
     $submittedValues = $form->getSubmitValues();
 
     if (! $isCloudPlatform) {
@@ -1624,14 +1627,27 @@ function updateHost_MC($hostId = null)
     // If there is a vault configuration write into vault.
     if ($vaultConfiguration !== null) {
         try {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
+
+            $updatedPasswordMacros = array_filter($hostObj->getFormattedMacros(), function ($macro) {
+                return $macro['macroPassword'] === '1'
+                    && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+            });
             updateHostSecretsInVaultFromMC(
+                $readVaultRepository,
+                $writeVaultRepository,
                 $vaultConfiguration,
                 $logger,
                 $uuidGenerator,
                 $uuid,
                 $hostId,
-                $hostObj->getFormattedMacros(),
-                $submittedValues['host_snmp_community']
+                $updatedPasswordMacros,
+                $submittedValues['host_snmp_community'] ?? null
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);

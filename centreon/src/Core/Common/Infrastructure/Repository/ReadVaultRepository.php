@@ -36,9 +36,35 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
             throw new \LogicException('Vault not configured');
         }
         $customPathElements = explode('::', $path);
+
+        // remove vault key from path
+        array_pop($customPathElements);
+
+        // Keep only the uri from the path
         $customPath = end($customPathElements);
         $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
             . '/v1/' . $customPath;
+        $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
+
+        $responseContent = $this->sendRequest('GET', $url);
+        if (is_array($responseContent) && isset($responseContent['data']['data'])) {
+            return $responseContent['data']['data'];
+        }
+
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findFromUri(string $uri): array
+    {
+        if ($this->vaultConfiguration === null) {
+            throw new \LogicException('Vault not configured');
+        }
+
+        $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
+            . '/v1/' . $uri;
         $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
 
         $responseContent = $this->sendRequest('GET', $url);

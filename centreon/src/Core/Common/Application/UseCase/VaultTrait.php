@@ -23,17 +23,25 @@ declare(strict_types=1);
 
 namespace Core\Common\Application\UseCase;
 
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 trait VaultTrait
 {
-    private string $vaultPathRegex = '^secret::[^:]*::';
-
-    private string $uuidExtractRegex = '^(.*)\/(.*)::(.*)$';
-
     private ?string $uuid = null;
 
+    /**
+     * Parse the vault path and find the UUID.
+     *
+     * example:
+     * Given $value = 'secret::vault_name::path/to/secret/xxxxxxx-xx-xxx-xxxxx::vault_key'
+     * Then 'xxxxxxx-xx-xxx-xxxxx' will be extracted.
+     *
+     * @param string $value
+     * @return string|null
+     */
     private function getUuidFromPath(string $value): ?string
     {
-        if (preg_match('/' . $this->uuidExtractRegex . '/', $value, $matches) && isset($matches[2])) {
+        if (preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $value, $matches) && isset($matches[2])) {
             return $matches[2];
         }
 
@@ -42,6 +50,6 @@ trait VaultTrait
 
     private function isAVaultPath(string $value): bool
     {
-        return (bool) (preg_match('/' . $this->vaultPathRegex . '/', $value));
+        return str_starts_with($value, VaultConfiguration::VAULT_PATH_PATTERN);
     }
 }

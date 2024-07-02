@@ -30,7 +30,7 @@ interface ReadVaultRepositoryInterface
     public function setCustomPath(string $customPath): void;
 
     /**
-     * Get vaul content given path.
+     * Get vault content from given path.
      *
      * @param string $path
      *
@@ -39,4 +39,15 @@ interface ReadVaultRepositoryInterface
      * @return array<string,string>
      */
     public function findFromPath(string $path): array;
+
+    /**
+     * Get vault content from given uri.
+     *
+     * @param string $uri
+     *
+     * @throws \Throwable
+     *
+     * @return array<string,string>
+     */
+    public function findFromUri(string $uri): array;
 }
