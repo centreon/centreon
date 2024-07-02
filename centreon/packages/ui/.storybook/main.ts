@@ -6,17 +6,25 @@ import { mergeConfig } from 'vite';
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
-  addons: ['@storybook/addon-themes', getAbsolutePath("@storybook/addon-essentials"), {
-    name: "@storybook/addon-docs",
-    options: {
-      configureJSX: true,
-      mdxPluginOptions: {
-        mdxCompileOptions: {
-          remarkPlugins: [remarkGfm],
+  addons: [
+    '@storybook/addon-themes',
+    getAbsolutePath("@storybook/addon-essentials"),
+    {
+      name: "@storybook/addon-docs",
+      options: {
+        configureJSX: true,
+        mdxPluginOptions: {
+          mdxCompileOptions: {
+            remarkPlugins: [remarkGfm],
+          },
         },
       },
     },
-  }, getAbsolutePath("@storybook/addon-a11y"), getAbsolutePath("@storybook/addon-interactions"), getAbsolutePath("storybook-addon-mock"), getAbsolutePath("storybook-dark-mode"), "@chromatic-com/storybook"],
+    getAbsolutePath("@storybook/addon-a11y"),
+    getAbsolutePath("@storybook/addon-interactions"),
+    getAbsolutePath("storybook-addon-mock"),
+    getAbsolutePath("storybook-dark-mode")
+  ],
   framework: {
     name: getAbsolutePath("@storybook/react-vite"),
     options: {},
