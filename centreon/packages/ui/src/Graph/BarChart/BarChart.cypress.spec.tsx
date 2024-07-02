@@ -83,8 +83,6 @@ describe('Bar chart', () => {
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it(`displays the stacked bar chart ${orientation}ly centered in zero`, () => {
@@ -125,8 +123,6 @@ describe('Bar chart', () => {
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
-
-      cy.makeSnapshot();
     });
   });
 
