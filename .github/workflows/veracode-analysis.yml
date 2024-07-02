@@ -159,7 +159,7 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        uses: veracode/Veracode-pipeline-scan-action@e4326eb9e6735637c250e725c67d1b5f56d1a97c # v1.0.15
+        uses: veracode/Veracode-pipeline-scan-action@fe0924c134a03ab5a74fcb9722ed8456efa48e17 # v1.0.16
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
@@ -173,7 +173,6 @@ jobs:
           development_stage: '${{ needs.build.outputs.development_stage }}'
           summary_display: '${{ needs.build.outputs.display_summary }}'
           issue_details: '${{ needs.build.outputs.display_summary }}'
-          use_upgraded_version: 'true'
 
       - name: Backup analysis reports
         # debug step used to investigate support case
