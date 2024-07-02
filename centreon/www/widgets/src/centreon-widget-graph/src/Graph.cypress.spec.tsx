@@ -105,6 +105,9 @@ interface InitializeComponentProps
       | 'scale'
       | 'scaleLogarithmicBase'
       | 'gridLinesType'
+      | 'displayType'
+      | 'barRadius'
+      | 'barOpacity'
     >
   > {
   data?: Data;
@@ -312,6 +315,69 @@ describe('Graph Widget', () => {
 
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the bar chart when the corresponding prop is set', () => {
+    initializeComponent({
+      displayType: 'bar'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the customised bar chart when corresponding props are set', () => {
+    initializeComponent({
+      barOpacity: 20,
+      barRadius: 50,
+      displayType: 'bar'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the stacked bar chart when the corresponding prop is set', () => {
+    initializeComponent({
+      displayType: 'bar-stacked'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays custom stacked bar chart when corresponding props are set', () => {
+    initializeComponent({
+      barOpacity: 20,
+      displayType: 'bar-stacked'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
 
     cy.makeSnapshot();
   });
