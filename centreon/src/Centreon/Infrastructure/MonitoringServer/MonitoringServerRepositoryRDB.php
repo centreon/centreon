@@ -183,19 +183,21 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 $accessGroups
             );
 
-            [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group_id_');
+            if ($this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+                [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group_id_');
 
-            $aclMonitoringServersRequest = <<<SQL
-                INNER JOIN `:db`.acl_resources_poller_relations arpr
-                    ON arpr.poller_id = id
-                INNER JOIN `:db`.acl_resources res
-                    ON res.acl_res_id = arpr.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON argr.acl_res_id = res.acl_res_id
-                WHERE argr.acl_group_id IN ({$bindQuery})
-                SQL;
+                $aclMonitoringServersRequest = <<<SQL
+                    INNER JOIN `:db`.acl_resources_poller_relations arpr
+                        ON arpr.poller_id = id
+                    INNER JOIN `:db`.acl_resources res
+                        ON res.acl_res_id = arpr.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON argr.acl_res_id = res.acl_res_id
+                    WHERE argr.acl_group_id IN ({$bindQuery})
+                    SQL;
 
-            $searchRequest = str_replace('WHERE', 'AND', $searchRequest);
+                $searchRequest = str_replace('WHERE', 'AND', $searchRequest);
+            }
         }
 
         $request = $this->translateDbName(
