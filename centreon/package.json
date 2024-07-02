@@ -58,8 +58,8 @@
     "@types/testing-library__cypress": "^5.0.13",
     "@typescript-eslint/eslint-plugin": "^6.18.1",
     "@typescript-eslint/parser": "^6.18.1",
-    "chromatic": "^7.4.0",
-    "css-loader": "^6.9.0",
+    "chromatic": "^11.5.4",
+    "css-loader": "^7.1.2",
     "cypress": "^13.13.0",
     "cypress-msw-interceptor": "2.2.0",
     "cypress-plugin-tab": "^1.0.5",
@@ -98,11 +98,11 @@
     "react-refresh": "^0.14.2",
     "resize-observer-polyfill": "^1.5.1",
     "resolve-url-loader": "^5.0.0",
-    "style-loader": "^3.3.4",
+    "style-loader": "^4.0.0",
     "swc-loader": "^0.2.6",
     "swc-plugin-coverage-instrument": "^0.0.21",
     "typescript": "^5.5.3",
-    "webpack-merge": "^5.10.0"
+    "webpack-merge": "^6.0.1"
   },
   "dependencies": {
     "@centreon/ui": "workspace:*",
@@ -121,7 +121,7 @@
     "@mui/system": "^5.15.20",
     "@mui/x-date-pickers": "^7.8.0",
     "@react-spring/web": "^9.7.3",
-    "@simonsmith/cypress-image-snapshot": "8.1.2",
+    "@simonsmith/cypress-image-snapshot": "9.0.3",
     "@tanstack/react-query": "^5.49.2",
     "@tanstack/react-query-devtools": "^5.49.2",
     "@visx/curve": "^3.3.0",
