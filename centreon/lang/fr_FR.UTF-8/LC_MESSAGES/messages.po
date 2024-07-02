@@ -19121,3 +19121,18 @@ msgstr "Ajouter un filtre"
 
 msgid "Add resource dataset"
 msgstr "Ajouter un jeu de données de ressources"
+
+msgid "Bar"
+msgstr "Barre"
+
+msgid "Stacked bar"
+msgstr "Barre empilée"
+
+msgid "Orientation"
+msgstr "Orientation"
+
+msgid "Bar radius"
+msgstr "Radius de la barre"
+
+msgid "Bar background opacity"
+msgstr "Opacité du fond de la barre"

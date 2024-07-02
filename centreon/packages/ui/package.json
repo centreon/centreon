@@ -12,9 +12,9 @@
     "test:storybook:local": "test-storybook --url http://127.0.0.1:9001",
     "test:ci": "jest --silent --reporter=jest-junit",
     "cypress:ui": "cypress open --component --browser=chrome",
-    "cypress:cli:updateSnapshot": "pnpm cypress:cli --env updateSnapshots=true",
+    "cypress:run:updateSnapshot": "pnpm cypress:cli --env updateSnapshots=true",
     "cypress:run:coverage": "cypress run --component --browser=chrome --env codeCoverageTasksRegistered=true",
-    "cypress:cli": "cypress run --component --browser=chrome",
+    "cypress:run": "cypress run --component --browser=chrome",
     "tokens:transform": "TS_NODE_PROJECT=tsconfig.node.json ts-node style-dictionary.transform.ts"
   },
   "sideEffects": false,
