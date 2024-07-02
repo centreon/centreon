@@ -19,6 +19,8 @@ import {
 } from '../../translatedLabels';
 import ActionMenuItem from '../Resource/ActionMenuItem';
 
+import { useStyles } from './refresh.styles';
+
 interface AutorefreshProps {
   enabledAutorefresh: boolean;
   toggleAutorefresh: () => void;
@@ -62,6 +64,7 @@ const RefreshActions = ({
   displayAsIcons = true,
   displayAsList
 }: Props): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const { display, close } = displayAsList || {};
 
@@ -78,7 +81,7 @@ const RefreshActions = ({
   return (
     <>
       {displayAsIcons && (
-        <Grid container sx={{ flexWrap: 'nowrap' }}>
+        <Grid container className={classes.container}>
           <Grid item>
             <IconButton
               ariaLabel={t(labelRefresh) as string}
