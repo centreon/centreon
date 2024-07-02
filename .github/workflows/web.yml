@@ -399,7 +399,7 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
-        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.7
+        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
         shell: bash
 
       - name: Build standard slim image
