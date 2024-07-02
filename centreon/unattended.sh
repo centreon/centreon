@@ -442,9 +442,10 @@ function set_required_prerequisite() {
 
 			case "$detected_os_release" in
 			redhat-release*)
-				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				BASE_PACKAGES=(dnf-plugins-core)
 				subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
 				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-8-rhui-rpms
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 				;;
 
 			centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
@@ -493,9 +494,10 @@ function set_required_prerequisite() {
 
 			case "$detected_os_release" in
 			redhat-release*)
-				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				BASE_PACKAGES=(dnf-plugins-core)
 				subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
 				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-9-rhui-rpms
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 				;;
 
 			centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
