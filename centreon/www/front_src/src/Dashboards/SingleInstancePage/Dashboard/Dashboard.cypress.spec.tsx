@@ -373,7 +373,8 @@ describe('Dashboard', () => {
       cy.get('[class*="react-resizable-handle-se"]')
         .eq(0)
         .realMouseDown()
-        .realMouseMove(-100, -100)
+        .realMouseMove(-70, -70)
+        .realMouseMove(-70, -70)
         .realMouseUp();
 
       cy.get('[data-canmove="true"]')

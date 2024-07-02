@@ -583,6 +583,7 @@ jobs:
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
+            "MYDUMPER_VERSION=0.16.3-5"
           pull: true
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
@@ -595,6 +596,7 @@ jobs:
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
+            "MYDUMPER_VERSION=0.16.3-5"
           pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}

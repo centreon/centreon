@@ -87,7 +87,7 @@ $retrieveDatabaseCredentialsFromVault = function(
     $credentialsResponse = $httpClient->request('GET', $databaseCredentialsUrl, ['headers' => ['X-Vault-Token' => $token]]);
     $credentialContent = json_decode($credentialsResponse->getContent(), true);
     if (! isset($credentialContent['data']['data']['_DBUSERNAME'], $credentialContent['data']['data']['_DBPASSWORD'])) {
-        error_log($url . ' Unable to retrieve database credentials from Vault');
+        error_log('Unable to retrieve database credentials from Vault');
 
         throw new \Exception('Unable to retrieve database credentials from Vault');
     }
