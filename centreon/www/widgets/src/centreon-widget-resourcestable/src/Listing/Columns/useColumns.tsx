@@ -145,7 +145,7 @@ const useColumns = ({
       ? [
           {
             getFormattedString: (row): string =>
-              row?.extras?.open_ticket?.ticket.id,
+              row?.extras?.open_tickets?.ticket.id,
             id: 'ticket_id',
             label: t(labelTicketID),
             type: ColumnType.string
@@ -157,7 +157,7 @@ const useColumns = ({
       ? [
           {
             getFormattedString: (row): string =>
-              row?.extras?.open_ticket?.subject,
+              row?.extras?.open_tickets?.subject,
             id: 'ticket_subject',
             label: t(labelTicketSubject),
             type: ColumnType.string
@@ -168,7 +168,7 @@ const useColumns = ({
       ? [
           {
             getFormattedString: (row): string =>
-              row?.extras?.open_ticket?.ticket.datetime,
+              row?.extras?.open_tickets?.ticket.datetime,
             id: 'ticket_open_time',
             label: t(labelTicketOpenTime),
             type: ColumnType.string

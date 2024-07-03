@@ -98,7 +98,7 @@
       "type": "connected-autocomplete",
       "label": "Ticket provider",
       "secondaryLabel": "Select a provider",
-      "baseEndpoint": "/open-ticket/providers",
+      "baseEndpoint": "/open-tickets/providers",
       "isSingleAutocomplete" : true,
       "hiddenCondition": {
         "target": "options",
