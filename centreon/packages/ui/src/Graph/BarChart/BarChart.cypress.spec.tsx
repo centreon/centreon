@@ -196,8 +196,6 @@ describe('Bar chart', () => {
           .should('have.attr', 'width')
           .should('equals', '773');
       }
-
-      cy.makeSnapshot();
     });
   });
 
