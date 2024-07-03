@@ -67,6 +67,19 @@ final class EngineRepositoryFile implements EngineRepositoryInterface
         $this->send([$command]);
     }
 
+    public function sendExternalCommandsBypassGorgone(array $commands): void
+    {
+        $this->sendToEngineBypassGorgone($commands);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function sendExternalCommandBypassGorgone(string $command): void
+    {
+        $this->sendToEngineBypassGorgone([$command]);
+    }
+
     /**
      * Send all data that has been waiting to be sent.
      *
@@ -103,4 +116,40 @@ final class EngineRepositoryFile implements EngineRepositoryInterface
 
         return count($commandsAwaiting);
     }
+    
+    // Write directly in the central centengine command file without going through a external command gorgone.
+    private function sendToEngineBypassGorgone(array $commandsAwaiting): int
+    {
+        $centengine_cmd_file_name = "centengine.cmd";
+        $centengine_cmd_dir       = "/var/lib/centreon-engine/rw/";
+        $centengine_cmd_path      = $centengine_cmd_dir.$centengine_cmd_file_name;
+        
+        $commandsToSend = '';
+        foreach ($commandsAwaiting as $command) {
+            $commandsToSend .= !empty($commandsToSend) ? "\n" : '';
+            $commandsToSend .= $command;
+        }
+
+        if (!is_dir($centengine_cmd_dir)) {
+            throw new EngineException(
+                sprintf(_('Centengine directory %s does not exist'), $centengine_cmd_dir)
+            );
+        }
+
+        if (!empty($commandsToSend)) {
+            $isDataSent = file_put_contents($centengine_cmd_path, $commandsToSend . "\n", FILE_APPEND);
+
+            if ($isDataSent === false) {
+                throw new EngineException(
+                    sprintf(
+                        _('Error during creation of the CentCore command file (%s)'),
+                        $centengine_cmd_path
+                    )
+                );
+            }
+        }
+
+        return count($commandsAwaiting);
+    }
+
 }
