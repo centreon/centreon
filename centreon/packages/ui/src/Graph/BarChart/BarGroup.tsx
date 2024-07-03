@@ -171,6 +171,7 @@ const BarGroup = ({
                   <BarStack
                     barIndex={barGroup.index}
                     barPadding={isHorizontal ? bar.x : bar.y}
+                    barStyle={barStyle}
                     barWidth={isHorizontal ? bar.width : bar.height}
                     isHorizontal={isHorizontal}
                     isTooltipHidden={isTooltipHidden}
@@ -183,6 +184,7 @@ const BarGroup = ({
                   <BarStack
                     barIndex={barGroup.index}
                     barPadding={isHorizontal ? bar.x : bar.y}
+                    barStyle={barStyle}
                     barWidth={isHorizontal ? bar.width : bar.height}
                     isHorizontal={isHorizontal}
                     isTooltipHidden={isTooltipHidden}

@@ -4,6 +4,7 @@ import { scaleBand } from '@visx/scale';
 import { equals, gt, pick } from 'ramda';
 
 import { useBarStack, UseBarStackProps } from './useBarStack';
+import { BarStyle } from './models';
 
 const xScale = scaleBand<number>({
   domain: [0, 0],
@@ -14,6 +15,7 @@ const xScale = scaleBand<number>({
 interface Props extends Omit<UseBarStackProps, 'xScale'> {
   barIndex: number;
   barPadding: number;
+  barStyle: BarStyle;
   barWidth: number;
   isTooltipHidden: boolean;
 }
@@ -34,7 +36,8 @@ const BarStack = ({
   barWidth,
   barPadding,
   barIndex,
-  isTooltipHidden
+  isTooltipHidden,
+  barStyle
 }: Props): JSX.Element => {
   const {
     BarStackComponent,
@@ -63,6 +66,7 @@ const BarStack = ({
                 fill={bar.color}
                 height={isHorizontal ? Math.abs(bar.height) : barWidth}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
+                opacity={barStyle.opacity}
                 width={isHorizontal ? barWidth : Math.abs(bar.width)}
                 x={
                   isHorizontal
@@ -107,7 +111,8 @@ const propsToMemoize = [
   'lines',
   'barPadding',
   'barIndex',
-  'isTooltipHidden'
+  'isTooltipHidden',
+  'barStyle'
 ];
 
 export default memo(BarStack, (prevProps, nextProps) => {

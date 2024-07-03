@@ -25,7 +25,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 //error specific content
-$versionOfTheUpgrade = 'UPGRADE - 24.06.0: ';
+$versionOfTheUpgrade = 'UPGRADE - 24.07.0: ';
 $errorMessage = '';
 
 $deleteVaultTables = function(CentreonDB $pearDB) use(&$errorMessage): void {
