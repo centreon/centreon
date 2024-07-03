@@ -30,7 +30,7 @@
     "name": "centreon@centreon.com"
   },
   "baseCodeCoveragePercentage": 60,
-  "license": "GPL-2.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/centreon/centreon/issues"
   },
