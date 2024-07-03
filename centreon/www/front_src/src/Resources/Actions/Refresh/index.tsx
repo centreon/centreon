@@ -66,7 +66,7 @@ const RefreshActions = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const { display, close } = displayAsList || {};
+  const { display: displayAsAList, close } = displayAsList || {};
 
   const [enabledAutorefresh, setEnabledAutorefresh] = useAtom(
     enabledAutorefreshAtom
@@ -102,13 +102,13 @@ const RefreshActions = ({
           </Grid>
         </Grid>
       )}
-      {display && (
+      {displayAsAList && (
         <>
           <ActionMenuItem
             permitted
             disabled={false}
             label={labelRefresh}
-            testId="Refresh"
+            testId="RefreshInMoreActions"
             onClick={() => {
               onRefresh();
               close?.();
@@ -122,7 +122,7 @@ const RefreshActions = ({
                 ? labelDisableAutorefresh
                 : labelEnableAutorefresh
             }
-            testId="Disable autorefresh"
+            testId="AutorefreshInMoreActions"
             onClick={() => {
               toggleAutorefresh();
               close?.();

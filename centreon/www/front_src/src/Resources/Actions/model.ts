@@ -77,8 +77,8 @@ export interface ExtraActionsInformation {
 }
 
 export enum Type {
-  medium,
-  small
+  medium = 'medium',
+  small = 'small'
 }
 interface Arg {
   close: () => void;

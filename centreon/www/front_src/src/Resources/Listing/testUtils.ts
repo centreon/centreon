@@ -22,47 +22,62 @@ const fillEntities = ({
   const defaultSeverityCode = enableCriticalResource ? 1 : 4;
   const defaultSeverityName = enableCriticalResource ? 'CRITICAL' : 'PENDING';
 
-  return new Array(entityCount).fill(0).map((_, index) => ({
-    duration: '1m',
-    has_passive_checks_enabled: index % 8 === 0,
-    id: index,
-    information:
-      index % 5 === 0 ? `Entity ${index}` : `Entity ${index}\n Line ${index}`,
-    is_acknowledged: index % 2 === 0,
-    is_in_downtime: index % 3 === 0,
-    last_check: '1m',
-    links: {
-      endpoints: {
-        acknowledgement: `/monitoring/acknowledgement/${index}`,
-        details: 'endpoint',
-        downtime: `/monitoring/downtime/${index}`,
-        metrics: 'endpoint',
-        performance_graph: index % 6 === 0 ? 'endpoint' : undefined,
-        status_graph: index % 3 === 0 ? 'endpoint' : undefined,
-        timeline: 'endpoint'
-      },
-      externals: {
-        notes: {
-          url: 'https://centreon.com'
+  return new Array(entityCount).fill(0).map((_, index) => {
+    const idHost = Math.floor(Math.random() * 10);
+
+    return {
+      duration: '1m',
+      has_passive_checks_enabled: index % 8 === 0,
+      id: index,
+      information:
+        index % 5 === 0 ? `Entity ${index}` : `Entity ${index}\n Line ${index}`,
+      is_acknowledged: index % 2 === 0,
+      is_in_downtime: index % 3 === 0,
+      last_check: '1m',
+      links: {
+        endpoints: {
+          acknowledgement: `/monitoring/acknowledgement/${index}`,
+          details: `/centreon/api/latest/monitoring/resources/hosts/${idHost}/services/${index}`,
+          downtime: `/monitoring/downtime/${index}`,
+          metrics: 'endpoint',
+          performance_graph: index % 6 === 0 ? 'endpoint' : undefined,
+          status_graph: index % 3 === 0 ? 'endpoint' : undefined,
+          timeline: 'endpoint'
+        },
+        externals: {
+          notes: {
+            url: 'https://centreon.com'
+          }
+        },
+        uris: {
+          configuration: index % 7 === 0 ? 'uri' : undefined,
+          logs: index % 4 === 0 ? 'uri' : undefined,
+          reporting: index % 3 === 0 ? 'uri' : undefined
         }
       },
-      uris: {
-        configuration: index % 7 === 0 ? 'uri' : undefined,
-        logs: index % 4 === 0 ? 'uri' : undefined,
-        reporting: index % 3 === 0 ? 'uri' : undefined
-      }
-    },
-    name: `E${index}`,
-    severity_level: index % 3 === 0 ? 1 : 2,
-    short_type: index % 4 === 0 ? 's' : 'h',
-    status: {
-      name: index % 2 === 0 ? 'OK' : defaultSeverityName,
-      severity_code: index % 2 === 0 ? 5 : defaultSeverityCode
-    },
-    tries: '1',
-    type: index % 4 === 0 ? ResourceType.service : ResourceType.host,
-    uuid: `${index}`
-  }));
+      name: `E${index}`,
+      parent:
+        index % 4 === 0
+          ? {
+              id: idHost,
+              monitoring_server_name: null,
+              name: 'host_test',
+              short_type: 'h',
+              type: 'host',
+              uuid: `h${idHost}`
+            }
+          : null,
+      severity_level: index % 3 === 0 ? 1 : 2,
+      short_type: index % 4 === 0 ? 's' : 'h',
+      status: {
+        name: index % 2 === 0 ? 'OK' : defaultSeverityName,
+        severity_code: index % 2 === 0 ? 5 : defaultSeverityCode
+      },
+      tries: '1',
+      type: index % 4 === 0 ? ResourceType.service : ResourceType.host,
+      uuid: `${index}`
+    };
+  });
 };
 
 export const entities = fillEntities({});
