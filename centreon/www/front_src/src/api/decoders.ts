@@ -119,13 +119,15 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
     notification: JsonDecoder.optional(JsonDecoder.boolean),
     resourceStatusFilterRevamp: JsonDecoder.optional(JsonDecoder.boolean),
     resourceStatusTreeView: JsonDecoder.optional(JsonDecoder.boolean),
+    resouresTableOpenTickets: JsonDecoder.optional(JsonDecoder.boolean),
     vault: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Feature flags',
   {
     adExclusionPeriods: 'ad_exclusion_periods',
     resourceStatusFilterRevamp: 'resource_status_filter_revamp',
-    resourceStatusTreeView: 'resource_status_tree_view'
+    resourceStatusTreeView: 'resource_status_tree_view',
+    resouresTableOpenTickets: 'ressoures_table_widget_open_tickets'
   }
 );
 

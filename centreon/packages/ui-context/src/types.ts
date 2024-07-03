@@ -90,6 +90,7 @@ export interface FeatureFlags {
   notification?: boolean;
   resourceStatusFilterRevamp?: boolean;
   resourceStatusTreeView?: boolean;
+  resouresTableOpenTickets: boolean;
   vault?: boolean;
 }
 

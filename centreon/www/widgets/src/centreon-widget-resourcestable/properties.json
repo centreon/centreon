@@ -88,8 +88,8 @@
       "label": "Active open ticket",
       "defaultValue": false,
       "hiddenCondition": {
-        "target" : "modules",
-        "when": "centreon-open-tickets",
+        "target" : "featureFlags",
+        "when": "resouresTableOpenTickets",
         "method": "equals",
         "matches": false
       }

@@ -59,7 +59,7 @@ interface WidgetHiddenCondition {
   matches: unknown;
   method: 'equals' | 'includes';
   property?: string;
-  target: 'options' | 'data' | 'modules';
+  target: 'options' | 'data' | 'modules' | 'featureFlags';
   when: string;
 }
 

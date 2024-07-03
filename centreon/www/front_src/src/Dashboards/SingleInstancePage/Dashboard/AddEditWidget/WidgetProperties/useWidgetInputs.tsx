@@ -14,7 +14,10 @@ import {
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
+import {
+  platformVersionsAtom,
+  featureFlagsDerivedAtom
+} from '@centreon/ui-context';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import {
@@ -93,6 +96,7 @@ export const useWidgetInputs = (
     federatedWidgetsPropertiesAtom
   );
   const { modules } = useAtomValue(platformVersionsAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
@@ -117,6 +121,13 @@ export const useWidgetInputs = (
               }
 
               const { target, method, when, matches } = value.hiddenCondition;
+
+              if (equals(target, 'featureFlags')) {
+                return !equals(
+                  featureFlags?.[value.hiddenCondition.when],
+                  matches
+                );
+              }
 
               if (equals(target, 'modules')) {
                 return !equals(
