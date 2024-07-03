@@ -24,7 +24,8 @@ contents:
       mode: 0640
 
   - src: "./configuration/centreon-api.yaml"
-    dst: "/etc/centreon-gorgone/config.d/centreon-api.yaml"
+    dst: "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"
+    type: config|noreplace
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone
@@ -56,11 +57,11 @@ overrides:
     depends:
       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
     replaces:
-      - centreon-gorgone (<< 24.05.0)
+      - centreon-gorgone (<< 24.07.0)
 
 deb:
   breaks:
-    - centreon-gorgone (<< 24.05.0)
+    - centreon-gorgone (<< 24.07.0)
 
 rpm:
   summary: Configure Centreon Gorgone for use with Centreon Web

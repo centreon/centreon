@@ -17796,6 +17796,24 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Add resource dataset"
 # msgstr ""
 
+# msgid "Line"
+# msgstr ""
+
+# msgid "Bar"
+# msgstr ""
+
+# msgid "Stacked bar"
+# msgstr ""
+
+# msgid "Orientation"
+# msgstr ""
+
+# msgid "Bar radius"
+# msgstr ""
+
+# msgid "Bar background opacity"
+# msgstr ""
+
 # msgid "Check command sent!"
 # msgstr ""
 
