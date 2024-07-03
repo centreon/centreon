@@ -17858,3 +17858,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgstr "Ticket open time"
 # msgstr ""
+
+# msgid "Ticket open"
+# msgstr ""

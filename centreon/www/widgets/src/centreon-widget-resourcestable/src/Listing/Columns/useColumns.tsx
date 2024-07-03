@@ -77,23 +77,20 @@ const useColumns = ({
     [T, always(labelParent)]
   ])(displayType);
 
-  const isOpenTicketColumnVisible =
-    isFeatureFlagEnabled &&
-    isOpenTicketEnabled &&
-    !equals(displayResources, 'withTicket') &&
-    provider;
+  const isOpenTicketColumnsVisible =
+    isFeatureFlagEnabled && isOpenTicketEnabled && !!provider;
+
+  const isOpenTicketActionColumnVisible =
+    isOpenTicketColumnsVisible && !equals(displayResources, 'withTicket');
 
   const areTicketColumnsVisible =
-    isFeatureFlagEnabled &&
-    isOpenTicketEnabled &&
-    equals(displayResources, 'withoutTicket') &&
-    provider;
+    isOpenTicketColumnsVisible && equals(displayResources, 'withTicket');
 
   const defaultSelectedColumnIds = [
     'status',
     'resource',
     'parent_resource',
-    ...(isOpenTicketColumnVisible ? ['open_ticket'] : []),
+    ...(isOpenTicketActionColumnVisible ? ['open_ticket'] : []),
     ...(areTicketColumnsVisible
       ? ['ticket_id', 'ticket_subject', 'ticket_open_time']
       : ['state', 'severity', 'duration', 'last_check'])
@@ -139,7 +136,7 @@ const useColumns = ({
       sortable: true,
       type: ColumnType.component
     },
-    ...(isOpenTicketColumnVisible
+    ...(isOpenTicketActionColumnVisible
       ? [
           {
             Component: OpenTicket,
@@ -166,7 +163,7 @@ const useColumns = ({
       ? [
           {
             getFormattedString: (row): string =>
-              row?.extras?.open_tickets?.subject,
+              row?.extras?.open_tickets?.ticket?.subject,
             id: 'ticket_subject',
             label: t(labelTicketSubject),
             type: ColumnType.string
@@ -177,7 +174,7 @@ const useColumns = ({
       ? [
           {
             getFormattedString: (row): string =>
-              row?.extras?.open_tickets?.ticket.datetime,
+              row?.extras?.open_tickets?.ticket?.created_at,
             id: 'ticket_open_time',
             label: t(labelTicketOpenTime),
             type: ColumnType.string

@@ -17076,3 +17076,6 @@ msgstr "Erweiterter Modus"
 
 # msgstr "Ticket open time"
 # msgstr ""
+
+# msgid "Ticket open"
+# msgstr ""

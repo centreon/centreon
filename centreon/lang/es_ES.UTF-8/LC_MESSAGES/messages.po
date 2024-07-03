@@ -17410,3 +17410,6 @@ msgstr "Modo avanzado"
 
 # msgstr "Ticket open time"
 # msgstr ""
+
+# msgid "Ticket open"
+# msgstr ""

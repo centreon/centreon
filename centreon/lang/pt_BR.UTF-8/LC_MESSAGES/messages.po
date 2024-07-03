@@ -17878,3 +17878,6 @@ msgstr ""
 
 # msgstr "Ticket open time"
 # msgstr ""
+
+# msgid "Ticket open"
+# msgstr ""

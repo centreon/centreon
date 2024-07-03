@@ -143,10 +143,10 @@ export const buildResourcesEndpoint = ({
         conditions: [
           ...flatten(searchConditions),
           ...(isDownHostHidden
-            ? [{ field: 'parent_status', value: [{ $neq: 'down' }] }]
+            ? [{ field: 'parent_status', value: [{ $neq: 1 }] }]
             : []),
           ...(isUnreachableHostHidden
-            ? [{ field: 'parent_status', value: [{ $neq: 'unreachable' }] }]
+            ? [{ field: 'parent_status', value: [{ $neq: 2 }] }]
             : [])
         ]
       },

@@ -19175,3 +19175,6 @@ msgstr "Sujet du ticket"
 
 msgid "Ticket open time"
 msgstr "Date d'ouverture du ticket"
+
+msgid "Ticket open"
+msgstr "Date d'ouverture"

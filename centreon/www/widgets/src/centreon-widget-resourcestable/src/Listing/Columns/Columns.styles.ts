@@ -109,6 +109,12 @@ export const useOpenTicketStyles = makeStyles()((theme) => ({
     flexWrap: 'nowrap',
     gridGap: theme.spacing(0.25),
     justifyContent: 'center'
+  },
+  tooltip: {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    padding: 0,
+    position: 'relative'
   }
 }));
 
