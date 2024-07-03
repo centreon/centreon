@@ -17,10 +17,12 @@ import {
   labelHost,
   labelServices,
   labelInformation,
-  labelOpenTicket
+  labelOpenTicket,
+  labelTicketID,
+  labelTicketSubject,
+  labelTicketOpenTime
 } from '../translatedLabels';
 import { DisplayType } from '../models';
-import useIOpenTicketInstalled from '../useIsOpenTicketInstalled';
 
 import StateColumn from './State';
 import StatusColumn from './Status';
@@ -33,7 +35,10 @@ import truncate from './truncate';
 import OpenTicket from './OpenTicket';
 
 interface ColumnProps {
+  displayResources: 'all' | 'withTicket' | 'withoutTicket';
   displayType?: DisplayType;
+  isOpenTicketEnabled: boolean;
+  provider?: { id: number; name: string };
 }
 
 interface ColumnsState {
@@ -42,12 +47,13 @@ interface ColumnsState {
 }
 
 const useColumns = ({
-  displayType = DisplayType.All
+  displayType = DisplayType.All,
+  displayResources = 'all',
+  provider,
+  isOpenTicketEnabled
 }: ColumnProps): ColumnsState => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-
-  const isOpenTicketInstalled = useIOpenTicketInstalled();
 
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
@@ -65,6 +71,24 @@ const useColumns = ({
     [equals(DisplayType.Service), always(labelHost)],
     [T, always(labelParent)]
   ])(displayType);
+
+  const isOpenTicketColumnVisible =
+    isOpenTicketEnabled && !equals(displayResources, 'withTicket') && provider;
+
+  const areTicketColumnsVisible =
+    isOpenTicketEnabled &&
+    equals(displayResources, 'withoutTicket') &&
+    provider;
+
+  const defaultSelectedColumnIds = [
+    'status',
+    'resource',
+    'parent_resource',
+    ...(isOpenTicketColumnVisible ? ['open_ticket'] : []),
+    ...(areTicketColumnsVisible
+      ? ['ticket_id', 'ticket_subject', 'ticket_open_time']
+      : ['state', 'severity', 'duration', 'last_check'])
+  ];
 
   const columns = [
     {
@@ -106,7 +130,7 @@ const useColumns = ({
       sortable: true,
       type: ColumnType.component
     },
-    ...(isOpenTicketInstalled
+    ...(isOpenTicketColumnVisible
       ? [
           {
             Component: OpenTicket,
@@ -114,6 +138,40 @@ const useColumns = ({
             id: 'open_ticket',
             label: t(labelOpenTicket),
             type: ColumnType.component
+          }
+        ]
+      : []),
+    ...(areTicketColumnsVisible
+      ? [
+          {
+            getFormattedString: (row): string =>
+              row?.extras?.open_ticket?.ticket.id,
+            id: 'ticket_id',
+            label: t(labelTicketID),
+            type: ColumnType.string
+          }
+        ]
+      : []),
+
+    ...(areTicketColumnsVisible
+      ? [
+          {
+            getFormattedString: (row): string =>
+              row?.extras?.open_ticket?.subject,
+            id: 'ticket_subject',
+            label: t(labelTicketSubject),
+            type: ColumnType.string
+          }
+        ]
+      : []),
+    ...(areTicketColumnsVisible
+      ? [
+          {
+            getFormattedString: (row): string =>
+              row?.extras?.open_ticket?.ticket.datetime,
+            id: 'ticket_open_time',
+            label: t(labelTicketOpenTime),
+            type: ColumnType.string
           }
         ]
       : []),
@@ -173,17 +231,6 @@ const useColumns = ({
       sortable: false,
       type: ColumnType.component
     }
-  ];
-
-  const defaultSelectedColumnIds = [
-    'status',
-    'resource',
-    'parent_resource',
-    ...(isOpenTicketInstalled ? ['open_ticket'] : []),
-    'state',
-    'severity',
-    'duration',
-    'last_check'
   ];
 
   return { columns, defaultSelectedColumnIds };

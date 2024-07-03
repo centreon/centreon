@@ -74,3 +74,7 @@ export const labelCheck = 'Check';
 export const labelOpenTicket = 'Open ticket';
 export const labelOpenTicketForHost = 'Open ticket for host';
 export const labelOpenTicketForService = 'Open ticket for service';
+
+export const labelTicketID = 'Ticket ID';
+export const labelTicketSubject = 'Ticket subject';
+export const labelTicketOpenTime = 'Ticket open time';

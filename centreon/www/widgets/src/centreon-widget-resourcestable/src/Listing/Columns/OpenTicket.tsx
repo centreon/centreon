@@ -24,14 +24,9 @@ const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
   const isHost = equals(type, 'host');
   const isService = equals(type, 'service');
 
-  const createServiceTicket = (): void => {
-    console.log('service id : ', row.id);
-    console.log('host id : ', row.parent.id);
-  };
+  const createServiceTicket = (): void => {};
 
-  const createHostTicket = (): void => {
-    console.log('host id : ', row.id);
-  };
+  const createHostTicket = (): void => {};
 
   return (
     <div className={classes.actions}>

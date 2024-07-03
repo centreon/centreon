@@ -16,7 +16,7 @@ export type ResourceShortType = 'h' | 's' | 'm';
 export interface NamedEntity {
   id: number;
   name: string;
-  uuid: string;
+  uuid?: string;
 }
 
 export interface Icon {

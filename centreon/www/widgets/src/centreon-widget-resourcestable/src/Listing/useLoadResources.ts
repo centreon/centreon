@@ -9,19 +9,25 @@ import { PanelOptions } from '../models';
 import { getWidgetEndpoint } from '../../../utils';
 
 import { formatRessources } from './utils';
-import { DisplayType, ResourceListing } from './models';
+import { DisplayType, NamedEntity, ResourceListing } from './models';
 
 interface LoadResourcesProps
   extends Pick<
     CommonWidgetProps<PanelOptions>,
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
+  displayResources: 'all' | 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
+  hostSeverities: Array<NamedEntity>;
+  isDownHostHidden: boolean;
+  isUnreachableHostHidden: boolean;
   limit?: number;
   page: number | undefined;
+  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
+  serviceSeverities: Array<NamedEntity>;
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;
@@ -49,7 +55,13 @@ const useLoadResources = ({
   dashboardId,
   id,
   widgetPrefixQuery,
-  statusTypes
+  statusTypes,
+  hostSeverities,
+  serviceSeverities,
+  isDownHostHidden,
+  isUnreachableHostHidden,
+  displayResources,
+  provider
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
@@ -60,9 +72,15 @@ const useLoadResources = ({
       getWidgetEndpoint({
         dashboardId,
         defaultEndpoint: buildResourcesEndpoint({
+          displayResources,
+          hostSeverities,
+          isDownHostHidden,
+          isUnreachableHostHidden,
           limit: limit || 10,
           page: page || 1,
+          provider,
           resources,
+          serviceSeverities,
           sort: sort || { status_severity_code: SortOrder.Desc },
           states,
           statusTypes,
@@ -85,12 +103,18 @@ const useLoadResources = ({
       JSON.stringify(states),
       JSON.stringify(statuses),
       JSON.stringify(statusTypes),
+      JSON.stringify(serviceSeverities),
+      JSON.stringify(hostSeverities),
+      displayResources,
       sortField,
       sortOrder,
       limit,
       JSON.stringify(resources),
       page,
-      refreshCount
+      refreshCount,
+      isDownHostHidden,
+      isUnreachableHostHidden,
+      displayResources
     ],
     queryOptions: {
       refetchInterval: refreshIntervalToUse,

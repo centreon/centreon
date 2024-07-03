@@ -19130,3 +19130,48 @@ msgstr ""
 
 msgid "Open ticket for service"
 msgstr ""
+
+msgid "Host severities"
+msgstr "Sévérités des hôtes"
+
+msgid "Service severities"
+msgstr "Sévérités des services"
+
+msgid "Select service severities"
+msgstr "Sélectionner les sévérités des services"
+
+msgid "Select host severities"
+msgstr "Sélectionner les sévérités des hôtes"
+
+msgid "Active open ticket"
+msgstr "open ticket actif"
+
+msgid "Ticket provider"
+msgstr "Fournisseur de tickets"
+
+msgid "Select a provider"
+msgstr "Sélectionner un fournisseur"
+
+msgid "Display resources"
+msgstr "Afficher les ressources"
+
+msgid "Resources linked to a ticket"
+msgstr "Ressources liées à un ticket"
+
+msgid "Resources with no ticket"
+msgstr "Ressources sans ticket"
+
+msgid "hide services with Down host"
+msgstr "Masquer les services avec un hôte en indisponible statut"
+
+msgid "hide services with Unreachable host"
+msgstr "Masquer les services avec un hôte en injoignable statut"
+
+msgid "Ticket ID"
+msgstr "ID du ticket"
+
+msgid "Ticket subject"
+msgstr "Sujet du ticket"
+
+msgid "Ticket open time"
+msgstr "Date d'ouverture du ticket"

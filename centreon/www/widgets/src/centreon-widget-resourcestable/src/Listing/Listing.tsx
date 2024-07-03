@@ -9,8 +9,7 @@ import { PanelOptions } from '../models';
 
 import { rowColorConditions } from './colors';
 import useListing from './useListing';
-import useColumns from './Columns/useColumns';
-import { DisplayType as DisplayTypeEnum } from './models';
+import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
 import DisplayType from './DisplayType';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
@@ -22,13 +21,20 @@ interface ListingProps
     'dashboardId' | 'id' | 'playlistHash'
   > {
   changeViewMode?: (displayType) => void;
+  displayResources: 'all' | 'withTicket' | 'withoutTicket';
   displayType?: DisplayTypeEnum;
+  hostSeverities: Array<NamedEntity>;
+  isDownHostHidden: boolean;
   isFromPreview?: boolean;
+  isOpenTicketEnabled: boolean;
+  isUnreachableHostHidden: boolean;
   limit?: number;
+  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
   selectedColumnIds?: Array<string>;
+  serviceSeverities: Array<NamedEntity>;
   setPanelOptions?: (partialOptions: object) => void;
   sortField?: string;
   sortOrder?: SortOrder;
@@ -56,7 +62,14 @@ const Listing = ({
   dashboardId,
   id,
   widgetPrefixQuery,
-  statusTypes
+  statusTypes,
+  hostSeverities,
+  serviceSeverities,
+  isDownHostHidden,
+  isUnreachableHostHidden,
+  displayResources,
+  provider,
+  isOpenTicketEnabled
 }: ListingProps): JSX.Element => {
   const theme = useTheme();
 
@@ -79,18 +92,26 @@ const Listing = ({
     cancelAcknowledge,
     confirmAcknowledge,
     cancelSetDowntime,
-    confirmSetDowntime
+    confirmSetDowntime,
+    defaultSelectedColumnIds
   } = useListing({
     changeViewMode,
     dashboardId,
+    displayResources,
     displayType,
+    hostSeverities,
     id,
+    isDownHostHidden,
     isFromPreview,
+    isOpenTicketEnabled,
+    isUnreachableHostHidden,
     limit,
     playlistHash,
+    provider,
     refreshCount,
     refreshIntervalToUse,
     resources,
+    serviceSeverities,
     setPanelOptions,
     sortField,
     sortOrder,
@@ -99,8 +120,6 @@ const Listing = ({
     statuses,
     widgetPrefixQuery
   });
-
-  const { defaultSelectedColumnIds } = useColumns({ displayType });
 
   return (
     <>

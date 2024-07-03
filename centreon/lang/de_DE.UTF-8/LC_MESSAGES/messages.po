@@ -17028,3 +17028,51 @@ msgstr "Erweiterter Modus"
 
 # msgid "Open ticket for service"
 # msgstr ""
+
+# msgid "Host severities"
+# msgstr ""
+
+# msgid "Service severities"
+# msgstr ""
+
+# msgid "Select service severities"
+# msgstr ""
+
+# msgid "Select host severities"
+# msgstr ""
+
+# msgid "Active open ticket"
+# msgstr ""
+
+# msgid "Ticket provider"
+# msgstr ""
+
+# msgid "Select a provider"
+# msgstr ""
+
+# msgid "Display resources"
+# msgstr ""
+
+# msgid "Resources linked to a ticket"
+# msgstr ""
+
+# msgid "Resources with no ticket"
+# msgstr ""
+
+# msgid "hide services with Down host"
+# msgstr ""
+
+# msgid "hide services with Down host"
+# msgstr ""
+
+# msgstr "hide services with Unreachable host"
+# msgstr ""
+
+# msgstr "Ticket ID"
+# msgstr ""
+
+# msgstr "Ticket subject"
+# msgstr ""
+
+# msgstr "Ticket open time"
+# msgstr ""

@@ -16,7 +16,7 @@ import {
 } from '../atom';
 
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import { DisplayType, ResourceListing } from './models';
+import { DisplayType, NamedEntity, ResourceListing } from './models';
 import useColumns from './Columns/useColumns';
 import useLoadResources from './useLoadResources';
 
@@ -30,6 +30,7 @@ interface UseListingState {
   confirmAcknowledge: () => void;
   confirmSetDowntime: () => void;
   data: ResourceListing | undefined;
+  defaultSelectedColumnIds: Array<string>;
   goToResourceStatusPage?: (row) => void;
   hasMetaService: boolean;
   isLoading: boolean;
@@ -48,12 +49,19 @@ interface UseListingProps
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
   changeViewMode?: (displayType) => void;
+  displayResources: 'all' | 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
+  hostSeverities: Array<NamedEntity>;
+  isDownHostHidden: boolean;
   isFromPreview?: boolean;
+  isOpenTicketEnabled: boolean;
+  isUnreachableHostHidden: boolean;
   limit?: number;
+  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
+  serviceSeverities: Array<NamedEntity>;
   setPanelOptions?: (partialOptions: object) => void;
   sortField?: string;
   sortOrder?: SortOrder;
@@ -64,6 +72,7 @@ interface UseListingProps
 
 const useListing = ({
   resources,
+  isOpenTicketEnabled,
   states,
   statuses,
   displayType,
@@ -79,7 +88,13 @@ const useListing = ({
   dashboardId,
   playlistHash,
   widgetPrefixQuery,
-  statusTypes
+  statusTypes,
+  hostSeverities,
+  serviceSeverities,
+  isDownHostHidden,
+  isUnreachableHostHidden,
+  displayResources,
+  provider
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
@@ -96,18 +111,22 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
-  const { defaultSelectedColumnIds } = useColumns({ displayType });
-
   const { data, isLoading } = useLoadResources({
     dashboardId,
+    displayResources,
     displayType,
+    hostSeverities,
     id,
+    isDownHostHidden,
+    isUnreachableHostHidden,
     limit,
     page,
     playlistHash,
+    provider,
     refreshCount,
     refreshIntervalToUse,
     resources,
+    serviceSeverities,
     sortField,
     sortOrder,
     states,
@@ -154,8 +173,11 @@ const useListing = ({
     setPage(updatedPage + 1);
   };
 
-  const { columns } = useColumns({
-    displayType
+  const { columns, defaultSelectedColumnIds } = useColumns({
+    displayResources,
+    displayType,
+    isOpenTicketEnabled,
+    provider
   });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
@@ -210,6 +232,7 @@ const useListing = ({
     confirmAcknowledge,
     confirmSetDowntime,
     data,
+    defaultSelectedColumnIds,
     goToResourceStatusPage,
     hasMetaService,
     isLoading,

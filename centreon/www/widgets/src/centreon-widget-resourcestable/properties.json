@@ -69,14 +69,21 @@
       ],
       "defaultValue": []
     },
-    "severities":{
+    "hostSeverities":{
       "type": "connected-autocomplete",
-      "label": "Severities",
-      "secondaryLabel": "Select severities",
-      "baseEndpoint": "/monitoring/resources",
+      "label": "Host severities",
+      "secondaryLabel": "Select host severities",
+      "baseEndpoint": "/monitoring/severities/host",
       "isSingleAutocomplete" : false
     },
-    "openTicket": {
+    "serviceSeverities":{
+      "type": "connected-autocomplete",
+      "label": "Service severities",
+      "secondaryLabel": "Select service severities",
+      "baseEndpoint": "/monitoring/severities/service",
+      "isSingleAutocomplete" : false
+    },
+    "isOpenTicketEnabled": {
       "type": "switch",
       "label": "Active open ticket",
       "defaultValue": false,
@@ -91,11 +98,11 @@
       "type": "connected-autocomplete",
       "label": "Ticket provider",
       "secondaryLabel": "Select a provider",
-      "baseEndpoint": "/monitoring/resources",
+      "baseEndpoint": "/open-ticket/providers",
       "isSingleAutocomplete" : true,
       "hiddenCondition": {
         "target": "options",
-        "when": "options.openTicket",
+        "when": "options.isOpenTicketEnabled",
         "method": "equals",
         "matches": false
       }
@@ -109,40 +116,40 @@
           "name": "All resources"
         },
         {
-          "id": "ticket",
+          "id": "withTicket",
           "name": "Resources linked to a ticket"
         },
         {
-          "id": "noTicket",
+          "id": "withoutTicket",
           "name": "Resources with no ticket"
         }
       ],
       "defaultValue": "all",
       "hiddenCondition": {
         "target": "options",
-        "when": "options.openTicket",
+        "when": "options.isOpenTicketEnabled",
         "method": "equals",
         "matches": false
       }
     },
-    "hideDownHost": {
+    "isDownHostHidden": {
       "type": "switch",
       "label": "hide services with Down host",
       "defaultValue": false,
       "hiddenCondition": {
         "target": "options",
-        "when": "options.openTicket",
+        "when": "options.isOpenTicketEnabled",
         "method": "equals",
         "matches": false
       }
     },
-    "hideUnreachableHost": {
+    "isUnreachableHostHidden": {
       "type": "switch",
       "label": "hide services with Unreachable host",
       "defaultValue": false,
       "hiddenCondition": {
         "target": "options",
-        "when": "options.openTicket",
+        "when": "options.isOpenTicketEnabled",
         "method": "equals",
         "matches": false
       }
