@@ -174,8 +174,6 @@ describe('Bar chart', () => {
           .should('have.attr', 'width')
           .should('equals', '387');
       }
-
-      cy.makeSnapshot();
     });
 
     it(`displays bar chart ${orientation}ly with a custom style`, () => {
