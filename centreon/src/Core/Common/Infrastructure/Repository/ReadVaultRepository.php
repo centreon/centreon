@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure\Repository;
 
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRepositoryInterface
 {
@@ -47,5 +49,31 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
         }
 
         return [];
+    }
+
+    public function isConfigurationValid(VaultConfiguration|NewVaultConfiguration $vaultConfiguration): bool
+    {
+        try {
+            $url = $vaultConfiguration->getAddress() . ':'
+                . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
+            $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
+            $body = [
+                'role_id' => $vaultConfiguration->getRoleId(),
+                'secret_id' => $vaultConfiguration->getSecretId(),
+            ];
+            $loginResponse = $this->httpClient->request('POST', $url, ['json' => $body]);
+
+            $content = json_decode($loginResponse->getContent(), true);
+        } catch (\Exception $ex) {
+
+            return false;
+        }
+        /** @var array{auth?:array{client_token?:string}} $content */
+        if (isset($content['auth']['client_token'])) {
+
+            return true;
+        }
+
+        return false;
     }
 }
