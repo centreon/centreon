@@ -127,7 +127,7 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
     adExclusionPeriods: 'ad_exclusion_periods',
     resourceStatusFilterRevamp: 'resource_status_filter_revamp',
     resourceStatusTreeView: 'resource_status_tree_view',
-    resouresTableOpenTickets: 'ressoures_table_widget_open_tickets'
+    resouresTableOpenTickets: 'resources_table_widget_open_tickets'
   }
 );
 
