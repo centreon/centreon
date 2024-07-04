@@ -188,11 +188,11 @@ const mountResourcePage = (): void => {
     alias: 'dataToListingTable',
     method: Method.GET,
     path: '**/resources?*',
-    response: retrievedListing,
-    query:{
-      name:'page',
-      value:'1'
-    }
+    query: {
+      name: 'page',
+      value: '1'
+    },
+    response: retrievedListing
   });
 
   interceptDetailsRequest({
@@ -827,13 +827,12 @@ describe('Responsivity listing actions', () => {
       height
     }) => {
       it(`Displays the listing actions correctly for responsiveness cases when the size is ${type}`, () => {
-        store.set(panelWidthStorageAtom, panelWidth);
-
         const collection =
           document?.getElementById('cy-root')?.children[0]?.children[0];
         collection.style.height = '590px';
 
         cy.waitFiltersAndListingRequests();
+        store.set(panelWidthStorageAtom, panelWidth);
         cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
         cy.contains('E4').click();
         cy.waitForRequest('@getDetails');
