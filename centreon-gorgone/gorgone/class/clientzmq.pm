@@ -131,25 +131,49 @@ sub get_connect_identity {
     return $self->{identity} . '-' .  $self->{extra_identity};
 }
 
+sub connect_wait_response {
+    my ($self, %options) = @_;
+
+    my $w1 = $self->{connect_loop}->io(
+        $sockets->{ $self->{identity} }->get_fd(),
+        EV::READ,
+        sub {
+            $self->event(identity => $self->{identity});
+        }
+    );
+
+    # Soemtimes EV library sent timer event directly (it doesn't wait the timeout)
+    my $timeout = 10;
+    my $ctime = time();
+    while (1) {
+        my $w2 = $self->{connect_loop}->timer(
+            1,
+            0, 
+            sub {}
+        );
+        $self->{connect_loop}->run(EV::RUN_ONCE);
+
+        last if ($self->{handshake} != $options{handshake_continue});
+        if (time() > ($ctime + $timeout)) {
+            $self->{verbose_last_message} = "$options{event} timeout";
+            $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - $options{event} timeout [1]");
+            last;
+        }
+    }
+
+    # we try a last time
+    if ($self->{handshake} == $options{handshake_continue}) {
+        $self->event(identity => $self->{identity});
+    }
+}
+
 sub get_server_pubkey {
     my ($self, %options) = @_;
 
     $sockets->{ $self->{identity} }->send('[GETPUBKEY]', ZMQ_DONTWAIT);
     $self->event(identity => $self->{identity});
 
-    my $w1 = $self->{connect_loop}->io(
-            $sockets->{ $self->{identity} }->get_fd(),
-            EV::READ,
-            sub {
-                $self->event(identity => $self->{identity});
-            }
-        );
-    my $w2 = $self->{connect_loop}->timer(
-        10,
-        0, 
-        sub {}
-    );
-    $self->{connect_loop}->run(EV::RUN_ONCE);
+    $self->connect_wait_response(event => 'get_server_pubkey', handshake_continue => 0);
 }
 
 sub read_key_protocol {
@@ -421,29 +445,16 @@ sub send_message {
         );
         if ($status == -1) {
             $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_helo crypt handshake issue [2]");
-            $self->{verbose_last_message} = 'crypt handshake issue';
+            $self->{verbose_last_message} = 'client_helo crypt handshake issue';
             return (-1, $self->{verbose_last_message}); 
         }
 
         $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_helo sent [2]");
 
-        $self->{verbose_last_message} = 'Handshake timeout';
         $sockets->{ $self->{identity} }->send($ciphertext, ZMQ_DONTWAIT);
         $self->event(identity => $self->{identity});
 
-        my $w1 = $self->{connect_loop}->io(
-            $sockets->{ $self->{identity} }->get_fd(),
-            EV::READ,
-            sub {
-                $self->event(identity => $self->{identity});
-            }
-        );
-        my $w2 = $self->{connect_loop}->timer(
-            10,
-            0,
-            sub {}
-        );
-        $self->{connect_loop}->run(EV::RUN_ONCE);
+        $self->connect_wait_response(event => 'client_helo', handshake_continue => 1);
     }
 
     if (defined($self->{connect_loop})) {
