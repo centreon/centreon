@@ -24,7 +24,7 @@ const useMediaQueryListing = (): UseMediaQueryListing => {
 
   const width = isPanelOpen ? newWidth : window.innerWidth;
 
-  const applyBreakPoint = lte(width, widthToApplyBreakPoint);
+  const applyBreakPoint = lte(width, mediumWidth);
 
   const breakPointType =
     applyBreakPoint && lte(width, smallWidth) ? Type.small : undefined;
