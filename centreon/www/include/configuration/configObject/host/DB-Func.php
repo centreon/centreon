@@ -373,7 +373,9 @@ function deleteHostInDB($hosts = array())
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
-        deleteResourceSecretsInVault($vaultConfiguration, $logger, $hostIds, []);
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+
+        deleteResourceSecretsInVault($writeVaultRepository, $vaultConfiguration, $logger, $hostIds, []);
     }
     foreach ($hostIds as $hostId) {
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);

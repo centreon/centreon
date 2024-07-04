@@ -307,35 +307,35 @@ function updateOnDemandMacroHostTableWithVaultPath(CentreonDB $pearDB, array $ma
  * @throws Throwable
  */
 function deleteResourceSecretsInVault(
+    WriteVaultRepositoryInterface $writeVaultRepository,
     VaultConfiguration $vaultConfiguration,
     Logger $logger,
     array $hostIds,
     array $serviceIds
 ): void {
-    $vaultPath = 'secret::' . $vaultConfiguration->getName() . '::';
-    $httpClient = new CentreonRestHttp();
-    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-
     if (! empty($hostIds)) {
-        $uuids = retrieveMultipleHostUuidsFromDatabase($hostIds, $vaultPath);
+        $uuids = retrieveMultipleHostUuidsFromDatabase($hostIds);
         if (array_key_exists('host', $uuids)) {
             foreach ($uuids['host'] as $uuid) {
-                deleteHostFromVault($vaultConfiguration, $uuid, $clientToken, $logger, $httpClient);
+                $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
+                $writeVaultRepository->delete($uuid);
             }
         }
 
         // Delete entry in vault for children services
         if (array_key_exists('service', $uuids)) {
             foreach ($uuids['service'] as $uuid) {
-                deleteServiceFromVault($vaultConfiguration, $uuid, $clientToken, $logger, $httpClient);
+                $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+                $writeVaultRepository->delete($uuid);
             }
         }
     }
 
     if (! empty($serviceIds)) {
-        $uuids = retrieveMultipleServiceUuidsFromDatabase($serviceIds, $vaultPath);
+        $uuids = retrieveMultipleServiceUuidsFromDatabase($serviceIds);
         foreach ($uuids as $uuid) {
-            deleteServiceFromVault($vaultConfiguration, $uuid, $clientToken, $logger, $httpClient);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+            $writeVaultRepository->delete($uuid);
         }
     }
 }
@@ -344,11 +344,10 @@ function deleteResourceSecretsInVault(
  * Found Host and Service linked to Host Secrets UUIDs.
  *
  * @param non-empty-array<int> $hostIds
- * @param string $vaultPath
  *
  * @return array<string,string[]>
  */
-function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath): array
+function retrieveMultipleHostUuidsFromDatabase(array $hostIds): array
 {
     global $pearDB;
 
@@ -377,23 +376,38 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath
     foreach ($bindParams as $token => $hostId) {
         $statement->bindValue($token, $hostId, PDO::PARAM_INT);
     }
-    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
+    $statement->bindValue(':vaultPath', 'secret::%', PDO::PARAM_STR);
     $statement->execute();
     $uuids = [];
     while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
-        if (preg_match('/^' . $vaultPath .'/', $result['host_snmp_community'])) {
-            $vaultPathPart = explode('/', $result['host_snmp_community']);
-        } elseif (preg_match('/^' . $vaultPath .'/', $result['host_macro_value'])) {
-            $vaultPathPart = explode('/', $result['host_macro_value']);
-        }
-        if (isset($vaultPathPart)) {
-            $uuids['host'][] = end($vaultPathPart);
+        if (
+            (
+                preg_match(
+                    '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+                    $result['host_snmp_community'],
+                    $matches
+                )
+                || preg_match(
+                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+                $result['host_macro_value'],
+                $matches
+                )
+            )
+            && isset($matches[2])
+        ) {
+            $uuids['host'][] = $matches[2];
         }
 
         // Add UUID of services linked to host
-        if (preg_match('/^' . $vaultPath .'/', $result['svc_macro_value'])) {
-            $vaultPathPart = explode('/', $result['svc_macro_value']);
-            $uuids['service'][] = end($vaultPathPart);
+        if (
+            preg_match(
+                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+                $result['svc_macro_value'],
+                $matches
+            )
+            && isset($matches[2])
+        ) {
+            $uuids['service'][] = $matches[2];
         }
     }
 
@@ -466,11 +480,10 @@ function deleteServiceFromVault(
  * Found Service Secrets UUIDs.
  *
  * @param non-empty-array<int> $serviceIds
- * @param string $vaultPath
  *
  * @return string[]
  */
-function retrieveMultipleServiceUuidsFromDatabase(array $serviceIds, string $vaultPath): array
+function retrieveMultipleServiceUuidsFromDatabase(array $serviceIds): array
 {
     global $pearDB;
 
@@ -490,12 +503,21 @@ function retrieveMultipleServiceUuidsFromDatabase(array $serviceIds, string $vau
     foreach ($bindParams as $token => $serviceId) {
         $statement->bindValue($token, $serviceId, PDO::PARAM_INT);
     }
-    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
+    $statement->bindValue(':vaultPath', 'secret::%', PDO::PARAM_STR);
     $statement->execute();
     $uuids = [];
     while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
-        $vaultPathPart = explode('/', $result['svc_macro_value']);
-        $uuids[] = end($vaultPathPart);
+        if (
+            preg_match(
+                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+                $result['svc_macro_value'],
+                $matches
+            )
+            && isset($matches[2])
+        ) {
+            $uuids[] = $matches[2];
+        }
+
     }
 
     return $uuids;
