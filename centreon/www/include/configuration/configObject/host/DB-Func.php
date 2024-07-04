@@ -43,11 +43,17 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Core\Host\Application\Converter\HostEventConverter;
+use Core\Infrastructure\Common\Api\Router;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Host\Application\Converter\HostEventConverter;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Quickform rule that checks whether or not monitoring server can be set
@@ -365,9 +371,9 @@ function deleteHostInDB($hosts = array())
     global $pearDB, $centreon;
 
     $hostIds = array_keys($hosts);
-    $kernel = \App\Kernel::createForWeb();
+    $kernel = Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
@@ -430,13 +436,11 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
     global $pearDB, $path, $centreon, $is_admin;
 
     $hostAcl = [];
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     foreach ($hosts as $key => $value) {
@@ -748,9 +752,13 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                     ) {
                         if ($vaultConfiguration !== null) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */
-                            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+                            $readVaultRepository = $kernel->getContainer()->get(
+                                ReadVaultRepositoryInterface::class
+                            );
                             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
-                            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+                            $writeVaultRepository = $kernel->getContainer()->get(
+                                WriteVaultRepositoryInterface::class
+                            );
                             $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
                             try {
                                 duplicateHostSecretsInVault(
@@ -1315,11 +1323,11 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         $ret = $configuration;
     }
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
@@ -1515,11 +1523,11 @@ function updateHost_MC($hostId = null)
         return;
     }
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
@@ -2872,11 +2880,11 @@ function insertHostInAPI(array $ret = []): int|null
  */
 function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePath): int
 {
-    $kernel = \App\Kernel::createForWeb();
-    /** @var Core\Infrastructure\Common\Api\Router $router */
-    $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class)
         ?? throw new LogicException('Router not found in container');
-    $client = new Symfony\Component\HttpClient\CurlHttpClient();
+    $client = new CurlHttpClient();
 
     if ((int) $formData['host_register'] === 0) {
         // is template
@@ -2885,7 +2893,7 @@ function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePat
         $url = $router->generate(
             'AddHostTemplate',
             $basePath ? ['base_uri' => $basePath] : [],
-            Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+            UrlGeneratorInterface::ABSOLUTE_URL,
         );
     } else {
         // is regular host
@@ -2894,7 +2902,7 @@ function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePat
         $url = $router->generate(
             'AddHost',
             $basePath ? ['base_uri' => $basePath] : [],
-            Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+            UrlGeneratorInterface::ABSOLUTE_URL,
         );
     }
 
