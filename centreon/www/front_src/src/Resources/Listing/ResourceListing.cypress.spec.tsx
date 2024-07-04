@@ -828,6 +828,8 @@ describe('Responsivity listing actions', () => {
         collection.style.height = '590px';
 
         cy.waitForRequest('@dataToListingTable');
+        cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
+
 
         store.set(panelWidthStorageAtom, panelWidth);
         cy.contains('E4').click();
