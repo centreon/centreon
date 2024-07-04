@@ -522,6 +522,8 @@ jobs:
       matrix:
         os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
+    name: dockerize ${{ matrix.os }}
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -569,8 +571,8 @@ jobs:
 
       - uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 
-      - name: Build web image
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
+      - name: Build and push web image
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           context: .
@@ -579,20 +581,8 @@ jobs:
             "VERSION=${{ needs.get-version.outputs.major_version }}"
             "MYDUMPER_VERSION=0.16.3-5"
           pull: true
-          load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-
-      - name: Push web image
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
-        with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
-            "MYDUMPER_VERSION=0.16.3-5"
-          pull: false
           push: true
+          load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
