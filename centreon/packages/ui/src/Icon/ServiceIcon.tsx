@@ -4,5 +4,5 @@ import { SvgIconProps } from '@mui/material';
 import BaseIcon from './BaseIcon';
 
 export const ServiceIcon = (props: SvgIconProps): JSX.Element => (
-  <BaseIcon Icon={Grain} dataTestId="ServiceIcom" {...props} />
+  <BaseIcon Icon={Grain} dataTestId="ServiceIcon" {...props} />
 );

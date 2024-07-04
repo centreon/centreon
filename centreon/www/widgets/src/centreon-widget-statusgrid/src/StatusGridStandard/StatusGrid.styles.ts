@@ -17,7 +17,9 @@ export const useTileStyles = makeStyles()((theme) => ({
     fontWeight: theme.typography.fontWeightMedium
   },
   resourceTypeIcon: {
-    marginRight: theme.spacing(0.5)
+    position: 'absolute',
+    right: 8,
+    top: 4
   },
   seeMoreContainer: {
     alignItems: 'center',
@@ -31,7 +33,6 @@ export const useTileStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     height: '100%',
-    justifyContent: 'space-between',
     marginTop: theme.spacing(0.5),
     width: '100%'
   },

@@ -1,11 +1,11 @@
-import { isNil } from 'ramda';
+import { always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 
 import { Box, CardActionArea, Typography } from '@mui/material';
 import DvrIcon from '@mui/icons-material/Dvr';
 
-import { EllipsisTypography } from '@centreon/ui';
+import { EllipsisTypography, HostIcon, ServiceIcon } from '@centreon/ui';
 
 import { Resource } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
@@ -26,6 +26,11 @@ interface Props {
 export const router = {
   useNavigate
 };
+
+const getResourceTypeIcon = cond([
+  [equals('host'), always(<HostIcon />)],
+  [equals('service'), always(<ServiceIcon />)]
+]);
 
 const Tile = ({
   isSmallestSize,
@@ -106,9 +111,11 @@ const Tile = ({
             isAcknowledged={data.is_acknowledged}
             isCompact={isSmallestSize}
             isInDowntime={data.is_in_downtime}
-            type={type}
           />
         )}
+        <div className={classes.resourceTypeIcon}>
+          {getResourceTypeIcon(type)}
+        </div>
         <EllipsisTypography className={classes.resourceName} textAlign="center">
           {data.name}
         </EllipsisTypography>

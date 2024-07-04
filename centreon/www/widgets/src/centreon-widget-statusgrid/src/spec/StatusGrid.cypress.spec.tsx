@@ -287,7 +287,7 @@ describe('View by host', () => {
         'background-color',
         'rgb(229, 216, 243)'
       );
-      cy.findByTestId('DnsIcon').should('be.visible');
+      cy.findAllByTestId('HostIcon').eq(0).should('be.visible');
     });
   });
 
@@ -464,7 +464,7 @@ describe('View by service', () => {
         'background-color',
         'rgb(223, 210, 185)'
       );
-      cy.findAllByTestId('GrainIcon').eq(0).should('be.visible');
+      cy.findAllByTestId('ServiceIcon').eq(0).should('be.visible');
     });
   });
 
