@@ -366,16 +366,14 @@ function deleteHostInDB($hosts = array())
 
     $hostIds = array_keys($hosts);
     $kernel = \App\Kernel::createForWeb();
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
-
-        deleteResourceSecretsInVault($writeVaultRepository, $vaultConfiguration, $logger, $hostIds, []);
+        deleteResourceSecretsInVault($writeVaultRepository, $hostIds, []);
     }
     foreach ($hostIds as $hostId) {
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
@@ -441,10 +439,6 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
-    if ($vaultConfiguration !== null) {
-        $httpClient = new CentreonRestHttp();
-        $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-    }
     foreach ($hosts as $key => $value) {
         $dbResult = $pearDB->query("SELECT * FROM host WHERE host_id = '" . (int)$key . "' LIMIT 1");
         $row = $dbResult->fetch();
@@ -724,7 +718,10 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                 "SELECT MAX(host_macro_id) from on_demand_macro_host WHERE is_password = 1"
                             );
                             $resultMacro = $maxIdStatement->fetch();
-                            $macroPasswords[$resultMacro['MAX(host_macro_id)']] = $macVal;
+                            $macroPasswords[$resultMacro['MAX(host_macro_id)']] = [
+                                'macroName' => $macName,
+                                'macValue' => $macVal
+                            ];
                         }
                     }
 
@@ -742,24 +739,29 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
 
                     /**
                      * The value should be duplicated in vault if it's a password and is already in vault
-                     * The regex /^secret::[^:]*::/ define that the value is store in vault.
+                     * The pattern secret:: define that the value is store in vault.
                      */
                     if (
                         ! empty($row['host_snmp_community'])
-                        && preg_match('/' . VAULT_PATH_REGEX . '/', $row['host_snmp_community'])
+                        && str_starts_with(VaultConfiguration::VAULT_PATH_PATTERN, $row['host_snmp_community'])
                         || ! empty($macroPasswords)
                     ) {
                         if ($vaultConfiguration !== null) {
+                            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+                            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+                            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+                            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+                            $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
                             try {
                                 duplicateHostSecretsInVault(
+                                    $readVaultRepository,
+                                    $writeVaultRepository,
                                     $vaultConfiguration,
                                     $logger,
                                     $uuidGenerator,
-                                    $httpClient,
                                     $row['host_snmp_community'],
                                     $macroPasswords,
                                     $key,
-                                    $clientToken,
                                     (int) $maxId["MAX(host_id)"]
                                 );
                             } catch (\Throwable $ex) {
