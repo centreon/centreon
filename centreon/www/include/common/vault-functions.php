@@ -561,7 +561,6 @@ function updateHostSecretsInVaultFromMC(
     WriteVaultRepositoryInterface $writeVaultRepository,
     VaultConfiguration $vaultConfiguration,
     Logger $logger,
-    UUIDGeneratorInterface $uuidGenerator,
     ?string $uuid,
     int $hostId,
     array $macros,
@@ -593,7 +592,7 @@ function updateHostSecretsInVaultFromMC(
         }
 
         // Store vault path for SNMP Community
-        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $updateHostPayload)) {
+        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)) {
             updateHostTableWithVaultPath($pearDB, $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY], $hostId);
         }
 
@@ -665,29 +664,27 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
  * @throws Throwable
  */
 function updateHostSecretsInVault(
+    ReadVaultRepositoryInterface $readVaultRepository,
+    WriteVaultRepositoryInterface $writeVaultRepository,
     VaultConfiguration $vaultConfiguration,
     Logger $logger,
-    UUIDGeneratorInterface $uuidGenerator,
     ?string $uuid,
     int $hostId,
     array $macros,
     ?string $snmpCommunity
 ): void {
     global $pearDB;
-    $httpClient = new CentreonRestHttp();
-    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
     $hostSecretsFromVault = [];
     if ($uuid !== null) {
         $hostSecretsFromVault = getHostSecretsFromVault(
             $vaultConfiguration,
-            (int) $hostId,
+            $readVaultRepository,
+            $hostId,
             $uuid,
-            $clientToken,
-            $logger,
-            $httpClient
+            $logger
         );
     }
-    $macroPasswordIds = getIdOfUpdatedPasswordMacros($macros);
+
     $updateHostPayload = prepareHostUpdatePayload(
         $snmpCommunity,
         $macros,
@@ -695,30 +692,26 @@ function updateHostSecretsInVault(
     );
 
     // If no more fields are password types, we delete the host from the vault has it will not be read.
-    if (empty($updateHostPayload) && $uuid !== null) {
+    if (empty($updateHostPayload['to_insert']) && $uuid !== null) {
         deleteHostFromVault($vaultConfiguration, $uuid, $clientToken, $logger, $httpClient);
     } else {
-        $uuid ??= $uuidGenerator->generateV4();
-        writeHostSecretsInVault(
-            $vaultConfiguration,
+        $vaultPaths = $writeVaultRepository->upsert(
             $uuid,
-            $clientToken,
-            $updateHostPayload,
-            $logger,
-            $httpClient
+            $updateHostPayload['to_insert'],
+            $updateHostPayload['to_delete']
         );
+        foreach ($macros as  $macroId => $macroInfo) {
+            $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
+        }
 
-        $hostPath = 'secret::' . $vaultConfiguration->getName() . '::'
-            . $vaultConfiguration->getRootPath()
-            . '/data/monitoring/hosts/' . $uuid;
         // Store vault path for SNMP Community
-        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $updateHostPayload)){
-            updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
+        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)){
+            updateHostTableWithVaultPath($pearDB, $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY], $hostId);
         }
 
         // Store vault path for macros
-        if (! empty($macroPasswordIds)) {
-            updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
+        if (! empty($macros)) {
+            updateOnDemandMacroHostTableWithVaultPath($pearDB, $macros);
         }
     }
 }
@@ -738,10 +731,11 @@ function updateHostSecretsInVault(
  * }> $macros
  * @param array<string,string> $secretsFromVault
  *
- * @return array<string,string>
+ * @return array{to_insert: array<string,string>, to_delete: array<string,string>}
  */
 function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, array $secretsFromVault): array
 {
+    $payload = ['to_insert' => [], 'to_delete' => []];
     // Unset existing macros on vault if they no more exist while submitting the form
     foreach (array_keys($secretsFromVault) as $secretKey) {
         if ($secretKey !== VaultConfiguration::HOST_SNMP_COMMUNITY_KEY) {
@@ -753,6 +747,7 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
                 }
             }
             if (! in_array($secretKey, $macroName, true)) {
+                $payload['to_delete'][$secretKey] = $secretsFromVault[$secretKey];
                 unset($secretsFromVault[$secretKey]);
             }
         }
@@ -768,11 +763,19 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
         }
     }
 
-    // Unset existing SNMP Community if it no more exists while submitting the form
+    /**
+     * Unset existing SNMP Community if it no more exists while submitting the form
+     *
+     * A non updated SNMP Community is considered as null
+     * A removed SNMP Community is considered as an empty string
+     */
     if (
         array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $secretsFromVault)
-        && $hostSNMPCommunity === null
+        && $hostSNMPCommunity === ''
     ) {
+        $payload['to_delete'][VaultConfiguration::HOST_SNMP_COMMUNITY_KEY] = $secretsFromVault[
+            VaultConfiguration::HOST_SNMP_COMMUNITY_KEY
+        ];
         unset($secretsFromVault[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
     }
 
@@ -781,7 +784,9 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
         $secretsFromVault[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY] = $hostSNMPCommunity;
     }
 
-    return $secretsFromVault;
+    $payload['to_insert'] = $secretsFromVault;
+
+    return $payload;
 }
 
 /**

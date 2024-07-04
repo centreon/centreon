@@ -1314,8 +1314,6 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     }
 
     $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
     /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
@@ -1475,15 +1473,22 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
 
     //If there is a vault configuration write into vault
     if ($vaultConfiguration !== null) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
         try {
             updateHostSecretsInVault(
+                $readVaultRepository,
+                $writeVaultRepository,
                 $vaultConfiguration,
                 $logger,
-                $uuidGenerator,
                 $uuid,
                 (int) $hostId,
                 $hostObj->getFormattedMacros(),
-                $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+                $bindParams[':host_snmp_community'][\PDO::PARAM_STR] ?? null
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -1510,8 +1515,6 @@ function updateHost_MC($hostId = null)
     }
 
     $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
     /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
@@ -1643,7 +1646,6 @@ function updateHost_MC($hostId = null)
                 $writeVaultRepository,
                 $vaultConfiguration,
                 $logger,
-                $uuidGenerator,
                 $uuid,
                 $hostId,
                 $updatedPasswordMacros,
