@@ -97,12 +97,12 @@ const listingActionsData = [
   }
 ];
 
-const interceptDetailsRequest = ({ dataPath, alias }): void => {
+const interceptRequest = ({ dataPath, alias, path }): void => {
   cy.fixture(dataPath).then((data) => {
     cy.interceptAPIRequest({
       alias,
       method: Method.GET,
-      path: `**/monitoring/resources/hosts*`,
+      path,
       response: data
     });
   });
@@ -184,20 +184,17 @@ const mountResourcePage = (): void => {
     path: '**/events-view*',
     response: fakeData
   });
-  cy.interceptAPIRequest({
-    alias: 'dataToListingTable',
-    method: Method.GET,
-    path: '**/resources?*',
-    query: {
-      name: 'page',
-      value: '1'
-    },
-    response: retrievedListing
+
+  interceptRequest({
+    alias: 'listingRequest',
+    dataPath: 'resources/resourceListing.json',
+    path: `./api/latest/monitoring/resources?*`
   });
 
-  interceptDetailsRequest({
-    alias: 'getDetails',
-    dataPath: 'resources/details/tabs/details/details.json'
+  interceptRequest({
+    alias: 'detailsRequest',
+    dataPath: 'resources/anomalyDetectionDetails.json',
+    path: `./api/latest/monitoring/resources/anomaly-detection/1`
   });
 
   cy.mount({
@@ -830,12 +827,13 @@ describe('Responsivity listing actions', () => {
         const collection =
           document?.getElementById('cy-root')?.children[0]?.children[0];
         collection.style.height = '590px';
-
-        cy.waitFiltersAndListingRequests();
         store.set(panelWidthStorageAtom, panelWidth);
-        cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
-        cy.contains('E4').click();
-        cy.waitForRequest('@getDetails');
+
+        cy.waitForRequest('@filterRequest');
+        cy.waitForRequest('@listingRequest');
+        cy.contains('ad').click();
+
+        cy.waitForRequest('@detailsRequest');
 
         cy.findByText(labelDisplayView).should('not.exist');
 
