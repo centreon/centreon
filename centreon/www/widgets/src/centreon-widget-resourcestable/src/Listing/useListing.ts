@@ -11,12 +11,13 @@ import { getResourcesUrl, goToUrl } from '../../../utils';
 import { PanelOptions } from '../models';
 import {
   resourcesToAcknowledgeAtom,
+  resourcesToOpenTicketAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../atom';
 
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import { DisplayType, NamedEntity, ResourceListing } from './models';
+import { DisplayType, NamedEntity, ResourceListing, Ticket } from './models';
 import useColumns from './Columns/useColumns';
 import useLoadResources from './useLoadResources';
 
@@ -34,9 +35,11 @@ interface UseListingState {
   goToResourceStatusPage?: (row) => void;
   hasMetaService: boolean;
   isLoading: boolean;
+  onTicketClose: () => void;
   page: number | undefined;
   resetColumns: () => void;
   resourcesToAcknowledge;
+  resourcesToOpenTicket: Array<Ticket>;
   resourcesToSetDowntime;
   selectColumns: (updatedColumnIds: Array<string>) => void;
   selectedResources;
@@ -100,6 +103,10 @@ const useListing = ({
   const { t } = useTranslation();
 
   const [page, setPage] = useState(1);
+  const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
+    resourcesToOpenTicketAtom
+  );
+
   const [selectedResources, setSelectedResources] = useAtom(
     selectedResourcesAtom
   );
@@ -222,6 +229,10 @@ const useListing = ({
     setSelectedResources([]);
   };
 
+  const onTicketClose = (): void => {
+    setResourcesToOpenTicket([]);
+  };
+
   return {
     cancelAcknowledge,
     cancelSetDowntime,
@@ -236,9 +247,11 @@ const useListing = ({
     goToResourceStatusPage,
     hasMetaService,
     isLoading,
+    onTicketClose,
     page,
     resetColumns,
     resourcesToAcknowledge,
+    resourcesToOpenTicket,
     resourcesToSetDowntime,
     selectColumns,
     selectedResources,

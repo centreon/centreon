@@ -14,6 +14,7 @@ import DisplayType from './DisplayType';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
 import Actions from './Actions/Actions';
+import OpenTicketModal from './Columns/OpenTicket/Modal';
 
 interface ListingProps
   extends Pick<
@@ -93,7 +94,9 @@ const Listing = ({
     confirmAcknowledge,
     cancelSetDowntime,
     confirmSetDowntime,
-    defaultSelectedColumnIds
+    defaultSelectedColumnIds,
+    resourcesToOpenTicket,
+    onTicketClose
   } = useListing({
     changeViewMode,
     dashboardId,
@@ -187,6 +190,15 @@ const Listing = ({
           resources={resourcesToSetDowntime}
           onClose={cancelSetDowntime}
           onSuccess={confirmSetDowntime}
+        />
+      )}
+
+      {resourcesToOpenTicket.length > 0 && (
+        <OpenTicketModal
+          isOpen
+          close={onTicketClose}
+          providerID={provider?.id}
+          resource={resourcesToOpenTicket[0]}
         />
       )}
     </>

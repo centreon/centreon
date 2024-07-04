@@ -6,7 +6,8 @@ import { DisplayType } from '../Listing/models';
 import { NamedEntity, Resource } from '../../../models';
 import { formatStatus } from '../../../utils';
 
-export const resourcesEndpoint = '/monitoring/resources';
+export const resourcesEndpoint =
+  'http://localhost:3000/api/latest/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
 
 interface BuildResourcesEndpointProps {

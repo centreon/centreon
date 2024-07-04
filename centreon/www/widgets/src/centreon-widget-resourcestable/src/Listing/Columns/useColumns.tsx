@@ -34,7 +34,7 @@ import ParentResourceColumn from './Parent';
 import SubItem from './ServiceSubItemColumn/SubItem';
 import useStyles, { useStatusStyles } from './Columns.styles';
 import truncate from './truncate';
-import OpenTicket from './OpenTicket';
+import OpenTicket from './OpenTicket/OpenTicket';
 
 interface ColumnProps {
   displayResources: 'all' | 'withTicket' | 'withoutTicket';

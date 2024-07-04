@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { equals, or } from 'ramda';
+import { useSetAtom } from 'jotai';
 
 import { useTheme } from '@mui/material';
 
@@ -8,26 +9,30 @@ import { ComponentColumnProps, IconButton } from '@centreon/ui';
 import {
   labelOpenTicketForHost,
   labelOpenTicketForService
-} from '../translatedLabels';
-
-import IconCreateTicket from './Icons/CreateTicket';
-import { useOpenTicketStyles } from './Columns.styles';
-import TooltipContent from './Tooltip/Tooltip';
+} from '../../translatedLabels';
+import IconCreateTicket from '../Icons/CreateTicket';
+import { useOpenTicketStyles } from '../Columns.styles';
+import TooltipContent from '../Tooltip/Tooltip';
+import { resourcesToOpenTicketAtom } from '../../../atom';
 
 const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useOpenTicketStyles();
   const { t } = useTranslation();
-
   const { palette } = useTheme();
 
-  const { type } = row;
+  const setResourcesToOpenTicket = useSetAtom(resourcesToOpenTicketAtom);
 
+  const { type } = row;
   const isHost = equals(type, 'host');
   const isService = equals(type, 'service');
 
-  const createServiceTicket = (): void => {};
+  const createServiceTicket = (): void => {
+    setResourcesToOpenTicket([{ hostID: row?.parent.id, serviceID: row?.id }]);
+  };
 
-  const createHostTicket = (): void => {};
+  const createHostTicket = (): void => {
+    setResourcesToOpenTicket([{ hostID: row?.id }]);
+  };
 
   const ticket = row?.extras?.open_tickets?.ticket;
   const parentTicket = row?.parent?.extras?.open_tickets?.ticket;

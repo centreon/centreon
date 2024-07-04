@@ -103,3 +103,8 @@ export enum ResourceCategory {
   'metaservice' = 'metaservice',
   'service' = 'service'
 }
+
+export interface Ticket {
+  hostID: number;
+  serviceID?: number;
+}
