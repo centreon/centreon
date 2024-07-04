@@ -282,6 +282,7 @@ sub ping {
     if ($self->{ping} > 0 && $self->{ping_progress} == 0 && 
         time() - $self->{ping_time} > $self->{ping}) {
         $self->{ping_progress} = 1;
+        $self->{ping_time} = time();
         $self->{ping_timeout_time} = time();
         my $action = defined($options{action}) ? $options{action} : 'PING';
         $self->send_message(action => $action, data => $options{data}, json_encode => $options{json_encode});
@@ -317,7 +318,7 @@ sub add_watcher {
 sub event {
     my ($self, %options) = @_;
 
-    $connectors->{ $options{identity} }->{ping_time} = time();
+    
     while ($sockets->{ $options{identity} }->has_pollin()) {
         my ($rv, $message) = gorgone::standard::library::zmq_dealer_read_message(socket => $sockets->{ $options{identity} });
         next if ($connectors->{ $options{identity} }->{handshake} == -1);
@@ -325,6 +326,7 @@ sub event {
 
         # We have a response. So it's ok :)
         if ($connectors->{ $options{identity} }->{ping_progress} == 1) {
+            $connectors->{ $options{identity} }->{ping_time} = time();
             $connectors->{ $options{identity} }->{ping_progress} = 0;
         }
 
