@@ -756,9 +756,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                 duplicateHostSecretsInVault(
                                     $readVaultRepository,
                                     $writeVaultRepository,
-                                    $vaultConfiguration,
                                     $logger,
-                                    $uuidGenerator,
                                     $row['host_snmp_community'],
                                     $macroPasswords,
                                     $key,
@@ -1326,9 +1324,9 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
     //Retrieve UUID for vault path before updating values in database.
-    $uuid = null;
+    $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveHostUuidFromDatabase($pearDB, $hostId, $vaultConfiguration->getName());
+        $vaultPath = retrieveVaultPathFromDatabase($pearDB, $hostId);
     }
 
     if (! $isCloudPlatform) {
@@ -1487,9 +1485,8 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
             updateHostSecretsInVault(
                 $readVaultRepository,
                 $writeVaultRepository,
-                $vaultConfiguration,
                 $logger,
-                $uuid,
+                $vaultPath,
                 (int) $hostId,
                 $hostObj->getFormattedMacros(),
                 $bindParams[':host_snmp_community'][\PDO::PARAM_STR] ?? null
@@ -1527,9 +1524,9 @@ function updateHost_MC($hostId = null)
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
     //Retrieve UUID for vault path before updating values in database.
-    $uuid = null;
+    $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveHostUuidFromDatabase($pearDB, $hostId, $vaultConfiguration->getName());
+        $vaultPath = retrieveVaultPathFromDatabase($pearDB, $hostId);
     }
 
     $submittedValues = $form->getSubmitValues();
@@ -1648,9 +1645,8 @@ function updateHost_MC($hostId = null)
             updateHostSecretsInVaultFromMC(
                 $readVaultRepository,
                 $writeVaultRepository,
-                $vaultConfiguration,
                 $logger,
-                $uuid,
+                $vaultPath,
                 $hostId,
                 $updatedPasswordMacros,
                 $submittedValues['host_snmp_community'] ?? null

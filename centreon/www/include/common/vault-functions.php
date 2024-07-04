@@ -86,10 +86,9 @@ function authenticateToVault(
 /**
  * Get host secrets data from vault.
  *
- * @param VaultConfiguration $vaultConfiguration
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param int $hostId
- * @param string $uuid
+ * @param string $vaultPath
  * @param Logger $logger
  *
  * @throws Exception
@@ -97,16 +96,13 @@ function authenticateToVault(
  * @return array<string, mixed>
  */
 function getHostSecretsFromVault(
-    VaultConfiguration $vaultConfiguration,
     ReadVaultRepositoryInterface $readVaultRepository,
     int $hostId,
-    string $uuid,
+    string $vaultPath,
     Logger $logger,
 ): array {
     try {
-        return $readVaultRepository->findFromUri(
-            $vaultConfiguration->getRootPath() . '/data/' . AbstractVaultRepository::HOST_VAULT_PATH . '/' . $uuid
-        );
+        return $readVaultRepository->findFromPath($vaultPath);
     } catch (Exception $ex) {
         $logger->error(sprintf('Unable to get secrets for host : %d', $hostId));
 
@@ -187,10 +183,9 @@ function updateHostTableWithVaultPath(CentreonDB $pearDB, string $hostPath, int 
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
  * @param ?string $snmpCommunity
- * @param array<string, string> $macroPasswords
+ * @param array<int, array<string, string>> $macroPasswords
  * @param int $duplicatedHostId
  * @param int $newHostId
  *
@@ -199,7 +194,6 @@ function updateHostTableWithVaultPath(CentreonDB $pearDB, string $hostPath, int 
 function duplicateHostSecretsInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
-    VaultConfiguration $vaultConfiguration,
     Logger $logger,
     ?string $snmpCommunity,
     array $macroPasswords,
@@ -208,44 +202,29 @@ function duplicateHostSecretsInVault(
 ): void {
     global $pearDB;
 
-    $uuid = null;
+    $vaultPath = null;
     // Get UUID form Host SNMP Community Path if it is set
     if (! empty($snmpCommunity)) {
-        if (
-            preg_match(
-                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
-                $snmpCommunity,
-                $matches
-            )
-            && isset($matches[2])
-        ) {
-            $uuid = $matches[2];
+        if (str_starts_with($snmpCommunity, VaultConfiguration::VAULT_PATH_PATTERN)) {
+            $vaultPath = $snmpCommunity;
         }
 
     // Get UUID from macro password if they match the vault path regex
     } elseif (! empty($macroPasswords)) {
         foreach ($macroPasswords as $macroInfo) {
-            if (
-                preg_match(
-                    '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
-                    $macroInfo['macroValue'],
-                    $matches
-                )
-                && isset($matches[2])
-            ) {
-                $uuid = $matches[2];
+            if (str_starts_with($macroInfo['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)) {
+                $vaultPath = $macroInfo['macroValue'];
                 break;
             }
         }
     }
 
     $hostSecretsFromVault = [];
-    if ($uuid !== null) {
+    if ($vaultPath !== null) {
         $hostSecretsFromVault = getHostSecretsFromVault(
-            $vaultConfiguration,
             $readVaultRepository,
             $duplicatedHostId, // The duplicated host id
-            $uuid,
+            $vaultPath,
             $logger
         );
     }
@@ -493,17 +472,16 @@ function retrieveMultipleServiceUuidsFromDatabase(array $serviceIds): array
 }
 
 /**
- * Retrieve UUID of a host.
+ * Retrieve Vault path of a host.
  *
  * @param CentreonDB $pearDB
  * @param int $hostId
- * @param string $vaultConfigurationName
  *
  * @throws Throwable
  *
  * @return string|null
  */
-function retrieveHostUuidFromDatabase(CentreonDB $pearDB, int $hostId, string $vaultConfigurationName): ?string
+function retrieveVaultPathFromDatabase(CentreonDB $pearDB, int $hostId): ?string
 {
     $statement = $pearDB->prepare(
         <<<'SQL'
@@ -521,12 +499,8 @@ function retrieveHostUuidFromDatabase(CentreonDB $pearDB, int $hostId, string $v
     $statement->execute();
     if (($result = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
         foreach ($result as $columnValue) {
-            if (
-                str_starts_with($columnValue, VaultConfiguration::VAULT_PATH_PATTERN)
-                && preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $columnValue, $matches)
-                && isset($matches[2])
-            ) {
-                    return $matches[2];
+            if (str_starts_with($columnValue, VaultConfiguration::VAULT_PATH_PATTERN)) {
+                return $columnValue;
             }
         }
     }
@@ -539,7 +513,6 @@ function retrieveHostUuidFromDatabase(CentreonDB $pearDB, int $hostId, string $v
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
  * @param UUIDGeneratorInterface $uuidGenerator
  * @param string|null $uuid
@@ -552,9 +525,8 @@ function retrieveHostUuidFromDatabase(CentreonDB $pearDB, int $hostId, string $v
 function updateHostSecretsInVaultFromMC(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
-    VaultConfiguration $vaultConfiguration,
     Logger $logger,
-    ?string $uuid,
+    ?string $vaultPath,
     int $hostId,
     array $macros,
     ?string $snmpCommunity
@@ -562,12 +534,16 @@ function updateHostSecretsInVaultFromMC(
     global $pearDB;
 
     $hostSecretsFromVault = [];
-    if ($uuid !== null) {
+    if ($vaultPath !== null) {
+        $uuid = preg_match(
+            '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+            $vaultPath,
+            $matches
+        ) ? $matches[2] : null;
         $hostSecretsFromVault = getHostSecretsFromVault(
-            $vaultConfiguration,
             $readVaultRepository,
             $hostId,
-            $uuid,
+            $vaultPath,
             $logger,
         );
     }
@@ -648,7 +624,6 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
  * @param UUIDGeneratorInterface $uuidGenerator
  * @param string|null $uuid
@@ -661,21 +636,25 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
 function updateHostSecretsInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
-    VaultConfiguration $vaultConfiguration,
     Logger $logger,
-    ?string $uuid,
+    ?string $vaultPath,
     int $hostId,
     array $macros,
     ?string $snmpCommunity
 ): void {
     global $pearDB;
     $hostSecretsFromVault = [];
-    if ($uuid !== null) {
+    $uuid = null;
+    if ($vaultPath !== null) {
+        $uuid = preg_match(
+            '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+            $vaultPath,
+            $matches
+        ) ? $matches[2] : null;
         $hostSecretsFromVault = getHostSecretsFromVault(
-            $vaultConfiguration,
             $readVaultRepository,
             $hostId,
-            $uuid,
+            $vaultPath,
             $logger
         );
     }
@@ -715,7 +694,7 @@ function updateHostSecretsInVault(
  * Prepare the write-in vault payload while updating a host.
  *
  * This method will compare the secrets already stored in the vault with the secrets submitted by the form
- * And update their value or delete them if they are no more setted.
+ * And return which secrets should be inserted or deleted.
  *
  * @param string|null $hostSNMPCommunity
  * @param array<int,array{
