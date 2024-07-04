@@ -7,12 +7,12 @@ export const useHeatMapStyles = makeStyles()((theme) => ({
   heatMapTile: {
     alignItems: 'center',
     aspectRatio: '1 / 1',
+    borderRadius: theme.shape.borderRadius,
     display: 'flex',
     justifyContent: 'center',
     width: '100%'
   },
   heatMapTileContent: {
-    borderRadius: theme.shape.borderRadius,
     height: '100%',
     position: 'relative',
     width: '100%'
