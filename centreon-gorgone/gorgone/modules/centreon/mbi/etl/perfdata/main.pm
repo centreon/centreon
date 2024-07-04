@@ -178,7 +178,7 @@ sub purgeTables {
       
         if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} ne "day" && 
             (!defined($etl->{run}->{options}->{month_only}) || $etl->{run}->{options}->{month_only} == 0) && 
-            (!defined($etl->{run}->{options}->{no_centile}) || $etl->{run}->{options}->{no_centile} == 0)) {
+            (!defined($etl->{run}->{options}->{centile_only}) || $etl->{run}->{options}->{centile_only} == 0)) {
             emptyTableForRebuild($etl, name => 'mod_bi_metrichourlyvalue', column => 'time_id', start => $hourly_start, end => $hourly_end);
         }
     }
@@ -342,6 +342,30 @@ sub dailyProcessing {
                 [
                     '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metriccentiledailyvalue]',
                     "ALTER TABLE `mod_bi_metriccentiledailyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+                ]
+            ]
+        };
+    }
+    if (defined($etl->{run}->{etlProperties}->{'centile.week'}) && $etl->{run}->{etlProperties}->{'centile.week'} eq '1') {
+        push @{$etl->{run}->{schedule}->{perfdata}->{stages}->[0]}, {
+            type => 'sql',
+            db => 'centstorage',
+            sql => [
+                [
+                    '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metriccentileweeklyvalue]',
+                    "ALTER TABLE `mod_bi_metriccentileweeklyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+                ]
+            ]
+        };
+    }
+    if (defined($etl->{run}->{etlProperties}->{'centile.month'}) && $etl->{run}->{etlProperties}->{'centile.month'} eq '1') {
+        push @{$etl->{run}->{schedule}->{perfdata}->{stages}->[0]}, {
+            type => 'sql',
+            db => 'centstorage',
+            sql => [
+                [
+                    '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metriccentilemonthlyvalue]',
+                    "ALTER TABLE `mod_bi_metriccentilemonthlyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
                 ]
             ]
         };
