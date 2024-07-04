@@ -823,6 +823,8 @@ describe('Responsivity listing actions', () => {
       height
     }) => {
       it(`Displays the listing actions correctly for responsiveness cases when the size is ${type}`, () => {
+        store.set(panelWidthStorageAtom, panelWidth);
+        
         const collection =
           document?.getElementById('cy-root')?.children[0]?.children[0];
         collection.style.height = '590px';
@@ -830,7 +832,6 @@ describe('Responsivity listing actions', () => {
         cy.waitForRequest('@dataToListingTable');
         cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
         
-        store.set(panelWidthStorageAtom, panelWidth);
         cy.contains('E4').click();
         cy.waitForRequest('@getDetails');
 
