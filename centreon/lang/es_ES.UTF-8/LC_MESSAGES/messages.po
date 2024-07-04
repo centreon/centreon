@@ -17431,3 +17431,6 @@ msgstr "Modo avanzado"
 
 # msgid "Ticket open"
 # msgstr ""
+
+# msgid "Create a ticket"
+# msgstr ""

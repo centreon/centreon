@@ -17879,3 +17879,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Ticket open"
 # msgstr ""
+
+# msgid "Create a ticket"
+# msgstr ""

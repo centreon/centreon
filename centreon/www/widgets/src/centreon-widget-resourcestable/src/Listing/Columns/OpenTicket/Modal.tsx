@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 import { useSnackbar } from '@centreon/ui';
 
 import { Ticket } from '../../models';
+import { labelCreateticket } from '../../translatedLabels';
 
 interface Props {
   close: () => void;
@@ -21,6 +23,7 @@ const OpenTicketModal = ({
   providerID
 }: Props): JSX.Element => {
   const { showSuccessMessage } = useSnackbar();
+  const { t } = useTranslation();
 
   const autoClose = (event: MessageEvent): void => {
     if (
@@ -53,7 +56,7 @@ const OpenTicketModal = ({
 
   return (
     <Modal hasCloseButton open={isOpen} size="xlarge" onClose={close}>
-      <Modal.Header>Create a ticket</Modal.Header>
+      <Modal.Header> {t(labelCreateticket)} </Modal.Header>
       <Modal.Body>
         <iframe
           frameBorder={0}

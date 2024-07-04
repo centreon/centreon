@@ -19199,3 +19199,6 @@ msgstr "Date d'ouverture du ticket"
 
 msgid "Ticket open"
 msgstr "Date d'ouverture"
+
+msgid "Create a ticket"
+msgstr "Créer un ticket"

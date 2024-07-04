@@ -81,3 +81,4 @@ export const labelTicketOpenTime = 'Ticket open time';
 
 export const labelSubject = 'Subject';
 export const labelOpenTime = 'Open time';
+export const labelCreateticket = 'Create a ticket';
