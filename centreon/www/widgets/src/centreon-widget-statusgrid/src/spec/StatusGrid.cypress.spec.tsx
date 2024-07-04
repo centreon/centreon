@@ -251,7 +251,7 @@ describe('View by host', () => {
       cy.get('[data-status="unknown"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(229, 216, 243)');
+        .should('have.css', 'background-color', 'rgb(227, 227, 227)');
 
       cy.makeSnapshot();
     });
@@ -280,6 +280,11 @@ describe('View by host', () => {
 
       cy.makeSnapshot();
     });
+
+    it('displays the state', () => {
+      cy.get('[data-isindowntime="true"]').should('have.css', 'background-color', 'rgb(229, 216, 243)');
+      cy.findByTestId('DnsIcon').should('be.visible');
+    })
   });
 
   describe('Without Resources', () => {
@@ -443,6 +448,12 @@ describe('View by service', () => {
 
       cy.makeSnapshot();
     });
+
+    it('displays the state', () => {
+      cy.get('[data-isindowntime="true"]').should('have.css', 'background-color', 'rgb(229, 216, 243)');
+      cy.get('[data-isacknowledged="true"]').should('have.css', 'background-color', 'rgb(223, 210, 185)');
+      cy.findAllByTestId('GrainIcon').eq(0).should('be.visible');
+    })
   });
 
   describe('Without Resources', () => {

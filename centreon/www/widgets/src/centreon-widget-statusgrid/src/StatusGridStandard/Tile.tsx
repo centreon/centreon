@@ -2,7 +2,7 @@ import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 
-import { Box, CardActionArea, Typography, useTheme } from '@mui/material';
+import { Box, CardActionArea, Typography } from '@mui/material';
 import DvrIcon from '@mui/icons-material/Dvr';
 
 import { EllipsisTypography } from '@centreon/ui';
@@ -13,7 +13,7 @@ import { getResourcesUrl } from '../../../utils';
 import { useTileStyles } from './StatusGrid.styles';
 import { ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
-import { getColor } from './utils';
+import State from './State';
 
 interface Props {
   data: ResourceData | null;
@@ -36,7 +36,6 @@ const Tile = ({
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles();
-  const theme = useTheme();
 
   const getLinkToResourceStatus = ({ isForOneResource }): string =>
     getResourcesUrl({
@@ -81,15 +80,14 @@ const Tile = ({
         to={getLinkToResourceStatus({ isForOneResource: true })}
       >
         <Box className={classes.container}>
-          {displayStatusTile ? (
-            <Box
-              className={classes.statusTile}
-              data-mode="compact"
-              sx={{
-                backgroundColor: getColor({ severityCode: data.status, theme })
-              }}
+          {displayStatusTile && (
+            <State
+              isAcknowledged={data.is_acknowledged}
+              isCompact={isSmallestSize}
+              isInDowntime={data.is_in_downtime}
+              type={type}
             />
-          ) : null}
+          )}
         </Box>
       </Link>
     );
@@ -104,11 +102,11 @@ const Tile = ({
         to={getLinkToResourceStatus({ isForOneResource: true })}
       >
         {displayStatusTile && (
-          <Box
-            className={classes.statusTile}
-            sx={{
-              backgroundColor: getColor({ severityCode: data.status, theme })
-            }}
+          <State
+            isAcknowledged={data.is_acknowledged}
+            isCompact={isSmallestSize}
+            isInDowntime={data.is_in_downtime}
+            type={type}
           />
         )}
         <EllipsisTypography className={classes.resourceName} textAlign="center">
