@@ -72,21 +72,21 @@ export const columnsForViewByService = [
 ];
 
 export const options: PanelOptions = {
+  displayResources: 'all',
   displayType: DisplayType.All,
+  hostSeverities: [],
+  isDownHostHidden: false,
+  isOpenTicketEnabled: false,
+  isUnreachableHostHidden: false,
   limit: 40,
+  provider: { id: 1, name: 'provider_1' },
   refreshInterval: 'manual',
   refreshIntervalCustom: 30,
   selectedColumnIds,
+  serviceSeverities: [],
   sortField: 'status',
   sortOrder: SortOrder.Desc,
   states: [],
-  statuses: ['success', 'problem', 'undefined'],
-  displayResources : "all",
-  hostSeverities : [],
-  serviceSeverities : [],
-  isDownHostHidden : false,
-  isUnreachableHostHidden : false,
-  isOpenTicketEnabled : false,
-  statusTypes : [],
-  provider : {name : "provider_1", id: 1} 
+  statusTypes: [],
+  statuses: ['success', 'problem', 'undefined']
 };

@@ -32,7 +32,7 @@ const platformFeatures = {
 const render = ({ options, data, isPublic = false }: Props): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
-  
+
   store.set(platformFeaturesAtom, platformFeatures);
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
