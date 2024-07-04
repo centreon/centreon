@@ -317,6 +317,11 @@ When('administrator runs the update procedure', () => {
 
   cy.wait('@getStep3');
   cy.contains('Release notes');
+  cy.getWebVersion().then(({ major_version, minor_version }) => {
+    cy.contains(
+      `upgraded from version ${major_version}.${minor_version} to ${major_version}`
+    );
+  });
   cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
@@ -414,6 +419,10 @@ Then('legacy services grid page should still work', () => {
 });
 
 Given('a successfully updated platform', () => {
+  cy.visit(`${Cypress.config().baseUrl}`);
+  cy.getWebVersion().then(({ major_version, minor_version }) => {
+    cy.contains(`v. ${major_version}.${minor_version}`);
+  });
   cy.setUserTokenApiV1();
 
   cy.loginByTypeOfUser({
