@@ -23,20 +23,20 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Providers\Domain\Model;
 
-enum ProviderType: int
+enum ProviderType
 {
-    case Mail = 1;
-    case Glpi = 2;
-    case Otrs = 3;
-    case Simple = 4;
-    case BmcItsm = 5;
-    case Serena = 6;
-    case BmcFootprints11 = 7;
-    case EasyvistaSoap = 8;
-    case ServiceNow = 9;
-    case Jira = 10;
-    case GlpiRestApi = 11;
-    case RequestTracker2 = 12;
-    case Itop = 13;
-    case EasyVistaRest = 14;
+    case Mail;
+    case Glpi;
+    case Otrs;
+    case Simple;
+    case BmcItsm;
+    case Serena;
+    case BmcFootprints11;
+    case EasyvistaSoap;
+    case ServiceNow;
+    case Jira;
+    case GlpiRestApi;
+    case RequestTracker2;
+    case Itop;
+    case EasyVistaRest;
 }

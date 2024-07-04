@@ -32,10 +32,10 @@ use CentreonOpenTickets\Providers\Application\UseCase\FindProviders;
 use CentreonOpenTickets\Providers\Application\UseCase\FindProvidersResponse;
 use CentreonOpenTickets\Providers\Domain\Model\Provider;
 use CentreonOpenTickets\Providers\Domain\Model\ProviderType;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Tests\CentreonOpenTickets\Providers\Infrastructure\API\FindProviders\FindProvidersPresenterStub;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
 
 beforeEach(closure: function (): void {
     $this->useCase = new FindProviders(
@@ -70,7 +70,7 @@ it('should present an ErrorResponse when an exception occurs for ticket provider
     $exception = new \Exception();
     $this->repository
         ->expects($this->once())
-        ->method('findByRequestParameters')
+        ->method('findAll')
         ->willThrowException($exception);
 
     ($this->useCase)($this->presenter);
@@ -88,7 +88,7 @@ it('should present an ErrorResponse when an error occurs concerning the request 
 
     $this->repository
         ->expects($this->once())
-        ->method('findByRequestParameters')
+        ->method('findAll')
         ->willThrowException(new RequestParametersTranslatorException());
 
     ($this->useCase)($this->presenter);
@@ -111,7 +111,7 @@ it('should present a FindProvidersResponse when everything goes well', function 
 
     $this->repository
         ->expects($this->once())
-        ->method('findByRequestParameters')
+        ->method('findAll')
         ->willReturn([$provider]);
 
     ($this->useCase)($this->presenter);

@@ -23,13 +23,20 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Providers\Domain\Model;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class Provider
 {
+    public const MAX_NAME_LENGTH = 255;
+
     /**
      * @param int $id
      * @param string $name
      * @param ProviderType $type
      * @param bool $isActivated
+     *
+     * @throws AssertionFailedException
      */
     public function __construct(
         private int $id,
@@ -37,6 +44,9 @@ class Provider
         private ProviderType $type,
         private bool $isActivated
     ) {
+        Assertion::positiveInt($this->id, 'Provider::id');
+        Assertion::notEmptyString($this->name, 'Provider::name');
+        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, 'Provider::name');
     }
 
     /**

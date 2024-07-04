@@ -53,15 +53,15 @@ class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProv
     /**
      * @inheritDoc
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): array
+    public function findAll(?RequestParametersInterface $requestParameters): array
     {
-        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->setConcordanceArray([
+        $sqlTranslator = $requestParameters !== null ? new SqlRequestParametersTranslator($requestParameters) : null;
+        $sqlTranslator?->setConcordanceArray([
             'name' => 'alias',
             'is_activated' => 'activate',
         ]);
 
-        $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
+        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
         $request = <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS
@@ -73,17 +73,17 @@ class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProv
             SQL;
 
         // handle search
-        $request .= $sqlTranslator->translateSearchParameterToSql();
+        $request .= $sqlTranslator?->translateSearchParameterToSql();
 
         // handle sort
-        $sort = $sqlTranslator->translateSortParameterToSql();
+        $sort = $sqlTranslator?->translateSortParameterToSql();
         $request .= $sort !== null ? $sort : ' ORDER BY alias ASC';
 
         // handle pagination
-        $request .= $sqlTranslator->translatePaginationToSql();
+        $request .= $sqlTranslator?->translatePaginationToSql();
 
         $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator->bindSearchValues($statement);
+        $sqlTranslator?->bindSearchValues($statement);
 
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
 
@@ -92,7 +92,7 @@ class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProv
         // Set total
         $result = $this->db->query('SELECT FOUND_ROWS()');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+            $sqlTranslator?->getRequestParameters()->setTotal((int) $total);
         }
 
         $providers = [];
@@ -112,11 +112,43 @@ class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProv
      */
     private function createProviderFromRecord(array $record): Provider
     {
+        $type = $this->providerTypeToEmum((int) $record['provider_id']);
+
+        if ($type === null) {
+            throw new \InvalidArgumentException('Provider type id not handled');
+        }
+
         return new Provider(
             id: (int) $record['rule_id'],
             name: $record['alias'],
-            type: ProviderType::from((int) $record['provider_id']),
+            type: $type,
             isActivated: (bool) $record['activate'],
         );
+    }
+
+    /**
+     * @param int $type
+     *
+     * @return ProviderType|null
+     */
+    private function providerTypeToEmum(int $type): ?ProviderType
+    {
+        return match ($type) {
+            1 => ProviderType::Mail,
+            2 => ProviderType::Glpi,
+            3 => ProviderType::Otrs,
+            4 => ProviderType::Simple,
+            5 => ProviderType::BmcItsm,
+            6 => ProviderType::Serena,
+            7 => ProviderType::BmcFootprints11,
+            8 => ProviderType::EasyvistaSoap,
+            9 => ProviderType::ServiceNow,
+            10 => ProviderType::Jira,
+            11 => ProviderType::GlpiRestApi,
+            12 => ProviderType::RequestTracker2,
+            13 => ProviderType::Itop,
+            14 => ProviderType::EasyVistaRest,
+            default => null
+        };
     }
 }

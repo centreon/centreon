@@ -48,7 +48,6 @@ final class FindProviders
         private RequestParametersInterface $requestParameters,
         private ReadProviderRepositoryInterface $repository
     ) {
-
     }
 
     /**
@@ -56,7 +55,7 @@ final class FindProviders
      */
     public function __invoke(FindProvidersPresenterInterface $presenter): void
     {
-        if (! $this->isAuthorized()) {
+        if (! $this->contact->hasTopologyRole(self::ROLE_CONFIGURATION_OPEN_TICKETS)) {
             $this->error(
                 "User doesn't have sufficient rights to get ticket providers information",
                 [
@@ -71,7 +70,7 @@ final class FindProviders
         }
 
         try {
-            $providers = $this->repository->findByRequestParameters($this->requestParameters);
+            $providers = $this->repository->findAll($this->requestParameters);
             $presenter->presentResponse($this->createResponse($providers));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
@@ -101,10 +100,5 @@ final class FindProviders
         );
 
         return $response;
-    }
-
-    private function isAuthorized(): bool
-    {
-        return $this->contact->isAdmin() || $this->contact->hasTopologyRole(self::ROLE_CONFIGURATION_OPEN_TICKETS);
     }
 }
