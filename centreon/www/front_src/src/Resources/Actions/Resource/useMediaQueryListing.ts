@@ -16,7 +16,7 @@ const useMediaQueryListing = (): UseMediaQueryListing => {
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const selectedResourceDetails = useAtomValue(selectedResourcesDetailsAtom);
 
-  const widthToApplyBreakPoint = mediumWidth || smallWidth;
+  const widthToApplyBreakPoint = mediumWidth;
 
   const isPanelOpen = !isNil(selectedResourceDetails?.resourceId);
 
