@@ -46,6 +46,8 @@ interface ReadVaultRepositoryInterface
     /**
      * Test a vault configuration validity.
      *
+     * @param VaultConfiguration|NewVaultConfiguration $vaultConfiguration
+     *
      * @return bool
      */
     public function isConfigurationValid(VaultConfiguration|NewVaultConfiguration $vaultConfiguration): bool;

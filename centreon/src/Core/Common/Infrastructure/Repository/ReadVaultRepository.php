@@ -23,12 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRepositoryInterface
 {
+    use LoggerTrait;
+
     /**
      * @inheritDoc
      */
@@ -65,15 +68,12 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
 
             $content = json_decode($loginResponse->getContent(), true);
         } catch (\Exception $ex) {
+            $this->error('Could not login to vault');
 
             return false;
         }
+
         /** @var array{auth?:array{client_token?:string}} $content */
-        if (isset($content['auth']['client_token'])) {
-
-            return true;
-        }
-
-        return false;
+        return (bool) (isset($content['auth']['client_token']));
     }
 }
