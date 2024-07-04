@@ -830,8 +830,7 @@ describe('Responsivity listing actions', () => {
         collection.style.height = '590px';
 
         cy.waitFiltersAndListingRequests();
-        cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
-        
+        cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');     
         cy.contains('E4').click();
         cy.waitForRequest('@getDetails');
 
