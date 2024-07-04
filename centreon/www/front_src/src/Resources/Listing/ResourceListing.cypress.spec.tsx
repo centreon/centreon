@@ -426,6 +426,8 @@ describe('column sorting', () => {
 
       cy.waitForRequest(`@dataToListingTable`);
 
+      cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
+
       cy.makeSnapshot();
     });
   });
