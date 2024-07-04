@@ -11,7 +11,7 @@
         "eslint"
     ],
     "author": "centreon@centreon.com",
-    "license": "GPL-2.0",
+    "license": "MIT",
     "bugs": {
         "url": "https://github.com/centreon/centreon-frontend/issues"
     },

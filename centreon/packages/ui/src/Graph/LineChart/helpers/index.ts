@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { gt, gte, isEmpty, isNil, prop, propEq, reject, sortBy } from 'ramda';
+import durationPlugin from 'dayjs/plugin/duration';
 
 import { LinesData } from '../BasicComponents/Lines/models';
 import { dateFormat, timeFormat } from '../common';
@@ -10,6 +11,8 @@ import {
   getTimeValue
 } from '../../common/timeSeries';
 import { LineChartData } from '../../common/models';
+
+dayjs.extend(durationPlugin);
 
 export const adjustGraphData = (graphData: LineChartData): LinesData => {
   const lines = getLineData(graphData);
