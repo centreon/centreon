@@ -80,5 +80,13 @@ export const options: PanelOptions = {
   sortField: 'status',
   sortOrder: SortOrder.Desc,
   states: [],
-  statuses: ['success', 'problem', 'undefined']
+  statuses: ['success', 'problem', 'undefined'],
+  displayResources : "all",
+  hostSeverities : [],
+  serviceSeverities : [],
+  isDownHostHidden : false,
+  isUnreachableHostHidden : false,
+  isOpenTicketEnabled : false,
+  statusTypes : [],
+  provider : {name : "provider_1", id: 1} 
 };

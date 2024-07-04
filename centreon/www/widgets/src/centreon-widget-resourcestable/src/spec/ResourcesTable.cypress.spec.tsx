@@ -2,7 +2,7 @@ import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
+import { isOnPublicPageAtom, platformFeaturesAtom } from '@centreon/ui-context';
 
 import { SortOrder } from '../../../models';
 import { Data, PanelOptions } from '../models';
@@ -24,11 +24,16 @@ interface Props {
   data: Data;
   options: PanelOptions;
 }
+const platformFeatures = {
+  featureFlags: {},
+  isCloudPlatform: false
+};
 
 const render = ({ options, data, isPublic = false }: Props): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
-
+  
+  store.set(platformFeaturesAtom, platformFeatures);
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
   });
@@ -206,7 +211,7 @@ describe('View by all', () => {
       options: { ...resourcesOptions, limit: 100, states: ['acknowledged'] }
     });
 
-    cy.findByTestId('PersonIcon').trigger('mouseover');
+    cy.findByLabelText('Load Acknowledged').trigger('mouseover');
 
     cy.contains('Author');
     cy.contains('admin');
