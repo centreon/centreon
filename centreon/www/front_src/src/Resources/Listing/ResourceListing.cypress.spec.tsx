@@ -829,8 +829,7 @@ describe('Responsivity listing actions', () => {
 
         cy.waitForRequest('@dataToListingTable');
         cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
-
-
+        
         store.set(panelWidthStorageAtom, panelWidth);
         cy.contains('E4').click();
         cy.waitForRequest('@getDetails');
