@@ -1,6 +1,6 @@
 import { useTheme } from '@mui/material';
 
-import { DowntimeIcon } from '@centreon/ui';
+import Downtime from '../icons/Downtime';
 
 import Chip from '.';
 
@@ -10,7 +10,7 @@ const DowntimeChip = (): JSX.Element => {
   return (
     <Chip
       color={theme.palette.action.inDowntime}
-      icon={<DowntimeIcon fontSize="small" />}
+      icon={<Downtime fontSize="small" />}
     />
   );
 };

@@ -10,7 +10,6 @@ import IconMore from '@mui/icons-material/MoreHoriz';
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import {
-  DowntimeIcon,
   PopoverMenu,
   SeverityCode,
   useCancelTokenSource
@@ -46,6 +45,7 @@ import DisacknowledgeForm from './Disacknowledge';
 import DowntimeForm from './Downtime';
 import ResourceActionButton from './ResourceActionButton';
 import SubmitStatusForm from './SubmitStatus';
+import Downtime from '../../icons/Downtime';
 
 const useStyles = makeStyles()((theme) => ({
   action: {
@@ -288,7 +288,8 @@ const ResourceActions = ({
             <ResourceActionButton
               disabled={disableDowntime}
               displayCondensed={displayCondensed}
-              icon={<DowntimeIcon />}
+              icon={<Downtime;w
+              />}
               label={t(labelSetDowntime)}
               permitted={isDowntimePermitted}
               testId="mainSetDowntime"
