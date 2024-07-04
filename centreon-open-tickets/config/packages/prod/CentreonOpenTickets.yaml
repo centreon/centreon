@@ -6,3 +6,5 @@ services:
 
   CentreonOpenTickets\:
     resource: '../../../src/CentreonOpenTickets/*'
+    bind:
+      $mediaPath: "%media_full_path%"

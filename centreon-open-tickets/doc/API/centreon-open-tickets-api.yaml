@@ -38,8 +38,6 @@ security:
   - Token: []
   - Cookie: []
 paths:
-  /providers:
-    $ref: './latest/Configuration/Providers.yaml'
   securitySchemes:
     Token:
       description: |
