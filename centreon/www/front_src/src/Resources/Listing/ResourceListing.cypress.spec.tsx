@@ -15,7 +15,10 @@ import {
 import Resources from '..';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { Type } from '../Actions/model';
-import { panelWidthStorageAtom } from '../Details/detailsAtoms';
+import {
+  panelWidthStorageAtom,
+  selectedResourcesDetailsAtom
+} from '../Details/detailsAtoms';
 import useDetails from '../Details/useDetails';
 import { applyFilterDerivedAtom } from '../Filter/filterAtoms';
 import { allFilter } from '../Filter/models';
@@ -831,6 +834,12 @@ describe('Responsivity listing actions', () => {
 
         cy.waitForRequest('@filterRequest');
         cy.waitForRequest('@listingRequest');
+
+        store.set(selectedResourcesDetailsAtom, {
+          resourceId: 1,
+          resourcesDetailsEndpoint:
+            '/centreon/api/latest/monitoring/resources/anomaly-detection/1'
+        });
         cy.contains('ad').click();
 
         cy.waitForRequest('@detailsRequest');
