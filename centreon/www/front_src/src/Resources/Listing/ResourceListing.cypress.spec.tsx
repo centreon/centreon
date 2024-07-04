@@ -188,7 +188,11 @@ const mountResourcePage = (): void => {
     alias: 'dataToListingTable',
     method: Method.GET,
     path: '**/resources?*',
-    response: retrievedListing
+    response: retrievedListing,
+    query:{
+      name:'page',
+      value:'1'
+    }
   });
 
   interceptDetailsRequest({
