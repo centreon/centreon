@@ -113,8 +113,7 @@ const StatusGrid = ({
           is_in_downtime,
           is_acknowledged,
           information,
-          links,
-          type
+          links
         }) => {
           const statusColor = getColor({
             severityCode: status?.severity_code,

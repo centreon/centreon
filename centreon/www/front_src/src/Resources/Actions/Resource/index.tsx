@@ -9,10 +9,14 @@ import IconDisacknowledge from '@mui/icons-material/ConfirmationNumber';
 import IconMore from '@mui/icons-material/MoreHoriz';
 import IconAcknowledge from '@mui/icons-material/Person';
 
-import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
+import {
+  DowntimeIcon,
+  PopoverMenu,
+  SeverityCode,
+  useCancelTokenSource
+} from '@centreon/ui';
 
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
-import IconDowntime from '../../icons/Downtime';
 import { Resource } from '../../models';
 import {
   labelAcknowledge,
@@ -284,7 +288,7 @@ const ResourceActions = ({
             <ResourceActionButton
               disabled={disableDowntime}
               displayCondensed={displayCondensed}
-              icon={<IconDowntime />}
+              icon={<DowntimeIcon />}
               label={t(labelSetDowntime)}
               permitted={isDowntimePermitted}
               testId="mainSetDowntime"

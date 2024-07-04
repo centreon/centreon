@@ -1,11 +1,13 @@
 import { always, cond, equals } from 'ramda';
 
 import { Box, useTheme } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person';
-import DnsIcon from '@mui/icons-material/Dns';
-import GrainIcon from '@mui/icons-material/Grain';
 
-import { DowntimeIcon } from '@centreon/ui';
+import {
+  AcknowledgementIcon,
+  DowntimeIcon,
+  HostIcon,
+  ServiceIcon
+} from '@centreon/ui';
 
 import { getColor } from './utils';
 import { useTileStyles } from './StatusGrid.styles';
@@ -22,7 +24,7 @@ const getStateIcon = ({
   isInDowntime
 }: Pick<Props, 'isInDowntime' | 'isAcknowledged'>): JSX.Element | null => {
   if (isAcknowledged) {
-    return <PersonIcon />;
+    return <AcknowledgementIcon />;
   }
 
   if (isInDowntime) {
@@ -33,8 +35,8 @@ const getStateIcon = ({
 };
 
 const getResourceTypeIcon = cond([
-  [equals('host'), always(<DnsIcon />)],
-  [equals('service'), always(<GrainIcon />)]
+  [equals('host'), always(<HostIcon />)],
+  [equals('service'), always(<ServiceIcon />)]
 ]);
 
 const State = ({
