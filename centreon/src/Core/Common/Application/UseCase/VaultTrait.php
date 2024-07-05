@@ -41,7 +41,14 @@ trait VaultTrait
      */
     private function getUuidFromPath(string $value): ?string
     {
-        if (preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $value, $matches) && isset($matches[2])) {
+        if (
+            preg_match(
+                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+                $value,
+                $matches
+            )
+            && isset($matches[2])
+        ) {
             return $matches[2];
         }
 

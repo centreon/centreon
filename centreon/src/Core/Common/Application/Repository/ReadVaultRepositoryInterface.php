@@ -39,15 +39,4 @@ interface ReadVaultRepositoryInterface
      * @return array<string,string>
      */
     public function findFromPath(string $path): array;
-
-    /**
-     * Get vault content from given uri.
-     *
-     * @param string $uri
-     *
-     * @throws \Throwable
-     *
-     * @return array<string,string>
-     */
-    public function findFromUri(string $uri): array;
 }
