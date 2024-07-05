@@ -23,6 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
+use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\Type;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
@@ -58,6 +62,8 @@ beforeEach(function (): void {
     $this->writePollerMacroRepository = $this->createMock(WritePollerMacroRepositoryInterface::class);
     $this->writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class);
     $this->writeOpenIdConfigurationRepository = $this->createMock(WriteOpenIdConfigurationRepositoryInterface::class);
+    $this->readBrokerInputOutputRepository = $this->createMock(ReadBrokerInputOutputRepositoryInterface::class);
+    $this->writeBrokerInputOutputRepository = $this->createMock(WriteBrokerInputOutputRepositoryInterface::class);
 
     $this->credential1 = new CredentialDto();
     $this->credential1->resourceId = 1;
@@ -77,6 +83,18 @@ beforeEach(function (): void {
     $this->credential3->name = '_SERVICEMACRO';
     $this->credential3->value = 'macro';
 
+    $this->credential4 = new CredentialDto();
+    $this->credential4->resourceId = 4;
+    $this->credential4->type = CredentialTypeEnum::TYPE_POLLER_MACRO;
+    $this->credential4->name = '$POLLERMACRO$';
+    $this->credential4->value = 'value';
+
+    $this->credential5 = new CredentialDto();
+    $this->credential5->resourceId = 5;
+    $this->credential5->type = CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT;
+    $this->credential5->name = 'my-output_db_password';
+    $this->credential5->value = 'my-password';
+
     $this->hosts = [
         new Host(1, 1, 'Host1', '127.0.0.1'),
     ];
@@ -95,6 +113,7 @@ beforeEach(function (): void {
 
     $this->pollerMacro = new PollerMacro(1, '$POLLERMACRO$', 'value', null, true, true);
     $this->pollerMacros = [$this->pollerMacro];
+
     $customConfiguration = new CustomConfiguration([
         'is_active' => true,
         'client_id' => 'MyCl1ientId',
@@ -133,6 +152,21 @@ beforeEach(function (): void {
         isForced: false
     );
     $this->openIdProviderConfiguration->setCustomConfiguration($customConfiguration);
+
+    $this->brokerInputOutputs = new BrokerInputOutput(
+        id: 0,
+        tag: 'output',
+        type: new Type(29, 'Database configuration writer'),
+        name: 'my-output',
+        parameters: [
+            'db_type' => 'db2',
+            'db_host' => 'localhost',
+            'db_port' => 8080,
+            'db_user' => 'admin',
+            'db_password' => 'my-password',
+            'db_name' => 'centreon',
+        ]
+    );
 });
 
 it('tests getIterator method with hosts, hostTemplates and service macros', function (): void {
@@ -150,12 +184,15 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         writeOptionRepository: $this->writeOptionRepository,
         writePollerMacroRepository: $this->writePollerMacroRepository,
         writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
+        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
+        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,
         hostMacros: $this->hostMacros,
         serviceMacros: $this->serviceMacros,
         pollerMacros: $this->pollerMacros,
-        openIdProviderConfiguration: $this->openIdProviderConfiguration
+        openIdProviderConfiguration: $this->openIdProviderConfiguration,
+        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
     );
 
     foreach ($credentialMigrator as $status) {
@@ -165,6 +202,78 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         expect($status->vaultPath)->toBe('vault/path');
         expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE, CredentialTypeEnum::TYPE_SERVICE]);
         expect($status->credentialName)->toBeIn(['_HOSTSNMPCOMMUNITY', '_SERVICEMACRO']);
+    }
+});
+
+it('tests getIterator method with poller macros', function (): void {
+    $credentials = new \ArrayIterator([$this->credential4]);
+
+    $this->writeVaultRepository->method('upsert')->willReturn('vault/path');
+
+    $credentialMigrator = new CredentialMigrator(
+        credentials: $credentials,
+        writeVaultRepository: $this->writeVaultRepository,
+        writeHostRepository: $this->writeHostRepository,
+        writeHostTemplateRepository: $this->writeHostTemplateRepository,
+        writeHostMacroRepository: $this->writeHostMacroRepository,
+        writeServiceMacroRepository: $this->writeServiceMacroRepository,
+        writeOptionRepository: $this->writeOptionRepository,
+        writePollerMacroRepository: $this->writePollerMacroRepository,
+        writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
+        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
+        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
+        hosts: $this->hosts,
+        hostTemplates: $this->hostTemplates,
+        hostMacros: $this->hostMacros,
+        serviceMacros: $this->serviceMacros,
+        pollerMacros: $this->pollerMacros,
+        openIdProviderConfiguration: $this->openIdProviderConfiguration,
+        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
+    );
+
+    foreach ($credentialMigrator as $status) {
+        expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
+        expect($status->uuid)->toBe('path');
+        expect($status->resourceId)->toBeIn([4]);
+        expect($status->vaultPath)->toBe('vault/path');
+        expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_POLLER_MACRO]);
+        expect($status->credentialName)->toBeIn(['$POLLERMACRO$']);
+    }
+});
+
+it('tests getIterator method with broker input/output configuration', function (): void {
+    $credentials = new \ArrayIterator([$this->credential5]);
+
+    $this->writeVaultRepository->method('upsert')->willReturn('vault/path');
+
+    $credentialMigrator = new CredentialMigrator(
+        credentials: $credentials,
+        writeVaultRepository: $this->writeVaultRepository,
+        writeHostRepository: $this->writeHostRepository,
+        writeHostTemplateRepository: $this->writeHostTemplateRepository,
+        writeHostMacroRepository: $this->writeHostMacroRepository,
+        writeServiceMacroRepository: $this->writeServiceMacroRepository,
+        writeOptionRepository: $this->writeOptionRepository,
+        writePollerMacroRepository: $this->writePollerMacroRepository,
+        writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
+        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
+        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
+        hosts: $this->hosts,
+        hostTemplates: $this->hostTemplates,
+        hostMacros: $this->hostMacros,
+        serviceMacros: $this->serviceMacros,
+        pollerMacros: $this->pollerMacros,
+        openIdProviderConfiguration: $this->openIdProviderConfiguration,
+        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
+    );
+
+    foreach ($credentialMigrator as $status) {
+        expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
+        expect($status->uuid)->toBe('path');
+        expect($status->resourceId)->toBeIn([5]);
+        expect($status->vaultPath)->toBe('vault/path');
+        expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT]);
+        expect($status->credentialName)->toBeIn(['my-output_db_password']);
     }
 });
 
@@ -183,12 +292,15 @@ it('tests getIterator method with exception', function (): void {
         writeOptionRepository: $this->writeOptionRepository,
         writePollerMacroRepository: $this->writePollerMacroRepository,
         writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
+        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
+        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,
         hostMacros: $this->hostMacros,
         serviceMacros: $this->serviceMacros,
         pollerMacros: $this->pollerMacros,
-        openIdProviderConfiguration: $this->openIdProviderConfiguration
+        openIdProviderConfiguration: $this->openIdProviderConfiguration,
+        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
     );
 
     foreach ($credentialMigrator as $status) {

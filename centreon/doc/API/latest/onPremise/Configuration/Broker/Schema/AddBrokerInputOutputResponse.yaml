@@ -6,31 +6,31 @@ properties:
     example: 1
   name:
     type: string
-    description: "output name"
+    description: "input/output name"
     example: "central-broker-master-unified-sql"
   type:
     type: object
-    description: "output type"
+    description: "input/output type"
     properties:
       id:
         type: integer
-        description: "output type ID"
+        description: "input/output type ID"
         example: 33
       name:
         type: string
-        description: "output type name"
+        description: "input/output type name"
         example: "lua"
   parameters:
     type: object
     description: |
-      Output parameters specific to the output type.
+      Input/Output parameters specific to its type.
 
-      For multiselect fields, the property name is a combination of the group field name and the sub field name (ex: "filters.category")
+      For multiselect fields, the property name is a combination of the group field name and the sub field name (ex: "filters_category")
 
     example: |
       {
         "path": "some/test/path",
-        "filters.category": ["storage", "neb"],
+        "filters_category": ["storage", "neb"],
         "lua_parameter": [
           {
             "type": "string",
