@@ -6,6 +6,27 @@ import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
 
+const getUpdateVersions = (): string => {
+  cy.execInContainer({
+    command: `dnf info centreon-web | awk '/Installed Packages/,/Available Packages/ {if (/Version/) print "Installed Version: " $3} /Available Packages/,0 {if (/Version/) print "Available Version: " $3}'`,
+    name: 'web'
+  }).then((result) => {
+    const installed_version = result.stdout.match(
+      /Installed Version: (\S+)/
+    )[1];
+    const available_version = result.stdout.match(
+      /Available Version: (\S+)/
+    )[1];
+    cy.log(`Installed Version: ${installed_version}`);
+    cy.log(`Available Version: ${available_version}`);
+    const versions = `${installed_version}/${available_version}`;
+
+    return versions;
+  });
+
+  return '';
+};
+
 const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
   const match = majorVersionFrom.match(/^(\d+)\.(\d+)$/);
 
@@ -317,6 +338,12 @@ When('administrator runs the update procedure', () => {
 
   cy.wait('@getStep3');
   cy.contains('Release notes');
+  // check correct updated version
+  const test = getUpdateVersions();
+  const [installedVersion, availableVersion] = test.split('/');
+  cy.contains(
+    `upgraded from version ${installedVersion} to ${availableVersion}`
+  );
   cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
@@ -449,5 +476,6 @@ export {
   updatePlatformPackages,
   checkPlatformVersion,
   dateBeforeLogin,
-  insertResources
+  insertResources,
+  getUpdateVersions
 };
