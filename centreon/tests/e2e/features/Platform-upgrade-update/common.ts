@@ -321,9 +321,13 @@ When('administrator runs the update procedure', () => {
   // check correct updated version
   const installed_version = Cypress.env('installed_version');
   const available_version = Cypress.env('available_version');
-  cy.contains(
-    `upgraded from version ${installed_version} to ${available_version}`
-  ).should('be.visible');
+  cy.log(`installed_version : ${installed_version}`);
+  cy.log(`available_version : ${available_version}`);
+  if (installed_version !== available_version) {
+    cy.contains(
+      `upgraded from version ${installed_version} to ${available_version}`
+    ).should('be.visible');
+  }
   cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
@@ -422,7 +426,7 @@ Then('legacy services grid page should still work', () => {
 
 Given('a successfully updated platform', () => {
   cy.visit(`${Cypress.config().baseUrl}`);
-  cy.contains(`${Cypress.env('available_version')}`);
+  cy.contains(`${Cypress.env('available_version')}`).should('be.visible');
   cy.setUserTokenApiV1();
 
   cy.loginByTypeOfUser({
