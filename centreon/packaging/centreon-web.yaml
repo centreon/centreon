@@ -191,7 +191,7 @@ contents:
     file_info:
       owner: "root"
       group: "root"
-      mode: 0755
+      mode: 0744
 
   - src: "../bin/logAnalyserBroker"
     dst: "/usr/share/centreon/bin/logAnalyserBroker"
