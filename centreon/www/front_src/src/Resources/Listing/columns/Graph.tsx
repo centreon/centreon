@@ -77,13 +77,10 @@ const Graph = ({
         endpoint={`${endpoint}${graphQueryParameters}`}
         graphHeight={150}
         interactWithGraph={false}
-        renderAdditionalLines={({
-          additionalLinesProps,
-          resource
-        }): JSX.Element => (
+        renderAdditionalLines={(props): JSX.Element => (
           <FederatedComponent
-            additionalLinesData={{ additionalLinesProps, resource }}
-            path="/anomaly-detection"
+            {...props}
+            path="/anomaly-detection/thresholdLines"
           />
         )}
         resource={row}

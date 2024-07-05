@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find, path, equals } from 'ramda';
+import { propEq, find, path, equals, type } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
@@ -102,11 +102,18 @@ export const useWidgetInputs = (
               if (!value.hiddenCondition) {
                 return true;
               }
-
-              return !equals(
-                path(value.hiddenCondition.when.split('.'), values),
-                value.hiddenCondition.matches
+              const formattedValue = path(
+                value.hiddenCondition.when.split('.'),
+                values
               );
+
+              if (equals(type(value.hiddenCondition.matches), 'Array')) {
+                return !(
+                  value.hiddenCondition.matches as Array<unknown>
+                ).includes(formattedValue);
+              }
+
+              return !equals(formattedValue, value.hiddenCondition.matches);
             })
             .map(([key, value]) => {
               const Component =
@@ -117,7 +124,7 @@ export const useWidgetInputs = (
                 group: value.group,
                 key,
                 props: {
-                  ...(value as Omit<
+                  ...(value as unknown as Omit<
                     WidgetPropertyProps,
                     'propertyName' | 'propertyType'
                   >),
