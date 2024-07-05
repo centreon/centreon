@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { SnackbarProvider } from '../../..';
 
@@ -18,11 +18,11 @@ const meta: Meta<typeof AccessRightsForm> = {
   parameters: {
     msw: {
       handlers: [
-        rest.get('api/latest/contact?**', (req, res, ctx) => {
-          return res(ctx.json(buildResult(false)));
+        http.get('api/latest/contact?**', () => {
+          return HttpResponse.json(buildResult(false));
         }),
-        rest.get('api/latest/contactGroup?**', (req, res, ctx) => {
-          return res(ctx.json(buildResult(true)));
+        http.get('api/latest/contactGroup?**', () => {
+          return HttpResponse.json(buildResult(true));
         })
       ]
     }
