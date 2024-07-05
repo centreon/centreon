@@ -110,7 +110,7 @@ const RefreshActions = ({
             testId="RefreshInMoreActions"
             onClick={() => {
               onRefresh();
-              close?.();
+              displayAsList.close();
             }}
           />
           <ActionMenuItem
