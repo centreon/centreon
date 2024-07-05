@@ -186,6 +186,7 @@ it('tests getIterator method with exception', function (): void {
 
     $credentialMigrator = new CredentialMigrator(
         credentials: $credentials,
+
         writeVaultRepository: $this->writeVaultRepository,
         writeHostRepository: $this->writeHostRepository,
         writeHostTemplateRepository: $this->writeHostTemplateRepository,

@@ -162,7 +162,11 @@ final class AddHostTemplate
             : 0;
 
         if ($this->writeVaultRepository->isVaultConfigured() === true && $request->snmpCommunity !== '') {
-            $vaultPath = $this->writeVaultRepository->upsert(null, [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $request->snmpCommunity], []);
+            $vaultPaths = $this->writeVaultRepository->upsert(
+                null,
+                [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $request->snmpCommunity]
+            );
+            $vaultPath = $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY];
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
             $request->snmpCommunity = $vaultPath;
         }
@@ -291,10 +295,11 @@ final class AddHostTemplate
             }
 
             if ($this->writeVaultRepository->isVaultConfigured() === true && $macro->isPassword() === true) {
-                $vaultPath = $this->writeVaultRepository->upsert(
+                $vaultPaths = $this->writeVaultRepository->upsert(
                     $this->uuid ?? null,
                     ['_HOST' . $macro->getName() => $macro->getValue()],
                 );
+                $vaultPath = $vaultPaths['_HOST' . $macro->getName()];
                 $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());

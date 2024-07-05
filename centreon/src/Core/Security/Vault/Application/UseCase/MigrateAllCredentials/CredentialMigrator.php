@@ -270,10 +270,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
     private function migratePollerMacroPasswords(CredentialDto $credential, array &$existingUuids): array
     {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
-        $vaultPath = $this->writeVaultRepository->upsert(
+        $vaultPaths = $this->writeVaultRepository->upsert(
             $existingUuids['pollerMacro'] ?? null,
             [$credential->name => $credential->value]
         );
+        $vaultPath = $vaultPaths[$credential->name];
         $vaultPathPart = explode('/', $vaultPath);
         $existingUuids['pollerMacro'] ??= end($vaultPathPart);
 
@@ -300,10 +301,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
     private function migrateKnowledgeBasePassword(CredentialDto $credential): array
     {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::KNOWLEDGE_BASE_PATH);
-        $vaultPath = $this->writeVaultRepository->upsert(
+        $vaultPaths = $this->writeVaultRepository->upsert(
             null,
             [$credential->name => $credential->value]
         );
+        $vaultPath = $vaultPaths[$credential->name];
         $vaultPathPart = explode('/', $vaultPath);
         $uuid = end($vaultPathPart);
         $option = new Option('kb_wiki_password', $vaultPath);
@@ -311,7 +313,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
         return [
             'uuid' => $uuid,
-            'path' => $vaultPath,
+            'path' => $vaultPath
         ];
     }
 
@@ -326,10 +328,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
     private function migrateOpenIdCredentials(CredentialDto $credential, array &$existingUuids): array
     {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::OPEN_ID_CREDENTIALS_VAULT_PATH);
-        $vaultPath = $this->writeVaultRepository->upsert(
+        $vaultPaths = $this->writeVaultRepository->upsert(
             $existingUuids['openId'] ?? null,
             [$credential->name => $credential->value]
         );
+        $vaultPath = $vaultPaths[$credential->name];
         $vaultPathPart = explode('/', $vaultPath);
         $existingUuids['openId'] ??= end($vaultPathPart);
 
