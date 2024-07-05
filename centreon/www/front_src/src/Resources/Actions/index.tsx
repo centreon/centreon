@@ -66,7 +66,7 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
           [classes.large]: !smallSize
         })}
       >
-        {resourceStatusTreeView && (
+        {featureFlags?.resourceStatusTreeView && (
           <VisualizationActions displayCondensed={displayCondensed} />
         )}
       </Grid>
