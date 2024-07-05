@@ -78,7 +78,7 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - uses: actions/checkout@v3 # el7 is not compatible with checkout v4 which uses node20
+      - uses: actions/checkout@v4 # el7 is not compatible with checkout v4 which uses node20
 
       - uses: ./.github/actions/package
         with:
