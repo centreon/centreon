@@ -786,9 +786,9 @@ Cypress.Commands.add('execDnfInfoCentreonWeb', () => {
       cy.log(`Installed Version: ${installed_version}`);
       cy.log(`Available Version: ${available_version}`);
       Cypress.env('installed_version', installed_version);
-      Cypress.env('available_version', available_version);
+      // Cypress.env('available_version', available_version);
 
-      const versions = `${installed_version}/${available_version}`;
+      const versions = `${installed_version}`;
 
       return cy.wrap(versions);
     });

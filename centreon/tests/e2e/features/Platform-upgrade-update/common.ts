@@ -83,6 +83,10 @@ const getCentreonStableMinorVersions = (
         name: 'web'
       });
     }
+    const available_minor_version = [...new Set(stableVersions)]
+      .sort((a, b) => a - b)
+      .pop();
+    Cypress.env('available_minor_version', available_minor_version);
 
     return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
   });
@@ -320,14 +324,15 @@ When('administrator runs the update procedure', () => {
   cy.contains('Release notes');
   // check correct updated version
   const installed_version = Cypress.env('installed_version');
-  const available_version = Cypress.env('available_version');
+  const available_minor_version = Cypress.env('available_minor_version');
+
   cy.log(`installed_version : ${installed_version}`);
-  cy.log(`available_version : ${available_version}`);
-  if (installed_version !== available_version) {
+  cy.log(`available_minor_version : ${available_minor_version}`);
+  cy.getWebVersion().then(({ major_version }) => {
     cy.contains(
-      `upgraded from version ${installed_version} to ${available_version}`
+      `upgraded from version ${installed_version} to ${major_version}.${available_minor_version}`
     ).should('be.visible');
-  }
+  });
   cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
@@ -426,7 +431,11 @@ Then('legacy services grid page should still work', () => {
 
 Given('a successfully updated platform', () => {
   cy.visit(`${Cypress.config().baseUrl}`);
-  cy.contains(`${Cypress.env('available_version')}`).should('be.visible');
+  cy.getWebVersion().then(({ major_version }) => {
+    cy.contains(
+      `${major_version}.${Cypress.env('available_minor_version')}`
+    ).should('be.visible');
+  });
   cy.setUserTokenApiV1();
 
   cy.loginByTypeOfUser({
