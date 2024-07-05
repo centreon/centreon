@@ -7,6 +7,8 @@ import { buildResourcesEndpoint } from '../Listing/api/endpoint';
 import { Search } from '../Listing/useLoadResources/models';
 import { SortOrder } from '../models';
 
+import { ListingVariant } from 'packages/ui-context/src';
+
 export interface EndpointParams {
   hostCategories?: Array<string>;
   hostGroups?: Array<string>;
@@ -107,6 +109,17 @@ const getFilterWithUpdatedCriteria = ({
   return set(lens, criteriaValue, filter);
 };
 
+const retrievedUser = {
+  alias: 'Admin',
+  default_page: '/monitoring/resources',
+  isExportButtonEnabled: true,
+  locale: 'fr_FR.UTF8',
+  name: 'Admin',
+  timezone: 'Europe/Paris',
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
+};
+
 export {
   cancelTokenRequestParam,
   defaultResourceTypes,
@@ -117,5 +130,6 @@ export {
   getCriteriaValue,
   getFilterWithUpdatedCriteria,
   getListingEndpoint,
-  searchableFields
+  searchableFields,
+  retrievedUser
 };

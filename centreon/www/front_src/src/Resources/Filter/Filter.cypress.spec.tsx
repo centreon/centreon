@@ -4,12 +4,11 @@ import { equals } from 'ramda';
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { retrievedUser } from '../../Main/testUtils';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { enabledAutorefreshAtom } from '../Listing/listingAtoms';
 import { resourcesEndpoint } from '../api/endpoint';
 import { Visualization } from '../models';
-import { defaultStatuses } from '../testUtils';
+import { defaultStatuses, retrievedUser } from '../testUtils';
 import {
   labelAcknowledged,
   labelAll,
