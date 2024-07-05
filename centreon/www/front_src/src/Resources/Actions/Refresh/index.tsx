@@ -66,7 +66,6 @@ const RefreshActions = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const { display: displayAsAList, close } = displayAsList || {};
 
   const [enabledAutorefresh, setEnabledAutorefresh] = useAtom(
     enabledAutorefreshAtom
