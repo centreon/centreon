@@ -1,13 +1,13 @@
 import { findIndex, lensPath, propEq, set } from 'ramda';
 
+import { ListingVariant } from '@centreon/ui-context';
+
 import { CriteriaValue } from '../Filter/Criterias/models';
 import { searchableFields } from '../Filter/Criterias/searchQueryLanguage';
 import { Filter } from '../Filter/models';
 import { buildResourcesEndpoint } from '../Listing/api/endpoint';
 import { Search } from '../Listing/useLoadResources/models';
 import { SortOrder } from '../models';
-
-import { ListingVariant } from 'packages/ui-context/src';
 
 export interface EndpointParams {
   hostCategories?: Array<string>;
