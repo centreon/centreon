@@ -41,6 +41,9 @@ inputs:
   cache_key:
     description: The package files cache key
     required: true
+  distrib:
+    description: The os distribution
+    required: true
 
 runs:
   using: composite
@@ -95,7 +98,15 @@ runs:
           cp -rp $MODULE_BASENAME/packaging/src/* ~/rpmbuild/SOURCES/
         fi
 
-        rpmbuild -ba ${{ inputs.spec_file }} -D "PACKAGE_NAME $MODULE_BASENAME" -D "PACKAGE_VERSION $VERSION" -D "PACKAGE_RELEASE $RELEASE"
+        # Define dist as an override if distrib is el7 (node16 el7 EOL on GHA runners)
+        case ${{ inputs.distrib }} in
+          el7)
+            rpmbuild --define 'dist .el7' -ba ${{ inputs.spec_file }} -D "PACKAGE_NAME $MODULE_BASENAME" -D "PACKAGE_VERSION $VERSION" -D "PACKAGE_RELEASE $RELEASE"
+            ;;
+          el8)
+            rpmbuild -ba ${{ inputs.spec_file }} -D "PACKAGE_NAME $MODULE_BASENAME" -D "PACKAGE_VERSION $VERSION" -D "PACKAGE_RELEASE $RELEASE"
+            ;;
+        esac
 
         cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
 
