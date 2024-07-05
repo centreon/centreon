@@ -50,5 +50,5 @@ interface ReadVaultRepositoryInterface
      *
      * @return bool
      */
-    public function isConfigurationValid(VaultConfiguration|NewVaultConfiguration $vaultConfiguration): bool;
+    public function testVaultConnection(VaultConfiguration|NewVaultConfiguration $vaultConfiguration): bool;
 }

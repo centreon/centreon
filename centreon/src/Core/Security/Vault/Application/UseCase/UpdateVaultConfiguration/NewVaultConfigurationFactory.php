@@ -54,7 +54,6 @@ class NewVaultConfigurationFactory
     {
         return new NewVaultConfiguration(
             $this->encryption,
-            'hashicorp_vault',
             $request->address,
             $request->port,
             $request->rootPath,

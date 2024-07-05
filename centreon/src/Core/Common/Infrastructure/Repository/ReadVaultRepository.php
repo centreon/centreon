@@ -54,7 +54,7 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
         return [];
     }
 
-    public function isConfigurationValid(VaultConfiguration|NewVaultConfiguration $vaultConfiguration): bool
+    public function testVaultConnection(VaultConfiguration|NewVaultConfiguration $vaultConfiguration): bool
     {
         try {
             $url = $vaultConfiguration->getAddress() . ':'

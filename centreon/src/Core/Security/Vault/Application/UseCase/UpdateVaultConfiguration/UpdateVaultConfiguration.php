@@ -92,7 +92,7 @@ final class UpdateVaultConfiguration
 
                 $this->updateVaultConfiguration($request, $vaultConfiguration);
 
-                if (! $this->readVaultRepository->isConfigurationValid($vaultConfiguration)) {
+                if (! $this->readVaultRepository->testVaultConnection($vaultConfiguration)) {
                     $presenter->setResponseStatus(
                         new InvalidArgumentResponse(VaultConfigurationException::invalidConfiguration())
                     );
@@ -105,7 +105,7 @@ final class UpdateVaultConfiguration
             } else {
                 $newVaultConfiguration = $this->newVaultConfigurationFactory->create($request);
 
-                if (! $this->readVaultRepository->isConfigurationValid($newVaultConfiguration)) {
+                if (! $this->readVaultRepository->testVaultConnection($newVaultConfiguration)) {
                     $presenter->setResponseStatus(
                         new InvalidArgumentResponse(VaultConfigurationException::invalidConfiguration())
                     );

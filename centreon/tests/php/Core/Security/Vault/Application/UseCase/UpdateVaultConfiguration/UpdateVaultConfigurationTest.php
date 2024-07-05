@@ -195,7 +195,7 @@ it('should present NoContentResponse when vault configuration is created with su
 
     $this->readVaultRepository
         ->expects($this->any())
-        ->method('isConfigurationValid')
+        ->method('testVaultConnection')
         ->willReturn(true);
 
     $presenter = new UpdateVaultConfigurationPresenterStub($this->presenterFormatter);

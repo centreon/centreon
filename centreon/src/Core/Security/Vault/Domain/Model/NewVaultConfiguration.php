@@ -39,6 +39,7 @@ class NewVaultConfiguration
     public const MAX_PORT_VALUE = 65535;
     public const SALT_LENGTH = 128;
     public const NAME_VALIDATION_REGEX = '/^[\w+\-\/]+$/';
+    public const DEFAULT_NAME = 'hashicorp_vault';
 
     protected string $encryptedSecretId;
 
@@ -48,24 +49,24 @@ class NewVaultConfiguration
 
     /**
      * @param EncryptionInterface $encryption
-     * @param string $name
      * @param string $address
      * @param int $port
      * @param string $rootPath
      * @param string $roleId
      * @param string $secretId
+     * @param string $name
      *
      * @throws AssertionFailedException
      * @throws \Exception
      */
     public function __construct(
         protected EncryptionInterface $encryption,
-        protected string $name,
         protected string $address,
         protected int $port,
         protected string $rootPath,
         private string $roleId,
-        private string $secretId
+        private string $secretId,
+        protected string $name = self::DEFAULT_NAME
     ) {
         Assertion::minLength($name, self::MIN_LENGTH, 'NewVaultConfiguration::name');
         Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::name');
