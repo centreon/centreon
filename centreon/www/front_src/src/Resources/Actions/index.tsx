@@ -23,8 +23,8 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
   const theme = useTheme();
 
   const { applyBreakPoint, breakPointType } = useMediaQueryListing();
-  const { resourceStatusTreeView } =
-    useAtomValue(featureFlagsDerivedAtom) || {};
+  const featureFlags =
+    useAtomValue(featureFlagsDerivedAtom) ;
   const displayCondensed =
     Boolean(useMediaQuery(theme.breakpoints.down(1150))) || applyBreakPoint;
 
