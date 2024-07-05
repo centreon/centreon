@@ -323,7 +323,7 @@ When('administrator runs the update procedure', () => {
   const available_version = Cypress.env('available_version');
   cy.contains(
     `upgraded from version ${installed_version} to ${available_version}`
-  );
+  ).should('be.visible');
   cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
