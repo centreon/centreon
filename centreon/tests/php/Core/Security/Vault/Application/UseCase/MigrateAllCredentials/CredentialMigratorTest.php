@@ -49,6 +49,7 @@ use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigr
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialRecordedDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialTypeEnum;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Utility\UUIDGenerator;
 
 beforeEach(function (): void {
     $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
@@ -75,7 +76,7 @@ beforeEach(function (): void {
     $this->credential3 = new CredentialDto();
     $this->credential3->resourceId = 3;
     $this->credential3->type = CredentialTypeEnum::TYPE_SERVICE;
-    $this->credential3->name = '_SERVICEMACRO';
+    $this->credential3->name = 'MACRO';
     $this->credential3->value = 'macro';
 
     $this->hosts = [
@@ -138,8 +139,12 @@ beforeEach(function (): void {
 
 it('tests getIterator method with hosts, hostTemplates and service macros', function (): void {
     $credentials = new \ArrayIterator([$this->credential1, $this->credential2, $this->credential3]);
-
-    $this->writeVaultRepository->method('upsert')->willReturn('vault/path');
+    $uuid = (new UUIDGenerator())->generateV4();
+    $this->writeVaultRepository->method('upsert')->willReturnOnConsecutiveCalls(
+        [$this->credential1->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential1->name],
+        [$this->credential2->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential2->name],
+        ['_SERVICE' . $this->credential3->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' . '_SERVICE' . $this->credential3->name],
+    );
 
     $credentialMigrator = new CredentialMigrator(
         credentials: $credentials,
@@ -161,11 +166,16 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
 
     foreach ($credentialMigrator as $status) {
         expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
-        expect($status->uuid)->toBe('path');
+        expect($status->uuid)->toBe($uuid);
         expect($status->resourceId)->toBeIn([1, 2, 3]);
-        expect($status->vaultPath)->toBe('vault/path');
+        expect($status->vaultPath)->toBe(
+            'secret::hashicorp_vault::vault/path/' . $uuid . '::'
+            . ($status->type === CredentialTypeEnum::TYPE_SERVICE
+                ? '_SERVICE' . $status->credentialName
+                : $status->credentialName)
+        );
         expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE, CredentialTypeEnum::TYPE_SERVICE]);
-        expect($status->credentialName)->toBeIn([VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, '_SERVICEMACRO']);
+        expect($status->credentialName)->toBeIn([VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, 'MACRO']);
     }
 });
 
