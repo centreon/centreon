@@ -6,27 +6,6 @@ import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
 
-const getUpdateVersions = (): string => {
-  cy.execInContainer({
-    command: `dnf info centreon-web | awk '/Installed Packages/,/Available Packages/ {if (/Version/) print "Installed Version: " $3} /Available Packages/,0 {if (/Version/) print "Available Version: " $3}'`,
-    name: 'web'
-  }).then((result) => {
-    const installed_version = result.stdout.match(
-      /Installed Version: (\S+)/
-    )[1];
-    const available_version = result.stdout.match(
-      /Available Version: (\S+)/
-    )[1];
-    cy.log(`Installed Version: ${installed_version}`);
-    cy.log(`Available Version: ${available_version}`);
-    const versions = `${installed_version}/${available_version}`;
-
-    return versions;
-  });
-
-  return '';
-};
-
 const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
   const match = majorVersionFrom.match(/^(\d+)\.(\d+)$/);
 
@@ -342,8 +321,6 @@ When('administrator runs the update procedure', () => {
   // check correct updated version
   const installed_version = Cypress.env('installed_version');
   const available_version = Cypress.env('available_version');
-  cy.log(`Global Installed Version: ${installed_version}`);
-  cy.log(`Global Available Version: ${available_version}`);
   cy.contains(
     `upgraded from version ${installed_version} to ${available_version}`
   );
@@ -444,6 +421,8 @@ Then('legacy services grid page should still work', () => {
 });
 
 Given('a successfully updated platform', () => {
+  cy.visit(`${Cypress.config().baseUrl}`);
+  cy.contains(`${Cypress.env('available_version')}`);
   cy.setUserTokenApiV1();
 
   cy.loginByTypeOfUser({
@@ -479,6 +458,5 @@ export {
   updatePlatformPackages,
   checkPlatformVersion,
   dateBeforeLogin,
-  insertResources,
-  getUpdateVersions
+  insertResources
 };
