@@ -101,7 +101,7 @@ const RefreshActions = ({
           </Grid>
         </Grid>
       )}
-      {displayAsAList && (
+      {displayAsList?.display && (
         <>
           <ActionMenuItem
             permitted
