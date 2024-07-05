@@ -186,7 +186,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             ]
         );
         $vaultPath = $vaultPaths[$vaultKey];
-        $existingUuids['hosts'][$credential->resourceId] = $this->getUuidFromPath($vaultPath);
+        $uuid = $this->getUuidFromPath($vaultPath);
+        if ($uuid === null) {
+            throw new \Exception('UUID not found in the vault path');
+        }
+        $existingUuids['hosts'][$credential->resourceId] = $uuid;
         if ($credential->name === VaultConfiguration::HOST_SNMP_COMMUNITY_KEY) {
             if ($credential->type === CredentialTypeEnum::TYPE_HOST) {
                 foreach ($this->hosts as $host) {
@@ -245,7 +249,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         );
 
         $vaultPath = $vaultPaths[$vaultKey];
-        $existingUuids['services'][$credential->resourceId] = $this->getUuidFromPath($vaultPath);
+        $uuid = $this->getUuidFromPath($vaultPath);
+        if ($uuid === null) {
+            throw new \Exception('UUID not found in the vault path');
+        }
+        $existingUuids['services'][$credential->resourceId] = $uuid;
         foreach ($this->serviceMacros as $serviceMacro) {
             if ($serviceMacro->getOwnerId() === $credential->resourceId) {
                 $serviceMacro->setValue($vaultPath);
@@ -313,7 +321,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
         return [
             'uuid' => $uuid,
-            'path' => $vaultPath
+            'path' => $vaultPath,
         ];
     }
 
