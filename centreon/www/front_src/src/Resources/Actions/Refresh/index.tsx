@@ -124,7 +124,7 @@ const RefreshActions = ({
             testId="AutorefreshInMoreActions"
             onClick={() => {
               toggleAutorefresh();
-              close?.();
+              displayAsList.close();
             }}
           />
         </>
