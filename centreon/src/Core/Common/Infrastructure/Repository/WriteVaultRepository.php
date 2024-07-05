@@ -74,6 +74,8 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
         $this->sendRequest('POST', $url, $payload);
 
         $paths = [];
+
+        /** @var string $credentialName */
         foreach (array_keys($payload) as $credentialName) {
             $paths[$credentialName] = $this->buildPath($uuid, $credentialName);
         }

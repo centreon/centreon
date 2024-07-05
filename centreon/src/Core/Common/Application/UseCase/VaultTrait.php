@@ -37,6 +37,7 @@ trait VaultTrait
      * Then 'xxxxxxx-xx-xxx-xxxxx' will be extracted.
      *
      * @param string $value
+     *
      * @return string|null
      */
     private function getUuidFromPath(string $value): ?string

@@ -53,25 +53,4 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
 
         return [];
     }
-
-    /**
-     * @inheritDoc
-     */
-    public function findFromUri(string $uri): array
-    {
-        if ($this->vaultConfiguration === null) {
-            throw new \LogicException('Vault not configured');
-        }
-
-        $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
-            . '/v1/' . $uri;
-        $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
-
-        $responseContent = $this->sendRequest('GET', $url);
-        if (is_array($responseContent) && isset($responseContent['data']['data'])) {
-            return $responseContent['data']['data'];
-        }
-
-        return [];
-    }
 }
