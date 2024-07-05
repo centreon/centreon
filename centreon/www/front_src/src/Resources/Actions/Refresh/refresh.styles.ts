@@ -1,7 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useStyles = makeStyles()(() => ({
+export const useStyles = makeStyles()({
   container: {
     flexWrap: 'nowrap'
   }
-}));
+});
