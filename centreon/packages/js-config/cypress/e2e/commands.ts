@@ -758,6 +758,38 @@ Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
     });
 });
 
+Cypress.Commands.add('execDnfInfoCentreonWeb', () => {
+  return cy
+    .execInContainer({
+      command: `dnf info centreon-web | awk '/Installed Packages/,/Available Packages/ {if (/Version/) print "Installed Version: " $3} /Available Packages/,0 {if (/Version/) print "Available Version: " $3}'`,
+      name: 'web'
+    })
+    .then((result) => {
+      if (!result.output) {
+        throw new Error('No output from command');
+      }
+
+      const installedVersionMatch = result.output.match(
+        /Installed Version: (\S+)/
+      );
+      const availableVersionMatch = result.output.match(
+        /Available Version: (\S+)/
+      );
+
+      if (!installedVersionMatch || !availableVersionMatch) {
+        throw new Error('Failed to parse versions from command output');
+      }
+
+      const installed_version = installedVersionMatch[1];
+      const available_version = availableVersionMatch[1];
+
+      cy.log(`Installed Version: ${installed_version}`);
+      cy.log(`Available Version: ${available_version}`);
+      const versions = `${installed_version}/${available_version}`;
+
+      return cy.wrap(versions);
+    });
+});
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -771,6 +803,7 @@ declare global {
         options?: Partial<Cypress.ExecOptions>
       ) => Cypress.Chainable;
       createDirectory: (directoryPath: string) => Cypress.Chainable;
+      execDnfInfoCentreonWeb: () => Cypress.Chainable;
       execInContainer: ({
         command,
         name

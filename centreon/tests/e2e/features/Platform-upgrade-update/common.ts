@@ -339,11 +339,22 @@ When('administrator runs the update procedure', () => {
   cy.wait('@getStep3');
   cy.contains('Release notes');
   // check correct updated version
-  const test = getUpdateVersions();
-  const [installedVersion, availableVersion] = test.split('/');
-  cy.contains(
-    `upgraded from version ${installedVersion} to ${availableVersion}`
-  );
+  let installed_version;
+  let available_version;
+
+  cy.execDnfInfoCentreonWeb().then((versions) => {
+    // Split the versions string to get both versions
+    [installed_version, available_version] = versions.split('/');
+
+    // Utilisation des valeurs assignées
+    cy.log(`Assigned Installed Version: ${installed_version}`);
+    cy.log(`Assigned Available Version: ${available_version}`);
+
+    // Vous pouvez maintenant utiliser les valeurs assignées dans des assertions ou autres opérations
+    cy.contains(
+      `upgraded from version ${installed_version} to ${available_version}`
+    );
+  });
   cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
