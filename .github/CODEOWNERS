@@ -34,11 +34,6 @@ tsconfig.json                           @centreon/owners-react
 *.jsx                                   @centreon/owners-react
 **/cypress/**                           @centreon/owners-react
 
-centreon-gorgone/                       @centreon/owners-perl
-centreon-gorgone/docs/                  @centreon/owners-doc
-centreon-gorgone/tests/                 @centreon/owners-robot-e2e
-
-centreon-gorgone/tests/robot/config/    @centreon/owners-perl
 *.pm                                    @centreon/owners-perl
 *.pl                                    @centreon/owners-perl
 

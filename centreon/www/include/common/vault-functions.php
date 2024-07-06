@@ -35,8 +35,8 @@
  */
 
 use Centreon\Domain\Log\Logger;
-use Utility\Interfaces\UUIDGeneratorInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Utility\Interfaces\UUIDGeneratorInterface;
 
 const VAULT_PATH_REGEX = '^secret::[^:]*::';
 const SNMP_COMMUNITY_MACRO_NAME = '_HOSTSNMPCOMMUNITY';
@@ -1930,4 +1930,126 @@ function updateDatabaseYamlFile(string $vaultPath): void
 
     file_put_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml', $newContentYaml)
         ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/config.d/10-database.yaml');
+}
+
+// BROKER CONFIG
+
+function deleteBrokerConfigsFromVault(
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    array $brokerConfigIds,
+): void {
+    $vaultPath = 'secret::' . $vaultConfiguration->getName() . '::';
+    $httpClient = new CentreonRestHttp();
+    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+
+    $uuids = retrieveMultipleBrokerConfigUuidsFromDatabase($brokerConfigIds, $vaultPath);
+    foreach ($uuids as $uuid) {
+        deleteBrokerConfigFromVault($vaultConfiguration, $uuid, $clientToken, $logger, $httpClient);
+    }
+}
+
+function retrieveMultipleBrokerConfigUuidsFromDatabase(array $brokerIds, string $vaultPath): array
+{
+    global $pearDB;
+
+    $bindParams = [];
+    foreach ($brokerIds as $key => $brokerId) {
+        $bindParams[':configId_' . $key] = $brokerId;
+    }
+
+    $bindString = implode(', ', array_keys($bindParams));
+    $statement = $pearDB->prepare(
+        <<<SQL
+            SELECT DISTINCT config_value
+            FROM cfg_centreonbroker_info
+            WHERE config_value LIKE :vaultPath
+                AND config_id IN ( {$bindString} );
+            SQL
+    );
+    foreach ($bindParams as $token => $brokerId) {
+        $statement->bindValue($token, $brokerId, PDO::PARAM_INT);
+    }
+    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
+    $statement->execute();
+    $uuids = [];
+    while ($result = $statement->fetchColumn()) {
+        $vaultPathPart = explode('/', $result);
+        if (isset($vaultPathPart)) {
+            $uuids[] = end($vaultPathPart);
+        }
+    }
+
+    return $uuids;
+}
+
+/**
+ * @param VaultConfiguration $vaultConfiguration
+ * @param string $uuid
+ * @param string $clientToken
+ * @param Logger $logger
+ * @param CentreonRestHttp $httpClient
+ *
+ * @throws Exception
+ *
+ * @return void
+ */
+function deleteBrokerConfigFromVault(
+    VaultConfiguration $vaultConfiguration,
+    string $uuid,
+    string $clientToken,
+    Logger $logger,
+    CentreonRestHttp $httpClient,
+): void {
+    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+        . $vaultConfiguration->getRootPath() . '/metadata/configuration/broker/' . $uuid;
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Deleting Broker Configuration: %s', $uuid));
+    try {
+        $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
+    } catch (Exception $ex) {
+        $logger->error(sprintf('Unable to delete Broker Configuration: %s', $uuid));
+
+        throw $ex;
+    }
+}
+
+function findBrokerConfigValueFromVault(
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    string $key,
+    string $vaultPath,
+): string
+{
+    $httpClient = new CentreonRestHttp();
+    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+
+    $vaultParts = explode('/', $vaultPath);
+    $uuid = end($vaultParts);
+
+    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+        . $vaultConfiguration->getRootPath() . '/data/configuration/broker/' . $uuid;
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Search Broker Configuration: %s', $uuid));
+
+    try {
+        $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
+        if (
+            array_key_exists('data', $content)
+            && array_key_exists('data', $content['data'])
+            && array_key_exists($key, $content['data']['data'])
+        ) {
+            return $content['data']['data'][$key];
+        }
+
+        return $vaultPath;
+    } catch (RestNotFoundException $ex) {
+        $logger->info('Broker Configuration not found in vault');
+
+        return $vaultPath;
+    } catch (Exception $ex) {
+        $logger->error('Unable to get secrets for Broker Configuration');
+
+        throw $ex;
+    }
 }
