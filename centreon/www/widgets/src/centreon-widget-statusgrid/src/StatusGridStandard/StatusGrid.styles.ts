@@ -53,6 +53,9 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1),
     textAlign: 'center'
   },
+  container: {
+    minWidth: theme.spacing(30)
+  },
   dateContainer: {
     padding: theme.spacing(1, 1, 0)
   },
@@ -72,7 +75,8 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
   },
   impact: {
     display: 'flex',
-    gap: theme.spacing(1)
+    justifyContent: 'space-between',
+    width: theme.spacing(8)
   },
   link: {
     '&:hover': {

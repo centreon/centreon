@@ -117,9 +117,9 @@ const getBooleanRuleLink = (id: number): string => {
 };
 
 const getResourcesStatusLink = ({ type, id, hostId, name }): string => {
-  const resourceStatusType = equals(type, IndicatorType.AnomalyDetection)
-    ? 'anomaly-detection'
-    : type.replace(' ', '').toLowerCase();
+  const resourceStatusType = equals(type, IndicatorType.MetaService)
+    ? 'metaservice'
+    : type;
 
   const uuid = cond([
     [equals(IndicatorType.MetaService), always(`m${id}`)],

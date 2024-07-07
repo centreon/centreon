@@ -33,7 +33,14 @@
       ],
       "defaultValue": "host",
       "hiddenCondition": {
-        "cond": "includesBAs"
+        "target" : "data",
+        "when": "data.resources",
+        "property": "resourceType",
+        "method": "includes",
+        "matches":  [
+          "business-view",
+          "business-activity"
+        ]
       }
     },
     "statuses": {

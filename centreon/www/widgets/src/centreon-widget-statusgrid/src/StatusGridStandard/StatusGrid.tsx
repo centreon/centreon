@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { equals, gt, isNil, last } from 'ramda';
+import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 
@@ -69,7 +69,11 @@ const StatusGrid = ({
     refreshIntervalCustom
   });
 
-  const lastSelectedResourceType = last(panelData?.resources)?.resourceType;
+  const lastSelectedResourceType = pipe(
+    pluck('resourceType'),
+    reject((type) => equals(type, '')),
+    last
+  )(panelData?.resources);
 
   const isBVResourceType = equals(lastSelectedResourceType, 'business-view');
   const isBAResourceType = equals(
@@ -157,7 +161,7 @@ const StatusGrid = ({
               is_acknowledged,
               is_in_downtime,
               metricsEndpoint: links?.endpoints.metrics,
-              name: name || resource?.name,
+              name,
               parentId: parent?.id || resource?.parent_id,
               parentName: parent?.name || resource?.parent_name,
               parentStatus: parent?.status?.severity_code,

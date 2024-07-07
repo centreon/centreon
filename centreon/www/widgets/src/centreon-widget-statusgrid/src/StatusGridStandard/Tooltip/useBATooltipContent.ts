@@ -2,55 +2,60 @@ import { equals } from 'ramda';
 
 import { SeverityCode, useFetchQuery } from '@centreon/ui';
 
-import { ResourceData, CalculationMethod } from '../models';
+import { ResourceData, BusinessActivity, Indicator } from '../models';
 import { getBAEndpoint } from '../../api/endpoints';
+import { businessActivityDecoder } from '../api/decoders';
 
 interface UseServiceTooltipContentState {
-  calculationMethod: CalculationMethod;
-  criticalLevel: number | null;
-  indicatorsWithProblems: Array<object>;
-  indicatorsWithStatusOk: Array<object>;
-  infrastructureViewId: number | null;
-  isLoading: boolean;
-  isPercentage: boolean | null;
+  calculationMethod?: string;
+  criticalLevel?: number | null;
+  indicatorsWithProblems?: Array<Indicator>;
+  indicatorsWithStatusOk?: Array<Indicator>;
+  isLoading?: boolean;
+  isPercentage?: boolean | null;
   total: number;
-  warningLevel: number | null;
+  warningLevel?: number | null;
 }
 
 const useBATooltipContent = (
   data: ResourceData
 ): UseServiceTooltipContentState => {
-  const { data: baData, isLoading } = useFetchQuery({
-    getEndpoint: () => getBAEndpoint(data?.id),
-    getQueryKey: () => ['statusgrid', 'BA', data?.id],
-    httpCodesBypassErrorSnackbar: [404],
-    queryOptions: {
-      suspense: false
+  const { data: businessActivity, isLoading } = useFetchQuery<BusinessActivity>(
+    {
+      decoder: businessActivityDecoder,
+      getEndpoint: () => getBAEndpoint(data?.resourceId || data?.id),
+      getQueryKey: () => ['statusgrid', 'BA', data?.id],
+      httpCodesBypassErrorSnackbar: [404],
+      queryOptions: {
+        suspense: false
+      }
     }
-  });
+  );
 
-  const indicatorsWithProblems = baData?.indicators?.filter(
+  const indicatorsWithProblems = businessActivity?.indicators?.filter(
     ({ status }) =>
-      equals(SeverityCode.High, status?.severity_code) ||
-      equals(SeverityCode.Medium, status?.severity_code)
+      equals(SeverityCode.High, status?.severityCode) ||
+      equals(SeverityCode.Medium, status?.severityCode)
   );
 
-  const indicatorsWithStatusOk = baData?.indicators?.filter(({ status }) =>
-    equals(SeverityCode.OK, status?.severity_code)
+  const indicatorsWithStatusOk = businessActivity?.indicators?.filter(
+    ({ status }) => equals(SeverityCode.OK, status.severityCode)
   );
 
-  const warningLevel = baData?.level_w || null;
-  const criticalLevel = baData?.level_c || null;
+  const warningLevel = businessActivity?.calculationMethod.warningThreshold;
+  const criticalLevel = businessActivity?.calculationMethod.criticalThreshold;
+  const calculationMethod = businessActivity?.calculationMethod.name;
+  const isPercentage = businessActivity?.calculationMethod.isPercentage;
+  const total = businessActivity?.indicators?.length || 0;
 
   return {
-    calculationMethod: baData?.calculation_method?.name,
+    calculationMethod,
     criticalLevel,
     indicatorsWithProblems,
     indicatorsWithStatusOk,
-    infrastructureViewId: baData?.infrastructure_view_id,
     isLoading,
-    isPercentage: baData?.calculation_method?.is_percentage,
-    total: baData?.indicators?.length || 0,
+    isPercentage,
+    total,
     warningLevel
   };
 };

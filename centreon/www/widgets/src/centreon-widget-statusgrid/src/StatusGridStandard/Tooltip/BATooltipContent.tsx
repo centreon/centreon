@@ -1,7 +1,6 @@
 import { equals, isEmpty, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { Link } from 'react-router-dom';
 
 import {
   Box,
@@ -16,7 +15,7 @@ import {
   usePluralizedTranslation
 } from '@centreon/ui';
 
-import { CalculationMethod, ResourceData } from '../models';
+import { CalculationMethodType, ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
 import { getColor } from '../utils';
 import {
@@ -24,7 +23,6 @@ import {
   labelAllKPIsAreWorkingFine,
   labelAreWorkingFine,
   labelCalculationMethod,
-  labelSeeMoreInGeoview,
   labelStateInformation,
   warningThreshold
 } from '../translatedLabels';
@@ -37,11 +35,11 @@ interface Props {
 
 const BATooltipContent = ({ data }: Props): JSX.Element | null => {
   const { t } = useTranslation();
+  const theme = useTheme();
+
   const { classes } = useHostTooltipContentStyles();
   const { format } = useLocaleDateTimeFormat();
   const { pluralizedT } = usePluralizedTranslation();
-
-  const theme = useTheme();
 
   const {
     isLoading,
@@ -49,7 +47,6 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
     indicatorsWithProblems,
     indicatorsWithStatusOk,
     total,
-    infrastructureViewId,
     criticalLevel,
     warningLevel,
     isPercentage
@@ -58,11 +55,11 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
   const hasIndicatorsWithProblems =
     isNotNil(indicatorsWithProblems) && !isEmpty(indicatorsWithProblems);
 
-  const allIndicatorsAreOk = equals(indicatorsWithStatusOk?.length, total);
-  const isImpact = equals(calculationMethod, CalculationMethod.Impact);
-  const isRatio = equals(calculationMethod, CalculationMethod.Ratio);
+  const areAllIndicatorsOk = equals(indicatorsWithStatusOk?.length, total);
+  const isImpact = equals(calculationMethod, CalculationMethodType.Impact);
+  const isRatio = equals(calculationMethod, CalculationMethodType.Ratio);
 
-  const formatThreshold = (threshold: number | null): string => {
+  const formatThreshold = (threshold): string => {
     return equals(isPercentage, false)
       ? `${threshold} ${pluralizedT({
           count: threshold || 0,
@@ -70,15 +67,9 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
         })}`
       : `${threshold}%`;
   };
-  const formatKPIThreshold = (
-    type: string,
-    threshold: number | null
-  ): string => {
-    return equals(type, 'word') ? `${threshold} ` : `${threshold}%`;
-  };
 
   return (
-    <Box>
+    <Box className={classes.container}>
       <Box className={classes.header}>
         <Typography
           data-resourceName={data.name}
@@ -101,7 +92,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
           {(isImpact || isRatio) && (
             <Box mb={1}>
               <Box className={classes.statusInformation}>
-                <Typography variant="body2">
+                <Typography>
                   <strong>{t(labelStateInformation)}</strong>
                 </Typography>
               </Box>
@@ -145,13 +136,12 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
 
           {hasIndicatorsWithProblems && (
             <Box mt={1}>
-              <Typography className={classes.listHeader} variant="body2">
+              <Typography className={classes.listHeader}>
                 <strong>KPIs</strong>
               </Typography>
               {indicatorsWithProblems?.map((indicator) => {
-                const kpiWarningThreshold = indicator?.impact?.warning;
-                const kpiCriticalThreshold = indicator?.impact?.critical;
-                const impactType = indicator?.impact?.type;
+                const kpiWarningThreshold = indicator.impact?.warning;
+                const kpiCriticalThreshold = indicator.impact?.critical;
 
                 return (
                   <Box className={classes.threshold} key={indicator.name}>
@@ -161,7 +151,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
                         color: isImpact
                           ? 'inherit'
                           : getColor({
-                              severityCode: indicator.status?.severity_code,
+                              severityCode: indicator.status.severityCode,
                               theme
                             })
                       }}
@@ -180,7 +170,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
                           }}
                           variant="body2"
                         >
-                          {formatKPIThreshold(impactType, kpiWarningThreshold)}
+                          {`${kpiWarningThreshold}%`}
                         </Typography>
                         <Typography
                           sx={{
@@ -191,7 +181,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
                           }}
                           variant="body2"
                         >
-                          {formatKPIThreshold(impactType, kpiCriticalThreshold)}
+                          {`${kpiCriticalThreshold}%`}
                         </Typography>
                       </Box>
                     )}
@@ -201,19 +191,19 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
             </Box>
           )}
 
-          {allIndicatorsAreOk && (
+          {areAllIndicatorsOk && (
             <Typography color="text.secondary" mt={1} variant="body2">
               {t(labelAllKPIsAreWorkingFine)}
             </Typography>
           )}
 
-          {!allIndicatorsAreOk && hasIndicatorsWithProblems && (
+          {!areAllIndicatorsOk && hasIndicatorsWithProblems && (
             <Typography color="text.secondary" mt={1} variant="body2">
               {`${indicatorsWithStatusOk?.length}/${total} KPIs ${t(labelAreWorkingFine)}`}
             </Typography>
           )}
 
-          {infrastructureViewId && (
+          {/* {infrastructureViewId && (
             <Typography variant="body2">
               <Link
                 aria-label={t(labelSeeMoreInGeoview)}
@@ -224,7 +214,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
                 {t(labelSeeMoreInGeoview)}
               </Link>
             </Typography>
-          )}
+          )} */}
         </Box>
         <Divider variant="middle" />
         <Typography

@@ -1,7 +1,16 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find, path, equals, type } from 'ramda';
+import {
+  propEq,
+  find,
+  path,
+  equals,
+  has,
+  pluck,
+  difference,
+  isEmpty
+} from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
@@ -18,6 +27,7 @@ import {
   widgetPropertiesAtom
 } from '../atoms';
 import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
+import { platformVersionsAtom } from '../../../../../Main/atoms/platformVersionsAtom';
 
 import {
   WidgetMetrics,
@@ -80,6 +90,7 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
+  const { modules } = useAtomValue(platformVersionsAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
@@ -102,18 +113,26 @@ export const useWidgetInputs = (
               if (!value.hiddenCondition) {
                 return true;
               }
-              const formattedValue = path(
-                value.hiddenCondition.when.split('.'),
-                values
-              );
 
-              if (equals(type(value.hiddenCondition.matches), 'Array')) {
-                return !(
-                  value.hiddenCondition.matches as Array<unknown>
-                ).includes(formattedValue);
+              const { target, method, when, matches } = value.hiddenCondition;
+
+              if (equals(target, 'modules')) {
+                return !equals(
+                  has(value.hiddenCondition.when, modules),
+                  matches
+                );
               }
 
-              return !equals(formattedValue, value.hiddenCondition.matches);
+              if (equals(method, 'includes')) {
+                const property = value.hiddenCondition?.property;
+                const items = property
+                  ? pluck(property, path(when.split('.'), values))
+                  : path(when.split('.'), values);
+
+                return !isEmpty(difference(items, matches));
+              }
+
+              return !equals(path(when.split('.'), values), matches);
             })
             .map(([key, value]) => {
               const Component =

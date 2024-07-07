@@ -51,11 +51,6 @@ interface ResourceLinks {
 
 type Parent = Omit<ResourceStatus, 'parent'>;
 
-interface Status {
-  name: string;
-  severity_code: number;
-}
-
 export interface ResourceStatus {
   duration?: string;
   has_active_checks_enabled?: boolean;
@@ -72,7 +67,10 @@ export interface ResourceStatus {
   parent?: Parent | null;
   service_id?: number;
   severity_level?: number;
-  status?: Status;
+  status?: {
+    name: string;
+    severity_code: number;
+  };
   tries?: string;
   type: ResourceType;
   uuid: string;
@@ -81,6 +79,7 @@ export interface ResourceStatus {
 export interface ResourceData {
   acknowledgementEndpoint?: string;
   downtimeEndpoint?: string;
+  id?: number;
   information?: string;
   is_acknowledged?: boolean;
   is_in_downtime?: boolean;
@@ -88,8 +87,10 @@ export interface ResourceData {
   name: string;
   parentName?: string;
   parentStatus?: number;
+  resourceId?: number;
   status?: number;
   statusName?: string;
+  type?: string;
 }
 
 export interface MetricProps {
@@ -107,13 +108,58 @@ export enum IndicatorType {
   AnomalyDetection = 'anomaly-detection',
   BooleanRule = 'boolean-rule',
   BusinessActivity = 'business-activity',
-  MetaService = 'metaservice',
+  MetaService = 'meta-service',
   Service = 'service'
 }
 
-export enum CalculationMethod {
-  BestStatus = 'best status',
-  Impact = 'impact',
-  Ratio = 'ratio',
-  WorstStatus = 'worst status'
+export enum CalculationMethodType {
+  BestStatus = 'Best Status',
+  Impact = 'Impact',
+  Ratio = 'Ratio',
+  WorstStatus = 'Worst Status'
+}
+
+export interface Status {
+  code: number;
+  name: string;
+  severityCode: number;
+}
+
+export interface Impact {
+  critical: number | null;
+  unknown: number | null;
+  warning: number | null;
+}
+
+export interface IndicatorResource {
+  id: number;
+  name: string;
+  parentId: number | null;
+  parentName: string | null;
+}
+
+export interface Indicator {
+  id: number;
+  impact: Impact | null;
+  name: string;
+  resource: IndicatorResource | null;
+  status: Status;
+  type: string;
+}
+
+export interface CalculationMethod {
+  criticalThreshold: number | null;
+  id: number;
+  isPercentage: boolean | null;
+  name: string;
+  warningThreshold: number | null;
+}
+
+export interface BusinessActivity {
+  calculationMethod: CalculationMethod;
+  id: number;
+  indicators: Array<Indicator>;
+  infrastructureView: string | null;
+  name: string;
+  status: Status;
 }

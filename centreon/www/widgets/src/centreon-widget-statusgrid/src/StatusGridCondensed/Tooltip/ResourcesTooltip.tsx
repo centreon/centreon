@@ -119,7 +119,7 @@ const ResourcesTooltip = ({
               })}
             </Typography>
           )}
-          {isSuccessStatus && (
+          {!hasNoResource && isSuccessStatus && (
             <Typography color="disabled">
               {`${formattedCount}/${formattedTotal} ${translatedResourceType} `}
               {t(labelAreWorkingFine)}

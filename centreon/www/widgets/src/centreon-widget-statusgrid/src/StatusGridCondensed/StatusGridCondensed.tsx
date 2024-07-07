@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { equals, last } from 'ramda';
+import { equals, last, pipe, pluck, reject } from 'ramda';
 
 import { Typography } from '@mui/material';
 
@@ -27,7 +27,11 @@ const StatusGridCondensed = ({
   const { t } = useTranslation();
   const { pluralizedT } = usePluralizedTranslation();
 
-  const lastSelectedResourceType = last(panelData?.resources)?.resourceType;
+  const lastSelectedResourceType = pipe(
+    pluck('resourceType'),
+    reject((type) => equals(type, '')),
+    last
+  )(panelData?.resources);
 
   const isBVResourceType = equals(lastSelectedResourceType, 'business-view');
   const isBAResourceType = equals(

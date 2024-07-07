@@ -1,3 +1,5 @@
+import { equals, flatten } from 'ramda';
+
 import { useInfiniteScrollListing } from '@centreon/ui';
 
 import { ResourceStatus } from '../../StatusGridStandard/models';
@@ -45,6 +47,43 @@ export const useLoadResources = ({
     return resourcesEndpoint;
   };
 
+  const formattedResources = resources.map((resource) => {
+    if (!equals(resourceType, resource.resourceType)) {
+      return {
+        ...resource,
+        resourceType: `${resource.resourceType.replace('-', '_')}.name`
+      };
+    }
+
+    return { ...resource, resourceType: 'name' };
+  });
+
+  const resourcesSearchConditions = formattedResources.map(
+    ({ resourceType: type, resources: resourcesToApply }) => {
+      return resourcesToApply.map((resource) => ({
+        field: type,
+        values: {
+          $rg: `^${resource.name}$`
+        }
+      }));
+    }
+  );
+
+  const statusSearchConditions =
+    isBVResourceType || isBAResourceType
+      ? [
+          {
+            field: 'status',
+            values: [status]
+          }
+        ]
+      : [];
+
+  const searchConditions = [
+    ...resourcesSearchConditions,
+    ...statusSearchConditions
+  ];
+
   const { elementRef, elements, isLoading, total } =
     useInfiniteScrollListing<ResourceStatus>({
       customQueryParameters: getListingCustomQueryParameters({
@@ -57,9 +96,12 @@ export const useLoadResources = ({
       limit: 10,
       pageAtom: tooltipPageAtom,
       parameters: {
+        search: {
+          conditions: flatten(searchConditions)
+        },
         sort: { status: 'DESC' }
       },
-      queryKeyName: `statusgrid_condensed_${status}`,
+      queryKeyName: `statusgrid_condensed_${status}_${JSON.stringify(resources)}_${resourceType}`,
       suspense: false
     });
 
