@@ -246,8 +246,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/broker/{brokerId}/outputs:
-    $ref: "./latest/onPremise/Configuration/Broker/AddBrokerOutput.yaml"
+  /configuration/broker/{brokerId}/{tag}:
+    $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:
     $ref: "./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:

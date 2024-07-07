@@ -49,7 +49,7 @@ class BrokerInputOutput
         private string $name,
         private array $parameters,
     ) {
-        Assertion::positiveInt($id, 'BrokerInputOutput::id');
+        Assertion::min($id, 0, 'BrokerInputOutput::id');
         Assertion::inArray($tag, ['input', 'output'], 'BrokerInputOutput::tag');
 
         $this->name = trim($name);

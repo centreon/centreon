@@ -77,4 +77,19 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
          */
         return $this->factory->createFromRecord($record);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLocation(): ?string
+    {
+        if (
+            ! file_exists($this->configurationFile)
+            || ! $vaultConfiguration = file_get_contents($this->configurationFile, true)
+        ) {
+            return null;
+        }
+
+        return $this->configurationFile;
+    }
 }

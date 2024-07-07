@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -74,6 +76,8 @@ beforeEach(function (): void {
         $this->writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class),
         $this->writePollerMacroRepository = $this->createMock(WritePollerMacroRepositoryInterface::class),
         $this->writeOpenIdConfigurationRepository = $this->createMock(WriteOpenIdConfigurationRepositoryInterface::class),
+        $this->readBrokerInputOutputRepository = $this->createMock(ReadBrokerInputOutputRepositoryInterface::class),
+        $this->writeBrokerInputOutputRepository = $this->createMock(WriteBrokerInputOutputRepositoryInterface::class),
     );
 });
 
