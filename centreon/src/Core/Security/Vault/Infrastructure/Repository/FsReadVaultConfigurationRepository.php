@@ -61,12 +61,6 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
             return null;
         }
 
-        $vaultConfiguration = file_get_contents($this->configurationFile, true);
-
-        if ($vaultConfiguration === false) {
-            throw new \Exception('Vault Configuration Not Found');
-        }
-
         $record = json_decode($vaultConfiguration, true)
             ?: throw new \Exception('Invalid vault configuration');
 
@@ -82,5 +76,20 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
          * } $record
          */
         return $this->factory->createFromRecord($record);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLocation(): ?string
+    {
+        if (
+            ! file_exists($this->configurationFile)
+            || ! $vaultConfiguration = file_get_contents($this->configurationFile, true)
+        ) {
+            return null;
+        }
+
+        return $this->configurationFile;
     }
 }

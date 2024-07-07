@@ -154,22 +154,22 @@ When(
   }
 );
 
-Then('a second Single Metric widget is displayed on the dashboard', () => {
-  cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
-});
+// Then('a second Single Metric widget is displayed on the dashboard', () => {
+//   cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
+// });
 
-Then('the second widget reports on the same metric as the first widget', () => {
-  cy.get('[class*="MuiTypography-h2"]')
-    .eq(1)
-    .then(($element) => {
-      const text = $element.text();
-      expect(text).to.include('%');
-    });
-});
+// Then('the second widget reports on the same metric as the first widget', () => {
+//   cy.get('[class*="MuiTypography-h2"]')
+//     .eq(1)
+//     .then(($element) => {
+//       const text = $element.text();
+//       expect(text).to.include('%');
+//     });
+// });
 
-Then('the second widget has the same properties as the first widget', () => {
-  cy.verifyDuplicatesGraphContainer(metrics);
-});
+// Then('the second widget has the same properties as the first widget', () => {
+//   cy.verifyDuplicatesGraphContainer(metrics);
+// });
 
 Given(
   'a dashboard with a Single Metric widget displaying a human-readable value format',

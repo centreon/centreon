@@ -3,20 +3,22 @@
   "version": "22.4.0",
   "description": "This is handle Lighthouse report",
   "scripts": {
+    "update:deps": "pnpx npm-check-updates -i --format group",
     "start:docker": "docker run -d -p 4000:80 --name centreon-dev docker.centreon.com/centreon/centreon-web-alma9:develop",
     "kill:docker": "docker stop centreon-dev && docker rm centreon-dev",
-    "run:lighthouse": "swc src/ -d build && node --experimental-modules --es-module-specifier-resolution=node ./build/lighthouseReport.js",
+    "run:lighthouse": "swc src/ -d build --strip-leading-paths && node --import=extensionless/register ./build/lighthouseReport.js",
     "start": "npm run start:docker && npm run run:lighthouse && npm run kill:docker",
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "eslint:fix": "pnpm eslint --fix"
   },
   "type": "module",
   "devDependencies": {
-    "@swc/cli": "^0.1.61",
-    "@swc/core": "^1.3.35",
-    "lighthouse": "^10.0.0",
-    "open": "^8.4.0",
-    "pptr-testing-library": "^0.7.0",
-    "puppeteer": "^19.7.0"
+    "@swc/cli": "^0.4.0",
+    "@swc/core": "^1.6.6",
+    "extensionless": "^1.9.9",
+    "lighthouse": "^12.1.0",
+    "open": "^10.1.0",
+    "pptr-testing-library": "^0.8.0",
+    "puppeteer": "^22.12.1"
   }
 }

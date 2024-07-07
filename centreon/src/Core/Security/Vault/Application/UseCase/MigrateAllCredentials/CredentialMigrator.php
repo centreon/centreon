@@ -24,6 +24,9 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
+use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
@@ -37,14 +40,19 @@ use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
 use Core\Option\Domain\Option;
 use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
 use Core\PollerMacro\Domain\Model\PollerMacro;
+use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 /**
  * @implements \IteratorAggregate<CredentialRecordedDto|CredentialErrorDto>
  *
  * @phpstan-type _ExistingUuids array{
- *      hosts: string[],
+ *      hosts:string[],
  *      services:string[],
- *      pollerMacro: ?string,
+ *      pollerMacro:?string,
+ *      openId:?string,
+ *      brokerConfigs:string[],
  * }
  */
 class CredentialMigrator implements \IteratorAggregate, \Countable
@@ -59,12 +67,17 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
      * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
      * @param WriteOptionRepositoryInterface $writeOptionRepository
-     * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository,
-     * @param Host[] $hosts,
-     * @param HostTemplate[] $hostTemplates,
+     * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository
+     * @param ReadBrokerInputOutputRepositoryInterface $readBrokerInputOutputRepository
+     * @param WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository
+     * @param Host[] $hosts
+     * @param HostTemplate[] $hostTemplates
      * @param Macro[] $hostMacros
      * @param Macro[] $serviceMacros
      * @param PollerMacro[] $pollerMacros,
+     * @param WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository
+     * @param Configuration $openIdProviderConfiguration
+     * @param array<int,BrokerInputOutput[]> $brokerInputOutputs
      */
     public function __construct(
         private readonly \Traversable&\Countable $credentials,
@@ -75,11 +88,16 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly WriteOptionRepositoryInterface $writeOptionRepository,
         private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
+        private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
+        private readonly ReadBrokerInputOutputRepositoryInterface $readBrokerInputOutputRepository,
+        private readonly WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository,
         private readonly array $hosts,
         private readonly array $hostTemplates,
         private readonly array $hostMacros,
         private readonly array $serviceMacros,
         private readonly array $pollerMacros,
+        private readonly Configuration $openIdProviderConfiguration,
+        private readonly array $brokerInputOutputs,
     ) {
     }
 
@@ -89,6 +107,8 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             'hosts' => [],
             'services' => [],
             'pollerMacro' => null,
+            'openId' => null,
+            'brokerConfigs' => [],
         ];
         /**
          * @var CredentialDto $credential
@@ -109,7 +129,17 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                         $credential,
                         $existingUuids
                     ),
-                    CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => $this->migrateKnowledgeBasePassword($credential)
+                    CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => $this->migrateKnowledgeBasePassword(
+                        $credential
+                    ),
+                    CredentialTypeEnum::TYPE_OPEN_ID => $this->migrateOpenIdCredentials(
+                        $credential,
+                        $existingUuids
+                    ),
+                    CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT => $this->migrateBrokerInputOutputPasswords(
+                        $credential,
+                        $existingUuids
+                    ),
                 };
 
                 $status = new CredentialRecordedDto();
@@ -241,21 +271,21 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
     /**
      * @param CredentialDto $credential
-     * @param _ExistingUuids $existingUuid
+     * @param _ExistingUuids $existingUuids
      *
      * @throws \Throwable
      *
      * @return array{uuid: string, path: string}
      */
-    private function migratePollerMacroPasswords(CredentialDto $credential, array &$existingUuid): array
+    private function migratePollerMacroPasswords(CredentialDto $credential, array &$existingUuids): array
     {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
         $vaultPath = $this->writeVaultRepository->upsert(
-            $existingUuid['pollerMacro'] ?? null,
+            $existingUuids['pollerMacro'] ?? null,
             [$credential->name => $credential->value]
         );
         $vaultPathPart = explode('/', $vaultPath);
-        $existingUuid['pollerMacro'] ??= end($vaultPathPart);
+        $existingUuids['pollerMacro'] ??= end($vaultPathPart);
 
         foreach ($this->pollerMacros as $pollerMacro) {
             if ($pollerMacro->getId() === $credential->resourceId) {
@@ -265,7 +295,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         }
 
         return [
-            'uuid' => $existingUuid['pollerMacro'],
+            'uuid' => $existingUuids['pollerMacro'],
             'path' => $vaultPath,
         ];
     }
@@ -291,6 +321,113 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
         return [
             'uuid' => $uuid,
+            'path' => $vaultPath,
+        ];
+    }
+
+    /**
+     * @param CredentialDto $credential
+     * @param _ExistingUuids $existingUuids
+     *
+     * @throws \Throwable
+     *
+     * @return array{uuid: string, path: string}
+     */
+    private function migrateOpenIdCredentials(CredentialDto $credential, array &$existingUuids): array
+    {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::OPEN_ID_CREDENTIALS_VAULT_PATH);
+        $vaultPath = $this->writeVaultRepository->upsert(
+            $existingUuids['openId'] ?? null,
+            [$credential->name => $credential->value]
+        );
+        $vaultPathPart = explode('/', $vaultPath);
+        $existingUuids['openId'] ??= end($vaultPathPart);
+
+        /**
+         * @var CustomConfiguration $customConfiguration
+         */
+        $customConfiguration = $this->openIdProviderConfiguration->getCustomConfiguration();
+        if ($credential->value === $customConfiguration->getClientId()) {
+            $customConfiguration->setClientId($vaultPath);
+        }
+        if ($credential->value === $customConfiguration->getClientSecret()) {
+            $customConfiguration->setClientSecret($vaultPath);
+        }
+
+        $this->openIdProviderConfiguration->setCustomConfiguration($customConfiguration);
+        $this->writeOpenIdConfigurationRepository->updateConfiguration($this->openIdProviderConfiguration);
+
+        return [
+            'uuid' => $existingUuids['openId'],
+            'path' => $vaultPath,
+        ];
+    }
+
+    /**
+     * @param CredentialDto $credential
+     * @param _ExistingUuids $existingUuids
+     *
+     * @throws \Throwable
+     *
+     * @return array{uuid: string, path: string}
+     */
+    private function migrateBrokerInputOutputPasswords(
+        CredentialDto $credential,
+        array &$existingUuids
+    ): array {
+        if ($credential->resourceId === null) {
+            throw new \Exception('Resource ID should not be null');
+        }
+        $uuid = null;
+        if (array_key_exists($credential->resourceId, $existingUuids['brokerConfigs'])) {
+            $uuid = $existingUuids['brokerConfigs'][$credential->resourceId];
+        }
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
+
+        $vaultPath = $this->writeVaultRepository->upsert(
+            $uuid,
+            [
+                $credential->name => $credential->value,
+            ]
+        );
+        $vaultPathPart = explode('/', $vaultPath);
+        $existingUuids['brokerConfigs'][$credential->resourceId] = end($vaultPathPart);
+        $inputOutputs = $this->brokerInputOutputs[$credential->resourceId];
+        foreach ($inputOutputs as $inputOutput) {
+            if (str_starts_with($credential->name, $inputOutput->getName())) {
+                $credentialNamePart = str_replace($inputOutput->getName() . '_', '', $credential->name);
+                $params = $inputOutput->getParameters();
+                foreach ($params as $paramName => $param) {
+                    if (is_array($param)) {
+                        foreach ($param as $index => $groupedParams) {
+                            if (
+                                is_array($groupedParams)
+                                && isset($groupedParams['type'])
+                                && ($paramName . '_' . $groupedParams['name']) === $credentialNamePart
+                            ) {
+                                if (! isset($params[$paramName][$index]) || ! is_array($params[$paramName][$index])) {
+                                    // for phpstan, should never happen.
+                                    throw new \Exception('Unexpected error');
+                                }
+                                $params[$paramName][$index]['value'] = $vaultPath;
+                            }
+                        }
+                    } elseif ($paramName === $credentialNamePart) {
+                        $params[$paramName] = $vaultPath;
+                    }
+                }
+
+                $inputOutput->setParameters($params);
+                $this->writeBrokerInputOutputRepository->update(
+                    $inputOutput,
+                    $credential->resourceId,
+                    $this->readBrokerInputOutputRepository->findParametersByType($inputOutput->getType()->id),
+                );
+            }
+        }
+
+        return [
+            'uuid' => $existingUuids['brokerConfigs'][$credential->resourceId],
             'path' => $vaultPath,
         ];
     }

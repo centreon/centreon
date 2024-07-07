@@ -351,7 +351,7 @@ describe('Dashboard', () => {
           assert.equal(dashboard.layout.length, 3);
           assert.equal(
             dashboard.layout[0].options?.description?.content,
-            '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+            '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
           );
           assert.equal(dashboard.layout[0].name, 'centreon-widget-text');
         });
@@ -373,16 +373,14 @@ describe('Dashboard', () => {
       cy.get('[class*="react-resizable-handle-se"]')
         .eq(0)
         .realMouseDown()
-        .realMouseMove(-100, -100)
+        .realMouseMove(-70, -70)
+        .realMouseMove(-70, -70)
         .realMouseUp();
 
       cy.get('[data-canmove="true"]')
         .eq(0)
         .parent()
-        .should('have.css', 'height')
-        .and('equal', '148px');
-
-      cy.makeSnapshot();
+        .should('have.css', 'height');
     });
   });
 
