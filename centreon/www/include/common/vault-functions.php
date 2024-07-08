@@ -521,6 +521,7 @@ function updateHostSecretsInVaultFromMC(
     global $pearDB;
 
     $hostSecretsFromVault = [];
+    $uuid = null;
     if ($vaultPath !== null) {
         $uuid = preg_match(
             '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
@@ -753,69 +754,50 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
 /**
  * Duplicate Service Secrets in Vault.
  *
- * @param VaultConfiguration $vaultConfiguration
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param Logger $logger
- * @param CentreonRestHttp $httpClient
- * @param UUIDGeneratorInterface $uuidGenerator
  * @param int $duplicatedServiceId
- * @param array<int, string> $macroPasswords
- * @param string $clientToken
+ * @param array<int, array<string, string> $macroPasswords
  *
  * @throws Throwable
  */
 function duplicateServiceSecretsInVault(
-    VaultConfiguration $vaultConfiguration,
+    ReadVaultRepositoryInterface $readVaultRepository,
+    WriteVaultRepositoryInterface $writeVaultRepository,
     Logger $logger,
-    CentreonRestHttp $httpClient,
-    UUIDGeneratorInterface $uuidGenerator,
     int $duplicatedServiceId,
     array $macroPasswords,
-    string $clientToken,
 ): void {
     global $pearDB;
 
-    $uuid = null;
-    foreach ($macroPasswords as $macroValue) {
-        if (str_starts_with($macroValue, VaultConfiguration::VAULT_PATH_PATTERN)) {
-            $pathPart = explode('/', $macroValue);
-            $uuid = end($pathPart);
+    $vaultPath = null;
+    foreach ($macroPasswords as $macroInfo) {
+        if (str_starts_with($macroInfo['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)) {
+            $vaultPath = $macroInfo['macroValue'];
             break;
         }
     }
 
     $serviceSecretsFromVault = [];
-    if (isset($uuid)) {
+    if ($vaultPath !== null) {
         $serviceSecretsFromVault = getServiceSecretsFromVault(
-            $vaultConfiguration,
+            $readVaultRepository,
             $duplicatedServiceId, // The duplicated service id
-            $uuid,
-            $clientToken,
+            $vaultPath,
             $logger,
-            $httpClient
         );
     }
 
     if (! empty($serviceSecretsFromVault)) {
-        $newUuid = $uuidGenerator->generateV4();
-        writeServiceSecretsInVault(
-            $vaultConfiguration,
-            $newUuid,
-            $clientToken,
-            $serviceSecretsFromVault,
-            $logger,
-            $httpClient
-        );
-        $servicePath = 'secret::' . $vaultConfiguration->getName() . '::'
-            . $vaultConfiguration->getRootPath()
-            . '/data/monitoring/services/' . $newUuid;
+        $vaultPaths = $writeVaultRepository->upsert(null, $serviceSecretsFromVault);
 
         // Store vault path for macros
         if (! empty($macroPasswords)) {
-            updateOnDemandMacroServiceTableWithVaultPath(
-                $pearDB,
-                array_keys($macroPasswords),
-                $servicePath
-            );
+            foreach ($macroPasswords as  $macroId => $macroInfo) {
+                $macroPasswords[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
+            }
+            updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macroPasswords);
         }
     }
 }
@@ -987,51 +969,44 @@ function retrieveServiceSecretUuidFromDatabase(
  * @throws Throwable
  */
 function updateServiceSecretsInVaultFromMC(
-    VaultConfiguration $vaultConfiguration,
+    ReadVaultRepositoryInterface $readVaultRepository,
+    WriteVaultRepositoryInterface $writeVaultRepository,
     Logger $logger,
-    UUIDGeneratorInterface $uuidGenerator,
-    ?string $uuid,
+    ?string $vaultPath,
     int $serviceId,
     array $macros
 ): void {
     global $pearDB;
 
-    $httpClient = new CentreonRestHttp();
-    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
     $serviceSecretsFromVault = [];
-    if ($uuid !== null) {
+    $uuid = null;
+    if ($vaultPath !== null) {
+        $uuid = preg_match(
+            '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+            $vaultPath,
+            $matches
+        ) ? $matches[2] : null;
         $serviceSecretsFromVault = getServiceSecretsFromVault(
-            $vaultConfiguration,
+            $readVaultRepository,
             $serviceId,
-            $uuid,
-            $clientToken,
-            $logger,
-            $httpClient
+            $vaultPath,
+            $logger
         );
     }
-    $macroPasswordIds = getIdOfUpdatedPasswordMacros($macros);
+
     $updateServicePayload = prepareServiceUpdateMCPayload(
         $macros,
         $serviceSecretsFromVault
     );
     if (! empty($updateServicePayload)) {
-        $uuid ??= $uuidGenerator->generateV4();
-        writeServiceSecretsInVault(
-            $vaultConfiguration,
-            $uuid,
-            $clientToken,
-            $updateServicePayload,
-            $logger,
-            $httpClient
-        );
-
-        $servicePath = 'secret::' . $vaultConfiguration->getName() . '::'
-            . $vaultConfiguration->getRootPath()
-            . '/data/monitoring/services/' . $uuid;
+        $vaultPaths = $writeVaultRepository->upsert($uuid, $updateServicePayload);
+        foreach ($macros as  $macroId => $macroInfo) {
+            $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
+        }
 
         // Store vault path for macros
-        if (! empty($macroPasswordIds)) {
-            updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macroPasswordIds, $servicePath);
+        if (! empty($macros)) {
+            updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macros);
         }
     }
 }
@@ -1080,7 +1055,7 @@ function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromV
  *
  * @throws Throwable
  */
-function updateServiceSecretsInVault(
+function SecretsInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
     Logger $logger,
