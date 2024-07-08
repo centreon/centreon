@@ -28,7 +28,7 @@ jobs:
         distrib: [el7, el8, bullseye]
         include:
           - package_extension: rpm
-            image: packaging-centos7
+            image: packaging-alma8
             distrib: el7
           - package_extension: rpm
             image: packaging-alma8
@@ -48,6 +48,7 @@ jobs:
       minor_version: ${{ inputs.minor_version }}
       release: ${{ inputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+      distrib: ${{ matrix.distrib }}
     secrets:
       registry_username: ${{ secrets.registry_username }}
       registry_password: ${{ secrets.registry_password }}
