@@ -36,6 +36,11 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
             throw new \LogicException('Vault not configured');
         }
         $customPathElements = explode('::', $path);
+
+        // remove vault key from path
+        array_pop($customPathElements);
+
+        // Keep only the uri from the path
         $customPath = end($customPathElements);
         $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
             . '/v1/' . $customPath;

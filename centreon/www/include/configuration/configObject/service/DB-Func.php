@@ -1906,6 +1906,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
             $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
             /** @var \Centreon\Domain\Log\Logger $logger */
             $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+
             insertServiceSecretsInVault($vaultConfiguration,$uuidGenerator, $logger, $macros);
         } catch (\Throwable $ex) {
             error_log((string) $ex);

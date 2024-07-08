@@ -50,6 +50,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class MigrateAllCredentials
 {
@@ -239,7 +240,7 @@ final class MigrateAllCredentials
             $credential = new CredentialDto();
             $credential->resourceId = $host->getId();
             $credential->type = CredentialTypeEnum::TYPE_HOST;
-            $credential->name = '_HOSTSNMPCOMMUNITY';
+            $credential->name = VaultConfiguration::HOST_SNMP_COMMUNITY_KEY;
             $credential->value = $host->getSnmpCommunity();
             $credentials[] = $credential;
         }
@@ -265,7 +266,7 @@ final class MigrateAllCredentials
             $credential = new CredentialDto();
             $credential->resourceId = $hostTemplate->getId();
             $credential->type = CredentialTypeEnum::TYPE_HOST_TEMPLATE;
-            $credential->name = '_HOSTSNMPCOMMUNITY';
+            $credential->name = VaultConfiguration::HOST_SNMP_COMMUNITY_KEY;
             $credential->value = $hostTemplate->getSnmpCommunity();
             $credentials[] = $credential;
         }

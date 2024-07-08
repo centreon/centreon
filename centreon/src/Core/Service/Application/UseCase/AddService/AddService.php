@@ -201,10 +201,12 @@ final class AddService
             $this->info('Add the macro ' . $macro->getName());
 
             if ($this->writeVaultRepository->isVaultConfigured() === true && $macro->isPassword() === true) {
-                $vaultPath = $this->writeVaultRepository->upsert(
+                $vaultPaths = $this->writeVaultRepository->upsert(
                     $this->uuid ?? null,
                     ['_SERVICE' . $macro->getName() => $macro->getValue()],
                 );
+                $vaultPath = $vaultPaths['_SERVICE' . $macro->getName()];
+
                 $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
                 $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
