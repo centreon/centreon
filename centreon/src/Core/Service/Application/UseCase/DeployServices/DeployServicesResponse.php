@@ -25,6 +25,6 @@ namespace Core\Service\Application\UseCase\DeployServices;
 
 final class DeployServicesResponse
 {
-    /** @var DeployServiceDto[] $services */
+    /** @var DeployServiceDto[] */
     public array $services = [];
 }

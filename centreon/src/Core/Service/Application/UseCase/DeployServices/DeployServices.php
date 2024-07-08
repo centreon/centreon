@@ -93,6 +93,7 @@ final class DeployServices
                     return;
                 }
             }
+
             $hostParents = $this->readHostRepository->findParents($hostId);
             if ($hostParents === []) {
                 $this->error(
@@ -136,6 +137,7 @@ final class DeployServices
             } catch (\Throwable $ex) {
                 $this->error("Rollback of 'DeployServices' transaction", ['trace' => $ex->getTraceAsString()]);
                 $this->dataStorageEngine->rollbackTransaction();
+
                 throw $ex;
             }
 

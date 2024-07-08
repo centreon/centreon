@@ -31,6 +31,12 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 final class DeployServicesController extends AbstractController
 {
     /**
+     * @param DeployServices $useCase
+     * @param DeployServicesOnPremPresenter $onPremPresenter
+     * @param deployServicesSaasPresenter $saasPresenter
+     * @param bool $isCloudPlatform
+     * @param int $hostId
+     *
      * @throws AccessDeniedException
      */
     public function __invoke(

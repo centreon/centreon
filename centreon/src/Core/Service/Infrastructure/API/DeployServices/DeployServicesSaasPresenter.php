@@ -31,6 +31,9 @@ use Core\Service\Application\UseCase\DeployServices\DeployServicesResponse;
 
 class DeployServicesSaasPresenter extends AbstractPresenter implements DeployServicesPresenterInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function presentResponse(DeployServicesResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
@@ -57,7 +60,7 @@ class DeployServicesSaasPresenter extends AbstractPresenter implements DeploySer
                             'severity_id' => $service->severityId
                         ],
                         $response->services
-                    )
+                    ),
                 ]
             );
         }

@@ -29,46 +29,85 @@ use Core\Service\Domain\Model\NotificationType;
 final class DeployServiceDto
 {
     public int $id = 0;
+
     public string $name = '';
+
     public int $hostId = 0;
+
     public string|null $geoCoords = null;
+
     public string|null $comment = null;
+
     public int|null $serviceTemplateId = null;
+
     public int|null $commandId = null;
+
     /** @var string[] */
     public array $commandArguments = [];
+
     public int|null $checkTimePeriodId = null;
+
     public int|null $maxCheckAttempts = null;
+
     public int|null $normalCheckInterval = null;
+
     public int|null $retryCheckInterval = null;
+
     public YesNoDefault $activeChecksEnabled = YesNoDefault::Default;
+
     public YesNoDefault $passiveChecksEnabled = YesNoDefault::Default;
+
     public YesNoDefault $volatilityEnabled = YesNoDefault::Default;
+
     public YesNoDefault $notificationsEnabled = YesNoDefault::Default;
+
     public bool $isContactAdditiveInheritance = false;
+
     public bool $isContactGroupAdditiveInheritance = false;
+
     public int|null $notificationInterval = null;
+
     public int|null $notificationTimePeriodId = null;
+
     /** @var NotificationType[] */
     public array $notificationTypes = [];
+
     public int|null $firstNotificationDelay = null;
+
     public int|null $recoveryNotificationDelay = null;
+
     public int|null $acknowledgementTimeout;
+
     public YesNoDefault $checkFreshness = YesNoDefault::Default;
+
     public int|null $freshnessThreshold = null;
+
     public YesNoDefault $flapDetectionEnabled = YesNoDefault::Default;
+
     public int|null $lowFlapThreshold = null;
+
     public int|null $highFlapThreshold = null;
+
     public YesNoDefault $eventHandlerEnabled = YesNoDefault::Default;
+
     public int|null $eventHandlerCommandId = null;
+
     /** @var string[] */
     public array $eventHandlerArguments = [];
+
     public int|null $graphTemplateId = null;
+
     public string|null $note = null;
+
     public string|null $noteUrl = null;
+
     public string|null $actionUrl;
+
     public int|null $iconId = null;
+
     public string|null $iconAlternative = null;
+
     public int|null $severityId = null;
+
     public bool $isActivated = false;
 }

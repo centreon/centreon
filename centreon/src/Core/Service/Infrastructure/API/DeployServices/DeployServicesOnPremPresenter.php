@@ -34,6 +34,9 @@ use Core\Service\Infrastructure\Model\YesNoDefaultConverter;
 
 class DeployServicesOnPremPresenter extends AbstractPresenter implements DeployServicesPresenterInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function presentResponse(DeployServicesResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
@@ -86,7 +89,7 @@ class DeployServicesOnPremPresenter extends AbstractPresenter implements DeployS
                                 'is_activated' => $service->isActivated,
                             ],
                             $response->services
-                        )
+                        ),
                     ]
                 )
             );

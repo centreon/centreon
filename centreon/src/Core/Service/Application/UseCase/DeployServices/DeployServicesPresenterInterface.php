@@ -27,5 +27,8 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 interface DeployServicesPresenterInterface
 {
+    /**
+     * @param DeployServicesResponse|ResponseStatusInterface $response
+     */
     public function presentResponse(DeployServicesResponse|ResponseStatusInterface $response): void;
 }

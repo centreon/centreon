@@ -114,7 +114,7 @@ interface ReadServiceTemplateRepositoryInterface
     /**
      * Find service templates associated to given host id.
      *
-     * @param int $hostIds
+     * @param int $hostId
      *
      * @throws \Throwable
      *
