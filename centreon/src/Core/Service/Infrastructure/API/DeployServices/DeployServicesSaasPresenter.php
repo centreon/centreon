@@ -57,7 +57,7 @@ class DeployServicesSaasPresenter extends AbstractPresenter implements DeploySer
                             'note_url' => $service->noteUrl,
                             'action_url' => $service->actionUrl,
                             'icon_id' => $service->iconId,
-                            'severity_id' => $service->severityId
+                            'severity_id' => $service->severityId,
                         ],
                         $response->services
                     ),
