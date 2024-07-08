@@ -82,7 +82,8 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - uses: actions/checkout@v4 # node16 el7 eol on gha runners
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      # node16 el7 eol on gha runners
 
       - uses: ./.github/actions/package
         with:
