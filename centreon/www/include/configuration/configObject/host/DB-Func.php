@@ -1334,7 +1334,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     //Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $vaultPath = retrieveVaultPathFromDatabase($pearDB, $hostId);
+        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
     if (! $isCloudPlatform) {
@@ -1534,7 +1534,7 @@ function updateHost_MC($hostId = null)
     //Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $vaultPath = retrieveVaultPathFromDatabase($pearDB, $hostId);
+        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
     $submittedValues = $form->getSubmitValues();
