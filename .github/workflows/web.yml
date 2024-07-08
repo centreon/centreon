@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       is_nightly:
-        description: 'Set to true for nightly run'
+        description: "Set to true for nightly run"
         required: true
         default: false
         type: boolean
@@ -637,7 +637,13 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   newman-test:
-    needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
+    needs:
+      [
+        get-version,
+        changes,
+        create-xray-test-plan-and-test-execution,
+        dockerize,
+      ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
@@ -729,8 +735,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    # needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
-    needs: [get-version, create-xray-test-plan-and-test-execution]
+    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
@@ -1013,7 +1018,7 @@ jobs:
         e2e-test,
         performances-test,
         legacy-e2e-test,
-        deliver-rpm
+        deliver-rpm,
       ]
     if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
