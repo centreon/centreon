@@ -19202,3 +19202,9 @@ msgstr "Date d'ouverture"
 
 msgid "Create a ticket"
 msgstr "Créer un ticket"
+
+msgid "Rule"
+msgstr "Règle"
+
+msgid "Select a rule"
+msgstr "Sélectionnez une règle"

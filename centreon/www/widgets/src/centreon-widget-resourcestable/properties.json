@@ -96,8 +96,8 @@
     },
     "provider":{
       "type": "connected-autocomplete",
-      "label": "Ticket provider",
-      "secondaryLabel": "Select a provider",
+      "label": "Rule",
+      "secondaryLabel": "Select a rule",
       "baseEndpoint": "/open-tickets/providers",
       "isSingleAutocomplete" : true,
       "hiddenCondition": {

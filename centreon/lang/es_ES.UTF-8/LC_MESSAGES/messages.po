@@ -17434,3 +17434,9 @@ msgstr "Modo avanzado"
 
 # msgid "Create a ticket"
 # msgstr ""
+
+# msgid "Rule"
+# msgstr ""
+
+# msgid "Select a rule"
+# msgstr ""
