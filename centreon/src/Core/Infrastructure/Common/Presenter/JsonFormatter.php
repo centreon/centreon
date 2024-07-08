@@ -24,7 +24,8 @@ declare(strict_types=1);
 namespace Core\Infrastructure\Common\Presenter;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{BodyResponseInterface,
+use Core\Application\Common\UseCase\{
+    BodyResponseInterface,
     ConflictResponse,
     CreatedResponse,
     ErrorResponse,
@@ -36,7 +37,8 @@ use Core\Application\Common\UseCase\{BodyResponseInterface,
     NotModifiedResponse,
     PaymentRequiredResponse,
     ResponseStatusInterface,
-    UnauthorizedResponse
+    UnauthorizedResponse,
+    UnprocessableContentResponse
 };
 use Symfony\Component\HttpFoundation\{JsonResponse, Response};
 
@@ -92,6 +94,8 @@ class JsonFormatter implements PresenterFormatterInterface
                     return $this->generateJsonResponse($data, Response::HTTP_MULTI_STATUS, $headers);
                 case $data instanceof NotModifiedResponse:
                     return $this->generateJsonResponse($data, Response::HTTP_NOT_MODIFIED, $headers);
+                case $data instanceof UnprocessableContentResponse:
+                    return $this->generateJsonResponse($data, Response::HTTP_UNPROCESSABLE_ENTITY, $headers);
                 default:
                     return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
             }

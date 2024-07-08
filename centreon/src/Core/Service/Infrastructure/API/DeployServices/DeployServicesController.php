@@ -25,7 +25,6 @@ namespace Core\Service\Infrastructure\API\DeployServices;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Service\Application\UseCase\DeployServices\DeployServices;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -34,8 +33,16 @@ final class DeployServicesController extends AbstractController
     /**
      * @throws AccessDeniedException
      */
-    public function __invoke(DeployServices $useCase, DefaultPresenter $presenter, int $hostId): Response {
+    public function __invoke(
+        DeployServices $useCase,
+        DeployServicesOnPremPresenter $onPremPresenter,
+        DeployServicesSaasPresenter $saasPresenter,
+        bool $isCloudPlatform,
+        int $hostId
+    ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
+
+        $presenter = $isCloudPlatform ? $saasPresenter : $onPremPresenter;
 
         $useCase($presenter, $hostId);
 

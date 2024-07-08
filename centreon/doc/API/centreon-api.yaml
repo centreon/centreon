@@ -3,7 +3,7 @@ info:
   title: Centreon Web RestAPI
   description: |
     # New features
-    +
+    + Added endpoint to deploy services in a host based on associated host template(s)
     # Updated features
     + Added host_category filter to /monitoring/hostgroups endpoint
     + Added new filters for the /monitoring/hosts/categories endpoint
@@ -390,7 +390,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/hosts/{host_id}/services:
+  /configuration/hosts/{host_id}/services/deploy:
     $ref: './latest/onPremise/Configuration/Service/DeployServices.yaml'
   /configuration/services/categories:
     get:

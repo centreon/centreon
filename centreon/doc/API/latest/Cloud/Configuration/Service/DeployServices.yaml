@@ -3,7 +3,7 @@ post:
     - Service
   summary: "Add services to a host based on associated host template"
   description: |
-    Add services to a host based on associated host template
+    Add services to a host based on associated host templates
   responses:
     '201':
       description: "Objects created"
@@ -17,12 +17,13 @@ post:
                 items:
                   $ref: 'Schema/DeployServiceResponse.yaml'
     '401':
-      $ref: '../../Common/Response/Unauthorized.yaml'
+      $ref: '../../../Common/Response/Unauthorized.yaml'
     '403':
-      $ref: '../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '422':
-      $ref: '../../Common/Response/UnprocessableContent.yaml'
+      $ref: '../../../Common/Response/UnprocessableContent.yaml'
     '500':
-      $ref: '../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+
