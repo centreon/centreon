@@ -328,9 +328,9 @@ When('administrator runs the update procedure', () => {
 
   cy.log(`installed_version : ${installed_version}`);
   cy.log(`available_minor_version : ${available_minor_version}`);
-  cy.getWebVersion().then(({ major_version }) => {
+  cy.getWebVersion().then(({ major_version, minor_version }) => {
     cy.contains(
-      `upgraded from version ${installed_version} to ${major_version}.${available_minor_version}`
+      `upgraded from version ${installed_version} to ${major_version}.${minor_version}`
     ).should('be.visible');
   });
   cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
