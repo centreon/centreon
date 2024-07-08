@@ -62,7 +62,7 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-centos7
+            image: packaging-alma8
             distrib: el7
           - package_extension: rpm
             image: packaging-alma8
@@ -82,6 +82,7 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+      distrib: ${{ matrix.distrib }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
