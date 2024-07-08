@@ -384,7 +384,12 @@ Then(
         template: 'serviceTemplate1'
       })
       .applyPollerConfiguration();
-
+    cy.visit(`${Cypress.config().baseUrl}`);
+    cy.getWebVersion().then(({ major_version }) => {
+      cy.contains(
+        `${major_version}.${Cypress.env('available_minor_version')}`
+      ).should('be.visible');
+    });
     cy.loginByTypeOfUser({
       jsonName: 'admin'
     }).wait('@getLastestUserFilters');
@@ -430,12 +435,6 @@ Then('legacy services grid page should still work', () => {
 });
 
 Given('a successfully updated platform', () => {
-  cy.visit(`${Cypress.config().baseUrl}`);
-  cy.getWebVersion().then(({ major_version }) => {
-    cy.contains(
-      `${major_version}.${Cypress.env('available_minor_version')}`
-    ).should('be.visible');
-  });
   cy.setUserTokenApiV1();
 
   cy.loginByTypeOfUser({
