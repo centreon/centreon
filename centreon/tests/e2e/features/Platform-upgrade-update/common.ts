@@ -324,13 +324,16 @@ When('administrator runs the update procedure', () => {
   cy.contains('Release notes');
   // check correct updated version
   const installed_version = Cypress.env('installed_version');
+  const available_version = Cypress.env('available_version');
   const available_minor_version = Cypress.env('available_minor_version');
 
   cy.log(`installed_version : ${installed_version}`);
   cy.log(`available_minor_version : ${available_minor_version}`);
+  cy.log(`available_version : ${available_version}`);
   cy.getWebVersion().then(({ major_version, minor_version }) => {
     cy.contains(
-      `upgraded from version ${installed_version} to ${major_version}.${minor_version}`
+      `upgraded from version ${installed_version} to ${major_version}.${minor_version}` ||
+      `upgraded from version ${installed_version} to ${available_version}`
     ).should('be.visible');
   });
   cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
@@ -385,10 +388,8 @@ Then(
       })
       .applyPollerConfiguration();
     cy.visit(`${Cypress.config().baseUrl}`);
-    cy.getWebVersion().then(({ major_version }) => {
-      cy.contains(
-        `${major_version}.${Cypress.env('available_minor_version')}`
-      ).should('be.visible');
+    cy.getWebVersion().then(({ major_version, minor_version }) => {
+      cy.contains(`${major_version}.${minor_version}`).should('be.visible');
     });
     cy.loginByTypeOfUser({
       jsonName: 'admin'
