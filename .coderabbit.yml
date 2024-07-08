@@ -12,5 +12,9 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+  path_filters:
+    - "!*.po"
+    - "!*.md"
+    - "!*.rst"
 chat:
   auto_reply: false
