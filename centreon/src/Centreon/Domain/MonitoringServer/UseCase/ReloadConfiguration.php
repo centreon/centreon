@@ -89,6 +89,8 @@ class ReloadConfiguration
             }
             $this->info('Reload configuration for monitoring server #' . $monitoringServerId);
             $this->configurationRepository->reloadConfiguration($monitoringServerId);
+        } catch(AccessDeniedException $ex) {
+            throw new AccessDeniedException($ex->getMessage());
         } catch (EntityNotFoundException | TimeoutException $ex) {
             if ($ex instanceof TimeoutException) {
                 throw ConfigurationMonitoringServerException::timeout($monitoringServerId, $ex->getMessage());
