@@ -427,14 +427,14 @@ function deleteServiceInDB($services = array())
 
     $serviceIds = array_keys($services);
     $kernel = Kernel::createForWeb();
-    /** @var Logger $logger */
-    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
     if ($vaultConfiguration !== null) {
-        deleteResourceSecretsInVault($vaultConfiguration, $logger, [], $serviceIds);
+        deleteResourceSecretsInVault($writeVaultRepository, [], $serviceIds);
     }
 
     $query = 'UPDATE service SET service_template_model_stm_id = NULL WHERE service_id = :service_id';
