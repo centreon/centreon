@@ -952,7 +952,7 @@ function saveKnowledgeBasePasswordInVault(string $password, ?string $originalPas
     if ($originalPassword !== null && str_starts_with($originalPassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
         $uuid = preg_match(
             '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
-            $value,
+            $originalPassword,
             $matches
         )
         && isset($matches[2]) ? $matches[2] : null;
