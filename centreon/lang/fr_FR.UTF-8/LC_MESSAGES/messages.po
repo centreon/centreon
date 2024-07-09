@@ -19138,7 +19138,7 @@ msgid "Bar background opacity"
 msgstr "Opacité du fond de la barre"
 
 msgid  "All KPIs on this business activity are working fine."
-msgstr "Tous les KPI de cette activité commerciale fonctionnent correctement."
+msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
 
 msgid  "are working fine."
 msgstr "fonctionnent correctement."
