@@ -29,6 +29,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\UnprocessableContentResponse;
 use Core\Common\Domain\TrimmedString;
@@ -139,6 +140,13 @@ final class DeployServices
                 $this->dataStorageEngine->rollbackTransaction();
 
                 throw $ex;
+            }
+
+            if ($deployedServices === []) {
+                $response = new NoContentResponse();
+                $presenter->presentResponse($response);
+
+                return;
             }
 
             $response = $this->createResponse($deployedServices);

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Service\Infrastructure\API\DeployServices;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Service\Application\UseCase\DeployServices\DeployServiceDto;
 use Core\Service\Application\UseCase\DeployServices\DeployServicesPresenterInterface;
@@ -40,28 +41,30 @@ class DeployServicesSaasPresenter extends AbstractPresenter implements DeploySer
             $this->setResponseStatus($response);
         } else {
             $this->present(
-                null,
-                [
-                    'services' => array_map(
-                        static fn (DeployServiceDto $service): array => [
-                            'id' => $service->id,
-                            'name' => $service->name,
-                            'host_id' => $service->hostId,
-                            'geo_coords' => $service->geoCoords,
-                            'service_template_id' => $service->serviceTemplateId,
-                            'check_timeperiod_id' => $service->checkTimePeriodId,
-                            'max_check_attempts' => $service->maxCheckAttempts,
-                            'normal_check_interval' => $service->normalCheckInterval,
-                            'retry_check_interval' => $service->retryCheckInterval,
-                            'note' => $service->note,
-                            'note_url' => $service->noteUrl,
-                            'action_url' => $service->actionUrl,
-                            'icon_id' => $service->iconId,
-                            'severity_id' => $service->severityId,
-                        ],
-                        $response->services
-                    ),
-                ]
+                new CreatedResponse(
+                    null,
+                    [
+                        'services' => array_map(
+                            static fn (DeployServiceDto $service): array => [
+                                'id' => $service->id,
+                                'name' => $service->name,
+                                'host_id' => $service->hostId,
+                                'geo_coords' => $service->geoCoords,
+                                'service_template_id' => $service->serviceTemplateId,
+                                'check_timeperiod_id' => $service->checkTimePeriodId,
+                                'max_check_attempts' => $service->maxCheckAttempts,
+                                'normal_check_interval' => $service->normalCheckInterval,
+                                'retry_check_interval' => $service->retryCheckInterval,
+                                'note' => $service->note,
+                                'note_url' => $service->noteUrl,
+                                'action_url' => $service->actionUrl,
+                                'icon_id' => $service->iconId,
+                                'severity_id' => $service->severityId,
+                            ],
+                            $response->services
+                        ),
+                    ]
+                )
             );
         }
     }

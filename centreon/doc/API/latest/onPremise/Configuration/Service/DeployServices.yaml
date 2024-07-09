@@ -16,6 +16,9 @@ post:
                 type: array
                 items:
                   $ref: 'Schema/DeployServiceResponse.yaml'
+    '204':
+      $ref: '../../Common/Response/NoContent.yaml'
+      :qa
     '401':
       $ref: '../../Common/Response/Unauthorized.yaml'
     '403':
