@@ -12,16 +12,21 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import Resources from '..';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import { Type } from '../Actions/model';
+import { panelWidthStorageAtom } from '../Details/detailsAtoms';
 import useDetails from '../Details/useDetails';
+import { applyFilterDerivedAtom } from '../Filter/filterAtoms';
+import { allFilter } from '../Filter/models';
 import useFilter from '../Filter/useFilter';
 import { Visualization } from '../models';
 import {
   labelAcknowledged,
   labelAll,
-  labelChecksDisabled,
+  labelDisplayView,
   labelInDowntime,
-  labelOnlyPassiveChecksEnabled,
+  labelMoreActions,
   labelViewByHost,
   labelViewByService
 } from '../translatedLabels';
@@ -30,7 +35,7 @@ import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from './columns';
-import { selectedColumnIdsAtom } from './listingAtoms';
+import { enabledAutorefreshAtom, selectedColumnIdsAtom } from './listingAtoms';
 import {
   columnToSort,
   columns,
@@ -44,6 +49,78 @@ import {
 import useLoadDetails from './useLoadResources/useLoadDetails';
 
 import Listing from '.';
+
+const pageNavigationCalls = [
+  { expectedCall: 1, param: 'page=2&limit=30' },
+  { expectedCall: 4, param: 'page=1&limit=30' },
+  { expectedCall: 1, param: 'page=4&limit=30' }
+];
+
+const listingActionsData = [
+  {
+    conditionsInListing: [
+      { rule: 'be.visible', testId: 'PlayArrowIcon' },
+      { rule: 'be.visible', testId: 'RefreshIcon' }
+    ],
+    conditionsInMoreActions: [
+      {
+        rule: 'not.exist',
+        testId: 'RefreshInMoreActions'
+      },
+      {
+        rule: 'not.exist',
+        testId: 'AutorefreshInMoreActions'
+      }
+    ],
+    height: 590,
+    panelWidth: 750,
+    type: Type.medium
+  },
+  {
+    conditionsInListing: [
+      { rule: 'not.exist', testId: 'PlayArrowIcon' },
+      { rule: 'not.exist', testId: 'RefreshIcon' }
+    ],
+    conditionsInMoreActions: [
+      {
+        rule: 'be.visible',
+        testId: 'RefreshInMoreActions'
+      },
+      {
+        rule: 'be.visible',
+        testId: 'AutorefreshInMoreActions'
+      }
+    ],
+    height: 590,
+    panelWidth: 900,
+    type: Type.small
+  }
+];
+
+const interceptRequest = ({ dataPath, alias, path }): void => {
+  cy.fixture(dataPath).then((data) => {
+    cy.interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path,
+      response: data
+    });
+  });
+};
+
+const configureUserAtomViewMode = (
+  listingVariant: ListingVariant = ListingVariant.compact
+): void => {
+  const userData = renderHook(() => useAtomValue(userAtom));
+
+  userData.result.current.timezone = 'Europe/Paris';
+  userData.result.current.locale = 'en_US';
+  userData.result.current.user_interface_density = listingVariant;
+};
+
+before(() => {
+  configureUserAtomViewMode();
+});
 
 const ListingTest = (): JSX.Element => {
   useFilter();
@@ -69,20 +146,6 @@ const ListingTestWithJotai = (): JSX.Element => (
     </TestQueryProvider>
   </Provider>
 );
-
-const configureUserAtomViewMode = (
-  listingVariant: ListingVariant = ListingVariant.compact
-): void => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-  userData.result.current.user_interface_density = listingVariant;
-};
-
-before(() => {
-  configureUserAtomViewMode();
-});
 
 const interceptRequestsAndMountBeforeEach = (
   interceptCriticalResources = false
@@ -111,8 +174,93 @@ const interceptRequestsAndMountBeforeEach = (
     )
   });
 
-  cy.viewport(1200, 1000);
+  cy.adjustViewport();
 };
+
+const mountResourcePage = (): void => {
+  cy.interceptAPIRequest({
+    alias: 'filterRequest',
+    method: Method.GET,
+    path: './api/latest/users/filters/events-view?*',
+    response: fakeData
+  });
+
+  interceptRequest({
+    alias: 'listingRequest',
+    dataPath: 'resources/resourceListing.json',
+    path: `./api/latest/monitoring/resources?*`
+  });
+
+  interceptRequest({
+    alias: 'detailsRequest',
+    dataPath: 'resources/anomalyDetectionDetails.json',
+    path: `./api/latest/monitoring/resources/anomaly-detection/1`
+  });
+
+  cy.mount({
+    Component: (
+      <Provider store={store}>
+        <Router>
+          <TestQueryProvider>
+            <Resources />
+          </TestQueryProvider>
+        </Router>
+      </Provider>
+    )
+  });
+};
+
+describe('Responsivity listing actions', () => {
+  beforeEach(() => {
+    cy.viewport(1650, 590);
+    store.set(applyFilterDerivedAtom, allFilter);
+    store.set(selectedVisualizationAtom, Visualization.All);
+    store.set(enabledAutorefreshAtom, false);
+    store.set(platformFeaturesAtom, getPlatformFeatures({}));
+
+    mountResourcePage();
+  });
+  listingActionsData.forEach(
+    ({
+      panelWidth,
+      conditionsInListing,
+      type,
+      conditionsInMoreActions,
+      height
+    }) => {
+      it(`Displays the listing actions correctly for responsiveness cases when the size is ${type}`, () => {
+        const collection =
+          document?.getElementById('cy-root')?.children[0]?.children[0];
+        collection.style.height = '590px';
+        store.set(panelWidthStorageAtom, panelWidth);
+
+        cy.waitForRequest('@filterRequest');
+        cy.waitForRequest('@listingRequest');
+
+        cy.contains('ad').click();
+
+        cy.waitForRequest('@detailsRequest');
+
+        cy.findByText(labelDisplayView).should('not.exist');
+
+        conditionsInListing.forEach(({ rule, testId }) => {
+          cy.findByTestId(testId).should(rule);
+        });
+
+        cy.findByLabelText(labelMoreActions).click();
+
+        conditionsInMoreActions.forEach(({ testId, rule }) => {
+          cy.findByTestId(testId).should(rule);
+        });
+
+        cy.makeSnapshotWithCustomResolution({
+          resolution: { height, width: 1650 },
+          title: `listing actions when the size is ${type}`
+        });
+      });
+    }
+  );
+});
 
 describe('Resource Listing', () => {
   beforeEach(() => {
@@ -390,6 +538,7 @@ describe('Resource Listing: Visualization by all resources', () => {
 
 describe('column sorting', () => {
   beforeEach(() => {
+    cy.adjustViewport();
     columnToSort.forEach(() => {
       cy.interceptAPIRequest({
         alias: `dataToListingTable`,
@@ -413,8 +562,6 @@ describe('column sorting', () => {
         </Router>
       )
     });
-
-    cy.viewport(1200, 1000);
   });
 
   columnToSort.forEach(({ label }) => {
@@ -429,16 +576,12 @@ describe('column sorting', () => {
 
       cy.waitForRequest(`@dataToListingTable`);
 
+      cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
+
       cy.makeSnapshot();
     });
   });
 });
-
-const pageNavigationCalls = [
-  { expectedCall: 1, param: 'page=2&limit=30' },
-  { expectedCall: 4, param: 'page=1&limit=30' },
-  { expectedCall: 1, param: 'page=4&limit=30' }
-];
 
 describe('Listing request', () => {
   beforeEach(() => {
@@ -698,7 +841,6 @@ describe('Notification column', () => {
     cy.makeSnapshot();
   });
 });
-
 describe('Tree view : Feature Flag', () => {
   it('hides the tree view icons if the feature is disabled', () => {
     store.set(
@@ -712,52 +854,5 @@ describe('Tree view : Feature Flag', () => {
     cy.findByTestId('tree view').should('not.exist');
 
     cy.makeSnapshot();
-  });
-});
-
-describe('Checks icon', () => {
-  beforeEach(() => {
-    store.set(selectedColumnIdsAtom, ['checks', ...defaultSelectedColumnIds]);
-    cy.interceptAPIRequest({
-      alias: 'filterRequest',
-      method: Method.GET,
-      path: '**/events-view*',
-      response: fakeData
-    });
-    cy.fixture('resources/listing/checksIcon.json').then((data) => {
-      cy.interceptAPIRequest({
-        alias: 'getListing',
-        method: Method.GET,
-        path: '**/resources?*',
-        response: data
-      });
-    });
-
-    cy.mount({
-      Component: (
-        <Router>
-          <ListingTestWithJotai />
-        </Router>
-      )
-    });
-  });
-
-  [
-    {
-      condition: 'active and  passive checks are false',
-      iconTitle: labelChecksDisabled,
-      testId: 'SyncDisabledIcon'
-    },
-    {
-      condition: 'active checks is false',
-      iconTitle: labelOnlyPassiveChecksEnabled,
-      testId: 'SyncProblemIcon'
-    }
-  ].forEach(({ iconTitle, condition, testId }) => {
-    it(`displays the check icon ${iconTitle} when the ${condition} `, () => {
-      cy.waitForRequest('@getListing');
-      cy.findByTestId(testId).should('be.visible');
-      cy.makeSnapshot(`displays the check icon ${iconTitle} when ${condition}`);
-    });
   });
 });
