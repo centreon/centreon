@@ -10,8 +10,8 @@ import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from '../../Listing/columns/index';
+import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 
-import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 interface Props {
   type: Visualization;
