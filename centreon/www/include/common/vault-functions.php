@@ -347,37 +347,6 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds): array
 }
 
 /**
- * Delete service secrets data from vault.
- *
- * @param VaultConfiguration $vaultConfiguration
- * @param string $uuid
- * @param string $clientToken
- * @param Logger $logger
- * @param CentreonRestHttp $httpClient
- *
- * @throws Throwable
- */
-function deleteServiceFromVault(
-    VaultConfiguration $vaultConfiguration,
-    string $uuid,
-    string $clientToken,
-    Logger $logger,
-    CentreonRestHttp $httpClient
-): void {
-    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getRootPath() . '/metadata/monitoring/services/' . $uuid;
-    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
-    $logger->info(sprintf('Deleting Service: %s', $uuid));
-    try {
-        $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
-    } catch (Exception $ex) {
-        $logger->error(sprintf('Unable to delete Service: %s', $uuid));
-
-        throw $ex;
-    }
-}
-
-/**
  * Found Service Secrets UUIDs.
  *
  * @param non-empty-array<int> $serviceIds
@@ -559,25 +528,6 @@ function updateHostSecretsInVaultFromMC(
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macros);
         }
     }
-}
-
-/**
- * Store all the ids of password macros that have been updated.
- *
- * @param array<int,array<string,string>> $macros
- *
- * @return int[]
- */
-function getIdOfUpdatedPasswordMacros(array $macros): array
-{
-    $macroPasswordIds = [];
-    foreach ($macros as $macroId => $macroInfos) {
-        if (! str_starts_with($macroInfos['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)) {
-            $macroPasswordIds[] = $macroId;
-        }
-    }
-
-    return $macroPasswordIds;
 }
 
 /**
@@ -830,53 +780,6 @@ function getServiceSecretsFromVault(
 
         throw $ex;
     }
-}
-
-/**
- * Write service secrets data in vault.
- *
- * @param VaultConfiguration $vaultConfiguration
- * @param int $serviceId
- * @param string $clientToken
- * @param Logger $logger
- * @param CentreonRestHttp $httpClient
- * @param string $uuid
- * @param array $macros
- *
- * @throws Exception
- */
-function writeServiceSecretsInVault(
-    VaultConfiguration $vaultConfiguration,
-    string $uuid,
-    string $clientToken,
-    array $macros,
-    Logger $logger,
-    CentreonRestHttp $httpClient
-): void {
-    try {
-        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-            . '/v1/' . $vaultConfiguration->getRootPath()
-            . '/data/monitoring/services/' . $uuid;
-        $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
-        $logger->info(
-            'Writing Service Secrets at : ' . $url,
-            ['secrets' => implode(', ', array_keys($macros))]
-        );
-        $httpClient->call($url, 'POST', ['data' => $macros], ['X-Vault-Token: ' . $clientToken]);
-    } catch (Exception $ex) {
-        $logger->error(
-            'Unable to write Service secrets into vault',
-            [
-                'message' => $ex->getMessage(),
-                'trace' => $ex->getTraceAsString(),
-                'secrets' => implode(', ', array_keys($macros)),
-            ]
-        );
-
-        throw $ex;
-    }
-
-    $logger->info(sprintf('Write successfully secrets in vault: %s', implode(', ', array_keys($macros))));
 }
 
 /**
