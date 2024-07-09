@@ -370,7 +370,7 @@ final class MigrateAllCredentials
 
         $credential = new CredentialDto();
         $credential->type = CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD;
-        $credential->name = '_KBPASSWORD';
+        $credential->name = VaultConfiguration::KNOWLEDGE_BASE_KEY;
         $credential->value = $knowledgeBasePasswordOption->getValue();
         $credentials[] = $credential;
 

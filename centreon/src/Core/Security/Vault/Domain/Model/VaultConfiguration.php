@@ -42,6 +42,7 @@ class VaultConfiguration
 
     /** Static Vault Key Constants */
     public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
+    public const KNOWLEDGE_BASE_KEY = '_KBPASSWORD';
 
     /** Patterns Constants */
     public const VAULT_PATH_PATTERN = 'secret::';
