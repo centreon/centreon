@@ -21,13 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Security\Vault\Application\UseCase\CreateVaultConfiguration;
+namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
-    CreateVaultConfigurationRequest,
-    NewVaultConfigurationFactory
-};
+use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\NewVaultConfigurationFactory;
+use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfigurationRequest;
 use Core\Security\Vault\Domain\Model\{NewVaultConfiguration, Vault};
 use Security\Encryption;
 
@@ -37,17 +35,16 @@ it(
         $encryption = new Encryption();
 
         $factory = new NewVaultConfigurationFactory(
-            $encryption->setFirstKey('myFirstKey'),
+            $encryption->setFirstKey('myFirstKey')
         );
-        $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
-        $createVaultConfigurationRequest->name = 'myVault';
-        $createVaultConfigurationRequest->address = '127.0.0.1';
-        $createVaultConfigurationRequest->port = 8200;
-        $createVaultConfigurationRequest->rootPath = 'myStorage';
-        $createVaultConfigurationRequest->roleId = 'myRoleId';
-        $createVaultConfigurationRequest->secretId = 'mySecretId';
+        $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
+        $updateVaultConfigurationRequest->address = '127.0.0.1';
+        $updateVaultConfigurationRequest->port = 8200;
+        $updateVaultConfigurationRequest->rootPath = 'myStorage';
+        $updateVaultConfigurationRequest->roleId = 'myRoleId';
+        $updateVaultConfigurationRequest->secretId = 'mySecretId';
 
-        $newVaultConfiguration = $factory->create($createVaultConfigurationRequest);
+        $newVaultConfiguration = $factory->create($updateVaultConfigurationRequest);
 
         expect($newVaultConfiguration)->toBeInstanceOf(NewVaultConfiguration::class);
     }
@@ -58,21 +55,20 @@ it('should encrypt roleId and secretId correctly', function (): void {
     $encryption = $encryption->setFirstKey('myFirstKey');
 
     $factory = new NewVaultConfigurationFactory($encryption);
-    $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
-    $createVaultConfigurationRequest->name = 'myVault';
-    $createVaultConfigurationRequest->address = '127.0.0.1';
-    $createVaultConfigurationRequest->port = 8200;
-    $createVaultConfigurationRequest->rootPath = 'myStorage';
-    $createVaultConfigurationRequest->roleId = 'myRoleId';
-    $createVaultConfigurationRequest->secretId = 'mySecretId';
+    $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
+    $updateVaultConfigurationRequest->address = '127.0.0.1';
+    $updateVaultConfigurationRequest->port = 8200;
+    $updateVaultConfigurationRequest->rootPath = 'myStorage';
+    $updateVaultConfigurationRequest->roleId = 'myRoleId';
+    $updateVaultConfigurationRequest->secretId = 'mySecretId';
 
-    $newVaultConfiguration = $factory->create($createVaultConfigurationRequest);
+    $newVaultConfiguration = $factory->create($updateVaultConfigurationRequest);
 
     $encryption = $encryption->setSecondKey($newVaultConfiguration->getSalt());
 
     $roleId = $encryption->decrypt($newVaultConfiguration->getEncryptedRoleId());
     $secretId = $encryption->decrypt($newVaultConfiguration->getEncryptedSecretId());
 
-    expect($roleId)->toBe($createVaultConfigurationRequest->roleId);
-    expect($secretId)->toBe($createVaultConfigurationRequest->secretId);
+    expect($roleId)->toBe($updateVaultConfigurationRequest->roleId);
+    expect($secretId)->toBe($updateVaultConfigurationRequest->secretId);
 });

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\CreateVaultConfiguration;
+namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Assert\AssertionFailedException;
 use Assert\InvalidArgumentException;
@@ -40,7 +40,7 @@ class NewVaultConfigurationFactory
     /**
      * This method will crypt $roleId and $secretId before instanciating NewVaultConfiguraiton.
      *
-     * @param CreateVaultConfigurationRequest $request
+     * @param UpdateVaultConfigurationRequest $request
      *
      * @throws InvalidArgumentException
      * @throws AssertionFailedException
@@ -50,11 +50,10 @@ class NewVaultConfigurationFactory
      *
      * @return NewVaultConfiguration
      */
-    public function create(CreateVaultConfigurationRequest $request): NewVaultConfiguration
+    public function create(UpdateVaultConfigurationRequest $request): NewVaultConfiguration
     {
         return new NewVaultConfiguration(
             $this->encryption,
-            $request->name,
             $request->address,
             $request->port,
             $request->rootPath,

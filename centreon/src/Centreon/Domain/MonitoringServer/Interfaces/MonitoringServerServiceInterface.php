@@ -23,8 +23,9 @@ declare(strict_types=1);
 namespace Centreon\Domain\MonitoringServer\Interfaces;
 
 use Centreon\Domain\MonitoringServer\MonitoringServer;
-use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\MonitoringServerResource;
+use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @package Centreon\Domain\MonitoringServer\Interfaces
@@ -34,8 +35,9 @@ interface MonitoringServerServiceInterface
     /**
      * Find pollers.
      *
+     * @throws MonitoringServerException|AccessDeniedException
+     *
      * @return MonitoringServer[]
-     * @throws MonitoringServerException
      */
     public function findServers(): array;
 
