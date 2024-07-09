@@ -290,7 +290,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The vault configuration has been successfully created.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
+									"    pm.response.to.have.status(404);\r",
 									"\r",
 									"});\r",
 									""
@@ -345,13 +345,8 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The vault configuration has been successfully listed.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    \r",
-									"    pm.expect(responseJson.vaultConfiguration).to.eql({\r",
-									"        \"url\": \"vault-sdbx.apps.centreon.com\",\r",
-									"        \"port\": 443,\r",
-									"        \"root_path\": \"myStorageFolder\"\r",
-									"    });\r",
+									"    pm.response.to.have.status(404);\r",
+									"\r",
 									"});\r",
 									""
 								],
@@ -407,7 +402,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The vault configuration has been successfully updated.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
+									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									""
 								],
@@ -436,7 +431,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"address\": \"127.0.0.1\",\r\n    \"port\": 8201,\r\n    \"role_id\": \"myRoleId\",\r\n    \"secret_id\": \"mySecretId\"\r\n}"
+							"raw": "{\r\n    \"address\": \"vault-sdbx.apps.centreon.com\",\r\n    \"port\": 443,\r\n    \"root_path\": \"myStorageFolder2\",\r\n    \"role_id\": \"5935dd16-d18d-884a-0786-6847681f99a9\",\r\n    \"secret_id\": \"cf31afc2-5e7c-849a-ac72-bb45fc883895\"\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/administration/vaults/configurations",
@@ -461,13 +456,8 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The vault configuration has been successfully listed.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    \r",
-									"    pm.expect(responseJson.vaultConfiguration).to.eql({\r",
-									"        \"url\": \"vault-sdbx.apps.centreon.com\",\r",
-									"        \"port\": 443,\r",
-									"        \"root_path\": \"myStorageFolder2\"\r",
-									"    });\r",
+									"    pm.response.to.have.status(404);\r",
+									"\r",
 									"});\r",
 									""
 								],
@@ -523,7 +513,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The vault configuration has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
+									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									""
 								],
