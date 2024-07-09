@@ -33,7 +33,7 @@ final class DeployServicesController extends AbstractController
     /**
      * @param DeployServices $useCase
      * @param DeployServicesOnPremPresenter $onPremPresenter
-     * @param deployServicesSaasPresenter $saasPresenter
+     * @param DeployServicesSaasPresenter $saasPresenter
      * @param bool $isCloudPlatform
      * @param int $hostId
      *

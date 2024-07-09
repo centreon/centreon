@@ -51,7 +51,6 @@ final class DeployServices
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadHostRepositoryInterface $readHostRepository,
-        private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
         private readonly WriteServiceRepositoryInterface $writeServiceRepository
@@ -170,7 +169,7 @@ final class DeployServices
             $deployServiceDto->id = $deployedService->getId();
             $deployServiceDto->name = $deployedService->getName();
             $deployServiceDto->hostId = $deployedService->getHostId();
-            $deployServiceDto->geoCoords = $deployedService->getGeoCoords();
+            $deployServiceDto->geoCoords = $deployedService->getGeoCoords()?->__toString();
             $deployServiceDto->comment = $deployedService->getComment();
             $deployServiceDto->serviceTemplateId = $deployedService->getServiceTemplateParentId();
             $deployServiceDto->commandId = $deployedService->getCommandId();
