@@ -132,11 +132,13 @@ Given(
                   `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
                 );
 
-                const installed_version = `${major_version}.${stable_minor_versions[minor_version_index]}`;
+                const installed_version = `${major_version_from}.${stable_minor_versions[minor_version_index]}`;
                 Cypress.env('installed_version', installed_version);
                 cy.log('installed_version', installed_version)
-
-                return installCentreon(installed_version).then(() => {
+                return installCentreon(
+                  `${major_version_from}.${stable_minor_versions[minor_version_index]}`
+                )
+                  .then(() => {
                     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
                       const distrib =
                         Cypress.env('WEB_IMAGE_OS') === 'alma9' ? 'el9' : 'el8';

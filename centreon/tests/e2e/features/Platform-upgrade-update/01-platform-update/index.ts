@@ -114,7 +114,11 @@ Given(
           } else {
             switch (version_from_expression) {
               case 'last stable':
-                minor_version_index = stable_minor_versions.length - 1;
+              const stableMinorVersion = Cypress.env('stableMinorVersion');
+               minor_version_index = stable_minor_versions.length - 1;
+                if (stable_minor_versions[minor_version_index] === stableMinorVersion) {
+                  return cy.stopContainer({ name: 'web' }).wrap('skipped');
+                }
                 break;
               case 'penultimate stable':
                 minor_version_index = stable_minor_versions.length - 2;
@@ -139,10 +143,7 @@ Given(
           Cypress.env('installed_version', installed_version);
           cy.log('installed_version', installed_version)
           return installCentreon(installed_version).then(() => {
-            return checkPlatformVersion(installed_version).then((output) => {
-              if (output != null) {
-                return cy.stopContainer({ name: 'web' }).wrap('skipped');
-              }
+            return checkPlatformVersion(installed_version).then(() => {
               cy.visit('/');
             });
           });

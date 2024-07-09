@@ -83,6 +83,9 @@ const getCentreonStableMinorVersions = (
         name: 'web'
       });
     }
+    const stableMinorVersion = [...new Set(stableVersions)].sort((a, b) => a - b).pop();
+    cy.log('stableMinorVersion',stableMinorVersion)
+    Cypress.env('stableMinorVersion', stableMinorVersion);
 
     return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
   });
@@ -266,6 +269,7 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
       name: 'web'
     })
     .then(({ output }): Cypress.Chainable<null> | null => {
+
       const isExpected = platformVersion === output;
       if (isExpected) {
         return null;
