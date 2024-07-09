@@ -724,7 +724,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                             $resultMacro = $maxIdStatement->fetch();
                             $macroPasswords[$resultMacro['MAX(host_macro_id)']] = [
                                 'macroName' => $macName,
-                                'macValue' => $macVal
+                                'macroValue' => $macVal
                             ];
                         }
                     }
