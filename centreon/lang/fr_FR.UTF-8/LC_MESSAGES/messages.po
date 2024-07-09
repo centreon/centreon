@@ -19138,7 +19138,7 @@ msgid "Bar background opacity"
 msgstr "Opacité du fond de la barre"
 
 msgid "Check command sent!"
-msgstr "Commande de contrôle envoyée !"
+msgstr "Commande de vérification envoyée !"
 
 msgid "Forced check command sent!"
 msgstr "Commande de vérification forcée envoyée !"

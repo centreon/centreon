@@ -58,7 +58,7 @@ const ConnectedAutocomplete = ({
         <MultiConnectedAutocompleteField
           chipProps={{
             color: 'primary',
-            onDelete: (_, option): void => deleteItem(option)
+            onDelete: deleteItem
           }}
           disabled={!canEditField}
           field={undefined}

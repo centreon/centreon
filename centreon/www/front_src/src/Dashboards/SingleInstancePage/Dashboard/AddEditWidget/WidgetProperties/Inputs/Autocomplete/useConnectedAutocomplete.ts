@@ -15,7 +15,7 @@ import { getProperty } from '../utils';
 interface UseResourcesState {
   changeValue: (_, resource: SelectEntry) => void;
   changeValues: (_, resources: Array<SelectEntry>) => void;
-  deleteItem: (option) => void;
+  deleteItem: (_, option) => void;
   getEndpoint: (parameters) => string;
   value: Array<WidgetDataResource> | WidgetDataResource;
 }
@@ -48,7 +48,7 @@ const useConnectedAutocomplete = ({
     setFieldTouched(`options.${propertyName}`, true, false);
   };
 
-  const deleteItem = (option): void => {
+  const deleteItem = (_, option): void => {
     const newValues = reject(propEq(option.id, 'id'), value);
 
     setFieldValue(`options.${propertyName}`, newValues);
