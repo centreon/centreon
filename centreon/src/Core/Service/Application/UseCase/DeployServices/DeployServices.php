@@ -34,7 +34,6 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\UnprocessableContentResponse;
 use Core\Common\Domain\TrimmedString;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;

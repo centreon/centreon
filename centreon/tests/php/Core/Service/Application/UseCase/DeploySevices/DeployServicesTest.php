@@ -31,7 +31,6 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\UnprocessableContentResponse;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -54,7 +53,6 @@ beforeEach(function (): void {
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
-        $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
         $this->readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class),
         $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
         $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class)
