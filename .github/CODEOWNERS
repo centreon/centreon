@@ -44,11 +44,21 @@ tsconfig.json           @centreon/owners-react
 
 *.py                    @centreon/owners-python
 
+<<<<<<< HEAD
 .github/**              @centreon/owners-pipelines
 **/.project             @centreon/owners-pipelines
 **/selinux/             @centreon/owners-pipelines
 **/project/             @centreon/owners-pipelines
 **/packaging/           @centreon/owners-pipelines
 dependencies/**         @centreon/owners-pipelines
+=======
+.github/**                              @centreon/owners-pipelines
+**/.project                             @centreon/owners-pipelines
+**/selinux/                             @centreon/owners-pipelines
+**/project/                             @centreon/owners-pipelines
+**/packaging/                           @centreon/owners-pipelines
+dependencies/**                         @centreon/owners-pipelines
+.coderabbit.yml                         @centreon/owners-pipelines
+>>>>>>> 8789bda1fd (enh(ci): add .coderabbit config file (#4607))
 
-**/config/features.json @centreon/release-management
+**/config/features.json                 @centreon/release-management
