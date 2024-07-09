@@ -4,7 +4,7 @@
 		"name": "Vault_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-933d2b12-fb1a-4abb-892a-39e2e06bf3c8?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-933d2b12-fb1a-4abb-892a-39e2e06bf3c8?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -89,7 +89,7 @@
 						}
 					],
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "centreon-auth-token",
@@ -98,7 +98,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"myVaultConfiguration\",\n    \"address\": \"\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"mySecretId\"\n}"
+							"raw": "{\n    \"address\": \"\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"mySecretId\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/administration/vaults/configurations",
@@ -145,7 +145,7 @@
 						}
 					],
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "centreon-auth-token",
@@ -154,7 +154,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"myVaultConfiguration\",\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"mySecretId\"\n}"
+							"raw": "{\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"mySecretId\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/administration/vaults/configurations",
@@ -201,7 +201,7 @@
 						}
 					],
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "centreon-auth-token",
@@ -210,7 +210,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"myVaultConfiguration\",\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"\",\n    \"secret_id\": \"mySecretId\"\n}"
+							"raw": "{\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"\",\n    \"secret_id\": \"mySecretId\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/administration/vaults/configurations",
@@ -257,7 +257,7 @@
 						}
 					],
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "centreon-auth-token",
@@ -266,7 +266,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"myVaultConfiguration\",\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"\"\n}"
+							"raw": "{\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/administration/vaults/configurations",
@@ -290,7 +290,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The vault configuration has been successfully created.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
+									"    pm.response.to.have.status(204);\r",
 									"\r",
 									"});\r",
 									""
@@ -311,7 +311,7 @@
 						}
 					],
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "centreon-auth-token",
@@ -320,63 +320,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"myVaultConfiguration\",\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"mySecretId\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/administration/vaults/configurations",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"administration",
-								"vaults",
-								"configurations"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creation of a Vault configuration with same configuration",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The vault configuration has not been created, because the same configuration already exist.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"Vault configuration with these properties already exists\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"myDuplicatedVaultConfiguration\",\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"mySecretId\"\n}"
+							"raw": "{\n    \"address\": \"vault-sdbx.apps.centreon.com\",\n    \"port\": 443,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"5935dd16-d18d-884a-0786-6847681f99a9\",\n    \"secret_id\": \"cf31afc2-5e7c-849a-ac72-bb45fc883895\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/administration/vaults/configurations",
@@ -404,9 +348,8 @@
 									"    pm.response.to.have.status(200);\r",
 									"    \r",
 									"    pm.expect(responseJson.vaultConfiguration).to.eql({\r",
-									"        \"name\": \"myVaultConfiguration\",\r",
-									"        \"url\": \"127.0.0.1\",\r",
-									"        \"port\": 8200,\r",
+									"        \"url\": \"vault-sdbx.apps.centreon.com\",\r",
+									"        \"port\": 443,\r",
 									"        \"root_path\": \"myStorageFolder\"\r",
 									"    });\r",
 									"});\r",
@@ -521,10 +464,9 @@
 									"    pm.response.to.have.status(200);\r",
 									"    \r",
 									"    pm.expect(responseJson.vaultConfiguration).to.eql({\r",
-									"        \"name\": \"myVaultConfiguration\",\r",
-									"        \"url\": \"127.0.0.1\",\r",
-									"        \"port\": 8201,\r",
-									"        \"root_path\": \"myStorageFolder\"\r",
+									"        \"url\": \"vault-sdbx.apps.centreon.com\",\r",
+									"        \"port\": 443,\r",
+									"        \"root_path\": \"myStorageFolder2\"\r",
 									"    });\r",
 									"});\r",
 									""
@@ -611,62 +553,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/administration/vaults/configurations",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"administration",
-								"vaults",
-								"configurations"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update a Vault configuration that does not exist",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The vault configuration has not been deleted, because no one exist.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Vault configuration not found\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"address\": \"127.0.0.1\",\r\n    \"port\": 8201,\r\n    \"role_id\": \"myRoleId\",\r\n    \"secret_id\": \"mySecretId\"\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/administration/vaults/configurations",
@@ -1347,7 +1233,7 @@
 									"pm.test(\"The vault configuration has not been created, because only admin user can create vault configuration.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"Only admin user can create vault configuration\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"This operation requires an admin user\");\r",
 									"});\r",
 									""
 								],
@@ -1367,7 +1253,7 @@
 						}
 					],
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "centreon-auth-token",
@@ -1376,7 +1262,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"myVaultConfiguration\",\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"mySecretId\"\n}"
+							"raw": "{\n    \"address\": \"127.0.0.1\",\n    \"port\": 8200,\n    \"root_path\": \"myStorageFolder\",\n    \"role_id\": \"myRoleId\",\n    \"secret_id\": \"mySecretId\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/administration/vaults/configurations",
@@ -1400,10 +1286,10 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The vault configuration has not been created, because only admin user can create vault configuration.\", function () {\r",
+									"pm.test(\"The vault configuration has not been listed, because only admin user can listed vault configuration.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"Only admin user can create vault configuration\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"This operation requires an admin user\");\r",
 									"});\r",
 									""
 								],
@@ -1452,62 +1338,6 @@
 					"response": []
 				},
 				{
-					"name": "Update a Vault configuration",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The vault configuration has not been created, because only admin user can create vault configuration.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"Only admin user can create vault configuration\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"address\": \"127.0.0.1\",\r\n    \"port\": 8201,\r\n    \"role_id\": \"myRoleId\",\r\n    \"secret_id\": \"mySecretId\"\r\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/administration/vaults/configurations",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"administration",
-								"vaults",
-								"configurations"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Delete Vault configuration",
 					"event": [
 						{
@@ -1515,10 +1345,10 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The vault configuration has not been created, because only admin user can create vault configuration.\", function () {\r",
+									"pm.test(\"The vault configuration has not been deleted, because only admin user can delete vault configuration.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"Only admin user can create vault configuration\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"This operation requires an admin user\");\r",
 									"});\r",
 									""
 								],
