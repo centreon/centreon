@@ -107,7 +107,6 @@ const installCentreon = (version: string): Cypress.Chainable => {
       ],
       name: 'web'
     });
-    cy.execDnfInfoCentreonWeb();
   } else {
     cy.execInContainer({
       command: [

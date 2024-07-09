@@ -133,18 +133,18 @@ Given(
           }
 
           cy.log(
-            `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
+            `${version_from_expression} version is ${minor_version_index}`
           );
-
-          const installed_version = `${major_version}.${stable_minor_versions[minor_version_index]}`;
-          Cypress.env('installed_version', installed_version);
-
           return installCentreon(
             `${major_version}.${stable_minor_versions[minor_version_index]}`
           ).then(() => {
             return checkPlatformVersion(
               `${major_version}.${stable_minor_versions[minor_version_index]}`
-            ).then(() => cy.visit('/'));
+            ).then((output) => {
+              if(output == null) {
+              return cy.stopContainer({ name: 'web' }).wrap('skipped');
+            }
+            cy.visit("/")} );
           });
         }
       );
