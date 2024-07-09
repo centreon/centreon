@@ -28,7 +28,7 @@ const useStyles = makeStyles<StyleProps>()(
       paddingLeft: theme.spacing(1)
     },
     actions: {
-      flex:1,
+      flex: 1,
       padding: theme.spacing(1, 0)
     },
     container: {
