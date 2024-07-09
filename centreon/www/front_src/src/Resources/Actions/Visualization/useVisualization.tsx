@@ -12,7 +12,6 @@ import {
 } from '../../Listing/columns/index';
 import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 
-
 interface Props {
   type: Visualization;
 }
