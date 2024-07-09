@@ -42,6 +42,8 @@ class VaultConfiguration
 
     /** Static Vault Key Constants */
     public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
+    public const OPENID_CLIENT_ID_KEY = '_OPENID_CLIENT_ID';
+    public const OPENID_CLIENT_SECRET_KEY = '_OPENID_CLIENT_SECRET';
     public const KNOWLEDGE_BASE_KEY = '_KBPASSWORD';
 
     /** Patterns Constants */
