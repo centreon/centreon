@@ -1,13 +1,5 @@
 sleep 5
 
-# fix folder with symlink which is not kept
-pkill httpd
-rm -f /opt/rh/httpd24/root/etc/httpd/modules
-mkdir /opt/rh/httpd24/root/etc/httpd/modules
-cp /opt/rh/httpd24/root/usr/lib64/httpd/modules/* /opt/rh/httpd24/root/etc/httpd/modules/
-source /opt/rh/httpd24/enable
-httpd -k start
-sleep 5
 curl -s https://api.imp.centreon.com/api/pluginpack/pluginpack
 curl -s -x http://localhost:80 https://api.imp.centreon.com/api/pluginpack/pluginpack
 
