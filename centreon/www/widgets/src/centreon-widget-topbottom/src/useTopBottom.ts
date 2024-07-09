@@ -87,7 +87,7 @@ const useTopBottom = ({
                 : 'ASC'
             }
           }
-        })}&metric_name=${metricName}`,
+        })}&metric_name=${encodeURIComponent(metricName)}`,
         isOnPublicPage,
         playlistHash,
         widgetId: id

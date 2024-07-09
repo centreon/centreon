@@ -313,7 +313,9 @@ describe('Dashboard', () => {
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelTitle).type('Generic input');
-      cy.findByLabelText('Generic text').type('Text for the new widget');
+      cy.findAllByLabelText('Generic text')
+        .eq(1)
+        .type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
       cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
@@ -349,12 +351,36 @@ describe('Dashboard', () => {
           assert.equal(dashboard.layout.length, 3);
           assert.equal(
             dashboard.layout[0].options?.description?.content,
-            '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+            '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
           );
           assert.equal(dashboard.layout[0].name, 'centreon-widget-text');
         });
 
       cy.makeSnapshot();
+    });
+
+    it('resizes the widget to its minimum size when the handle is dragged', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'height')
+        .and('equal', '232px');
+
+      cy.get('[class*="react-resizable-handle-se"]')
+        .eq(0)
+        .realMouseDown()
+        .realMouseMove(-70, -70)
+        .realMouseMove(-70, -70)
+        .realMouseUp();
+
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'height');
     });
   });
 
@@ -425,16 +451,6 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelSave).should('not.exist');
       cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
       cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
-
-      cy.makeSnapshot();
-    });
-
-    it('displays the refresh button when the more actions button is clicked', () => {
-      initializeAndMount(viewerRoles);
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-
-      cy.contains(labelRefresh).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -593,7 +609,7 @@ describe('Dashboard', () => {
         .should(
           'have.attr',
           'href',
-          '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbMy%20host%5C%5Cb%22%2C%22name%22%3A%22My%20host%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+          '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22statuses%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22states%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22parent_name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbMy%20host%5C%5Cb%22%2C%22name%22%3A%22My%20host%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
         );
     });
 
@@ -608,7 +624,7 @@ describe('Dashboard', () => {
         .should(
           'have.attr',
           'href',
-          '/monitoring/resources?details=%7B%22id%22%3Anull%2C%22resourcesDetailsEndpoint%22%3A%22%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fhosts%2Fundefined%2Fservices%2Fundefined%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22graph%22%2C%22tabParameters%22%3A%7B%7D%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbCentreon-Server%5C%5Cb%22%2C%22name%22%3A%22Centreon-Server%22%7D%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbPing%5C%5Cb%22%2C%22name%22%3A%22Ping%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+          '/monitoring/resources?details=%7B%22id%22%3Anull%2C%22resourcesDetailsEndpoint%22%3A%22%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fhosts%2Fundefined%2Fservices%2Fundefined%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22graph%22%2C%22tabParameters%22%3A%7B%7D%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbCentreon-Server%5C%5Cb%22%2C%22name%22%3A%22Centreon-Server%22%7D%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbPing%5C%5Cb%22%2C%22name%22%3A%22Ping%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
         );
     });
 

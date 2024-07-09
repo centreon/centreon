@@ -50,6 +50,10 @@ const Template = (args): JSX.Element => {
   return <ResponsiveBarStack height={300} width={500} {...args} />;
 };
 
+const SmallTemplate = (args): JSX.Element => {
+  return <ResponsiveBarStack height={120} width={120} {...args} />;
+};
+
 export const Vertical: Story = {
   args: { data, title: 'hosts' },
   render: Template
@@ -122,4 +126,15 @@ export const HorizontalWithoutLegend: Story = {
     variant: 'horizontal'
   },
   render: Template
+};
+
+export const SmallDisplay: Story = {
+  args: {
+    TooltipContent,
+    data,
+    displayValues: true,
+    title: 'hosts',
+    variant: 'horizontal'
+  },
+  render: SmallTemplate
 };

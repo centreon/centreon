@@ -54,3 +54,9 @@ Feature: Configuring a top-bottom widget
     Then the widget is refreshed to display the updated warning threshold on all bars of the Top Bottom widget
     When the dashboard administrator user updates the custom critical threshold
     Then the widget is refreshed to display the updated critical threshold on all bars of the Top Bottom widget
+
+  @TEST_MON-130768
+  Scenario: Access the resource status page by clicking on a resource from the Top/Bottom widget
+    Given a dashboard with a Top bottom widget
+    When the dashboard administrator clicks on a random resource
+    Then the user should be redirected to the resource status screen and all the resources must be displayed

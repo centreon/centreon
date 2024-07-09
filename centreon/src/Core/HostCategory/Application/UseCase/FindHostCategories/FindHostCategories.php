@@ -39,18 +39,21 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final class FindHostCategories
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
      * @param ReadHostCategoryRepositoryInterface $readHostCategoryRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param RequestParametersInterface $requestParameters
      * @param ContactInterface $user
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -75,7 +78,7 @@ final class FindHostCategories
 
             $this->info('Finding host categories');
             $presenter->present(
-                $this->createResponse($this->user->isAdmin() ? $this->findAllAsAdmin() : $this->findAllAsUser())
+                $this->createResponse($this->isUserAdmin() ? $this->findAllAsAdmin() : $this->findAllAsUser())
             );
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
@@ -83,6 +86,26 @@ final class FindHostCategories
             );
             $this->error($ex->getMessage());
         }
+    }
+
+    /**
+     * Indicates if the current user is admin or not (cloud + onPremise context).
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->user)
+        );
+
+        return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
+            && $this->isCloudPlatform;
     }
 
     /**
@@ -122,7 +145,7 @@ final class FindHostCategories
 
         // If the current user has ACL filter on Host Categories it means that not all categories are visible so
         // we need to apply the ACL
-        if ($this->readHostCategoryRepository->hasAclFilterOnHostCategories($accessGroupIds)) {
+        if ($this->readHostCategoryRepository->hasRestrictedAccessToHostCategories($accessGroupIds)) {
             $categories = $this->readHostCategoryRepository->findAllByAccessGroupIds(
                 $accessGroupIds,
                 $this->requestParameters

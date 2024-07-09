@@ -40,7 +40,7 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     bottom: 0,
     height: '100%',
     left: 0,
-    minHeight: '70vh',
+    minHeight: '65vh',
     overflow: 'auto',
     position: 'absolute',
     right: 0,

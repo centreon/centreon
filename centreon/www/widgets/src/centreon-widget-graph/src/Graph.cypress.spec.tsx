@@ -6,7 +6,7 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
 
-import { Data, FormThreshold, FormTimePeriod } from './models';
+import { Data, FormThreshold, FormTimePeriod, PanelOptions } from './models';
 import { graphEndpoint } from './api/endpoints';
 import WidgetLineChart from './LineChart';
 
@@ -83,8 +83,33 @@ const customTimePeriod: FormTimePeriod = {
   timePeriodType: -1
 };
 
-interface InitializeComponentProps {
-  curveType?: 'linear' | 'step' | 'natural';
+interface InitializeComponentProps
+  extends Partial<
+    Pick<
+      PanelOptions,
+      | 'curveType'
+      | 'areaOpacity'
+      | 'dashLength'
+      | 'dashOffset'
+      | 'isCenteredZero'
+      | 'legendDisplayMode'
+      | 'legendPlacement'
+      | 'lineStyleMode'
+      | 'lineWidth'
+      | 'lineWidthMode'
+      | 'showArea'
+      | 'showAxisBorder'
+      | 'showGridLines'
+      | 'showLegend'
+      | 'showPoints'
+      | 'scale'
+      | 'scaleLogarithmicBase'
+      | 'gridLinesType'
+      | 'displayType'
+      | 'barRadius'
+      | 'barOpacity'
+    >
+  > {
   data?: Data;
   isPublic?: boolean;
   threshold?: FormThreshold;
@@ -96,7 +121,7 @@ const initializeComponent = ({
   threshold = defaultThreshold,
   timePeriod = defaultTimePeriod,
   isPublic = false,
-  curveType
+  ...panelOptions
 }: InitializeComponentProps): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
@@ -137,11 +162,11 @@ const initializeComponent = ({
               id="1"
               panelData={data}
               panelOptions={{
-                curveType,
                 globalRefreshInterval: 30,
                 refreshInterval: 'manual',
                 threshold,
-                timeperiod: timePeriod
+                timeperiod: timePeriod,
+                ...panelOptions
               }}
               playlistHash="hash"
               refreshCount={0}
@@ -262,6 +287,97 @@ describe('Graph Widget', () => {
 
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the line chart with a lot of custom style settings when corresponding props are set', () => {
+    initializeComponent({
+      areaOpacity: 10,
+      curveType: 'natural',
+      dashLength: 6,
+      dashOffset: 10,
+      gridLinesType: 'horizontal',
+      isCenteredZero: true,
+      legendDisplayMode: 'list',
+      legendPlacement: 'right',
+      lineStyleMode: 'dash',
+      lineWidth: 1,
+      lineWidthMode: 'custom',
+      showArea: 'show',
+      showAxisBorder: false,
+      showGridLines: true,
+      showLegend: true,
+      showPoints: true
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the bar chart when the corresponding prop is set', () => {
+    initializeComponent({
+      displayType: 'bar'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the customised bar chart when corresponding props are set', () => {
+    initializeComponent({
+      barOpacity: 20,
+      barRadius: 50,
+      displayType: 'bar'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the stacked bar chart when the corresponding prop is set', () => {
+    initializeComponent({
+      displayType: 'bar-stacked'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays custom stacked bar chart when corresponding props are set', () => {
+    initializeComponent({
+      barOpacity: 20,
+      displayType: 'bar-stacked'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
 
     cy.makeSnapshot();
   });

@@ -1,9 +1,14 @@
+/* eslint-disable import/newline-after-import */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'cypress-wait-until';
 import 'cypress-real-events';
+import 'cypress-on-fix';
 
 import './commands';
 
 before(() => {
+  Cypress.config('baseUrl', 'http://127.0.0.1:4000');
   Cypress.config('baseUrl', 'http://127.0.0.1:4000');
 
   cy.intercept('/waiting-page', {

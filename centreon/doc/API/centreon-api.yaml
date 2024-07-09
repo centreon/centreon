@@ -246,8 +246,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/broker/{brokerId}/outputs:
-    $ref: "./latest/onPremise/Configuration/Broker/AddBrokerOutput.yaml"
+  /configuration/broker/{brokerId}/{tag}:
+    $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:
     $ref: "./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:
@@ -409,6 +409,8 @@ paths:
         * hostgroup.name
         * hostcategory.id
         * hostcategory.name
+        * servicegroup.id
+        * servicegroup.name
       responses:
         "200":
           description: "OK"
@@ -1998,9 +2000,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/status:
-    $ref: './latest/onPremise/Realtime/Resources/FindHostsStatus.yaml'
+    $ref: './latest/onPremise/Realtime/Hosts/FindHostsStatus.yaml'
   /monitoring/services/status:
-    $ref: './latest/onPremise/Realtime/Resources/FindServicesStatus.yaml'
+    $ref: './latest/onPremise/Realtime/Services/FindServicesStatus.yaml'
   /monitoring/services:
     get:
       tags:

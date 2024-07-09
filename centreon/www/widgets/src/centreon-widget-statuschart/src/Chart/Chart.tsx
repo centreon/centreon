@@ -90,11 +90,7 @@ const Chart = ({
   return (
     <div className={classes.container}>
       {isPieCharts ? (
-        <div
-          className={cx(classes.pieChart, {
-            [classes.singlePieChart]: isSingleChart
-          })}
-        >
+        <div className={classes.pieChart}>
           <PieChart
             Legend={Legend((status) =>
               getLinkToResourceStatusPage(status, resourceType)

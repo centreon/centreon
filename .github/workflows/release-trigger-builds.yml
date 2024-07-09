@@ -44,15 +44,16 @@ jobs:
 
           # VARS
           # names defined in workflow files per components
-          COMPONENTS_OSS=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
-          COMPONENTS_OSS_FULL=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
+          COMPONENTS_OSS=("awie" "dsm" "ha" "open-tickets" "web")
+          COMPONENTS_OSS_FULL=("awie" "dsm" "ha" "open-tickets" "web")
           #COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
           #COMPONENTS_MODULES_FULL=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm" "php-pecl-gnupg" "sourceguardian-loader")
           #COMPONENTS_COLLECT=("Centreon collect")
           RUNS_URL=""
 
-          if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]];then
-            echo "Using ${{ inputs.dispatch_target_release_branch }} as release branch to build testing packages."
+          # Accept release prefixed or develop branches, nothing else
+          if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]] || [[ ${{ inputs.dispatch_target_release_branch }} == "develop" ]];then
+            echo "Using ${{ inputs.dispatch_target_release_branch }} as branch to build testing packages."
             RUNS_URL="https://github.com/centreon/centreon/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
           else
             echo "::error::Invalid release branch name, please check the release branch name."

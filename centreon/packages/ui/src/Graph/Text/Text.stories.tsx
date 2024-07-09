@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import dataLastWeek from '../LineChart/mockedData/lastWeek.json';
+import dataLastWeek from '../mockedData/lastWeek.json';
 
 import { Text } from '.';
 
@@ -13,6 +13,12 @@ type Story = StoryObj<typeof Text>;
 
 const Template = (props): JSX.Element => (
   <div style={{ height: '500px', width: '500px' }}>
+    <Text {...props} />
+  </div>
+);
+
+const SmallTemplate = (props): JSX.Element => (
+  <div style={{ height: '100px', width: '200px' }}>
     <Text {...props} />
   </div>
 );
@@ -120,4 +126,30 @@ export const rawValue: Story = {
     }
   },
   render: Template
+};
+
+export const smallDisplay: Story = {
+  args: {
+    data: dataLastWeek,
+    labels: {
+      critical: 'Critical',
+      warning: 'Warning'
+    },
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 1.5
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
+  },
+  render: SmallTemplate
 };

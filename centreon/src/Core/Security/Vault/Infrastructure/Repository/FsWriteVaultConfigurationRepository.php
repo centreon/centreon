@@ -58,9 +58,9 @@ class FsWriteVaultConfigurationRepository implements WriteVaultConfigurationRepo
             'secret_id' => $vaultConfiguration->getEncryptedSecretId(),
             'salt' => $vaultConfiguration->getSalt(),
         ];
-
-        $vaultConfigurationYaml = Yaml::dump($vaultConfigurationAsArray);
-        $this->filesystem->dumpFile($this->configurationFile, $vaultConfigurationYaml);
+        $vaultConfigurationEncoded = json_encode($vaultConfigurationAsArray)
+            ?: throw new \Exception('Error encoding vault configuration');
+        $this->filesystem->dumpFile($this->configurationFile, $vaultConfigurationEncoded);
         $this->filesystem->chmod($this->configurationFile, 0755);
     }
 
@@ -81,8 +81,9 @@ class FsWriteVaultConfigurationRepository implements WriteVaultConfigurationRepo
             'role_id' => $vaultConfiguration->getEncryptedRoleId(),
             'secret_id' => $vaultConfiguration->getEncryptedSecretId(),
         ];
-        $vaultConfigurationYaml = Yaml::dump(array_merge($vaultConfigurationAsArray, $vaultConfigurationUpdate));
-        $this->filesystem->dumpFile($this->configurationFile, $vaultConfigurationYaml);
+        $vaultConfigurationUpdated = json_encode(array_merge($vaultConfigurationAsArray, $vaultConfigurationUpdate))
+            ?: throw new \Exception('Error encoding vault configuration');
+        $this->filesystem->dumpFile($this->configurationFile, $vaultConfigurationUpdated);
     }
 
     /**

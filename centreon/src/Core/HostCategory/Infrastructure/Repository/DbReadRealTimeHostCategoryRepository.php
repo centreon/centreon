@@ -98,7 +98,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
             $request .= $searchRequest;
         }
 
-        $request .= ' GROUP BY host_categories.name';
+        $request .= ' GROUP BY host_categories.id, host_categories.name, host_categories.type';
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
@@ -164,7 +164,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                     ON host_categories.tag_id  = rtags.tag_id
                     AND host_categories.`type` = 3
                 INNER JOIN `:db`.acl_resources_hc_relations arhr
-                    ON host_categories.id = arhr.sc_id
+                    ON host_categories.id = arhr.hc_id
                 INNER JOIN `:db`.acl_resources res
                     ON arhr.acl_res_id = res.acl_res_id
                 INNER JOIN `:db`.acl_res_group_relations argr
@@ -190,7 +190,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
 
         $request .= " ag.acl_group_id IN ({$bindQuery})";
 
-        $request .= ' GROUP BY service_categories.name';
+        $request .= ' GROUP BY host_categories.id, host_categories.name, host_categories.type';
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
