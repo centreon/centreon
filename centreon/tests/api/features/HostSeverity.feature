@@ -14,7 +14,7 @@ Feature:
     HC;ADD;severity1;host-severity-alias
     HC;setparam;severity1;hc_comment;blabla bla
     HC;setparam;severity1;hc_activate;1
-    HC;setseverity;severity1;42;logos/centreon.png
+    HC;setseverity;severity1;42;logos/logo-centreon-colors.png
     """
 
     When I send a GET request to '/api/v21.10/configuration/hosts/severities'
@@ -31,7 +31,7 @@ Feature:
                 "icon": {
                     "id": 1,
                     "name": "centreon",
-                    "path": "img/media/logos/centreon.png",
+                    "path": "img/media/logos/logo-centreon-colors.png",
                     "comment": "centreon logo"
                 },
                 "comments": "blabla bla",
