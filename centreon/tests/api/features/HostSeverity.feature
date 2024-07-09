@@ -32,7 +32,7 @@ Feature:
                     "id": 1,
                     "name": "centreon",
                     "path": "img/media/logos/logo-centreon-colors.png",
-                    "comment": "centreon logo"
+                    "comment": "centreon logo colors"
                 },
                 "comments": "blabla bla",
                 "is_activated": true
