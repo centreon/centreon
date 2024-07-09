@@ -85,6 +85,7 @@ export interface ResourceData {
   is_in_downtime?: boolean;
   metricsEndpoint?: string;
   name: string;
+  parentId?: string;
   parentName?: string;
   parentStatus?: number;
   resourceId?: number;

@@ -19136,3 +19136,24 @@ msgstr "Radius de la barre"
 
 msgid "Bar background opacity"
 msgstr "Opacité du fond de la barre"
+
+msgid  "All KPIs on this business activity are working fine."
+msgstr "Tous les KPI de cette activité commerciale fonctionnent correctement."
+
+msgid  "are working fine."
+msgstr "fonctionnent correctement."
+
+msgid  "See more information in the geoview"
+msgstr "Voir plus d'informations dans la géovue"
+
+msgid  "Calculation method"
+msgstr "Méthode de calcul"
+
+msgid  "State information"
+msgstr "Information d'état"
+
+msgid  "Warning threshold"
+msgstr "Seuil d'alerte"
+
+msgid  "Critical threshold"
+msgstr "Seuil critique"

@@ -110,6 +110,12 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1),
     justifyContent: 'space-between'
   },
+  metricName: {
+    maxWidth: theme.spacing(18),
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
+  },
   parent: {
     alignItems: 'center',
     display: 'flex',

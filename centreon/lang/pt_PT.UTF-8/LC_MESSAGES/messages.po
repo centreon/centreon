@@ -17813,3 +17813,24 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Bar background opacity"
 # msgstr ""
+
+# msgid  "All KPIs on this business activity are working fine."
+# msgstr ""
+
+# msgid  "are working fine."
+# msgstr ""
+
+# msgid  "See more information in the geoview"
+# msgstr ""
+
+# msgid  "Calculation method"
+# msgstr ""
+
+# msgid  "State information"
+# msgstr ""
+
+# msgid  "Warning threshold"
+# msgstr ""
+
+# msgid  "Critical threshold"
+# msgstr ""

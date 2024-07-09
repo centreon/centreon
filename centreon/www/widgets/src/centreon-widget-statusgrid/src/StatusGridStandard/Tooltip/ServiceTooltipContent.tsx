@@ -88,10 +88,14 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
           )}
           {problematicMetrics.map(({ name, status, value }) => (
             <Box className={classes.metric} key={name}>
-              <Typography variant="body1">{name}</Typography>
+              <Typography className={classes.metricName} variant="body2">
+                {name}
+              </Typography>
               <Typography
-                sx={{ color: getColor({ severityCode: status, theme }) }}
-                variant="body1"
+                sx={
+                  status && { color: getColor({ severityCode: status, theme }) }
+                }
+                variant="body2"
               >
                 {value}
               </Typography>

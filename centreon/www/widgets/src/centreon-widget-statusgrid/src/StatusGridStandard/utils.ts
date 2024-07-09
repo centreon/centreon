@@ -161,3 +161,11 @@ export const getLink = ({ type, id, name, hostId }): string => {
     [equals(IndicatorType.BooleanRule), always(getBooleanRuleLink(id))]
   ])(type);
 };
+
+export const getMetricsEndpoint = ({ resouceType, id, parentId }) => {
+  if (equals(resouceType, 'meta-service')) {
+    return `/monitoring/metaservices/${id}/metrics?page=1&limit=30`;
+  }
+
+  return `/monitoring/hosts/${parentId}/services/${id}/metrics`;
+};
