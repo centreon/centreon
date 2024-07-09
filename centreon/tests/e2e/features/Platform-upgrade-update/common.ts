@@ -320,10 +320,7 @@ When('administrator runs the update procedure', () => {
   cy.contains('Release notes');
   // check correct updated version
   const installed_version = Cypress.env('installed_version');
-  const available_version = Cypress.env('available_version');
-
   cy.log(`installed_version : ${installed_version}`);
-  cy.log(`available_version : ${available_version}`);
   cy.getWebVersion().then(({ major_version, minor_version }) => {
     cy.contains(
       `upgraded from version ${installed_version} to ${major_version}.${minor_version}`

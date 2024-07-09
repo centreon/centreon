@@ -133,8 +133,11 @@ Given(
           }
 
           cy.log(
-            `${version_from_expression} version is ${minor_version_index}`
+            `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
           );
+
+          const installed_version = `${major_version}.${stable_minor_versions[minor_version_index]}`;
+          Cypress.env('installed_version', installed_version);
 
           return installCentreon(
             `${major_version}.${stable_minor_versions[minor_version_index]}`
