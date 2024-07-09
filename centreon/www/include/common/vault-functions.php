@@ -488,6 +488,7 @@ function retrieveServiceVaultPathFromDatabase(CentreonDB $pearDB, int $serviceId
         foreach ($result as $columnValue) {
             if (str_starts_with($columnValue, VaultConfiguration::VAULT_PATH_PATTERN)) {
                 return $columnValue;
+
             }
         }
     }

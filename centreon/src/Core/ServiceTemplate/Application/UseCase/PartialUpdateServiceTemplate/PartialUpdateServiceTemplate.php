@@ -640,6 +640,7 @@ final class PartialUpdateServiceTemplate
                 $action === 'INSERT' ? [$macroPrefixName => $macro->getValue()] : [],
                 $action === 'DELETE' ? [$macroPrefixName => $macro->getValue()] : [],
             );
+
             $vaultPath = $vaultPaths[$macroPrefixName];
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
