@@ -134,13 +134,13 @@ Given(
 
           cy.log(
             `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
-          );
+          )
           const installed_version = `${major_version}.${stable_minor_versions[minor_version_index]}`;
           Cypress.env('installed_version', installed_version);
-
+          cy.log('installed_version', installed_version)
           return installCentreon(installed_version).then(() => {
             return checkPlatformVersion(installed_version).then((output) => {
-              if (output == null) {
+              if (output != null) {
                 return cy.stopContainer({ name: 'web' }).wrap('skipped');
               }
               cy.visit('/');
