@@ -17903,8 +17903,8 @@ msgstr ""
 # msgid "Create a ticket"
 # msgstr ""
 
-# msgid "Rule"
+# msgid "Rule (ticket provider)"
 # msgstr ""
 
-# msgid "Select a rule"
+# msgid "Select rule (ticket provider)"
 # msgstr ""
