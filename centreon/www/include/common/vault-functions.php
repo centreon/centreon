@@ -1056,7 +1056,7 @@ function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromV
  *
  * @throws Throwable
  */
-function SecretsInVault(
+function updateServiceSecretsInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
     Logger $logger,
