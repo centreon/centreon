@@ -341,8 +341,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             [$credential->name => $credential->value]
         );
         $vaultPath = $vaultPaths[$credential->name];
-        $vaultPathPart = explode('/', $vaultPath);
-        $existingUuids['openId'] ??= end($vaultPathPart);
+        $uuid = $this->getUuidFromPath($vaultPath);
+        if ($uuid === null) {
+            throw new \Exception('UUID not found in the vault path');
+        }
+        $existingUuids['openId'] ??= $uuid;
 
         /**
          * @var CustomConfiguration $customConfiguration

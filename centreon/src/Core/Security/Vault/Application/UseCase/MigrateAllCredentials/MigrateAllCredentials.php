@@ -397,7 +397,7 @@ final class MigrateAllCredentials
         ) {
             $credential = new CredentialDto();
             $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;
-            $credential->name = '_OPENID_CLIENT_ID';
+            $credential->name = VaultConfiguration::OPENID_CLIENT_ID_KEY;
             $credential->value = $customConfiguration->getClientId();
             $credentials[] = $credential;
         }
@@ -408,7 +408,7 @@ final class MigrateAllCredentials
         ) {
             $credential = new CredentialDto();
             $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;
-            $credential->name = '_OPENID_CLIENT_SECRET';
+            $credential->name = VaultConfiguration::OPENID_CLIENT_SECRET_KEY;
             $credential->value = $customConfiguration->getClientSecret();
             $credentials[] = $credential;
         }
