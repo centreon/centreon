@@ -290,7 +290,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The vault configuration has been successfully created.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
+									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"});\r",
 									""
@@ -402,7 +402,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The vault configuration has been successfully updated.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
+									"    pm.response.to.have.status(400);\r",
 									"});\r",
 									""
 								],
