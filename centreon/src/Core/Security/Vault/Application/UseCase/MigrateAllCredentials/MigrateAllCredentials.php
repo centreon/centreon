@@ -283,7 +283,10 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($hostMacros as $hostMacro) {
-            if ($hostMacro->getValue() === '' || str_starts_with($hostMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)) {
+            if (
+                $hostMacro->getValue() === ''
+                || str_starts_with($hostMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
                 continue;
             }
             $credential = new CredentialDto();
@@ -306,7 +309,10 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($serviceMacros as $serviceMacro) {
-            if ($serviceMacro->getValue() === '' || str_starts_with($serviceMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)) {
+            if (
+                $serviceMacro->getValue() === ''
+                || str_starts_with($serviceMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
                 continue;
             }
             $credential = new CredentialDto();
@@ -329,7 +335,10 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($pollerMacros as $pollerMacro) {
-            if ($pollerMacro->getValue() === '' || str_starts_with($pollerMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)) {
+            if (
+                $pollerMacro->getValue() === ''
+                || str_starts_with($pollerMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
                 continue;
             }
             $credential = new CredentialDto();
