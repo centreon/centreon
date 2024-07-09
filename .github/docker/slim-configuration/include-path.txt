@@ -3,11 +3,13 @@
 /usr/bin
 /sbin
 /usr/sbin
+/run/httpd
 /usr/share/zoneinfo
 /etc/bashrc
 /etc/profile
 /etc/profile.d
 /etc/inputrc
+/etc/httpd
 /etc/sudo.conf
 /etc/sudoers
 /etc/sudoers.d
@@ -18,8 +20,8 @@
 /usr/lib64/perl5/vendor_perl
 /usr/share/perl5
 /var/www/html
-/var/log/httpd24
-/opt/rh/httpd24/root
+/var/log/httpd
+/usr/lib64/httpd/modules
 /var/lib/php/session
 /usr/share/centreon
 /var/cache/centreon
