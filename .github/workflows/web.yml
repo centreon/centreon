@@ -637,8 +637,7 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   newman-test:
-    needs:
-      [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
+    needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
