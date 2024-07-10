@@ -390,7 +390,7 @@ const useResources = ({
 
   const getSearchField = (resourceType: string): string =>
     cond([
-      [equals('host'), always('h.name')],
+      [equals('host'), always('host.name')],
       [T, always('name')]
     ])(resourceType);
 
