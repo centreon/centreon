@@ -24,6 +24,7 @@
 							"        \"dashboard\": true,\r",
 							"        \"map_visx_viewer\": false,\r",
 							"        \"vault\": false,\r",
+							"        \"vault_broker\": false,\r",
 							"        \"ad_exclusion_periods\": false,\r",
 							"        \"resource_status_tree_view\": true,\r",
 							"        \"resource_status_filter_revamp\": true,\r",
