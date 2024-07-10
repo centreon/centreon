@@ -1,4 +1,4 @@
-name: nightly-platform-destroy
+name: nightly-cod-platform-destroy
 
 on:
   schedule:

@@ -1,4 +1,4 @@
-name: nightly-platform-deploy
+name: nightly-cod-platform-deploy
 
 on:
   schedule:
