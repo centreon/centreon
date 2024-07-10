@@ -227,6 +227,7 @@ final class DeployServices
         } catch (\Throwable $ex) {
             $this->error("Rollback of 'DeployServices' transaction", ['trace' => $ex->getTraceAsString()]);
             $this->dataStorageEngine->rollbackTransaction();
+
             throw $ex;
         }
     }
