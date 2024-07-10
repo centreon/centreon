@@ -43,7 +43,7 @@ if (!isset($centreon)) {
  */
 $l_general_opt = [];
 
-$stmt = $pearDB->query("SELECT * FROM options WHERE `key` RLIKE '^color_(warn|crit)'");
+$stmt = $pearDB->query("SELECT * FROM options");
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $l_general_opt[$row['key']] = $row['value'];
 }
@@ -160,11 +160,11 @@ $l_dsColorList = [
     ],
     'ds_color_area_warn' => [
         'label' => _('Warning Area color'),
-        'color' => $l_general_opt['color_warning']
+        'color' => '#FFFFFF'
     ],
     'ds_color_area_crit' => [
         'label' => _('Critical Area color'),
-        'color' => $l_general_opt['color_critical']
+        'color' => '#FFFFFF'
     ],
 ];
 
