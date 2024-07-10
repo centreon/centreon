@@ -313,7 +313,7 @@ When(
 Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
-    cy.getCellContent(1, 1).then((myTableContent) => {
+    cy.getCellContent(1, 2).then((myTableContent) => {
       expect(myTableContent[6]).to.include('Pending');
       expect(myTableContent[7]).to.include('Pending');
       expect(myTableContent[8]).to.include('Up');
@@ -514,6 +514,11 @@ Given('a dashboard with a resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
+  cy.editWidget(1);
+  cy.wait('@resourceRequest');
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description, { force: true })
   cy.contains('host2').should('be.visible');
 });
 
