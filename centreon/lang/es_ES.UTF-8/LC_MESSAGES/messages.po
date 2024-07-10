@@ -16933,7 +16933,7 @@ msgstr "Modo avanzado"
 # msgid "The resource access rule was successfully deleted"
 # msgstr ""
 
-#  msgid "Error while adding a broker output"
+#  msgid "Error while adding a Broker input/output"
 #  msgstr ""
 
 #  msgid "You are not allowed to edit a broker configuration"
@@ -16942,7 +16942,7 @@ msgstr "Modo avanzado"
 #  msgid "Broker configuration #%d not found"
 #  msgstr ""
 
-#  msgid "Missing output parameter: %s"
+#  msgid "Missing input/output parameter: %s"
 #  msgstr ""
 
 #  msgid "Parameter '%s' (%s) is invalid"
@@ -16951,7 +16951,7 @@ msgstr "Modo avanzado"
 #  msgid "Parameter '%s' of type %s is invalid"
 #  msgstr ""
 
-#  msgid "Output #%d not found for broker configuration #%d"
+#  msgid "Input/Output #%d not found for Broker configuration #%d"
 #  msgstr ""
 
 # msgid "Displays a detailed view of the current status for selected resources as a chart."
@@ -17079,7 +17079,7 @@ msgstr "Modo avanzado"
 # msgid "All resources selected"
 # msgstr ""
 
-#  msgid "Error while updating a broker output"
+#  msgid "Error while updating a Broker input/output"
 #  msgstr ""
 
 #  msgid "Action not permitted for output of type '%s'"
@@ -17211,4 +17211,157 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Active/Revoked"
+# msgstr ""
+
+# msgid "Value sorting"
+# msgstr ""
+
+# msgid "By name"
+# msgstr "Par nom"
+
+# msgid "Tooltip display""
+# msgstr ""
+
+# msgid "All"
+# msgstr ""
+
+# msgid "Single"
+# msgstr ""
+
+# msgid "Hidden"
+# msgstr ""
+
+# msgid "Hide"
+# msgstr ""
+
+# msgid "Line width"
+# msgstr ""
+
+# msgid "Auto"
+# msgstr ""
+
+# msgid "Show area"
+# msgstr ""
+
+# msgid "Show"
+# msgstr "Afficher"
+
+# msgid "Display curve points"
+# msgstr ""
+
+# msgid "Show axis border"
+# msgstr ""
+
+# msgid "Y-axis tick label rotation"
+# msgstr ""
+
+# msgid "The Auto value corresponds to the value defined in the Curves configuration in Centreon."
+# msgstr ""
+
+# msgid "Position"
+# msgstr ""
+
+# msgid "Display mode"
+# msgstr ""
+
+# msgid "Grid"
+# msgstr ""
+
+# msgid "List"
+# msgstr ""
+
+# msgid "Scale"
+# msgstr ""
+
+# msgid "Linear"
+# msgstr ""
+
+# msgid "Logarithmic"
+# msgstr ""
+
+# msgid "Zero-centered"
+# msgstr ""
+
+# msgid "Solid"
+# msgstr ""
+
+# msgid "Dashed"
+# msgstr ""
+
+# msgid "Dotted"
+# msgstr ""
+
+# msgid "Graph style"
+# msgstr ""
+
+# msgid "Display type"
+# msgstr ""
+
+# msgid "Display settings"
+# msgstr ""
+
+# msgid "Fill opacity"
+# msgstr ""
+
+# msgid "Line style"
+# msgstr ""
+
+# msgid "Dash width"
+# msgstr ""
+
+# msgid "Space"
+# msgstr ""
+
+# msgid "Show grid lines"
+# msgstr ""
+
+# msgid "Horizontal"
+# msgstr ""
+
+# msgid "Vertical"
+# msgstr ""
+
+# msgid "Both"
+# msgstr ""
+
+# msgid "Base 2"
+# msgstr ""
+
+# msgid "Base 10"
+# msgstr ""
+
+# msgid "Left"
+# msgstr ""
+
+# msgid "Right"
+# msgstr ""
+
+# msgid "Axis"
+# msgstr ""
+
+# msgid "Tooltip"
+# msgstr ""
+
+# msgid "Add filter"
+# msgstr ""
+
+# msgid "Add resource dataset"
+# msgstr ""
+
+# msgid "Line"
+# msgstr ""
+
+# msgid "Bar"
+# msgstr ""
+
+# msgid "Stacked bar"
+# msgstr ""
+
+# msgid "Orientation"
+# msgstr ""
+
+# msgid "Bar radius"
+# msgstr ""
+
+# msgid "Bar background opacity"
 # msgstr ""

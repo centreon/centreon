@@ -84,6 +84,19 @@ abstract class AbstractStep implements StepInterface
         return $this->getConfiguration(self::TMP_INSTALL_DIR . '/admin.json', $configuration);
     }
 
+    public function getVaultConfiguration()
+    {
+        $configuration = [
+            'address' => '',
+            'port' => '443',
+            'root_path' => '',
+            'role_id' => '',
+            'secret_id' => '',
+        ];
+
+        return $this->getConfiguration(self::TMP_INSTALL_DIR . '/vault.json', $configuration);
+    }
+
     /**
      * Get centreon-engine configuration.
      *

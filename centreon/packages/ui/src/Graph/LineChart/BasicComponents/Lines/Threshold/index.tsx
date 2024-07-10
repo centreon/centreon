@@ -55,14 +55,14 @@ const WrapperThresholdLines = ({
   };
 
   const thresholdLines = areaThresholdLines?.map((item, index) => {
-    const { type } = item;
+    const { type, id } = item;
 
     if (equals(type, ThresholdType.basic)) {
       return [
         {
           Component: BasicThreshold,
           key: index,
-          props: { ...commonProps, getY0, getY1 }
+          props: { ...commonProps, getY0, getY1, id }
         }
       ];
     }
@@ -131,7 +131,7 @@ const WrapperThresholdLines = ({
     <g>
       {filteredThresholdLines.map((element) =>
         element?.map(({ Component, props, key }) => (
-          <Component {...props} id={key} key={key} />
+          <Component {...props} id={props?.id ?? key} key={key} />
         ))
       )}
     </g>

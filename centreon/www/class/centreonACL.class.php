@@ -216,7 +216,7 @@ class CentreonACL
     {
         $bindValues = [];
         foreach ($list as $index => $id) {
-            $bindValues[$prefix . $index] = $id;
+            $bindValues[$prefix . $index] = trim($id, '"\'');
         }
 
         return [$bindValues, implode(', ', array_keys($bindValues))];
@@ -322,6 +322,8 @@ class CentreonACL
     private function setHostGroups()
     {
         $aclSubRequest = '';
+        $bindValues = [];
+
         if ($this->hasAccessToAllHostGroups === false) {
             [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
                 list: explode(',', $this->getAccessGroupsString()),
@@ -355,7 +357,11 @@ class CentreonACL
         while($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $this->hostGroups[$record['hg_id']] = $record['hg_name'];
             $this->hostGroupsAlias[$record['hg_id']] = $record['hg_alias'];
-            $this->hostGroupsFilter[$record['acl_res_id']][$record['hg_id']] = $record['hg_id'];
+
+            // INNER JOIN might not give anything is the user is not linked to ACL resources...
+            if (isset($record['acl_res_id'])) {
+                $this->hostGroupsFilter[$record['acl_res_id']][$record['hg_id']] = $record['hg_id'];
+            }
         }
     }
 
@@ -395,6 +401,7 @@ class CentreonACL
     private function setServiceGroups()
     {
         $aclSubRequest = '';
+        $bindValues = [];
 
         if ($this->hasAccessToAllServiceGroups === false) {
             [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
@@ -429,7 +436,11 @@ class CentreonACL
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $this->serviceGroups[$record['sg_id']] = $record['sg_name'];
             $this->serviceGroupsAlias[$record['sg_id']] = $record['sg_alias'];
-            $this->serviceGroupsFilter[$record['acl_res_id']][$record['sg_id']] = $record['sg_id'];
+
+            // INNER JOIN might not give anything is the user is not linked to ACL resources...
+            if (isset($record['acl_res_id'])) {
+                $this->serviceGroupsFilter[$record['acl_res_id']][$record['sg_id']] = $record['sg_id'];
+            }
         }
     }
 

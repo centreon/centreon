@@ -191,9 +191,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -276,18 +274,8 @@ Then("the Group monitoring widget is added in the dashboard's layout", () => {
 
 Given('a dashboard that includes a configured Group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).click({ force: true });
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
 });
 
 When(
@@ -322,13 +310,7 @@ Then(
 
 Given('a dashboard featuring two group monitoring widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoGroupMonitoringwidgets);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
 
@@ -353,20 +335,20 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard having a configured group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
+  cy.visitDashboard(dashboards.default.name);
 });
 
 When(
   'the dashboard administrator user duplicates the group monitoring widget',
   () => {
+    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
   }
 );
 
@@ -389,18 +371,8 @@ Then('the second widget has the same properties as the first widget', () => {
 
 Given('a dashboard configuring group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
 });
 
 When(
@@ -422,5 +394,26 @@ Then(
       .eq(1)
       .should('have.attr', 'data-status', 'Warning')
       .should('be.visible');
+  }
+);
+
+Given('a dashboard with a group monitoring widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
+  cy.editDashboard(dashboards.default.name);
+  cy.contains('Linux-Servers').should('be.visible');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.contains('a', 'Linux-Servers')
+    .should('have.attr', 'href')
+    .then((href) => {
+      cy.visit(href);
+    });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
   }
 );

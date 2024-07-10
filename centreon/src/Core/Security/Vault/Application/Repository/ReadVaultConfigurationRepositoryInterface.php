@@ -40,4 +40,11 @@ interface ReadVaultConfigurationRepositoryInterface
      * @return VaultConfiguration|null
      */
     public function find(): ?VaultConfiguration;
+
+    /**
+     * @throws \Throwable
+     *
+     * @return string|null
+     */
+    public function getLocation(): ?string;
 }

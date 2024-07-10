@@ -26,11 +26,16 @@
                 </td>
 		 	</tr>
 			<tr class="list_one">
-				<td class="FormRowField">{$form.resource_name.label}</td><td class="FormRowValue">{$form.resource_name.html}</td>
+				<td class="FormRowField">{$form.resource_name.label}</td>
+				<td class="FormRowValue">{$form.resource_name.html}</td>
 			</tr>
 			<tr class="list_two">
 				<td class="FormRowField">{$form.resource_line.label}</td>
-				<td class="FormRowValue">{$form.resource_line.html}</td>
+				<td class="FormRowValue">
+					<span>{$form.resource_line.html}</span>
+					<span>{$form.is_password.label}</span>
+					<span>{$form.is_password.html}</span>
+				</td>
 			</tr>
 			<tr class="list_one">
 				<td class="FormRowField">{$form.instance_id.label}</td>

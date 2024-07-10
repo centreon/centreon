@@ -40,13 +40,38 @@ interface GetResourcesUrlProps {
   type: string;
 }
 
-export const getDetailsPanelQueriers = ({ resource, type }): object => {
+const getResourceStatusDetailsEndpoint = ({
+  resourceType,
+  id,
+  parentId
+}): string =>
+  cond([
+    [
+      equals('host'),
+      always(`${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`)
+    ],
+    [
+      equals('service'),
+      always(
+        `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`
+      )
+    ],
+    [
+      equals('metaservice'),
+      always(
+        `${centreonBaseURL}/api/latest/monitoring/resources/metaservices/${id}`
+      )
+    ]
+  ])(resourceType);
+
+export const getDetailsPanelQueriers = ({ resource }): object => {
   const { id, parentId, uuid, type: resourceType } = resource;
 
-  const resourcesDetailsEndpoint =
-    equals(type, 'host') || equals(resourceType, 'host')
-      ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
-      : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+  const resourcesDetailsEndpoint = getResourceStatusDetailsEndpoint({
+    id,
+    parentId,
+    resourceType
+  });
 
   const queryParameters = {
     id,
@@ -73,7 +98,8 @@ export const getResourcesUrl = ({
         name: 'resource_types',
         value: [
           { id: 'service', name: 'Service' },
-          { id: 'host', name: 'Host' }
+          { id: 'host', name: 'Host' },
+          { id: 'metaservice', name: 'Meta service' }
         ]
       }
     : {
@@ -111,6 +137,7 @@ export const getResourcesUrl = ({
       const name = cond<Array<string>, string>([
         [equals('host'), always('parent_name')],
         [equals('service'), always('name')],
+        [equals('meta-service'), always('name')],
         [T, identity]
       ])(resourceType);
 
@@ -290,7 +317,7 @@ export const getPublicWidgetEndpoint = ({
   widgetId,
   extraQueryParameters = ''
 }: GetPublicWidgetEndpointProps): string =>
-  `/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
+  `/it-edition-extensions/monitoring/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
 
 export const getWidgetEndpoint = ({
   playlistHash,

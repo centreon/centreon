@@ -80,6 +80,7 @@ beforeEach(closure: function (): void {
         validator: $this->validator = $this->createMock(UpdateRuleValidation::class),
         datasetValidator: $this->datasetValidator,
         dataStorageEngine: $this->createMock(DataStorageEngineInterface::class),
+        isCloudPlatform: true
     );
 
     $this->request = new UpdateRuleRequest();

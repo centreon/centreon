@@ -1,0 +1,61 @@
+openapi: 3.0.1
+info:
+  title: Centreon Open Tickets API
+  description: |
+    # New features
+
+    # Authentication
+    There are two modes of authentication:
+    * By token: after identification with your login credentials
+    * By cookie: by reusing a valid session ID
+  x-logo:
+    url: ./centreon-logo.png
+  contact:
+    url: 'https://www.centreon.com'
+  version: "v24.10"
+servers:
+  - url: '{protocol}://{server}:{port}/centreon/api/{version}/open-tickets'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+        description: "HTTP schema"
+      server:
+        default: localhost
+        description: "IP address or hostname of Centreon server"
+      port:
+        default: '80'
+        description: "Port used by HTTP server"
+      version:
+        enum:
+          - latest
+          - v24.10
+        default: latest
+        description: "Version of the API"
+security:
+  - Token: []
+  - Cookie: []
+paths:
+  /providers:
+    $ref: './latest/Configuration/Providers.yaml'
+  securitySchemes:
+    Token:
+      description: |
+        The use of the API requires a security token.
+
+        To retrieve it, you will need to authenticate yourself with your login credentials.
+
+        The token will be deleted if it has not been used for more than one hour.
+      type: apiKey
+      name: X-AUTH-TOKEN
+      in: header
+    Cookie:
+      description: |
+        If you have already connected on the Centreon web application, you can reused the PHPSESSID cookie.
+
+        The cookie will be valid as long as the connection to Centreon is maintained.
+      type: apiKey
+      name: PHPSESSID
+      in: cookie

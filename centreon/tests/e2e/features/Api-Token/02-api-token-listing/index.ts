@@ -1,10 +1,11 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import { Contact, durationMap } from '../common';
 
-let tokenName = '';
+const tokenName = '';
 
 // starting from the User_1
-let userId = 20;
+const userId = 20;
 
 before(() => {
   cy.startContainers();
@@ -68,10 +69,7 @@ Given('I am logged in as an administrator', () => {
 // });
 //
 // When('I navigate to API tokens page', () => {
-//   cy.visit('/centreon/administration/api-token');
-//   cy.wait('@getTokens');
-//   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
-//   cy.wait('@getTokens');
+//   cy.visitApiTokens();
 // });
 //
 // Then(

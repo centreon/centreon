@@ -35,6 +35,8 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
@@ -68,54 +70,32 @@ use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 use Exception;
 
 beforeEach(closure: function (): void {
-    $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class);
-    $this->writeServiceTemplateRepository = $this->createMock(WriteServiceTemplateRepositoryInterface::class);
-    $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
-    $this->readServiceCategoryRepository = $this->createMock(ReadServiceCategoryRepositoryInterface::class);
-    $this->writeServiceCategoryRepository = $this->createMock(WriteServiceCategoryRepositoryInterface::class);
-    $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
-    $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class);
-    $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class);
-    $this->writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class);
-    $this->readCommandMacroRepository = $this->createMock(ReadCommandMacroRepositoryInterface::class);
-    $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class);
-    $this->timePeriodRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
-    $this->serviceSeverityRepository = $this->createMock(ReadServiceSeverityRepositoryInterface::class);
-    $this->performanceGraphRepository = $this->createMock(ReadPerformanceGraphRepositoryInterface::class);
-    $this->imageRepository = $this->createMock(ReadViewImgRepositoryInterface::class);
-    $this->writeServiceGroupRepository = $this->createMock(WriteServiceGroupRepositoryInterface::class);
-    $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class);
-    $this->optionService = $this->createMock(OptionService::class);
-
-    $this->parametersValidation = $this->createMock(ParametersValidation::class);
-
-    $this->contact = $this->createMock(ContactInterface::class);
-    $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
     $this->presenter = new DefaultPresenter(
         $this->createMock(PresenterFormatterInterface::class)
     );
 
     $this->useCase = new PartialUpdateServiceTemplate(
-        $this->readServiceTemplateRepository,
-        $this->writeServiceTemplateRepository,
-        $this->readServiceCategoryRepository,
-        $this->writeServiceCategoryRepository,
-        $this->readAccessGroupRepository,
-        $this->readServiceTemplateRepository,
-        $this->readServiceMacroRepository,
-        $this->writeServiceMacroRepository,
-        $this->readCommandMacroRepository,
-        $this->writeServiceGroupRepository,
-        $this->readServiceGroupRepository,
-        $this->parametersValidation,
-        $this->contact,
-        $this->dataStorageEngine,
-        $this->optionService
+        $this->writeServiceTemplateRepository = $this->createMock(WriteServiceTemplateRepositoryInterface::class),
+        $this->readServiceCategoryRepository = $this->createMock(ReadServiceCategoryRepositoryInterface::class),
+        $this->writeServiceCategoryRepository = $this->createMock(WriteServiceCategoryRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
+        $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
+        $this->writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class),
+        $this->readCommandMacroRepository = $this->createMock(ReadCommandMacroRepositoryInterface::class),
+        $this->writeServiceGroupRepository = $this->createMock(WriteServiceGroupRepositoryInterface::class),
+        $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
+        $this->validation = $this->createMock(ParametersValidation::class),
+        $this->user = $this->createMock(ContactInterface::class),
+        $this->storageEngine = $this->createMock(DataStorageEngineInterface::class),
+        $this->optionService = $this->createMock(OptionService::class),
+        $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
     );
 });
 
 it('should present a ForbiddenResponse when the user has insufficient rights', function (): void {
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -134,7 +114,7 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
 
 it('should present a NotFoundResponse when the service template does not exist', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(1);
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -143,9 +123,17 @@ it('should present a NotFoundResponse when the service template does not exist',
             ]
         );
 
+    $accessGroups = [2];
+
+    $this->readAccessGroupRepository
+        ->expects($this->any())
+        ->method('findByContact')
+        ->with($this->user)
+        ->willReturn($accessGroups);
+
     $this->readServiceTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->with($request->id)
         ->willReturn(null);
 
@@ -160,8 +148,9 @@ it('should present a NotFoundResponse when the service template does not exist',
 it('should present a ConflictResponse when a host template does not exist', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(1);
     $request->hostTemplates = [1, 8];
+    $accessGroups = [9, 11];
 
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -170,14 +159,20 @@ it('should present a ConflictResponse when a host template does not exist', func
             ]
         );
 
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->with($this->user)
+        ->willReturn($accessGroups);
+
     $this->readServiceTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
     $exception = ServiceTemplateException::idsDoNotExist('host_templates', [$request->hostTemplates[1]]);
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertHostTemplateIds')
         ->with($request->hostTemplates)
@@ -194,8 +189,9 @@ it('should present a ConflictResponse when a host template does not exist', func
 it('should present an ErrorResponse when an error occurs during host templates unlink', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(1);
     $request->hostTemplates = [1, 8];
+    $accessGroups = [9, 11];
 
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -204,13 +200,19 @@ it('should present an ErrorResponse when an error occurs during host templates u
             ]
         );
 
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->with($this->user)
+        ->willReturn($accessGroups);
+
     $this->readServiceTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertHostTemplateIds')
         ->with($request->hostTemplates);
@@ -232,8 +234,9 @@ it('should present an ErrorResponse when an error occurs during host templates u
 it('should present a ErrorResponse when an error occurs during host templates link', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(1);
     $request->hostTemplates = [1, 8];
+    $accessGroups = [9, 11];
 
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -242,13 +245,19 @@ it('should present a ErrorResponse when an error occurs during host templates li
             ]
         );
 
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->with($this->user)
+        ->willReturn($accessGroups);
+
     $this->readServiceTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertHostTemplateIds')
         ->with($request->hostTemplates);
@@ -276,7 +285,7 @@ it('should present a ErrorResponse when an error occurs during service groups li
     $request = new PartialUpdateServiceTemplateRequest(1);
     $request->serviceGroups = [new ServiceGroupDto(1, 2)];
 
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -291,7 +300,7 @@ it('should present a ErrorResponse when an error occurs during service groups li
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
-    $this->contact
+    $this->user
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -363,7 +372,7 @@ it('should present a NoContentResponse when everything has gone well for an admi
         commandId: 99,
     );
 
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -388,7 +397,7 @@ it('should present a NoContentResponse when everything has gone well for an admi
         ->method('linkToHosts')
         ->with($request->id, $request->hostTemplates);
 
-    $this->contact
+    $this->user
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -457,60 +466,60 @@ it('should present a NoContentResponse when everything has gone well for an admi
         ->expects($this->never())
         ->method('delete');
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertIsValidName')
         ->with($serviceTemplate->getName(), $request->name);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertIsValidPerformanceGraph')
         ->with($request->graphTemplateId);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertIsValidServiceTemplate')
         ->with($request->serviceTemplateParentId);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertIsValidCommand')
         ->with($request->commandId);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertIsValidEventHandler')
         ->with($request->eventHandlerId);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertIsValidNotificationTimePeriod')
         ->with($request->notificationTimePeriodId);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertIsValidTimePeriod')
         ->with($request->checkTimePeriodId);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertIsValidIcon')
         ->with($request->iconId);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertIsValidSeverity')
         ->with($request->severityId);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertHostTemplateIds')
         ->with($request->hostTemplates);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertServiceCategories')
-        ->with($request->serviceCategories, $this->contact, []);
+        ->with($request->serviceCategories, $this->user, []);
 
     $this->writeServiceTemplateRepository
         ->expects($this->once())
@@ -575,7 +584,7 @@ it('should present a NoContentResponse when everything has gone well for a non-a
     $request->serviceCategories = [2, 3];
     $accessGroups = [9, 11];
 
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -586,13 +595,7 @@ it('should present a NoContentResponse when everything has gone well for a non-a
 
     $serviceTemplate = new ServiceTemplate(1, 'fake_name', 'fake_alias');
 
-    $this->readServiceTemplateRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->with($request->id)
-        ->willReturn($serviceTemplate);
-
-    $this->contact
+    $this->user
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(false);
@@ -600,8 +603,14 @@ it('should present a NoContentResponse when everything has gone well for a non-a
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->with($this->contact)
+        ->with($this->user)
         ->willReturn($accessGroups);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIdAndAccessGroups')
+        ->with($request->id, $accessGroups)
+        ->willReturn($serviceTemplate);
 
     $this->writeServiceTemplateRepository
         ->expects($this->once())
@@ -634,15 +643,15 @@ it('should present a NoContentResponse when everything has gone well for a non-a
         ->method('linkToService')
         ->with($request->id, []);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertHostTemplateIds')
         ->with($request->hostTemplates);
 
-    $this->parametersValidation
+    $this->validation
         ->expects($this->once())
         ->method('assertServiceCategories')
-        ->with($request->serviceCategories, $this->contact, $accessGroups);
+        ->with($request->serviceCategories, $this->user, $accessGroups);
 
     ($this->useCase)($request, $this->presenter);
 

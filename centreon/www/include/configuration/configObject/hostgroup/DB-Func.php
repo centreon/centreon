@@ -152,7 +152,7 @@ function removeRelationLastHostgroupDependency(int $hgId): void
     }
 }
 
-function deleteHostGroupInDB($hostGroups = array())
+function deleteHostGroupInDB(bool $isCloudPlatform, array $hostGroups = [])
 {
     global $pearDB, $centreon;
 
@@ -160,22 +160,101 @@ function deleteHostGroupInDB($hostGroups = array())
         $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId((int) $hostgroupId);
 
         removeRelationLastHostgroupDependency((int) $hostgroupId);
-        $rq = "SELECT @nbr := (SELECT COUNT( * ) FROM host_service_relation WHERE service_service_id = " .
-            "hsr.service_service_id GROUP BY service_service_id ) AS nbr, hsr.service_service_id FROM " .
-            "host_service_relation hsr WHERE hsr.hostgroup_hg_id = '" . $hostgroupId . "'";
-        $dbResult = $pearDB->query($rq);
+        $rq = <<<'SQL'
+            SELECT @nbr := (
+                SELECT COUNT( * )
+                FROM host_service_relation
+                WHERE service_service_id = hsr.service_service_id
+                GROUP BY service_service_id
+            ) AS nbr,
+                hsr.service_service_id
+            FROM host_service_relation hsr
+            WHERE hsr.hostgroup_hg_id = :hostgroup_id
+            SQL;
+        $stmt= $pearDB->prepare($rq);
+        $stmt->bindValue(":hostgroup_id", (int) $hostgroupId, \PDO::PARAM_INT);
+        $stmt->execute();
 
         $statement = $pearDB->prepare("DELETE FROM service WHERE service_id = :service_id");
-        while ($row = $dbResult->fetch()) {
+        while ($row = $stmt->fetch()) {
             if ($row["nbr"] == 1) {
                 $statement->bindValue(':service_id', (int) $row["service_service_id"], \PDO::PARAM_INT);
                 $statement->execute();
             }
         }
-        $dbResult3 = $pearDB->query("SELECT hg_name FROM `hostgroup` WHERE `hg_id` = '" . $hostgroupId . "' LIMIT 1");
-        $row = $dbResult3->fetch();
 
-        $pearDB->query("DELETE FROM hostgroup WHERE hg_id = '" . $hostgroupId . "'");
+        $statement = $pearDB->prepare(
+            <<<'SQL'
+                SELECT hg_name
+                FROM hostgroup
+                WHERE hg_id = :hostgroup_id
+                LIMIT 1
+                SQL
+        );
+        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
+        $statement->execute();
+        $row = $statement->fetch();
+
+        if ($isCloudPlatform) {
+            if ($pearDB->beginTransaction()) {
+                try {
+                    $stmt = $pearDB->prepare(
+                        <<<'SQL'
+                            SELECT * FROM dataset_filters
+                            INNER JOIN acl_resources_hg_relations arhr
+                                ON arhr.acl_res_id = dataset_filters.acl_resource_id
+                            WHERE hg_hg_id = :hostgroup_id
+                            SQL
+                    );
+                    $stmt->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
+                    $stmt->execute();
+
+                    while ($datasetFilter = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                        $resourceIds = explode(',', $datasetFilter['resource_ids']);
+                        $updatedResourcesIds = array_filter(
+                            $resourceIds,
+                            fn ($id) => trim($id) !== (string) $hostgroupId
+                        );
+                        $resourcesIdsAsString = implode(',', $updatedResourcesIds);
+                        if (! empty($resourcesIdsAsString)) {
+                            $stmt = $pearDB->prepare(
+                                <<<'SQL'
+                                    UPDATE dataset_filters
+                                    SET resource_ids = :resource_ids
+                                    WHERE id = :id
+                                    SQL
+                            );
+                            $stmt->bindValue(':resource_ids', $resourcesIdsAsString, \PDO::PARAM_STR);
+                            $stmt->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+
+                            $stmt->execute();
+                        } else {
+                            $stmt = $pearDB->prepare(
+                                <<<'SQL'
+                                    DELETE FROM dataset_filters
+                                    WHERE id = :id
+                                    SQL
+                            );
+                            $stmt->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+
+                            $stmt->execute();
+                        }
+                    }
+                    $pearDB->commit();
+                } catch (\Throwable $exception) {
+                    $pearDB->rollBack();
+                    throw $exception;
+                }
+            }
+        }
+
+        $statement = $pearDB->prepare(
+            <<<'SQL'
+                DELETE FROM hostgroup WHERE hg_id = :hostgroup_id
+                SQL
+        );
+        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
+        $statement->execute();
 
         signalConfigurationChange('hostgroup', (int) $hostgroupId, $previousPollerIds);
         $centreon->CentreonLogAction->insertLog("hostgroup", $hostgroupId, $row['hg_name'], "d");
@@ -501,20 +580,69 @@ function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedV
                     }
                 }
             } else {
-                if ($pearDB->beginTransaction()) {
-                    try {
-                        linkHostGroupToDataset(datasetId: $hostGroupDatasetFilters[0]['dataset_id'], hostGroupId: $hostGroupId);
-                        // Expend the existing hostgroup dataset_filter
-                        $expendedResourceIds = $hostGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $hostGroupId;
+                $datasetFilterToPopulate = null;
+                foreach ($hostGroupDatasetFilters as $hostGroupDatasetFilter) {
+                    $childDatasetFilter = array_filter(
+                        $datasets,
+                        fn (array $dataset) =>
+                            $dataset['dataset_filter_parent_id'] === $hostGroupDatasetFilter['dataset_filter_id']
+                    );
 
-                        updateDatasetFiltersResourceIds(
-                            datasetFilterId: $hostGroupDatasetFilters[0]['dataset_filter_id'],
-                            resourceIds: $expendedResourceIds
-                        );
-                        $pearDB->commit();
-                    } catch (\Throwable $exception) {
-                        $pearDB->rollBack();
-                        throw $exception;
+                    $parentDatasetFilter = array_filter(
+                        $datasets,
+                        fn (array $dataset) =>
+                            $dataset['dataset_filter_id'] === $hostGroupDatasetFilter['dataset_filter_parent_id']
+                    );
+
+                    if ($childDatasetFilter !== [] || $parentDatasetFilter !== []) {
+                        continue;
+                    }
+
+                    $datasetFilterToPopulate = $hostGroupDatasetFilter;
+                }
+
+                if ($datasetFilterToPopulate === null) {
+                    $lastDatasetAdded = end($datasets);
+
+                    preg_match('/dataset_for_rule_\d+_(\d+)/', $lastDatasetAdded['dataset_name'], $matches);
+
+                    // calculate the new dataset_name
+                    $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . (int) $matches[1] + 1;
+
+                    if ($pearDB->beginTransaction()) {
+                        try {
+                            $datasetId = createNewDataset(datasetName: $newDatasetName);
+                            linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
+                            linkHostGroupToDataset(datasetId: $datasetId, hostGroupId: $hostGroupId);
+                            createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
+                            $pearDB->commit();
+                        } catch (\Throwable $exception) {
+                            $pearDB->rollBack();
+                            throw $exception;
+                        }
+                    }
+                } else {
+                    if (! empty($datasetFilterToPopulate['dataset_filter_resources'])) {
+                        if ($pearDB->beginTransaction()) {
+                            try {
+                                linkHostGroupToDataset(
+                                    datasetId: $datasetFilterToPopulate['dataset_id'],
+                                    hostGroupId: $hostGroupId
+                                );
+                                // Expend the existing hostgroup dataset_filter
+                                $expendedResourceIds = $datasetFilterToPopulate['dataset_filter_resources'] . ', '
+                                    . $hostGroupId;
+
+                                updateDatasetFiltersResourceIds(
+                                    datasetFilterId: $datasetFilterToPopulate['dataset_filter_id'],
+                                    resourceIds: $expendedResourceIds
+                                );
+                                $pearDB->commit();
+                            } catch (\Throwable $exception) {
+                                $pearDB->rollBack();
+                                throw $exception;
+                            }
+                        }
                     }
                 }
             }
