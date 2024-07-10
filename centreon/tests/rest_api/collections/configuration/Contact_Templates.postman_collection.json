@@ -1,0 +1,1691 @@
+{
+	"info": {
+		"_postman_id": "79222ac7-4117-49be-a063-abe639b2c058",
+		"name": "Contact_Templates",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-79222ac7-4117-49be-a063-abe639b2c058?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "0101 - By admin",
+			"item": [
+				{
+					"name": "Login with admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create contact template (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The contact template has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"uuid": "cd2077d9-9da4-4d12-8114-b7049dac9e66"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACTTPL\",\r\n  \"values\": \"contact_tpl;contact_tpl;contact_tpl@mail.com;1;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve contact_template ID (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The id of the contact template has been successfully retrieved.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"  for(let i=0; i < responseJson.result.length; i++){\r",
+									"    if(responseJson.result[i].name === \"contact_tpl\"){\r",
+									"        pm.collectionVariables.set(\"Contact_Template_Id\", responseJson.result[i].id);\r",
+									"    }\r",
+									"  }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"uuid": "0e8a8ee4-5cad-49aa-b76f-69f4c453ef09"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"show\",\r\n  \"object\": \"CONTACTTPL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all Contact Templates",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"pm.test(\"Contact Templates are retrieved.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"Contact_Template_Id\")),\r",
+									"        \"name\": \"contact_tpl\"\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "0102 - Listing of Contact Templates by user-non-admin without rights to Reach API and access to the Contact template page",
+			"item": [
+				{
+					"name": "Add user-non-admin (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"api_login_user_non_admin\", \"user-non-admin\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "a5338aca-689f-41d4-a4f6-5625057ed6f7"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};{{api_login_user_non_admin}};{{api_login_user_non_admin}}@localhost;Centreon!123;0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Group ACL-non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "70953227-a224-4dad-9f18-bb03c34596c0"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;ACL-non-admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link user to ACL-non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "def59e5d-a4d5-4be1-8bd5-f8a1d5ca8308"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;{{api_login_user_non_admin}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "6ca12736-55eb-4c87-a78e-bc96f55fe12e"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)",
+									"uuid": "28aa534a-4215-46fb-b61b-711011c92f0e"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server",
+									"uuid": "fdf619b0-fc64-4a18-ab20-da03f0989d0e"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server",
+									"uuid": "e6b84b9b-32e3-43b0-be99-cc4489b6cb18"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API",
+									"uuid": "1b55cde1-b967-4594-ad3e-6cfc5f11ba82"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-non-admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all Contact templates",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Contact Templates are not retrieved.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin-user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)",
+									"uuid": "1c8335e2-ac1e-45b7-b3df-a5833e1b7661"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server",
+									"uuid": "3914579f-ebde-487c-a306-4ede18b01f86"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server",
+									"uuid": "12ce821d-9a66-4b3a-9561-ded32182765e"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API",
+									"uuid": "5c7ae201-6b91-4a0a-bd41-55eb994020c5"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "0103 - Listing of Contact Templates by user-non-admin with rights to Reach API and but without access to the Contact template page",
+			"item": [
+				{
+					"name": "Login with admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "40c1e2f8-4f0b-4158-857e-16f6782b9e66"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "ddaf6d39-0f33-421d-b954-6718c071ae9c"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)",
+									"uuid": "85b2fed6-e286-41a3-a353-7a914f4d98ca"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server",
+									"uuid": "0ef4acc6-e371-4055-b914-7eec7ce1e38d"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server",
+									"uuid": "5ca911f0-9a2b-4d85-b0a5-d334bd0cbc17"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API",
+									"uuid": "af37b021-24fd-4d12-8ccc-c71ef6f3b467"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-non-admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all Contact Templates",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Contact Templates are not retrieved.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin-user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)",
+									"uuid": "275c9d09-8155-4346-b745-d1c11b976f78"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server",
+									"uuid": "f7083dda-92a7-41c8-b7d5-10bbac615b8d"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server",
+									"uuid": "e81fd67f-9e80-4a50-b588-5b083ad64162"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API",
+									"uuid": "647b3ded-4976-4d00-a83b-cdbd8e13e2df"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "0104 - Listing of Contact Templates by user-non-admin with rights to Reach API and access to the Contact template page",
+			"item": [
+				{
+					"name": "Login with admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Menu CT (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "0146072f-1db0-4b98-9f7b-9d8be2a52402"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"CT;CT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Grant RW right to CT (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The Read/Write rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "089f243d-5de4-4f0e-ade5-0ae4335badf2"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"CT;1;Configuration\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link CT to ACL-non-admin(successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "5e6e43dd-363a-4f86-bff7-65ac533b10c2"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;CT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text",
+								"uuid": "822c9bb5-a690-4fec-bbf1-ec0b33ff7224"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)",
+									"uuid": "a77f7b74-6654-4e84-ace8-9f7b8084cebf"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server",
+									"uuid": "44a252ed-811a-4156-8cd5-ae3437fd3535"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server",
+									"uuid": "1086c46d-78be-4e2d-82ca-63d811722260"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API",
+									"uuid": "234687cf-2416-4988-b7d7-3e673e4e1a30"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-non-admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all Contact Templates",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Contact Templates are retrieved.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"Contact_Template_Id\")),\r",
+									"        \"name\": \"contact_tpl\"\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin-user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)",
+									"uuid": "85e6e65f-31fc-454d-a6f1-22e6d2b7e044"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server",
+									"uuid": "0f6d51e0-4413-42e3-a65b-bb5503396f00"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server",
+									"uuid": "e3adcc19-2d29-43da-873a-56db7275fde4"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API",
+									"uuid": "10f4e969-5475-43c2-aa7d-8ce67b279936"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

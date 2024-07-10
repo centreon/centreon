@@ -1,0 +1,1818 @@
+{
+	"info": {
+		"_postman_id": "1194dc47-7b09-4935-b363-038d768e4ef1",
+		"name": "Platform_Information",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-1194dc47-7b09-4935-b363-038d768e4ef1?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "0101 - Platform Information By admin",
+			"item": [
+				{
+					"name": "Login with admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update platform informations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The platform informations are successfully updated.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"platformName\": \"Centreon-Central\",\r\n    \"isRemote\": false,\r\n    \"address\": \"127.0.0.1\",\r\n    \"centralServerAddress\": \"127.0.0.1\",\r\n    \"apiUsername\": \"admin\",\r\n    \"apiCredentials\": \"centreon\",\r\n    \"apiScheme\": \"http\",\r\n    \"apiPort\": 80,\r\n    \"apiPath\": \"centreon\",\r\n    \"peerValidation\": false,\r\n    \"proxy\": {\r\n        \"host\": null,\r\n        \"port\": null,\r\n        \"user\": null,\r\n        \"password\": null\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/platform",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"platform"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "0102 - Creation user-non-admin",
+			"item": [
+				{
+					"name": "Add user-non-admin (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"api_login_user_non_admin\", \"user-non-admin\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};{{api_login_user_non_admin}};{{api_login_user_non_admin}}@localhost;Centreon!123;0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api_rt parameters (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};reach_api_rt;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Group ACL-non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;ACL-non-admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link user to ACL-non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;{{api_login_user_non_admin}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Menu Topology (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"Topology;Topology\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Topology to ACL-non-admin(successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;Topology\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Action Action-non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL action has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLACTION\",\r\n  \"values\": \"Action-non-admin;Action-non-admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Action-non-admin to ACL-non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL action has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addaction\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;Action-non-admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Grant rights to Action-non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The action right has been successfully granted to the ACL action.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"grant\",\r\n  \"object\": \"ACLACTION\",\r\n  \"values\": \"Action-non-admin;create_edit_poller_cfg\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "0103 - Topology by user-non-admin with Read/Write and actions rights without topology access",
+			"item": [
+				{
+					"name": "Login with user-non-admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update platform informations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The platform informations are not updated.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"platformName\": \"Centreon-Central\",\r\n    \"isRemote\": false,\r\n    \"address\": \"127.0.0.1\",\r\n    \"centralServerAddress\": \"127.0.0.1\",\r\n    \"apiUsername\": \"admin\",\r\n    \"apiCredentials\": \"centreon\",\r\n    \"apiScheme\": \"http\",\r\n    \"apiPort\": 80,\r\n    \"apiPath\": \"centreon\",\r\n    \"peerValidation\": false,\r\n    \"proxy\": {\r\n        \"host\": null,\r\n        \"port\": null,\r\n        \"user\": null,\r\n        \"password\": null\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/platform",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"platform"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin-user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "0104 - Topology by user-non-admin with Read/Write and actions rights with topology access",
+			"item": [
+				{
+					"name": "Login with admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Grant RW right to Topology (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The Read/Write rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"Topology;1;Configuration;Pollers;Pollers\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-non-admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update platform informations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The platform informations are successfully updated.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"platformName\": \"Centreon-Central\",\r\n    \"isRemote\": false,\r\n    \"address\": \"127.0.0.1\",\r\n    \"centralServerAddress\": \"127.0.0.1\",\r\n    \"apiUsername\": \"admin\",\r\n    \"apiCredentials\": \"centreon\",\r\n    \"apiScheme\": \"http\",\r\n    \"apiPort\": 80,\r\n    \"apiPath\": \"centreon\",\r\n    \"peerValidation\": false,\r\n    \"proxy\": {\r\n        \"host\": null,\r\n        \"port\": null,\r\n        \"user\": null,\r\n        \"password\": null\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/platform",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"platform"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin-user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "0105 - Topology by user-non-admin with Read/Write and no action rights",
+			"item": [
+				{
+					"name": "Login with admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke rights from Action-non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The action right has been successfully revoked from the ACL action.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"revoke\",\r\n  \"object\": \"ACLACTION\",\r\n  \"values\": \"Action-non-admin;create_edit_poller_cfg\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-non-admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update platform informations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The platform informations are not updated.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"platformName\": \"Centreon-Central\",\r\n    \"isRemote\": false,\r\n    \"address\": \"127.0.0.1\",\r\n    \"centralServerAddress\": \"127.0.0.1\",\r\n    \"apiUsername\": \"admin\",\r\n    \"apiCredentials\": \"centreon\",\r\n    \"apiScheme\": \"http\",\r\n    \"apiPort\": 80,\r\n    \"apiPath\": \"centreon\",\r\n    \"peerValidation\": false,\r\n    \"proxy\": {\r\n        \"host\": null,\r\n        \"port\": null,\r\n        \"user\": null,\r\n        \"password\": null\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/platform",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"platform"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin-user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
