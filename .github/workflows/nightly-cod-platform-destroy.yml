@@ -1,0 +1,5 @@
+name: nightly-platform-destroy
+
+on:
+  schedule:
+    - cron: "15 19 * * 1-5"

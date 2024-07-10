@@ -1,0 +1,5 @@
+name: nightly-platform-deploy
+
+on:
+  schedule:
+    - cron: "15 7 * * 1-5"
