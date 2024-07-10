@@ -44,6 +44,8 @@ class VaultConfiguration
     public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
     public const OPENID_CLIENT_ID_KEY = '_OPENID_CLIENT_ID';
     public const OPENID_CLIENT_SECRET_KEY = '_OPENID_CLIENT_SECRET';
+    public const DATABASE_USERNAME_KEY = '_DBUSERNAME';
+    public const DATABASE_PASSWORD_KEY = '_DBPASSWORD';
 
     /** Patterns Constants */
     public const VAULT_PATH_PATTERN = 'secret::';
