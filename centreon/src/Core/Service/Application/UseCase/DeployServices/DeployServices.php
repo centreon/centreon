@@ -31,7 +31,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\UnprocessableContentResponse;
 use Core\Common\Domain\TrimmedString;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -95,11 +94,11 @@ final class DeployServices
 
             $hostParents = $this->readHostRepository->findParents($hostId);
             if ($hostParents === []) {
-                $this->error(
-                    'Cannot deploy services: requested host does not have associated host templates',
+                $this->info(
+                    'Services cannot be deployed: requested host does not have associated host templates',
                     ['host_id' => $hostId]
                 );
-                $response = new UnprocessableContentResponse(sprintf('Cannot process request for host ID %d', $hostId));
+                $response = new NoContentResponse();
                 $presenter->presentResponse($response);
 
                 return;
@@ -108,6 +107,10 @@ final class DeployServices
             $deployedServices = $this->deployServicesInTransaction($hostParents, $hostId);
 
             if ($deployedServices === []) {
+                $this->info(
+                    'Services cannot be deployed: requested host already contains all deployed services',
+                    ['host_id' => $hostId]
+                );
                 $response = new NoContentResponse();
                 $presenter->presentResponse($response);
 

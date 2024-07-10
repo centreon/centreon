@@ -24,8 +24,6 @@ post:
       $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
       $ref: '../../../Common/Response/NotFound.yaml'
-    '422':
-      $ref: '../../../Common/Response/UnprocessableContent.yaml'
     '500':
       $ref: '../../../Common/Response/InternalServerError.yaml'
 

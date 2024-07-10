@@ -37,8 +37,7 @@ use Core\Application\Common\UseCase\{
     NotModifiedResponse,
     PaymentRequiredResponse,
     ResponseStatusInterface,
-    UnauthorizedResponse,
-    UnprocessableContentResponse
+    UnauthorizedResponse
 };
 use Symfony\Component\HttpFoundation\{JsonResponse, Response};
 
@@ -94,8 +93,6 @@ class JsonFormatter implements PresenterFormatterInterface
                     return $this->generateJsonResponse($data, Response::HTTP_MULTI_STATUS, $headers);
                 case $data instanceof NotModifiedResponse:
                     return $this->generateJsonResponse($data, Response::HTTP_NOT_MODIFIED, $headers);
-                case $data instanceof UnprocessableContentResponse:
-                    return $this->generateJsonResponse($data, Response::HTTP_UNPROCESSABLE_ENTITY, $headers);
                 default:
                     return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
             }
