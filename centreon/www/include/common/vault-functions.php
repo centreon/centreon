@@ -35,6 +35,7 @@
  */
 
 use Centreon\Domain\Log\Logger;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Utility\Interfaces\UUIDGeneratorInterface;
 
@@ -1833,9 +1834,14 @@ function retrieveDatabaseCredentialsFromConfigFile(): array
  */
 function updateConfigFilesWithVaultPath($vaultPath): void
 {
+    $featuresFileContent = file_get_contents(__DIR__ . '/../../../config/features.json');
+    $featureFlagManager = new FeatureFlags(false, $featuresFileContent);
+
     updateCentreonConfPhpFile($vaultPath);
-    updateCentreonConfPmFile($vaultPath);
-    updateDatabaseYamlFile($vaultPath);
+    if ($featureFlagManager->isEnabled('vault_broker')) {
+        updateCentreonConfPmFile($vaultPath);
+        updateDatabaseYamlFile($vaultPath);
+    }
 }
 
 /**
