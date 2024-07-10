@@ -29,7 +29,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\UnprocessableContentResponse;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -131,7 +130,7 @@ it('should present a Not Found Response when provided host ID does not exist for
 });
 
 it(
-    'should present a Unprocessable Content Response when provided host ID does not have associated host templates',
+    'should present a No Content Response when provided host ID does not have associated host templates',
     function () {
         $this->contact
             ->expects($this->any())
@@ -163,9 +162,7 @@ it(
         ($this->deployServicesUseCase)($this->useCasePresenter, $hostId);
 
         expect($this->useCasePresenter->response)
-            ->toBeInstanceOf(UnprocessableContentResponse::class)
-            ->and($this->useCasePresenter->response->getMessage())
-            ->toBe(sprintf('Cannot process request for host ID %d', $hostId));
+            ->toBeInstanceOf(NoContentResponse::class);
     }
 );
 
