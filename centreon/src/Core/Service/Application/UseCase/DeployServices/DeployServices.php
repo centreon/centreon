@@ -105,40 +105,7 @@ final class DeployServices
                 return;
             }
 
-            $deployedServices = [];
-
-            $this->dataStorageEngine->startTransaction();
-            try {
-                foreach ($hostParents as $hostParent) {
-                    $serviceTemplates = $this->readServiceTemplateRepository->findByHostId($hostParent['parent_id']);
-                    foreach ($serviceTemplates as $serviceTemplate) {
-                        $serviceNames = $this->readServiceRepository->findServiceNamesByHost($hostId);
-                        if (
-                            $serviceNames === null
-                            || $serviceNames->contains(new TrimmedString($serviceTemplate->getAlias()))
-                        ) {
-                            continue;
-                        }
-                        $service = new NewService(
-                            $serviceTemplate->getAlias(),
-                            $hostId,
-                            $serviceTemplate->getCommandId()
-                        );
-                        $service->setServiceTemplateParentId($serviceTemplate->getId());
-                        $service->setActivated(true);
-                        $serviceId = $this->writeServiceRepository->add($service);
-                        $service = $this->readServiceRepository->findById($serviceId);
-                        $deployedServices[] = $service;
-                    }
-                }
-
-                $this->dataStorageEngine->commitTransaction();
-            } catch (\Throwable $ex) {
-                $this->error("Rollback of 'DeployServices' transaction", ['trace' => $ex->getTraceAsString()]);
-                $this->dataStorageEngine->rollbackTransaction();
-
-                throw $ex;
-            }
+            $deployedServices = $this->deployServicesInTransaction($hostParents, $hostId);
 
             if ($deployedServices === []) {
                 $response = new NoContentResponse();
@@ -150,6 +117,7 @@ final class DeployServices
             $response = $this->createResponse($deployedServices);
             $presenter->presentResponse($response);
         } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $response = new ErrorResponse($ex->getMessage());
             $presenter->presentResponse($response);
         }
@@ -210,5 +178,56 @@ final class DeployServices
         }
 
         return $response;
+    }
+
+    /**
+     * @param array<array{parent_id:int,child_id:int,order:int}> $hostParents
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     *
+     * @return Service[]
+     */
+    private function deployServicesInTransaction(array $hostParents, int $hostId): array
+    {
+        $deployedServices = [];
+
+        $this->dataStorageEngine->startTransaction();
+        try {
+            foreach ($hostParents as $hostParent) {
+                $serviceTemplates = $this->readServiceTemplateRepository->findByHostId($hostParent['parent_id']);
+                foreach ($serviceTemplates as $serviceTemplate) {
+                    $serviceNames = $this->readServiceRepository->findServiceNamesByHost($hostId);
+                    if (
+                        $serviceNames === null
+                        || $serviceNames->contains(new TrimmedString($serviceTemplate->getAlias()))
+                    ) {
+                        continue;
+                    }
+                    $service = new NewService(
+                        $serviceTemplate->getAlias(),
+                        $hostId,
+                        $serviceTemplate->getCommandId()
+                    );
+                    $service->setServiceTemplateParentId($serviceTemplate->getId());
+                    $service->setActivated(true);
+                    $serviceId = $this->writeServiceRepository->add($service);
+                    $service = $this->readServiceRepository->findById($serviceId);
+                    if ($service === null) {
+                        continue;
+                    }
+
+                    $deployedServices[] = $service;
+                }
+            }
+
+            $this->dataStorageEngine->commitTransaction();
+
+            return $deployedServices;
+        } catch (\Throwable $ex) {
+            $this->error("Rollback of 'DeployServices' transaction", ['trace' => $ex->getTraceAsString()]);
+            $this->dataStorageEngine->rollbackTransaction();
+            throw $ex;
+        }
     }
 }
