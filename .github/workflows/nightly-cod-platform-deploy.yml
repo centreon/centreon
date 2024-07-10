@@ -49,4 +49,5 @@ jobs:
                                           "custom_centreon_web_admin_password":"${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}", \
                                           "configured_resources":"false", \
                                           "install_business_modules":"false" }}'
+            -w %http_code
         shell: bash
