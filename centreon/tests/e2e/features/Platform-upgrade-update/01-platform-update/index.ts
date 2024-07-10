@@ -114,11 +114,10 @@ Given(
           } else {
             switch (version_from_expression) {
               case 'last stable':
-                const stableMinorVersion = Cypress.env('stableMinorVersion');
                 minor_version_index = stable_minor_versions.length - 1;
                 if (
                   stable_minor_versions[minor_version_index] ===
-                  stableMinorVersion
+                  Cypress.env('lastStableMinorVersion')
                 ) {
                   return cy.stopContainer({ name: 'web' }).wrap('skipped');
                 }

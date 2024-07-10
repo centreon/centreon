@@ -83,11 +83,11 @@ const getCentreonStableMinorVersions = (
         name: 'web'
       });
     }
-    const stableMinorVersion = [...new Set(stableVersions)]
+    const lastStableMinorVersion = [...new Set(stableVersions)]
       .sort((a, b) => a - b)
       .pop();
-    cy.log('stableMinorVersion', stableMinorVersion);
-    Cypress.env('stableMinorVersion', stableMinorVersion);
+    cy.log('lastStableMinorVersion', lastStableMinorVersion);
+    Cypress.env('lastStableMinorVersion', lastStableMinorVersion);
 
     return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
   });
