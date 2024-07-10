@@ -160,11 +160,11 @@ $l_dsColorList = [
     ],
     'ds_color_area_warn' => [
         'label' => _('Warning Area color'),
-        'color' => '#FFFFFF'
+        'color' => '#FD9B27'
     ],
     'ds_color_area_crit' => [
         'label' => _('Critical Area color'),
-        'color' => '#FFFFFF'
+        'color' => '#FF4A4A'
     ],
 ];
 
@@ -342,8 +342,8 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
     $form->setDefaults(
         [
             'ds_color_area' => '#FFFFFF',
-            'ds_color_area_warn' => '#F8C706',
-            'ds_color_area_crit' => '#F91E05',
+            'ds_color_area_warn' => '#FD9B27',
+            'ds_color_area_crit' => '#FF4A4A',
             'ds_color_line' => '#0000FF',
             'ds_color_line_mode' => 0,
             'ds_transparency' => 80,
