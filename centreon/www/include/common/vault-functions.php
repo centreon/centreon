@@ -35,8 +35,8 @@
  */
 
 use Centreon\Domain\Log\Logger;
-use Utility\Interfaces\UUIDGeneratorInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Utility\Interfaces\UUIDGeneratorInterface;
 
 const VAULT_PATH_REGEX = '^secret::[^:]*::';
 const SNMP_COMMUNITY_MACRO_NAME = '_HOSTSNMPCOMMUNITY';
@@ -1727,6 +1727,328 @@ function writeKnowledgeBasePasswordInVault(
                 "password" => $password
             ]
         );
+
+        throw $ex;
+    }
+}
+
+/**
+ * Migrate database credentials to Vault and update the different config files.
+ *
+ * @throws Throwable
+ */
+function migrateDatabaseCredentialsToVault(
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    CentreonRestHttp $httpClient,
+    UUIDGeneratorInterface $uuidGenerator
+): string {
+    $vaultToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+    return migrateDatabaseCredentials($vaultConfiguration, $vaultToken, $httpClient, $uuidGenerator);
+}
+
+/**
+ * Migrate database credentials to Vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param string $token
+ * @param CentreonRestHttp $httpClient
+ *
+ * @throws Throwable
+ *
+ * @return string
+ */
+function migrateDatabaseCredentials(
+    VaultConfiguration $vaultConfiguration,
+    string $token,
+    CentreonRestHttp $httpClient,
+    UUIDGeneratorInterface $uuidGenerator
+): string {
+    $credentials = retrieveDatabaseCredentialsFromConfigFile();
+
+    if (
+        str_starts_with($credentials['username'], 'secret::')
+    ) {
+        return $credentials['username'];
+    }
+
+    $uuid = $uuidGenerator->generateV4();
+    $vaultPathEndpoint = '/data/database/' . $uuid;
+    $vaultPath = 'secret::' . $vaultConfiguration->getName() . '::' . $vaultConfiguration->getRootPath()
+        . $vaultPathEndpoint;
+    $vaultPathUrl = 'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+        . $vaultConfiguration->getRootPath() . $vaultPathEndpoint;
+    $httpClient->call(
+        $vaultPathUrl,
+        'POST',
+        ['data' => [
+            '_DBUSERNAME' => $credentials['username'],
+            '_DBPASSWORD' => $credentials['password'],
+        ]],
+        ['X-Vault-Token: ' . $token]);
+
+    return $vaultPath;
+}
+
+/**
+ * Retrieve database credentials from config file.
+ *
+ * @throws Exception
+ *
+ * @return array{username: string, password: string
+ */
+function retrieveDatabaseCredentialsFromConfigFile(): array
+{
+    if (! file_exists(_CENTREON_ETC_ . '/centreon.conf.php')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/centreon.conf.php')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_ . '/centreon.conf.php');
+    }
+
+    preg_match(
+        '/\$conf_centreon\[[\'\"]user[\'\"]\]\s*=\s*[\'\"](.*)[\'\"]\s*;/',
+        $content,
+        $matches
+    );
+
+    $userContent = $matches[1];
+
+    preg_match(
+        '/\$conf_centreon\[[\'\"]password[\'\"]\]\s*=\s*[\'\"](.*)[\'\"]\s*;/',
+        $content,
+        $matches
+    );
+
+    $passwordContent = $matches[1];
+
+    return ['username' => $userContent, 'password' => $passwordContent];
+}
+
+/**
+ * Update the different config files with the vault path.
+ *
+ * @param $vaultPath
+ *
+ * @throws Exception
+ */
+function updateConfigFilesWithVaultPath($vaultPath): void
+{
+    updateCentreonConfPhpFile($vaultPath);
+    updateCentreonConfPmFile($vaultPath);
+    updateDatabaseYamlFile($vaultPath);
+}
+
+/**
+ * @param string $vaultPath
+ *
+ * @throws Exception
+ */
+function updateCentreonConfPhpFile(string $vaultPath): void
+{
+    if (! file_exists(_CENTREON_ETC_ . '/centreon.conf.php')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/centreon.conf.php')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_ . '/centreon.conf.php');
+    }
+
+    $newContentPhp = preg_replace(
+        '/\$conf_centreon\[[\'\"]user[\'\"]\]\s*=\s*(.*)/',
+        '\$conf_centreon[\'user\'] = \'' . $vaultPath . '\';',
+        $content
+    );
+    $newContentPhp = preg_replace(
+        '/\$conf_centreon\[[\'\"]password[\'\"]\]\s*=\s*(.*)/',
+        '\$conf_centreon[\'password\'] = \'' . $vaultPath . '\';',
+        $newContentPhp
+    );
+
+    file_put_contents(_CENTREON_ETC_ . '/centreon.conf.php', $newContentPhp)
+        ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/centreon.conf.php');
+}
+
+/**
+ * @param string $vaultPath
+ *
+ * @throws Exception
+ */
+function updateCentreonConfPmFile(string $vaultPath): void
+{
+    if (! file_exists(_CENTREON_ETC_ . '/conf.pm')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/conf.pm')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_ . '/conf.pm');
+    }
+
+    $newContentPm = preg_replace(
+        '/"db_user"\s*=>\s*(.*)/',
+        '"db_user" => "' . $vaultPath .'",',
+        $content
+    );
+    $newContentPm = preg_replace(
+        '/"db_passwd"\s*=>\s*(.*)/',
+        '"db_passwd" => "' . $vaultPath .'"',
+        $newContentPm
+    );
+    $newContentPm = preg_replace(
+        '/\$mysql_user\s*=\s*(.*)/',
+        '$mysql_user = "' . $vaultPath .'";',
+        $newContentPm
+    );
+    $newContentPm = preg_replace(
+        '/\$mysql_passwd\s*=\s*(.*)/',
+        '$mysql_passwd = "' . $vaultPath .'";',
+        $newContentPm
+    );
+
+    file_put_contents(_CENTREON_ETC_ . '/conf.pm', $newContentPm)
+        ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/conf.pm');
+}
+
+/**
+ * @param string $vaultPath
+ *
+ * @throws Exception
+ */
+function updateDatabaseYamlFile(string $vaultPath): void
+{
+    if (! file_exists(_CENTREON_ETC_ . '/config.d/10-database.yaml')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_
+            . '/config.d/10-database.yaml');
+    }
+    $newContentYaml = preg_replace(
+        '/username: (.*)/',
+        'username: "' . $vaultPath . '"',
+        $content
+    );
+    $newContentYaml = preg_replace(
+        '/password: (.*)/',
+        'password: "' . $vaultPath . '"',
+        $newContentYaml
+    );
+
+    file_put_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml', $newContentYaml)
+        ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/config.d/10-database.yaml');
+}
+
+// BROKER CONFIG
+
+function deleteBrokerConfigsFromVault(
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    array $brokerConfigIds,
+): void {
+    $vaultPath = 'secret::' . $vaultConfiguration->getName() . '::';
+    $httpClient = new CentreonRestHttp();
+    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+
+    $uuids = retrieveMultipleBrokerConfigUuidsFromDatabase($brokerConfigIds, $vaultPath);
+    foreach ($uuids as $uuid) {
+        deleteBrokerConfigFromVault($vaultConfiguration, $uuid, $clientToken, $logger, $httpClient);
+    }
+}
+
+function retrieveMultipleBrokerConfigUuidsFromDatabase(array $brokerIds, string $vaultPath): array
+{
+    global $pearDB;
+
+    $bindParams = [];
+    foreach ($brokerIds as $key => $brokerId) {
+        $bindParams[':configId_' . $key] = $brokerId;
+    }
+
+    $bindString = implode(', ', array_keys($bindParams));
+    $statement = $pearDB->prepare(
+        <<<SQL
+            SELECT DISTINCT config_value
+            FROM cfg_centreonbroker_info
+            WHERE config_value LIKE :vaultPath
+                AND config_id IN ( {$bindString} );
+            SQL
+    );
+    foreach ($bindParams as $token => $brokerId) {
+        $statement->bindValue($token, $brokerId, PDO::PARAM_INT);
+    }
+    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
+    $statement->execute();
+    $uuids = [];
+    while ($result = $statement->fetchColumn()) {
+        $vaultPathPart = explode('/', $result);
+        if (isset($vaultPathPart)) {
+            $uuids[] = end($vaultPathPart);
+        }
+    }
+
+    return $uuids;
+}
+
+/**
+ * @param VaultConfiguration $vaultConfiguration
+ * @param string $uuid
+ * @param string $clientToken
+ * @param Logger $logger
+ * @param CentreonRestHttp $httpClient
+ *
+ * @throws Exception
+ *
+ * @return void
+ */
+function deleteBrokerConfigFromVault(
+    VaultConfiguration $vaultConfiguration,
+    string $uuid,
+    string $clientToken,
+    Logger $logger,
+    CentreonRestHttp $httpClient,
+): void {
+    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+        . $vaultConfiguration->getRootPath() . '/metadata/configuration/broker/' . $uuid;
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Deleting Broker Configuration: %s', $uuid));
+    try {
+        $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
+    } catch (Exception $ex) {
+        $logger->error(sprintf('Unable to delete Broker Configuration: %s', $uuid));
+
+        throw $ex;
+    }
+}
+
+function findBrokerConfigValueFromVault(
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    string $key,
+    string $vaultPath,
+): string
+{
+    $httpClient = new CentreonRestHttp();
+    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+
+    $vaultParts = explode('/', $vaultPath);
+    $uuid = end($vaultParts);
+
+    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+        . $vaultConfiguration->getRootPath() . '/data/configuration/broker/' . $uuid;
+    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
+    $logger->info(sprintf('Search Broker Configuration: %s', $uuid));
+
+    try {
+        $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
+        if (
+            array_key_exists('data', $content)
+            && array_key_exists('data', $content['data'])
+            && array_key_exists($key, $content['data']['data'])
+        ) {
+            return $content['data']['data'][$key];
+        }
+
+        return $vaultPath;
+    } catch (RestNotFoundException $ex) {
+        $logger->info('Broker Configuration not found in vault');
+
+        return $vaultPath;
+    } catch (Exception $ex) {
+        $logger->error('Unable to get secrets for Broker Configuration');
 
         throw $ex;
     }
