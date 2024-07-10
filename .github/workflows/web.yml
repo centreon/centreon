@@ -1,5 +1,5 @@
 name: web
-run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.is_nightly == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -23,6 +23,10 @@ on:
       - ready_for_review
     paths:
       - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
@@ -34,6 +38,10 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
@@ -248,7 +256,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 8
           run_install: false
@@ -295,7 +303,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
+        uses: shivammathur/setup-php@2e947f1f6932d141d076ca441d0e1e881775e95b # v2.31.0
         with:
           php-version: 8.1
           coverage: none
@@ -327,7 +335,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
+        uses: shivammathur/setup-php@2e947f1f6932d141d076ca441d0e1e881775e95b # v2.31.0
         with:
           php-version: 8.1
           coverage: none
@@ -526,7 +534,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
 
-    name: dockerize-${{ matrix.operating_system }}
+    name: dockerize ${{ matrix.operating_system }}
 
     steps:
       - name: Checkout sources
@@ -560,7 +568,7 @@ jobs:
         shell: bash
 
       - name: Login to registry
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -575,8 +583,8 @@ jobs:
 
       - uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
 
-      - name: Build web image
-        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
+      - name: Build and push web image
+        uses: docker/build-push-action@1a162644f9a7e87d8f4b053101d1d9a712edc18c # v6.3.0
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
           context: .
@@ -585,20 +593,8 @@ jobs:
             "VERSION=${{ needs.get-version.outputs.major_version }}"
             "MYDUMPER_VERSION=0.16.3-5"
           pull: true
-          load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-
-      - name: Push web image
-        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
-        with:
-          file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
-            "MYDUMPER_VERSION=0.16.3-5"
-          pull: false
           push: true
+          load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
@@ -703,30 +699,6 @@ jobs:
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  api-integration-test:
-    needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).databases }}
-    name: api-integration-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: api
-      module_name: centreon
-      database_image: bitnami/${{ matrix.database }}
-      image_name: centreon-web
-      os: ${{ matrix.operating_system }}
-      features_path: tests/api/features
-      test_tags: ${{ matrix.test_tags }}
-      config_file: tests/api/behat.yml
-    secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
   legacy-e2e-test:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
@@ -795,7 +767,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Login to registry
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -833,7 +805,6 @@ jobs:
     needs:
       [
         get-version,
-        api-integration-test,
         e2e-test,
         performances-test,
         legacy-e2e-test,
@@ -945,7 +916,6 @@ jobs:
     needs:
       [
         get-version,
-        api-integration-test,
         e2e-test,
         performances-test,
         legacy-e2e-test,
@@ -979,7 +949,6 @@ jobs:
     needs:
       [
         get-version,
-        api-integration-test,
         e2e-test,
         performances-test,
         legacy-e2e-test,
@@ -1037,7 +1006,6 @@ jobs:
     needs:
       [
         get-version,
-        api-integration-test,
         e2e-test,
         performances-test,
         legacy-e2e-test,

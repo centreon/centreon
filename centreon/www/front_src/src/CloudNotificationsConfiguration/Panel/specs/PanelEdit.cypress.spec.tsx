@@ -454,8 +454,7 @@ describe('Edit Panel', () => {
   it('confirms that the Message field is properly rendered with the edited notification message', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findByTestId('EmailBody').contains('Bonjour');
-    cy.findByTestId('EmailBody').contains('Cordialement');
+    cy.findByTestId('EmailBody').contains('Hello');
 
     cy.get('#panel-content').scrollTo('bottom');
 

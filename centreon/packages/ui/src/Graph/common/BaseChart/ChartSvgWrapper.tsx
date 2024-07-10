@@ -4,10 +4,10 @@ import { Group } from '@visx/visx';
 import { equals } from 'ramda';
 
 import { margin } from '../../LineChart/common';
-import Grids from '../Grids';
-import Axes from '../Axes';
-import { Line, TimeValue } from '../timeSeries/models';
 import { LineChartAxis } from '../../LineChart/models';
+import Axes from '../Axes';
+import Grids from '../Grids';
+import { Line, TimeValue } from '../timeSeries/models';
 
 import { extraMargin } from './useComputeBaseChartDimensions';
 
