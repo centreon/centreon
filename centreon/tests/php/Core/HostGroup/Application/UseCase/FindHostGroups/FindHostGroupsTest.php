@@ -48,7 +48,8 @@ beforeEach(function (): void {
         $this->readHostGroupRepository,
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->createMock(RequestParametersInterface::class),
-        $this->contact
+        $this->contact,
+        false
     );
 
     $this->testedHostGroup = new HostGroup(
@@ -166,7 +167,7 @@ it(
                 ]
             );
         $this->readAccessGroupRepository
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('findByContact')
             ->willReturn([new AccessGroup(id: 1, name: 'testName', alias: 'testAlias')]);
         $this->readHostGroupRepository
@@ -204,7 +205,7 @@ it(
                 ]
             );
         $this->readAccessGroupRepository
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('findByContact')
             ->willReturn([new AccessGroup(id: 1, name: 'testName', alias: 'testAlias')]);
         $this->readHostGroupRepository

@@ -261,6 +261,7 @@ const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
     percent_state_change: JsonDecoder.optional(JsonDecoder.number),
     performance_data: JsonDecoder.optional(JsonDecoder.string),
     sensitivity: JsonDecoder.optional(sensitivityDecoder),
+    service_id: JsonDecoder.optional(JsonDecoder.number),
     severity: JsonDecoder.optional(severityDecoder),
     severity_level: JsonDecoder.optional(JsonDecoder.number),
     short_type: JsonDecoder.optional(shortTypeDecoder),

@@ -182,7 +182,9 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
     private function updateSeverity(Host $host): void
     {
         $this->deleteLinkToSeverity($host->getId());
-        $this->addSeverity($host->getId(), $host);
+        if ($host->getSeverityId() !== null) {
+            $this->addSeverity($host->getId(), $host);
+        }
     }
 
     /**

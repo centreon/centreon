@@ -192,19 +192,9 @@ after(() => {
 
 Given('a dashboard that includes a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
   cy.wait('@resourceRequest');
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(0)
@@ -274,18 +264,8 @@ Then('only the services must be displayed', () => {
 
 Given('a dashboard containing a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
   cy.wait('@resourceRequest');
 });
 
@@ -372,13 +352,7 @@ Then(
 
 Given('a dashboard featuring two resource table widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
@@ -412,13 +386,7 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard having a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
 });
 
@@ -460,8 +428,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -543,3 +510,21 @@ Then("the resource table widget is added to the dashboard's layout", () => {
     { interval: 2000, timeout: 10000 }
   );
 });
+
+Given('a dashboard with a resource table widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+  cy.contains('host2').should('be.visible');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.contains('host2').click();
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
+  }
+);

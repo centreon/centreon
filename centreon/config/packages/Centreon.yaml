@@ -87,6 +87,13 @@ services:
         calls:
             - method: setFirstKey
               arguments: ['%env(APP_SECRET)%']
+        public: true
+
+    Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface:
+        class: Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository
+        public: true
+        arguments:
+            $configurationFile: '%vault_conf_path%'
 
     # JSON Validator
     Centreon\Domain\Service\JsonValidator\Interfaces\JsonValidatorInterface:
@@ -155,8 +162,8 @@ services:
         class: Centreon\Infrastructure\MonitoringServer\Repository\MonitoringServerConfigurationRepositoryApi
         public: true
         calls:
-        - method: setTimeout
-          arguments: ['%curl.timeout%']
+            - method: setTimeout
+              arguments: ['%curl.timeout%']
 
     # Platform topology register server
     Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface:
@@ -296,10 +303,6 @@ services:
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
 
-    Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository:
-        arguments:
-            $configurationFile: '%vault_conf_path%'
-
     Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
         class: Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository
         public: true
@@ -317,10 +320,8 @@ services:
             tags: ['monitoring.resource.acl']
         Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface:
             tags: ['authentication.provider.repositories']
-        Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderResponse\ProviderResponseInterface:
-            tags: ['authentication.provider.responses']
-        Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter\ProviderPresenterInterface:
-            tags: ['authentication.provider.presenters']
+        Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface:
+            tags: ['authentication.provider.response.factories']
         Core\Platform\Application\Validator\RequirementValidatorInterface:
             tags: ['platform.requirement.validators']
         Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
@@ -338,14 +339,11 @@ services:
         class: Core\Common\Infrastructure\CommandInitializer
         public: true
         arguments:
-          - !tagged_iterator script.command
+            - !tagged_iterator script.command
 
     Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurations:
         arguments:
-          - !tagged_iterator 'authentication.provider.responses'
-
-    Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\FindProviderConfigurationsPresenter:
-        arguments: [!tagged_iterator 'authentication.provider.presenters']
+            - !tagged_iterator 'authentication.provider.response.factories'
 
     Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator:
         class: Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator
