@@ -1731,8 +1731,10 @@ class CentreonConfigCentreonBroker
         $readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
+        $featureFlagManager = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
         $vaultConfiguration = $readVaultConfigurationRepository->find();
-        if ($vaultConfiguration !== null) {
+
+        if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
             deleteBrokerConfigsFromVault($vaultConfiguration, $logger, [$configId]);
         }
 
