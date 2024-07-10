@@ -171,122 +171,130 @@ beforeEach(function (): void {
     );
 });
 
-//it('tests getIterator method with hosts, hostTemplates and service macros', function (): void {
-//    $credentials = new \ArrayIterator([$this->credential1, $this->credential2, $this->credential3]);
-//    $uuid = (new UUIDGenerator())->generateV4();
-//    $this->writeVaultRepository->method('upsert')->willReturnOnConsecutiveCalls(
-//        [$this->credential1->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential1->name],
-//        [$this->credential2->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential2->name],
-//        ['_SERVICE' . $this->credential3->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' . '_SERVICE' . $this->credential3->name],
-//    );
-//
-//    $credentialMigrator = new CredentialMigrator(
-//        credentials: $credentials,
-//        writeVaultRepository: $this->writeVaultRepository,
-//        writeHostRepository: $this->writeHostRepository,
-//        writeHostTemplateRepository: $this->writeHostTemplateRepository,
-//        writeHostMacroRepository: $this->writeHostMacroRepository,
-//        writeServiceMacroRepository: $this->writeServiceMacroRepository,
-//        writeOptionRepository: $this->writeOptionRepository,
-//        writePollerMacroRepository: $this->writePollerMacroRepository,
-//        writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
-//        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
-//        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
-//        hosts: $this->hosts,
-//        hostTemplates: $this->hostTemplates,
-//        hostMacros: $this->hostMacros,
-//        serviceMacros: $this->serviceMacros,
-//        pollerMacros: $this->pollerMacros,
-//        openIdProviderConfiguration: $this->openIdProviderConfiguration,
-//        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
-//    );
-//
-//    foreach ($credentialMigrator as $status) {
-//        expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
-//        expect($status->uuid)->toBe($uuid);
-//        expect($status->resourceId)->toBeIn([1, 2, 3]);
-//        expect($status->vaultPath)->toBe(
-//            'secret::hashicorp_vault::vault/path/' . $uuid . '::'
-//            . ($status->type === CredentialTypeEnum::TYPE_SERVICE
-//                ? '_SERVICE' . $status->credentialName
-//                : $status->credentialName)
-//        );
-//        expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE, CredentialTypeEnum::TYPE_SERVICE]);
-//        expect($status->credentialName)->toBeIn([VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, 'MACRO']);
-//    }
-//});
-//
-//it('tests getIterator method with poller macros', function (): void {
-//    $credentials = new \ArrayIterator([$this->credential4]);
-//
-//    $this->writeVaultRepository->method('upsert')->willReturn('vault/path');
-//
-//    $credentialMigrator = new CredentialMigrator(
-//        credentials: $credentials,
-//        writeVaultRepository: $this->writeVaultRepository,
-//        writeHostRepository: $this->writeHostRepository,
-//        writeHostTemplateRepository: $this->writeHostTemplateRepository,
-//        writeHostMacroRepository: $this->writeHostMacroRepository,
-//        writeServiceMacroRepository: $this->writeServiceMacroRepository,
-//        writeOptionRepository: $this->writeOptionRepository,
-//        writePollerMacroRepository: $this->writePollerMacroRepository,
-//        writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
-//        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
-//        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
-//        hosts: $this->hosts,
-//        hostTemplates: $this->hostTemplates,
-//        hostMacros: $this->hostMacros,
-//        serviceMacros: $this->serviceMacros,
-//        pollerMacros: $this->pollerMacros,
-//        openIdProviderConfiguration: $this->openIdProviderConfiguration,
-//        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
-//    );
-//
-//    foreach ($credentialMigrator as $status) {
-//        expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
-//        expect($status->uuid)->toBe('path');
-//        expect($status->resourceId)->toBeIn([4]);
-//        expect($status->vaultPath)->toBe('vault/path');
-//        expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_POLLER_MACRO]);
-//        expect($status->credentialName)->toBeIn(['$POLLERMACRO$']);
-//    }
-//});
-//
-//it('tests getIterator method with broker input/output configuration', function (): void {
-//    $credentials = new \ArrayIterator([$this->credential5]);
-//
-//    $this->writeVaultRepository->method('upsert')->willReturn('vault/path');
-//
-//    $credentialMigrator = new CredentialMigrator(
-//        credentials: $credentials,
-//        writeVaultRepository: $this->writeVaultRepository,
-//        writeHostRepository: $this->writeHostRepository,
-//        writeHostTemplateRepository: $this->writeHostTemplateRepository,
-//        writeHostMacroRepository: $this->writeHostMacroRepository,
-//        writeServiceMacroRepository: $this->writeServiceMacroRepository,
-//        writeOptionRepository: $this->writeOptionRepository,
-//        writePollerMacroRepository: $this->writePollerMacroRepository,
-//        writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
-//        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
-//        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
-//        hosts: $this->hosts,
-//        hostTemplates: $this->hostTemplates,
-//        hostMacros: $this->hostMacros,
-//        serviceMacros: $this->serviceMacros,
-//        pollerMacros: $this->pollerMacros,
-//        openIdProviderConfiguration: $this->openIdProviderConfiguration,
-//        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
-//    );
-//
-//    foreach ($credentialMigrator as $status) {
-//        expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
-//        expect($status->uuid)->toBe('path');
-//        expect($status->resourceId)->toBeIn([5]);
-//        expect($status->vaultPath)->toBe('vault/path');
-//        expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT]);
-//        expect($status->credentialName)->toBeIn(['my-output_db_password']);
-//    }
-//});
+it('tests getIterator method with hosts, hostTemplates and service macros', function (): void {
+    $credentials = new \ArrayIterator([$this->credential1, $this->credential2, $this->credential3]);
+    $uuid = (new UUIDGenerator())->generateV4();
+    $this->writeVaultRepository->method('upsert')->willReturnOnConsecutiveCalls(
+        [$this->credential1->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential1->name],
+        [$this->credential2->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential2->name],
+        ['_SERVICE' . $this->credential3->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' . '_SERVICE' . $this->credential3->name],
+    );
+
+    $credentialMigrator = new CredentialMigrator(
+        credentials: $credentials,
+        writeVaultRepository: $this->writeVaultRepository,
+        writeHostRepository: $this->writeHostRepository,
+        writeHostTemplateRepository: $this->writeHostTemplateRepository,
+        writeHostMacroRepository: $this->writeHostMacroRepository,
+        writeServiceMacroRepository: $this->writeServiceMacroRepository,
+        writeOptionRepository: $this->writeOptionRepository,
+        writePollerMacroRepository: $this->writePollerMacroRepository,
+        writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
+        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
+        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
+        hosts: $this->hosts,
+        hostTemplates: $this->hostTemplates,
+        hostMacros: $this->hostMacros,
+        serviceMacros: $this->serviceMacros,
+        pollerMacros: $this->pollerMacros,
+        openIdProviderConfiguration: $this->openIdProviderConfiguration,
+        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
+    );
+
+    foreach ($credentialMigrator as $status) {
+        expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
+        expect($status->uuid)->toBe($uuid);
+        expect($status->resourceId)->toBeIn([1, 2, 3]);
+        expect($status->vaultPath)->toBe(
+            'secret::hashicorp_vault::vault/path/' . $uuid . '::'
+            . ($status->type === CredentialTypeEnum::TYPE_SERVICE
+                ? '_SERVICE' . $status->credentialName
+                : $status->credentialName)
+        );
+        expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE, CredentialTypeEnum::TYPE_SERVICE]);
+        expect($status->credentialName)->toBeIn([VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, 'MACRO']);
+    }
+});
+
+it('tests getIterator method with poller macros', function (): void {
+    $credentials = new \ArrayIterator([$this->credential4]);
+    $uuid = (new UUIDGenerator())->generateV4();
+    $this->writeVaultRepository->method('upsert')->willReturn(
+        [$this->credential4->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential4->name]
+    );
+
+    $credentialMigrator = new CredentialMigrator(
+        credentials: $credentials,
+        writeVaultRepository: $this->writeVaultRepository,
+        writeHostRepository: $this->writeHostRepository,
+        writeHostTemplateRepository: $this->writeHostTemplateRepository,
+        writeHostMacroRepository: $this->writeHostMacroRepository,
+        writeServiceMacroRepository: $this->writeServiceMacroRepository,
+        writeOptionRepository: $this->writeOptionRepository,
+        writePollerMacroRepository: $this->writePollerMacroRepository,
+        writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
+        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
+        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
+        hosts: $this->hosts,
+        hostTemplates: $this->hostTemplates,
+        hostMacros: $this->hostMacros,
+        serviceMacros: $this->serviceMacros,
+        pollerMacros: $this->pollerMacros,
+        openIdProviderConfiguration: $this->openIdProviderConfiguration,
+        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
+    );
+
+    foreach ($credentialMigrator as $status) {
+        expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
+        expect($status->uuid)->toBe($uuid);
+        expect($status->resourceId)->toBeIn([4]);
+        expect($status->vaultPath)->toBe('secret::hashicorp_vault::vault/path/'
+            . $uuid . '::' .  $this->credential4->name
+        );
+        expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_POLLER_MACRO]);
+        expect($status->credentialName)->toBeIn(['$POLLERMACRO$']);
+    }
+});
+
+it('tests getIterator method with broker input/output configuration', function (): void {
+    $credentials = new \ArrayIterator([$this->credential5]);
+    $uuid = (new UUIDGenerator())->generateV4();
+    $this->writeVaultRepository->method('upsert')->willReturn(
+        [$this->credential5->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential5->name]
+    );
+
+    $credentialMigrator = new CredentialMigrator(
+        credentials: $credentials,
+        writeVaultRepository: $this->writeVaultRepository,
+        writeHostRepository: $this->writeHostRepository,
+        writeHostTemplateRepository: $this->writeHostTemplateRepository,
+        writeHostMacroRepository: $this->writeHostMacroRepository,
+        writeServiceMacroRepository: $this->writeServiceMacroRepository,
+        writeOptionRepository: $this->writeOptionRepository,
+        writePollerMacroRepository: $this->writePollerMacroRepository,
+        writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
+        readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
+        writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
+        hosts: $this->hosts,
+        hostTemplates: $this->hostTemplates,
+        hostMacros: $this->hostMacros,
+        serviceMacros: $this->serviceMacros,
+        pollerMacros: $this->pollerMacros,
+        openIdProviderConfiguration: $this->openIdProviderConfiguration,
+        brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
+    );
+
+    foreach ($credentialMigrator as $status) {
+        expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
+        expect($status->uuid)->toBe($uuid);
+        expect($status->resourceId)->toBeIn([5]);
+        expect($status->vaultPath)->toBe('secret::hashicorp_vault::vault/path/'
+            . $uuid . '::' .  $this->credential5->name
+        );
+        expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT]);
+        expect($status->credentialName)->toBeIn(['my-output_db_password']);
+    }
+});
 
 it('tests getIterator method with exception', function (): void {
     $credentials = new \ArrayIterator([$this->credential1]);

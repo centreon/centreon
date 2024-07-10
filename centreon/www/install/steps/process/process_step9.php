@@ -71,7 +71,8 @@ try {
     $isVaultFeatureEnable = $featureFlagManager->isEnabled('vault');
     if ($isVaultFeatureEnable && file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')) {
         $kernel = Kernel::createForWeb();
-        $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath('database');
         $vaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
         if (! empty($vaultPaths)) {
             updateConfigFilesWithVaultPath($vaultPaths);
