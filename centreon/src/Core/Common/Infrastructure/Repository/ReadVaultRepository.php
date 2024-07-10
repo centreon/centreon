@@ -23,10 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRepositoryInterface
 {
+    use LoggerTrait;
+
     /**
      * @inheritDoc
      */
@@ -52,5 +57,28 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
         }
 
         return [];
+    }
+
+    public function testVaultConnection(VaultConfiguration|NewVaultConfiguration $vaultConfiguration): bool
+    {
+        try {
+            $url = $vaultConfiguration->getAddress() . ':'
+                . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
+            $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
+            $body = [
+                'role_id' => $vaultConfiguration->getRoleId(),
+                'secret_id' => $vaultConfiguration->getSecretId(),
+            ];
+            $loginResponse = $this->httpClient->request('POST', $url, ['json' => $body]);
+
+            $content = json_decode($loginResponse->getContent(), true);
+        } catch (\Exception $ex) {
+            $this->error('Could not login to vault');
+
+            return false;
+        }
+
+        /** @var array{auth?:array{client_token?:string}} $content */
+        return (bool) (isset($content['auth']['client_token']));
     }
 }
