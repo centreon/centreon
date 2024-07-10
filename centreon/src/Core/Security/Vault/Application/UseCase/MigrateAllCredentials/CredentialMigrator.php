@@ -329,8 +329,10 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             [$credential->name => $credential->value]
         );
         $vaultPath = $vaultPaths[$credential->name];
-        $vaultPathPart = explode('/', $vaultPath);
-        $uuid = end($vaultPathPart);
+        $uuid = $this->getUuidFromPath($vaultPath);
+        if ($uuid === null) {
+            throw new \Exception('UUID not found in the vault path');
+        }
         $option = new Option('kb_wiki_password', $vaultPath);
         $this->writeOptionRepository->update($option);
 
