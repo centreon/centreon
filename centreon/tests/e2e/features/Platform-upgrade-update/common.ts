@@ -83,8 +83,10 @@ const getCentreonStableMinorVersions = (
         name: 'web'
       });
     }
-    const stableMinorVersion = [...new Set(stableVersions)].sort((a, b) => a - b).pop();
-    cy.log('stableMinorVersion',stableMinorVersion)
+    const stableMinorVersion = [...new Set(stableVersions)]
+      .sort((a, b) => a - b)
+      .pop();
+    cy.log('stableMinorVersion', stableMinorVersion);
     Cypress.env('stableMinorVersion', stableMinorVersion);
 
     return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
@@ -269,12 +271,10 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
       name: 'web'
     })
     .then(({ output }): Cypress.Chainable<null> | null => {
-
       const isExpected = platformVersion === output;
       if (isExpected) {
         return null;
       }
-
       throw new Error(
         `The platform version is not the correct one (expected: ${platformVersion}, actual: ${output}).`
       );
@@ -380,7 +380,7 @@ Then(
         template: 'serviceTemplate1'
       })
       .applyPollerConfiguration();
-    cy.visit(`${Cypress.config().baseUrl}`);
+    cy.visit('/');
     cy.getWebVersion().then(({ major_version, minor_version }) => {
       cy.contains(`${major_version}.${minor_version}`).should('be.visible');
     });

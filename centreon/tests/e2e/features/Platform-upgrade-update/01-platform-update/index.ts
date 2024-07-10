@@ -114,9 +114,12 @@ Given(
           } else {
             switch (version_from_expression) {
               case 'last stable':
-              const stableMinorVersion = Cypress.env('stableMinorVersion');
-               minor_version_index = stable_minor_versions.length - 1;
-                if (stable_minor_versions[minor_version_index] === stableMinorVersion) {
+                const stableMinorVersion = Cypress.env('stableMinorVersion');
+                minor_version_index = stable_minor_versions.length - 1;
+                if (
+                  stable_minor_versions[minor_version_index] ===
+                  stableMinorVersion
+                ) {
                   return cy.stopContainer({ name: 'web' }).wrap('skipped');
                 }
                 break;
@@ -138,10 +141,11 @@ Given(
 
           cy.log(
             `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
-          )
+          );
           const installed_version = `${major_version}.${stable_minor_versions[minor_version_index]}`;
           Cypress.env('installed_version', installed_version);
-          cy.log('installed_version', installed_version)
+          cy.log('installed_version', installed_version);
+
           return installCentreon(installed_version).then(() => {
             return checkPlatformVersion(installed_version).then(() => {
               cy.visit('/');
