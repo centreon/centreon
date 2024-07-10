@@ -1557,7 +1557,7 @@ function writeKnowledgeBasePasswordInVault(
  */
 function migrateDatabaseCredentialsToVault(
     WriteVaultRepositoryInterface $writeVaultRepository
-): string {
+): array {
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
     if (str_starts_with($credentials['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {
         return [];
@@ -1650,7 +1650,7 @@ function updateCentreonConfPhpFile(array $vaultPaths): void
  *
  * @throws Exception
  */
-function updateCentreonConfPmFile(string $vaultPaths): void
+function updateCentreonConfPmFile(array $vaultPaths): void
 {
     if (! file_exists(_CENTREON_ETC_ . '/conf.pm')
         || ($content = file_get_contents(_CENTREON_ETC_ . '/conf.pm')) === false
@@ -1688,7 +1688,7 @@ function updateCentreonConfPmFile(string $vaultPaths): void
  *
  * @throws Exception
  */
-function updateDatabaseYamlFile(string $vaultPath): void
+function updateDatabaseYamlFile(array $vaultPaths): void
 {
     if (! file_exists(_CENTREON_ETC_ . '/config.d/10-database.yaml')
         || ($content = file_get_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml')) === false

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../www/include/common/vault-functions.php';
 
 use App\Kernel;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -43,6 +44,7 @@ function migrateAndUpdateDatabaseCredentials(): void {
     echo('Migration of database credentials' . PHP_EOL);
     /** @var WriteVaultRepositoryInterface $writeVaultRepository */
     $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+    $writeVaultRepository->setCustomPath(AbstractVaultRepository::DATABASE_VAULT_PATH);
     $vaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
     if (! empty($vaultPaths)) {
         updateConfigFilesWithVaultPath($vaultPaths);
