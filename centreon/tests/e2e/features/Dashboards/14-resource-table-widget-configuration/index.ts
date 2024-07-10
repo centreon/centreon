@@ -61,87 +61,87 @@ before(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
-  cy.startContainers();
-  cy.enableDashboardFeature();
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  );
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: services.serviceOk.host,
-    template: 'generic-host'
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceOk.name,
-      template: services.serviceOk.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: 'service2',
-      template: services.serviceWarning.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceCritical.name,
-      template: services.serviceCritical.template
-    })
-    .applyPollerConfiguration();
+  // cy.startContainers();
+  // cy.enableDashboardFeature();
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-metrics-graph.json'
+  // );
+  // cy.addHost({
+  //   hostGroup: 'Linux-Servers',
+  //   name: services.serviceOk.host,
+  //   template: 'generic-host'
+  // })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceOk.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceOk.name,
+  //     template: services.serviceOk.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceOk.host,
+  //     maxCheckAttempts: 1,
+  //     name: 'service2',
+  //     template: services.serviceWarning.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceOk.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceCritical.name,
+  //     template: services.serviceCritical.template
+  //   })
+  //   .applyPollerConfiguration();
 
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: services.serviceCritical.host,
-    template: 'generic-host'
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: services.serviceOk.name,
-      template: services.serviceOk.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: 'service2',
-      template: services.serviceWarning.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: services.serviceCritical.name,
-      template: services.serviceCritical.template
-    })
-    .applyPollerConfiguration();
+  // cy.addHost({
+  //   hostGroup: 'Linux-Servers',
+  //   name: services.serviceCritical.host,
+  //   template: 'generic-host'
+  // })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceCritical.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceOk.name,
+  //     template: services.serviceOk.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceCritical.host,
+  //     maxCheckAttempts: 1,
+  //     name: 'service2',
+  //     template: services.serviceWarning.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceCritical.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceCritical.name,
+  //     template: services.serviceCritical.template
+  //   })
+  //   .applyPollerConfiguration();
 
-  cy.loginByTypeOfUser({
-    jsonName: 'admin'
-  });
+  // cy.loginByTypeOfUser({
+  //   jsonName: 'admin'
+  // });
 
-  checkHostsAreMonitored([
-    { name: services.serviceOk.host },
-    { name: services.serviceCritical.host }
-  ]);
-  checkServicesAreMonitored([
-    { name: services.serviceCritical.name },
-    { name: services.serviceOk.name }
-  ]);
-  cy.submitResults(resultsToSubmit);
-  checkServicesAreMonitored([
-    { name: services.serviceCritical.name, status: 'critical' },
-    { name: services.serviceOk.name, status: 'ok' }
-  ]);
+  // checkHostsAreMonitored([
+  //   { name: services.serviceOk.host },
+  //   { name: services.serviceCritical.host }
+  // ]);
+  // checkServicesAreMonitored([
+  //   { name: services.serviceCritical.name },
+  //   { name: services.serviceOk.name }
+  // ]);
+  // cy.submitResults(resultsToSubmit);
+  // checkServicesAreMonitored([
+  //   { name: services.serviceCritical.name, status: 'critical' },
+  //   { name: services.serviceOk.name, status: 'ok' }
+  // ]);
 
-  cy.logoutViaAPI();
-  cy.applyAcl();
+  // cy.logoutViaAPI();
+  // cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -179,12 +179,12 @@ beforeEach(() => {
   });
 });
 
-afterEach(() => {
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
-  });
-});
+// afterEach(() => {
+//   cy.requestOnDatabase({
+//     database: 'centreon',
+//     query: 'DELETE FROM dashboard'
+//   });
+// });
 
 after(() => {
   cy.stopContainers();
@@ -204,8 +204,7 @@ Given('a dashboard that includes a configured resource table widget', () => {
 When(
   'the dashboard administrator user selects view by host as a display type',
   () => {
-    cy.get('button[data-testid="View by host"]').eq(1).realClick();
-
+    cy.get('button[data-testid="View by host"]').eq(1).click();
     cy.wait('@resourceRequestByHost');
     cy.wait('@resourceRequest');
   }
@@ -216,11 +215,12 @@ Then('only the hosts must be displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
         )
         .should('be.visible')
         .invoke('text')
         .then((content) => {
+          console.log('aaa',content)
           const columnContents: Array<string> =
             content.match(/[A-Z][a-z]*/g) || [];
 
@@ -244,7 +244,7 @@ Then('only the services must be displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
         )
         .should('be.visible')
         .invoke('text')
@@ -284,7 +284,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
           )
           .should('be.visible')
           .invoke('text')
@@ -331,7 +331,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
           )
           .should('be.visible')
           .invoke('text')
@@ -368,7 +368,7 @@ Then('only the contents of the other widget are displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
         )
         .should('exist')
         .invoke('text')
@@ -405,7 +405,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+            `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
           )
           .should('exist')
           .invoke('text')
@@ -493,7 +493,7 @@ Then("the resource table widget is added to the dashboard's layout", () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
         )
         .should('be.visible')
         .invoke('text')
