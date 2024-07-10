@@ -47,7 +47,7 @@ abstract class AbstractVaultRepository
         self::KNOWLEDGE_BASE_PATH,
         self::POLLER_MACRO_VAULT_PATH,
         self::OPEN_ID_CREDENTIALS_VAULT_PATH,
-        self::DATABASE_VAULT_PATH
+        self::DATABASE_VAULT_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;
