@@ -1,6 +1,6 @@
 import { ReactElement, ReactNode, useMemo } from 'react';
 
-import { Button as MuiButton } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 import { AriaLabelingAttributes } from '../../@types/aria-attributes';
 import { DataTestAttributes } from '../../@types/data-attributes';
@@ -23,6 +23,7 @@ export type ButtonProps = {
   icon?: string | ReactNode;
   iconVariant?: 'none' | 'start' | 'end';
   isDanger?: boolean;
+  loading?: boolean;
   onClick?: (e) => void;
   ref?: React.Ref<HTMLButtonElement>;
   size?: 'small' | 'medium' | 'large';
@@ -42,6 +43,7 @@ const Button = ({
   onClick,
   isDanger = false,
   className = '',
+  loading = false,
   ...attr
 }: ButtonProps): ReactElement => {
   const { classes, cx } = useStyles();
@@ -56,13 +58,14 @@ const Button = ({
   );
 
   return (
-    <MuiButton
+    <LoadingButton
       className={cx(classes.button, className)}
       data-icon-variant={iconVariant}
       data-is-danger={isDanger}
       data-size={size}
       data-variant={variant}
       disabled={disabled}
+      loading={loading}
       size={size}
       type={type}
       variant={muiVariantMap[variant]}
@@ -71,7 +74,7 @@ const Button = ({
       {...attr}
     >
       {children}
-    </MuiButton>
+    </LoadingButton>
   );
 };
 

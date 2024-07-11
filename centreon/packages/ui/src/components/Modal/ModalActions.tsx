@@ -10,6 +10,7 @@ export type ModalActionsProps = {
   isDanger?: boolean;
   isFixed?: boolean;
   labels?: ModalActionsLabels;
+  loading?: boolean;
   onCancel?: () => void;
   onConfirm?: () => void;
 };
@@ -26,7 +27,8 @@ const ModalActions = ({
   onConfirm,
   isDanger = false,
   disabled,
-  isFixed
+  isFixed,
+  loading = false
 }: ModalActionsProps): ReactElement => {
   const { classes } = useStyles();
 
@@ -48,6 +50,7 @@ const ModalActions = ({
             data-testid="confirm"
             disabled={disabled}
             isDanger={isDanger}
+            loading={loading}
             size="small"
             type="submit"
             variant="primary"

@@ -12,3 +12,5 @@ export const selectedVisualizationAtom = atomWithStorage<Visualization>(
   'centreon-resources-status-23.10-status-visualization',
   Visualization.All
 );
+
+export const isExportToCSVDialogOpenAtom = atom<boolean>(false);

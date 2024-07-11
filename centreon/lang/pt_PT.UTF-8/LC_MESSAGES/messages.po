@@ -17813,3 +17813,24 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Bar background opacity"
 # msgstr ""
+
+# msgid "Export processing might take some time. The real time data displayed at the output may have changed since the start of processing."
+# msgstr ""
+
+# msgid "Select columns"
+# msgstr ""
+
+# msgid "Visible columns only"
+# msgstr ""
+
+# msgid "All columns"
+# msgstr ""
+
+# msgid "Current page only"
+# msgstr ""
+
+# msgid "Select pages"
+# msgstr ""
+
+# msgid "All pages"
+# msgstr ""

@@ -1,11 +1,8 @@
 import { lazy, Suspense } from 'react';
 
-import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
 import { Grid, useMediaQuery, useTheme } from '@mui/material';
-
-import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import GlobalActionsSkeleton from './GlobalActionsSkeleton';
 import { Type } from './model';
@@ -23,7 +20,6 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
   const theme = useTheme();
 
   const { applyBreakPoint, breakPointType } = useMediaQueryListing();
-  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
   const displayCondensed =
     Boolean(useMediaQuery(theme.breakpoints.down(1150))) || applyBreakPoint;
 
@@ -36,6 +32,7 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
       <Grid
         item
         className={cx(classes.gridItem, { [classes.extraMargin]: smallSize })}
+        style={{ background: 'blue' }}
       >
         <Grid item>
           <Suspense fallback={<ResourceActionsSkeleton />}>
@@ -64,10 +61,9 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
         className={cx({
           [classes.large]: !smallSize
         })}
+        style={{ background: 'orange' }}
       >
-        {featureFlags?.resourceStatusTreeView && (
-          <VisualizationActions displayCondensed={displayCondensed} />
-        )}
+        <VisualizationActions displayCondensed={displayCondensed} />
       </Grid>
     </Grid>
   );

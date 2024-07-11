@@ -83,7 +83,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
 }));
 
 export interface ColumnProps {
-  actions;
+  actions?;
   featureFlags?: FeatureFlags | null;
   t: (value: string) => string;
   visualization?: Visualization;
@@ -154,7 +154,7 @@ export const getColumns = ({
       width: 'max-content'
     },
     {
-      Component: GraphColumn({ onClick: actions.onDisplayGraph }),
+      Component: GraphColumn({ onClick: actions?.onDisplayGraph }),
       getRenderComponentOnRowUpdateCondition: T,
       id: 'graph',
       label: t(labelGraph),

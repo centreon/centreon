@@ -57,6 +57,9 @@ const useStyles = makeStyles<StyleProps>()(
       },
       padding: 0
     },
+    rightActions: {
+      paddingInline: theme.spacing(1)
+    },
     selectMenu: {
       '& .MuiMenuItem-root': {
         lineHeight: 1
@@ -88,6 +91,8 @@ type Props = Pick<
   | 'customPaginationClassName'
   | 'listingVariant'
   | 'viewerModeConfiguration'
+  | 'visualizationActions'
+  | 'rightActions'
 >;
 
 const MemoListingActionBar = ({
@@ -108,7 +113,8 @@ const MemoListingActionBar = ({
   actionsBarMemoProps = [],
   viewerModeConfiguration,
   listingVariant,
-  visualizationActions
+  visualizationActions,
+  rightActions
 }: Props): JSX.Element => {
   const marginWidthTableListing = 30;
   const { classes, cx } = useStyles({
@@ -139,6 +145,9 @@ const MemoListingActionBar = ({
         </div>
         {visualizationActions && <div>{visualizationActions}</div>}
         <div className={classes.subContainer}>
+          <div className={classes.rightActions}>
+            <div>{rightActions}</div>
+          </div>
           {!isEmpty(viewerModeConfiguration) &&
             !isNil(viewerModeConfiguration) && (
               <IconButton
@@ -226,6 +235,7 @@ const MemoListingActionBar = ({
       columnConfiguration,
       customPaginationClassName,
       visualizationActions,
+      rightActions,
       ...actionsBarMemoProps
     ]
   });
@@ -249,7 +259,8 @@ const ListingActionBar = ({
   customPaginationClassName,
   listingVariant,
   viewerModeConfiguration,
-  visualizationActions
+  visualizationActions,
+  rightActions
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -271,6 +282,7 @@ const ListingActionBar = ({
       listingVariant={listingVariant}
       moveTablePagination={moveTablePagination}
       paginated={paginated}
+      rightActions={rightActions}
       totalRows={totalRows}
       viewerModeConfiguration={viewerModeConfiguration}
       visualizationActions={visualizationActions}

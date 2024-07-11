@@ -19136,3 +19136,25 @@ msgstr "Radius de la barre"
 
 msgid "Bar background opacity"
 msgstr "Opacité du fond de la barre"
+
+msgid "Export processing might take some time. The real time data displayed at the output may have changed since the start of processing."
+msgstr "L'export peut prendre un certain temps. Les données en temps réel qui s'afficheront en sortie peuvent avoir changé depuis le début du traitement."
+
+msgid "Select columns"
+msgstr "Sélectionner les colonnes"
+
+msgid "Visible columns only"
+msgstr "Colonnes visibles seulement"
+
+msgid "All columns"
+msgstr "Toutes les colonnes"
+
+msgid "Current page only"
+msgstr "Page courante seulement"
+
+msgid "Select pages"
+msgstr "Sélectionner les pages"
+
+msgid "All pages"
+msgstr "Toutes les pages"
+

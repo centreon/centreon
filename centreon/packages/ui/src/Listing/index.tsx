@@ -117,6 +117,7 @@ export interface Props<TRow> {
   onSort?: (sortParams: { sortField: string; sortOrder: SortOrder }) => void;
   paginated?: boolean;
   predefinedRowsSelection?: Array<PredefinedRowSelection>;
+  rightActions?: JSX.Element;
   rowColorConditions?: Array<RowColorCondition>;
   rows?: Array<TRow>;
   selectedRows?: Array<TRow>;
@@ -164,6 +165,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
   sortField = undefined,
   innerScrollDisabled = false,
   actions,
+  rightActions,
   disableRowCheckCondition = (): boolean => false,
   disableRowCondition = (): boolean => false,
   onPaginate,
@@ -527,6 +529,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
             listingVariant={listingVariant}
             moveTablePagination={moveTablePagination}
             paginated={paginated}
+            rightActions={rightActions}
             totalRows={totalRows}
             viewerModeConfiguration={viewerModeConfiguration}
             visualizationActions={visualizationActions}

@@ -41,6 +41,7 @@ import {
   labelSelectAtLeastOneColumn,
   labelStatus
 } from '../translatedLabels';
+import { ExportToCSV, ExportToCSVDialog } from '../Actions/ExportToCSV';
 
 import {
   defaultSelectedColumnIds,
@@ -236,68 +237,72 @@ const ResourceListing = (): JSX.Element => {
   const areColumnsSortable = equals(visualization, Visualization.All);
 
   return (
-    <Listing
-      checkable
-      actions={<Actions onRefresh={initAutorefreshAndLoad} />}
-      columnConfiguration={{
-        selectedColumnIds,
-        sortable: areColumnsSortable
-      }}
-      columns={columns}
-      currentPage={(page || 1) - 1}
-      getHighlightRowCondition={({ status }): boolean =>
-        equals(status?.severity_code, SeverityCode.High)
-      }
-      getId={getId}
-      headerMemoProps={[search]}
-      limit={listing?.meta.limit}
-      listingVariant={user_interface_density}
-      loading={loading}
-      memoProps={[
-        listing,
-        sortField,
-        sortOrder,
-        page,
-        selectedResources,
-        selectedResourceUuid,
-        sending,
-        enabledAutoRefresh,
-        selectedResourceDetails,
-        themeMode,
-        columns
-      ]}
-      moveTablePagination={isPanelOpen}
-      predefinedRowsSelection={predefinedRowsSelection}
-      rowColorConditions={[
-        resourceDetailsOpenCondition,
-        ...rowColorConditions(theme)
-      ]}
-      rows={listing?.result}
-      selectedRows={selectedResources}
-      sortField={sortField}
-      sortOrder={sortOrder}
-      subItems={{
-        canCheckSubItems: true,
-        enable: true,
-        getRowProperty: (): string => 'children',
-        labelCollapse: 'Collapse',
-        labelExpand: 'Expand'
-      }}
-      totalRows={listing?.meta.total}
-      viewerModeConfiguration={{
-        disabled: isPending,
-        onClick: changeViewModeTableResources,
-        title: user_interface_density
-      }}
-      widthToMoveTablePagination={panelWidth}
-      onLimitChange={changeLimit}
-      onPaginate={changePage}
-      onResetColumns={resetColumns}
-      onRowClick={selectResource}
-      onSelectColumns={selectColumns}
-      onSelectRows={setSelectedResources}
-      onSort={changeSort}
-    />
+    <>
+      <Listing
+        checkable
+        actions={<Actions onRefresh={initAutorefreshAndLoad} />}
+        columnConfiguration={{
+          selectedColumnIds,
+          sortable: areColumnsSortable
+        }}
+        columns={columns}
+        currentPage={(page || 1) - 1}
+        getHighlightRowCondition={({ status }): boolean =>
+          equals(status?.severity_code, SeverityCode.High)
+        }
+        getId={getId}
+        headerMemoProps={[search]}
+        limit={listing?.meta.limit}
+        listingVariant={user_interface_density}
+        loading={loading}
+        memoProps={[
+          listing,
+          sortField,
+          sortOrder,
+          page,
+          selectedResources,
+          selectedResourceUuid,
+          sending,
+          enabledAutoRefresh,
+          selectedResourceDetails,
+          themeMode,
+          columns
+        ]}
+        moveTablePagination={isPanelOpen}
+        predefinedRowsSelection={predefinedRowsSelection}
+        rightActions={<ExportToCSV />}
+        rowColorConditions={[
+          resourceDetailsOpenCondition,
+          ...rowColorConditions(theme)
+        ]}
+        rows={listing?.result}
+        selectedRows={selectedResources}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        subItems={{
+          canCheckSubItems: true,
+          enable: true,
+          getRowProperty: (): string => 'children',
+          labelCollapse: 'Collapse',
+          labelExpand: 'Expand'
+        }}
+        totalRows={listing?.meta.total}
+        viewerModeConfiguration={{
+          disabled: isPending,
+          onClick: changeViewModeTableResources,
+          title: user_interface_density
+        }}
+        widthToMoveTablePagination={panelWidth}
+        onLimitChange={changeLimit}
+        onPaginate={changePage}
+        onResetColumns={resetColumns}
+        onRowClick={selectResource}
+        onSelectColumns={selectColumns}
+        onSelectRows={setSelectedResources}
+        onSort={changeSort}
+      />
+      <ExportToCSVDialog />
+    </>
   );
 };
 

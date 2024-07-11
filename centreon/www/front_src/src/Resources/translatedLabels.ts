@@ -309,3 +309,13 @@ export const labelResourceDetailsForcedCheckDescription =
   'Check this resource even outside configured check period';
 
 export const labelYourCommentSent = 'Your comment has been saved.';
+
+export const labelExportToCSVWarning =
+  'Export processing might take some time. The real time data displayed at the output may have changed since the start of processing.';
+
+export const labelSelectColumns = 'Select columns';
+export const labelVisibleColumnsOnly = 'Visible columns only';
+export const labelAllColumns = 'All columns';
+export const labelCurrentPageOnly = 'Current page only';
+export const labelSelectPages = 'Select pages';
+export const labelAllPages = 'All pages';
