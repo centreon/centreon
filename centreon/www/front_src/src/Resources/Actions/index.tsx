@@ -32,7 +32,6 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
       <Grid
         item
         className={cx(classes.gridItem, { [classes.extraMargin]: smallSize })}
-        style={{ background: 'blue' }}
       >
         <Grid item>
           <Suspense fallback={<ResourceActionsSkeleton />}>
@@ -61,7 +60,6 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
         className={cx({
           [classes.large]: !smallSize
         })}
-        style={{ background: 'orange' }}
       >
         <VisualizationActions displayCondensed={displayCondensed} />
       </Grid>
