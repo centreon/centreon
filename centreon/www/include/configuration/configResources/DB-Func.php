@@ -182,8 +182,6 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
 {
     global $pearDB;
 
-
-
     foreach (array_keys($resourceIds) as $resourceId) {
         if (is_int($resourceId)) {
             $dbResult = $pearDB->query("SELECT * FROM cfg_resource WHERE resource_id = {$resourceId} LIMIT 1");
@@ -496,14 +494,13 @@ function saveInVault(string $key, string $value): ?string {
         /**@var WriteVaultRepositoryInterface $writeVaultRepository */
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
-        $vaultPath = retrievePollerMacroVaultPathFromDatabase($pearDB);
         try {
             return upsertPollerMacroSecretInVault(
                 $readVaultRepository,
                 $writeVaultRepository,
                 $key,
                 $value,
-                $vaultPath
+                retrievePollerMacroVaultPathFromDatabase($pearDB)
             );
         } catch (Throwable $ex) {
             $logger->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);

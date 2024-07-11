@@ -1132,15 +1132,13 @@ function upsertPollerMacroSecretInVault(
     if (! empty($value)) {
 
         $data = [];
+        $uuid = null;
         if ($vaultPath !== null) {
             $data = $readVaultRepository->findFromPath($vaultPath);
+            $uuid = preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $vaultPath, $matches) ? $matches[2] : null;
         }
 
         $data[$key] = $value;
-        $uuid = null;
-        if ($vaultPath !== null) {
-            $uuid = preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $vaultPath, $matches) ? $matches[2] : null;
-        }
         $vaultPaths = $writeVaultRepository->upsert($uuid, $data);
 
         return $vaultPaths[$key];
