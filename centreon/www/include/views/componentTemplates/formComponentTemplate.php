@@ -463,7 +463,9 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
             colorPickerInput.addEventListener('change', function (e){
                 let newColor = e.target.value;
                 let nameColorPickerblock = `${e.target.name}_color`;
-                document.querySelector(`input[name=${nameColorPickerblock}]`).style.backgroundColor = newColor;
+                let divColorPickerBlock = document.querySelector(`input[name=${nameColorPickerblock}]`)
+                let oldColor = divColorPickerBlock.style.backgroundColor;
+                divColorPickerBlock.style.backgroundColor = (newColor !== '') ? newColor : oldColor;
             })
         });
     });
