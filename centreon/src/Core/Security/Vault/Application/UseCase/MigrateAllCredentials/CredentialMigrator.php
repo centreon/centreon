@@ -298,8 +298,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             [$credential->name => $credential->value]
         );
         $vaultPath = $vaultPaths[$credential->name];
-        $vaultPathPart = explode('/', $vaultPath);
-        $existingUuids['pollerMacro'] ??= end($vaultPathPart);
+        $uuid = $this->getUuidFromPath($vaultPath);
+        if ($uuid === null) {
+            throw new \Exception('UUID not found in the vault path');
+        }
+        $existingUuids['pollerMacro'] ??= $uuid;
 
         foreach ($this->pollerMacros as $pollerMacro) {
             if ($pollerMacro->getId() === $credential->resourceId) {
