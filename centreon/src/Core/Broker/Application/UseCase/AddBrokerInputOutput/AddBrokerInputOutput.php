@@ -39,6 +39,7 @@ use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\NewBrokerInputOutput;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 
 /**
@@ -54,6 +55,7 @@ final class AddBrokerInputOutput
         private readonly ContactInterface $user,
         private readonly BrokerInputOutputValidator $validator,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly FeatureFlags $flags,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
     }
@@ -98,7 +100,7 @@ final class AddBrokerInputOutput
                 parameters: $validatedParameters
             );
 
-            if ($this->writeVaultRepository->isVaultConfigured() === true) {
+            if ($this->flags->isEnabled('vault_broker') && $this->writeVaultRepository->isVaultConfigured() === true) {
                 $this->uuid = $this->getBrokerVaultUuid($request->brokerId);
                 $newOutput = $this->saveInVault($newOutput, $outputFields);
             }

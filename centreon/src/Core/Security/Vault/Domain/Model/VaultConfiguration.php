@@ -46,6 +46,7 @@ class VaultConfiguration
     public const OPENID_CLIENT_SECRET_KEY = '_OPENID_CLIENT_SECRET';
     public const DATABASE_USERNAME_KEY = '_DBUSERNAME';
     public const DATABASE_PASSWORD_KEY = '_DBPASSWORD';
+    public const KNOWLEDGE_BASE_KEY = '_KBPASSWORD';
 
     /** Patterns Constants */
     public const VAULT_PATH_PATTERN = 'secret::';

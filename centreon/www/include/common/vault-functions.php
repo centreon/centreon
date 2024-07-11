@@ -35,11 +35,12 @@
  */
 
 use Centreon\Domain\Log\Logger;
-use Utility\Interfaces\UUIDGeneratorInterface;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Utility\Interfaces\UUIDGeneratorInterface;
 
 const DEFAULT_SCHEME = 'https';
 
@@ -347,37 +348,6 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds): array
 }
 
 /**
- * Delete service secrets data from vault.
- *
- * @param VaultConfiguration $vaultConfiguration
- * @param string $uuid
- * @param string $clientToken
- * @param Logger $logger
- * @param CentreonRestHttp $httpClient
- *
- * @throws Throwable
- */
-function deleteServiceFromVault(
-    VaultConfiguration $vaultConfiguration,
-    string $uuid,
-    string $clientToken,
-    Logger $logger,
-    CentreonRestHttp $httpClient
-): void {
-    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getRootPath() . '/metadata/monitoring/services/' . $uuid;
-    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
-    $logger->info(sprintf('Deleting Service: %s', $uuid));
-    try {
-        $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
-    } catch (Exception $ex) {
-        $logger->error(sprintf('Unable to delete Service: %s', $uuid));
-
-        throw $ex;
-    }
-}
-
-/**
  * Found Service Secrets UUIDs.
  *
  * @param non-empty-array<int> $serviceIds
@@ -559,25 +529,6 @@ function updateHostSecretsInVaultFromMC(
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macros);
         }
     }
-}
-
-/**
- * Store all the ids of password macros that have been updated.
- *
- * @param array<int,array<string,string>> $macros
- *
- * @return int[]
- */
-function getIdOfUpdatedPasswordMacros(array $macros): array
-{
-    $macroPasswordIds = [];
-    foreach ($macros as $macroId => $macroInfos) {
-        if (! str_starts_with($macroInfos['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)) {
-            $macroPasswordIds[] = $macroId;
-        }
-    }
-
-    return $macroPasswordIds;
 }
 
 /**
@@ -833,53 +784,6 @@ function getServiceSecretsFromVault(
 }
 
 /**
- * Write service secrets data in vault.
- *
- * @param VaultConfiguration $vaultConfiguration
- * @param int $serviceId
- * @param string $clientToken
- * @param Logger $logger
- * @param CentreonRestHttp $httpClient
- * @param string $uuid
- * @param array $macros
- *
- * @throws Exception
- */
-function writeServiceSecretsInVault(
-    VaultConfiguration $vaultConfiguration,
-    string $uuid,
-    string $clientToken,
-    array $macros,
-    Logger $logger,
-    CentreonRestHttp $httpClient
-): void {
-    try {
-        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-            . '/v1/' . $vaultConfiguration->getRootPath()
-            . '/data/monitoring/services/' . $uuid;
-        $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
-        $logger->info(
-            'Writing Service Secrets at : ' . $url,
-            ['secrets' => implode(', ', array_keys($macros))]
-        );
-        $httpClient->call($url, 'POST', ['data' => $macros], ['X-Vault-Token: ' . $clientToken]);
-    } catch (Exception $ex) {
-        $logger->error(
-            'Unable to write Service secrets into vault',
-            [
-                'message' => $ex->getMessage(),
-                'trace' => $ex->getTraceAsString(),
-                'secrets' => implode(', ', array_keys($macros)),
-            ]
-        );
-
-        throw $ex;
-    }
-
-    $logger->info(sprintf('Write successfully secrets in vault: %s', implode(', ', array_keys($macros))));
-}
-
-/**
  * Update on_demand_macro_service table with secrets path on vault.
  *
  * @param CentreonDB $pearDB
@@ -1056,7 +960,7 @@ function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromV
  *
  * @throws Throwable
  */
-function SecretsInVault(
+function updateServiceSecretsInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
     Logger $logger,
@@ -1448,20 +1352,13 @@ function deletePollerMacroSecretsFromVault(
  * @throws \Throwable
  */
 function upsertKnowledgeBasePasswordInVault(
+    WriteVaultRepositoryInterface $writeVaultRepository,
     string $password,
-    VaultConfiguration $vaultConfiguration,
-    Logger $logger,
     ?string $uuid,
-    UUIDGeneratorInterface $uuidGenerator
 ): string {
-    global $pearDB;
+    $vaultPaths = $writeVaultRepository->upsert($uuid, [VaultConfiguration::KNOWLEDGE_BASE_KEY => $password]);
 
-    $httpClient = new CentreonRestHttp();
-    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-    $uuid = $uuid ?? $uuidGenerator->generateV4();
-    writeKnowledgeBasePasswordInVault($vaultConfiguration, $uuid, $clientToken, $password, $logger, $httpClient);
-    return "secret::" . $vaultConfiguration->getName() . "::" . $vaultConfiguration->getRootPath()
-        . "/data/configuration/knowledge_base/" . $uuid;
+    return $vaultPaths[VaultConfiguration::KNOWLEDGE_BASE_KEY];
 
 }
 
@@ -1477,73 +1374,12 @@ function upsertKnowledgeBasePasswordInVault(
  * @throws \Throwable
  */
 function findKnowledgeBasePasswordFromVault(
-    Logger $logger,
+    ReadVaultRepositoryInterface $readVaultRepository,
     string $kbPasswordPath,
-    VaultConfiguration $vaultConfiguration
 ): string {
-    $httpClient = new CentreonRestHttp();
-    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $kbPasswordPath;
-    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
-    $response = $httpClient->call(
-        $url,
-        'GET',
-        null,
-        ['X-Vault-Token: ' . $clientToken]
-    );
-    return $response['data']['data']['_KBPASSWORD'] ?? throw new \Exception(
-        'Unable to retrieve Knowledge Base password from Vault'
-    );
-}
+     $data = $readVaultRepository->findFromPath($kbPasswordPath);
 
-/**
- * Write the Knowledge Base Password into the vault.
- *
- * @param VaultConfiguration $vaultConfiguration
- * @param string $uuid
- * @param string $clientToken
- * @param string $password
- * @param Logger $logger
- * @param CentreonRestHttp $httpClient
- *
- * @throws \Throwable
- */
-function writeKnowledgeBasePasswordInVault(
-    VaultConfiguration $vaultConfiguration,
-    string $uuid,
-    string $clientToken,
-    string $password,
-    Logger $logger,
-    CentreonRestHttp $httpClient
-): void {
-    try {
-        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-            . '/v1/' . $vaultConfiguration->getRootPath()
-            . '/data/configuration/knowledge_base/' . $uuid;
-        $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
-        $logger->info(
-            "Writing Knowledge Base Password at : " . $url,
-            ["password" => $password]
-        );
-        $httpClient->call(
-            $url,
-            "POST",
-            ['data' => ['_KBPASSWORD' => $password]],
-            ['X-Vault-Token: ' . $clientToken]
-        );
-    } catch(\Exception $ex) {
-        $logger->error(
-            "Unable to write Knowledge Base Password into vault",
-            [
-                "message" => $ex->getMessage(),
-                "trace" => $ex->getTraceAsString(),
-                "password" => $password
-            ]
-        );
-
-        throw $ex;
-    }
+     return $data[VaultConfiguration::KNOWLEDGE_BASE_KEY];
 }
 
 /**
@@ -1612,9 +1448,14 @@ function retrieveDatabaseCredentialsFromConfigFile(): array
  */
 function updateConfigFilesWithVaultPath($vaultPaths): void
 {
-    updateCentreonConfPhpFile($vaultPaths);
-    updateCentreonConfPmFile($vaultPaths);
-    updateDatabaseYamlFile($vaultPaths);
+    $featuresFileContent = file_get_contents(__DIR__ . '/../../../config/features.json');
+    $featureFlagManager = new FeatureFlags(false, $featuresFileContent);
+
+    updateCentreonConfPhpFile($vaultPath);
+    if ($featureFlagManager->isEnabled('vault_broker')) {
+        updateCentreonConfPmFile($vaultPath);
+        updateDatabaseYamlFile($vaultPath);
+    }
 }
 
 /**
