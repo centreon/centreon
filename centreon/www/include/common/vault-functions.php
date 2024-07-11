@@ -1184,52 +1184,6 @@ function deletePollerMacroSecretInVault(
 }
 
 /**
- * Write poller macro secrets data in vault.
- *
- * @param VaultConfiguration $vaultConfiguration
- * @param string $clientToken
- * @param array<string,string> $macros
- * @param Logger $logger
- * @param CentreonRestHttp $httpClient
- * @param string $uuid
- *
- * @throws Exception
- */
-function writePollerMacroSecretsInVault(
-    VaultConfiguration $vaultConfiguration,
-    string $clientToken,
-    array $macros,
-    Logger $logger,
-    CentreonRestHttp $httpClient,
-    string $uuid
-): void {
-    try {
-        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-            . '/v1/' . $vaultConfiguration->getRootPath()
-            . '/data/monitoring/pollerMacros/' . $uuid;
-        $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
-        $logger->info(
-            'Writing Poller Macro Secrets at : ' . $url,
-            ['secrets' => implode(', ', array_keys($macros))]
-        );
-        $httpClient->call($url, 'POST', ['data' => $macros], ['X-Vault-Token: ' . $clientToken]);
-    } catch (Exception $ex) {
-        $logger->error(
-            'Unable to write Poller Macro secrets into vault',
-            [
-                'message' => $ex->getMessage(),
-                'trace' => $ex->getTraceAsString(),
-                'secrets' => implode(', ', array_keys($macros)),
-            ]
-        );
-
-        throw $ex;
-    }
-
-    $logger->info(sprintf('Write successfully secrets in vault: %s', implode(', ', array_keys($macros))));
-}
-
-/**
  * Get poller macro secrets data from vault.
  *
  * @param VaultConfiguration $vaultConfiguration
