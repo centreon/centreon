@@ -216,11 +216,9 @@ final class DeployServices
                     $service->setActivated(true);
                     $serviceId = $this->writeServiceRepository->add($service);
                     $service = $this->readServiceRepository->findById($serviceId);
-                    if ($service === null) {
-                        continue;
+                    if ($service !== null) {
+                        $deployedServices[] = $service;
                     }
-
-                    $deployedServices[] = $service;
                 }
             }
 
