@@ -35,11 +35,12 @@
  */
 
 use Centreon\Domain\Log\Logger;
-use Utility\Interfaces\UUIDGeneratorInterface;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Utility\Interfaces\UUIDGeneratorInterface;
 
 const DEFAULT_SCHEME = 'https';
 
@@ -1482,9 +1483,14 @@ function retrieveDatabaseCredentialsFromConfigFile(): array
  */
 function updateConfigFilesWithVaultPath($vaultPath): void
 {
+    $featuresFileContent = file_get_contents(__DIR__ . '/../../../config/features.json');
+    $featureFlagManager = new FeatureFlags(false, $featuresFileContent);
+
     updateCentreonConfPhpFile($vaultPath);
-    updateCentreonConfPmFile($vaultPath);
-    updateDatabaseYamlFile($vaultPath);
+    if ($featureFlagManager->isEnabled('vault_broker')) {
+        updateCentreonConfPmFile($vaultPath);
+        updateDatabaseYamlFile($vaultPath);
+    }
 }
 
 /**
