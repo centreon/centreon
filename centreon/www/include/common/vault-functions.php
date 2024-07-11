@@ -1087,7 +1087,6 @@ function insertServiceSecretsInVault(
  * Retrieve UUID of a poller macro.
  *
  * @param CentreonDB $pearDB
- * @param string $vaultConfigurationName
  *
  * @throws Throwable
  *
@@ -1114,16 +1113,15 @@ function retrievePollerMacroVaultPathFromDatabase(CentreonDB $pearDB): ?string {
 }
 
 /**
- * Insert poller macros Secrets in Vault.
+ *  Insert poller macros Secrets in Vault.
  *
- * @param VaultConfiguration $vaultConfiguration
- * @param UUIDGeneratorInterface $uuidGenerator
- * @param Logger $logger
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param string $key
  * @param string $value
- * @param string $uuid
+ * @param string|null $vaultPath
  *
- * @throws Exception
+ * @throws Throwable
  *
  * @return string|null
  */
@@ -1157,12 +1155,14 @@ function upsertPollerMacroSecretInVault(
 /**
  * delete poller macros Secrets in Vault.
  *
- * @param VaultConfiguration $vaultConfiguration
- * @param Logger $logger
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
+ * @param string $uuid
  * @param string $vaultPath
  * @param string $key
  *
- * @throws Exception
+ * @throws Throwable
+ *
  */
 function deletePollerMacroSecretInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
@@ -1186,11 +1186,8 @@ function deletePollerMacroSecretInVault(
 /**
  * Get poller macro secrets data from vault.
  *
- * @param VaultConfiguration $vaultConfiguration
- * @param Logger $logger
- * @param string $uuid
- * @param null|CentreonRestHttp $httpClient
- * @param null|string $clientToken
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param string $vaultPath
  *
  * @throws Throwable
  *
@@ -1212,13 +1209,13 @@ function readPollerMacroSecretsInVault(
 /**
  * Update or Insert the knowledge base password into the vault.
  *
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param string $password
- * @param VaultConfiguration $vaultConfiguration
- * @param Logger $logger
  * @param string|null $uuid
- * @param UUIDGeneratorInterface $uuidGenerator
  *
- * @throws \Throwable
+ * @throws Throwable
+ *
+ * @return string
  */
 function upsertKnowledgeBasePasswordInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
@@ -1234,13 +1231,12 @@ function upsertKnowledgeBasePasswordInVault(
 /**
  * Find the Knowledge Base password from the vault.
  *
- * @param Logger $logger
+ * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param string $kbPasswordPath
- * @param VaultConfiguration $vaultConfiguration
+ *
+ * @throws Throwable
  *
  * @return string
- *
- * @throws \Throwable
  */
 function findKnowledgeBasePasswordFromVault(
     ReadVaultRepositoryInterface $readVaultRepository,
