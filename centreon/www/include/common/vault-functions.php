@@ -1445,10 +1445,10 @@ function updateConfigFilesWithVaultPath($vaultPaths): void
     $featuresFileContent = file_get_contents(__DIR__ . '/../../../config/features.json');
     $featureFlagManager = new FeatureFlags(false, $featuresFileContent);
 
-    updateCentreonConfPhpFile($vaultPath);
+    updateCentreonConfPhpFile($vaultPaths);
     if ($featureFlagManager->isEnabled('vault_broker')) {
-        updateCentreonConfPmFile($vaultPath);
-        updateDatabaseYamlFile($vaultPath);
+        updateCentreonConfPmFile($vaultPaths);
+        updateDatabaseYamlFile($vaultPaths);
     }
 }
 
