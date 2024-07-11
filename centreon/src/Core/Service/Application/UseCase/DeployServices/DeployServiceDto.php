@@ -36,22 +36,22 @@ final class DeployServiceDto
 
     public ?string $geoCoords = null;
 
-    public string|null $comment = null;
+    public ?string $comment = null;
 
     public ?int $serviceTemplateId = null;
 
-    public int|null $commandId = null;
+    public ?int $commandId = null;
 
     /** @var string[] */
     public array $commandArguments = [];
 
-    public int|null $checkTimePeriodId = null;
+    public ?int $checkTimePeriodId = null;
 
-    public int|null $maxCheckAttempts = null;
+    public ?int $maxCheckAttempts = null;
 
-    public int|null $normalCheckInterval = null;
+    public ?int $normalCheckInterval = null;
 
-    public int|null $retryCheckInterval = null;
+    public ?int $retryCheckInterval = null;
 
     public YesNoDefault $activeChecksEnabled = YesNoDefault::Default;
 
@@ -65,49 +65,49 @@ final class DeployServiceDto
 
     public bool $isContactGroupAdditiveInheritance = false;
 
-    public int|null $notificationInterval = null;
+    public ?int $notificationInterval = null;
 
-    public int|null $notificationTimePeriodId = null;
+    public ?int $notificationTimePeriodId = null;
 
     /** @var NotificationType[] */
     public array $notificationTypes = [];
 
-    public int|null $firstNotificationDelay = null;
+    public ?int $firstNotificationDelay = null;
 
-    public int|null $recoveryNotificationDelay = null;
+    public ?int $recoveryNotificationDelay = null;
 
-    public int|null $acknowledgementTimeout;
+    public ?int $acknowledgementTimeout;
 
     public YesNoDefault $checkFreshness = YesNoDefault::Default;
 
-    public int|null $freshnessThreshold = null;
+    public ?int $freshnessThreshold = null;
 
     public YesNoDefault $flapDetectionEnabled = YesNoDefault::Default;
 
-    public int|null $lowFlapThreshold = null;
+    public ?int $lowFlapThreshold = null;
 
-    public int|null $highFlapThreshold = null;
+    public ?int $highFlapThreshold = null;
 
     public YesNoDefault $eventHandlerEnabled = YesNoDefault::Default;
 
-    public int|null $eventHandlerCommandId = null;
+    public ?int $eventHandlerCommandId = null;
 
     /** @var string[] */
     public array $eventHandlerArguments = [];
 
-    public int|null $graphTemplateId = null;
+    public ?int $graphTemplateId = null;
 
-    public string|null $note = null;
+    public ?string $note = null;
 
-    public string|null $noteUrl = null;
+    public ?string $noteUrl = null;
 
-    public string|null $actionUrl;
+    public ?string $actionUrl;
 
-    public int|null $iconId = null;
+    public ?int $iconId = null;
 
-    public string|null $iconAlternative = null;
+    public ?string $iconAlternative = null;
 
-    public int|null $severityId = null;
+    public ?int $severityId = null;
 
     public bool $isActivated = false;
 }
