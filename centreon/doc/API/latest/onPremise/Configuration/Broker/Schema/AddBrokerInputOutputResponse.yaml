@@ -27,20 +27,18 @@ properties:
 
       For multiselect fields, the property name is a combination of the group field name and the sub field name (ex: "filters_category")
 
-    example: |
-      {
-        "path": "some/test/path",
-        "filters_category": ["storage", "neb"],
-        "lua_parameter": [
-          {
-            "type": "string",
-            "name": "my-lua-param-1",
-            "value": "azerty"
-          },
-          {
-            "type": "string",
-            "name": "my-lua-param-2",
-            "value": "qwerty"
-          }
-        ]
-      }
+    example:
+      path: "some/test/path"
+      filters_category: ["storage", "neb"]
+      lua_parameter: [
+        {
+          "type": "string",
+          "name": "my-lua-param-1",
+          "value": "azerty"
+        },
+        {
+          "type": "string",
+          "name": "my-lua-param-2",
+          "value": "qwerty"
+        }
+      ]

@@ -287,7 +287,7 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
                 continue;
             }
             if ($row['config_key'] === 'blockId') {
-                $typeId = (int) str_replace('1_', '', $row['config_value']);
+                $typeId = (int) str_replace(['1_', '2_'], '', $row['config_value']);
 
                 continue;
             }
