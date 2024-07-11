@@ -317,7 +317,6 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
         'reset',
         _('Reset'),
         [
-            'onClick' => 'javascript:resetLists(' . ($compo["host_id"] ?? 0) . ',' . ($compo["service_id"] ?? 0) . ')',
             'class' => 'btc bt_default'
         ]
     );
@@ -335,7 +334,6 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
         'reset',
         _('Reset'),
         [
-            'onClick' => 'javascript:resetLists(0,0)',
             'class' => 'btc bt_default'
         ]
     );
