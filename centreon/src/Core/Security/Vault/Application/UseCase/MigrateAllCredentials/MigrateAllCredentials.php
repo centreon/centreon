@@ -29,6 +29,7 @@ use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
@@ -79,6 +80,7 @@ final class MigrateAllCredentials
         private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
         private readonly ReadBrokerInputOutputRepositoryInterface $readBrokerInputOutputRepository,
         private readonly WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository,
+        private readonly FeatureFlags $flags,
     ) {
         $this->response = new MigrateAllCredentialsResponse();
     }
@@ -101,7 +103,9 @@ final class MigrateAllCredentials
             $openIdConfiguration = $this->readProviderConfigurationRepository->getConfigurationByType(
                 Provider::OPENID
             );
-            $brokerInputOutputs = $this->readBrokerInputOutputRepository->findAll();
+            $brokerInputOutputs = $this->flags->isEnabled('vault_broker')
+                ? $this->readBrokerInputOutputRepository->findAll()
+                : [];
 
             $credentials = $this->createCredentialDtos(
                 $hosts,
