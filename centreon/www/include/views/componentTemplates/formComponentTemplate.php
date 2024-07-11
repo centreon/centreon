@@ -178,7 +178,8 @@ foreach ($l_dsColorList as $l_dsColor => $l_dCData) {
         'value' => $l_hxColor,
         'size' => 7,
         'maxlength' => 7,
-        'style' => 'text-align: center;'
+        'style' => 'text-align: center;',
+        'class' => 'js-input-colorpicker'
     ];
     $form->addElement('text', $l_dsColor, $l_dCData["label"], $attColText);
 
@@ -456,6 +457,14 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
             additionnalFilters: {
                 id: '#host_id',
             }
+        });
+        // color picker change event in form
+        document.querySelectorAll('.formTable .js-input-colorpicker').forEach(function (colorPickerInput){
+            colorPickerInput.addEventListener('change', function (e){
+                let newColor = e.target.value;
+                let nameColorPickerblock = `${e.target.name}_color`;
+                document.querySelector(`input[name=${nameColorPickerblock}]`).style.backgroundColor = newColor;
+            })
         });
     });
 </script>
