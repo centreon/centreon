@@ -218,8 +218,10 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
 
 it('tests getIterator method with poller macros', function (): void {
     $credentials = new \ArrayIterator([$this->credential4]);
-
-    $this->writeVaultRepository->method('upsert')->willReturn('vault/path');
+    $uuid = (new UUIDGenerator())->generateV4();
+    $this->writeVaultRepository->method('upsert')->willReturn(
+        [$this->credential4->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential4->name]
+    );
 
     $credentialMigrator = new CredentialMigrator(
         credentials: $credentials,
@@ -244,9 +246,11 @@ it('tests getIterator method with poller macros', function (): void {
 
     foreach ($credentialMigrator as $status) {
         expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
-        expect($status->uuid)->toBe('path');
+        expect($status->uuid)->toBe($uuid);
         expect($status->resourceId)->toBeIn([4]);
-        expect($status->vaultPath)->toBe('vault/path');
+        expect($status->vaultPath)->toBe('secret::hashicorp_vault::vault/path/'
+            . $uuid . '::' .  $this->credential4->name
+        );
         expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_POLLER_MACRO]);
         expect($status->credentialName)->toBeIn(['$POLLERMACRO$']);
     }
@@ -254,8 +258,10 @@ it('tests getIterator method with poller macros', function (): void {
 
 it('tests getIterator method with broker input/output configuration', function (): void {
     $credentials = new \ArrayIterator([$this->credential5]);
-
-    $this->writeVaultRepository->method('upsert')->willReturn('vault/path');
+    $uuid = (new UUIDGenerator())->generateV4();
+    $this->writeVaultRepository->method('upsert')->willReturn(
+        [$this->credential5->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential5->name]
+    );
 
     $credentialMigrator = new CredentialMigrator(
         credentials: $credentials,
@@ -280,9 +286,11 @@ it('tests getIterator method with broker input/output configuration', function (
 
     foreach ($credentialMigrator as $status) {
         expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
-        expect($status->uuid)->toBe('path');
+        expect($status->uuid)->toBe($uuid);
         expect($status->resourceId)->toBeIn([5]);
-        expect($status->vaultPath)->toBe('vault/path');
+        expect($status->vaultPath)->toBe('secret::hashicorp_vault::vault/path/'
+            . $uuid . '::' .  $this->credential5->name
+        );
         expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT]);
         expect($status->credentialName)->toBeIn(['my-output_db_password']);
     }

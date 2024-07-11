@@ -185,11 +185,12 @@ final class AddBrokerInputOutput
                     if (isset($groupedParams['type']) && $groupedParams['type'] === 'password') {
                         /** @var array{type:string,name:string,value:string|int} $groupedParams */
                         $vaultKey = implode('_', [$inputOutput->getName(), $paramName, $groupedParams['name']]);
-                        $vaultPath = $this->writeVaultRepository->upsert(
+                        $vaultPaths = $this->writeVaultRepository->upsert(
                             $this->uuid,
                             [$vaultKey => $groupedParams['value']],
                             []
                         );
+                        $vaultPath = $vaultPaths[$vaultKey];
                         $this->uuid ??= $this->getUuidFromPath($vaultPath);
                         /** @var array<array<array{value:string}>> $updatedParameters */
                         $updatedParameters[$paramName][$groupIndex]['value'] = $vaultPath;
@@ -204,7 +205,8 @@ final class AddBrokerInputOutput
                     continue;
                 }
                 $vaultKey = implode('_', [$inputOutput->getName(), $paramName]);
-                $vaultPath = $this->writeVaultRepository->upsert($this->uuid, [$vaultKey => $paramValue], []);
+                $vaultPaths = $this->writeVaultRepository->upsert($this->uuid, [$vaultKey => $paramValue], []);
+                $vaultPath = $vaultPaths[$vaultKey];
                 $this->uuid ??= $this->getUuidFromPath($vaultPath);
                 $updatedParameters[$paramName] = $vaultPath;
             }
