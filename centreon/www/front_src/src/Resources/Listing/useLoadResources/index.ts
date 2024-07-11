@@ -142,7 +142,9 @@ const useLoadResources = (): LoadResources => {
     }
 
     sendLoadDetailsRequest({
-      endpoint: selectedResourceDetailsEndpoint
+      // endpoint: selectedResourceDetailsEndpoint,
+      endpoint:
+        'http://localhost:3000/api/latest/monitoring/resources/anomaly-detection/4'
     })
       .then(setDetails)
       .catch(() => {
@@ -265,7 +267,88 @@ const useLoadResources = (): LoadResources => {
       statuses: getCriteriaIds('statuses')
     }).then((response) => {
       if (!equals(visualization, Visualization.Host)) {
-        setListing(response);
+        setListing({
+          ...response,
+          result: [
+            ...response.result,
+            {
+              alias: null,
+              duration: '2h 22m',
+              fqdn: null,
+              has_active_checks_enabled: true,
+              has_passive_checks_enabled: true,
+              host_id: 197,
+              icon: null,
+              id: 4,
+              information: 'OK: Regular activity, connection=159.00',
+              is_acknowledged: false,
+              is_in_downtime: false,
+              is_notification_enabled: false,
+              last_check: '15m 30s',
+              last_status_change: '2024-07-10T10:07:40+02:00',
+              links: {
+                endpoints: {
+                  acknowledgement:
+                    '/centreon/api/latest/monitoring/hosts/197/services/2911/acknowledgements?limit=1',
+                  check: null,
+                  details:
+                    '/centreon/api/latest/monitoring/resources/anomaly-detection/4',
+                  downtime:
+                    '/centreon/api/latest/monitoring/hosts/197/services/2911/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1720607426%7D,%22end_time%22:%7B%22%24gt%22:1720607426%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1720607426%7D%7D%7D%7D%5D%7D',
+                  forced_check: null,
+                  metrics: null,
+                  performance_graph:
+                    '/centreon/api/latest/monitoring/hosts/197/services/2911/metrics/performance',
+                  status_graph:
+                    '/centreon/api/latest/monitoring/hosts/197/services/2911/metrics/status',
+                  timeline:
+                    '/centreon/api/latest/monitoring/hosts/197/services/2911/timeline'
+                },
+                externals: {
+                  action_url: '',
+                  notes: {
+                    label: '',
+                    url: ''
+                  }
+                },
+                uris: {
+                  configuration: null,
+                  logs: null,
+                  reporting: null
+                }
+              },
+              monitoring_server_name: 'Central',
+              name: 'anomaly-nbr-connect',
+              parent: {
+                alias: 'fw-brasilia',
+                fqdn: 'fw-brasilia',
+                id: 197,
+                monitoring_server_name: null,
+                name: 'fw-brasilia',
+                short_type: 'h',
+                status: {
+                  code: 0,
+                  name: 'UP',
+                  severity_code: 5
+                },
+                type: 'host',
+                uuid: 'h197'
+              },
+              performance_data: null,
+              service_id: 2911,
+              severity: null,
+              short_type: 'a',
+              status: {
+                code: 0,
+                name: 'OK',
+                severity_code: 5
+              },
+              tries: '1/4 (H)',
+              type: 'anomaly-detection',
+              uuid: 'h197-a4'
+            }
+          ]
+        });
 
         return;
       }

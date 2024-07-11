@@ -197,7 +197,7 @@ const PerformanceGraph = <T,>({
     }
 
     sendGetGraphDataRequest({
-      endpoint
+      endpoint: `http://localhost:3000/centreon/api/latest/monitoring/hosts/197/services/2911/metrics/performance?start=${start}&end=${end}`
     })
       .then((graphData) => {
         setPerformanceGraphData(graphData);
