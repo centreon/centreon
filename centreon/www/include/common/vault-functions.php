@@ -1093,25 +1093,20 @@ function insertServiceSecretsInVault(
  *
  * @return string|null
  */
-function retrievePollerMacroUuidFromDatabase(
-    CentreonDB $pearDB,
-    string $vaultConfigurationName
-): ?string {
-    $vaultPath = 'secret::'. $vaultConfigurationName .'::';
+function retrievePollerMacroVaultPathFromDatabase(CentreonDB $pearDB): ?string {
     $statement = $pearDB->prepare(
         <<<'SQL'
                 SELECT resource_line FROM cfg_resource
                 WHERE resource_line LIKE :vaultPath
             SQL
     );
-    $statement->bindValue(':vaultPath', $vaultPath . '%', PDO::PARAM_STR);
+    $statement->bindValue(':vaultPath', VaultConfiguration::VAULT_PATH_PATTERN . '%', PDO::PARAM_STR);
     $statement->execute();
     if (($result = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
         /** @var array{resource_line:string} $result */
         if (str_starts_with($result['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)) {
-            $pathPart = explode('/', $result['resource_line']);
 
-            return end($pathPart);
+            return $result['resource_line'];
         }
     }
 
@@ -1133,37 +1128,27 @@ function retrievePollerMacroUuidFromDatabase(
  * @return string|null
  */
 function upsertPollerMacroSecretInVault(
-    VaultConfiguration $vaultConfiguration,
-    UUIDGeneratorInterface $uuidGenerator,
-    Logger $logger,
+    ReadVaultRepositoryInterface $readVaultRepository,
+    WriteVaultRepositoryInterface $writeVaultRepository,
     string $key,
     string $value,
-    ?string $uuid = null,
+    ?string $vaultPath = null
 ): string|null {
     if (! empty($value)) {
-        $httpClient = new CentreonRestHttp();
-        $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
 
         $data = [];
-        if ($uuid !== null) {
-            $data = readPollerMacroSecretsInVault($vaultConfiguration, $logger, $uuid, $httpClient, $clientToken);
-        } else {
-            $uuid = $uuidGenerator->generateV4();
+        if ($vaultPath !== null) {
+            $data = $readVaultRepository->findFromPath($vaultPath);
         }
 
         $data[$key] = $value;
+        $uuid = null;
+        if ($vaultPath !== null) {
+            $uuid = preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $vaultPath, $matches) ? $matches[2] : null;
+        }
+        $vaultPaths = $writeVaultRepository->upsert($uuid, $data);
 
-        writePollerMacroSecretsInVault(
-            $vaultConfiguration,
-            $clientToken,
-            $data,
-            $logger,
-            $httpClient,
-            $uuid,
-        );
-
-        return 'secret::' . $vaultConfiguration->getName() . '::' . $vaultConfiguration->getRootPath()
-            . '/data/monitoring/pollerMacros/' . $uuid;
+        return $vaultPaths[$key];
     }
 
     return null;
@@ -1174,41 +1159,27 @@ function upsertPollerMacroSecretInVault(
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param Logger $logger
- * @param string $uuid
+ * @param string $vaultPath
  * @param string $key
  *
  * @throws Exception
  */
 function deletePollerMacroSecretInVault(
-    VaultConfiguration $vaultConfiguration,
-    Logger $logger,
+    ReadVaultRepositoryInterface $readVaultRepository,
+    WriteVaultRepositoryInterface $writeVaultRepository,
     string $uuid,
+    string $vaultPath,
     string $key,
 ): void {
-    $httpClient = new CentreonRestHttp();
-    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
 
-    $data = readPollerMacroSecretsInVault($vaultConfiguration, $logger, $uuid, $httpClient, $clientToken);
+    $existingData = $readVaultRepository->findFromPath($vaultPath);
+    unset($existingData[str_replace('$', '', $key)]);
+    $dataToDelete = [$key => ''];
 
-    unset($data[str_replace('$', '', $key)]);
-
-    if ($data !== []) {
-        writePollerMacroSecretsInVault(
-            $vaultConfiguration,
-            $clientToken,
-            $data,
-            $logger,
-            $httpClient,
-            $uuid,
-        );
+    if ($existingData !== []) {
+        $writeVaultRepository->upsert($uuid, [], $dataToDelete);
     } else {
-        deletePollerMacroSecretsFromVault(
-            $vaultConfiguration,
-            $logger,
-            $uuid,
-            $httpClient,
-            $clientToken,
-        );
+        $writeVaultRepository->delete($uuid);
     }
 }
 
@@ -1272,69 +1243,13 @@ function writePollerMacroSecretsInVault(
  * @return array<string, string>
  */
 function readPollerMacroSecretsInVault(
-    VaultConfiguration $vaultConfiguration,
-    Logger $logger,
-    string $uuid,
-    ?CentreonRestHttp $httpClient = null,
-    ?string $clientToken = null,
+    ReadVaultRepositoryInterface $readVaultRepository,
+    string $vaultPath,
 ): array {
-    $httpClient ??= new CentreonRestHttp();
-    $clientToken ??= authenticateToVault($vaultConfiguration, $logger, $httpClient);
-
-    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-        . '/v1/' . $vaultConfiguration->getRootPath() . '/data/monitoring/pollerMacros/' . $uuid;
-    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
-    $logger->info(sprintf('Search Poller macros secrets at: %s', $url));
-
     try {
-        $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
-        if (array_key_exists('data', $content) && array_key_exists('data', $content['data'])) {
-            return $content['data']['data'];
-        }
-
-        return [];
-    } catch (RestNotFoundException $ex) {
-        $logger->info('Poller Macros not found in vault');
-
-        return [];
+        return $readVaultRepository->findFromPath($vaultPath);
     } catch (Exception $ex) {
         $logger->error('Unable to get secrets for Poller macros');
-
-        throw $ex;
-    }
-}
-
-/**
- * Delete poller macro secret from vault.
- *
- * @param VaultConfiguration $vaultConfiguration
- * @param Logger $logger
- * @param string $uuid
- * @param CentreonRestHttp $httpClient
- * @param string $clientToken
- *
- * @throws Throwable
- */
-function deletePollerMacroSecretsFromVault(
-    VaultConfiguration $vaultConfiguration,
-    Logger $logger,
-    string $uuid,
-    CentreonRestHttp $httpClient,
-    string $clientToken,
-): void {
-    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-        . '/v1/' . $vaultConfiguration->getRootPath() . '/metadata/monitoring/pollerMacros/' . $uuid;
-    $url = sprintf('%s://%s', DEFAULT_SCHEME, $url);
-    $logger->info(sprintf('Delete Poller macros secrets at: %s', $url));
-
-    try {
-        $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
-
-    } catch (RestNotFoundException $ex) {
-        $logger->info('Poller Macros not found in vault');
-
-    } catch (Exception $ex) {
-        $logger->error('Unable to delete secrets for Poller macros');
 
         throw $ex;
     }
