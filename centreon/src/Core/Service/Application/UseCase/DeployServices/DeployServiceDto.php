@@ -38,7 +38,7 @@ final class DeployServiceDto
 
     public string|null $comment = null;
 
-    public int|null $serviceTemplateId = null;
+    public ?int $serviceTemplateId = null;
 
     public int|null $commandId = null;
 
