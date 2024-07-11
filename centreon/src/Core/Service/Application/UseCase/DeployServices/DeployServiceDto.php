@@ -34,7 +34,7 @@ final class DeployServiceDto
 
     public int $hostId = 0;
 
-    public string|null $geoCoords = null;
+    public ?string $geoCoords = null;
 
     public string|null $comment = null;
 
