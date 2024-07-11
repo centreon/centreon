@@ -472,8 +472,7 @@ function retrieveServiceVaultPathFromDatabase(CentreonDB $pearDB, int $serviceId
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param Logger $logger
- * @param UUIDGeneratorInterface $uuidGenerator
- * @param string|null $uuid
+ * @param string|null $vaultPath
  * @param int $hostId
  * @param array<int,array<string,string>> $macros
  * @param ?string $snmpCommunity
@@ -565,8 +564,7 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param Logger $logger
- * @param UUIDGeneratorInterface $uuidGenerator
- * @param string|null $uuid
+ * @param string|null $vaultPath
  * @param int $hostId
  * @param array $macros
  * @param string|null $snmpCommunity
@@ -859,10 +857,10 @@ function retrieveServiceSecretUuidFromDatabase(
 /**
  * Update Service Secrets in Vault after Massive changing.
  *
- * @param VaultConfiguration $vaultConfiguration
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param Logger $logger
- * @param UUIDGeneratorInterface $uuidGenerator
- * @param string|null $uuid
+ * @param string|null $vaultPath
  * @param int $serviceId
  * @param array<int,array{
  *       macroName: string,
@@ -946,9 +944,9 @@ function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromV
 /**
  * Update Service Secrest in Vault.
  *
- * @param VaultConfiguration $vaultConfiguration
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param Logger $logger
- * @param UUIDGeneratorInterface $uuidGenerator
  * @param int $serviceId
  * @param array<int,array{
  *       macroName: string,
@@ -1054,7 +1052,6 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
  * insert Service Secrets in Vault.
  *
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param UUIDGeneratorInterface $uuidGenerator
  * @param array<int,array{
  *       macroName: string,
  *       macroValue: string,
@@ -1343,11 +1340,9 @@ function deletePollerMacroSecretsFromVault(
 /**
  * Update or Insert the knowledge base password into the vault.
  *
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param string $password
- * @param VaultConfiguration $vaultConfiguration
- * @param Logger $logger
  * @param string|null $uuid
- * @param UUIDGeneratorInterface $uuidGenerator
  *
  * @throws \Throwable
  */
@@ -1365,9 +1360,8 @@ function upsertKnowledgeBasePasswordInVault(
 /**
  * Find the Knowledge Base password from the vault.
  *
- * @param Logger $logger
+ * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param string $kbPasswordPath
- * @param VaultConfiguration $vaultConfiguration
  *
  * @return string
  *
