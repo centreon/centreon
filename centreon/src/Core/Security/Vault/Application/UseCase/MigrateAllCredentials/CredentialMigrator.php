@@ -298,8 +298,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             [$credential->name => $credential->value]
         );
         $vaultPath = $vaultPaths[$credential->name];
-        $vaultPathPart = explode('/', $vaultPath);
-        $existingUuids['pollerMacro'] ??= end($vaultPathPart);
+        $uuid = $this->getUuidFromPath($vaultPath);
+        if ($uuid === null) {
+            throw new \Exception('UUID not found in the vault path');
+        }
+        $existingUuids['pollerMacro'] ??= $uuid;
 
         foreach ($this->pollerMacros as $pollerMacro) {
             if ($pollerMacro->getId() === $credential->resourceId) {
@@ -405,14 +408,18 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         }
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
 
-        $vaultPath = $this->writeVaultRepository->upsert(
+        $vaultPaths = $this->writeVaultRepository->upsert(
             $uuid,
             [
                 $credential->name => $credential->value,
             ]
         );
-        $vaultPathPart = explode('/', $vaultPath);
-        $existingUuids['brokerConfigs'][$credential->resourceId] = end($vaultPathPart);
+        $vaultPath = $vaultPaths[$credential->name];
+        $uuid = $this->getUuidFromPath($vaultPath);
+        if ($uuid === null) {
+            throw new \Exception('UUID not found in the vault path');
+        }
+        $existingUuids['brokerConfigs'][$credential->resourceId] = $uuid;
         $inputOutputs = $this->brokerInputOutputs[$credential->resourceId];
         foreach ($inputOutputs as $inputOutput) {
             if (str_starts_with($credential->name, $inputOutput->getName())) {

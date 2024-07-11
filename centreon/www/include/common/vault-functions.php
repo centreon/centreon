@@ -472,8 +472,7 @@ function retrieveServiceVaultPathFromDatabase(CentreonDB $pearDB, int $serviceId
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param Logger $logger
- * @param UUIDGeneratorInterface $uuidGenerator
- * @param string|null $uuid
+ * @param string|null $vaultPath
  * @param int $hostId
  * @param array<int,array<string,string>> $macros
  * @param ?string $snmpCommunity
@@ -565,8 +564,7 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param Logger $logger
- * @param UUIDGeneratorInterface $uuidGenerator
- * @param string|null $uuid
+ * @param string|null $vaultPath
  * @param int $hostId
  * @param array $macros
  * @param string|null $snmpCommunity
@@ -859,10 +857,10 @@ function retrieveServiceSecretUuidFromDatabase(
 /**
  * Update Service Secrets in Vault after Massive changing.
  *
- * @param VaultConfiguration $vaultConfiguration
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param Logger $logger
- * @param UUIDGeneratorInterface $uuidGenerator
- * @param string|null $uuid
+ * @param string|null $vaultPath
  * @param int $serviceId
  * @param array<int,array{
  *       macroName: string,
@@ -946,9 +944,9 @@ function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromV
 /**
  * Update Service Secrest in Vault.
  *
- * @param VaultConfiguration $vaultConfiguration
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param Logger $logger
- * @param UUIDGeneratorInterface $uuidGenerator
  * @param int $serviceId
  * @param array<int,array{
  *       macroName: string,
@@ -1054,7 +1052,6 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
  * insert Service Secrets in Vault.
  *
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param UUIDGeneratorInterface $uuidGenerator
  * @param array<int,array{
  *       macroName: string,
  *       macroValue: string,
@@ -1343,11 +1340,9 @@ function deletePollerMacroSecretsFromVault(
 /**
  * Update or Insert the knowledge base password into the vault.
  *
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
  * @param string $password
- * @param VaultConfiguration $vaultConfiguration
- * @param Logger $logger
  * @param string|null $uuid
- * @param UUIDGeneratorInterface $uuidGenerator
  *
  * @throws \Throwable
  */
@@ -1365,9 +1360,8 @@ function upsertKnowledgeBasePasswordInVault(
 /**
  * Find the Knowledge Base password from the vault.
  *
- * @param Logger $logger
+ * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param string $kbPasswordPath
- * @param VaultConfiguration $vaultConfiguration
  *
  * @return string
  *
@@ -1385,59 +1379,24 @@ function findKnowledgeBasePasswordFromVault(
 /**
  * Migrate database credentials to Vault and update the different config files.
  *
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
+ *
+ * @return array<string, string>
+ *
  * @throws Throwable
  */
 function migrateDatabaseCredentialsToVault(
-    VaultConfiguration $vaultConfiguration,
-    Logger $logger,
-    CentreonRestHttp $httpClient,
-    UUIDGeneratorInterface $uuidGenerator
-): string {
-    $vaultToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-    return migrateDatabaseCredentials($vaultConfiguration, $vaultToken, $httpClient, $uuidGenerator);
-}
-
-/**
- * Migrate database credentials to Vault.
- *
- * @param VaultConfiguration $vaultConfiguration
- * @param string $token
- * @param CentreonRestHttp $httpClient
- *
- * @throws Throwable
- *
- * @return string
- */
-function migrateDatabaseCredentials(
-    VaultConfiguration $vaultConfiguration,
-    string $token,
-    CentreonRestHttp $httpClient,
-    UUIDGeneratorInterface $uuidGenerator
-): string {
+    WriteVaultRepositoryInterface $writeVaultRepository
+): array {
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
-
-    if (
-        str_starts_with($credentials['username'], 'secret::')
-    ) {
-        return $credentials['username'];
+    if (str_starts_with($credentials['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {
+        return [];
     }
 
-    $uuid = $uuidGenerator->generateV4();
-    $vaultPathEndpoint = '/data/database/' . $uuid;
-    $vaultPath = 'secret::' . $vaultConfiguration->getName() . '::' . $vaultConfiguration->getRootPath()
-        . $vaultPathEndpoint;
-    $vaultPathUrl = 'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getRootPath() . $vaultPathEndpoint;
-    $httpClient->call(
-        $vaultPathUrl,
-        'POST',
-        ['data' => [
-            '_DBUSERNAME' => $credentials['username'],
-            '_DBPASSWORD' => $credentials['password'],
-        ]],
-        ['X-Vault-Token: ' . $token]);
-
-    return $vaultPath;
+    return $writeVaultRepository->upsert(null, [
+        VaultConfiguration::DATABASE_USERNAME_KEY => $credentials['username'],
+        VaultConfiguration::DATABASE_PASSWORD_KEY => $credentials['password'],
+    ]);
 }
 
 /**
@@ -1477,28 +1436,28 @@ function retrieveDatabaseCredentialsFromConfigFile(): array
 /**
  * Update the different config files with the vault path.
  *
- * @param $vaultPath
+ * @param array<string,string> $vaultPath
  *
  * @throws Exception
  */
-function updateConfigFilesWithVaultPath($vaultPath): void
+function updateConfigFilesWithVaultPath($vaultPaths): void
 {
     $featuresFileContent = file_get_contents(__DIR__ . '/../../../config/features.json');
     $featureFlagManager = new FeatureFlags(false, $featuresFileContent);
 
-    updateCentreonConfPhpFile($vaultPath);
+    updateCentreonConfPhpFile($vaultPaths);
     if ($featureFlagManager->isEnabled('vault_broker')) {
-        updateCentreonConfPmFile($vaultPath);
-        updateDatabaseYamlFile($vaultPath);
+        updateCentreonConfPmFile($vaultPaths);
+        updateDatabaseYamlFile($vaultPaths);
     }
 }
 
 /**
- * @param string $vaultPath
+ * @param array<string, string> $vaultPaths
  *
  * @throws Exception
  */
-function updateCentreonConfPhpFile(string $vaultPath): void
+function updateCentreonConfPhpFile(array $vaultPaths): void
 {
     if (! file_exists(_CENTREON_ETC_ . '/centreon.conf.php')
         || ($content = file_get_contents(_CENTREON_ETC_ . '/centreon.conf.php')) === false
@@ -1508,12 +1467,12 @@ function updateCentreonConfPhpFile(string $vaultPath): void
 
     $newContentPhp = preg_replace(
         '/\$conf_centreon\[[\'\"]user[\'\"]\]\s*=\s*(.*)/',
-        '\$conf_centreon[\'user\'] = \'' . $vaultPath . '\';',
+        '\$conf_centreon[\'user\'] = \'' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] . '\';',
         $content
     );
     $newContentPhp = preg_replace(
         '/\$conf_centreon\[[\'\"]password[\'\"]\]\s*=\s*(.*)/',
-        '\$conf_centreon[\'password\'] = \'' . $vaultPath . '\';',
+        '\$conf_centreon[\'password\'] = \'' . $vaultPaths[VaultConfiguration::DATABASE_PASSWORD_KEY] . '\';',
         $newContentPhp
     );
 
@@ -1522,11 +1481,11 @@ function updateCentreonConfPhpFile(string $vaultPath): void
 }
 
 /**
- * @param string $vaultPath
+ * @param array<string, string> $vaultPaths
  *
  * @throws Exception
  */
-function updateCentreonConfPmFile(string $vaultPath): void
+function updateCentreonConfPmFile(array $vaultPaths): void
 {
     if (! file_exists(_CENTREON_ETC_ . '/conf.pm')
         || ($content = file_get_contents(_CENTREON_ETC_ . '/conf.pm')) === false
@@ -1536,22 +1495,22 @@ function updateCentreonConfPmFile(string $vaultPath): void
 
     $newContentPm = preg_replace(
         '/"db_user"\s*=>\s*(.*)/',
-        '"db_user" => "' . $vaultPath .'",',
+        '"db_user" => "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] .'",',
         $content
     );
     $newContentPm = preg_replace(
         '/"db_passwd"\s*=>\s*(.*)/',
-        '"db_passwd" => "' . $vaultPath .'"',
+        '"db_passwd" => "' . $vaultPaths[VaultConfiguration::DATABASE_PASSWORD_KEY] . '"',
         $newContentPm
     );
     $newContentPm = preg_replace(
         '/\$mysql_user\s*=\s*(.*)/',
-        '$mysql_user = "' . $vaultPath .'";',
+        '$mysql_user = "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] .'";',
         $newContentPm
     );
     $newContentPm = preg_replace(
         '/\$mysql_passwd\s*=\s*(.*)/',
-        '$mysql_passwd = "' . $vaultPath .'";',
+        '$mysql_passwd = "' . $vaultPaths[VaultConfiguration::DATABASE_PASSWORD_KEY] . '";',
         $newContentPm
     );
 
@@ -1560,11 +1519,11 @@ function updateCentreonConfPmFile(string $vaultPath): void
 }
 
 /**
- * @param string $vaultPath
+ * @param array<string, string> $vaultPaths
  *
  * @throws Exception
  */
-function updateDatabaseYamlFile(string $vaultPath): void
+function updateDatabaseYamlFile(array $vaultPaths): void
 {
     if (! file_exists(_CENTREON_ETC_ . '/config.d/10-database.yaml')
         || ($content = file_get_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml')) === false
@@ -1574,12 +1533,12 @@ function updateDatabaseYamlFile(string $vaultPath): void
     }
     $newContentYaml = preg_replace(
         '/username: (.*)/',
-        'username: "' . $vaultPath . '"',
+        'username: "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] . '"',
         $content
     );
     $newContentYaml = preg_replace(
         '/password: (.*)/',
-        'password: "' . $vaultPath . '"',
+        'password: "' . $vaultPaths[VaultConfiguration::DATABASE_PASSWORD_KEY] . '"',
         $newContentYaml
     );
 
