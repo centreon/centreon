@@ -10,10 +10,9 @@ import { PanelOptions } from '../models';
 import { rowColorConditions } from './colors';
 import useListing from './useListing';
 import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
-import DisplayType from './DisplayType';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
-import Actions from './Actions/Actions';
+import Actions from './Actions';
 import OpenTicketModal from './Columns/OpenTicket/Modal';
 
 interface ListingProps
@@ -128,7 +127,14 @@ const Listing = ({
     <>
       <MemoizedListing
         checkable
-        actions={<Actions />}
+        actions={
+          <Actions
+            displayType={displayType}
+            hasMetaService={hasMetaService}
+            setPanelOptions={setPanelOptions}
+          />
+        }
+        actionsBarMemoProps={[displayType, hasMetaService]}
         columnConfiguration={{
           selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true
@@ -163,13 +169,6 @@ const Listing = ({
           labelExpand: 'Expand'
         }}
         totalRows={data?.meta?.total}
-        visualizationActions={
-          <DisplayType
-            displayType={displayType}
-            hasMetaService={hasMetaService}
-            setPanelOptions={setPanelOptions}
-          />
-        }
         onLimitChange={changeLimit}
         onPaginate={changePage}
         onResetColumns={resetColumns}

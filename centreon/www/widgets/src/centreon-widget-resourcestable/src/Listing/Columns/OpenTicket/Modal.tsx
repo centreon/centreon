@@ -12,7 +12,7 @@ import { labelCreateticket } from '../../translatedLabels';
 interface Props {
   close: () => void;
   isOpen: boolean;
-  providerID: number;
+  providerID?: number;
   resource: Ticket;
 }
 

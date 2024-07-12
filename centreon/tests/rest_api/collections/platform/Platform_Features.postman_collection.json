@@ -15,7 +15,6 @@
 					"script": {
 						"exec": [
 							"const responseJson = pm.response.json();\r",
-							"console.log(responseJson);\r",
 							"pm.test(\"The platform versions has been successfully listed.\", function () {\r",
 							"    pm.response.to.have.status(200);\r",
 							"\r",
