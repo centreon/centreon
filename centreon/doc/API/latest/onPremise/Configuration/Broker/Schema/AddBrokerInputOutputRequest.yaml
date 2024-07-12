@@ -32,7 +32,7 @@ properties:
         * 11 - File (file)
         * 35 - BBDO Server (bbdo_server)
         * 36 - BBDO Client (bbdo_client)
-    example: "33"
+    example: 33
   parameters:
     type: object
     description: |
@@ -43,20 +43,18 @@ properties:
 
       All fields must be provided, but can be null/empty if they are optional.
 
-    example: |
-      {
-        "path": "some/test/path",
-        "filters_category": ["storage", "neb"],
-        "lua_parameter": [
-          {
-            "type": "string",
-            "name": "my-lua-param-1",
-            "value": "azerty"
-          },
-          {
-            "type": "string",
-            "name": "my-lua-param-2",
-            "value": "qwerty"
-          }
-        ]
-      }
+    example:
+      path: "some/test/path"
+      filters_category: ["storage", "neb"]
+      lua_parameter: [
+        {
+          "type": "string",
+          "name": "my-lua-param-1",
+          "value": "azerty"
+        },
+        {
+          "type": "string",
+          "name": "my-lua-param-2",
+          "value": "qwerty"
+        }
+      ]
