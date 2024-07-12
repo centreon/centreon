@@ -229,7 +229,6 @@ Cypress.Commands.add(
   }
 );
 
-
 Cypress.Commands.add('getCellContent', (rowIndex, columnIndex) => {
   cy.waitUntil(
     () =>
