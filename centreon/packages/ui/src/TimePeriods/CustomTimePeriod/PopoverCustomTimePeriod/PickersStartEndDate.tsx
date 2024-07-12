@@ -12,6 +12,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { userAtom } from '@centreon/ui-context';
 
+import { isInvalidDate } from '../../helpers';
 import DateTimePickerInput from '../../DateTimePickerInput';
 import {
   CustomTimePeriodProperty,
@@ -104,6 +105,7 @@ const PickersStartEndDate = ({
 
   const { locale } = useAtomValue(userAtom);
   const error = useAtomValue(errorTimePeriodAtom);
+  const isError = error || isInvalidDate({ endDate, startDate });
 
   const maxStart = rangeStartDate?.max || endDate;
   const minStart = rangeStartDate?.min;
@@ -147,7 +149,7 @@ const PickersStartEndDate = ({
         />
       </div>
 
-      {error && (
+      {isError && (
         <ErrorText
           message="The end date must be greater than the start date"
           style={cx(classes.error, {

@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useSetAtom } from 'jotai';
 import { and, cond, equals, isNil } from 'ramda';
 
+import { isInvalidDate } from '../../helpers';
 import { CustomTimePeriod, CustomTimePeriodProperty } from '../../models';
 import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 
@@ -31,9 +32,6 @@ const usePickersStartEndDate = ({
   );
 
   const setError = useSetAtom(errorTimePeriodAtom);
-
-  const isInvalidDate = ({ startDate, endDate }): boolean =>
-    dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');
 
   const changeDate = ({ property, date }): void => {
     const currentDate = customTimePeriod[property];
