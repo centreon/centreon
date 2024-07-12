@@ -86,7 +86,6 @@ final class AddBrokerInputOutputController extends AbstractController
             $presenter->setResponseStatus(new ErrorResponse(BrokerException::addBrokerInputOutput()));
 
             return $presenter->show();
-
         }
 
         $useCase($dto, $presenter);
