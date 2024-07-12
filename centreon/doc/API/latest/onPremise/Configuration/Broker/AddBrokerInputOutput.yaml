@@ -24,7 +24,6 @@ post:
       content:
         application/json:
           schema:
-            type: object
             $ref: 'Schema/AddBrokerInputOutputResponse.yaml'
     '400':
       $ref: '../../Common/Response/BadRequest.yaml'
