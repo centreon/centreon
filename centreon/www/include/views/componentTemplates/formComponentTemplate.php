@@ -461,9 +461,10 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
         // color picker change event in form
         document.querySelectorAll('.formTable .js-input-colorpicker').forEach(function (colorPickerInput){
             colorPickerInput.addEventListener('change', function (e){
+                e.stopPropagation();
                 let newColor = e.target.value;
                 let nameColorPickerblock = `${e.target.name}_color`;
-                let divColorPickerBlock = document.querySelector(`input[name=${nameColorPickerblock}]`)
+                let divColorPickerBlock = document.querySelector(`input[name=${nameColorPickerblock}]`);
                 let oldColor = divColorPickerBlock.style.backgroundColor;
                 divColorPickerBlock.style.backgroundColor = (newColor !== '') ? newColor : oldColor;
             })
