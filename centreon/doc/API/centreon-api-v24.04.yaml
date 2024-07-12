@@ -12,7 +12,7 @@ info:
     + Added service severity configuration endpoint (PUT)
     + Added hosts status count endpoint (GET)
     + Added endpoint to list unique service names (GET)
-    +
+    + Added endpoint to deploy services in a host based on associated host template(s)
     # Updated features
     + Added metrics by service listing endpoint to service resource type
     + Added new filters for the /monitoring/services/categories endpoint
@@ -399,6 +399,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/{host_id}/services/deploy:
+    $ref: './latest/onPremise/Configuration/Service/DeployServices.yaml'
   /configuration/services/categories:
     get:
       tags:
