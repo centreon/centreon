@@ -38,9 +38,10 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Infrastructure\FeatureFlags;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 /**
  *
  * Test broker file config existance
@@ -435,6 +436,4 @@ function retrieveOriginalPasswordValuesFromVault(array &$values): void
             }
         }
     }
-
-
 }

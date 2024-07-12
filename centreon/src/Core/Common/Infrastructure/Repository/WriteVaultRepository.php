@@ -61,6 +61,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
                 $payload = $responseContent['data']['data'];
             }
         }
+
         // Delete unwanted data
         foreach ($deletes as $deleteKey => $deleteValue) {
             unset($payload[$deleteKey]);
