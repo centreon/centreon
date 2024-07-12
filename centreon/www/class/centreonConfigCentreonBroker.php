@@ -1757,7 +1757,6 @@ class CentreonConfigCentreonBroker
         $headers = [
             'Content-Type' => 'application/json',
             'X-AUTH-TOKEN' => $_COOKIE['PHPSESSID'],
-            'Cookie' => 'XDEBUG_SESSION=XDEBUG_KEY'
         ];
         $parameters = ['brokerId' => $configId];
         $basePath ? $parameters['base_uri'] = $basePath : null;
