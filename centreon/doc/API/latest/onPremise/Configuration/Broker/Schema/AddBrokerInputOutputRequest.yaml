@@ -1,5 +1,5 @@
 type: object
-required: ["name", "typeId", "parameters"]
+required: ["name", "type", "parameters"]
 properties:
   name:
     type: string

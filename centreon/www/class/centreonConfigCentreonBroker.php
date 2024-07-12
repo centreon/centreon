@@ -1728,14 +1728,19 @@ class CentreonConfigCentreonBroker
          $kernel = \App\Kernel::createForWeb();
         /** @var \Centreon\Domain\Log\Logger $logger */
         $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+        /** @var \Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
         $readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
+        /** @var \Core\Common\Infrastructure\FeatureFlags $featureFlagManager */
         $featureFlagManager = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
-        $vaultConfiguration = $readVaultConfigurationRepository->find();
 
+        $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
-            deleteBrokerConfigsFromVault($vaultConfiguration, $logger, [$configId]);
+            /** @var \Core\Common\Application\Repository\WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(\Core\Common\Application\Repository\WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(\Core\Common\Infrastructure\Repository\AbstractVaultRepository::BROKER_VAULT_PATH);
+            deleteBrokerConfigsFromVault($writeVaultRepository, [$configId]);
         }
 
         $query = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
@@ -1752,6 +1757,7 @@ class CentreonConfigCentreonBroker
         $headers = [
             'Content-Type' => 'application/json',
             'X-AUTH-TOKEN' => $_COOKIE['PHPSESSID'],
+            'Cookie' => 'XDEBUG_SESSION=XDEBUG_KEY'
         ];
         $parameters = ['brokerId' => $configId];
         $basePath ? $parameters['base_uri'] = $basePath : null;
