@@ -160,9 +160,8 @@ final class AddBrokerInputOutput
 
             return null;
         }
-        $vaultParts = explode('/', $vaultPath);
 
-        return end($vaultParts);
+        return $this->getUuidFromPath($vaultPath);
     }
 
     /**
