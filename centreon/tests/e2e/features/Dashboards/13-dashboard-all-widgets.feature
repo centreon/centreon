@@ -13,7 +13,6 @@ Feature: Configuring dashboard with all widgets
     And the dashboard administrator adds a Status grid widget and saves changes
     Then the dashboard administrator is now on the newly created dashboard in view mode
 
-
   @TEST_MON-37043
   Scenario: Editing the layout of a multi-widget dashboard
     Given a dashboard administrator who has just configured a multi-widget dashboard
