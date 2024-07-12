@@ -142,7 +142,7 @@ jobs:
 
               # Check if the release context (cloud and hotfix or cloud and release)
               # if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
-              if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "hotfix-24.05-next" ]]
+              if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "hotfix-24.05-next" ]]; then
                 # Get release pull request ID
                 #GITHUB_RELEASE_BRANCH_PR_NUMBER="$(gh pr view $BRANCHNAME -q .[] --json number)"
                 # Set release cloud to 1 (0=not-cloud, 1=cloud)
