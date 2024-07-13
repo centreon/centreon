@@ -56,7 +56,7 @@
     },
     "statusTypes": {
       "type": "checkbox",
-      "label": "Display resources with this status type",
+      "label": "Display resources with this status types",
       "options": [
         {
           "id": "hard",

@@ -17106,3 +17106,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Select rule (ticket provider)"
 # msgstr ""
+
+# msgid "Display resources with this status types"
+# msgstr ""

@@ -19165,7 +19165,7 @@ msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
 msgid "Active open ticket"
-msgstr "open ticket actif"
+msgstr "activer open ticket"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
@@ -19208,3 +19208,6 @@ msgstr "Règle (fournisseur de tickets)"
 
 msgid "Select rule (ticket provider)"
 msgstr "Sélectionner la règle (fournisseur de tickets)"
+
+msgid "Display resources with this status types"
+msgstr "Afficher les ressources avec ces types de statuts"
