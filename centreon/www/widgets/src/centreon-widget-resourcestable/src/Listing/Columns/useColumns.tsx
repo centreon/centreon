@@ -56,9 +56,7 @@ const useColumns = ({
 }: ColumnProps): ColumnsState => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const { resouresTableOpenTickets: isFeatureFlagEnabled } = useAtomValue(
-    featureFlagsDerivedAtom
-  );
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
 
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
@@ -78,7 +76,7 @@ const useColumns = ({
   ])(displayType);
 
   const isOpenTicketColumnsVisible =
-    isFeatureFlagEnabled && isOpenTicketEnabled && !!provider;
+    featureFlags?.resouresTableOpenTickets && isOpenTicketEnabled && !!provider;
 
   const isOpenTicketActionColumnVisible =
     isOpenTicketColumnsVisible && !equals(displayResources, 'withTicket');

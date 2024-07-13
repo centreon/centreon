@@ -79,7 +79,6 @@ export const options: PanelOptions = {
   isOpenTicketEnabled: false,
   isUnreachableHostHidden: false,
   limit: 40,
-  provider: { id: 1, name: 'provider_1' },
   refreshInterval: 'manual',
   refreshIntervalCustom: 30,
   selectedColumnIds,
