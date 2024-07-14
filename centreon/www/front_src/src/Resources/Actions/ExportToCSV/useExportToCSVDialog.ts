@@ -79,7 +79,7 @@ const useExportToCSVDialog = (): Props => {
 
   const exportToCSV = (): void => {
     submit();
-    // close();
+    close();
   };
 
   return {
