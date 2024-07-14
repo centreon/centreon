@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../../../bootstrap.php';
 
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Security\Vault\Infrastructure\Repository\{
     FsReadVaultConfigurationRepository,
@@ -153,9 +154,14 @@ function migrateDatabaseCredentials(
  */
 function updateConfigFilesWithVaultPath($vaultPath): void
 {
+    $featuresFileContent = file_get_contents(__DIR__ . '/../../../../config/features.json');
+    $featureFlagManager = new FeatureFlags(false, $featuresFileContent);
+
     updateCentreonConfPhpFile($vaultPath);
-    updateCentreonConfPmFile($vaultPath);
-    updateDatabaseYamlFile($vaultPath);
+    if ($featureFlagManager->isEnabled('vault_broker')) {
+        updateCentreonConfPmFile($vaultPath);
+        updateDatabaseYamlFile($vaultPath);
+    }
 }
 
 /**
