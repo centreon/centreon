@@ -1,9 +1,0 @@
-nodes:
-  - id: 4
-    type: push_zmq
-    address: 10.30.2.135
-    port: 5556
-    prevail: 1
-    nodes:
-      - id: 2
-        pathscore: 1
