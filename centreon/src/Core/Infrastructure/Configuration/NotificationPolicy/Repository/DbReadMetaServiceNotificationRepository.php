@@ -134,7 +134,7 @@ class DbReadMetaServiceNotificationRepository extends AbstractRepositoryDRB impl
                     ON agcr.contact_contact_id = c.contact_id
                 WHERE c.contact_activate = '1'
                     AND agcr.acl_group_id IN ({$aclBindQuery})
-            SQL
+                SQL
         );
 
         $statement = $this->db->prepare($request);
@@ -220,7 +220,7 @@ class DbReadMetaServiceNotificationRepository extends AbstractRepositoryDRB impl
                     ON agcgr.cg_cg_id = cg.cg_id
                 WHERE cg.cg_activate = '1'
                     AND agcgr.acl_group_id IN ({$aclBindQuery})
-            SQL
+                SQL
         );
 
         $statement = $this->db->prepare($request);
