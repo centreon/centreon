@@ -649,8 +649,8 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
   create-xray-test-plan-and-test-execution:
-    needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    needs: [get-version]
+    # if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
     strategy:
       fail-fast: false
       matrix:
@@ -669,7 +669,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   newman-test:
-    needs: [get-version, changes]
+    needs: [get-version, changes, create-xray-test-plan-and-test-execution]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
