@@ -469,5 +469,30 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
                 divColorPickerBlock.style.backgroundColor = (newColor !== '') ? newColor : oldColor;
             })
         });
+        // disable/enable List of known metrics in function of Linked Host Services to avoid an error 400
+        // tip to check if we display the form
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has("compo_id")) {
+            const divLinkedHostServices = document.querySelector('#host_service_id');
+            const j_divLinkedHostServices = $('#host_service_id');
+            const divListKnownMetrics = document.querySelector('#sl_list_metrics');
+            const j_divListKnownMetrics = $('#sl_list_metrics');
+            console.log(divLinkedHostServices)
+            console.log(divListKnownMetrics)
+            if (divLinkedHostServices.value !== '') {
+                divListKnownMetrics.disabled = true;
+            }
+            j_divLinkedHostServices.on("change", function (e) {
+                e.stopPropagation();
+                j_divListKnownMetrics.val(null).trigger("change");
+                let hasService = divLinkedHostServices.value !== '';
+                if (hasService) {
+                    divListKnownMetrics.disabled = false;
+                } else {
+                    j_divListKnownMetrics.val(null).trigger("change");
+                    divListKnownMetrics.disabled = true;
+                }
+            });
+        }
     });
 </script>
