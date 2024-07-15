@@ -519,59 +519,60 @@ jobs:
           echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
         shell: bash
 
-      # - name: Download Artifacts
-      #   uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
-      #   with:
-      #     pattern: newman-${{ inputs.os }}-test-reports-*
-      #     path: newman-json-test-reports
-      #     merge-multiple: true
+      - name: Download Artifacts
+        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
+        with:
+          pattern: newman-${{ inputs.os }}-test-reports-*
+          path: newman-json-test-reports
+          merge-multiple: true
 
-      # - name: Delete Artifacts
-      #   run: |
-      #     artifact_pattern="newman-${{ inputs.os }}-test-reports-"
-      #     TOKEN="${{ secrets.GITHUB_TOKEN }}"
-      #     artifact_exists=true
-      #     while [ "$artifact_exists" = true ]; do
-      #       artifact_exists=false
-      #       artifacts_response=$(curl -L \
-      #                     -H "Accept: application/vnd.github+json" \
-      #                     -H "Authorization: Bearer $TOKEN" \
-      #                     -H "X-GitHub-Api-Version: 2022-11-28" \
-      #                     "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100")
-      #       artifacts=$(echo $artifacts_response | jq -c '.artifacts[]')
-      #       echo "Those are the artifacts : $artifacts"
-      #       while read row; do
-      #         artifact_name=$(echo "$row" | jq -r '.name')
-      #         if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
-      #           artifact_exists=true
-      #           echo "Deleting : $artifact_name"
-      #           artifact_id=$(echo "$row" | jq -r '.id')
-      #           curl -L \
-      #             -X DELETE \
-      #             -H "Accept: application/vnd.github+json" \
-      #             -H "Authorization: Bearer $TOKEN" \
-      #             -H "X-GitHub-Api-Version: 2022-11-28" \
-      #             "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
-      #         fi
-      #       done <<< "$artifacts"
-      #     done
-      #     echo "End of Deleting"
-      #   shell: bash
+      - name: Delete Artifacts
+        run: |
+          artifact_pattern="newman-${{ inputs.os }}-test-reports-"
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          artifact_exists=true
+          while [ "$artifact_exists" = true ]; do
+            artifact_exists=false
+            artifacts_response=$(curl -L \
+                          -H "Accept: application/vnd.github+json" \
+                          -H "Authorization: Bearer $TOKEN" \
+                          -H "X-GitHub-Api-Version: 2022-11-28" \
+                          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100")
+            artifacts=$(echo $artifacts_response | jq -c '.artifacts[]')
+            echo "Those are the artifacts : $artifacts"
+            while read row; do
+              artifact_name=$(echo "$row" | jq -r '.name')
+              if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
+                artifact_exists=true
+                echo "Deleting : $artifact_name"
+                artifact_id=$(echo "$row" | jq -r '.id')
+                curl -L \
+                  -X DELETE \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "Authorization: Bearer $TOKEN" \
+                  -H "X-GitHub-Api-Version: 2022-11-28" \
+                  "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
+              fi
+            done <<< "$artifacts"
+          done
+          echo "End of Deleting"
+        shell: bash
 
-      # - name: Extract and Store Summaries
-      #   run: |
-      #     declare -A json_info
-      #     for summary_file in newman-json-test-reports/*.json; do
-      #     summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}')
-      #     filename=$(basename "$summary_file" .json)
-      #       clean_filename="${filename// /_}"
-      #       clean_filename="${clean_filename//-/_}"
-      #       json_info["$clean_filename"]=$summary_content
-      #     done
-      #     for key in "${!json_info[@]}"; do
-      #       echo "Summary info for $key:"
-      #       echo "${json_info[$key]}"
-      #     done
+      - name: Extract and Store Summaries
+        run: |
+          declare -A json_info
+          for summary_file in newman-json-test-reports/*.json; do
+          summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}')
+          filename=$(basename "$summary_file" .json)
+            clean_filename="${filename// /_}"
+            clean_filename="${clean_filename//-/_}"
+            json_info["$clean_filename"]=$summary_content
+          done
+          for key in "${!json_info[@]}"; do
+            echo "Summary info for $key:"
+            echo "${json_info[$key]}"
+          done
+
       - name: Change test execution status
         # if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
