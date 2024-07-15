@@ -455,7 +455,7 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
             multiple: false,
             allowClear: true,
             additionnalFilters: {
-                id: '#host_id',
+                id: '#host_service_id',
             }
         });
         // color picker change event in form
