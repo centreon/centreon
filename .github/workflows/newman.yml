@@ -617,6 +617,54 @@ jobs:
               echo "Failed assertions: $failed_assertions"
               echo "Failures: $failures"
 
+              if [ -z "$failures" ]; then
+              echo "No failures found. Executing GraphQL query."
+
+              # Boucle sur chaque issue_id
+              for issue_id in "${issue_ids_array[@]}"; do
+                  echo "Processing issue ID: $issue_id"
+
+                  xray_graphql_getTestRunIDs='{
+                      "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
+                      "variables": {
+                          "testIssueIds": ["'"$issue_id"'"],
+                          "testExecIssueIds": ["'"$test_execution_id"'"],
+                          "limit": 100
+                      }
+                  }'
+
+                  echo "$xray_graphql_getTestRunIDs"
+
+                  retry_attempts=0
+                  max_attempts=5
+                  while [ $retry_attempts -lt $max_attempts ]; do
+                      response_getTestRun=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+                      echo "$response_getTestRun"
+
+                      if echo "$response_getTestRun" | jq -e '.error' > /dev/null; then
+                          echo "Error in response: $(echo "$response_getTestRun" | jq -r '.error.text')"
+                          echo "Retrying after a delay..."
+                          retry_attempts=$((retry_attempts + 1))
+                          sleep $((retry_attempts * 30))
+                      else
+                          break
+                      fi
+                  done
+
+                  if [ $retry_attempts -ge $max_attempts ]; then
+                      echo "Failed after $max_attempts attempts"
+                      continue
+                  fi
+
+                  test_run_ids=$(echo "$response_getTestRun" | jq -r ".data.getTestRuns.results[] | select(.test.issueId == \"$issue_id\") | .id")
+                  for test_run_id in $test_run_ids; do
+                      echo "Found Test Run ID $test_run_id for Issue ID $issue_id"
+
+                      graphqlMutation="{\"query\": \"mutation { updateTestRunStatus(id: \\\"$test_run_id\\\", status: \\\"PASSED\\\") }\"}"
+                      echo "$graphqlMutation"
+                      command="curl -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}' --data '$graphqlMutation' -v 'https://xray.cloud.getxray.app/api/v2/graphql'"
+                      retry_command 5 "$command"
+                  done
 
               # for issue_id in "${issue_ids_array[@]}"; do
               #     echo "Processing issue ID: $issue_id"
