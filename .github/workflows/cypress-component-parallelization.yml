@@ -230,7 +230,7 @@ jobs:
         if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}
-          pattern: ${{ inputs.name }}-${{ matrix.type_of_report }}-*
+          pattern: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
           retention-days: 1
 
