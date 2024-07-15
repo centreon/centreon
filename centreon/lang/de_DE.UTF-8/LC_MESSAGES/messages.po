@@ -17039,7 +17039,7 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Open ticket"
-# msgstr ""
+# msgstr "Ouvrir un ticket"
 
 # msgid "Open ticket for host"
 # msgstr ""
@@ -17059,7 +17059,7 @@ msgstr "Erweiterter Modus"
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Active open ticket"
+# msgid "Enable Open Tickets"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17077,10 +17077,7 @@ msgstr "Erweiterter Modus"
 # msgid "Resources with no ticket"
 # msgstr ""
 
-# msgid "hide services with Down host"
-# msgstr ""
-
-# msgid "hide services with Down host"
+# msgid "Hide services with Down host"
 # msgstr ""
 
 # msgstr "hide services with Unreachable host"
@@ -17092,7 +17089,7 @@ msgstr "Erweiterter Modus"
 # msgstr "Ticket subject"
 # msgstr ""
 
-# msgstr "Ticket open time"
+# msgstr "Opened on"
 # msgstr ""
 
 # msgid "Ticket open"
@@ -17107,5 +17104,5 @@ msgstr "Erweiterter Modus"
 # msgid "Select rule (ticket provider)"
 # msgstr ""
 
-# msgid "Display resources with this status types"
+# msgid "Display resources with these status typess"
 # msgstr ""

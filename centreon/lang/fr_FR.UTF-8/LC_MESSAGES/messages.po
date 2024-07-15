@@ -19147,10 +19147,10 @@ msgid "Open ticket"
 msgstr ""
 
 msgid "Open ticket for host"
-msgstr ""
+msgstr "Ouvrir un ticket pour l'hôte"
 
 msgid "Open ticket for service"
-msgstr ""
+msgstr "Ouvrir un ticket pour le service"
 
 msgid "Host severities"
 msgstr "Sévérités des hôtes"
@@ -19164,8 +19164,8 @@ msgstr "Sélectionner les sévérités des services"
 msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
-msgid "Active open ticket"
-msgstr "activer open ticket"
+msgid "Enable Open Tickets"
+msgstr "Activer open ticket"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
@@ -19182,11 +19182,11 @@ msgstr "Ressources liées à un ticket"
 msgid "Resources with no ticket"
 msgstr "Ressources sans ticket"
 
-msgid "hide services with Down host"
-msgstr "Masquer les services avec un hôte en indisponible statut"
+msgid "Hide services with Down host"
+msgstr "Masquer les services dont l'hôte est Indisponible"
 
 msgid "hide services with Unreachable host"
-msgstr "Masquer les services avec un hôte en injoignable statut"
+msgstr "Masquer les services dont l'hôte est Injoignable"
 
 msgid "Ticket ID"
 msgstr "ID du ticket"
@@ -19194,8 +19194,8 @@ msgstr "ID du ticket"
 msgid "Ticket subject"
 msgstr "Sujet du ticket"
 
-msgid "Ticket open time"
-msgstr "Date d'ouverture du ticket"
+msgid "Opened on"
+msgstr "Date d'ouverture"
 
 msgid "Ticket open"
 msgstr "Date d'ouverture"
@@ -19209,5 +19209,5 @@ msgstr "Règle (fournisseur de tickets)"
 msgid "Select rule (ticket provider)"
 msgstr "Sélectionner la règle (fournisseur de tickets)"
 
-msgid "Display resources with this status types"
+msgid "Display resources with these status typess"
 msgstr "Afficher les ressources avec ces types de statuts"

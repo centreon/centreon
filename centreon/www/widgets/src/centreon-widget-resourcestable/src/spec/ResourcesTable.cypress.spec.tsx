@@ -501,7 +501,7 @@ describe('Open tickets', () => {
 
     cy.contains('Ticket ID');
     cy.contains('Ticket subject');
-    cy.contains('Ticket open time');
+    cy.contains('Opened on');
 
     cy.makeSnapshot();
   });

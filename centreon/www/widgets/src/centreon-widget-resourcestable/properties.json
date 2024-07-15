@@ -56,7 +56,7 @@
     },
     "statusTypes": {
       "type": "checkbox",
-      "label": "Display resources with this status types",
+      "label": "Display resources with these status typess",
       "options": [
         {
           "id": "hard",
@@ -85,7 +85,7 @@
     },
     "isOpenTicketEnabled": {
       "type": "switch",
-      "label": "Active open ticket",
+      "label": "Enable Open Tickets",
       "defaultValue": false,
       "hiddenCondition": {
         "target" : "featureFlags",
@@ -134,7 +134,7 @@
     },
     "isDownHostHidden": {
       "type": "switch",
-      "label": "hide services with Down host",
+      "label": "Hide services with Down host",
       "defaultValue": false,
       "hiddenCondition": {
         "target": "options",

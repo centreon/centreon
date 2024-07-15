@@ -17841,7 +17841,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Active open ticket"
+# msgid "Enable Open Tickets"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17859,10 +17859,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Resources with no ticket"
 # msgstr ""
 
-# msgid "hide services with Down host"
-# msgstr ""
-
-# msgid "hide services with Down host"
+# msgid "Hide services with Down host"
 # msgstr ""
 
 # msgstr "hide services with Unreachable host"
@@ -17874,7 +17871,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr "Ticket subject"
 # msgstr ""
 
-# msgstr "Ticket open time"
+# msgstr "Opened on"
 # msgstr ""
 
 # msgid "Ticket open"
@@ -17889,5 +17886,5 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Select rule (ticket provider)"
 # msgstr ""
 
-# msgid "Display resources with this status types"
+# msgid "Display resources with these status typess"
 # msgstr ""

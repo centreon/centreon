@@ -17393,7 +17393,7 @@ msgstr "Modo avanzado"
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Active open ticket"
+# msgid "Enable Open Tickets"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17411,10 +17411,7 @@ msgstr "Modo avanzado"
 # msgid "Resources with no ticket"
 # msgstr ""
 
-# msgid "hide services with Down host"
-# msgstr ""
-
-# msgid "hide services with Down host"
+# msgid "Hide services with Down host"
 # msgstr ""
 
 # msgstr "hide services with Unreachable host"
@@ -17426,7 +17423,7 @@ msgstr "Modo avanzado"
 # msgstr "Ticket subject"
 # msgstr ""
 
-# msgstr "Ticket open time"
+# msgstr "Opened on"
 # msgstr ""
 
 # msgid "Ticket open"
@@ -17441,5 +17438,5 @@ msgstr "Modo avanzado"
 # msgid "Select rule (ticket provider)"
 # msgstr ""
 
-# msgid "Display resources with this status types"
+# msgid "Display resources with these status typess"
 # msgstr ""

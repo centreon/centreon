@@ -17861,7 +17861,7 @@ msgstr ""
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Active open ticket"
+# msgid "Enable Open Tickets"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17879,10 +17879,7 @@ msgstr ""
 # msgid "Resources with no ticket"
 # msgstr ""
 
-# msgid "hide services with Down host"
-# msgstr ""
-
-# msgid "hide services with Down host"
+# msgid "Hide services with Down host"
 # msgstr ""
 
 # msgstr "hide services with Unreachable host"
@@ -17894,7 +17891,7 @@ msgstr ""
 # msgstr "Ticket subject"
 # msgstr ""
 
-# msgstr "Ticket open time"
+# msgstr "Opened on"
 # msgstr ""
 
 # msgid "Ticket open"
@@ -17909,5 +17906,5 @@ msgstr ""
 # msgid "Select rule (ticket provider)"
 # msgstr ""
 
-# msgid "Display resources with this status types"
+# msgid "Display resources with these status typess"
 # msgstr ""
