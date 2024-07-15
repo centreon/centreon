@@ -669,7 +669,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   newman-test:
-    needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
+    needs: [get-version, changes]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
