@@ -54,6 +54,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class MigrateAllCredentials
 {
@@ -236,13 +237,13 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($hosts as $host) {
-            if ($host->getSnmpCommunity() === '' || str_starts_with($host->getSnmpCommunity(), 'secret::')) {
+            if ($host->getSnmpCommunity() === '' || str_starts_with($host->getSnmpCommunity(), VaultConfiguration::VAULT_PATH_PATTERN)) {
                 continue;
             }
             $credential = new CredentialDto();
             $credential->resourceId = $host->getId();
             $credential->type = CredentialTypeEnum::TYPE_HOST;
-            $credential->name = '_HOSTSNMPCOMMUNITY';
+            $credential->name = VaultConfiguration::HOST_SNMP_COMMUNITY_KEY;
             $credential->value = $host->getSnmpCommunity();
             $credentials[] = $credential;
         }
@@ -261,14 +262,14 @@ final class MigrateAllCredentials
         foreach ($hostTemplates as $hostTemplate) {
             if (
                 $hostTemplate->getSnmpCommunity() === ''
-                || str_starts_with($hostTemplate->getSnmpCommunity(), 'secret::'))
+                || str_starts_with($hostTemplate->getSnmpCommunity(), VaultConfiguration::VAULT_PATH_PATTERN))
             {
                 continue;
             }
             $credential = new CredentialDto();
             $credential->resourceId = $hostTemplate->getId();
             $credential->type = CredentialTypeEnum::TYPE_HOST_TEMPLATE;
-            $credential->name = '_HOSTSNMPCOMMUNITY';
+            $credential->name = VaultConfiguration::HOST_SNMP_COMMUNITY_KEY;
             $credential->value = $hostTemplate->getSnmpCommunity();
             $credentials[] = $credential;
         }
@@ -285,7 +286,10 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($hostMacros as $hostMacro) {
-            if ($hostMacro->getValue() === '' || str_starts_with($hostMacro->getValue(), 'secret::')) {
+            if (
+                $hostMacro->getValue() === ''
+                || str_starts_with($hostMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
                 continue;
             }
             $credential = new CredentialDto();
@@ -308,7 +312,10 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($serviceMacros as $serviceMacro) {
-            if ($serviceMacro->getValue() === '' || str_starts_with($serviceMacro->getValue(), 'secret::')) {
+            if (
+                $serviceMacro->getValue() === ''
+                || str_starts_with($serviceMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
                 continue;
             }
             $credential = new CredentialDto();
@@ -331,7 +338,10 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($pollerMacros as $pollerMacro) {
-            if ($pollerMacro->getValue() === '' || str_starts_with($pollerMacro->getValue(), 'secret::')) {
+            if (
+                $pollerMacro->getValue() === ''
+                || str_starts_with($pollerMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
                 continue;
             }
             $credential = new CredentialDto();
@@ -356,14 +366,14 @@ final class MigrateAllCredentials
         if (
             $knowledgeBasePasswordOption === null
             || $knowledgeBasePasswordOption->getValue() === null
-            || str_starts_with($knowledgeBasePasswordOption->getValue(), 'secret::')
+            || str_starts_with($knowledgeBasePasswordOption->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
         ){
             return $credentials;
         }
 
         $credential = new CredentialDto();
         $credential->type = CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD;
-        $credential->name = '_KBPASSWORD';
+        $credential->name = VaultConfiguration::KNOWLEDGE_BASE_KEY;
         $credential->value = $knowledgeBasePasswordOption->getValue();
         $credentials[] = $credential;
 
@@ -386,22 +396,22 @@ final class MigrateAllCredentials
 
         if (
             $customConfiguration->getClientId() !== null
-            && ! str_starts_with($customConfiguration->getClientId(), 'secret::')
+            && ! str_starts_with($customConfiguration->getClientId(), VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $credential = new CredentialDto();
             $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;
-            $credential->name = '_OPENID_CLIENT_ID';
+            $credential->name = VaultConfiguration::OPENID_CLIENT_ID_KEY;
             $credential->value = $customConfiguration->getClientId();
             $credentials[] = $credential;
         }
 
         if (
             $customConfiguration->getClientSecret() !== null
-            && ! str_starts_with($customConfiguration->getClientSecret(), 'secret::')
+            && ! str_starts_with($customConfiguration->getClientSecret(), VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $credential = new CredentialDto();
             $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;
-            $credential->name = '_OPENID_CLIENT_SECRET';
+            $credential->name = VaultConfiguration::OPENID_CLIENT_SECRET_KEY;
             $credential->value = $customConfiguration->getClientSecret();
             $credentials[] = $credential;
         }
