@@ -75,6 +75,7 @@ jobs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-ids.outputs.test_plan_id }}
       issue_list_ids: ${{ steps.xray-newman.outputs.issue_list_ids }}
+      api_list_ids : ${{ steps.xray-newman.outputs.api_list_ids }}
     defaults:
       run:
         shell: bash
@@ -224,7 +225,7 @@ jobs:
             done
 
             # Display results
-            echo "API Issue IDs: ${api_issue_ids[@]}"
+            echo "api_list_ids=("api_issue_ids[@]")" >> $GITHUB_OUTPUT
           }
 
           get_test_plan_issue_ids
@@ -599,7 +600,7 @@ jobs:
             for summary_file in newman-json-test-reports/*.json; do
               test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
               test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
-              issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
+              issue_ids=${{ needs.associate-test-cases.outputs.api_list_ids }}
               echo "issue_ids content: $issue_ids"
 
               filename=$(basename "$summary_file")
