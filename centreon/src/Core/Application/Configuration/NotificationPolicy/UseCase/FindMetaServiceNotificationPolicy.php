@@ -92,7 +92,6 @@ class FindMetaServiceNotificationPolicy
                 );
         }
 
-
         $realtimeMetaService = $this->readRealTimeMetaServiceRepository->findMetaServiceById($metaServiceId);
         if ($realtimeMetaService === null) {
             $this->handleMetaServiceNotFound($metaServiceId, $presenter);
