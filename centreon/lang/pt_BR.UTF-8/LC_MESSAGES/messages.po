@@ -17903,5 +17903,5 @@ msgstr ""
 # msgid "Select rule (ticket provider)"
 # msgstr ""
 
-# msgid "Display resources with these status typess"
+# msgid "Display resources with these status types"
 # msgstr ""

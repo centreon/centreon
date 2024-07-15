@@ -19206,5 +19206,5 @@ msgstr "Règle (fournisseur de tickets)"
 msgid "Select rule (ticket provider)"
 msgstr "Sélectionner la règle (fournisseur de tickets)"
 
-msgid "Display resources with these status typess"
+msgid "Display resources with these status types"
 msgstr "Afficher les ressources avec ces types de statuts"
