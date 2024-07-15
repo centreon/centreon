@@ -984,7 +984,9 @@ describe('Api-token', () => {
       'February 5, 2024 7:16 PM'
     );
 
-    const expectedCreationDate = toIsoString(new Date(Date.UTC(2024, 1, 5, 18, 16, 33)));
+    const expectedCreationDate = toIsoString(
+      new Date(Date.UTC(2024, 1, 5, 18, 16, 33))
+    );
 
     const expectedSearch = `is_revoked:true creator.name:${translateWhiteSpaceToRegex(
       'Jane Doe'
