@@ -85,8 +85,8 @@ class FindMetaServiceNotificationPolicy
                 $metaServiceId,
                 $accessGroups
             );
-            $notifiedContactGroups =
-                $this->readMetaServiceNotificationRepository->findNotifiedContactGroupsByIdAndAccessGroups(
+            $notifiedContactGroups
+                = $this->readMetaServiceNotificationRepository->findNotifiedContactGroupsByIdAndAccessGroups(
                     $metaServiceId,
                     $accessGroups
                 );
