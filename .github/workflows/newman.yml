@@ -226,7 +226,7 @@ jobs:
 
             # Display results
             echo "API Issue IDs: ${api_issue_ids[@]}"
-            echo "api-issue-ids=${api_issue_ids[*]}" >> $GITHUB_OUTPUT
+            echo "api-issue-ids=${api_issue_ids[@]}" >> $GITHUB_OUTPUT
           }
 
           get_test_plan_issue_ids
@@ -612,6 +612,9 @@ jobs:
                 failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
                 failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
                 failures=$(jq -r '.Run.Failures' "$summary_file")
+                echo "Failed requests: $failed_requests"
+                echo "Failed assertions: $failed_assertions"
+                echo "Failures: $failures"
 
                 summaries=()
                 for issue_id in "${issue_ids[@]}"; do
