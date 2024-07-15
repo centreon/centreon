@@ -75,7 +75,7 @@ final class AddTimePeriod
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(TimeperiodException::editNotAllowed()->getMessage())
+                    new ForbiddenResponse(TimePeriodException::editNotAllowed()->getMessage())
                 );
 
                 return;

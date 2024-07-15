@@ -30,6 +30,7 @@ import { grey } from '@mui/material/colors';
 
 import {
   dateTimeFormat,
+  LineChartData,
   useLocaleDateTimeFormat,
   useMemoComponent
 } from '@centreon/ui';
@@ -43,22 +44,14 @@ import {
   labelActionNotPermitted,
   labelAddComment
 } from '../../../translatedLabels';
+import { updatedGraphIntervalAtom } from '../ExportableGraphWithTimeline/atoms';
 import Lines from '../Lines';
-import {
-  AdditionalLines,
-  AdjustTimePeriodProps,
-  Line as LineModel,
-  TimeValue
-} from '../models';
+import { Line as LineModel, LinesProps, TimeValue } from '../models';
 import {
   getDates,
   getLeftScale,
   getRightScale,
-  getSortedStackedLines,
-  getTime,
-  getUnits,
-  getXScale,
-  getYScale
+  getXScale
 } from '../timeSeries';
 
 import AddCommentForm from './AddCommentForm';
@@ -74,10 +67,7 @@ import {
   MousePosition,
   mousePositionAtom
 } from './mouseTimeValueAtoms';
-import TimeShiftZones, {
-  TimeShiftContext,
-  TimeShiftDirection
-} from './TimeShiftZones';
+import TimeShiftZones, { TimeShiftContext } from './TimeShiftZones';
 
 interface BarProps {
   className?: string;
@@ -194,12 +184,12 @@ interface GraphContentProps {
   addCommentTooltipLeft?: number;
   addCommentTooltipOpen: boolean;
   addCommentTooltipTop?: number;
-  applyZoom?: (props: AdjustTimePeriodProps) => void;
   base: number;
   canAdjustTimePeriod: boolean;
   containsMetrics: boolean;
   displayEventAnnotations: boolean;
   displayTimeValues: boolean;
+  end: string;
   format: (parameters) => string;
   height: number;
   hideAddCommentTooltip: () => void;
@@ -208,10 +198,11 @@ interface GraphContentProps {
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
+  performanceGraphData?: LineChartData;
+  renderAdditionalLines?: (additionalLinesProps: LinesProps) => ReactNode;
   resource: Resource | ResourceDetails;
-  shiftTime?: (direction: TimeShiftDirection) => void;
   showAddCommentTooltip: (args) => void;
+  start: string;
   timeSeries: Array<TimeValue>;
   timeline?: Array<TimelineEvent>;
   width: number;
@@ -236,8 +227,6 @@ const GraphContent = ({
   hideAddCommentTooltip,
   showAddCommentTooltip,
   format,
-  applyZoom,
-  shiftTime,
   loading,
   canAdjustTimePeriod,
   displayEventAnnotations,
@@ -245,7 +234,10 @@ const GraphContent = ({
   isInViewport,
   interactWithGraph,
   displayTimeValues,
-  renderAdditionalLines
+  renderAdditionalLines,
+  end,
+  start,
+  performanceGraphData
 }: GraphContentProps): JSX.Element => {
   const { classes } = useStyles({ onAddComment });
   const { t } = useTranslation();
@@ -270,6 +262,8 @@ const GraphContent = ({
   const changeAnnotationHovered = useSetAtom(
     changeAnnotationHoveredDerivedAtom
   );
+
+  const updatedGraphInterval = useSetAtom(updatedGraphIntervalAtom);
 
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
@@ -402,7 +396,7 @@ const GraphContent = ({
     }
 
     if (zoomBoundaries?.start !== zoomBoundaries?.end) {
-      applyZoom?.({
+      updatedGraphInterval?.({
         end: xScale.invert(zoomBoundaries?.end || graphWidth),
         start: xScale.invert(zoomBoundaries?.start || 0)
       });
@@ -471,16 +465,13 @@ const GraphContent = ({
   const commentTitle = isCommentPermitted ? '' : t(labelActionNotPermitted);
 
   const additionalLinesProps = {
-    getSortedStackedLines,
-    getTime,
-    getUnits,
-    getYScale,
+    data: performanceGraphData,
+    end,
     graphHeight,
-    graphWidth,
     leftScale,
     lines,
     rightScale,
-    timeSeries,
+    start,
     xScale
   };
 
@@ -524,10 +515,9 @@ const GraphContent = ({
               graphHeight={graphHeight}
               leftScale={leftScale}
               lines={lines}
-              renderAdditionalLines={renderAdditionalLines?.({
-                additionalLinesProps,
-                resource
-              })}
+              renderAdditionalLines={renderAdditionalLines?.(
+                additionalLinesProps
+              )}
               rightScale={rightScale}
               timeSeries={timeSeries}
               timeTick={timeTick}
@@ -594,12 +584,13 @@ const GraphContent = ({
             value={useMemo(
               () => ({
                 canAdjustTimePeriod,
+                end,
                 graphHeight,
                 graphWidth,
                 loading,
                 marginLeft: margin.left,
                 marginTop: margin.top,
-                shiftTime
+                start
               }),
               [
                 canAdjustTimePeriod,
@@ -607,7 +598,8 @@ const GraphContent = ({
                 graphWidth,
                 loading,
                 margin,
-                shiftTime
+                end,
+                start
               ]
             )}
           >

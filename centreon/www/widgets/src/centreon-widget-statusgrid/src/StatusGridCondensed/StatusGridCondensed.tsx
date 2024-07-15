@@ -15,17 +15,25 @@ const StatusGridCondensed = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
-  refreshCount
-}: Omit<StatusGridProps, 'store'>): JSX.Element => {
+  refreshCount,
+  dashboardId,
+  playlistHash,
+  id,
+  widgetPrefixQuery
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
   const { classes } = useStatusGridCondensedStyles();
   const { t } = useTranslation();
 
   const { statusesToDisplay, hasData, isLoading, total } =
     useStatusGridCondensed({
+      dashboardId,
       globalRefreshInterval,
+      id,
       panelData,
       panelOptions,
-      refreshCount
+      playlistHash,
+      refreshCount,
+      widgetPrefixQuery
     });
 
   if (isLoading && !hasData) {

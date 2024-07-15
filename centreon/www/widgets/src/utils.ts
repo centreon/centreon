@@ -9,7 +9,8 @@ import {
   identity,
   includes,
   pipe,
-  map
+  map,
+  toPairs
 } from 'ramda';
 
 import { SeverityCode, centreonBaseURL } from '@centreon/ui';
@@ -22,7 +23,7 @@ export const areResourcesFullfilled = (
   !isEmpty(resourcesDataset) &&
   resourcesDataset?.every(
     ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources)
+      !isEmpty(resourceType) && !isEmpty(resources.filter((v) => v))
   );
 
 const serviceCriteria = {
@@ -39,13 +40,38 @@ interface GetResourcesUrlProps {
   type: string;
 }
 
-export const getDetailsPanelQueriers = ({ resource, type }): object => {
+const getResourceStatusDetailsEndpoint = ({
+  resourceType,
+  id,
+  parentId
+}): string =>
+  cond([
+    [
+      equals('host'),
+      always(`${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`)
+    ],
+    [
+      equals('service'),
+      always(
+        `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`
+      )
+    ],
+    [
+      equals('metaservice'),
+      always(
+        `${centreonBaseURL}/api/latest/monitoring/resources/metaservices/${id}`
+      )
+    ]
+  ])(resourceType);
+
+export const getDetailsPanelQueriers = ({ resource }): object => {
   const { id, parentId, uuid, type: resourceType } = resource;
 
-  const resourcesDetailsEndpoint =
-    equals(type, 'host') || equals(resourceType, 'host')
-      ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
-      : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+  const resourcesDetailsEndpoint = getResourceStatusDetailsEndpoint({
+    id,
+    parentId,
+    resourceType
+  });
 
   const queryParameters = {
     id,
@@ -72,7 +98,8 @@ export const getResourcesUrl = ({
         name: 'resource_types',
         value: [
           { id: 'service', name: 'Service' },
-          { id: 'host', name: 'Host' }
+          { id: 'host', name: 'Host' },
+          { id: 'metaservice', name: 'Meta service' }
         ]
       }
     : {
@@ -110,6 +137,7 @@ export const getResourcesUrl = ({
       const name = cond<Array<string>, string>([
         [equals('host'), always('parent_name')],
         [equals('service'), always('name')],
+        [equals('meta-service'), always('name')],
         [T, identity]
       ])(resourceType);
 
@@ -220,7 +248,7 @@ export const formatStatusFilter = cond([
   [equals(SeverityStatus.Undefined), always(['unreachable', 'unknown'])],
   [equals(SeverityStatus.Pending), always(['pending'])],
   [T, identity]
-]);
+]) as (b: SeverityStatus) => Array<string>;
 
 export const formatStatus = pipe(
   map(formatStatusFilter),
@@ -274,4 +302,51 @@ export const severityStatusBySeverityCode = {
   [SeverityCode.OK]: SeverityStatus.Success,
   [SeverityCode.None]: SeverityStatus.Undefined,
   [SeverityCode.Pending]: SeverityStatus.Pending
+};
+
+interface GetPublicWidgetEndpointProps {
+  dashboardId: number | string;
+  extraQueryParameters?: string;
+  playlistHash?: string;
+  widgetId: string;
+}
+
+export const getPublicWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  extraQueryParameters = ''
+}: GetPublicWidgetEndpointProps): string =>
+  `/it-edition-extensions/monitoring/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
+
+export const getWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  isOnPublicPage,
+  defaultEndpoint,
+  extraQueryParameters
+}: Omit<GetPublicWidgetEndpointProps, 'extraQueryParameters'> & {
+  defaultEndpoint: string;
+  extraQueryParameters?: Record<string, string | number | object>;
+  isOnPublicPage: boolean;
+}): string => {
+  if (isOnPublicPage && playlistHash) {
+    const extraqueryParametersStringified = extraQueryParameters
+      ? toPairs(extraQueryParameters).reduce(
+          (acc, [key, value]) =>
+            `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
+          '?'
+        )
+      : '';
+
+    return getPublicWidgetEndpoint({
+      dashboardId,
+      extraQueryParameters: extraqueryParametersStringified,
+      playlistHash,
+      widgetId
+    });
+  }
+
+  return defaultEndpoint;
 };

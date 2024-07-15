@@ -19,9 +19,6 @@ export const useStyles = makeStyles()(() => ({
   singleHorizontalBar: {
     height: '49%'
   },
-  singlePieChart: {
-    width: '48%'
-  },
   verticalBar: {
     width: '49%'
   }

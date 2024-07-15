@@ -2,13 +2,12 @@ import { useEffect, useState } from 'react';
 
 import { ScaleLinear } from 'd3-scale';
 import { useAtomValue } from 'jotai';
-import { isEmpty, isNil, not } from 'ramda';
 
-import useAxisY from '../../BasicComponents/Axes/useAxisY';
+import useAxisY from '../../../common/Axes/useAxisY';
 import { margin } from '../../common';
-import { getMetrics, getTimeValue } from '../../../common/timeSeries';
+import { getTimeValue } from '../../../common/timeSeries';
 import { Line, TimeValue } from '../../../common/timeSeries/models';
-import { mousePositionAtom, timeValueAtom } from '../interactionWithGraphAtoms';
+import { mousePositionAtom } from '../interactionWithGraphAtoms';
 
 interface AnchorPointResult {
   positionX?: number;
@@ -42,14 +41,13 @@ const useTickGraph = ({
   const { axisRight, axisLeft } = useAxisY({ data: { baseAxis, lines } });
 
   const mousePosition = useAtomValue(mousePositionAtom);
-  const timeValueData = useAtomValue(timeValueAtom);
 
-  const metrics = getMetrics(timeValueData as TimeValue);
-
-  const containsMetrics = not(isNil(metrics)) && not(isEmpty(metrics));
-
-  const positionX = mousePosition ? mousePosition[0] - margin.left : undefined;
-  const positionY = mousePosition ? mousePosition[1] - margin.top : undefined;
+  const positionX = mousePosition
+    ? mousePosition[0] - margin.left - 4
+    : undefined;
+  const positionY = mousePosition
+    ? mousePosition[1] - margin.top + 2
+    : undefined;
 
   useEffect(() => {
     if (!mousePosition) {
@@ -62,7 +60,7 @@ const useTickGraph = ({
     const mousePositionTimeTick = mousePosition
       ? getTimeValue({ timeSeries, x: mousePosition[0], xScale }).timeTick
       : 0;
-    const timeTickValue = containsMetrics
+    const timeTickValue = mousePosition
       ? new Date(mousePositionTimeTick)
       : null;
 

@@ -131,7 +131,7 @@ export {
   default as useGraphQuery,
   resourceTypeQueryParameter
 } from './api/useGraphQuery';
-export { default as QueryProvider } from './api/QueryProvider';
+export { default as QueryProvider, client } from './api/QueryProvider';
 export {
   default as FileDropZone,
   transformFileListToArray
@@ -158,8 +158,6 @@ export { default as FluidTypography } from './Typography/FluidTypography';
 export { default as EllipsisTypography } from './Typography/EllipsisTypography';
 export * from './Dashboard';
 export * from './Graph';
-export type { LineChartData } from './Graph/common/models';
-export * from './Graph/common/timeSeries';
 
 export { default as TimePeriods } from './TimePeriods';
 export { default as SimpleCustomTimePeriod } from './TimePeriods/CustomTimePeriod/SimpleCustomTimePeriod';

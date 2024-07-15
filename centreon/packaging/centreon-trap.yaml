@@ -42,12 +42,12 @@ contents:
   - src: "../tmpl/install/systemd/centreontrapd.rpm.systemd"
     dst: "/usr/lib/systemd/system/centreontrapd.service"
     file_info:
-      mode: 0400
+      mode: 0644
     packager: rpm
   - src: "../tmpl/install/systemd/centreontrapd.deb.systemd"
     dst: "/lib/systemd/system/centreontrapd.service"
     file_info:
-      mode: 0400
+      mode: 0644
     packager: deb
 
   - src: "../tmpl/install/systemd/centreontrapd.sysconfig"

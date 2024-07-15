@@ -97,9 +97,14 @@ const useDashboardConfig = (): UseDashboardConfig => {
       isOpen: false
     }));
 
+    const dashboardPayloadForCreation = {
+      ...dashboard,
+      panels: [],
+      refresh: { interval: null, type: 'global' }
+    };
     const data =
       dialogState.variant === 'create'
-        ? await createDashboardMutation(dashboard)
+        ? await createDashboardMutation(dashboardPayloadForCreation)
         : await updateDashboardMutation(dashboard);
 
     if (equals(dialogState.variant, 'create')) {

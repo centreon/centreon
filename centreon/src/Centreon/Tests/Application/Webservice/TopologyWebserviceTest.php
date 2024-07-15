@@ -80,19 +80,19 @@ class TopologyWebserviceTest extends TestCase
         $this->webservice->setDi($this->container);
     }
 
-    public function testGetName()
+    public function testGetName(): void
     {
         $this->assertEquals('centreon_topology', TopologyWebservice::getName());
     }
 
-    public function testDependencies()
+    public function testDependencies(): void
     {
         $this->assertEquals([
             ServiceProvider::CENTREON_DB_MANAGER,
         ], $this->webservice::dependencies());
     }
 
-    public function testGetGetTopologyByPage()
+    public function testGetGetTopologyByPage(): void
     {
         $marker = __METHOD__;
         $checkpoint = (new CheckPoint)
@@ -112,7 +112,7 @@ class TopologyWebserviceTest extends TestCase
         $checkpoint->assert($this);
     }
 
-    public function testGetGetTopologyByPageWithoutResult()
+    public function testGetGetTopologyByPageWithoutResult(): void
     {
         $_GET['topology_page'] = 1;
         $this->db->addResultSet("SELECT * FROM `topology` WHERE `topology_page` = :id", []);
@@ -122,7 +122,7 @@ class TopologyWebserviceTest extends TestCase
         $this->webservice->getGetTopologyByPage();
     }
 
-    public function testGetGetTopologyByPageWithoutTopologyPage()
+    public function testGetGetTopologyByPageWithoutTopologyPage(): void
     {
         if (isset($_GET['topology_page'])) {
             unset($_GET['topology_page']);
@@ -133,7 +133,7 @@ class TopologyWebserviceTest extends TestCase
         $this->webservice->getGetTopologyByPage();
     }
 
-    public function testGetNavigationListWithoutAuth()
+    public function testGetNavigationListWithoutAuth(): void
     {
         $this->container[ServiceProvider::CENTREON_USER] = null;
 
@@ -142,7 +142,7 @@ class TopologyWebserviceTest extends TestCase
         $this->webservice->getNavigationList();
     }
 
-    public function testGetNavigationList()
+    public function testGetNavigationList(): void
     {
         $calledGetTopologyList = false;
         $repository = $this->createMock(TopologyRepository::class);
@@ -176,7 +176,7 @@ class TopologyWebserviceTest extends TestCase
         $this->assertTrue($calledGetTopologyList);
     }
 
-    public function testGetNavigationListWithReact()
+    public function testGetNavigationListWithReact(): void
     {
         $_GET['reactOnly'] = 1;
 

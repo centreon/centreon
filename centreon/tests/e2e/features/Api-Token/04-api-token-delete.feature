@@ -17,6 +17,7 @@ Feature: Delete API Token
     And I confirm the deletion in the confirmation dialog
     Then the token is deleted successfully
 
+  @TEST_MON-38499
   Scenario: Discard deletion of an API Token
     When I locate the API token to delete
     And I click on the "delete token" icon for that token

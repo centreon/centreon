@@ -398,7 +398,6 @@ describe('Edit Panel', () => {
   it('ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findByTestId(labelTimePeriod).should('be.visible');
     cy.findByTestId(labelTimePeriod).within(() => {
       cy.findByRole('checkbox').should('be.checked').and('be.disabled');
     });
@@ -455,8 +454,7 @@ describe('Edit Panel', () => {
   it('confirms that the Message field is properly rendered with the edited notification message', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findByTestId('EmailBody').contains('Bonjour');
-    cy.findByTestId('EmailBody').contains('Cordialement');
+    cy.findByTestId('EmailBody').contains('Hello');
 
     cy.get('#panel-content').scrollTo('bottom');
 

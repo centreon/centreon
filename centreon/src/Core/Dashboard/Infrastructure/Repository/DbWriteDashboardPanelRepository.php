@@ -150,7 +150,7 @@ class DbWriteDashboardPanelRepository extends AbstractRepositoryDRB implements W
         $statement->bindValue(':layout_height', $panel->getLayoutHeight(), \PDO::PARAM_INT);
         $statement->bindValue(':layout_min_width', $panel->getLayoutMinWidth(), \PDO::PARAM_INT);
         $statement->bindValue(':layout_min_height', $panel->getLayoutMinHeight(), \PDO::PARAM_INT);
-        $statement->bindValue(':widget_type', $panel->getWidgetType(), \PDO::PARAM_INT);
+        $statement->bindValue(':widget_type', $panel->getWidgetType(), \PDO::PARAM_STR);
         $statement->bindValue(':widget_settings', $this->encodeToJson($panel->getWidgetSettings()));
 
         if ($panel instanceof DashboardPanel) {

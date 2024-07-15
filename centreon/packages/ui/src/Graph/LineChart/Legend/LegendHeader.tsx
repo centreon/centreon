@@ -1,8 +1,10 @@
-import { includes, isEmpty, split } from 'ramda';
-
 import { Typography } from '@mui/material';
 
-import { EllipsisTypography, formatMetricValue } from '../../..';
+import {
+  EllipsisTypography,
+  formatMetricName,
+  formatMetricValue
+} from '../../..';
 import { Line } from '../../common/timeSeries/models';
 import { Tooltip } from '../../../components';
 
@@ -13,6 +15,8 @@ import LegendContent from './LegendContent';
 interface Props {
   color: string;
   disabled?: boolean;
+  isDisplayedOnSide: boolean;
+  isListMode: boolean;
   line: Line;
   minMaxAvg?;
   value?: string | null;
@@ -23,35 +27,28 @@ const LegendHeader = ({
   color,
   disabled,
   value,
-  minMaxAvg
+  minMaxAvg,
+  isListMode,
+  isDisplayedOnSide
 }: Props): JSX.Element => {
   const { classes, cx } = useLegendHeaderStyles({ color });
 
-  const { unit, name, legend } = line;
+  const { name, legend } = line;
+
+  const metricName = formatMetricName({ legend, name });
 
   const legendName = legend || name;
-  const hasUnit = !isEmpty(unit);
-  const unitName = `(${unit})`;
-  const metricName = includes('#', legendName)
-    ? split('#')(legendName)[1]
-    : legendName;
-
-  const getEndText = (): string => {
-    if (value) {
-      return value;
-    }
-
-    return hasUnit ? ` ${unitName}` : '';
-  };
 
   return (
-    <div className={classes.container}>
+    <div
+      className={cx(!isListMode ? classes.container : classes.containerList)}
+    >
       <Tooltip
         followCursor={false}
         label={
           minMaxAvg ? (
             <div>
-              <Typography>{`${legendName} ${unitName}`}</Typography>
+              <Typography>{legendName}</Typography>
               <div className={classes.minMaxAvgContainer}>
                 {minMaxAvg.map(({ label, value: subValue }) => (
                   <LegendContent
@@ -66,15 +63,24 @@ const LegendHeader = ({
               </div>
             </div>
           ) : (
-            `${legendName} ${unitName}`
+            legendName
           )
         }
-        placement="top"
+        placement={isListMode ? 'right' : 'top'}
       >
         <div className={classes.markerAndLegendName}>
-          <div className={cx(classes.icon, { [classes.disabled]: disabled })} />
+          <div
+            data-icon
+            className={cx(classes.icon, { [classes.disabled]: disabled })}
+          />
           <EllipsisTypography
-            className={cx(classes.text, classes.legendName)}
+            className={cx(
+              classes.text,
+              !isListMode && classes.legendName,
+              !isListMode && isDisplayedOnSide && classes.legendNameSide,
+              isListMode && !isDisplayedOnSide && classes.textListBottom,
+              isListMode && isDisplayedOnSide && classes.textListSide
+            )}
             data-mode={
               value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
             }
@@ -83,9 +89,6 @@ const LegendHeader = ({
           </EllipsisTypography>
         </div>
       </Tooltip>
-      {hasUnit && (
-        <Typography className={classes.text}>{getEndText()}</Typography>
-      )}
     </div>
   );
 };

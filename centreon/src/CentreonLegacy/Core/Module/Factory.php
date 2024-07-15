@@ -40,7 +40,7 @@ class Factory
     }
 
     /**
-     * @return \CentreonLegacy\Core\Module\Information
+     * @return Information
      */
     public function newInformation()
     {
@@ -50,7 +50,7 @@ class Factory
     /**
      * @param string $moduleName
      *
-     * @return \CentreonLegacy\Core\Module\Installer
+     * @return Installer
      */
     public function newInstaller($moduleName)
     {
@@ -61,7 +61,7 @@ class Factory
      * @param string $moduleName
      * @param int $moduleId
      *
-     * @return \CentreonLegacy\Core\Module\Upgrader
+     * @return Upgrader
      */
     public function newUpgrader($moduleName, $moduleId)
     {
@@ -72,7 +72,7 @@ class Factory
      * @param string $moduleName
      * @param int $moduleId
      *
-     * @return \CentreonLegacy\Core\Module\Remover
+     * @return Remover
      */
     public function newRemover($moduleName, $moduleId)
     {
@@ -80,7 +80,7 @@ class Factory
     }
 
     /**
-     * @return \CentreonLegacy\Core\Module\License
+     * @return License
      */
     public function newLicense()
     {

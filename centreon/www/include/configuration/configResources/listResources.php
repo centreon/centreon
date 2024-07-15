@@ -42,6 +42,8 @@ include_once "./class/centreonUtils.class.php";
 
 include "./include/common/autoNumLimit.php";
 
+const PASSWORD_REPLACEMENT_VALUE_LISTING = '**********';
+
 // Search engine
 
 $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
@@ -136,7 +138,7 @@ for ($i = 0; $resource = $dbResult->fetch(); $i++) {
         ),
         "RowMenu_link" => "main.php?p=" . $p . "&o=c&resource_id=" . $resource['resource_id'],
         "RowMenu_values" => CentreonUtils::escapeSecure(
-            substr($resource["resource_line"], 0, 40),
+            $resource['is_password'] ? PASSWORD_REPLACEMENT_VALUE_LISTING : substr($resource["resource_line"], 0, 40),
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
         ),
         "RowMenu_comment" => CentreonUtils::escapeSecure(

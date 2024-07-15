@@ -50,13 +50,15 @@ final class DeleteRules
      * @param ContactInterface $user
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param DataStorageEngineInterface $dataStorageEngine
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ReadResourceAccessRepositoryInterface $readRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeRepository,
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly DataStorageEngineInterface $dataStorageEngine
+        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -127,7 +129,8 @@ final class DeleteRules
          *     - authorized to reach the Resource Access Management page.
          */
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
+            && $this->isCloudPlatform;
     }
 
     /**

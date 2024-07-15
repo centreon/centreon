@@ -127,7 +127,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                         'downtime' => $endpoints['downtime'],
                         'check' => $endpoints['check'],
                         'forced_check' => $endpoints['forced_check'],
-                        'metrics' => $endpoints['metrics'],
+                        'metrics' => $endpoints['metrics'] ?? null,
                     ],
                     'uris' => $this->hypermediaCreator->createInternalUris($parameters),
                     'externals' => [

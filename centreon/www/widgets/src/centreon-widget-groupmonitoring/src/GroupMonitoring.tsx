@@ -14,14 +14,17 @@ const GroupMonitoring = ({
   panelOptions,
   refreshCount,
   isFromPreview,
-  setPanelOptions
-}: Omit<WidgetProps, 'store'>): JSX.Element => {
+  setPanelOptions,
+  id,
+  dashboardId,
+  playlistHash,
+  widgetPrefixQuery
+}: Omit<WidgetProps, 'store' | 'queryClient'>): JSX.Element => {
   const {
     hasResourceTypeDefined,
     changeLimit,
     changePage,
     changeSort,
-    isLoading,
     limit,
     page,
     sortField,
@@ -30,12 +33,16 @@ const GroupMonitoring = ({
     groupType,
     groupTypeName
   } = useGroupMonitoring({
+    dashboardId,
     globalRefreshInterval,
+    id,
     isFromPreview,
     panelData,
     panelOptions,
+    playlistHash,
     refreshCount,
-    setPanelOptions
+    setPanelOptions,
+    widgetPrefixQuery
   });
 
   const columns = useColumns({
@@ -64,7 +71,6 @@ const GroupMonitoring = ({
       columns={columns}
       currentPage={page}
       limit={limit}
-      loading={isLoading}
       rows={listing?.result || []}
       sortField={sortField}
       sortOrder={sortOrder}

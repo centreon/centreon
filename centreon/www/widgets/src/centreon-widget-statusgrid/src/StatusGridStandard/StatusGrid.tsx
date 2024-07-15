@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { equals, gt, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { useTheme } from '@mui/material';
 
@@ -11,13 +12,19 @@ import {
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { buildResourcesEndpoint, resourcesEndpoint } from '../api/endpoints';
+import {
+  buildResourcesEndpoint,
+  hostsEndpoint,
+  resourcesEndpoint
+} from '../api/endpoints';
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
   labelNoHostsFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
+import { getWidgetEndpoint } from '../../../utils';
 
 import { ResourceData, ResourceStatus, StatusGridProps } from './models';
 import Tile from './Tile';
@@ -29,8 +36,12 @@ const StatusGrid = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
-  refreshCount
-}: Omit<StatusGridProps, 'store'>): JSX.Element => {
+  refreshCount,
+  id: widgetId,
+  dashboardId,
+  playlistHash,
+  widgetPrefixQuery
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -44,6 +55,8 @@ const StatusGrid = ({
   } = panelOptions;
   const { resources } = panelData;
 
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval,
@@ -52,16 +65,25 @@ const StatusGrid = ({
 
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
-      buildResourcesEndpoint({
-        baseEndpoint: resourcesEndpoint,
-        limit: tiles,
-        resources,
-        sortBy,
-        states: [],
-        statuses,
-        type: resourceType
+      getWidgetEndpoint({
+        dashboardId,
+        defaultEndpoint: buildResourcesEndpoint({
+          baseEndpoint: equals(resourceType, 'host')
+            ? hostsEndpoint
+            : resourcesEndpoint,
+          limit: tiles,
+          resources,
+          sortBy,
+          states: [],
+          statuses,
+          type: resourceType
+        }),
+        isOnPublicPage,
+        playlistHash,
+        widgetId
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'statusgrid',
       resourceType,
       JSON.stringify(statuses),
@@ -73,7 +95,8 @@ const StatusGrid = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const hasMoreResources = gt(data?.meta.total || 0, tiles);
@@ -152,7 +175,7 @@ const StatusGrid = ({
     <HeatMap<ResourceData | null>
       displayTooltipCondition={(resourceData) => !isNil(resourceData)}
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
-      tooltipContent={Tooltip(resourceType)}
+      tooltipContent={isOnPublicPage ? undefined : Tooltip(resourceType)}
     >
       {({ isSmallestSize, data: resourceData }) => (
         <Tile

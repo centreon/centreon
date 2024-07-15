@@ -174,7 +174,7 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     $errorMessage = 'Unable to create dataset_filters configuration table';
     $pearDB->query(
         <<<SQL
-        CREATE TABLE `dataset_filters` (
+        CREATE TABLE IF NOT EXISTS `dataset_filters` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `parent_id` int(11) DEFAULT NULL,
             `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
@@ -212,6 +212,11 @@ $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage):
     }
 };
 
+$addDefaultValueforTaskTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to alter created_at for task table';
+    $pearDB->query("ALTER TABLE task MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP");
+};
+
 $insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-statuschart in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-statuschart'");
@@ -227,14 +232,56 @@ $insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): voi
 
 $removeBetaTagFromDashboards = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to remove the dashboard beta tag';
+    $pearDB->query(
+        <<<SQL
+            UPDATE topology
+            SET topology_url_opt=NULL
+            WHERE topology_name='Dashboards'
+            AND topology_url_opt = 'Beta'
+            SQL
+    );
+};
+
+$updateHostGroupsTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update topology_url_substitute to NULL for host group configuration page (60102)';
+    $pearDB->query(
+        <<<SQL
+            UPDATE `topology` SET `topology_url_substitute` = NULL WHERE `topology_page` = 60102
+            SQL
+    );
+};
+
+$updateDatasetFilterResourceIdsColumn = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to change resourceIds column type from VARCHAR to TEXT';
+    $pearDB->query(
+        <<<'SQL'
+            ALTER TABLE `dataset_filters` MODIFY COLUMN `resource_ids` TEXT DEFAULT NULL
+            SQL
+    );
+};
+
+$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to add the colum all_contacts to the table acl_groups';
+    if(! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
         $pearDB->query(
-            <<<SQL
-                UPDATE topology
-                SET topology_url_opt=NULL
-                WHERE topology_name='Dashboards'
-                AND topology_url_opt = 'Beta'
-                SQL
+            <<<'SQL'
+                ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL
+            SQL
         );
+    }
+};
+
+$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to add the colum all_contact_groups to the table acl_groups';
+    if(! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL
+            SQL
+        );
+    }
 };
 
 try {
@@ -250,6 +297,11 @@ try {
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
     $alterTypeDefinitionDatasetFilterTable($pearDB);
+
+    $addDefaultValueforTaskTable($pearDB);
+    $updateDatasetFilterResourceIdsColumn($pearDB);
+    $addAllContactsColumnToAclGroups($pearDB);
+    $addAllContactGroupsColumnToAclGroups($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
@@ -267,6 +319,8 @@ try {
     $updateTopologyForApiTokens($pearDB);
 
     $removeBetaTagFromDashboards($pearDB);
+
+    $updateHostGroupsTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {

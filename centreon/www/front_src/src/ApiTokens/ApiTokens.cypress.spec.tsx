@@ -25,21 +25,18 @@ import {
   DefaultParameters,
   Fields
 } from './TokenListing/Actions/Filter/models';
-import useBuildParameters from './TokenListing/Actions/Search/useBuildParametrs';
-import {
-  convertToBoolean,
-  translateWhiteSpaceToRegex
-} from './TokenListing/Actions/Search/utils';
+import { translateWhiteSpaceToRegex } from './TokenListing/Actions/Search/utils';
 import { Column } from './TokenListing/ComponentsColumn/models';
 import TokenListing from './TokenListing/TokenListing';
 import {
   buildListEndpoint,
   createTokenEndpoint,
-  deleteTokenEndpoint,
   listConfiguredUser,
-  listTokensEndpoint
+  listTokensEndpoint,
+  tokenEndpoint
 } from './api/endpoints';
 import {
+  labelActiveOrRevoked,
   labelActiveToken,
   labelCancel,
   labelClear,
@@ -65,10 +62,6 @@ dayjs.extend(LocalizedFormat);
 
 const columns = [
   {
-    id: 'status',
-    label: Column.Status
-  },
-  {
     id: 'token_name',
     label: Column.Name
   },
@@ -91,6 +84,10 @@ const columns = [
   {
     id: 'actions',
     label: Column.Actions
+  },
+  {
+    id: 'activate',
+    label: Column.Activate
   }
 ];
 
@@ -187,50 +184,145 @@ const checkTokenInput = (token: string): void => {
 const tokenName = 'slack';
 const duration = { id: '1year', name: '1 year' };
 
+interface Query {
+  name: string;
+  value: string;
+}
 interface InterceptListTokens {
   alias: string;
   customQueryParameters?: Array<QueryParameter> | null;
   dataPath: string;
   method?: Method;
   parameters?: ListingParameters;
+  query?: Query;
 }
 
 const interceptListTokens = ({
   dataPath = 'apiTokens/listing/list.json',
   parameters = DefaultParameters,
-  customQueryParameters = undefined,
   alias = 'getListTokens',
-  method = Method.GET
+  method = Method.GET,
+  query
 }: InterceptListTokens): void => {
   cy.fixture(dataPath).then((data) => {
     const endpoint = buildListEndpoint({
-      customQueryParameters,
       endpoint: listTokensEndpoint,
       parameters
     });
     cy.interceptAPIRequest({
       alias,
       method,
-      path: `./api/latest${endpoint}**`,
+      path: `./api/latest${endpoint}`,
+      query,
       response: data
     });
   });
 };
 
-const defaultParameters = 'page=2&limit=10&sort_by={"token_name":"asc"}';
-const firstPageParameter = 'page=1&limit=10';
-const secondPageParameter = 'page=2&limit=10';
-const customLimitParameters = 'page=1&limit=20';
+const defaultParameters = '?page=1&limit=10&sort_by={"token_name":"asc"}';
+const secondPageParameter = '?page=2&limit=10&sort_by={"token_name":"asc"}';
+const customLimitParameters = '?page=1&limit=20&sort_by={"token_name":"asc"}';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 const parametersWithAllSearchableFields =
-  'page=1&limit=10&sort_by={"token_name":"asc"}&search={"$and":[{"$or":[{"creator.id":{"$rg":"1"}}]},{"$or":[{"creator.name":{"$rg":"admin\\s+admin"}}]},{"$or":[{"token_name":{"$rg":"test"}},{"token_name":{"$rg":"token1"}}]},{"$or":[{"user.id":{"$rg":"18"}},{"user.id":{"$rg":"17"}}]},{"$or":[{"user.name":{"$rg":"User"}},{"user.name":{"$rg":"Guest"}}]}]}&creation_date="2024-02-20T16:04:33Z"&expiration_date="2024-03-28T16:04:33Z"&is_revoked=false';
+  '{"$and":[{"$or":[{"creation_date":{"$ge":"2024-02-20T16:04:33Z"}}]},{"$or":[{"creator.id":{"$rg":"1"}}]},{"$or":[{"creator.name":{"$rg":"paul"}}]},{"$or":[{"expiration_date":{"$le":"2024-03-28T16:04:33Z"}}]},{"$or":[{"is_revoked":{"$eq":false}}]},{"$or":[{"token_name":{"$rg":"token1"}},{"token_name":{"$rg":"test"}}]},{"$or":[{"user.id":{"$rg":"18"}},{"user.id":{"$rg":"17"}}]},{"$or":[{"user.name":{"$rg":"Guest"}},{"user.name":{"$rg":"User"}}]}]}';
+
 const parametersWithSelectedFilters =
-  '?page=1&limit=10&sort_by={"token_name":"asc"}&search={"$and":[{"user.name":{"$rg":"User"}}]}&creation_date="2024-02-20T16:04:33Z"&expiration_date="2024-03-28T16:04:33Z"';
+  '{"$and":[{"$or":[{"creation_date":{"$ge":"2024-02-20T15:16:33Z"}}]},{"$or":[{"expiration_date":{"$le":"2024-03-28T15:16:33Z"}}]},{"$or":[{"user.name":{"$rg":"User"}}]}]}';
 const tokenToDelete = 'a-token';
+const tokenToPatch = 'a-token';
 const msgConfirmationDeletion = 'You are about to delete the token';
 const irreversibleMsg =
   'This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
 
+const searchParametersWithAllSearchableFields = [
+  {
+    field: 'creation_date',
+    values: {
+      $ge: '2024-02-20T16:04:33Z'
+    }
+  },
+  {
+    field: 'creator.id',
+    values: {
+      $rg: '1'
+    }
+  },
+  {
+    field: 'creator.name',
+    values: {
+      $rg: 'paul'
+    }
+  },
+  {
+    field: 'expiration_date',
+    values: {
+      $le: '2024-03-28T16:04:33Z'
+    }
+  },
+  {
+    field: 'is_revoked',
+    values: {
+      $eq: false
+    }
+  },
+  {
+    field: 'token_name',
+    values: {
+      $rg: 'token1'
+    }
+  },
+  {
+    field: 'token_name',
+    values: {
+      $rg: 'test'
+    }
+  },
+  {
+    field: 'user.id',
+    values: {
+      $rg: '18'
+    }
+  },
+  {
+    field: 'user.id',
+    values: {
+      $rg: '17'
+    }
+  },
+  {
+    field: 'user.name',
+    values: {
+      $rg: 'Guest'
+    }
+  },
+  {
+    field: 'user.name',
+    values: {
+      $rg: 'User'
+    }
+  }
+];
+
+const searchParametersWithSelectedFields = [
+  {
+    field: 'creation_date',
+    values: {
+      $ge: '2024-02-20T15:16:33Z'
+    }
+  },
+  {
+    field: 'expiration_date',
+    values: {
+      $le: '2024-03-28T15:16:33Z'
+    }
+  },
+  {
+    field: 'user.name',
+    values: {
+      $rg: 'User'
+    }
+  }
+];
 const searchableFieldsValues = [
   {
     field: Fields.CreationDate,
@@ -248,7 +340,7 @@ const searchableFieldsValues = [
   {
     field: Fields.CreatorName,
     type: 'string',
-    values: ['admin admin']
+    values: ['paul']
   },
   { field: Fields.TokenName, type: 'string', values: ['token1', 'test'] },
   { field: Fields.IsRevoked, type: 'boolean', values: ['false'] }
@@ -324,8 +416,12 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokens');
     cy.getRequestCalls('@getListTokens').then((calls) => {
       expect(calls).to.have.length(2);
-      expect(calls[0].request.url.search.includes(defaultParameters));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        defaultParameters
+      );
     });
+
+    cy.clickOutside();
 
     cy.fixture('apiTokens/listing/list.json').then((data) => {
       checkArrowSorting(data.meta);
@@ -347,7 +443,9 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokensPage2');
 
     cy.getRequestCalls('@getListTokensPage2').then((calls) => {
-      expect(calls[0].request.url.search.includes(secondPageParameter));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        secondPageParameter
+      );
     });
 
     interceptListTokens({
@@ -360,7 +458,9 @@ describe('Api-token', () => {
 
     cy.waitForRequest('@getListTokens');
     cy.getRequestCalls('@getListTokens').then((calls) => {
-      expect(calls[0].request.url.search.includes(firstPageParameter));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        defaultParameters
+      );
     });
 
     interceptListTokens({
@@ -369,12 +469,20 @@ describe('Api-token', () => {
       parameters: { ...DefaultParameters, page: 2 }
     });
 
+    interceptListTokens({
+      alias: 'getExpandedListTokens',
+      dataPath: 'apiTokens/listing/expandedList.json',
+      parameters: { ...DefaultParameters, limit: 20 }
+    });
+
     cy.findByLabelText(`Last page`).should('be.enabled').click();
 
     cy.waitForRequest('@getListTokensPage2');
 
     cy.getRequestCalls('@getListTokensPage2').then((calls) => {
-      expect(calls[0].request.url.search.includes(secondPageParameter));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        secondPageParameter
+      );
     });
 
     interceptListTokens({
@@ -388,7 +496,9 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokens');
 
     cy.getRequestCalls('@getListTokens').then((calls) => {
-      expect(calls[0].request.url.search.includes(firstPageParameter));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        defaultParameters
+      );
     });
 
     cy.findByTestId('Listing Pagination').contains(10).click();
@@ -396,12 +506,14 @@ describe('Api-token', () => {
       cy.contains(limit);
     });
 
-    cy.findByRole('option', { name: limits[2].toString() }).click();
+    cy.findByRole('option', { name: limits[1].toString() }).click();
 
-    cy.waitForRequest('@getListTokens');
+    cy.waitForRequest('@getExpandedListTokens');
 
-    cy.getRequestCalls('@getListTokens').then((calls) => {
-      expect(calls[0].request.url.search.includes(customLimitParameters));
+    cy.getRequestCalls('@getExpandedListTokens').then((calls) => {
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        customLimitParameters
+      );
     });
   });
 
@@ -498,7 +610,7 @@ describe('Api-token', () => {
     cy.findByTestId(labelCancel).click();
   });
 
-  it('displays an updated modal when generating a token ', () => {
+  it('displays an updated modal when generating a token', () => {
     openDialog();
 
     cy.fixture(
@@ -511,11 +623,32 @@ describe('Api-token', () => {
         response: data
       });
     });
+    const now = new Date(2024, 1, 27, 18, 16, 33);
+
+    cy.clock(now);
 
     fillInputs();
 
     cy.findByTestId(labelDuration).click();
-    cy.findByRole('option', { name: duration.name }).click();
+
+    cy.findByRole('option', { name: 'Customize' }).click();
+    cy.openCalendar('calendarInput');
+
+    cy.findByRole('gridcell', { name: '29' }).click({
+      waitForAnimations: false
+    });
+    cy.contains('OK').click({
+      waitForAnimations: false
+    });
+
+    cy.findByTestId(labelDuration).should(
+      'have.value',
+      'February 29, 2024 7:16 PM'
+    );
+
+    cy.clock().then((clock) => {
+      clock.restore();
+    });
 
     cy.findByTestId('Confirm')
       .contains(labelGenerateNewToken)
@@ -539,10 +672,58 @@ describe('Api-token', () => {
 
     cy.makeSnapshot();
   });
+
+  it('revokes an API token when Activate/Revoke token is clicked', () => {
+    cy.waitForRequest('@getListTokens');
+    const patchToken = tokenEndpoint({
+      tokenName: tokenToPatch,
+      userId: 23
+    });
+    interceptListTokens({
+      alias: 'getListTokensAfterRevoke',
+      dataPath: 'apiTokens/listing/listAfterRevoke.json'
+    });
+    cy.interceptAPIRequest({
+      alias: 'patchToken',
+      method: Method.PATCH,
+      path: `./api/latest${patchToken}**`,
+      statusCode: 204
+    });
+    cy.findAllByLabelText(labelActiveOrRevoked).eq(0).click();
+    cy.waitForRequest('@patchToken');
+    cy.findAllByLabelText(labelActiveOrRevoked).eq(0).should('not.be.checked');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays an error message upon failed revoking of a token', () => {
+    cy.waitForRequest('@getListTokens');
+    const patchToken = tokenEndpoint({
+      tokenName: tokenToPatch,
+      userId: 23
+    });
+    cy.interceptAPIRequest({
+      alias: 'patchToken',
+      method: Method.PATCH,
+      path: `./api/latest${patchToken}**`,
+      response: {
+        message: 'internal server error'
+      },
+      statusCode: 500
+    });
+
+    cy.findAllByLabelText(labelActiveOrRevoked).eq(0).click();
+    cy.waitForRequest('@patchToken');
+
+    cy.findByText('internal server error').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   it('deletes the token when clicking on the Delete button', () => {
     cy.waitForRequest('@getListTokens');
 
-    const deleteToken = deleteTokenEndpoint({
+    const deleteToken = tokenEndpoint({
       tokenName: tokenToDelete,
       userId: 23
     });
@@ -606,27 +787,29 @@ describe('Api-token', () => {
 
   it('executes a listing request with all searchable fields', () => {
     cy.waitForRequest('@getListTokens');
-    const searchInput = constructSearchInput(searchableFieldsValues);
-
-    const {
-      result: { current }
-    } = renderHook(() => useBuildParameters());
-
-    const { getSearchParameters, queryParameters } = current;
-
     interceptListTokens({
       alias: 'getListTokensWithSearchableFields',
-      customQueryParameters: queryParameters,
       dataPath: 'apiTokens/listing/search/listWithAllSearchableFields.json',
-      parameters: { ...DefaultParameters, search: getSearchParameters() }
+      parameters: {
+        ...DefaultParameters,
+        search: { conditions: searchParametersWithAllSearchableFields }
+      },
+      query: { name: 'search', value: parametersWithAllSearchableFields }
     });
+
+    const searchInput = constructSearchInput(searchableFieldsValues);
 
     cy.findByTestId('inputSearch').type(`${searchInput}{enter}`);
 
+    cy.findByTestId('inputSearch').should(
+      'have.value',
+      'creation_date:2024-02-20T16:04:33Z expiration_date:2024-03-28T16:04:33Z creator.id:1 user.id:18,17 user.name:Guest,User creator.name:paul token_name:token1,test is_revoked:false'
+    );
+
     cy.waitForRequest('@getListTokensWithSearchableFields');
     cy.getRequestCalls('@getListTokensWithSearchableFields').then((calls) => {
-      expect(
-        calls[0].request.url.search.includes(parametersWithAllSearchableFields)
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        `${defaultParameters}&search=${parametersWithAllSearchableFields}`
       );
     });
 
@@ -636,11 +819,6 @@ describe('Api-token', () => {
           cy.contains(
             equals(field, Fields.CreationDate) ? '02/20/2024' : '03/28/2024'
           );
-
-          return;
-        }
-        if (equals(type, 'boolean')) {
-          cy.contains(convertToBoolean(value) ? 'Revoked' : 'Active');
 
           return;
         }
@@ -691,6 +869,72 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
+  it('display the date filters when Customize is selected', () => {
+    cy.waitForRequest('@getListTokens');
+    cy.findByTestId('Filter options').click();
+
+    const now = new Date(2024, 1, 27, 18, 16, 33);
+
+    cy.clock(now);
+
+    const initialDate = '02/27/2024 07:16 PM';
+
+    cy.findByTestId(labelCreationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
+
+    cy.findByTestId(`${labelCreationDate}-calendarContainer`).within(() => {
+      cy.contains('Until');
+      cy.findByTestId('calendarInput').should('have.value', initialDate);
+    });
+
+    cy.findByTestId(labelExpirationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
+
+    cy.findByTestId(`${labelExpirationDate}-calendarContainer`).within(() => {
+      cy.contains('Until');
+      cy.findByTestId('calendarInput').should('have.value', initialDate);
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('update the filter interface when applying custom date filters', () => {
+    cy.waitForRequest('@getListTokens');
+    cy.findByTestId('Filter options').click();
+
+    const now = new Date(2024, 1, 27, 18, 16, 33);
+
+    cy.clock(now);
+
+    cy.findByTestId(labelCreationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
+
+    cy.openCalendar('calendarInput');
+
+    cy.findByRole('gridcell', { name: '28' }).click();
+    cy.contains('OK').click();
+
+    cy.findByTestId(labelCreationDate).should(
+      'have.value',
+      'February 28, 2024 7:16 PM'
+    );
+
+    cy.findByTestId(labelExpirationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
+
+    cy.openCalendar('calendarInput');
+
+    cy.findByRole('gridcell', { name: '1' }).click();
+    cy.contains('OK').click();
+
+    cy.findByTestId(labelExpirationDate).should(
+      'have.value',
+      'February 1, 2024 7:16 PM'
+    );
+
+    cy.makeSnapshot();
+  });
+
   it('update the search bar when changes are made to the filter interface', () => {
     cy.waitForRequest('@getListTokens');
 
@@ -729,6 +973,8 @@ describe('Api-token', () => {
     cy.findByTestId(labelCreationDate).click();
     cy.findByRole('option', { name: 'Customize' }).click();
 
+    cy.openCalendar('calendarInput');
+
     cy.findByRole('gridcell', { name: '5' }).click();
 
     cy.contains('button', 'OK').click();
@@ -765,16 +1011,14 @@ describe('Api-token', () => {
       });
     });
 
-    const {
-      result: { current }
-    } = renderHook(() => useBuildParameters());
-
-    const { getSearchParameters, queryParameters } = current;
     interceptListTokens({
       alias: 'getListTokensWithSelectedFilters',
-      customQueryParameters: queryParameters,
       dataPath: 'apiTokens/listing/search/listWithSelectedFields.json',
-      parameters: { ...DefaultParameters, search: getSearchParameters() }
+      parameters: {
+        ...DefaultParameters,
+        search: { conditions: searchParametersWithSelectedFields }
+      },
+      query: { name: 'search', value: parametersWithSelectedFilters }
     });
 
     cy.findByTestId('Filter options').click();
@@ -803,8 +1047,8 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokensWithSelectedFilters');
 
     cy.getRequestCalls('@getListTokensWithSelectedFilters').then((calls) => {
-      expect(
-        calls[0].request.url.search.includes(parametersWithSelectedFilters)
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        `${defaultParameters}&search=${parametersWithSelectedFilters}`
       );
     });
 

@@ -63,7 +63,7 @@ class ConfigurationExporter extends ExporterServiceAbstract
     /**
      * Import data.
      *
-     * @param \CentreonRemote\Infrastructure\Export\ExportManifest $manifest
+     * @param ExportManifest $manifest
      */
     public function import(ExportManifest $manifest): void
     {

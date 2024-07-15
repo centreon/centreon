@@ -1,102 +1,107 @@
-import { useState, memo } from 'react';
+import { SetStateAction, memo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
+import { Typography } from '@mui/material';
+
 import { DateTimePickerInput } from '@centreon/ui';
 
-import { useStyles } from '../filter.styles';
-import { Property } from '../models';
+import { useStyles } from '../../../../TokenCreation/InputCalendar/inputCalendar.styles';
+import { labelUntil } from '../../../../translatedLabels';
 
-import CustomField from './CustomField';
+import HelperText from './HelperText';
 
+type SetAtom<Args extends Array<unknown>, Result> = (...args: Args) => Result;
+interface DataDate {
+  date: Date | null;
+  setDate: SetAtom<[SetStateAction<Date | null>], void>;
+}
 interface Props {
-  dataDate;
+  dataDate: DataDate;
   label: string;
-  property: Property;
+  setDisplayCalendar;
 }
 
-const DateInput = ({ dataDate, label, property }: Props): JSX.Element => {
-  const { classes } = useStyles();
+const DateInput = ({
+  dataDate,
+  setDisplayCalendar,
+  label
+}: Props): JSX.Element => {
+  const { classes } = useStyles({});
   const { date, setDate } = dataDate;
   const defaultDate = dayjs().toDate();
-  const [open, setOpen] = useState(false);
 
-  const [error, setError] = useState(false);
-  const [customizedDate, setCustomizedDate] = useState<Date | null>(null);
+  const [error, setError] = useState('');
+  const [customizedDate, setCustomizedDate] = useState<Date>(
+    date ?? defaultDate
+  );
 
   const changeDate = ({ date: time }): void => {
-    if (!dayjs(time).isValid()) {
-      setError(true);
-
-      return;
-    }
-    setError(false);
     setCustomizedDate(dayjs(time).toDate());
   };
 
-  const onClear = (): void => {
-    setCustomizedDate(null);
-    setDate(null);
-    setOpen(false);
-    setError(false);
+  const insertDate = (): void => {
+    setDate(customizedDate);
+    setDisplayCalendar(false);
   };
 
-  const onClose = (): void => {
-    setOpen(false);
-  };
-
-  const getIsDisplayingCalendar = (value): void => {
-    setOpen(value);
-  };
-
-  const onAccept = (): void => {
+  const handleDate = (callback?: () => void): void => {
     if (!dayjs(customizedDate).isValid()) {
-      setError(true);
+      setError('invalid date');
 
       return;
     }
-    setDate(customizedDate);
-    setError(false);
-    setOpen(false);
+    setError('');
+    callback?.();
+  };
+
+  const onKeyDown = (event): void => {
+    if (event.key !== 'Enter') {
+      handleDate();
+
+      return;
+    }
+
+    handleDate(insertDate);
+  };
+
+  const close = (): void => {
+    handleDate(insertDate);
   };
 
   const slotProps = {
-    actionBar: {
-      actions: ['clear', 'accept'],
-      onAccept,
-      onClear
-    },
-    field: {
-      className: classes.field,
-      customizedDate,
-      dataDate,
-      error,
-      getIsDisplayingCalendar,
-      label,
-      onClear,
-      property
-    },
     popper: {
-      className: classes.popper,
-      placement: 'bottom'
+      className: classes.popper
+    },
+    textField: {
+      inputProps: {
+        'data-testid': 'calendarInput'
+      },
+      onKeyDown
     }
   };
 
-  const slots = {
-    field: CustomField
-  };
-
   return (
-    <DateTimePickerInput
-      changeDate={changeDate}
-      closeOnSelect={false}
-      date={customizedDate || date || defaultDate}
-      open={open}
-      slotProps={slotProps}
-      slots={slots}
-      timeSteps={{ minutes: 1 }}
-      onClose={onClose}
-    />
+    <div
+      className={classes.container}
+      data-testid={`${label}-calendarContainer`}
+    >
+      <div className={classes.containerDatePicker}>
+        <div className={classes.secondaryContainer}>
+          <Typography variant="overline"> {labelUntil} </Typography>
+        </div>
+        <DateTimePickerInput
+          changeDate={changeDate}
+          className={classes.picker}
+          closeOnSelect={false}
+          date={customizedDate}
+          slotProps={slotProps}
+          timeSteps={{ minutes: 1 }}
+          onClose={close}
+        />
+      </div>
+      <HelperText error={error} />
+    </div>
   );
 };
 

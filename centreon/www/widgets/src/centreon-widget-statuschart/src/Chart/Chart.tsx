@@ -1,7 +1,9 @@
 import { equals, isEmpty, isNil, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { PieChart, BarStack } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { ChartType, DisplayType } from '../models';
 import useLoadResources from '../useLoadResources';
@@ -29,20 +31,30 @@ const Chart = ({
   resources,
   getLinkToResourceStatusPage,
   isHorizontalBar,
-  isSingleChart
+  isSingleChart,
+  id,
+  playlistHash,
+  dashboardId,
+  widgetPrefixQuery
 }: ChartType): JSX.Element => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
+
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
   const isPieCharts =
     equals(displayType, DisplayType.Pie) ||
     equals(displayType, DisplayType.Donut);
 
   const { data, isLoading } = useLoadResources({
+    dashboardId,
+    id,
+    playlistHash,
     refreshCount,
     refreshIntervalToUse,
     resourceType,
-    resources
+    resources,
+    widgetPrefixQuery
   });
 
   const goToResourceStatusPage = (status): void => {
@@ -78,16 +90,12 @@ const Chart = ({
   return (
     <div className={classes.container}>
       {isPieCharts ? (
-        <div
-          className={cx(classes.pieChart, {
-            [classes.singlePieChart]: isSingleChart
-          })}
-        >
+        <div className={classes.pieChart}>
           <PieChart
             Legend={Legend((status) =>
               getLinkToResourceStatusPage(status, resourceType)
             )}
-            TooltipContent={TooltipContent}
+            TooltipContent={isOnPublicPage ? undefined : TooltipContent}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}

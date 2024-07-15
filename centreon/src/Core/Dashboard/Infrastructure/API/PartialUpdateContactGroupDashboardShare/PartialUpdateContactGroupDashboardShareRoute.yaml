@@ -1,8 +1,0 @@
-PartialUpdateContactGroupDashboardShare:
-  methods: PATCH
-  path: /configuration/dashboards/{dashboardId}/access_rights/contactgroups/{contactGroupId}
-  requirements:
-    dashboardId: '\d+'
-    contactGroupId: '\d+'
-  controller: 'Core\Dashboard\Infrastructure\API\PartialUpdateContactGroupDashboardShare\PartialUpdateContactGroupDashboardShareController'
-  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.dashboard')"

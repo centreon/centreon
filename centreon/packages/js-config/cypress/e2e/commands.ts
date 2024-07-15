@@ -7,7 +7,10 @@ import './commands/monitoring';
 
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
-installLogsCollector({ enableExtendedCollector: true });
+installLogsCollector({
+  commandTimings: 'seconds',
+  enableExtendedCollector: true
+});
 
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
@@ -260,6 +263,7 @@ Cypress.Commands.add(
     return cy.get('.MuiAlert-message').then(($snackbar) => {
       if ($snackbar.text().includes('Login succeeded')) {
         cy.wait('@getNavigationList');
+        cy.get('.MuiAlert-message').should('not.be.visible');
       }
     });
   }
@@ -518,6 +522,10 @@ Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
     .createDirectory(logDirectory)
     .getContainersLogs()
     .then((containersLogs: Array<Array<string>>) => {
+      if (!containersLogs) {
+        return;
+      }
+
       Object.entries(containersLogs).forEach(([containerName, logs]) => {
         cy.writeFile(
           `results/logs/${Cypress.spec.name.replace(
@@ -743,7 +751,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
   return cy
-    .get('header div[data-cy="clock"]', { timeout: 10000 })
+    .get('header div[data-cy="clock"]', { timeout: 20000 })
     .should('be.visible')
     .then(($time) => {
       const headerTime = $time.children()[1].textContent;

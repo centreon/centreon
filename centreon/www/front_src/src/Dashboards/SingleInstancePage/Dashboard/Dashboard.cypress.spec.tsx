@@ -9,25 +9,25 @@ import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properti
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
+import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
+import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
 import { BrowserRouter } from 'react-router-dom';
 import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
 
 import {
+  additionalResourcesAtom,
   DashboardGlobalRole,
+  federatedWidgetsAtom,
   ListingVariant,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import { DashboardRole } from '../../api/models';
 import {
-  dashboardsContactGroupsEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
   dashboardSharesEndpoint,
@@ -58,10 +58,8 @@ import {
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
   labelInterval,
-  labelUnsavedChanges,
   labelDoYouWantToSaveChanges,
-  labelIfYouClickOnDiscard,
-  labelDiscard
+  labelIfYouClickOnDiscard
 } from './translatedLabels';
 import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
@@ -80,6 +78,10 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
     {
       ...widgetGenericTextConfiguration,
       moduleFederationName: 'centreon-widget-generictext/src'
+    },
+    {
+      ...widgetSingleMetricConfiguration,
+      moduleFederationName: 'centreon-widget-singlemetric/src'
     }
   ];
 
@@ -88,7 +90,8 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,
-    widgetGenericTextProperties
+    widgetGenericTextProperties,
+    widgetSingleMetricProperties
   ]);
 
   return store;
@@ -98,6 +101,7 @@ interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
   canCreateDashboard?: boolean;
   canViewDashboard?: boolean;
+  detailsWithData?: boolean;
   globalRole?: DashboardGlobalRole;
   isBlocked?: boolean;
   ownRole?: DashboardRole;
@@ -141,7 +145,8 @@ const initializeAndMount = ({
   canCreateDashboard = true,
   canViewDashboard = true,
   canAdministrateDashboard = true,
-  isBlocked = false
+  isBlocked = false,
+  detailsWithData = false
 }: InitializeAndMountProps): {
   blockNavigation;
   proceedNavigation;
@@ -165,6 +170,13 @@ const initializeAndMount = ({
     user_interface_density: ListingVariant.compact
   });
   store.set(refreshIntervalAtom, 15);
+  store.set(additionalResourcesAtom, [
+    {
+      baseEndpoint: '/ba',
+      label: 'BA',
+      resourceType: 'business-activity'
+    }
+  ]);
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -173,7 +185,9 @@ const initializeAndMount = ({
 
   cy.viewport('macbook-13');
 
-  cy.fixture('Dashboards/Dashboard/details.json').then((dashboardDetails) => {
+  cy.fixture(
+    `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`
+  ).then((dashboardDetails) => {
     cy.interceptAPIRequest({
       alias: 'getDashboardDetails',
       method: Method.GET,
@@ -299,7 +313,9 @@ describe('Dashboard', () => {
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelTitle).type('Generic input');
-      cy.findByLabelText('Generic text').type('Text for the new widget');
+      cy.findAllByLabelText('Generic text')
+        .eq(1)
+        .type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
       cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
@@ -319,32 +335,52 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelEditWidget).click();
 
-      cy.findByLabelText(labelWidgetType).click({ force: true });
-      cy.contains('Generic input (example)').click({ force: true });
-
-      cy.findByLabelText(labelTitle).type('Generic input', { force: true });
-      cy.findByLabelText('Generic text').type('Text for the new widget');
+      cy.findByLabelText(labelTitle).type(' updated', { force: true });
+      cy.get('[data-testid="RichTextEditor"]').eq(1).type('Description');
 
       cy.url().should('include', 'edit=true');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
 
       cy.contains(labelEditWidget).should('not.exist');
-      cy.contains('Text for the new widget')
+      cy.contains('Widget text updated')
         .should('be.visible')
         .then(() => {
           const dashboard = store.get(dashboardAtom);
 
           assert.equal(dashboard.layout.length, 3);
-          assert.exists(dashboard.layout[2].data);
           assert.equal(
-            dashboard.layout[2].options?.text,
-            'Text for the new widget'
+            dashboard.layout[0].options?.description?.content,
+            '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
           );
-          assert.equal(dashboard.layout[2].name, 'centreon-widget-input');
+          assert.equal(dashboard.layout[0].name, 'centreon-widget-text');
         });
 
       cy.makeSnapshot();
+    });
+
+    it('resizes the widget to its minimum size when the handle is dragged', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'height')
+        .and('equal', '232px');
+
+      cy.get('[class*="react-resizable-handle-se"]')
+        .eq(0)
+        .realMouseDown()
+        .realMouseMove(-70, -70)
+        .realMouseMove(-70, -70)
+        .realMouseUp();
+
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'height');
     });
   });
 
@@ -415,16 +451,6 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelSave).should('not.exist');
       cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
       cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
-
-      cy.makeSnapshot();
-    });
-
-    it('displays the refresh button when the more actions button is clicked', () => {
-      initializeAndMount(viewerRoles);
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-
-      cy.contains(labelRefresh).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -568,7 +594,49 @@ describe('Dashboard', () => {
         .then(() => {
           expect(blockNavigation).to.have.been.calledWith();
         });
+    });
+  });
 
+  describe('Dataset', () => {
+    it('displays header link to Resources Status when the widget has resources compatible with Resource Status', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Resources Status page')
+        .eq(0)
+        .should(
+          'have.attr',
+          'href',
+          '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22statuses%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22states%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22parent_name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbMy%20host%5C%5Cb%22%2C%22name%22%3A%22My%20host%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+        );
+    });
+
+    it('displays header link to Resources Status when the widget has resources compatible with Resource Status and the widget is single metric', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Resources Status page')
+        .eq(2)
+        .should(
+          'have.attr',
+          'href',
+          '/monitoring/resources?details=%7B%22id%22%3Anull%2C%22resourcesDetailsEndpoint%22%3A%22%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fhosts%2Fundefined%2Fservices%2Fundefined%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22graph%22%2C%22tabParameters%22%3A%7B%7D%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbCentreon-Server%5C%5Cb%22%2C%22name%22%3A%22Centreon-Server%22%7D%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbPing%5C%5Cb%22%2C%22name%22%3A%22Ping%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+        );
+    });
+
+    it('displays header link to Business activity when the widget has only business activities', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Business Activity page')
+        .eq(0)
+        .should('have.attr', 'href', '/main.php?p=20701&o=d&ba_id=1');
       cy.makeSnapshot();
     });
   });
