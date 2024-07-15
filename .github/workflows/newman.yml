@@ -624,7 +624,7 @@ jobs:
                   echo "Processing issue ID: $issue_id"
                   jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                  command="curl --request GET --url '$jira_issue_url' --user '***:***' --header 'Accept: application/json' -o response.json"
+                  command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' --header 'Accept: application/json' -o response.json"
                   retry_command 5 "$command"
                   response_code=$(jq -r '.statusCode' response.json)
 
