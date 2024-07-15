@@ -3,7 +3,7 @@ info:
   title: Centreon Web RestAPI for Cloud
   description: |
     # New features
-    +
+    + Added endpoint to deploy services in a host based on associated host template(s)
     # Updated features
     +
     +
@@ -70,6 +70,8 @@ paths:
     $ref: './latest/Cloud/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
     $ref: './latest/Cloud/Configuration/HostTemplate/PartialUpdateHostTemplate.yaml'
+  /configuration/hosts/{host_id}/services/deploy:
+    $ref: './latest/Cloud/Configuration/Service/DeployServices.yaml'
   /configuration/services:
     $ref: "./latest/Cloud/Configuration/Service/AddAndFindServices.yaml"
   /configuration/services/{service_id}:
