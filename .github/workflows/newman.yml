@@ -584,13 +584,15 @@ jobs:
 
               while [ $attempt -lt $max_attempts ]; do
                 attempt=$((attempt + 1))
+                echo "Attempt $attempt/$max_attempts: $command"
                 eval "$command"
                 exit_code=$?
                 if [ $exit_code -eq 0 ]; then
                   break
                 fi
-                echo "Attempt $attempt/$max_attempts failed. Retrying in 30 seconds..."
-                sleep 10
+                echo "Error: $exit_code"
+                echo "Response: $(curl -v -s -o /dev/null -w "%{http_code}" "$command")"
+                sleep 30
               done
 
               if [ $exit_code -ne 0 ]; then
