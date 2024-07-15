@@ -32,7 +32,7 @@
   "devDependencies": {
     "@4tw/cypress-drag-drop": "^2.2.5",
     "@centreon/js-config": "workspace:*",
-    "@cypress/code-coverage": "^3.12.39",
+    "@cypress/code-coverage": "^3.12.41",
     "@cypress/react": "^8.0.2",
     "@cypress/webpack-dev-server": "^3.10.0",
     "@cypress/webpack-preprocessor": "^6.0.2",

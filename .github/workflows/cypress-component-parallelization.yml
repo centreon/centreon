@@ -29,7 +29,7 @@ jobs:
         id: list-specs
         run: |
           cd ${{ inputs.module_name }}
-          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sed -e "s/\.cypress\.spec\.tsx//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
@@ -81,7 +81,7 @@ jobs:
           install: false
           cache-key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
           working-directory: ${{ inputs.module_name }}
-          spec: ${{ inputs.specs_path }}/${{ matrix.spec }}
+          spec: ${{ inputs.specs_path }}/${{ matrix.spec }}.cypress.spec.tsx
           publish-summary: false
           env: codeCoverageTasksRegistered=true
 
@@ -229,7 +229,7 @@ jobs:
         uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
         with:
-          name: ${{ inputs.name }}-${{ matrix.type_of_report }}
+          name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}
           pattern: ${{ inputs.name }}-${{ matrix.type_of_report }}-*
           delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
           retention-days: 1
