@@ -118,7 +118,8 @@ Given(
                   stable_minor_versions[minor_version_index] ===
                   Cypress.env('lastStableMinorVersion')
                 ) {
-                  return cy.visitEmptyPage().stopContainer({ name: Cypress.env('dockerName') }).wrap('skipped');
+                  cy.log(`Not needed to test ${version_from_expression} version.`);
+                  return cy.wrap('skipped');
                 }
                 break;
               case 'penultimate stable':
