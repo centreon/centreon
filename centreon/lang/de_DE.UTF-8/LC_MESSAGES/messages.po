@@ -17092,8 +17092,6 @@ msgstr "Erweiterter Modus"
 # msgstr "Opened on"
 # msgstr ""
 
-# msgid "Ticket open"
-# msgstr ""
 
 # msgid "Create a ticket"
 # msgstr ""

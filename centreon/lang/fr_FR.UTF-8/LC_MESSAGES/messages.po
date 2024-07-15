@@ -19144,7 +19144,7 @@ msgid "Forced check command sent!"
 msgstr "Commande de vérification forcée envoyée !"
 
 msgid "Open ticket"
-msgstr ""
+msgstr "Ouvrir un ticket"
 
 msgid "Open ticket for host"
 msgstr "Ouvrir un ticket pour l'hôte"
@@ -19165,7 +19165,7 @@ msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
 msgid "Enable Open Tickets"
-msgstr "Activer open ticket"
+msgstr "Activer open Tickets"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
@@ -19195,9 +19195,6 @@ msgid "Ticket subject"
 msgstr "Sujet du ticket"
 
 msgid "Opened on"
-msgstr "Date d'ouverture"
-
-msgid "Ticket open"
 msgstr "Date d'ouverture"
 
 msgid "Create a ticket"
