@@ -19165,7 +19165,7 @@ msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
 msgid "Enable Open Tickets"
-msgstr "Activer open Tickets"
+msgstr "Activer Open Tickets"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
