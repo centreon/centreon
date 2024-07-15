@@ -613,127 +613,75 @@ jobs:
               failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
               failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
               failures=$(jq -r '.Run.Failures' "$summary_file")
-              echo "Failed requests: $failed_requests"
-              echo "Failed assertions: $failed_assertions"
-              echo "Failures: $failures"
 
-              if [ -z "$failures" ]; then
-              echo "No failures found. Executing GraphQL query."
-
-              # Boucle sur chaque issue_id
               for issue_id in "${issue_ids_array[@]}"; do
                   echo "Processing issue ID: $issue_id"
+                  jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                  xray_graphql_getTestRunIDs='{
-                      "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
-                      "variables": {
-                          "testIssueIds": ["'"$issue_id"'"],
-                          "testExecIssueIds": ["'"$test_execution_id"'"],
-                          "limit": 100
-                      }
-                  }'
+                  command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' --header 'Accept: application/json' -o response.json"
+                  retry_command 5 "$command"
+                  response_code=$(jq -r '.statusCode' response.json)
 
-                  echo "$xray_graphql_getTestRunIDs"
+                  if [ "$response_code" -eq 404 ]; then
+                      echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+                  else
+                      echo "The issue with ID $issue_id exists."
+                      summary=$(jq -r '.fields.summary' response.json)
+                      echo "Summary: $summary"
+                      echo "Collection Name: $collection_name"
+                      if [ "$summary" == "$collection_name" ]; then
+                          echo "Matching issue ID: $issue_id with Collection Name: $collection_name"
+                          if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+                              newStatus="FAILED"
+                          else
+                              newStatus="PASSED"
+                          fi
 
-                  retry_attempts=0
-                  max_attempts=5
-                  while [ $retry_attempts -lt $max_attempts ]; do
-                      response_getTestRun=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
-                      echo "$response_getTestRun"
+                          xray_graphql_getTestRunIDs='{
+                            "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
+                            "variables": {
+                              "testIssueIds": ["'"$issue_id"'"],
+                              "testExecIssueIds": ["'"$test_execution_id"'"],
+                              "limit": 100
+                            }
+                          }'
+                          echo "$xray_graphql_getTestRunIDs"
+                          retry_attempts=0
+                          max_attempts=5
+                          while [ $retry_attempts -lt $max_attempts ]; do
+                              response_getTestRun=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+                              echo "$response_getTestRun"
 
-                      if echo "$response_getTestRun" | jq -e '.error' > /dev/null; then
-                          echo "Error in response: $(echo "$response_getTestRun" | jq -r '.error.text')"
-                          echo "Retrying after a delay..."
-                          retry_attempts=$((retry_attempts + 1))
-                          sleep $((retry_attempts * 30))
-                      else
-                          break
+                              if echo "$response_getTestRun" | jq -e '.error' > /dev/null; then
+                                  echo "Error in response: $(echo "$response_getTestRun" | jq -r '.error.text')"
+                                  echo "Retrying after a delay..."
+                                  retry_attempts=$((retry_attempts + 1))
+                                  sleep $((retry_attempts * 30))
+                              else
+                                  break
+                              fi
+                          done
+
+                          if [ $retry_attempts -ge $max_attempts ]; then
+                              echo "Failed after $max_attempts attempts"
+                              continue
+                          fi
+
+                          test_run_id=$(echo "$response_getTestRun" | jq -r ".data.getTestRuns.results[] | select(.test.issueId == \"$issue_id\") | .id")
+
+                          if [ -n "$test_run_id" ]; then
+                              echo "Found Test Run ID $test_run_id for Issue ID $issue_id and Collection Name $collection_name"
+
+                              graphqlMutation="{\"query\": \"mutation { updateTestRunStatus(id: \\\"$test_run_id\\\", status: \\\"$newStatus\\\") }\"}"
+                              echo "$graphqlMutation"
+                              command="curl -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}' --data '$graphqlMutation' -v 'https://xray.cloud.getxray.app/api/v2/graphql'"
+                              retry_command 5 "$command"
+                          else
+                              echo "Test Run ID not found for Issue ID $issue_id and Collection Name $collection_name."
+                          fi
                       fi
-                  done
-
-                  if [ $retry_attempts -ge $max_attempts ]; then
-                      echo "Failed after $max_attempts attempts"
-                      continue
                   fi
-
-                  test_run_ids=$(echo "$response_getTestRun" | jq -r ".data.getTestRuns.results[] | select(.test.issueId == \"$issue_id\") | .id")
-                  for test_run_id in $test_run_ids; do
-                      echo "Found Test Run ID $test_run_id for Issue ID $issue_id"
-
-                      graphqlMutation="{\"query\": \"mutation { updateTestRunStatus(id: \\\"$test_run_id\\\", status: \\\"PASSED\\\") }\"}"
-                      echo "$graphqlMutation"
-                      command="curl -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}' --data '$graphqlMutation' -v 'https://xray.cloud.getxray.app/api/v2/graphql'"
-                      retry_command 5 "$command"
-                  done
-
-              # for issue_id in "${issue_ids_array[@]}"; do
-              #     echo "Processing issue ID: $issue_id"
-              #     jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
-
-              #     command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' --header 'Accept: application/json' -o response.json"
-              #     retry_command 5 "$command"
-              #     response_code=$(jq -r '.statusCode' response.json)
-
-              #     if [ "$response_code" -eq 404 ]; then
-              #         echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
-              #     else
-              #         echo "The issue with ID $issue_id exists."
-              #         summary=$(jq -r '.fields.summary' response.json)
-              #         echo "Summary: $summary"
-              #         echo "Collection Name: $collection_name"
-              #         if [ "$summary" == "$collection_name" ]; then
-              #             echo "Matching issue ID: $issue_id with Collection Name: $collection_name"
-              #             if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
-              #                 newStatus="FAILED"
-              #             else
-              #                 newStatus="PASSED"
-              #             fi
-
-              #             xray_graphql_getTestRunIDs='{
-              #               "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
-              #               "variables": {
-              #                 "testIssueIds": ["'"$issue_id"'"],
-              #                 "testExecIssueIds": ["'"$test_execution_id"'"],
-              #                 "limit": 100
-              #               }
-              #             }'
-              #             echo "$xray_graphql_getTestRunIDs"
-              #             retry_attempts=0
-              #             max_attempts=5
-              #             while [ $retry_attempts -lt $max_attempts ]; do
-              #                 response_getTestRun=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
-              #                 echo "$response_getTestRun"
-
-              #                 if echo "$response_getTestRun" | jq -e '.error' > /dev/null; then
-              #                     echo "Error in response: $(echo "$response_getTestRun" | jq -r '.error.text')"
-              #                     echo "Retrying after a delay..."
-              #                     retry_attempts=$((retry_attempts + 1))
-              #                     sleep $((retry_attempts * 30))
-              #                 else
-              #                     break
-              #                 fi
-              #             done
-
-              #             if [ $retry_attempts -ge $max_attempts ]; then
-              #                 echo "Failed after $max_attempts attempts"
-              #                 continue
-              #             fi
-
-              #             test_run_id=$(echo "$response_getTestRun" | jq -r ".data.getTestRuns.results[] | select(.test.issueId == \"$issue_id\") | .id")
-
-              #             if [ -n "$test_run_id" ]; then
-              #                 echo "Found Test Run ID $test_run_id for Issue ID $issue_id and Collection Name $collection_name"
-
-              #                 graphqlMutation="{\"query\": \"mutation { updateTestRunStatus(id: \\\"$test_run_id\\\", status: \\\"$newStatus\\\") }\"}"
-              #                 echo "$graphqlMutation"
-              #                 command="curl -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}' --data '$graphqlMutation' -v 'https://xray.cloud.getxray.app/api/v2/graphql'"
-              #                 retry_command 5 "$command"
-              #             else
-              #                 echo "Test Run ID not found for Issue ID $issue_id and Collection Name $collection_name."
-              #             fi
-              #         fi
-              #     fi
-              # done
+              done
           done
         shell: /usr/bin/bash -e {0}
 
