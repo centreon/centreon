@@ -19185,7 +19185,7 @@ msgstr "Ressources sans ticket"
 msgid "Hide services with Down host"
 msgstr "Masquer les services dont l'hôte est Indisponible"
 
-msgid "hide services with Unreachable host"
+msgid "Hide services with Unreachable host"
 msgstr "Masquer les services dont l'hôte est Injoignable"
 
 msgid "Ticket ID"
