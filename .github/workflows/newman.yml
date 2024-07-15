@@ -683,7 +683,6 @@ jobs:
                   fi
               done
           done
-        shell: /usr/bin/bash -e {0}
 
       - name: Perform Jira Transitions
         if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
