@@ -477,8 +477,6 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
             const j_divLinkedHostServices = $('#host_service_id');
             const divListKnownMetrics = document.querySelector('#sl_list_metrics');
             const j_divListKnownMetrics = $('#sl_list_metrics');
-            console.log(divLinkedHostServices)
-            console.log(divListKnownMetrics)
             if (divLinkedHostServices.value !== '') {
                 divListKnownMetrics.disabled = true;
             }
