@@ -35,6 +35,13 @@
 
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 /**
  *
  * Test broker file config existance
@@ -112,17 +119,22 @@ function deleteCentreonBrokerInDB($ids = array())
 
     $brokerIds = array_keys($ids);
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
-    $featureFlagManager = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
+    /** @var FeatureFlags $featureFlagManager */
+    $featureFlagManager = $kernel->getContainer()->get(FeatureFlags::class);
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
+    /** @var \Core\Common\Application\Repository\WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(\Core\Common\Application\Repository\WriteVaultRepositoryInterface::class);
+    $writeVaultRepository->setCustomPath(\Core\Common\Infrastructure\Repository\AbstractVaultRepository::BROKER_VAULT_PATH);
     if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
-        deleteBrokerConfigsFromVault($vaultConfiguration, $logger, $brokerIds);
+        deleteBrokerConfigsFromVault($writeVaultRepository, $brokerIds);
     }
 
     $statement = $pearDB->prepare("DELETE FROM cfg_centreonbroker WHERE config_id = :config_id");
@@ -385,39 +397,43 @@ function getCfgBrokerInfoData(int $configId): array
  */
 function retrieveOriginalPasswordValuesFromVault(array &$values): void
 {
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
-    foreach (['input', 'output'] as $tag) {
-        foreach ($values[$tag] as $key => $inputOutput) {
-            foreach ($inputOutput as $name => $value) {
-                if (is_string($value) && str_starts_with($value, 'secret::')) {
-                    [$groupName, $subName] = explode('__', $name);
-                    [$subName, $subKey] = explode('_', $subName);
-                    if ($subName === 'value') {
-                        $vaultKey = implode(
-                            '_',
-                            [$inputOutput['name'], $groupName, $inputOutput["{$groupName}__name_{$subKey}"]]
-                        );
-                    } else {
-                        $vaultKey = $inputOutput['name'] . '_' . $name;
-                    }
+    if ($vaultConfiguration !== null) {
+        /** @var Logger $logger */
+        $logger = $kernel->getContainer()->get(Logger::class);
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+        foreach (['input', 'output'] as $tag) {
+            foreach ($values[$tag] as $key => $inputOutput) {
+                foreach ($inputOutput as $name => $value) {
+                    if (is_string($value) && str_starts_with($value, VaultConfiguration::VAULT_PATH_PATTERN)) {
+                        [$groupName, $subName] = explode('__', $name);
+                        [$subName, $subKey] = explode('_', $subName);
+                        if ($subName === 'value') {
+                            $vaultKey = implode(
+                                '_',
+                                [$inputOutput['name'], $groupName, $inputOutput["{$groupName}__name_{$subKey}"]]
+                            );
+                        } else {
+                            $vaultKey = $inputOutput['name'] . '_' . $name;
+                        }
 
-                    $passwordValue = findBrokerConfigValueFromVault(
-                        $vaultConfiguration,
-                        $logger,
-                        $vaultKey,
-                        $value,
-                    );
-                    $values[$tag][$key][$name] = $passwordValue;
+                        $passwordValue = findBrokerConfigValueFromVault(
+                            $readVaultRepository,
+                            $logger,
+                            $vaultKey,
+                            $value,
+                        );
+                        $values[$tag][$key][$name] = $passwordValue;
+                    }
                 }
             }
         }
     }
-
 }
