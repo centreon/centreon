@@ -572,39 +572,40 @@ jobs:
       #       echo "Summary info for $key:"
       #       echo "${json_info[$key]}"
       #     done
-
       - name: Change test execution status
+        # if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
           retry_command() {
-            local max_attempts=$1
-            local command=$2
-            local attempt=0
-            local exit_code=0
-            local wait_time=1
+              local max_attempts=$1
+              local command=$2
+              local attempt=0
+              local exit_code=0
+              local wait_time=1
 
-            until [ $attempt -ge $max_attempts ]; do
-              attempt=$(( attempt + 1 ))
-              eval "$command"
-              exit_code=$?
-              if [ $exit_code -eq 0 ]; then
-                break
-              fi
-              echo "Attempt $attempt/$max_attempts failed. Retrying in $wait_time seconds..."
-              sleep $wait_time
-              wait_time=$(( wait_time * 2 ))
-            done
+              until [ $attempt -ge $max_attempts ]; do
+                  attempt=$(( attempt + 1 ))
+                  eval "$command"
+                  exit_code=$?
+                  if [ $exit_code -eq 0 ]; then
+                      break
+                  fi
+                  echo "Attempt $attempt/$max_attempts failed. Retrying in $wait_time seconds..."
+                  sleep $wait_time
+                  wait_time=$(( wait_time * 2 ))
+              done
 
-            return $exit_code
+              return $exit_code
           }
 
           for summary_file in newman-json-test-reports/*.json; do
               test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
               test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
-              issue_ids=${{ needs.associate-test-cases.outputs.api-issue-ids }}
-              echo "issue_ids content: $issue_ids"
+              issue_ids="${{ needs.associate-test-cases.outputs.api-issue-ids }}"
 
-              # Convert the comma-separated issue_ids string to an array
-              IFS=',' read -r -a issue_ids_array <<< "$issue_ids"
+              # Convert issue_ids string to an array using space as the delimiter
+              IFS=' ' read -r -a issue_ids_array <<< "$issue_ids"
+
+              echo "issue_ids content: ${issue_ids_array[*]}"
 
               filename=$(basename "$summary_file")
               collection_name="${filename%-summary.json}"
@@ -614,13 +615,15 @@ jobs:
               failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
               failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
               failures=$(jq -r '.Run.Failures' "$summary_file")
+              echo "Failed requests: $failed_requests"
+              echo "Failed assertions: $failed_assertions"
+              echo "Failures: $failures"
 
-              summaries=()
               for issue_id in "${issue_ids_array[@]}"; do
                   echo "Processing issue ID: $issue_id"
                   jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                  command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' --header 'Accept: application/json' -o response.json"
+                  command="curl --request GET --url '$jira_issue_url' --user '***:***' --header 'Accept: application/json' -o response.json"
                   retry_command 5 "$command"
                   response_code=$(jq -r '.statusCode' response.json)
 
