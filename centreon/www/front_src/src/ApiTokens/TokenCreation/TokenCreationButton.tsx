@@ -18,8 +18,6 @@ const TokenCreationButton = (): JSX.Element => {
 
   const [isCreatingToken, setIsCreatingToken] = useState(false);
 
-  const { isAdmin } = useAtomValue(userAtom);
-
   const createToken = (): void => {
     setIsCreatingToken(true);
   };
@@ -32,7 +30,6 @@ const TokenCreationButton = (): JSX.Element => {
     <>
       <Button
         data-testid={labelCreateNewToken}
-        disabled={!isAdmin}
         startIcon={<AddIcon />}
         variant="contained"
         onClick={createToken}
