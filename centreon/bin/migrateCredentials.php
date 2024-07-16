@@ -5,11 +5,11 @@ require_once __DIR__ . '/../config/centreon.config.php';
 require_once __DIR__ . '/../www/include/common/vault-functions.php';
 
 use App\Kernel;
-use Centreon\Domain\Log\Logger;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
-use Utility\Interfaces\UUIDGeneratorInterface;
 
 try {
     if (posix_getuid() !== 0) {
@@ -41,18 +41,14 @@ function migrateAndUpdateDatabaseCredentials(): void {
         throw new Exception('No vault configured');
     }
 
-    /**
-     * @var Logger $logger
-     */
-    $logger = $kernel->getContainer()->get(Logger::class);
-    /**
-     * @var UUIDGeneratorInterface $uuidGenerator
-     */
-    $uuidGenerator = $kernel->getContainer()->get(UUIDGeneratorInterface::class);
-    $httpClient = new CentreonRestHttp();
     echo('Migration of database credentials' . PHP_EOL);
-    $vaultPath = migrateDatabaseCredentialsToVault($vaultConfiguration, $logger, $httpClient, $uuidGenerator);
-    updateConfigFilesWithVaultPath($vaultPath);
+    /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+    $writeVaultRepository->setCustomPath(AbstractVaultRepository::DATABASE_VAULT_PATH);
+    $vaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
+    if (! empty($vaultPaths)) {
+        updateConfigFilesWithVaultPath($vaultPaths);
+    }
     echo('Migration of database credentials completed' . PHP_EOL);
 }
 
