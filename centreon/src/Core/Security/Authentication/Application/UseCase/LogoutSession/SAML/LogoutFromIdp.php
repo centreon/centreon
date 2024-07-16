@@ -45,7 +45,6 @@ class LogoutFromIdp
 
     public function __invoke(): void
     {
-        session_start();
         $this->info('SAML SLS invoked');
         /** @var SAML $provider */
         $provider = $this->providerFactory->create(Provider::SAML);

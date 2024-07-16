@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{ErrorAuthenticationConditionsResponse, ErrorResponse, UnauthorizedResponse};
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\Login\{ErrorAclConditionsResponse, Login, LoginRequest, LoginResponse, PasswordExpiredResponse, ThirdPartyLoginForm};
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 final class CallbackController extends AbstractController
 {
     use HttpUrlTrait;
+    use LoggerTrait;
 
     /**
      * @param Request $request
@@ -51,6 +53,7 @@ final class CallbackController extends AbstractController
         RequestStack $requestStack,
         ThirdPartyLoginForm $thirdPartyLoginForm,
     ): View {
+        $this->info('[AUTHENTICATE] SAML callback invoked');
         $samlLoginRequest = LoginRequest::createForSAML((string) $request->getClientIp());
 
         $useCase($samlLoginRequest, $presenter);

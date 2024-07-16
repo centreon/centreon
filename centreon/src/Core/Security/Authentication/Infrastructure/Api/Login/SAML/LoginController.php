@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
 use Core\Security\Authentication\Infrastructure\Provider\ProviderAuthenticationFactory;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\Request;
 final class LoginController extends AbstractController
 {
     use HttpUrlTrait;
+    use LoggerTrait;
 
     /**
      * @param ProviderAuthenticationFactory $providerAuthenticationFactory
@@ -47,6 +49,7 @@ final class LoginController extends AbstractController
 
     public function __invoke(Request $request): void
     {
+        $this->debug('[AUTHENTICATE] SAML login invoked');
         /** @var SAML $provider */
         $provider = $this->providerAuthenticationFactory->create(Provider::SAML);
         $provider->login($this->thirdPartyLoginForm->getReturnUrlBeforeAuth($request));

@@ -53,6 +53,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      */
     public function invalidate(): void
     {
+        $this->debug('[AUTHENTICATE] Invalidating session...');
         $this->writeSessionTokenRepository->deleteSession($this->requestStack->getSession()->getId());
         $centreon = $this->requestStack->getSession()->get('centreon');
         $this->requestStack->getSession()->invalidate();
@@ -82,11 +83,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      */
     public function start(\Centreon $legacySession): bool
     {
-        if ($this->requestStack->getSession()->isStarted()) {
-            return true;
-        }
-
-        $this->info('[AUTHENTICATE] Starting Centreon Session');
+        $this->info('[AUTHENTICATE] Starting Centreon session');
         $this->requestStack->getSession()->start();
         $this->requestStack->getSession()->set('centreon', $legacySession);
         $_SESSION['centreon'] = $legacySession;

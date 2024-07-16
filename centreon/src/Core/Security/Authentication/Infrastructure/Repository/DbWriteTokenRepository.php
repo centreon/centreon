@@ -88,6 +88,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
      */
     public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void
     {
+        $this->debug('[AUTHENTICATE] Updating authentication tokens');
         /** @var ProviderToken $providerToken */
         $providerToken = $authenticationTokens->getProviderToken();
         /** @var ProviderToken $providerRefreshToken */
@@ -134,6 +135,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
      */
     public function updateProviderToken(ProviderToken $providerToken): void
     {
+        $this->debug('[AUTHENTICATE] Updating provider token');
         $updateStatement = $this->db->prepare(
             $this->translateDbName(
                 'UPDATE `:db`.security_token SET expiration_date = :expiredAt WHERE token = :token'
@@ -150,6 +152,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
 
     public function deleteSecurityToken(string $token): void
     {
+        $this->debug('[AUTHENTICATE] Deleting security token');
         $deleteSecurityTokenStatement = $this->db->prepare(
             $this->translateDbName(
                 'DELETE FROM `:db`.security_token WHERE token = :token'
@@ -175,7 +178,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         NewProviderToken $providerToken,
         ?NewProviderToken $providerRefreshToken
     ): void {
-
+        $this->debug('[AUTHENTICATE] Inserting provider tokens');
         $this->insertSecurityToken($providerToken);
         $securityTokenId = (int) $this->db->lastInsertId();
 
