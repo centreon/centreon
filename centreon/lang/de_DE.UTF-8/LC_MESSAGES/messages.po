@@ -17052,3 +17052,18 @@ msgstr "Erweiterter Modus"
 
 # msgid  "Critical threshold"
 # msgstr ""
+
+# msgid "Click here for details"
+# msgstr ""
+
+# msgid "Expression in"
+# msgstr ""
+
+# msgid "Impact applied when"
+# msgstr ""
+
+# msgid "true"
+# msgstr ""
+
+# msgid "false"
+# msgstr ""

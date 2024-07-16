@@ -19157,3 +19157,18 @@ msgstr "Seuil d'alerte"
 
 msgid  "Critical threshold"
 msgstr "Seuil critique"
+
+msgid "Click here for details"
+msgstr "cliquer ici pour les détails"
+
+msgid "Expression in"
+msgstr "Expression en"
+
+msgid "Impact applied when"
+msgstr "Impact appliqué quand"
+
+msgid "true"
+msgstr "vrai"
+
+msgid "false"
+msgstr "faux"

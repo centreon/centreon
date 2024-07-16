@@ -164,3 +164,11 @@ export interface BusinessActivity {
   name: string;
   status: Status;
 }
+
+export interface BooleanRule {
+  expressionStatus: boolean;
+  id: number;
+  isImpactingWhenTrue: boolean;
+  name: string;
+  status: Status;
+}

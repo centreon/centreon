@@ -53,6 +53,15 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1),
     textAlign: 'center'
   },
+  boleanRuleLink: {
+    color: theme.palette.primary.main
+  },
+  boleanRuleLinkWrapper: {
+    marginLeft: theme.spacing(0.5)
+  },
+  boleanRulebody: {
+    paddingBottom: theme.spacing(1)
+  },
   container: {
     minWidth: theme.spacing(30)
   },

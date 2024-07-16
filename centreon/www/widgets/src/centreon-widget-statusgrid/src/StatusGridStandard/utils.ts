@@ -112,7 +112,7 @@ const getBALink = (id: number): string => {
   return `/main.php?p=20701&o=d&ba_id=${id}`;
 };
 
-const getBooleanRuleLink = (id: number): string => {
+export const getBooleanRuleLink = (id: number): string => {
   return `/main.php?p=62611&o=c&boolean_id=${id}`;
 };
 

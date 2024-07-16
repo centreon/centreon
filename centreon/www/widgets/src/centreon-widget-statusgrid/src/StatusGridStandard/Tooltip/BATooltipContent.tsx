@@ -19,12 +19,12 @@ import { CalculationMethodType, ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
 import { getColor } from '../utils';
 import {
-  criticalThreshold,
+  labelCriticalThreshold,
   labelAllKPIsAreWorkingFine,
   labelAreWorkingFine,
   labelCalculationMethod,
   labelStateInformation,
-  warningThreshold
+  labelWarningThreshold
 } from '../translatedLabels';
 
 import useBATooltipContent from './useBATooltipContent';
@@ -98,7 +98,9 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
               </Box>
               <Box className={classes.thresholdContainer} mt={1}>
                 <Box className={classes.threshold}>
-                  <Typography variant="body2">{t(warningThreshold)}</Typography>
+                  <Typography variant="body2">
+                    {t(labelWarningThreshold)}
+                  </Typography>
                   <Typography
                     sx={{
                       color: getColor({
@@ -114,7 +116,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
 
                 <Box className={classes.threshold}>
                   <Typography variant="body2">
-                    {t(criticalThreshold)}
+                    {t(labelCriticalThreshold)}
                   </Typography>
                   <Typography
                     sx={{
@@ -202,19 +204,6 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
               {`${indicatorsWithStatusOk?.length}/${total} KPIs ${t(labelAreWorkingFine)}`}
             </Typography>
           )}
-
-          {/* {infrastructureViewId && (
-            <Typography variant="body2">
-              <Link
-                aria-label={t(labelSeeMoreInGeoview)}
-                className={classes.link}
-                target="_blank"
-                to={`/monitoring/map/view/${infrastructureViewId}`}
-              >
-                {t(labelSeeMoreInGeoview)}
-              </Link>
-            </Typography>
-          )} */}
         </Box>
         <Divider variant="middle" />
         <Typography

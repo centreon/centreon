@@ -26,6 +26,9 @@ export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
 export const getBAEndpoint = (id): string =>
   `/bam/monitoring/business-activities/${id}`;
 
+export const getBooleanRuleEndpoint = (id): string =>
+  `/bam/monitoring/indicators/boolean-rules/${id}`;
+
 interface BuildResourcesEndpointProps {
   baseEndpoint: string;
   limit?: number;

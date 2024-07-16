@@ -5,6 +5,7 @@ import { ResourceData } from '../models';
 import HostTooltipContent from './HostTooltipContent';
 import ServiceTooltipContent from './ServiceTooltipContent';
 import BATooltipContent from './BATooltipContent';
+import BooleanTooltipContent from './BooleanTooltipContent';
 
 interface Props {
   data: ResourceData;
@@ -21,7 +22,7 @@ export const StatusTooltip = ({ resourceType, data }: Props): JSX.Element => {
   }
 
   if (equals(resourceType, 'boolean-rule')) {
-    return <div />;
+    return <BooleanTooltipContent data={data} />;
   }
 
   return <ServiceTooltipContent data={data} />;

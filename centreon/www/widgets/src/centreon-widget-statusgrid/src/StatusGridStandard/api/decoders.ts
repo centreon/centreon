@@ -1,6 +1,7 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import {
+  BooleanRule,
   BusinessActivity,
   CalculationMethod,
   Impact,
@@ -107,6 +108,21 @@ export const businessActivityDecoder = JsonDecoder.object<BusinessActivity>(
   {
     calculationMethod: 'calculation_method',
     infrastructureView: 'infrastructure_view'
+  }
+);
+
+export const booleanRuleDecoder = JsonDecoder.object<BooleanRule>(
+  {
+    expressionStatus: JsonDecoder.boolean,
+    id: JsonDecoder.number,
+    isImpactingWhenTrue: JsonDecoder.boolean,
+    name: JsonDecoder.string,
+    status: statusDecoder
+  },
+  'status',
+  {
+    expressionStatus: 'expression_status',
+    isImpactingWhenTrue: 'is_impacting_when_expression_true'
   }
 );
 

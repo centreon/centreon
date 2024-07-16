@@ -17834,3 +17834,18 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid  "Critical threshold"
 # msgstr ""
+
+# msgid "Expression in"
+# msgstr ""
+
+# msgid "Impact applied when"
+# msgstr ""
+
+# msgid "true"
+# msgstr ""
+
+# msgid "false"
+# msgstr ""
+
+# msgid "Click here for details"
+# msgstr ""
