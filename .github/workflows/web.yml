@@ -1001,31 +1001,3 @@ jobs:
           github_ref_name: ${{ github.ref_name }}
           release_type: ${{ needs.get-version.outputs.release_type }}
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
-
-  deploy-platform-nightly:
-    needs:
-      [
-        get-version,
-        e2e-test,
-        performances-test,
-        legacy-e2e-test,
-        deliver-rpm
-      ]
-    if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
-    runs-on: [self-hosted, common]
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Trigger platform deployment
-        uses: ./.github/actions/nightly-platform-deploy
-        with:
-          ref: main
-          bu: RD
-          poller_number: 1
-          instance_features: "Alma9 - MariaDB"
-          centreon_branch: develop
-          configured_resources: false
-          install_business_modules: false
-          instance_password: ${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}
-          cod_service_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
