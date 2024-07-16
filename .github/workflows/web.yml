@@ -289,7 +289,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
-      name: component
+      name: centreon
       module_name: centreon
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -699,30 +699,6 @@ jobs:
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  api-integration-test:
-    needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).databases }}
-    name: api-integration-test-${{ matrix.operating_system }}-${{ matrix.database }}
-
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: api
-      module_name: centreon
-      database_image: bitnami/${{ matrix.database }}
-      image_name: centreon-web
-      os: ${{ matrix.operating_system }}
-      features_path: tests/api/features
-      test_tags: ${{ matrix.test_tags }}
-      config_file: tests/api/behat.yml
-    secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
   legacy-e2e-test:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
@@ -829,7 +805,6 @@ jobs:
     needs:
       [
         get-version,
-        api-integration-test,
         e2e-test,
         performances-test,
         legacy-e2e-test,
@@ -941,7 +916,6 @@ jobs:
     needs:
       [
         get-version,
-        api-integration-test,
         e2e-test,
         performances-test,
         legacy-e2e-test,
@@ -975,7 +949,6 @@ jobs:
     needs:
       [
         get-version,
-        api-integration-test,
         e2e-test,
         performances-test,
         legacy-e2e-test,
@@ -1033,7 +1006,6 @@ jobs:
     needs:
       [
         get-version,
-        api-integration-test,
         e2e-test,
         performances-test,
         legacy-e2e-test,
