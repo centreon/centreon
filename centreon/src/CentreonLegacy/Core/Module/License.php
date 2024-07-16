@@ -29,7 +29,7 @@ use Psr\Container\ContainerInterface;
  */
 class License extends Module
 {
-    /** @var \Psr\Container\ContainerInterface */
+    /** @var ContainerInterface */
     protected $services;
 
     /**

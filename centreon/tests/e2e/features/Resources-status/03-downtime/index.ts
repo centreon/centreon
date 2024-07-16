@@ -174,6 +174,15 @@ Then(
           val.css('background-color') === actionBackgroundColors.inDowntime
         );
       });
+
+    cy.waitForDowntime({
+      host: 'host1',
+      service: serviceInDtName
+    });
+    cy.waitForDowntime({
+      host: 'host1',
+      service: secondServiceInDtName
+    });
   }
 );
 
@@ -205,6 +214,11 @@ Given('a resource is in downtime', () => {
     .then((val) => {
       return val.css('background-color') === actionBackgroundColors.inDowntime;
     });
+
+  cy.waitForDowntime({
+    host: 'host1',
+    service: serviceInDtName
+  });
 });
 
 Given('that you have to go to the downtime page', () => {
@@ -258,8 +272,8 @@ Then('the line disappears from the listing', () => {
         });
     },
     {
-      timeout: 15000,
-      interval: 5000
+      interval: 5000,
+      timeout: 15000
     }
   );
 });
@@ -330,6 +344,15 @@ Given('multiple resources are in downtime', () => {
     .then((val) => {
       return val.css('background-color') === actionBackgroundColors.inDowntime;
     });
+
+  cy.waitForDowntime({
+    host: 'host1',
+    service: serviceInDtName
+  });
+  cy.waitForDowntime({
+    host: 'host1',
+    service: secondServiceInDtName
+  });
 });
 
 When('I search for the resources currently "In Downtime" in the list', () => {
@@ -375,8 +398,8 @@ Then('the lines disappears from the listing', () => {
         });
     },
     {
-      timeout: 15000,
-      interval: 5000
+      interval: 5000,
+      timeout: 15000
     }
   );
 });

@@ -1,16 +1,23 @@
 import { isNil } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { useTheme } from '@mui/material';
 
 import { useFetchQuery } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { Resource } from '../../models';
+import { getWidgetEndpoint } from '../../utils';
 
 import { buildResourcesEndpoint } from './api/endpoint';
-import { StatusType } from './models';
+import { StatusChartProps, StatusType } from './models';
 import { FormattedResponse, formatResponse } from './utils';
 
-interface LoadResourcesProps {
+interface LoadResourcesProps
+  extends Pick<
+    StatusChartProps,
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
+  > {
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resourceType: 'host' | 'service';
@@ -26,18 +33,31 @@ const useLoadResources = ({
   resources,
   refreshCount,
   refreshIntervalToUse,
-  resourceType
+  resourceType,
+  id,
+  dashboardId,
+  playlistHash,
+  widgetPrefixQuery
 }: LoadResourcesProps): LoadResources => {
   const theme = useTheme();
 
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
   const { data: statuses, isLoading } = useFetchQuery<StatusType>({
-    getEndpoint: () => {
-      return buildResourcesEndpoint({
-        resources,
-        type: resourceType
-      });
-    },
+    getEndpoint: () =>
+      getWidgetEndpoint({
+        dashboardId,
+        defaultEndpoint: buildResourcesEndpoint({
+          resources,
+          type: resourceType
+        }),
+        extraQueryParameters: { resource_type: resourceType as string },
+        isOnPublicPage,
+        playlistHash,
+        widgetId: id
+      }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'statusChart',
       JSON.stringify(resources),
       refreshCount,
@@ -46,7 +66,8 @@ const useLoadResources = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   return {

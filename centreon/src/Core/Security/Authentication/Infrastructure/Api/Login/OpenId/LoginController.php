@@ -33,12 +33,8 @@ use Core\Security\Authentication\Application\UseCase\Login\Login;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
 use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
-use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\Exception\ConflictingHeadersException;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class LoginController extends AbstractController
 {
@@ -48,19 +44,14 @@ final class LoginController extends AbstractController
      * @param Request $request
      * @param Login $useCase
      * @param LoginPresenter $presenter
-     * @param SessionInterface $session
      *
-     * @throws AuthenticationException
-     * @throws ConflictingHeadersException
-     *
-     * @return View|Response|null
+     * @return View
      */
     public function __invoke(
         Request $request,
         Login $useCase,
         LoginPresenter $presenter,
-        SessionInterface $session
-    ): null|View|Response {
+    ): View {
         $loginRequest = LoginRequest::createForOpenId(
             $request->getClientIp() ?: '',
             (string) $request->query->get('code', '')

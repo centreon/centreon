@@ -67,7 +67,7 @@ final class FindTimePeriods
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(TimeperiodException::accessNotAllowed()->getMessage())
+                    new ForbiddenResponse(TimePeriodException::accessNotAllowed()->getMessage())
                 );
 
                 return;

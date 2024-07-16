@@ -43,7 +43,8 @@ beforeEach(closure: function (): void {
         writeRepository: $this->writeRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         accessGroupRepository: $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class)
+        dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
+        isCloudPlatform: true
     );
 
     $this->presenter = new DeleteRulesPresenterStub($this->createMock(PresenterFormatterInterface::class));
@@ -63,7 +64,7 @@ it('should present a Forbidden response when user does not have sufficient right
         ->willReturn(false);
 
     $request = new DeleteRulesRequest();
-    $request->ids = [1,2];
+    $request->ids = [1, 2];
 
     ($this->useCase)($request, $this->presenter);
 
@@ -82,7 +83,7 @@ it('should present a Forbidden response when user does not have sufficient right
         );
 
     $request = new DeleteRulesRequest();
-    $request->ids = [1,2];
+    $request->ids = [1, 2];
 
     ($this->useCase)($request, $this->presenter);
 
@@ -92,9 +93,9 @@ it('should present a Forbidden response when user does not have sufficient right
         ->toBe(RuleException::notAllowed()->getMessage());
 });
 
-it('should present a Multi-Status Response when a bulk delete action is executed', function () {
+it('should present a Multi-Status Response when a bulk delete action is executed', function (): void {
     $request = new DeleteRulesRequest();
-    $request->ids = [1,2];
+    $request->ids = [1, 2];
 
     $this->user
         ->expects($this->once())
@@ -120,14 +121,14 @@ it('should present a Multi-Status Response when a bulk delete action is executed
             [
                 'self' => 'centreon/api/latest/administration/resource-access/rules/1',
                 'status' => 204,
-                'message' => null
+                'message' => null,
             ],
             [
                 'self' => 'centreon/api/latest/administration/resource-access/rules/2',
                 'status' => 404,
-                'message' => 'Resource access rule not found'
+                'message' => 'Resource access rule not found',
             ],
-        ]
+        ],
     ];
 
     expect($this->presenter->response)

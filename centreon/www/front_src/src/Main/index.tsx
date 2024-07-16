@@ -1,4 +1,4 @@
-import { useEffect, Suspense } from 'react';
+import { useEffect, Suspense, startTransition } from 'react';
 
 import 'dayjs/locale/en';
 import 'dayjs/locale/pt';
@@ -16,7 +16,9 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import duration from 'dayjs/plugin/duration';
 import { and, equals, isNil, not } from 'ramda';
 import { Outlet, useLocation } from 'react-router-dom';
-import { useAtomValue, useAtom } from 'jotai';
+import { useAtomValue, useAtom, useSetAtom } from 'jotai';
+
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import reactRoutes from '../reactRoutes/routeMap';
 
@@ -39,17 +41,24 @@ const Main = (): JSX.Element => {
   const navigate = router.useNavigate();
   const { pathname } = useLocation();
 
-  useMain();
+  const hasReachedAPublicPage = !!pathname.match(/^\/public\//);
+
+  useMain(hasReachedAPublicPage);
 
   const [areUserParametersLoaded] = useAtom(areUserParametersLoadedAtom);
   const platformInstallationStatus = useAtomValue(
     platformInstallationStatusAtom
   );
+  const setIsOnPublicPageAtom = useSetAtom(isOnPublicPageAtom);
 
   const navigateTo = (path: string): void => {
     navigate(path);
     window.location.reload();
   };
+
+  startTransition(() => {
+    setIsOnPublicPageAtom(hasReachedAPublicPage);
+  });
 
   useEffect(() => {
     if (isNil(platformInstallationStatus) || isNil(areUserParametersLoaded)) {
@@ -83,7 +92,7 @@ const Main = (): JSX.Element => {
     }
   }, [platformInstallationStatus, areUserParametersLoaded]);
 
-  if (isNil(platformInstallationStatus)) {
+  if (!hasReachedAPublicPage && isNil(platformInstallationStatus)) {
     return <MainLoaderWithoutTranslation />;
   }
 

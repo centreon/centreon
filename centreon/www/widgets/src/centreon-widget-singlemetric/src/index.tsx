@@ -27,15 +27,29 @@ const SingleMetric = ({
   panelOptions,
   globalRefreshInterval,
   refreshCount,
-  isFromPreview
+  isFromPreview,
+  playlistHash,
+  dashboardId,
+  id,
+  queryClient,
+  widgetPrefixQuery
 }: Props): JSX.Element => (
-  <Module maxSnackbars={1} seedName="widget-singlemetric" store={store}>
+  <Module
+    maxSnackbars={1}
+    queryClient={queryClient}
+    seedName="widget-singlemetric"
+    store={store}
+  >
     <Graph
       {...panelData}
       {...panelOptions}
+      dashboardId={dashboardId}
       globalRefreshInterval={globalRefreshInterval}
+      id={id}
       isFromPreview={isFromPreview}
+      playlistHash={playlistHash}
       refreshCount={refreshCount}
+      widgetPrefixQuery={widgetPrefixQuery}
     />
   </Module>
 );

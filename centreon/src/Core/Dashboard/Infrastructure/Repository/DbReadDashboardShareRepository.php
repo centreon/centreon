@@ -34,6 +34,7 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
@@ -430,8 +431,10 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     /**
      * @inheritDoc
      */
-    public function findContactsWithAccessRightByRequestParameters(RequestParametersInterface $requestParameters): array
-    {
+    public function findContactsWithAccessRightByRequestParameters(
+        RequestParametersInterface $requestParameters,
+        bool $isCloudPlatform = false
+    ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
@@ -439,7 +442,12 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         ]);
 
         $query = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, c.contact_name, c.contact_id, c.contact_email
+            SELECT SQL_CALC_FOUND_ROWS
+                GROUP_CONCAT(topology.topology_name) as topologies,
+                c.contact_name,
+                c.contact_id,
+                c.contact_email,
+                ag.acl_group_name
                 FROM `:db`.contact c
                     LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                         ON cgcr.contact_contact_id = c.contact_id
@@ -447,28 +455,37 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                         ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
                     LEFT JOIN `:db`.acl_group_contacts_relations gcr
                         ON gcr.contact_contact_id = c.contact_id
+                    LEFT JOIN `:db`.acl_groups ag
+                        ON ag.acl_group_id = gcr.acl_group_id
                     LEFT JOIN `:db`.acl_group_topology_relations agtr
                         ON agtr.acl_group_id = gcr.acl_group_id
                             OR agtr.acl_group_id = gcgr.acl_group_id
                     LEFT JOIN `:db`.acl_topology_relations acltr
                         ON acltr.acl_topo_id = agtr.acl_topology_id
-                    INNER JOIN `:db`.topology
+                    LEFT JOIN `:db`.topology
                         ON topology.topology_id = acltr.topology_topology_id
-                    INNER JOIN `:db`.topology parent
+                    LEFT JOIN `:db`.topology parent
                         ON topology.topology_parent = parent.topology_page
             SQL;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         $query .= $searchRequest !== null
-            ? $searchRequest . ' AND '
-            : ' WHERE ';
+            ? $searchRequest . ' AND ('
+            : ' WHERE (';
 
+        if ($isCloudPlatform) {
+            $query .= <<<'SQL'
+                (ag.acl_group_name = :aclGroup AND c.contact_oreon = '1')
+                OR
+
+                SQL;
+        }
         $query .= <<<'SQL'
             parent.topology_name = 'Dashboards'
             AND topology.topology_name IN ('Viewer','Administrator','Creator')
             AND acltr.access_right IS NOT NULL
-                AND c.contact_oreon = '1'
-            GROUP BY c.contact_id
+                AND c.contact_oreon = '1')
+            GROUP BY c.contact_id, ag.acl_group_name
             SQL;
 
         $query .= $sqlTranslator->translatePaginationToSql();
@@ -481,6 +498,13 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             $type = key($data);
             $value = $data[$type];
             $statement->bindValue($key, $value, $type);
+        }
+        if ($isCloudPlatform) {
+            $statement->bindValue(
+                ':aclGroup',
+                DashboardRights::AUTHORIZED_ACL_GROUP,
+                \PDO::PARAM_STR
+            );
         }
         $statement->execute();
 
@@ -548,6 +572,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         foreach ($bind as $token => $contactId) {
             $statement->bindValue($token, $contactId, \PDO::PARAM_INT);
         }
+
         $statement->execute();
 
         $dashboardContactRoles = [];
@@ -556,7 +581,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
              *     topologies: string,
              *     contact_name: string,
              *     contact_id: int,
-             *     contact_email: string
+             *     contact_email: string,
+             *     acl_group_name: string|null
              * } $contactRole
              */
             $dashboardContactRoles[] = $this->createDashboardContactRole($contactRole);
@@ -897,7 +923,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      *      contact_id: int,
      *      contact_email: string,
      *      contact_admin?: string,
-     *      topologies?: string
+     *      topologies?: string,
+     *      acl_group_name?: string|null
      *  } $contactRole
      *
      * @throws \UnexpectedValueException
@@ -906,15 +933,22 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     private function createDashboardContactRole(array $contactRole): DashboardContactRole
     {
-        $topologies = array_key_exists('topologies', $contactRole)
-            ? explode(',', $contactRole['topologies'])
-            : [];
-        $roles = array_map(
-            static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
-                $topology
-            ),
-            $topologies
-        );
+        if (
+            array_key_exists('acl_group_name', $contactRole)
+            && $contactRole['acl_group_name'] === DashboardRights::AUTHORIZED_ACL_GROUP
+        ) {
+            $roles = [DashboardGlobalRole::Administrator];
+        } else {
+            $topologies = array_key_exists('topologies', $contactRole)
+                ? explode(',', $contactRole['topologies'])
+                : [];
+            $roles = array_map(
+                static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+                    $topology
+                ),
+                $topologies
+            );
+        }
 
         return new DashboardContactRole(
             $contactRole['contact_id'],

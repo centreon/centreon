@@ -211,7 +211,7 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      * @throws \Core\Domain\Exception\InvalidGeoCoordException
      *
      * @return NewHostGroup

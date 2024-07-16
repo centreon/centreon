@@ -30,7 +30,7 @@ import { widgetPropertiesAtom } from '../../../atoms';
 import useMetrics from './useMetrics';
 import { useMetricsStyles } from './Metrics.styles';
 
-const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
+const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { classes: metricsClasses } = useMetricsStyles();
@@ -53,7 +53,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     metricWithSeveralResources,
     renderOptionsForSingleMetric,
     renderOptionsForMultipleMetricsAndResources,
-    getMetricOptionDisabled
+    getMetricOptionDisabled,
+    hasMetaService
   } = useMetrics(propertyName);
 
   const { canEditField } = useCanEditProperties();
@@ -77,6 +78,10 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     )
   ];
 
+  if (hasMetaService) {
+    return null;
+  }
+
   const header = (
     <div className={classes.resourcesHeader}>
       <Avatar compact className={avatarClasses.widgetAvatar}>
@@ -92,7 +97,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       {header}
       <div className={classes.resourceComposition}>
         {widgetProperties?.singleMetricSelection &&
-        widgetProperties?.singleHostPerMetric ? (
+        widgetProperties?.singleResourceSelection ? (
           <SingleAutocompleteField
             className={classes.resources}
             disabled={

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace CentreonLegacy\Core\Module;
 
 use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Finder\Finder;
 
 class Upgrader extends Module
 {
@@ -39,7 +40,12 @@ class Upgrader extends Module
         // Process all directories within the /upgrade/ path.
         // Entry name should be a version.
         $upgradesPath = $this->getModulePath($this->moduleName) . '/upgrade/';
-        $upgrades = $this->services->get('finder')->directories()->depth('== 0')->in($upgradesPath);
+        /** @var Finder $upgrades */
+        $upgrades = $this->services->get('finder');
+        $upgrades
+            ->directories()
+            ->depth('== 0')
+            ->in($upgradesPath);
         $orderedUpgrades = [];
         foreach ($upgrades as $upgrade) {
             $orderedUpgrades[] = $upgrade->getBasename();

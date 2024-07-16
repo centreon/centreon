@@ -26,7 +26,6 @@ namespace Core\Dashboard\Infrastructure\API\DeleteContactGroupDashboardShare;
 use Centreon\Application\Controller\AbstractController;
 use Core\Dashboard\Application\UseCase\DeleteContactGroupDashboardShare\DeleteContactGroupDashboardShare;
 use Core\Dashboard\Application\UseCase\DeleteContactGroupDashboardShare\DeleteContactGroupDashboardSharePresenterInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -35,7 +34,6 @@ final class DeleteContactGroupDashboardShareController extends AbstractControlle
     /**
      * @param int $dashboardId
      * @param int $contactGroupId
-     * @param Request $request
      * @param DeleteContactGroupDashboardShare $useCase
      * @param DeleteContactGroupDashboardSharePresenter $presenter
      *
@@ -46,7 +44,6 @@ final class DeleteContactGroupDashboardShareController extends AbstractControlle
     public function __invoke(
         int $dashboardId,
         int $contactGroupId,
-        Request $request,
         DeleteContactGroupDashboardShare $useCase,
         DeleteContactGroupDashboardSharePresenterInterface $presenter
     ): Response {

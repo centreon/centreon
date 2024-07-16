@@ -4,16 +4,19 @@ import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import { flatten, isNil, not } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { animated, useTransition } from '@react-spring/web';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 import { styled } from '@mui/material';
 
-import { featureFlagsDerivedAtom } from '@centreon/ui-context';
-import { PageSkeleton, useMemoComponent } from '@centreon/ui';
+import {
+  featureFlagsDerivedAtom,
+  federatedModulesAtom
+} from '@centreon/ui-context';
+import { client, PageSkeleton, useMemoComponent } from '@centreon/ui';
 
 import internalPagesRoutes from '../../reactRoutes';
 import BreadcrumbTrail from '../../BreadcrumbTrail';
 import useNavigation from '../../Navigation/useNavigation';
-import { federatedModulesAtom } from '../../federatedModules/atoms';
 import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
 import routeMap from '../../reactRoutes/routeMap';
@@ -159,48 +162,50 @@ const ReactRouterContent = ({
   return useMemoComponent({
     Component: (
       <Suspense fallback={<PageSkeleton />}>
-        <Routes location={pathname}>
-          {...deprecatedRoutes
-            .filter((route) => !route.ignoreWhen?.(pathname))
-            .map(({ deprecatedRoute, newRoute }) => (
-              <Route
-                element={<DeprecatedRoute newRoute={newRoute} />}
-                key={deprecatedRoute.path}
-                path={deprecatedRoute.path}
-              />
-            ))}
-          {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
-            const isLogoutPage = path === routeMap.logout;
-            const isAllowed =
-              isLogoutPage || isAllowedPage({ allowedPages, path });
+        <QueryClientProvider client={client}>
+          <Routes location={pathname}>
+            {...deprecatedRoutes
+              .filter((route) => !route.ignoreWhen?.(pathname))
+              .map(({ deprecatedRoute, newRoute }) => (
+                <Route
+                  element={<DeprecatedRoute newRoute={newRoute} />}
+                  key={deprecatedRoute.path}
+                  path={deprecatedRoute.path}
+                />
+              ))}
+            {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
+              const isLogoutPage = path === routeMap.logout;
+              const isAllowed =
+                isLogoutPage || isAllowedPage({ allowedPages, path });
 
-            return (
-              <Route
-                element={
-                  isAllowed ? (
-                    <PageContainer>
-                      <BreadcrumbTrail path={path} />
-                      <Comp />
-                    </PageContainer>
-                  ) : (
-                    <NotAllowedPage />
-                  )
-                }
-                key={path}
-                path={path}
-                {...rest}
-              />
-            );
-          })}
-          {getExternalPageRoutes({
-            allowedPages,
-            featureFlags,
-            federatedModules
-          })}
-          {externalPagesFetched && (
-            <Route element={<NotFoundPage />} path="*" />
-          )}
-        </Routes>
+              return (
+                <Route
+                  element={
+                    isAllowed ? (
+                      <PageContainer>
+                        <BreadcrumbTrail path={path} />
+                        <Comp />
+                      </PageContainer>
+                    ) : (
+                      <NotAllowedPage />
+                    )
+                  }
+                  key={path}
+                  path={path}
+                  {...rest}
+                />
+              );
+            })}
+            {getExternalPageRoutes({
+              allowedPages,
+              featureFlags,
+              federatedModules
+            })}
+            {externalPagesFetched && (
+              <Route element={<NotFoundPage />} path="*" />
+            )}
+          </Routes>
+        </QueryClientProvider>
       </Suspense>
     ),
     memoProps: [

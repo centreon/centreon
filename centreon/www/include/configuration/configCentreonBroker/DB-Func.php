@@ -33,6 +33,15 @@
  *
  */
 
+require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
+
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 /**
  *
  * Test broker file config existance
@@ -108,9 +117,29 @@ function deleteCentreonBrokerInDB($ids = array())
 {
     global $pearDB;
 
+    $brokerIds = array_keys($ids);
+
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    /** @var FeatureFlags $featureFlagManager */
+    $featureFlagManager = $kernel->getContainer()->get(FeatureFlags::class);
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+
+    /** @var \Core\Common\Application\Repository\WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(\Core\Common\Application\Repository\WriteVaultRepositoryInterface::class);
+    $writeVaultRepository->setCustomPath(\Core\Common\Infrastructure\Repository\AbstractVaultRepository::BROKER_VAULT_PATH);
+    if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
+        deleteBrokerConfigsFromVault($writeVaultRepository, $brokerIds);
+    }
+
     $statement = $pearDB->prepare("DELETE FROM cfg_centreonbroker WHERE config_id = :config_id");
-    foreach ($ids as $key => $value) {
-        $statement->bindValue(':config_id', (int) $key, \PDO::PARAM_INT);
+    foreach ($brokerIds as $id) {
+        $statement->bindValue(':config_id', $id, \PDO::PARAM_INT);
         $statement->execute();
     }
 }
@@ -206,26 +235,32 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
         $row = getCfgBrokerData((int) $id);
 
         # Prepare values
-        $values = array();
+        $values = [];
         $values['activate_watchdog']['activate_watchdog'] = '0';
         $values['activate']['activate'] = '0';
         $values['ns_nagios_server'] = $row['ns_nagios_server'];
         $values['event_queue_max_size'] = $row['event_queue_max_size'];
         $values['cache_directory'] = $row['cache_directory'];
         $values['activate_watchdog']['activate_watchdog'] = $row['daemon'];
-        $values['output'] = array();
-        $values['input'] = array();
+        $values['output'] = [];
+        $values['input'] = [];
         $brokerCfgInfoData = getCfgBrokerInfoData((int) $id);
+
         foreach ($brokerCfgInfoData as $rowOpt) {
             if ($rowOpt['config_key'] == 'filters') {
                 continue;
             } elseif ($rowOpt['config_key'] == 'category') {
-                $config_key = 'filters__' . $rowOpt['config_group_id'] . '__category';
-                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$config_key] = $rowOpt['config_value'];
+                $configKey = 'filters__' . $rowOpt['config_group_id'] . '__category';
+                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$configKey][] =
+                    $rowOpt['config_value'];
+            } elseif ($rowOpt['fieldIndex'] !== null) {
+                $configKey = $rowOpt['config_key'] . '_' . $rowOpt['fieldIndex'];
+                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$configKey] = $rowOpt['config_value'];
             } else {
                 $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$rowOpt['config_key']] =
                     $rowOpt['config_value'];
             }
+
         }
 
         # Convert values radio button
@@ -236,7 +271,7 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
                         list($tagId, $typeId) = explode('_', $infos['blockId']);
                         $fieldtype = $cbObj->getFieldtypes($typeId);
                     } else {
-                        $fieldtype = array();
+                        $fieldtype = [];
                     }
 
                     if (is_array($infos)) {
@@ -271,6 +306,9 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
             }
             $values['name'] = $newname;
             $values['filename'] = $newfilename;
+
+            retrieveOriginalPasswordValuesFromVault($values);
+
             $cbObj->insertConfig($values);
         }
     }
@@ -330,9 +368,11 @@ function getCfgBrokerInfoData(int $configId): array
 {
     global $pearDB;
 
-    $query = "SELECT config_key, config_value, config_group, config_group_id "
-             . "FROM cfg_centreonbroker_info "
-             . "WHERE config_id = :config_id";
+    $query = <<<SQL
+        SELECT config_key, config_value, config_group, config_group_id, fieldIndex
+        FROM cfg_centreonbroker_info
+        WHERE config_id = :config_id
+        SQL;
     try {
         $statement = $pearDB->prepare($query);
         $statement->bindValue(':config_id', $configId, \PDO::PARAM_INT);
@@ -343,4 +383,57 @@ function getCfgBrokerInfoData(int $configId): array
     }
     $statement->closeCursor();
     return $cfgBrokerInfoData;
+}
+
+/**
+ * Replace the vaultPath by the actual value in the values array.
+ *
+ * @param array{
+ *  name:string,
+ *  output:array<string,array>,
+ *  input:array<string,array>
+ * } $values
+ *
+ */
+function retrieveOriginalPasswordValuesFromVault(array &$values): void
+{
+    $kernel = Kernel::createForWeb();
+    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+
+    if ($vaultConfiguration !== null) {
+        /** @var Logger $logger */
+        $logger = $kernel->getContainer()->get(Logger::class);
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+        foreach (['input', 'output'] as $tag) {
+            foreach ($values[$tag] as $key => $inputOutput) {
+                foreach ($inputOutput as $name => $value) {
+                    if (is_string($value) && str_starts_with($value, VaultConfiguration::VAULT_PATH_PATTERN)) {
+                        [$groupName, $subName] = explode('__', $name);
+                        [$subName, $subKey] = explode('_', $subName);
+                        if ($subName === 'value') {
+                            $vaultKey = implode(
+                                '_',
+                                [$inputOutput['name'], $groupName, $inputOutput["{$groupName}__name_{$subKey}"]]
+                            );
+                        } else {
+                            $vaultKey = $inputOutput['name'] . '_' . $name;
+                        }
+
+                        $passwordValue = findBrokerConfigValueFromVault(
+                            $readVaultRepository,
+                            $logger,
+                            $vaultKey,
+                            $value,
+                        );
+                        $values[$tag][$key][$name] = $passwordValue;
+                    }
+                }
+            }
+        }
+    }
 }

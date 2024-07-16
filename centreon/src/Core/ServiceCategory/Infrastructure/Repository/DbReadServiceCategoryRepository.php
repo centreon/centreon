@@ -29,10 +29,12 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceCategory\Domain\Model\ServiceCategoryNamesById;
+use Core\ServiceGroup\Infrastructure\Repository\ServiceGroupRepositoryTrait;
 use Utility\SqlConcatenator;
 
 /**
@@ -45,7 +47,7 @@ use Utility\SqlConcatenator;
  */
 class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements ReadServiceCategoryRepositoryInterface
 {
-    use LoggerTrait;
+    use LoggerTrait, ServiceGroupRepositoryTrait, SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -479,6 +481,43 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * Determine if service categories are filtered for given access group ids
+     * true: accessible service categories are filtered (only specified are accessible)
+     * false: accessible service categories are not filtered (all are accessible).
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    public function hasRestrictedAccessToServiceCategories(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            'SELECT 1
+            FROM `:db`.acl_resources_sc_relations arhr
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id'
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param _ServiceCategory $result
      *
      * @return ServiceCategory
@@ -506,6 +545,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         $hostAcls = '';
         $hostGroupAcls = '';
         $hostCategoryAcls = '';
+        $serviceGroupAcls = '';
         if ([] !== $accessGroupIds) {
             if (! $this->hasAccessToAllHosts($accessGroupIds)) {
                 $hostAcls = <<<'SQL'
@@ -552,6 +592,23 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                             ON ag.acl_group_id = argr.acl_group_id
                         WHERE ag.acl_group_id IN (:access_group_ids)
                     )
+                    SQL;
+            }
+
+            if (! $this->hasAccessToAllServiceGroups($accessGroupIds)) {
+                $serviceGroupAcls = <<<'SQL'
+                        AND sgr.servicegroup_sg_id IN (
+                            SELECT arsgr.sg_id
+                            FROM `:db`.acl_resources_sg_relations arsgr
+                            INNER JOIN `:db`.acl_resources res
+                                ON res.acl_res_id = arsgr.acl_res_id
+                            INNER JOIN `:db`.acl_res_group_relations argr
+                                ON arsgr.acl_res_id = res.acl_res_id
+                            INNER JOIN `:db`.acl_groups ag
+                                ON ag.acl_group_id = argr.acl_group_id
+                            WHERE ag.acl_group_id IN (:access_group_ids)
+
+                        )
                     SQL;
             }
         }
@@ -689,6 +746,34 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                         ON host.host_id = hsr.host_host_id
                     SQL
             );
+        } else if (\in_array('servicegroup', $matches['object'], true)) {
+            $findCategoryByServiceConcatenator->appendJoins(
+                <<<SQL
+                        LEFT JOIN `:db`.service_categories_relation scr
+                            ON scr.sc_id = sc.sc_id
+                        LEFT JOIN `:db`.service s
+                            ON s.service_id = scr.service_service_id
+                        LEFT JOIN `:db`.servicegroup_relation sgr
+                            ON sgr.service_service_id = s.service_id
+                            {$serviceGroupAcls}
+                        LEFT JOIN `:db`.servicegroup
+                            ON sgr.servicegroup_sg_id = servicegroup.sg_id
+                    SQL
+            );
+
+            $findCategoryByServiceTemplateConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.service s
+                        ON s.service_template_model_stm_id = scr.service_service_id
+                    LEFT JOIN `:db`.servicegroup_relation sgr
+                        ON sgr.service_service_id = s.service_id
+                        {$serviceGroupAcls}
+                    LEFT JOIN `:db`.servicegroup
+                        ON sgr.servicegroup_sg_id = servicegroup.sg_id
+                    SQL
+            );
         }
 
         return [$findCategoryByServiceConcatenator, $findCategoryByServiceTemplateConcatenator];
@@ -718,6 +803,8 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             'hostgroup.name' => 'hostgroup.hg_name',
             'hostcategory.id' => 'hostcategories.hc_id',
             'hostcategory.name' => 'hostcategories.hc_name',
+            'servicegroup.id' => 'servicegroup.sg_id',
+            'servicegroup.name' => 'servicegroup.sg_name',
         ]);
 
         foreach ($concatenators as $concatenator) {
@@ -877,43 +964,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         foreach ($bindValuesArray as $bindParam => $bindValue) {
             $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * Determine if service categories are filtered for given access group ids
-     * true: accessible service categories are filtered (only specified are accessible)
-     * false: accessible service categories are not filtered (all are accessible).
-     *
-     * @param int[] $accessGroupIds
-     *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
-     *
-     * @return bool
-     */
-    private function hasRestrictedAccessToServiceCategories(array $accessGroupIds): bool
-    {
-        $concatenator = new SqlConcatenator();
-
-        $concatenator->defineSelect(
-            'SELECT 1
-            FROM `:db`.acl_resources_sc_relations arhr
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id'
-        );
-
-        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
-            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
-
-        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
-
-        $concatenator->bindValuesToStatement($statement);
         $statement->execute();
 
         return (bool) $statement->fetchColumn();

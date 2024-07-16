@@ -22,7 +22,7 @@ const getNotificationResponse = ({
       channel: 'Email',
       formatted_message: '',
       message:
-        '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Bonjour","type":"text","version":1},{"type":"linebreak","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"J\'espére que vous allez bien  ","type":"text","version":1},{"type":"linebreak","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"veuillez trouver ci-joint mes réponses à la fiche de candidature","type":"text","version":1},{"type":"linebreak","version":1},{"type":"linebreak","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"Cordialement","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
+        '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Hello ","type":"text","version":1},{"detail":0,"format":1,"mode":"normal","style":"","text":"there","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":",","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"How are you doing so ","type":"text","version":1},{"detail":0,"format":12,"mode":"normal","style":"","text":"far","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"?","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"heading","version":1,"tag":"h5"}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
       subject: 'Notification'
     }
   ],

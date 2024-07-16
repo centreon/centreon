@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { SelectEntry } from '@centreon/ui';
 
 import { PanelConfiguration, WidgetOptions } from '../models';
+import { SubInput } from '../../../../federatedModules/models';
 
 export interface Widget {
   data: object | null;
@@ -24,6 +25,8 @@ export interface WidgetPropertyProps {
   disabled?: boolean;
   disabledCondition?: (values: Widget) => boolean;
   endAdornment?: ReactNode;
+  excludedResourceTypes?: Array<string>;
+  isInGroup: boolean;
   keepOneOptionSelected?: boolean;
   label: string;
   options?: Array<SelectEntry>;
@@ -34,18 +37,27 @@ export interface WidgetPropertyProps {
   secondaryLabel?: Array<string> | string;
   show?: ShowInput;
   singleResourceType?: boolean;
+  slider?: {
+    max: number;
+    min: number;
+    unit?: string;
+  };
+  subInputs?: Array<SubInput>;
   text?: {
     autoSize?: boolean;
+    max?: number;
+    min?: number;
     multiline?: boolean;
     size?: string;
     step?: string;
     type?: string;
   };
   type: string;
+  useAdditionalResources?: boolean;
 }
 
 export interface WidgetDataResource {
-  resourceType: 'host-group' | 'host-category' | 'host' | 'service';
+  resourceType: WidgetResourceType;
   resources: Array<SelectEntry>;
 }
 export interface WidgetDataMetric {
@@ -83,6 +95,7 @@ export enum WidgetResourceType {
   host = 'host',
   hostCategory = 'host-category',
   hostGroup = 'host-group',
+  metaService = 'meta-service',
   service = 'service',
   serviceCategory = 'service-category',
   serviceGroup = 'service-group'

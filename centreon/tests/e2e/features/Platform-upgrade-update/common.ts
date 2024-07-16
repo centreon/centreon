@@ -83,6 +83,11 @@ const getCentreonStableMinorVersions = (
         name: 'web'
       });
     }
+    const lastStableMinorVersion = [...new Set(stableVersions)]
+      .sort((a, b) => a - b)
+      .pop();
+    cy.log('lastStableMinorVersion', lastStableMinorVersion);
+    Cypress.env('lastStableMinorVersion', lastStableMinorVersion);
 
     return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
   });
@@ -100,8 +105,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini`,
         `/etc/init.d/mysql start`,
         `mkdir -p /run/php-fpm`,
-        `systemctl start php-fpm`,
-        `systemctl start httpd`,
+        `systemctl start php-fpm || systemctl restart php-fpm`,
+        `systemctl start httpd || systemctl restart httpd`,
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         `dnf config-manager --set-enabled 'centreon-*'`
       ],
@@ -317,6 +322,14 @@ When('administrator runs the update procedure', () => {
 
   cy.wait('@getStep3');
   cy.contains('Release notes');
+  // check correct updated version
+  const installed_version = Cypress.env('installed_version');
+  cy.log(`installed_version : ${installed_version}`);
+  cy.getWebVersion().then(({ major_version, minor_version }) => {
+    cy.contains(
+      `upgraded from version ${installed_version} to ${major_version}.${minor_version}`
+    ).should('be.visible');
+  });
   cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
@@ -368,7 +381,10 @@ Then(
         template: 'serviceTemplate1'
       })
       .applyPollerConfiguration();
-
+    cy.visit('/');
+    cy.getWebVersion().then(({ major_version, minor_version }) => {
+      cy.contains(`${major_version}.${minor_version}`).should('be.visible');
+    });
     cy.loginByTypeOfUser({
       jsonName: 'admin'
     }).wait('@getLastestUserFilters');

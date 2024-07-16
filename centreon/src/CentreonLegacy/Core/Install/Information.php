@@ -49,7 +49,7 @@ class Information
         return $step;
     }
 
-    public function setStep($step)
+    public function setStep($step): void
     {
         $stepDir = __DIR__ . '/../../../../www/install/tmp';
         if (! $this->dependencyInjector['filesystem']->exists($stepDir)) {
@@ -87,8 +87,19 @@ class Information
 
     public function nextStepContent()
     {
-        $step = $this->getStep() + 1;
+        if ($this->getStep() === '6Vault') {
+            $step = 7;
+        } else {
+            $step = $this->getStep() + 1;
+        }
         $this->setStep($step);
+
+        return $this->getStepContent();
+    }
+
+    public function vaultStepContent()
+    {
+        $this->setStep('6Vault');
 
         return $this->getStepContent();
     }

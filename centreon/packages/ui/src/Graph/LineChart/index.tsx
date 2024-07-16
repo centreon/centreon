@@ -1,6 +1,5 @@
 import { MutableRefObject, useRef } from 'react';
 
-import { Curve } from '@visx/visx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
@@ -12,25 +11,22 @@ import utcPlugin from 'dayjs/plugin/utc';
 
 import { ParentSize } from '../..';
 import { LineChartData, Thresholds } from '../common/models';
+import Loading from '../../LoadingSkeleton';
 
 import LineChart from './LineChart';
 import LoadingSkeleton from './LoadingSkeleton';
-import { GlobalAreaLines, LineChartProps, LegendModel } from './models';
+import { GlobalAreaLines, LineChartProps } from './models';
 import useLineChartData from './useLineChartData';
-import { CurveType } from './BasicComponents/Lines/models';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
 interface Props extends Partial<LineChartProps> {
-  curve?: CurveType;
   data?: LineChartData;
   end: string;
-  legend: LegendModel;
   limitLegend?: false | number;
   loading: boolean;
-  marginBottom?: number;
   shapeLines?: GlobalAreaLines;
   start: string;
   thresholdUnit?: string;
@@ -49,12 +45,18 @@ const WrapperLineChart = ({
   data,
   loading,
   timeShiftZones,
-  tooltip,
+  tooltip = {
+    mode: 'all',
+    sortOrder: 'name'
+  },
   annotationEvent,
-  legend,
+  legend = {
+    display: true,
+    mode: 'grid',
+    placement: 'bottom'
+  },
   header,
-  curve = Curve.curveLinear,
-  marginBottom = 0,
+  lineStyle,
   thresholds,
   thresholdUnit,
   limitLegend
@@ -65,20 +67,20 @@ const WrapperLineChart = ({
   if (loading && !adjustedData) {
     return (
       <LoadingSkeleton
-        displayTitleSkeleton={header?.displayTitle ?? true}
+        displayTitleSkeleton={header?.displayTitle ?? false}
         graphHeight={height || 200}
       />
     );
   }
 
   if (!adjustedData) {
-    return null;
+    return <Loading height={height} width={width} />;
   }
 
   return (
     <div
       ref={lineChartRef as MutableRefObject<HTMLDivElement>}
-      style={{ height: '100%', overflowY: 'hidden', width: '100%' }}
+      style={{ height: '100%', overflow: 'hidden', width: '100%' }}
     >
       <ParentSize>
         {({
@@ -89,7 +91,6 @@ const WrapperLineChart = ({
             <LineChart
               annotationEvent={annotationEvent}
               axis={axis}
-              curve={curve}
               displayAnchor={displayAnchor}
               graphData={adjustedData}
               graphInterval={{ end, start }}
@@ -98,8 +99,7 @@ const WrapperLineChart = ({
               height={height || responsiveHeight}
               legend={legend}
               limitLegend={limitLegend}
-              loading={loading}
-              marginBottom={marginBottom}
+              lineStyle={lineStyle}
               shapeLines={shapeLines}
               thresholdUnit={thresholdUnit}
               thresholds={thresholds}

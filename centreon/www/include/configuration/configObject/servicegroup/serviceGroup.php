@@ -34,22 +34,30 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/servicegroup/";
+const SERVICE_GROUP_ADD = 'a';
+const SERVICE_GROUP_WATCH = 'w';
+const SERVICE_GROUP_MODIFY = 'c';
+const SERVICE_GROUP_ACTIVATION = 's';
+const SERVICE_GROUP_DEACTIVATION = 'u';
+const SERVICE_GROUP_DUPLICATION = 'm';
+const SERVICE_GROUP_DELETION = 'd';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// Path to the configuration dir
+$path = './include/configuration/configObject/servicegroup/';
 
-$sg_id = filter_var(
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
+
+global $isCloudPlatform;
+
+$isCloudPlatform = isCloudPlatform();
+
+$serviceGroupId = filter_var(
     $_GET['sg_id'] ?? $_POST['sg_id'] ?? null,
     FILTER_VALIDATE_INT
 );
@@ -64,8 +72,8 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] !== '' && $p !== $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
@@ -81,32 +89,32 @@ function mywrap($el)
 $sgString = implode(',', array_map('mywrap', array_keys($sgs)));
 
 switch ($o) {
-    case "a": # Add a service group
-    case "w": # Watch a service group
-    case "c": # Modify a service group
-        require_once($path . "formServiceGroup.php");
+    case SERVICE_GROUP_ADD: // Add a service group
+    case SERVICE_GROUP_WATCH: // Watch a service group
+    case SERVICE_GROUP_MODIFY: // Modify a service group
+        require_once $path . 'formServiceGroup.php';
         break;
-    case "s": # Activate a service group
+    case SERVICE_GROUP_ACTIVATION: // Activate a service group
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableServiceGroupInDB($sg_id);
+            enableServiceGroupInDB($serviceGroupId);
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceGroup.php");
+        require_once $path . 'listServiceGroup.php';
         break;
-    case "u": # Deactivate a service group
+    case SERVICE_GROUP_DEACTIVATION: // Deactivate a service group
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableServiceGroupInDB($sg_id);
+            disableServiceGroupInDB($serviceGroupId);
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceGroup.php");
+        require_once $path . 'listServiceGroup.php';
         break;
-    case "m": # Duplicate n service groups
+    case SERVICE_GROUP_DUPLICATION: // Duplicate n service groups
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -117,9 +125,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceGroup.php");
+        require_once $path . 'listServiceGroup.php';
         break;
-    case "d": # Delete n service groups
+    case SERVICE_GROUP_DELETION: // Delete n service groups
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -127,9 +135,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceGroup.php");
+        require_once $path . 'listServiceGroup.php';
         break;
     default:
-        require_once($path . "listServiceGroup.php");
+        require_once $path . 'listServiceGroup.php';
         break;
 }

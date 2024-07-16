@@ -25,14 +25,8 @@ export const useStyles = makeStyles()((theme) => ({
     minWidth: theme.spacing(44),
     padding: theme.spacing(2, 0)
   },
-  field: {
-    '& .MuiInputBase-root': {
-      '& .MuiInputBase-input': {
-        width: '100%'
-      },
-      backgroundColor: theme.palette.background.default,
-      width: theme.spacing(40)
-    }
+  helperText: {
+    textAlign: 'center'
   },
   input: {
     marginBottom: theme.spacing(1.5),
@@ -41,15 +35,6 @@ export const useStyles = makeStyles()((theme) => ({
   labelStatus: {
     paddingLeft: theme.spacing(0.25),
     width: '20%'
-  },
-  popper: {
-    '& .MuiPaper-root': {
-      backgroundColor: theme.palette.background.default
-    },
-    zIndex: theme.zIndex.tooltip
-  },
-  root: {
-    backgroundClip: 'red'
   },
   statusContainer: {
     alignItems: 'center',

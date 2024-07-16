@@ -42,14 +42,14 @@ trait ExporterTrait
      * }
      * </code>
      *
-     * @param \Pimple\Container $container
+     * @param Container $container
      */
-    public function setUpExporter(Container $container)
+    public function setUpExporter(Container $container): void
     {
         $this->container[ServiceProvider::CENTREON_REMOTE_EXPORTER] = new class {
             protected $list = [];
 
-            public function add($class, callable $factory)
+            public function add($class, callable $factory): void
             {
                 $this->list[$class] = $factory;
             }
@@ -72,7 +72,7 @@ trait ExporterTrait
      *
      * @param array $checkList
      */
-    public function checkExporters(array $checkList)
+    public function checkExporters(array $checkList): void
     {
         // check exporters
         $exporters = $this->container[ServiceProvider::CENTREON_REMOTE_EXPORTER]->getList();

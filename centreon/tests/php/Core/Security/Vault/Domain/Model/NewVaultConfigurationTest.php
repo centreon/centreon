@@ -36,7 +36,6 @@ for ($index = 0; $index <= NewVaultConfiguration::MAX_LENGTH; $index++) {
 }
 $invalidNameMaxLengthString = str_repeat('a', NewVaultConfiguration::NAME_MAX_LENGTH + 1);
 beforeEach(function (): void {
-    $this->vault = new Vault(1, 'myVaultProvider');
     $this->encryption = new Encryption();
     $this->encryption->setFirstKey("myFirstKey");
 });
@@ -46,13 +45,12 @@ it(
     function () use ($invalidMinLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            $invalidMinLengthString,
-            $this->vault,
             '127.0.0.1',
             8200,
             'myStorage',
             'myRoleId',
-            'mySecretId'
+            'mySecretId',
+            $invalidMinLengthString,
         );
     }
 )->throws(
@@ -70,13 +68,12 @@ it(
     function () use ($invalidNameMaxLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            $invalidNameMaxLengthString,
-            $this->vault,
             '127.0.0.1',
             8200,
             'myStorage',
             'myRoleId',
-            'mySecretId'
+            'mySecretId',
+            $invalidNameMaxLengthString,
         );
     }
 )->throws(
@@ -94,13 +91,12 @@ it(
     function () use ($invalidMinLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            'myVault',
-            $this->vault,
             $invalidMinLengthString,
             8200,
             'myStorage',
             'myRoleId',
-            'mySecretId'
+            'mySecretId',
+            'myVault',
         );
     }
 )->throws(
@@ -116,13 +112,12 @@ it(
 it('should throw AssertionException when vault configuration address is \'._@\'', function (): void {
     new NewVaultConfiguration(
         $this->encryption,
-        'myVault',
-        $this->vault,
         '._@',
         8200,
         'myStorage',
         'myRoleId',
-        'mySecretId'
+        'mySecretId',
+        'myVault',
     );
 })->throws(
     AssertionException::class,
@@ -134,13 +129,12 @@ it(
     function (): void {
         new NewVaultConfiguration(
             $this->encryption,
-            'myVault',
-            $this->vault,
             '127.0.0.1',
             0,
             'myStorage',
             'myRoleId',
-            'mySecretId'
+            'mySecretId',
+            'myVault',
         );
     }
 )->throws(
@@ -155,13 +149,12 @@ it(
 it('should throw InvalidArgumentException when vault configuration port exceeds allowed range', function (): void {
     new NewVaultConfiguration(
         $this->encryption,
-        'myVault',
-        $this->vault,
         '127.0.0.1',
         NewVaultConfiguration::MAX_PORT_VALUE + 1,
         'myStorage',
         'myRoleId',
-        'mySecretId'
+        'mySecretId',
+        'myVault',
     );
 })->throws(
     InvalidArgumentException::class,
@@ -177,13 +170,12 @@ it(
     function () use ($invalidMinLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            'myVault',
-            $this->vault,
             '127.0.0.1',
             8200,
             $invalidMinLengthString,
             'myRoleId',
-            'mySecretId'
+            'mySecretId',
+            'myVault',
         );
     }
 )->throws(
@@ -201,13 +193,12 @@ it(
     function () use ($invalidNameMaxLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            'myVault',
-            $this->vault,
             '127.0.0.1',
             8200,
             $invalidNameMaxLengthString,
             'myRoleId',
-            'mySecretId'
+            'mySecretId',
+            'myVault',
         );
     }
 )->throws(
@@ -225,13 +216,12 @@ it(
     function () use ($invalidMinLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            'myVault',
-            $this->vault,
             '127.0.0.1',
             8200,
             'myStorage',
             $invalidMinLengthString,
-            'mySecretId'
+            'mySecretId',
+            'myVault',
         );
     }
 )->throws(
@@ -249,13 +239,12 @@ it(
     function () use ($invalidMaxLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            'myVault',
-            $this->vault,
             '127.0.0.1',
             8200,
             'myStorage',
             $invalidMaxLengthString,
-            'mySecretId'
+            'mySecretId',
+            'myVault',
         );
     }
 )->throws(
@@ -273,13 +262,12 @@ it(
     function () use ($invalidMinLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            'myVault',
-            $this->vault,
             '127.0.0.1',
             8200,
             'myStorage',
             'myRoleId',
-            $invalidMinLengthString
+            $invalidMinLengthString,
+            'myVault',
         );
     }
 )->throws(
@@ -297,13 +285,12 @@ it(
     function () use ($invalidMaxLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            'myVault',
-            $this->vault,
             '127.0.0.1',
             8200,
             'myStorage',
             'myRoleId',
-            $invalidMaxLengthString
+            $invalidMaxLengthString,
+            'myVault',
         );
     }
 )->throws(
@@ -321,17 +308,15 @@ it(
     function (): void {
         $newVaultConfiguration = new NewVaultConfiguration(
             $this->encryption,
-            'myVault',
-            $this->vault,
             '127.0.0.1',
             8200,
             'myStorage',
             'myRoleId',
-            'mySecretId'
+            'mySecretId',
+            'myVault',
         );
 
         expect($newVaultConfiguration->getName())->toBe('myVault');
-        expect($newVaultConfiguration->getVault())->toBeInstanceOf(Vault::class);
         expect($newVaultConfiguration->getAddress())->toBe('127.0.0.1');
         expect($newVaultConfiguration->getPort())->toBe(8200);
         expect($newVaultConfiguration->getRootPath())->toBe('myStorage');

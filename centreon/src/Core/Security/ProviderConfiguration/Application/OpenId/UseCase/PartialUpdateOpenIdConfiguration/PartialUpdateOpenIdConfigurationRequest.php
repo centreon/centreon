@@ -63,6 +63,48 @@ use Core\Common\Application\Type\NoValue;
  *      custom_endpoint:string|null
  *  }
  * }
+ * @phpstan-type _PartialUpdateOpenIdConfigurationRequest array{
+ *      is_active:NoValue|bool,
+ *      is_forced:NoValue|bool,
+ *      base_url:NoValue|string|null,
+ *      authorization_endpoint:NoValue|string|null,
+ *      token_endpoint:NoValue|string|null,
+ *      introspection_token_endpoint:NoValue|string|null,
+ *      userinfo_endpoint:NoValue|string|null,
+ *      endsession_endpoint:NoValue|string|null,
+ *      connection_scopes:NoValue|string[],
+ *      login_claim:NoValue|string|null,
+ *      client_id:NoValue|string|null,
+ *      client_secret:NoValue|string|null,
+ *      authentication_type:NoValue|string|null,
+ *      verify_peer:NoValue|bool,
+ *      auto_import:NoValue|bool,
+ *      contact_template:NoValue|array{id:int,name:string}|null,
+ *      email_bind_attribute:NoValue|string|null,
+ *      fullname_bind_attribute:NoValue|string|null,
+ *      redirect_url:NoValue|string|null,
+ *      authentication_conditions:array{
+ *          is_enabled:NoValue|bool,
+ *          attribute_path:NoValue|string,
+ *          authorized_values:NoValue|string[],
+ *          trusted_client_addresses:NoValue|string[],
+ *          blacklist_client_addresses:NoValue|string[],
+ *          endpoint:NoValue|array{type:string,custom_endpoint:string|null}
+ *      },
+ *      roles_mapping:array{
+ *          is_enabled:NoValue|bool,
+ *          apply_only_first_role:NoValue|bool,
+ *          attribute_path:NoValue|string,
+ *          endpoint:NoValue|array{type:string,custom_endpoint:string|null},
+ *          relations:NoValue|array<array{claim_value:string,access_group_id:int,priority:int}>
+ *      },
+ *      groups_mapping:array{
+ *          is_enabled:NoValue|bool,
+ *          attribute_path:NoValue|string,
+ *          endpoint:NoValue|array{type:string,custom_endpoint:string|null},
+ *          relations:NoValue|array<array{group_value:string,contact_group_id:int}>
+ *      }
+ *  }
  */
 final class PartialUpdateOpenIdConfigurationRequest
 {
@@ -99,13 +141,13 @@ final class PartialUpdateOpenIdConfigurationRequest
         public NoValue|string|null $introspectionTokenEndpoint = new NoValue(),
         public NoValue|string|null $userInformationEndpoint = new NoValue(),
         public NoValue|string|null $endSessionEndpoint = new NoValue(),
-        public NoValue|array $connectionScopes = new Novalue(),
-        public NoValue|string|null $loginClaim = new Novalue(),
-        public NoValue|string|null $clientId = new Novalue(),
-        public NoValue|string|null $clientSecret = new Novalue(),
-        public NoValue|string|null $authenticationType = new Novalue(),
-        public NoValue|bool $verifyPeer = new Novalue(),
-        public NoValue|bool $isAutoImportEnabled = new Novalue(),
+        public NoValue|array $connectionScopes = new NoValue(),
+        public NoValue|string|null $loginClaim = new NoValue(),
+        public NoValue|string|null $clientId = new NoValue(),
+        public NoValue|string|null $clientSecret = new NoValue(),
+        public NoValue|string|null $authenticationType = new NoValue(),
+        public NoValue|bool $verifyPeer = new NoValue(),
+        public NoValue|bool $isAutoImportEnabled = new NoValue(),
         public NoValue|array|null $contactTemplate = new NoValue(),
         public NoValue|string|null $emailBindAttribute = new NoValue(),
         public NoValue|string|null $userNameBindAttribute = new NoValue(),
@@ -135,48 +177,7 @@ final class PartialUpdateOpenIdConfigurationRequest
     }
 
     /**
-     * @return array{
-     *     is_active:NoValue|bool,
-     *     is_forced:NoValue|bool,
-     *     base_url:NoValue|string|null,
-     *     authorization_endpoint:NoValue|string|null,
-     *     token_endpoint:NoValue|string|null,
-     *     introspection_token_endpoint:NoValue|string|null,
-     *     userinfo_endpoint:NoValue|string|null,
-     *     endsession_endpoint:NoValue|string|null,
-     *     connection_scopes:NoValue|string[],
-     *     login_claim:NoValue|string|null,
-     *     client_id:NoValue|string|null,
-     *     client_secret:NoValue|string|null,
-     *     authentication_type:NoValue|string|null,
-     *     verify_peer:NoValue|bool,
-     *     auto_import:NoValue|bool,
-     *     contact_template:NoValue|array{id:int,name:string}|null,
-     *     email_bind_attribute:NoValue|string|null,
-     *     fullname_bind_attribute:NoValue|string|null,
-     *     redirect_url:NoValue|string|null,
-     *     authentication_conditions:array{
-     *         is_enabled:NoValue|bool,
-     *         attribute_path:NoValue|string,
-     *         authorized_values:NoValue|string[],
-     *         trusted_client_addresses:NoValue|string[],
-     *         blacklist_client_addresses:NoValue|string[],
-     *         endpoint:NoValue|array{type:string,custom_endpoint:string|null}
-     *     },
-     *     roles_mapping:array{
-     *         is_enabled:NoValue|bool,
-     *         apply_only_first_role:NoValue|bool,
-     *         attribute_path:NoValue|string,
-     *         endpoint:NoValue|array{type:string,custom_endpoint:string|null},
-     *         relations:NoValue|array<array{claim_value:string,access_group_id:int,priority:int}>
-     *     },
-     *     groups_mapping:array{
-     *         is_enabled:NoValue|bool,
-     *         attribute_path:NoValue|string,
-     *         endpoint:NoValue|array{type:string,custom_endpoint:string|null},
-     *         relations:NoValue|array<array{group_value:string,contact_group_id:int}>
-     *     }
-     * }
+     * @return _PartialUpdateOpenIdConfigurationRequest
      */
     public function toArray(): array
     {
