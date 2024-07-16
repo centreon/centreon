@@ -100,11 +100,11 @@ msgstr ""
 
 #: centreon/centreon/www/include/Administration/parameters/backup/help.php:17
 msgid "Backup centreon database"
-msgstr "备份centeron数据库"
+msgstr "备份centreon数据库"
 
 #: centreon/centreon/www/include/Administration/parameters/backup/help.php:21
 msgid "Backup centreon_storage database"
-msgstr "备份centeron_storage数据库"
+msgstr "备份centreon_storage数据库"
 
 #: centreon/centreon/www/include/Administration/parameters/backup/help.php:25
 msgid ""
@@ -933,7 +933,7 @@ msgstr "RRDTool版本。"
 msgid ""
 "Enable the rrdcached for Centreon. This option is valid only with Centreon "
 "Broker"
-msgstr "开启centeron的rrdcache功能。此选项仅与Centreon经纪人有效"
+msgstr "开启centreon的rrdcache功能。此选项仅与Centreon经纪人有效"
 
 #: centreon/centreon/www/include/Administration/parameters/rrdtool/help.php:18
 msgid "Port for communicating with rrdcached"
@@ -1168,7 +1168,7 @@ msgid ""
 "It should be enabled to control whether or not Centreon Broker\n"
 " should insert performance data in the data_bin table."
 msgstr ""
-"它应该能够控制是否centeron Broker\n"
+"它应该能够控制是否centreon Broker\n"
 "应该在data_bin表中插入性能数据。"
 
 #: centreon/centreon/www/include/configuration/configCentreonBroker/help.php:90
@@ -4850,7 +4850,7 @@ msgid ""
 "only with centreon-broker AND central mode."
 msgstr ""
 "如果主机或服务在中心捕获时处于停机状态，则跳过trap。“历史”选项更准确，但需要"
-"更多的功能。该选项仅适用于centeron -broker和central模式。"
+"更多的功能。该选项仅适用于centreon -broker和central模式。"
 
 #: centreon/centreon/www/include/configuration/configObject/traps/help.php:116
 msgid ""
