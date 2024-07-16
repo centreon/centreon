@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "89cd9416-64b3-47dc-897b-a9fabdd71539",
+		"_postman_id": "f1e522fd-6cec-4838-9d77-946a8bc64fd9",
 		"name": "Host_Category",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-89cd9416-64b3-47dc-897b-a9fabdd71539?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-f1e522fd-6cec-4838-9d77-946a8bc64fd9?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -3150,7 +3150,6 @@
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": null,\r",
-									"        \"snmp_community\": null,\r",
 									"        \"timezone_id\": null,\r",
 									"        \"severity_id\": null,\r",
 									"        \"check_command_id\": null,\r",
@@ -3264,7 +3263,6 @@
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": null,\r",
-									"        \"snmp_community\": null,\r",
 									"        \"timezone_id\": null,\r",
 									"        \"severity_id\": null,\r",
 									"        \"check_command_id\": null,\r",
@@ -3375,7 +3373,6 @@
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": null,\r",
-									"        \"snmp_community\": null,\r",
 									"        \"timezone_id\": null,\r",
 									"        \"severity_id\": null,\r",
 									"        \"check_command_id\": null,\r",
@@ -3811,7 +3808,7 @@
 					"response": []
 				},
 				{
-					"name": "Reload ACL Copy",
+					"name": "Reload ACL",
 					"event": [
 						{
 							"listen": "test",
@@ -4225,18 +4222,9 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The host categories retrieved are listed with all of their parameters.\", function () {\r",
-									"    // Check the number of host categories (1)\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"\r",
-									"    // Check the properties of each host categories \r",
-									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"HostCategory2Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"HostCategory2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"HostCategory2Alias\"),\r",
-									"        \"is_activated\": true,\r",
-									"        \"comment\":null\r",
-									"    });\r",
+									"pm.test(\"The list is empty.\", function () {\r",
+									"    // Check the number of host categories (0)\r",
+									"    pm.expect(responseJson.result.length).to.eql(0);\r",
 									"})"
 								],
 								"type": "text/javascript",
@@ -9801,7 +9789,7 @@
 							]
 						},
 						{
-							"name": "Login with Read Only user Copy",
+							"name": "Login with Read Only user",
 							"event": [
 								{
 									"listen": "test",
@@ -10170,7 +10158,7 @@
 							"response": []
 						},
 						{
-							"name": "Logout from Read Only user Copy",
+							"name": "Logout from Read Only user",
 							"event": [
 								{
 									"listen": "test",
