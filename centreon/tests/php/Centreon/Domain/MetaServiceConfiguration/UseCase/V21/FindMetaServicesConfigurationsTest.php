@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tests\Centreon\Domain\MetaServiceConfiguration\UseCase\V21;
 
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MetaServiceConfiguration\MetaServiceConfigurationService;
 use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindMetaServicesConfigurations;
@@ -41,11 +42,14 @@ class FindMetaServicesConfigurationsTest extends TestCase
 
     private ReadAccessGroupRepositoryInterface $accessGroupRepository;
 
+    private ContactInterface&\PHPUnit\Framework\MockObject\MockObject $contact;
+
     protected function setUp(): void
     {
         $this->metaServiceConfigurationService = $this->createMock(MetaServiceConfigurationService::class);
         $this->metaServiceConfiguration = MetaServiceConfigurationTest::createEntity();
         $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+        $this->contact = $this->createMock(ContactInterface::class);
     }
 
     /**
@@ -53,16 +57,24 @@ class FindMetaServicesConfigurationsTest extends TestCase
      */
     public function testExecuteAsAdmin(): void
     {
+        $this->contact
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->contact
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+
         $this->metaServiceConfigurationService
             ->expects($this->once())
             ->method('findAllWithoutAcl')
             ->willReturn([$this->metaServiceConfiguration]);
 
-        $contact = new Contact();
-        $contact->setAdmin(true);
         $findMetaServiceConfigurations = new FindMetaServicesConfigurations(
             $this->metaServiceConfigurationService,
-            $contact,
+            $this->contact,
             $this->accessGroupRepository,
             false
         );
@@ -75,16 +87,24 @@ class FindMetaServicesConfigurationsTest extends TestCase
      */
     public function testExecuteAsNonAdmin(): void
     {
+        $this->contact
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->contact
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(false);
+
         $this->metaServiceConfigurationService
             ->expects($this->once())
             ->method('findAllWithAcl')
             ->willReturn([$this->metaServiceConfiguration]);
 
-        $contact = new Contact();
-        $contact->setAdmin(false);
         $findMetaServiceConfigurations = new FindMetaServicesConfigurations(
             $this->metaServiceConfigurationService,
-            $contact,
+            $this->contact,
             $this->accessGroupRepository,
             false
         );
