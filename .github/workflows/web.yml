@@ -23,13 +23,13 @@ on:
       - ready_for_review
     paths:
       - "centreon/**"
-      # - "!centreon/cypress/**"
-      # - "!centreon/features/**"
-      # - "!centreon/lighthouse/**"
-      # - "!centreon/tests/**"
-      # - "!centreon/.veracode-exclusions"
-      # - "!centreon/veracode.json"
-      # - "!centreon/packages/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -38,13 +38,13 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
-      - "centreon/cypress/**"
-      - "centreon/features/**"
-      - "centreon/lighthouse/**"
-      - "centreon/tests/**"
-      - "centreon/.veracode-exclusions"
-      - "centreon/veracode.json"
-      - "centreon/packages/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
 
 env:
   base_directory: centreon
@@ -649,8 +649,8 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
   create-xray-test-plan-and-test-execution:
-    needs: [get-version]
-    # if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
     strategy:
       fail-fast: false
       matrix:
@@ -669,8 +669,8 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   newman-test:
-    needs: [get-version, changes, create-xray-test-plan-and-test-execution]
-    # if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
       matrix:

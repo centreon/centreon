@@ -70,7 +70,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    # if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+    if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-ids.outputs.test_plan_id }}
@@ -92,8 +92,8 @@ jobs:
           test_plan_id=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_id_'${{ inputs.os }})
           echo "The Test Execution ID : $test_execution_id"
           echo "The Test Plan ID : $test_plan_id"
-          echo "test_plan_id=192383" >> $GITHUB_OUTPUT
-          echo "test_execution_id=197061" >> $GITHUB_OUTPUT
+          echo "test_plan_id=$test_plan_id" >> $GITHUB_OUTPUT
+          echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Generate Xray Token
@@ -574,7 +574,7 @@ jobs:
           done
 
       - name: Change test execution status
-        # if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
             retry_command() {
               local max_attempts=$1
@@ -688,7 +688,7 @@ jobs:
             done
 
       - name: Perform Jira Transitions
-        # if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
           transition_ids=("61" "81" "21" "31")
           issue_ids="${{ needs.associate-test-cases.outputs.api-issue-ids }}"
