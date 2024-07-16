@@ -4617,7 +4617,7 @@ msgstr "未找到所需主题"
 
 #: centreon/centreon/src/Core/Application/Platform/UseCase/FindInstallationStatus/FindInstallationStatus.php:56
 msgid "centreon is not properly installed"
-msgstr "centeron没有正确安装"
+msgstr "centreon没有正确安装"
 
 #: centreon/centreon/src/Core/Application/RealTime/UseCase/FindHost/FindHost.php:228
 #: centreon/centreon/src/Core/Application/RealTime/UseCase/FindService/FindService.php:287
@@ -4811,7 +4811,7 @@ msgstr "读取本地提供程序配置时出错"
 
 #: centreon/centreon/src/EventSubscriber/UpdateEventSubscriber.php:82
 msgid "Centreon database schema does not seem to be installed."
-msgstr "似乎没有安装centeron数据库模式。"
+msgstr "似乎没有安装centreon数据库模式。"
 
 #: centreon/centreon/src/EventSubscriber/UpdateEventSubscriber.php:84
 msgid "Please use Web UI to install Centreon."
@@ -4825,7 +4825,7 @@ msgstr "Centreon数据库架构版本为“%s”(必须为“%s”)。"
 #: centreon/centreon/src/EventSubscriber/UpdateEventSubscriber.php:100
 #, php-format
 msgid "Please use Web UI to update Centreon."
-msgstr "请使用网页界面更新centeron。"
+msgstr "请使用网页界面更新centreon。"
 
 #: centreon/centreon/src/Security/Domain/Authentication/Exceptions/ProviderException.php:38
 #, php-format
@@ -7194,11 +7194,11 @@ msgstr "添加Centreon-Broker配置"
 
 #: centreon/centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php:114
 msgid "Modify a Centreon-Broker Configuration"
-msgstr "修改centeron - broker配置"
+msgstr "修改centreon - broker配置"
 
 #: centreon/centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php:116
 msgid "View a Centreon-Broker Configuration"
-msgstr "查看centeron - broker配置"
+msgstr "查看centreon - broker配置"
 
 #: centreon/centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php:128
 msgid "Main options"
