@@ -21,6 +21,10 @@ on:
       - ready_for_review
     paths:
       - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
@@ -32,6 +36,10 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
