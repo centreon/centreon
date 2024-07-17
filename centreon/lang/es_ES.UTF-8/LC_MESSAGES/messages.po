@@ -17410,3 +17410,9 @@ msgstr "Modo avanzado"
 
 # msgid "business activity"
 # msgstr ""
+
+# msgid "Health"
+# msgstr ""
+
+# msgid "Critical KPIs"
+# msgstr ""

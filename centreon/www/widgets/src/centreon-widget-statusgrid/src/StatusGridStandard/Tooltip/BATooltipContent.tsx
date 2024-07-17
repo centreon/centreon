@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 
 import {
+  SeverityCode,
   useLocaleDateTimeFormat,
   usePluralizedTranslation
 } from '@centreon/ui';
@@ -24,7 +25,9 @@ import {
   labelAreWorkingFine,
   labelCalculationMethod,
   labelStateInformation,
-  labelWarningThreshold
+  labelWarningThreshold,
+  labelHealth,
+  labelCriticalKPIs
 } from '../translatedLabels';
 
 import useBATooltipContent from './useBATooltipContent';
@@ -49,13 +52,17 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
     total,
     criticalLevel,
     warningLevel,
-    isPercentage
+    isPercentage,
+    criticalKPIs,
+    health
   } = useBATooltipContent(data);
 
   const hasIndicatorsWithProblems =
     isNotNil(indicatorsWithProblems) && !isEmpty(indicatorsWithProblems);
 
   const areAllIndicatorsOk = equals(indicatorsWithStatusOk?.length, total);
+  const statusOk = equals(data.status, SeverityCode.OK);
+
   const isImpact = equals(calculationMethod, CalculationMethodType.Impact);
   const isRatio = equals(calculationMethod, CalculationMethodType.Ratio);
 
@@ -97,6 +104,23 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
                 </Typography>
               </Box>
               <Box className={classes.thresholdContainer} mt={1}>
+                <Box className={classes.threshold}>
+                  <Typography variant="body1">
+                    {isImpact ? t(labelHealth) : t(labelCriticalKPIs)}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: getColor({
+                        severityCode: isImpact ? 5 : 1,
+                        theme
+                      })
+                    }}
+                    variant="body1"
+                  >
+                    {isImpact ? `${health}%` : criticalKPIs}
+                  </Typography>
+                </Box>
+
                 <Box className={classes.threshold}>
                   <Typography variant="body1">
                     {t(labelWarningThreshold)}
@@ -194,14 +218,14 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
             </Box>
           )}
 
-          {areAllIndicatorsOk && (
+          {(areAllIndicatorsOk || statusOk) && (
             <Typography color="text.secondary">
               {t(labelAllKPIsAreWorkingFine)}
             </Typography>
           )}
 
           {!areAllIndicatorsOk && hasIndicatorsWithProblems && (
-            <Typography color="text.secondary" variant="body2">
+            <Typography color="text.secondary" mt={1}>
               {`${indicatorsWithStatusOk?.length}/${total} KPIs ${t(labelAreWorkingFine)}`}
             </Typography>
           )}

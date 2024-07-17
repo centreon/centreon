@@ -19181,3 +19181,9 @@ msgstr "Aucun activité métier trouvé"
 
 msgid "business activity"
 msgstr "activité métier"
+
+msgid "Health"
+msgstr "Santé"
+
+msgid "Critical KPIs"
+msgstr "Indicateurs critiques"

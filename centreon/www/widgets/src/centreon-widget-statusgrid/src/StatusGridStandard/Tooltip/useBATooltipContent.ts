@@ -1,6 +1,10 @@
 import { equals } from 'ramda';
 
-import { SeverityCode, useFetchQuery } from '@centreon/ui';
+import {
+  SeverityCode,
+  useFetchQuery,
+  usePluralizedTranslation
+} from '@centreon/ui';
 
 import { ResourceData, BusinessActivity, Indicator } from '../models';
 import { getBAEndpoint } from '../../api/endpoints';
@@ -8,7 +12,9 @@ import { businessActivityDecoder } from '../api/decoders';
 
 interface UseServiceTooltipContentState {
   calculationMethod?: string;
+  criticalKPIs: string;
   criticalLevel?: number | null;
+  health: number;
   indicatorsWithProblems?: Array<Indicator>;
   indicatorsWithStatusOk?: Array<Indicator>;
   isLoading?: boolean;
@@ -20,6 +26,8 @@ interface UseServiceTooltipContentState {
 const useBATooltipContent = (
   data: ResourceData
 ): UseServiceTooltipContentState => {
+  const { pluralizedT } = usePluralizedTranslation();
+
   const { data: businessActivity, isLoading } = useFetchQuery<BusinessActivity>(
     {
       decoder: businessActivityDecoder,
@@ -48,9 +56,27 @@ const useBATooltipContent = (
   const isPercentage = businessActivity?.calculationMethod.isPercentage;
   const total = businessActivity?.indicators?.length || 0;
 
+  const ProblematicKPIsCount = indicatorsWithProblems?.length || 0;
+
+  const health = ((total - ProblematicKPIsCount) * 100) / total;
+
+  const criticalKPIsCount =
+    businessActivity?.indicators?.filter(({ status }) =>
+      equals(SeverityCode.High, status?.severityCode)
+    )?.length || 0;
+
+  const criticalKPIs = equals(isPercentage, false)
+    ? `${criticalKPIsCount} ${pluralizedT({
+        count: criticalKPIsCount || 0,
+        label: 'KPI'
+      })}`
+    : `${criticalKPIsCount}%`;
+
   return {
     calculationMethod,
+    criticalKPIs,
     criticalLevel,
+    health,
     indicatorsWithProblems,
     indicatorsWithStatusOk,
     isLoading,

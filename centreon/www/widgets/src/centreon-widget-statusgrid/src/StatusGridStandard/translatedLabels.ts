@@ -19,3 +19,5 @@ export const labelCriticalThreshold = 'Critical threshold';
 export const labelClickHereForDetails = 'Click here for details';
 export const labelExpressionIn = 'Expression in';
 export const labelImpactAppliedWhen = 'Impact applied when';
+export const labelHealth = 'Health';
+export const labelCriticalKPIs = 'Critical KPIs';
