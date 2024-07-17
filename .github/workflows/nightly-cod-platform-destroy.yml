@@ -1,0 +1,30 @@
+name: nightly-cod-platform-destroy
+
+on:
+  schedule:
+    - cron: "15 19 * * 1-5"
+
+jobs:
+  nightly-cod-platform-destroy:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Check the status of the latest nightly build
+        id: check-latest-nightly-status
+        uses: ./.github/actions/check-latest-nightly-status
+
+      - name: Destroy the potential Centreon-on-Demand nightly instance of the day
+        if: ${{ steps.check-latest-nightly-status.outputs.last_nightly_result == 'success' }}
+        run: |
+            set -x
+
+            echo "[INFO]: Destroying the nightly CoD instance of the day."
+            curl --fail \
+              -s \
+              -o /dev/null \
+              -X POST \
+              -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/destroy.yml/dispatches \
+              -d '{"ref": "main", "inputs":{"confirm":"true"} }' \
+              -w %http_code
+        shell: bash

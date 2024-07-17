@@ -1,8 +1,10 @@
 import { pipe, T, equals, head, split, propOr, cond, always } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { ColumnType, useStyleTable } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
+import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import {
   labelResource,
@@ -16,7 +18,11 @@ import {
   labelService,
   labelHost,
   labelServices,
-  labelInformation
+  labelInformation,
+  labelOpenTicket,
+  labelTicketID,
+  labelTicketSubject,
+  labelTicketOpenTime
 } from '../translatedLabels';
 import { DisplayType } from '../models';
 
@@ -28,16 +34,29 @@ import ParentResourceColumn from './Parent';
 import SubItem from './ServiceSubItemColumn/SubItem';
 import useStyles, { useStatusStyles } from './Columns.styles';
 import truncate from './truncate';
+import OpenTicket from './OpenTicket/OpenTicket';
 
 interface ColumnProps {
+  displayResources: 'all' | 'withTicket' | 'withoutTicket';
   displayType?: DisplayType;
+  isOpenTicketEnabled: boolean;
+  provider?: { id: number; name: string };
+}
+
+interface ColumnsState {
+  columns: Array<Column>;
+  defaultSelectedColumnIds: Array<string>;
 }
 
 const useColumns = ({
-  displayType = DisplayType.All
-}: ColumnProps): Array<Column> => {
+  displayType = DisplayType.All,
+  displayResources = 'all',
+  provider,
+  isOpenTicketEnabled
+}: ColumnProps): ColumnsState => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
 
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
@@ -56,9 +75,32 @@ const useColumns = ({
     [T, always(labelParent)]
   ])(displayType);
 
+  const isOpenTicketColumnsVisible =
+    featureFlags?.resouresTableOpenTickets && isOpenTicketEnabled && !!provider;
+
+  const isOpenTicketActionColumnVisible =
+    isOpenTicketColumnsVisible && !equals(displayResources, 'withTicket');
+
+  const areTicketColumnsVisible =
+    isOpenTicketColumnsVisible && equals(displayResources, 'withTicket');
+
+  const defaultSelectedColumnIds = [
+    'status',
+    'resource',
+    'parent_resource',
+    ...(isOpenTicketActionColumnVisible ? ['open_ticket'] : []),
+    ...(areTicketColumnsVisible
+      ? ['ticket_id', 'ticket_subject', 'ticket_open_time']
+      : ['state', 'severity', 'duration', 'last_check'])
+  ];
+
   const columns = [
     {
-      Component: StatusColumn({ classes: statusClasses, displayType, t }),
+      Component: StatusColumn({
+        classes: statusClasses,
+        displayType,
+        t
+      }),
       clickable: true,
       getRenderComponentOnRowUpdateCondition: T,
       hasHoverableComponent: true,
@@ -92,6 +134,51 @@ const useColumns = ({
       sortable: true,
       type: ColumnType.component
     },
+    ...(isOpenTicketActionColumnVisible
+      ? [
+          {
+            Component: OpenTicket,
+            clickable: true,
+            id: 'open_ticket',
+            label: t(labelOpenTicket),
+            type: ColumnType.component
+          }
+        ]
+      : []),
+    ...(areTicketColumnsVisible
+      ? [
+          {
+            getFormattedString: (row): string =>
+              row?.extras?.open_tickets?.ticket.id,
+            id: 'ticket_id',
+            label: t(labelTicketID),
+            type: ColumnType.string
+          }
+        ]
+      : []),
+
+    ...(areTicketColumnsVisible
+      ? [
+          {
+            getFormattedString: (row): string =>
+              row?.extras?.open_tickets?.ticket?.subject,
+            id: 'ticket_subject',
+            label: t(labelTicketSubject),
+            type: ColumnType.string
+          }
+        ]
+      : []),
+    ...(areTicketColumnsVisible
+      ? [
+          {
+            getFormattedString: (row): string =>
+              row?.extras?.open_tickets?.ticket?.created_at,
+            id: 'ticket_open_time',
+            label: t(labelTicketOpenTime),
+            type: ColumnType.string
+          }
+        ]
+      : []),
     {
       getFormattedString: ({ duration }): string => duration,
       id: 'duration',
@@ -150,6 +237,6 @@ const useColumns = ({
     }
   ];
 
-  return columns;
+  return { columns, defaultSelectedColumnIds };
 };
 export default useColumns;

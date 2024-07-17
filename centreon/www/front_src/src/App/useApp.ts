@@ -12,7 +12,8 @@ import {
   aclAtom,
   downtimeAtom,
   platformNameAtom,
-  refreshIntervalAtom
+  refreshIntervalAtom,
+  platformVersionsAtom
 } from '@centreon/ui-context';
 
 import { logoutEndpoint } from '../api/endpoint';
@@ -20,7 +21,6 @@ import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
 import reactRoutes from '../reactRoutes/routeMap';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';

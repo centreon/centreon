@@ -41,6 +41,7 @@ use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
 use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
     $this->readMetaServiceNotificationRepository = $this->createMock(
@@ -50,6 +51,7 @@ beforeEach(function () {
     $this->engineService = $this->createMock(EngineConfigurationServiceInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
     $this->readRealTimeMetaServiceRepository = $this->createMock(ReadRealTimeMetaServiceRepositoryInterface::class);
+    $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 
     $this->metaService = new MetaServiceConfiguration(
         'meta1',
@@ -85,6 +87,7 @@ beforeEach(function () {
     $this->findNotificationPolicyPresenter = $this->createMock(FindNotificationPolicyPresenterInterface::class);
 
     $this->useCase = new FindMetaServiceNotificationPolicy(
+        $this->readAccessGroupRepository,
         $this->readMetaServiceNotificationRepository,
         $this->readMetaServiceRepository,
         $this->engineService,
@@ -95,7 +98,7 @@ beforeEach(function () {
 
 it('does not find meta service notification policy when meta service is not found by admin user', function () {
     $this->contact
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
 
@@ -114,7 +117,7 @@ it('does not find meta service notification policy when meta service is not foun
 
 it('does not find meta service notification policy when meta service is not found by acl user', function () {
     $this->contact
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
 
@@ -133,7 +136,7 @@ it('does not find meta service notification policy when meta service is not foun
 
 it('returns users, user groups and notification status', function () {
     $this->contact
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
 
