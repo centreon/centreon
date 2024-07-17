@@ -484,12 +484,7 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
                 e.stopPropagation();
                 j_divListKnownMetrics.val(null).trigger("change");
                 let hasService = divLinkedHostServices.value !== '';
-                if (hasService) {
-                    divListKnownMetrics.disabled = false;
-                } else {
-                    j_divListKnownMetrics.val(null).trigger("change");
-                    divListKnownMetrics.disabled = true;
-                }
+                divListKnownMetrics.disabled = !hasService;
             });
         }
     });
