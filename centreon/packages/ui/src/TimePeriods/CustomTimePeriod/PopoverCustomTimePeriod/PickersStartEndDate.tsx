@@ -40,9 +40,6 @@ const useStyles = makeStyles()((theme) => ({
     justifyItems: 'center',
     padding: 0
   },
-  horizontalError: {
-    textAlign: 'left'
-  },
   row: {
     alignItems: 'center',
     display: 'flex',
