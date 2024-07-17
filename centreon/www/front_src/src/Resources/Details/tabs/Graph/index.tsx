@@ -67,8 +67,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     ? { end: updatedGraphInterval.end, start: updatedGraphInterval.start }
     : undefined;
 
-  console.log('----->test', graphTimeParameters);
-
   return (
     <div className={classes.container}>
       {isService ? (
