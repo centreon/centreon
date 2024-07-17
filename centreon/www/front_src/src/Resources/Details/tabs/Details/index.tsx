@@ -16,6 +16,8 @@ const DetailsTab = (): JSX.Element => {
   const loading = isNil(details) || equals(panelWidth, 0);
   const panelPadding = parseInt(theme.spacing(4), 10);
 
+  console.log({ loading });
+
   return loading ? (
     <DetailsLoadingSkeleton />
   ) : (
