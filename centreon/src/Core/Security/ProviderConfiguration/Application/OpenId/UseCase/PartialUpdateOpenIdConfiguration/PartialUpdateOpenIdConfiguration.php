@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
+use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
@@ -51,6 +52,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
  * @phpstan-import-type _RoleMapping from PartialUpdateOpenIdConfigurationRequest
@@ -62,7 +64,7 @@ use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryI
  */
 final class PartialUpdateOpenIdConfiguration
 {
-    use LoggerTrait;
+    use LoggerTrait, VaultTrait;
 
     /**
      * @param WriteOpenIdConfigurationRepositoryInterface $repository
@@ -184,7 +186,10 @@ final class PartialUpdateOpenIdConfiguration
             }
         }
 
-        $customConfigurationAsArray = $this->manageClientIdAndClientSecretIntoVault($customConfigurationAsArray, $customConfig);
+        $customConfigurationAsArray = $this->manageClientIdAndClientSecretIntoVault(
+            $customConfigurationAsArray,
+            $customConfig
+        );
 
         return new CustomConfiguration($customConfigurationAsArray);
     }
@@ -516,32 +521,36 @@ final class PartialUpdateOpenIdConfiguration
         $clientId = $customConfiguration->getClientId();
         $clientSecret = $customConfiguration->getClientSecret();
 
-        if ($clientId !== null && str_starts_with($clientId, 'secret::')) {
-            $vaultPathPart = explode('/', $clientId);
-            $uuid = end($vaultPathPart);
-        } elseif ($clientSecret !== null && str_starts_with($clientSecret, 'secret::')) {
-            $vaultPathPart = explode('/', $clientSecret);
-            $uuid = end($vaultPathPart);
+        if ($clientId !== null && str_starts_with($clientId, VaultConfiguration::VAULT_PATH_PATTERN)) {
+            $uuid = $this->getUuidFromPath($clientId);
+        } elseif ($clientSecret !== null && str_starts_with($clientSecret, VaultConfiguration::VAULT_PATH_PATTERN)) {
+            $uuid = $this->getUuidFromPath($clientSecret);
         }
 
         // Update the vault with the new client id and client secret if the value are not a vault path.
         $data = [];
-        if ($requestArray['client_id'] !== null && ! str_starts_with($requestArray['client_id'], 'secret::')) {
-            $data['_OPENID_CLIENT_ID'] = $requestArray['client_id'];
+        if (
+            $requestArray['client_id'] !== null
+            && ! str_starts_with($requestArray['client_id'], VaultConfiguration::VAULT_PATH_PATTERN)
+        ) {
+            $data[VaultConfiguration::OPENID_CLIENT_ID_KEY] = $requestArray['client_id'];
         }
-        if ($requestArray['client_secret'] !== null && ! str_starts_with($requestArray['client_secret'], 'secret::')) {
-            $data['_OPENID_CLIENT_SECRET'] = $requestArray['client_secret'];
+        if (
+            $requestArray['client_secret'] !== null
+            && ! str_starts_with($requestArray['client_secret'], VaultConfiguration::VAULT_PATH_PATTERN)
+        ) {
+            $data[VaultConfiguration::OPENID_CLIENT_SECRET_KEY] = $requestArray['client_secret'];
         }
 
         if (! empty($data)) {
-            $vaultPath = $this->writeVaultRepository->upsert(
+            $vaultPaths = $this->writeVaultRepository->upsert(
                 $uuid,
                 $data
             );
 
             // Assign new values to the request array
-            $requestArray['client_id'] = $vaultPath;
-            $requestArray['client_secret'] = $vaultPath;
+            $requestArray['client_id'] = $vaultPaths[VaultConfiguration::OPENID_CLIENT_ID_KEY];
+            $requestArray['client_secret'] = $vaultPaths[VaultConfiguration::OPENID_CLIENT_SECRET_KEY];
         }
 
         return $requestArray;

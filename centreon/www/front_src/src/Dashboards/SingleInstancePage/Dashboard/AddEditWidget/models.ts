@@ -20,6 +20,7 @@ export interface ShowInput {
 }
 
 export interface WidgetPropertyProps {
+  baseEndpoint: string;
   className?: string;
   defaultValue?: unknown;
   disabled?: boolean;
@@ -27,6 +28,7 @@ export interface WidgetPropertyProps {
   endAdornment?: ReactNode;
   excludedResourceTypes?: Array<string>;
   isInGroup: boolean;
+  isSingleAutocomplete: boolean;
   keepOneOptionSelected?: boolean;
   label: string;
   options?: Array<SelectEntry>;

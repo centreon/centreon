@@ -33,7 +33,7 @@ interface ReadVaultRepositoryInterface
     public function setCustomPath(string $customPath): void;
 
     /**
-     * Get vaul content given path.
+     * Get vault content from given path.
      *
      * @param string $path
      *

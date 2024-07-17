@@ -20,7 +20,10 @@ import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbo
 import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { federatedWidgetsAtom } from '@centreon/ui-context';
+import {
+  federatedWidgetsAtom,
+  platformVersionsAtom
+} from '@centreon/ui-context';
 
 import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
@@ -61,6 +64,13 @@ const widgetsProperties = [
   widgetGraphProperties,
   widgetTopBottomProperties
 ];
+
+const platformVersion = {
+  modules: {},
+  web: {
+    version: '23.04.0'
+  }
+};
 
 const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -103,8 +113,10 @@ const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   ];
 
   const store = defaultStore || createStore();
+
   store.set(federatedWidgetsAtom, federatedWidgets);
   store.set(federatedWidgetsPropertiesAtom, widgetsProperties);
+  store.set(platformVersionsAtom, platformVersion);
 
   return store;
 };
@@ -1007,6 +1019,7 @@ describe('AddEditWidgetModal', () => {
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
       jotaiStore.set(hasEditPermissionAtom, true);
       jotaiStore.set(isEditingAtom, true);
+      jotaiStore.set(platformVersionsAtom, platformVersion);
 
       cy.mount({
         Component: (
