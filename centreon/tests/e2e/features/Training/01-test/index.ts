@@ -15,7 +15,7 @@ beforeEach(() => {
   }).as('getDashboardPage');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards/1'
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('getDashboardDetail');
 });
 
