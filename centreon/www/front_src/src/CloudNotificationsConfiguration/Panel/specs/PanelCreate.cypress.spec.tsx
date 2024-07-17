@@ -1,6 +1,7 @@
 import { Provider, createStore } from 'jotai';
 
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import {
   labelDelete,
@@ -20,7 +21,6 @@ import {
   labelSearchContacts
 } from '../../translatedLabels';
 import { panelWidthStorageAtom } from '../../atom';
-import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
   hostsGroupsEndpoint,
   notificationEndpoint,

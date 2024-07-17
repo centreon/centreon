@@ -32,8 +32,10 @@ export interface StyleMenuSkeleton {
 }
 
 export enum FederatedWidgetOptionType {
+  autocomplete = 'autocomplete',
   buttonGroup = 'button-group',
   checkbox = 'checkbox',
+  connectedAutocomplete = 'connected-autocomplete',
   displayType = 'displayType',
   metrics = 'metrics',
   radio = 'radio',
@@ -55,6 +57,9 @@ export enum FederatedWidgetOptionType {
 
 interface WidgetHiddenCondition {
   matches: unknown;
+  method: 'equals' | 'includes';
+  property?: string;
+  target: 'options' | 'data' | 'modules' | 'featureFlags';
   when: string;
 }
 
