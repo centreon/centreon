@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import {
   Dialog,
@@ -13,6 +14,7 @@ import {
   TextField,
   useResizeObserver
 } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
@@ -71,6 +73,8 @@ const FormCreation = ({
     data,
     values
   });
+
+  const { canManageApiTokens } = useAtomValue(userAtom);
 
   const close = (): void => {
     resetForm();
@@ -157,7 +161,7 @@ const FormCreation = ({
       <SingleConnectedAutocompleteField
         className={classes.input}
         dataTestId={labelUser}
-        disabled={Boolean(token)}
+        disabled={Boolean(token) || !canManageApiTokens}
         field="name"
         getEndpoint={getEndpointConfiguredUser}
         id="user"
