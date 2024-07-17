@@ -1,12 +1,9 @@
 import { useState } from 'react';
 
-import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
-
-import { userAtom } from '@centreon/ui-context';
 
 import { labelAdd } from '../../Resources/translatedLabels';
 import { labelCreateNewToken } from '../translatedLabels';
