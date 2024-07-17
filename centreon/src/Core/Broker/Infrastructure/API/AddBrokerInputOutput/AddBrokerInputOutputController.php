@@ -79,9 +79,13 @@ final class AddBrokerInputOutputController extends AbstractController
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+
+            return $presenter->show();
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new ErrorResponse(BrokerException::addBrokerInputOutput()));
+
+            return $presenter->show();
         }
 
         $useCase($dto, $presenter);

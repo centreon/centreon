@@ -54,6 +54,106 @@
         "unhandled_problems"
       ]
     },
+    "statusTypes": {
+      "type": "checkbox",
+      "label": "Display resources with these status types",
+      "options": [
+        {
+          "id": "hard",
+          "name": "Hard"
+        },
+        {
+          "id": "soft",
+          "name": "Soft"
+        }
+      ],
+      "defaultValue": []
+    },
+    "hostSeverities":{
+      "type": "connected-autocomplete",
+      "label": "Host severities",
+      "secondaryLabel": "Select host severities",
+      "baseEndpoint": "/monitoring/severities/host",
+      "isSingleAutocomplete" : false
+    },
+    "serviceSeverities":{
+      "type": "connected-autocomplete",
+      "label": "Service severities",
+      "secondaryLabel": "Select service severities",
+      "baseEndpoint": "/monitoring/severities/service",
+      "isSingleAutocomplete" : false
+    },
+    "isOpenTicketEnabled": {
+      "type": "switch",
+      "label": "Enable Open Tickets",
+      "defaultValue": false,
+      "hiddenCondition": {
+        "target" : "featureFlags",
+        "when": "resouresTableOpenTickets",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "provider":{
+      "type": "connected-autocomplete",
+      "label": "Rule (ticket provider)",
+      "secondaryLabel": "Select rule (ticket provider)",
+      "baseEndpoint": "/open-tickets/providers",
+      "isSingleAutocomplete" : true,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.isOpenTicketEnabled",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "displayResources": {
+      "type": "radio",
+      "label": "Display resources",
+      "options": [
+        {
+          "id": "all",
+          "name": "All resources"
+        },
+        {
+          "id": "withTicket",
+          "name": "Resources linked to a ticket"
+        },
+        {
+          "id": "withoutTicket",
+          "name": "Resources with no ticket"
+        }
+      ],
+      "defaultValue": "all",
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.isOpenTicketEnabled",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "isDownHostHidden": {
+      "type": "switch",
+      "label": "Hide services with Down host",
+      "defaultValue": false,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.isOpenTicketEnabled",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "isUnreachableHostHidden": {
+      "type": "switch",
+      "label": "hide services with Unreachable host",
+      "defaultValue": false,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.isOpenTicketEnabled",
+        "method": "equals",
+        "matches": false
+      }
+    },
     "refreshInterval": {
       "type": "refresh-interval",
       "defaultValue": "default",
