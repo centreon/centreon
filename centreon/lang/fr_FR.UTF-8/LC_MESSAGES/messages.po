@@ -19211,9 +19211,6 @@ msgstr "Afficher les ressources avec ces types de statuts"
 msgid  "All KPIs on this business activity are working fine."
 msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
 
-msgid  "are working fine."
-msgstr "fonctionnent correctement."
-
 msgid  "See more information in the geoview"
 msgstr "Voir plus d'informations dans la géovue"
 

@@ -31,7 +31,6 @@ import {
   widgetPropertiesAtom
 } from '../atoms';
 import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
-import { platformVersionsAtom } from '../../../../../Main/atoms/platformVersionsAtom';
 
 import {
   WidgetMetrics,

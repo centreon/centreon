@@ -162,7 +162,7 @@ export const getLink = ({ type, id, name, hostId }): string => {
   ])(type);
 };
 
-export const getMetricsEndpoint = ({ resouceType, id, parentId }) => {
+export const getMetricsEndpoint = ({ resouceType, id, parentId }): string => {
   if (equals(resouceType, 'meta-service')) {
     return `/monitoring/metaservices/${id}/metrics?page=1&limit=30`;
   }
