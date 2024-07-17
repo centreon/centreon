@@ -142,7 +142,7 @@ export interface VariationThreshold {
 }
 
 export interface BasicThreshold {
-  id?:string;
+  id?: string;
   type: ThresholdType.basic;
 }
 
