@@ -104,8 +104,10 @@
             }
           ],
           "hiddenCondition": {
+            "target" : "options",
             "when": "options.displayType",
-            "matches": [
+            "method": "includes",
+            "matches":  [
               "bar",
               "bar-stacked"
             ]

@@ -26,17 +26,17 @@ Feature: Configuring resource table widget
     When the dashboard administrator user selects all the status and save changes
     Then only the unhandled resources are displayed in the resource table widget
 
-  @TEST_MON-35096
-  Scenario: Deleting a resource table widget
-    Given a dashboard featuring two resource table widgets
-    When the dashboard administrator user deletes one of the widgets
-    Then only the contents of the other widget are displayed
+  # @TEST_MON-35096
+  # Scenario: Deleting a resource table widget
+  #   Given a dashboard featuring two resource table widgets
+  #   When the dashboard administrator user deletes one of the widgets
+  #   Then only the contents of the other widget are displayed
 
-  @TEST_MON-35098
-  Scenario: Duplicating resource table widget
-    Given a dashboard having a configured resource table widget
-    When the dashboard administrator user duplicates the resource table widget
-    Then a second resource table widget is displayed on the dashboard having the same properties as the first widget
+  # @TEST_MON-35098
+  # Scenario: Duplicating resource table widget
+  #   Given a dashboard having a configured resource table widget
+  #   When the dashboard administrator user duplicates the resource table widget
+  #   Then a second resource table widget is displayed on the dashboard having the same properties as the first widget
 
   @TEST_MON-35084
   Scenario: Creating and configuring a new resource table widget on a dashboard

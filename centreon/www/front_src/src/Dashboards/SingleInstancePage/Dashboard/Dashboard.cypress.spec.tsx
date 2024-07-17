@@ -19,6 +19,7 @@ import {
   additionalResourcesAtom,
   DashboardGlobalRole,
   federatedWidgetsAtom,
+  platformVersionsAtom,
   ListingVariant,
   refreshIntervalAtom,
   userAtom
@@ -153,6 +154,14 @@ const initializeAndMount = ({
   store: ReturnType<typeof createStore>;
 } => {
   const store = initializeWidgets();
+
+  const platformVersion = {
+    modules: {},
+    web: {
+      version: '23.04.0'
+    }
+  };
+  store.set(platformVersionsAtom, platformVersion);
 
   store.set(userAtom, {
     alias: 'admin',

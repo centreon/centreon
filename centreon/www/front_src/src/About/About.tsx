@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Container, Paper, Typography } from '@mui/material';
 
 import { CentreonLogo } from '@centreon/ui';
-
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import Copyright from './Sections/Copyright';
 import SectionTitle from './SectionTitle';

@@ -8,6 +8,7 @@ import { Typography } from '@mui/material';
 
 import { Modal } from '@centreon/ui/components';
 import { LoadingSkeleton, useFetchQuery } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { dashboardToDeleteAtom } from '../../atoms';
 import { useDashboardDelete } from '../../hooks/useDashboardDelete';
@@ -20,7 +21,6 @@ import {
 } from '../../translatedLabels';
 import { Dashboard } from '../../api/models';
 import { playlistsByDashboardEndpoint } from '../../api/endpoints';
-import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import { playlistsByDashboardDecoder } from '../../api/decoders';
 
 const DeleteDashboardModal = (): JSX.Element => {
