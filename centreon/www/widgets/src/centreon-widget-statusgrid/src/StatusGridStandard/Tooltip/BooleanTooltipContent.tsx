@@ -59,7 +59,7 @@ const BooleanTooltipContent = ({ data }: Props): JSX.Element | null => {
       <Box className={classes.body}>
         <Box className={classes.boleanRulebody}>
           {isLoading && <CircularProgress size={24} />}
-          <Typography component="span">
+          <Box component="span">
             <Typography component="span">
               {t(labelExpressionIn)}{' '}
               <Typography component="span">
@@ -79,7 +79,7 @@ const BooleanTooltipContent = ({ data }: Props): JSX.Element | null => {
                 {t(labelClickHereForDetails)}
               </Link>
             </Typography>
-          </Typography>
+          </Box>
         </Box>
         <Divider variant="middle" />
         <Typography

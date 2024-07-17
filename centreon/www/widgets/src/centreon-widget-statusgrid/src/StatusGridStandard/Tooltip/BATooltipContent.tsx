@@ -92,13 +92,13 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
           {(isImpact || isRatio) && (
             <Box mb={1}>
               <Box className={classes.statusInformation}>
-                <Typography>
+                <Typography variant="body1">
                   <strong>{t(labelStateInformation)}</strong>
                 </Typography>
               </Box>
               <Box className={classes.thresholdContainer} mt={1}>
                 <Box className={classes.threshold}>
-                  <Typography variant="body2">
+                  <Typography variant="body1">
                     {t(labelWarningThreshold)}
                   </Typography>
                   <Typography
@@ -108,14 +108,14 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
                         theme
                       })
                     }}
-                    variant="body2"
+                    variant="body1"
                   >
                     {formatThreshold(warningLevel)}
                   </Typography>
                 </Box>
 
                 <Box className={classes.threshold}>
-                  <Typography variant="body2">
+                  <Typography variant="body1">
                     {t(labelCriticalThreshold)}
                   </Typography>
                   <Typography
@@ -125,7 +125,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
                         theme
                       })
                     }}
-                    variant="body2"
+                    variant="body1"
                   >
                     {formatThreshold(criticalLevel)}
                   </Typography>
@@ -134,10 +134,11 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
             </Box>
           )}
 
-          <Divider variant="fullWidth" />
-
           {hasIndicatorsWithProblems && (
             <Box mt={1}>
+              <Box mb={1}>
+                <Divider variant="fullWidth" />
+              </Box>
               <Typography className={classes.listHeader}>
                 <strong>KPIs</strong>
               </Typography>
@@ -194,13 +195,13 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
           )}
 
           {areAllIndicatorsOk && (
-            <Typography color="text.secondary" mt={1} variant="body2">
+            <Typography color="text.secondary">
               {t(labelAllKPIsAreWorkingFine)}
             </Typography>
           )}
 
           {!areAllIndicatorsOk && hasIndicatorsWithProblems && (
-            <Typography color="text.secondary" mt={1} variant="body2">
+            <Typography color="text.secondary" variant="body2">
               {`${indicatorsWithStatusOk?.length}/${total} KPIs ${t(labelAreWorkingFine)}`}
             </Typography>
           )}

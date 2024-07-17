@@ -105,7 +105,10 @@ export const getResourcesUrl = ({
     : {
         name: 'resource_types',
         value: [
-          { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
+          {
+            id: type,
+            name: `${type?.charAt(0).toUpperCase()}${type?.slice(1)}`
+          }
         ]
       };
 
@@ -115,7 +118,7 @@ export const getResourcesUrl = ({
     map((status: string) => {
       return {
         id: status.toLocaleUpperCase(),
-        name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
+        name: `${status?.charAt(0).toUpperCase()}${status?.slice(1)}`
       };
     })
   )(statuses);
@@ -123,7 +126,7 @@ export const getResourcesUrl = ({
   const formattedStates = states.map((state) => {
     return {
       id: state,
-      name: `${state.charAt(0).toUpperCase()}${state.slice(1)}`
+      name: `${state?.charAt(0).toUpperCase()}${state?.slice(1)}`
     };
   });
 

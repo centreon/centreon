@@ -19172,3 +19172,12 @@ msgstr "vrai"
 
 msgid "false"
 msgstr "faux"
+
+msgid "No KPI found"
+msgstr "Aucun KPI trouvé"
+
+msgid "No business activity found"
+msgstr "Aucun activité métier trouvé"
+
+msgid "business activity"
+msgstr "activité métier"

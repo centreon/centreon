@@ -107,7 +107,7 @@ const ResourcesTooltip = ({
             color: getColor({ severityCode, theme })
           }}
         >
-          {t(labelStatus)}: {capitalize(status)}
+          {t(labelStatus)}: {t(capitalize(status))}
         </Typography>
       </Box>
       <Box className={classes.body}>

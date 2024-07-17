@@ -16,7 +16,7 @@ const useBooleanTooltipContent = (
   const { data: booleanRule, isLoading } = useFetchQuery<BooleanRule>({
     decoder: booleanRuleDecoder,
     getEndpoint: () => getBooleanRuleEndpoint(data?.resourceId || data?.id),
-    getQueryKey: () => ['statusgrid', 'BA', data?.id],
+    getQueryKey: () => ['statusgrid', 'BooleanRule', data?.id],
     httpCodesBypassErrorSnackbar: [404],
     queryOptions: {
       suspense: false

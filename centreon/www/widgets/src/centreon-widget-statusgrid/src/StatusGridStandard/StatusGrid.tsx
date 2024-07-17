@@ -22,7 +22,9 @@ import {
 } from '../api/endpoints';
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
+  labelNoBAFound,
   labelNoHostsFound,
+  labelNoKPIFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
 import { getWidgetEndpoint } from '../../../utils';
@@ -80,6 +82,22 @@ const StatusGrid = ({
     lastSelectedResourceType,
     'business-activity'
   );
+
+  const getLabelNoResourceFound = (): string => {
+    if (isBAResourceType) {
+      return t(labelNoKPIFound);
+    }
+
+    if (isBVResourceType) {
+      return t(labelNoBAFound);
+    }
+
+    if (equals(resourceType, 'host')) {
+      return t(labelNoHostsFound);
+    }
+
+    return t(labelNoServicesFound);
+  };
 
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
@@ -183,15 +201,7 @@ const StatusGrid = ({
   }
 
   if (equals(data?.meta.total, 0)) {
-    return (
-      <NoResourcesFound
-        label={
-          equals(resourceType, 'host')
-            ? t(labelNoHostsFound)
-            : t(labelNoServicesFound)
-        }
-      />
-    );
+    return <NoResourcesFound label={getLabelNoResourceFound()} />;
   }
 
   const seeMoreTile = hasMoreResources

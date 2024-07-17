@@ -17869,3 +17869,12 @@ msgstr ""
 
 # msgid "Click here for details"
 # msgstr ""
+
+# msgid "No KPI found"
+# msgstr ""
+
+# msgid "No business activity found"
+# msgstr ""
+
+# msgid "business activity"
+# msgstr ""

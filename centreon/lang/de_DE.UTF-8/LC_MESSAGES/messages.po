@@ -17067,3 +17067,12 @@ msgstr "Erweiterter Modus"
 
 # msgid "false"
 # msgstr ""
+
+# msgid "No KPI found"
+# msgstr ""
+
+# msgid "No business activity found"
+# msgstr ""
+
+# msgid "business activity"
+# msgstr ""
