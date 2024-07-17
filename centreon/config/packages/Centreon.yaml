@@ -95,6 +95,14 @@ services:
         arguments:
             $configurationFile: '%vault_conf_path%'
 
+    Core\Common\Application\Repository\WriteVaultRepositoryInterface:
+        class: Core\Common\Infrastructure\Repository\WriteVaultRepository
+        public: true
+
+    Core\Common\Application\Repository\ReadVaultRepositoryInterface:
+        class: Core\Common\Infrastructure\Repository\ReadVaultRepository
+        public: true
+
     # JSON Validator
     Centreon\Domain\Service\JsonValidator\Interfaces\JsonValidatorInterface:
         class: Centreon\Domain\Service\JsonValidator\Validator

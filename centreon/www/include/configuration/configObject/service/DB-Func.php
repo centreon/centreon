@@ -38,7 +38,17 @@ if (!isset($centreon)) {
     exit();
 }
 
+use App\Kernel;
+Use Centreon\Domain\Log\Logger;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Utility\Interfaces\UUIDGeneratorInterface;
+
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
+
 
 /**
  * For ACL
@@ -418,15 +428,15 @@ function deleteServiceInDB($services = array())
     global $pearDB, $centreon;
 
     $serviceIds = array_keys($services);
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
     if ($vaultConfiguration !== null) {
-        deleteResourceSecretsInVault($vaultConfiguration, $logger, [], $serviceIds);
+        deleteResourceSecretsInVault($writeVaultRepository, [], $serviceIds);
     }
 
     $query = 'UPDATE service SET service_template_model_stm_id = NULL WHERE service_id = :service_id';
@@ -605,22 +615,13 @@ function multipleServiceInDB(
     // Foreach Service
     $maxId["MAX(service_id)"] = null;
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
-
-    //Authenticate to Vault to avoid multiple authentication for each duplicated services
-    if ($vaultConfiguration !== null) {
-        $httpClient = new CentreonRestHttp();
-        $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-    }
-
     foreach ($services as $key => $value) {
         // Get all information about it
         $dbResult = $pearDB->query("SELECT * FROM service WHERE service_id = '" . $key . "' LIMIT 1");
@@ -904,20 +905,30 @@ function multipleServiceInDB(
                                     "SELECT MAX(svc_macro_id) from on_demand_macro_service WHERE is_password = 1"
                                 );
                                 $resultMacro = $maxIdStatement->fetch();
-                                $macroPasswords[$resultMacro['MAX(svc_macro_id)']] = $macVal;
+                                $macroPasswords[$resultMacro['MAX(svc_macro_id)']] = [
+                                    'macroName' => $macName,
+                                    'macroValue' => $macVal
+                                ];
                             }
                         }
 
                         if (! empty($macroPasswords) && $vaultConfiguration !== null) {
+                            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+                            $readVaultRepository = $kernel->getContainer()->get(
+                                ReadVaultRepositoryInterface::class
+                            );
+                            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+                            $writeVaultRepository = $kernel->getContainer()->get(
+                                WriteVaultRepositoryInterface::class
+                            );
+                            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
                             try {
                                 duplicateServiceSecretsInVault(
-                                    $vaultConfiguration,
+                                    $readVaultRepository,
+                                    $writeVaultRepository,
                                     $logger,
-                                    $httpClient,
-                                    $uuidGenerator,
                                     $key,
                                     $macroPasswords,
-                                    $clientToken
                                 );
                             } catch (\Throwable $ex) {
                                 error_log((string) $ex);
@@ -998,19 +1009,17 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     }
 
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
-    //Retrieve UUID for vault path before updating values in database.
-    $uuid = null;
+    //Retrieve vault path before updating values in database.
+    $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
+        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
@@ -1106,14 +1115,20 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     }
 
     if ($vaultConfiguration !== null) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
         try {
             updateServiceSecretsInVault(
-                $vaultConfiguration,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $logger,
-                $uuidGenerator,
+                $vaultPath,
                 (int) $service_id,
                 $service->getFormattedMacros(),
-                $uuid
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -1153,13 +1168,13 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         $ret = $form->getSubmitValues();
     }
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(UUIDGeneratorInterface::class);
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     //Retrieve UUID for vault path before updating values in database.
@@ -1893,20 +1908,20 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         );
     }
 
-    $macros = $service->getFormattedMacros();
-    $kernel = \App\Kernel::createForWeb();
+    $passwordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+        return $macro['macro_password'] === '1';
+    });
+    $kernel = Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     //If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && ! empty($macros)) {
+    if ($vaultConfiguration !== null && ! empty($passwordMacros)) {
         try {
-            /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-            $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-            /** @var \Centreon\Domain\Log\Logger $logger */
-            $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-            insertServiceSecretsInVault($vaultConfiguration,$uuidGenerator, $logger, $macros);
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            insertServiceSecretsInVault($writeVaultRepository, $passwordMacros);
         } catch (\Throwable $ex) {
             error_log((string) $ex);
         }
@@ -2138,25 +2153,21 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
             $submittedValues["command_command_id"]
         );
     }
-
-    $macros = $service->getFormattedMacros();
-    $kernel = \App\Kernel::createForWeb();
+    $passwordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+        return $macro['macroPassword'] === '1';
+    });
+    $kernel = Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     //If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && ! empty($macros)) {
+    if ($vaultConfiguration !== null && ! empty($passwordMacros)) {
         try {
-            /**
-             * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-             */
-            $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-            /**
-             * @var \Centreon\Domain\Log\Logger $logger
-             */
-            $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-            insertServiceSecretsInVault($vaultConfiguration,$uuidGenerator, $logger, $macros);
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+            insertServiceSecretsInVault($writeVaultRepository, $passwordMacros);
         } catch (\Throwable $ex) {
             error_log((string) $ex);
         }
@@ -2251,19 +2262,17 @@ function updateService($service_id = null, $from_MC = false, $params = array())
         $ret = $form->getSubmitValues();
     }
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
-    //Retrieve UUID for vault path before updating values in database.
-    $uuid = null;
+    //Retrieve vault path before updating values in database.
+    $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
+        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
@@ -2457,14 +2466,24 @@ function updateService($service_id = null, $from_MC = false, $params = array())
     }
 
     if ($vaultConfiguration !== null) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+        $updatedPasswordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+            return $macro['macroPassword'] === '1'
+                && !str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+        });
         try {
             updateServiceSecretsInVault(
-                $vaultConfiguration,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $logger,
-                $uuidGenerator,
+                $vaultPath,
                 (int) $service_id,
-                $service->getFormattedMacros(),
-                $uuid
+                $updatedPasswordMacros,
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -2504,19 +2523,18 @@ function updateService_MC($service_id = null, $params = array())
         $ret = $form->getSubmitValues();
     }
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
+
     //Retrieve UUID for vault path before updating values in database.
-    $uuid = null;
+    $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
+        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
     if (isset($ret["sg_name"])) {
@@ -2694,13 +2712,24 @@ function updateService_MC($service_id = null, $params = array())
     //If there is a vault configuration write into vault
     if ($vaultConfiguration !== null) {
         try {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+
+            $updatedPasswordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+                return $macro['macroPassword'] === '1'
+                    && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+            });
             updateServiceSecretsInVaultFromMC(
-                $vaultConfiguration,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $logger,
-                $uuidGenerator,
-                $uuid,
+                $vaultPath,
                 (int) $service_id,
-                $service->getFormattedMacros()
+                $updatedPasswordMacros
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);

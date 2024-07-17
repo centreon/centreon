@@ -22,12 +22,15 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MetaServiceConfiguration\UseCase\V2110;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindMetaServicesConfigurationsResponse;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * This class is designed to represent a use case to find all host categories.
@@ -36,6 +39,8 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  */
 class FindMetaServicesConfigurations
 {
+    use LoggerTrait;
+
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
@@ -56,15 +61,27 @@ class FindMetaServicesConfigurations
      * Execute the use case for which this class was designed.
      *
      * @return FindMetaServicesConfigurationsResponse
-     * @throws MetaServiceConfigurationException
+     * @throws AccessDeniedException|MetaServiceConfigurationException
      */
     public function execute(): FindMetaServicesConfigurationsResponse
     {
+        if (
+            ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_META_SERVICES_READ)
+            && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_META_SERVICES_WRITE)
+        ) {
+            $this->error('Insufficient right for user', ['user_id' => $this->contact->getId()]);
+
+            throw new AccessDeniedException(
+                'Insufficient rights (required: ROLE_CONFIGURATION_META_SERVICES_READ or ROLE_CONFIGURATION_META_SERVICES_WRITE)'
+            );
+        }
+
         $response = new FindMetaServicesConfigurationsResponse();
         $metaServicesConfigurations = $this->isUserAdmin()
             ? $this->metaServiceConfigurationService->findAllWithoutAcl()
             : $this->metaServiceConfigurationService->findAllWithAcl();
         $response->setMetaServicesConfigurations($metaServicesConfigurations);
+
         return $response;
     }
 

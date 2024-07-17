@@ -3,6 +3,7 @@ import { ReactElement } from 'react';
 import { Provider, createStore } from 'jotai';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { modalStateAtom } from '../../atom';
 import { AddEditResourceAccessRuleModal } from '..';
@@ -65,8 +66,6 @@ import {
   formDataWithAllContacts,
   formDataWithAllHostGroups
 } from './testUtils';
-
-import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 const store = createStore();
 store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });

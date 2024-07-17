@@ -39,6 +39,7 @@ use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\NewBrokerInputOutput;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 
 /**
@@ -54,6 +55,7 @@ final class AddBrokerInputOutput
         private readonly ContactInterface $user,
         private readonly BrokerInputOutputValidator $validator,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly FeatureFlags $flags,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
     }
@@ -98,7 +100,7 @@ final class AddBrokerInputOutput
                 parameters: $validatedParameters
             );
 
-            if ($this->writeVaultRepository->isVaultConfigured() === true) {
+            if ($this->flags->isEnabled('vault_broker') && $this->writeVaultRepository->isVaultConfigured() === true) {
                 $this->uuid = $this->getBrokerVaultUuid($request->brokerId);
                 $newOutput = $this->saveInVault($newOutput, $outputFields);
             }
@@ -158,9 +160,8 @@ final class AddBrokerInputOutput
 
             return null;
         }
-        $vaultParts = explode('/', $vaultPath);
 
-        return end($vaultParts);
+        return $this->getUuidFromPath($vaultPath);
     }
 
     /**
@@ -183,11 +184,12 @@ final class AddBrokerInputOutput
                     if (isset($groupedParams['type']) && $groupedParams['type'] === 'password') {
                         /** @var array{type:string,name:string,value:string|int} $groupedParams */
                         $vaultKey = implode('_', [$inputOutput->getName(), $paramName, $groupedParams['name']]);
-                        $vaultPath = $this->writeVaultRepository->upsert(
+                        $vaultPaths = $this->writeVaultRepository->upsert(
                             $this->uuid,
                             [$vaultKey => $groupedParams['value']],
                             []
                         );
+                        $vaultPath = $vaultPaths[$vaultKey];
                         $this->uuid ??= $this->getUuidFromPath($vaultPath);
                         /** @var array<array<array{value:string}>> $updatedParameters */
                         $updatedParameters[$paramName][$groupIndex]['value'] = $vaultPath;
@@ -202,7 +204,8 @@ final class AddBrokerInputOutput
                     continue;
                 }
                 $vaultKey = implode('_', [$inputOutput->getName(), $paramName]);
-                $vaultPath = $this->writeVaultRepository->upsert($this->uuid, [$vaultKey => $paramValue], []);
+                $vaultPaths = $this->writeVaultRepository->upsert($this->uuid, [$vaultKey => $paramValue], []);
+                $vaultPath = $vaultPaths[$vaultKey];
                 $this->uuid ??= $this->getUuidFromPath($vaultPath);
                 $updatedParameters[$paramName] = $vaultPath;
             }

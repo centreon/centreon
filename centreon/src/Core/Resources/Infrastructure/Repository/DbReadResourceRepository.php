@@ -71,7 +71,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         'parent_id' => 'resources.parent_id',
         'parent_name' => 'resources.parent_name',
         'parent_alias' => 'parent_resource.alias',
-        'parent_status' => 'parent_status',
+        'parent_status' => 'parent_resource.status',
         'severity_level' => 'severity_level',
         'in_downtime' => 'resources.in_downtime',
         'acknowledged' => 'resources.acknowledged',
