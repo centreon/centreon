@@ -101,7 +101,7 @@ const PickersStartEndDate = ({
   rangeEndDate,
   direction = PickersStartEndDateDirection.column
 }: PickersStartEndDateProps): JSX.Element => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
 
   const { locale } = useAtomValue(userAtom);
   const error = useAtomValue(errorTimePeriodAtom);
@@ -115,11 +115,6 @@ const PickersStartEndDate = ({
   const styleContainer = equals(direction, PickersStartEndDateDirection.column)
     ? classes.verticalDirection
     : classes.horizontalDirection;
-
-  const isHorizontalDirection = equals(
-    direction,
-    PickersStartEndDateDirection.row
-  );
 
   return (
     <LocalizationProvider
@@ -152,9 +147,7 @@ const PickersStartEndDate = ({
       {isError && (
         <ErrorText
           message="The end date must be greater than the start date"
-          style={cx(classes.error, {
-            [classes.horizontalError]: isHorizontalDirection
-          })}
+          style={classes.error}
         />
       )}
     </LocalizationProvider>
