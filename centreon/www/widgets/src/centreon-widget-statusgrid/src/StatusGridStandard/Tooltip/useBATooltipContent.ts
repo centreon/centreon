@@ -58,19 +58,21 @@ const useBATooltipContent = (
 
   const ProblematicKPIsCount = indicatorsWithProblems?.length || 0;
 
-  const health = ((total - ProblematicKPIsCount) * 100) / total;
+  const health = Math.floor(((total - ProblematicKPIsCount) * 100) / total);
 
   const criticalKPIsCount =
     businessActivity?.indicators?.filter(({ status }) =>
       equals(SeverityCode.High, status?.severityCode)
     )?.length || 0;
 
+  const criticalKPIsPercentage = Math.floor((criticalKPIsCount * 100) / total);
+
   const criticalKPIs = equals(isPercentage, false)
     ? `${criticalKPIsCount} ${pluralizedT({
         count: criticalKPIsCount || 0,
         label: 'KPI'
       })}`
-    : `${criticalKPIsCount}%`;
+    : `${criticalKPIsPercentage}%`;
 
   return {
     calculationMethod,
