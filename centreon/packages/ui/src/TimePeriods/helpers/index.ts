@@ -1,4 +1,5 @@
 import { find, propEq } from 'ramda';
+import dayjs from 'dayjs';
 
 import {
   CustomTimePeriod,
@@ -24,3 +25,6 @@ export const getTimePeriodById = ({
   timePeriods
 }: TimePeriodById): TimePeriod =>
   find<TimePeriod>(propEq(id, 'id'))(timePeriods) as TimePeriod;
+
+export const isInvalidDate = ({ startDate, endDate }): boolean =>
+  dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');
