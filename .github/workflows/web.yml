@@ -23,9 +23,9 @@ on:
       - ready_for_review
     paths:
       - "centreon/**"
-      - "!centreon/.veracode-exclusions"
-      - "!centreon/veracode.json"
-      - "!centreon/packages/**"
+      # - "!centreon/.veracode-exclusions"
+      # - "!centreon/veracode.json"
+      # - "!centreon/packages/**"
   push:
     branches:
       - develop
