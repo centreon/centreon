@@ -33,6 +33,8 @@ const initialize = ({
       />
     )
   });
+
+  cy.viewport('macbook-13');
 };
 
 describe('Line chart', () => {

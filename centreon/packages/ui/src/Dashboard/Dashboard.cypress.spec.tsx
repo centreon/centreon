@@ -52,6 +52,8 @@ const initialize = (): void => {
       </DashboardLayout.Layout>
     )
   });
+
+  cy.viewport('macbook-13');
 };
 
 describe('Dashboard', () => {
