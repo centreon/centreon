@@ -381,3 +381,5 @@ export const getBAsURL = (severityCode: number): string => {
 
   return `/main.php?p=20701&status=${status}`;
 };
+
+export const indicatorsURL = '/main.php?p=62606';

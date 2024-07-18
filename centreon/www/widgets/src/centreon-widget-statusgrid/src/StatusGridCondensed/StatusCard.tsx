@@ -17,6 +17,7 @@ import { Resource, StatusDetail } from '../../../models';
 import {
   getBAsURL,
   getResourcesUrl,
+  indicatorsURL,
   severityStatusBySeverityCode
 } from '../../../utils';
 
@@ -50,16 +51,22 @@ const StatusCard = ({
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
-  const url =
-    isBVResourceType || isBAResourceType
-      ? getBAsURL(severityCode)
-      : getResourcesUrl({
-          allResources: resources,
-          isForOneResource: false,
-          states: [],
-          statuses: [severityStatusBySeverityCode[severityCode]],
-          type: resourceType
-        });
+  const getUrl = (): string => {
+    if (isBVResourceType) {
+      return getBAsURL(severityCode);
+    }
+    if (isBAResourceType) {
+      return indicatorsURL;
+    }
+
+    return getResourcesUrl({
+      allResources: resources,
+      isForOneResource: false,
+      states: [],
+      statuses: [severityStatusBySeverityCode[severityCode]],
+      type: resourceType
+    });
+  };
 
   return (
     <Tooltip
@@ -92,7 +99,7 @@ const StatusCard = ({
         data-label={label}
         rel="noopener noreferrer"
         target="_blank"
-        to={url}
+        to={getUrl()}
       >
         <Box
           className={cx(classes.status, classes.statusCard)}

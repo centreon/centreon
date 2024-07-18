@@ -565,5 +565,13 @@ describe('Condensed view', () => {
 
       cy.makeSnapshot();
     });
+
+    it('navigates to indicators page when a status card is clicked', () => {
+      cy.get('[data-label="ok"]').should(
+        'have.attr',
+        'href',
+        '/main.php?p=62606'
+      );
+    });
   });
 });
