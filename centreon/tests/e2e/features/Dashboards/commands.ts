@@ -236,6 +236,31 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('visitDashboards', () => {
+  cy.intercept({
+    method: 'GET',
+    times: 1,
+    url: '/centreon/api/latest/configuration/dashboards*'
+  }).as('listAllDashboards');
+
+  const dashboardsUrl = '/centreon/home/dashboards/library';
+  cy.url().then((url) =>
+    url.includes(dashboardsUrl)
+      ? cy.visit(dashboardsUrl)
+      : cy.navigateTo({ page: 'Dashboards', rootItemNumber: 0 })
+  );
+
+  cy.wait('@listAllDashboards');
+});
+
+Cypress.Commands.add('visitDashboard', (name) => {
+  cy.visitDashboards();
+
+  cy.contains(name).click();
+
+  cy.url().should('match', /\/home\/dashboards\/library\/\d+$/);
+});
+
 interface Dashboard {
   description?: string;
   name: string;
@@ -274,6 +299,8 @@ declare global {
         expectedColors: Array<string>,
         expectedValue: Array<string>
       ) => Cypress.Chainable;
+      visitDashboard: (name: string) => Cypress.Chainable;
+      visitDashboards: () => Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number
