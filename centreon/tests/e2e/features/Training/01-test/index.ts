@@ -39,7 +39,7 @@ Then('the admin user could create a new dashboard', () => {
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
   cy.contains('Create dashboard').should('be.visible');
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Dashboard-001');
-  cy.getByLabel({ label: 'Description', tag: 'input' }).type('Hello there');
+  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type('Hello there');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@getDashboardDetail');
 });
