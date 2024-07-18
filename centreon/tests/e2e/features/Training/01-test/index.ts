@@ -11,7 +11,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards'
   }).as('getDashboardPage');
   cy.intercept({
     method: 'GET',
@@ -31,7 +31,7 @@ Given('the administrator is logged in', () => {
 });
 
 When('the admin user visits dashboard page', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@getDashboardPage');
 });
 
