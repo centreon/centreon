@@ -26,6 +26,7 @@ const initialize = ({
   lineStyle
 }: Props): void => {
   cy.adjustViewport();
+
   const store = createStore();
   store.set(userAtom, {
     alias: 'admin',
@@ -33,6 +34,7 @@ const initialize = ({
     name: 'admin',
     timezone: 'Europe/Paris'
   });
+
   cy.mount({
     Component: (
       <Provider store={store}>
