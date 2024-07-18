@@ -86,6 +86,7 @@ Cypress.Commands.add(
       path.replace('./', '**'),
       (req, res, ctx) => {
         const getQuery = req?.url?.searchParams?.get(query?.name);
+
         if (query && equals(query.value, getQuery)) {
           return res(
             ctx.delay(delay),

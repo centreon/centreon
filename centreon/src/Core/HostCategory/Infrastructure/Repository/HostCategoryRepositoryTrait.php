@@ -34,7 +34,7 @@ trait HostCategoryRepositoryTrait
      *
      * @return bool
      */
-    public function hasAccessToAllHostCategories(array $accessGroupIds): bool
+    public function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
     {
         if ($accessGroupIds === []) {
             return false;
@@ -76,7 +76,7 @@ trait HostCategoryRepositoryTrait
 
         if (
             $accessGroupIds !== []
-            && ! $this->hasAccessToAllHostCategories($accessGroupIds)
+            && $this->hasRestrictedAccessToHostCategories($accessGroupIds)
         ) {
             [, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 

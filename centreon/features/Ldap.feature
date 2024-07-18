@@ -1,5 +1,4 @@
-#features/Ldap.feature
-
+@system
 Feature: LDAP
     As a company administrator
     I want my users to access Centreon using LDAP credentials

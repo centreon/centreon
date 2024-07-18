@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import dayjs from 'dayjs';
@@ -10,11 +12,15 @@ import { userAtom } from '@centreon/ui-context';
 import { labelTimePeriod } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import Subtitle from '../../../../components/Subtitle';
 
 import useTimePeriod from './useTimePeriod';
 import { useTimePeriodStyles } from './TimePeriod.styles';
 
-const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
+const TimePeriod = ({
+  propertyName,
+  isInGroup
+}: WidgetPropertyProps): JSX.Element => {
   const { classes } = useTimePeriodStyles();
   const { t } = useTranslation();
 
@@ -35,11 +41,11 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     name: t(name)
   }));
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div className={classes.container}>
-      <Typography>
-        <strong>{t(labelTimePeriod)}</strong>
-      </Typography>
+      <Label>{t(labelTimePeriod)}</Label>
       <SelectField
         dataTestId={labelTimePeriod}
         disabled={!canEditField}

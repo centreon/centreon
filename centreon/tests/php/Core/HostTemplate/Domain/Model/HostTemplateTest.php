@@ -65,7 +65,7 @@ beforeEach(function (): void {
                 'highFlapThreshold' => 5,
                 'eventHandlerEnabled' => YesNoDefault::Yes,
                 'eventHandlerCommandId' => 1,
-                'eventHandlerCommandArgs' =>  ['arg3', 'arg4'],
+                'eventHandlerCommandArgs' => ['arg3', 'arg4'],
                 'noteUrl' => 'noteUrl-value',
                 'note' => 'note-value',
                 'actionUrl' => 'actionUrl-value',
@@ -77,8 +77,6 @@ beforeEach(function (): void {
             ]
         );
     };
-
-
 });
 
 it('should return properly set host template instance (all properties)', function (): void {
@@ -201,13 +199,13 @@ foreach (
 }
 
 // name and conmmands args should be formated
-it("should return trimmed and formatted field name after construct", function (): void {
+it('should return trimmed and formatted field name after construct', function (): void {
     $hostTemplate = new HostTemplate(1, '    host template name   ', 'alias');
 
     expect($hostTemplate->getName())->toBe('host_template_name');
 });
 
-it("should trimm and format field name when set", function (): void {
+it('should trimm and format field name when set', function (): void {
     $hostTemplate = ($this->createHostTemplate)();
     $hostTemplate->setName('    some new name   ');
 
@@ -223,7 +221,7 @@ foreach (
     it(
         "should return a trimmed field {$field}",
         function () use ($field): void {
-            $hostTemplate = ($this->createHostTemplate)([$field => ["  arg1  ", "  arg2  "]]);
+            $hostTemplate = ($this->createHostTemplate)([$field => ['  arg1  ', '  arg2  ']]);
             $valueFromGetter = $hostTemplate->{'get' . $field}();
 
             expect($valueFromGetter)->toBe(['arg1', 'arg2']);
@@ -241,7 +239,7 @@ foreach (
         "should set a trimmed field {$field}",
         function () use ($field): void {
             $hostTemplate = ($this->createHostTemplate)();
-            $hostTemplate->{'set' . $field}(["  arg1  ", "  arg2  "]);
+            $hostTemplate->{'set' . $field}(['  arg1  ', '  arg2  ']);
 
             expect($hostTemplate->{'get' . $field}())->toBe(['arg1', 'arg2']);
         }
@@ -333,7 +331,7 @@ foreach (
     $tooLongStr = str_repeat('a', $length + 1);
     it(
         "should throw an exception when host template {$field} is set too long",
-        function () use ($field, $tooLongStr) {
+        function () use ($field, $tooLongStr): void {
             $hostTemplate = ($this->createHostTemplate)();
             $hostTemplate->{'set' . $field}($tooLongStr);
         }
@@ -377,7 +375,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host template {$field} set value is not > 0",
-        function() use ($field): void {
+        function () use ($field): void {
             $hostTemplate = ($this->createHostTemplate)();
             $hostTemplate->{'set' . $field}(0);
         }
@@ -427,7 +425,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host template {$field} set value is not >= 0",
-        function() use ($field): void {
+        function () use ($field): void {
             $hostTemplate = ($this->createHostTemplate)();
             $hostTemplate->{'set' . $field}(-1);
         }

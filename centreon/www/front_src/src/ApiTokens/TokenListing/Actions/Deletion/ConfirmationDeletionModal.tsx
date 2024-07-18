@@ -10,7 +10,7 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { deleteTokenEndpoint } from '../../../api/endpoints';
+import { tokenEndpoint } from '../../../api/endpoints';
 import {
   labelCancel,
   labelDelete,
@@ -52,7 +52,7 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
 
   const { mutateAsync, isMutating } = useMutationQuery<object, Meta>({
     getEndpoint: ({ name, userId }) =>
-      deleteTokenEndpoint({ tokenName: name, userId }),
+      tokenEndpoint({ tokenName: name, userId }),
     method: Method.DELETE,
     onSuccess: success
   });

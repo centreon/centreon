@@ -135,9 +135,10 @@ const toLine = ({
   metric_id,
   minimum_value,
   name: legend,
-  stackOrder: equals(ds_data.ds_stack, '1')
-    ? parseInt(ds_data.ds_order || '0', 10)
-    : null,
+  stackOrder:
+    equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
+      ? parseInt(ds_data.ds_order || '0', 10)
+      : null,
   transparency: ds_data.ds_transparency,
   unit
 });
@@ -341,12 +342,22 @@ const getYScale = ({
     : scale;
 };
 
+const getScaleType = (
+  scale: 'linear' | 'logarithimc'
+): typeof Scale.scaleLinear | typeof Scale.scaleLog =>
+  equals(scale, 'logarithmic') ? Scale.scaleLog : Scale.scaleLinear;
+
 const getScale = ({
   graphValues,
   height,
   stackedValues,
-  thresholds
+  thresholds,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase,
+  isHorizontal
 }): ScaleLinear<number, number> => {
+  const isLogScale = equals(scale, 'logarithmic');
   const minValue = Math.min(
     getMin(graphValues),
     getMin(stackedValues),
@@ -358,12 +369,25 @@ const getScale = ({
     Math.max(...thresholds)
   );
 
-  const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
+  const scaleType = getScaleType(scale);
 
-  return Scale.scaleLinear<number>({
-    domain: [minValue, maxValue],
-    nice: true,
-    range: [height, upperRangeValue]
+  const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
+  const range = [height, upperRangeValue];
+
+  if (isCenteredZero) {
+    const greatestValue = Math.max(Math.abs(maxValue), Math.abs(minValue));
+
+    return scaleType<number>({
+      base: scaleLogarithmicBase || 2,
+      domain: [-greatestValue, greatestValue],
+      range: isHorizontal ? range : range.reverse()
+    });
+  }
+
+  return scaleType<number>({
+    base: scaleLogarithmicBase || 2,
+    domain: [isLogScale ? 0.001 : minValue, maxValue],
+    range: isHorizontal ? range : range.reverse()
   });
 };
 
@@ -372,9 +396,13 @@ const getLeftScale = ({
   dataTimeSeries,
   valueGraphHeight,
   thresholds,
-  thresholdUnit
+  thresholdUnit,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase,
+  isHorizontal = true
 }: AxeScale): ScaleLinear<number, number> => {
-  const [firstUnit, , thirdUnit] = getUnits(dataLines);
+  const [firstUnit, secondUnit, thirdUnit] = getUnits(dataLines);
 
   const shouldApplyThresholds =
     equals(thresholdUnit, firstUnit) ||
@@ -399,7 +427,9 @@ const getLeftScale = ({
 
   const stackedValues = firstUnitHasStackedLines
     ? getStackedMetricValues({
-        lines: getSortedStackedLines(dataLines),
+        lines: getSortedStackedLines(dataLines).filter(
+          ({ unit }) => !equals(unit, secondUnit)
+        ),
         timeSeries: dataTimeSeries
       })
     : [0];
@@ -407,6 +437,10 @@ const getLeftScale = ({
   return getScale({
     graphValues,
     height: valueGraphHeight,
+    isCenteredZero,
+    isHorizontal,
+    scale,
+    scaleLogarithmicBase,
     stackedValues,
     thresholds: shouldApplyThresholds ? thresholds : []
   });
@@ -422,12 +456,27 @@ const getXScale = ({
   });
 };
 
+export const getXScaleBand = ({
+  dataTime,
+  valueWidth
+}: Xscale): ReturnType<typeof Scale.scaleBand<number>> => {
+  return Scale.scaleBand({
+    domain: dataTime.map(getTime),
+    padding: 0.2,
+    range: [0, valueWidth]
+  });
+};
+
 const getRightScale = ({
   dataLines,
   dataTimeSeries,
   valueGraphHeight,
   thresholds,
-  thresholdUnit
+  thresholdUnit,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase,
+  isHorizontal = true
 }: AxeScale): ScaleLinear<number, number> => {
   const [, secondUnit] = getUnits(dataLines);
 
@@ -445,7 +494,9 @@ const getRightScale = ({
 
   const stackedValues = secondUnitHasStackedLines
     ? getStackedMetricValues({
-        lines: getSortedStackedLines(dataLines),
+        lines: getSortedStackedLines(dataLines).filter(({ unit }) =>
+          equals(unit, secondUnit)
+        ),
         timeSeries: dataTimeSeries
       })
     : [0];
@@ -453,6 +504,10 @@ const getRightScale = ({
   return getScale({
     graphValues,
     height: valueGraphHeight,
+    isCenteredZero,
+    isHorizontal,
+    scale,
+    scaleLogarithmicBase,
     stackedValues,
     thresholds: shouldApplyThresholds ? thresholds : []
   });

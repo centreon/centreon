@@ -55,3 +55,7 @@ function change_macro_input_type(box, must_disable) {
         }
     }
 }
+
+function change_snmp_community_input_type(input) {
+    input.type = 'text';
+}

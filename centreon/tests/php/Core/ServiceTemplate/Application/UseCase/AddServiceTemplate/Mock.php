@@ -27,6 +27,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
@@ -65,7 +67,9 @@ class Mock extends TestCase
             $testCase->readAccessGroupRepository = $testCase->createMock(ReadAccessGroupRepositoryInterface::class),
             $testCase->validation = $testCase->createMock(AddServiceTemplateValidation::class),
             $testCase->optionService = $testCase->createMock(OptionService::class),
-            $testCase->user = $testCase->createMock(ContactInterface::class)
+            $testCase->user = $testCase->createMock(ContactInterface::class),
+            $testCase->writeVaultRepository = $testCase->createMock(WriteVaultRepositoryInterface::class),
+            $testCase->readVaultRepository = $testCase->createMock(ReadVaultRepositoryInterface::class),
         );
     }
 

@@ -1,0 +1,82 @@
+get:
+  tags:
+    - Host template
+  summary: "Find all host template configurations"
+  description: |
+    Return all host template configurations.
+
+    The available parameters to **search** / **sort_by** are:
+
+    * id
+    * name
+    * alias
+    * is_locked
+
+    Changes in 23.10 :
+
+    * `check_interval` was renamed `normal_check_interval:`
+    * `active_checks_status` was renamed `active_check_enabled`
+    * `passive_checks_status` was renamed `passive_check_enabled`
+    * `notifications_status` was renamed `notification_enabled`
+    * `url_notes` was renamed `note_url`
+    * `note` was renamed `note`
+    * `icon` was renamed `icon_id` and is no longer an object but the image ID
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
+  parameters:
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/FindHostTemplateResponse.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+post:
+  tags:
+    - Host template
+  summary: "Create a host template configuration"
+  description: |
+    Create a host template configuration
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/AddHostTemplateRequest.yaml'
+  responses:
+    '201':
+      description: "Object created"
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: 'Schema/AddHostTemplateResponse.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

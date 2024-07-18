@@ -616,6 +616,7 @@ CREATE TABLE `cfg_resource` (
   `resource_line` varchar(255) DEFAULT NULL,
   `resource_comment` varchar(255) DEFAULT NULL,
   `resource_activate` enum('0','1') DEFAULT NULL,
+  `is_password` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`resource_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2477,31 +2478,6 @@ CREATE TABLE `security_provider_contact_group_relation` (
   CONSTRAINT `security_provider_configuration_provider_id`
     FOREIGN KEY (`provider_configuration_id`)
     REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `vault` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `vault` (`name`) VALUES ('hashicorp');
-
-CREATE TABLE IF NOT EXISTS `vault_configuration` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(50) NOT NULL,
-  `vault_id` INT UNSIGNED NOT NULL,
-  `url` VARCHAR(1024) NOT NULL,
-  `port` SMALLINT UNSIGNED NOT NULL,
-  `root_path` VARCHAR(50) NOT NULL,
-  `role_id` VARCHAR(255) NOT NULL,
-  `secret_id` VARCHAR(255) NOT NULL,
-  `salt` CHAR(128) NOT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `vault_configuration_vault_id`
-    FOREIGN KEY (`vault_id`)
-    REFERENCES `vault` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `notification` (

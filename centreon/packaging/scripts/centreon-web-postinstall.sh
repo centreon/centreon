@@ -95,6 +95,19 @@ rebuildSymfonyCache() {
   fi
 }
 
+fixSymfonyCacheRights() {
+  # MON-69138
+  SYMFONY_CACHE_DIR="/var/cache/centreon/symfony"
+  if [ -d "$SYMFONY_CACHE_DIR" ]; then
+    if [ "$1" = "rpm" ]; then
+      chown -R apache:apache "$SYMFONY_CACHE_DIR"
+    else
+      chown -R www-data:www-data "$SYMFONY_CACHE_DIR"
+    fi
+    chmod 755 "$SYMFONY_CACHE_DIR"
+  fi
+}
+
 package_type="rpm"
 if  [ "$1" = "configure" ]; then
   package_type="deb"
@@ -116,6 +129,7 @@ case "$action" in
     updateGorgoneConfiguration
     manageLocales $package_type
     manageApacheAndPhpFpm $package_type
+    fixSymfonyCacheRights $package_type
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
@@ -123,6 +137,7 @@ case "$action" in
     updateGorgoneConfiguration
     manageLocales $package_type
     manageApacheAndPhpFpm $package_type
+    fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
     ;;
   *)

@@ -27,8 +27,8 @@ Cypress.Commands.add(
     return cy
       .request({
         body: {
-          login: login,
-          password: password
+          login,
+          password
         },
         method: 'POST',
         url: '/centreon/authentication/providers/configurations/local'
@@ -90,10 +90,10 @@ type Action =
   | 'manage_tokens';
 
 type ACLActionType = {
-  name: string;
+  ACLGroups: Array<string>;
+  actions: Array<Action>;
   description: string;
-  ACLGroups: string[];
-  actions: Action[];
+  name: string;
 };
 
 Cypress.Commands.add(
@@ -104,7 +104,7 @@ Cypress.Commands.add(
     retryAttempts: number,
     retryDelay: number
   ) => {
-    const attempt = ($iframe) => {
+    const attempt = ($iframe): Promise<boolean> => {
       return new Cypress.Promise((resolve) => {
         const $body = $iframe.contents().find('body');
         const containsText = $body.text().includes(textToFind);
@@ -117,7 +117,7 @@ Cypress.Commands.add(
       });
     };
 
-    const attemptWithRetry = (attemptNumber) => {
+    const attemptWithRetry = (attemptNumber): Cypress.Chainable => {
       cy.wrap(`Attempt number ${attemptNumber}`);
       if (attemptNumber > retryAttempts) {
         throw new Error(`The ${textToFind} not found in the iframe body`);
@@ -141,8 +141,8 @@ Cypress.Commands.add(
 );
 
 interface LinkActionToGroupProps {
-  ACLGroupName: string;
   ACLActionName: string;
+  ACLGroupName: string;
 }
 
 Cypress.Commands.add(

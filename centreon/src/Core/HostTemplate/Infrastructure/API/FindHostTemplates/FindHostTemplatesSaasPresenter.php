@@ -58,7 +58,6 @@ class FindHostTemplatesSaasPresenter extends AbstractPresenter implements FindHo
                     'name' => $hostTemplate['name'],
                     'alias' => $hostTemplate['alias'],
                     'snmp_version' => $hostTemplate['snmpVersion'],
-                    'snmp_community' => $this->emptyStringAsNull($hostTemplate['snmpCommunity']),
                     'max_check_attempts' => $hostTemplate['maxCheckAttempts'],
                     'normal_check_interval' => $hostTemplate['normalCheckInterval'],
                     'retry_check_interval' => $hostTemplate['retryCheckInterval'],

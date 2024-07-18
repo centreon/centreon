@@ -14,7 +14,7 @@ import {
   getWidgetEndpoint,
   severityCodeBySeverityStatus
 } from '../../../utils';
-import { buildResourcesEndpoint } from '../api/endpoints';
+import { buildCondensedViewEndpoint } from '../api/endpoints';
 
 import { getStatusesEndpoint } from './api/endpoints';
 import { getStatusNamesPerResourceType } from './utils';
@@ -39,7 +39,8 @@ export const useStatusGridCondensed = ({
   globalRefreshInterval,
   playlistHash,
   dashboardId,
-  id
+  id,
+  widgetPrefixQuery
 }: Pick<
   StatusGridProps,
   | 'panelOptions'
@@ -49,6 +50,7 @@ export const useStatusGridCondensed = ({
   | 'dashboardId'
   | 'id'
   | 'playlistHash'
+  | 'widgetPrefixQuery'
 >): UseStatusGridCondensedState => {
   const { refreshInterval, resourceType, statuses, refreshIntervalCustom } =
     panelOptions;
@@ -74,17 +76,18 @@ export const useStatusGridCondensed = ({
     getEndpoint: () =>
       getWidgetEndpoint({
         dashboardId,
-        defaultEndpoint: buildResourcesEndpoint({
+        defaultEndpoint: buildCondensedViewEndpoint({
           baseEndpoint: getStatusesEndpoint(resourceType),
-          page: 0,
           resources,
-          statuses: statusesToUse
+          statuses: statusesToUse,
+          type: resourceType
         }),
         isOnPublicPage,
         playlistHash,
         widgetId: id
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'statusgrid',
       'condensed',
       resourceType,
@@ -95,7 +98,8 @@ export const useStatusGridCondensed = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const statusesToDisplay = useMemo(

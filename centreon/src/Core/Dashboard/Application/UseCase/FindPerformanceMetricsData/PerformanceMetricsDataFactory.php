@@ -46,15 +46,22 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *     stack: int,
  *     ds_order: int,
  *     ds_data: array{
- *         ds_min: ?string,
- *         ds_max: ?string,
- *         ds_minmax_int: ?string,
- *         ds_last: ?string,
- *         ds_average: ?string,
- *         ds_total: ?string,
- *         ds_tickness: int,
- *         ds_color_line_mode: string,
- *         ds_color_line: string
+ *          ds_min: ?string,
+ *          ds_max: ?string,
+ *          ds_minmax_int: ?string,
+ *          ds_last: ?string,
+ *          ds_average: ?string,
+ *          ds_total: ?string,
+ *          ds_tickness: int,
+ *          ds_color_line_mode: int,
+ *          ds_color_line: string,
+ *          ds_transparency: ?float,
+ *          ds_color_area: ?string,
+ *          legend: ?string,
+ *          ds_filled: ?int,
+ *          ds_invert: ?int,
+ *          ds_stack: ?int,
+ *          ds_order: ?int
  *     },
  *     warn: ?float,
  *     warn_low: ?float,
@@ -74,10 +81,29 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  * @phpstan-type _MetricData array{
  *     global: array{
  *         base: int,
- *         title: string
+ *         title: string,
+ *         host_name: string
  *     },
  *     metrics: array<_Metrics>,
  *     times: string[]
+ * }
+ * @phpstan-type _DataSourceData array{
+ *     ds_min: ?string,
+ *     ds_max: ?string,
+ *     ds_minmax_int: ?string,
+ *     ds_last: ?string,
+ *     ds_average: ?string,
+ *     ds_total: ?string,
+ *     ds_tickness: int,
+ *     ds_color_line_mode: int,
+ *     ds_color_line: string,
+ *     ds_transparency: ?float,
+ *     ds_color_area: ?string,
+ *     legend: ?string,
+ *     ds_filled: ?int,
+ *     ds_invert: ?int,
+ *     ds_stack: ?int,
+ *     ds_order: ?int
  * }
  */
 class PerformanceMetricsDataFactory
@@ -99,9 +125,7 @@ class PerformanceMetricsDataFactory
         $times = [];
         foreach ($metricsData as $index => $metricData) {
             $metricBases[] = $metricData['global']['base'];
-            \preg_match('/^[[:ascii:]]+ graph on ([[:ascii:]]+)$/', $metricData['global']['title'], $matches);
-            $hostName = $matches[1];
-            $metrics['index:' . $index . ';host_name:' . $hostName] = $metricData['metrics'];
+            $metrics['index:' . $index . ';host_name:' . $metricData['global']['host_name']] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
 
@@ -122,6 +146,17 @@ class PerformanceMetricsDataFactory
     private function getHighestBase(array $bases): int
     {
         return max($bases);
+    }
+
+    /**
+     * @param string $property
+     * @param _DataSourceData $data
+     *
+     * @return bool
+     */
+    private function propertyDefinedAndNotNull(string $property, array $data): bool
+    {
+        return isset($data[$property]) && $data[$property] !== null;
     }
 
     /**
@@ -191,17 +226,28 @@ class PerformanceMetricsDataFactory
                     (bool) $metric['stack'],
                     $metric['ds_order']
                 );
+
+                /** @var _DataSourceData $dsData */
+                $dsData = $metric['ds_data'];
                 $dataSource = new DataSource(
-                    $metric['ds_data']['ds_min'] !== null ? (int) $metric['ds_data']['ds_min'] : null,
-                    $metric['ds_data']['ds_max'] !== null ? (int) $metric['ds_data']['ds_max'] : null,
-                    $metric['ds_data']['ds_minmax_int'] !== null ? (int) $metric['ds_data']['ds_minmax_int'] : null,
-                    $metric['ds_data']['ds_last'] !== null ? (int) $metric['ds_data']['ds_last'] : null,
-                    $metric['ds_data']['ds_average'] !== null ? (int) $metric['ds_data']['ds_average'] : null,
-                    $metric['ds_data']['ds_total'] !== null ? (int) $metric['ds_data']['ds_total'] : null,
-                    $metric['ds_data']['ds_tickness'],
-                    (int) $metric['ds_data']['ds_color_line_mode'],
-                    $metric['ds_data']['ds_color_line'],
+                    $this->propertyDefinedAndNotNull('ds_min', $dsData) ? (int) $dsData['ds_min'] : null,
+                    $this->propertyDefinedAndNotNull('ds_max', $dsData) ? (int) $dsData['ds_max'] : null,
+                    $this->propertyDefinedAndNotNull('ds_minmax_int', $dsData) ? (int) $dsData['ds_minmax_int'] : null,
+                    $this->propertyDefinedAndNotNull('ds_last', $dsData) ? (int) $dsData['ds_last'] : null,
+                    $this->propertyDefinedAndNotNull('ds_average', $dsData) ? (int) $dsData['ds_average'] : null,
+                    $this->propertyDefinedAndNotNull('ds_total', $dsData) ? (int) $dsData['ds_total'] : null,
+                    $this->propertyDefinedAndNotNull('ds_transparency', $dsData) ? (float) $dsData['ds_transparency'] : null,
+                    $this->propertyDefinedAndNotNull('ds_color_area', $dsData) ? $dsData['ds_color_area'] : null,
+                    $this->propertyDefinedAndNotNull('ds_filled', $dsData) ? (int) $dsData['ds_filled'] === 1 : false,
+                    $this->propertyDefinedAndNotNull('ds_invert', $dsData) ? (int) $dsData['ds_invert'] === 1 : false,
+                    $this->propertyDefinedAndNotNull('legend', $dsData) ? $dsData['legend'] : null,
+                    $this->propertyDefinedAndNotNull('ds_stack', $dsData) ? (int) $dsData['ds_stack'] === 1 : false,
+                    $this->propertyDefinedAndNotNull('ds_order', $dsData) ? (int) $dsData['ds_order'] : null,
+                    (int) $dsData['ds_tickness'],
+                    (int) $dsData['ds_color_line_mode'],
+                    $dsData['ds_color_line'],
                 );
+
                 $thresholdInformation = new ThresholdInformation(
                     $metric['warn'] !== null ? (float) $metric['warn'] : null,
                     $metric['warn_low'] !== null ? (float) $metric['warn_low'] : null,
@@ -210,6 +256,7 @@ class PerformanceMetricsDataFactory
                     $metric['ds_color_area_warn'],
                     $metric['ds_color_area_crit']
                 );
+
                 $realTimeDataInformation = new RealTimeDataInformation(
                     $metric['data'],
                     $metric['prints'],
@@ -220,6 +267,7 @@ class PerformanceMetricsDataFactory
                     $metric['last_value'] !== null ? (float) $metric['last_value'] : null,
                     $metric['average_value'] !== null ? (float) $metric['average_value'] : null
                 );
+
                 $metricsInformation[] = new MetricInformation(
                     $generalInformation,
                     $dataSource,

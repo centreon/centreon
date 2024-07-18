@@ -41,7 +41,11 @@ use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\InheritanceManager;
 use Core\Host\Domain\Model\SnmpVersion;
@@ -63,7 +67,7 @@ use Utility\Difference\BasicDifference;
 
 final class PartialUpdateHostTemplate
 {
-    use LoggerTrait;
+    use LoggerTrait,VaultTrait;
 
     /** @var AccessGroup[] */
     private array $accessGroups = [];
@@ -81,7 +85,10 @@ final class PartialUpdateHostTemplate
         private readonly OptionService $optionService,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
+        private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
     ) {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
 
     /**
@@ -107,7 +114,18 @@ final class PartialUpdateHostTemplate
                 return;
             }
 
-            if (! ($hostTemplate = $this->readHostTemplateRepository->findById($hostTemplateId))) {
+            if (! $this->user->isAdmin()) {
+                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $this->validation->accessGroups = $this->accessGroups;
+                $hostTemplate = $this->readHostTemplateRepository->findByIdAndAccessGroups(
+                    $hostTemplateId,
+                    $this->accessGroups
+                );
+            } else {
+                $hostTemplate = $this->readHostTemplateRepository->findById($hostTemplateId);
+            }
+
+            if ($hostTemplate === null) {
                 $this->error(
                     'Host template not found',
                     ['host_template_id' => $hostTemplateId]
@@ -127,11 +145,6 @@ final class PartialUpdateHostTemplate
                 );
 
                 return;
-            }
-
-            if (! $this->user->isAdmin()) {
-                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                $this->validation->accessGroups = $this->accessGroups;
             }
 
             $this->updatePropertiesInTransaction($request, $hostTemplate);
@@ -163,6 +176,10 @@ final class PartialUpdateHostTemplate
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();
+
+            if ($this->writeVaultRepository->isVaultConfigured()) {
+                $this->retrieveHostUuidFromVault($hostTemplate);
+            }
 
             $this->updateHostTemplate($request, $hostTemplate);
             // Note: parent templates must be updated before macros for macro inheritance resolution
@@ -362,6 +379,15 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setComment($request->comment);
         }
 
+        if ($this->writeVaultRepository->isVaultConfigured() && ! $request->snmpCommunity instanceOf NoValue) {
+            $vaultPath = $this->writeVaultRepository->upsert(
+                $this->uuid ?? null,
+                ['_HOSTSNMPCOMMUNITY' => $hostTemplate->getSnmpCommunity()]
+            );
+            $this->uuid ??= $this->getUuidFromPath($vaultPath);
+            $hostTemplate->setSnmpCommunity($vaultPath);
+        }
+
         $this->writeHostTemplateRepository->update($hostTemplate);
     }
 
@@ -403,10 +429,12 @@ final class PartialUpdateHostTemplate
         MacroManager::setOrder($macrosDiff, $macros, $directMacros);
 
         foreach ($macrosDiff->removedMacros as $macro) {
+            $this->updateMacroInVault($macro, 'DELETE');
             $this->writeHostMacroRepository->delete($macro);
         }
 
         foreach ($macrosDiff->updatedMacros as $macro) {
+            $macro = $this->updateMacroInVault($macro, 'INSERT');
             $this->writeHostMacroRepository->update($macro);
         }
 
@@ -417,6 +445,7 @@ final class PartialUpdateHostTemplate
                     $commandMacro ? $commandMacro->getDescription() : ''
                 );
             }
+            $macro = $this->updateMacroInVault($macro, 'INSERT');
             $this->writeHostMacroRepository->add($macro);
         }
     }
@@ -461,7 +490,15 @@ final class PartialUpdateHostTemplate
             $commandMacros = MacroManager::resolveInheritanceForCommandMacro($existingCommandMacros);
         }
 
-        return [$directMacros, $inheritedMacros, $commandMacros];
+        return [
+            $this->writeVaultRepository->isVaultConfigured()
+                ? $this->retrieveMacrosVaultValues($directMacros)
+                : $directMacros,
+            $this->writeVaultRepository->isVaultConfigured()
+                ? $this->retrieveMacrosVaultValues($inheritedMacros)
+                : $inheritedMacros,
+            $commandMacros,
+        ];
     }
 
     private function updateCategories(PartialUpdateHostTemplateRequest $request, HostTemplate $hostTemplate): void
@@ -537,5 +574,89 @@ final class PartialUpdateHostTemplate
             ]);
             $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
         }
+    }
+
+    /**
+     * @param HostTemplate $hostTemplate
+     *
+     * @throws \Throwable
+     */
+    private function retrieveHostUuidFromVault(HostTemplate $hostTemplate): void
+    {
+        $this->uuid = $this->getUuidFromPath($hostTemplate->getSnmpCommunity());
+        if (null === $this->uuid) {
+            $macros = $this->readHostMacroRepository->findByHostId($hostTemplate->getId());
+            foreach ($macros as $macro) {
+                if (
+                    $macro->isPassword() === true
+                    && null !== ($this->uuid = $this->getUuidFromPath($macro->getValue()))
+                ) {
+
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Upsert or delete macro for vault storage and return macro with updated value (aka vaultPath).
+     *
+     * @param Macro $macro
+     * @param string $action
+     *
+     * @throws \Throwable
+     *
+     * @return Macro
+     */
+    private function updateMacroInVault(Macro $macro, string $action): Macro
+    {
+        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+            $vaultPath = $this->writeVaultRepository->upsert(
+                $this->uuid ?? null,
+                $action === 'INSERT' ? ['_HOST' . $macro->getName() => $macro->getValue()] : [],
+                $action === 'DELETE' ? ['_HOST' . $macro->getName() => $macro->getValue()] : [],
+            );
+            $this->uuid ??= $this->getUuidFromPath($vaultPath);
+
+            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+            $inVaultMacro->setDescription($macro->getDescription());
+            $inVaultMacro->setIsPassword($macro->isPassword());
+            $inVaultMacro->setOrder($macro->getOrder());
+
+            return $inVaultMacro;
+        }
+
+        return $macro;
+    }
+
+    /**
+     * @param array<string,Macro> $macros
+     *
+     * @throws \Throwable
+     *
+     * @return array<string,Macro>
+     */
+    private function retrieveMacrosVaultValues(array $macros): array
+    {
+        $updatedMacros = [];
+        foreach ($macros as $key => $macro) {
+            if (false === $macro->isPassword()) {
+                $updatedMacros[$key] = $macro;
+                continue;
+            }
+
+            $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
+            $vaultKey = '_HOST' . $macro->getName();
+            if (isset($vaultData[$vaultKey])) {
+                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro->setDescription($macro->getDescription());
+                $inVaultMacro->setIsPassword($macro->isPassword());
+                $inVaultMacro->setOrder($macro->getOrder());
+
+                $updatedMacros[$key] = $inVaultMacro;
+            }
+        }
+
+        return $updatedMacros;
     }
 }

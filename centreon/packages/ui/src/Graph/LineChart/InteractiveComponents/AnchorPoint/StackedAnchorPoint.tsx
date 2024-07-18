@@ -30,7 +30,7 @@ const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {
   return pipe(map(toTimeTick), map(toDate))(stackValues);
 };
 
-const getYAnchorPoint = ({
+export const getYAnchorPoint = ({
   timeTick,
   stackValues,
   yScale

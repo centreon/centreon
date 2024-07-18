@@ -1,26 +1,27 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\HostConfigurationPage;
-use Centreon\Test\Behat\Configuration\HostConfigurationListingPage;
-use Centreon\Test\Behat\Configuration\HostGroupConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostCategoryConfigurationPage;
+use Centreon\Test\Behat\Configuration\HostConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\HostConfigurationPage;
+use Centreon\Test\Behat\Configuration\HostGroupConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostTemplateConfigurationPage;
 
 class HostConfigurationContext extends CentreonContext
 {
+    public const PASSWORD_REPLACEMENT_VALUE = '**********';
     protected $currentPage;
 
     protected $host2 = array(
         'name' => 'hostName2',
         'alias' => 'hostAlias2',
-        'address' => 'host2@localhost'
+        'address' => '2.3.4.5'
     );
 
     protected $host3 = array(
         'name' => 'hostName3',
         'alias' => 'hostAlias3',
-        'address' => 'host3@localhost'
+        'address' => '3.4.5.6'
     );
 
     protected $hostGroup1 = array(
@@ -59,7 +60,7 @@ class HostConfigurationContext extends CentreonContext
     protected $initialProperties = array(
         'name' => 'hostName',
         'alias' => 'hostAlias',
-        'address' => 'host@localhost',
+        'address' => '1.2.3.4',
         'snmp_community' => 'hostSnmpCommunity',
         'snmp_version' => '1',
         'location' => 'America/Caracas',
@@ -67,7 +68,7 @@ class HostConfigurationContext extends CentreonContext
             'generic-host'
         ),
         'check_command' => 'check_http',
-        'command_arguments' => 'hostCommandArgument',
+        'command_arguments' => '!hostCommandArgument',
         'check_period' => 'workhours',
         'max_check_attempts' => 34,
         'normal_check_interval' => 5,
@@ -91,30 +92,21 @@ class HostConfigurationContext extends CentreonContext
         'parent_host_categories' => 'hostCategoryName2',
         'parent_hosts' => 'Centreon-Server',
         'child_hosts' => 'hostName2',
-        'obsess_over_host' => 2,
         'acknowledgement_timeout' => 2,
         'check_freshness' => 1,
         'freshness_threshold' => 34,
         'flap_detection_enabled' => 1,
         'low_flap_threshold' => 67,
         'high_flap_threshold' => 85,
-        'retain_status_information' => 2,
-        'retain_non_status_information' => 0,
-        'stalking_option_on_up' => 1,
-        'stalking_option_on_down' => 0,
-        'stalking_option_on_unreachable' => 1,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
-        'event_handler_arguments' => 'event_handler_arguments',
+        'event_handler_arguments' => '!event_handler_arguments',
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
         'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '',
         'geo_coordinates' => '2.3522219,48.856614',
-        '2d_coords' => '15,84',
-        '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
         'comments' => 'hostMassiveChangeComments'
     );
@@ -122,15 +114,15 @@ class HostConfigurationContext extends CentreonContext
     protected $duplicatedProperties = array(
         'name' => 'hostName_1',
         'alias' => 'hostAlias',
-        'address' => 'host@localhost',
-        'snmp_community' => 'hostSnmpCommunity',
+        'address' => '1.2.3.4',
+        'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '1',
         'location' => 'America/Caracas',
         'templates' => array(
             'generic-host'
         ),
         'check_command' => 'check_http',
-        'command_arguments' => 'hostCommandArgument',
+        'command_arguments' => '!hostCommandArgument',
         'check_period' => 'workhours',
         'max_check_attempts' => 34,
         'normal_check_interval' => 5,
@@ -154,30 +146,21 @@ class HostConfigurationContext extends CentreonContext
         'parent_host_categories' => 'hostCategoryName2',
         'parent_hosts' => 'Centreon-Server',
         'child_hosts' => 'hostName2',
-        'obsess_over_host' => 2,
         'acknowledgement_timeout' => 2,
         'check_freshness' => 1,
         'freshness_threshold' => 34,
         'flap_detection_enabled' => 1,
         'low_flap_threshold' => 67,
         'high_flap_threshold' => 85,
-        'retain_status_information' => 2,
-        'retain_non_status_information' => 0,
-        'stalking_option_on_up' => 1,
-        'stalking_option_on_down' => 0,
-        'stalking_option_on_unreachable' => 1,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
-        'event_handler_arguments' => 'event_handler_arguments',
+        'event_handler_arguments' => '!event_handler_arguments',
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
         'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '',
         'geo_coordinates' => '2.3522219,48.856614',
-        '2d_coords' => '15,84',
-        '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
         'comments' => 'hostMassiveChangeComments'
     );
@@ -185,8 +168,8 @@ class HostConfigurationContext extends CentreonContext
     protected $updatedProperties = array(
         'name' => 'hostNameChanged',
         'alias' => 'hostAliasChanged',
-        'address' => 'hostChanged@localhost',
-        'snmp_community' => 'hostSnmpCommunitychanged',
+        'address' => '4.3.2.1',
+        'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '3',
         'macros' => array(
             'HOSTMACROCHANGED' => 5
@@ -196,7 +179,7 @@ class HostConfigurationContext extends CentreonContext
             'hostTemplateName'
         ),
         'check_command' => 'check_https',
-        'command_arguments' => 'hostCommandArgumentChanged',
+        'command_arguments' => '!hostCommandArgumentChanged',
         'check_period' => 'none',
         'max_check_attempts' => 43,
         'normal_check_interval' => 4,
@@ -220,30 +203,21 @@ class HostConfigurationContext extends CentreonContext
         'parent_host_categories' => 'hostCategoryName3',
         'parent_hosts' => 'hostName3',
         'child_hosts' => 'Centreon-Server',
-        'obsess_over_host' => 1,
         'acknowledgement_timeout' => 0,
         'check_freshness' => 2,
         'freshness_threshold' => 65,
         'flap_detection_enabled' => 0,
         'low_flap_threshold' => 38,
         'high_flap_threshold' => 51,
-        'retain_status_information' => 1,
-        'retain_non_status_information' => 1,
-        'stalking_option_on_up' => 0,
-        'stalking_option_on_down' => 1,
-        'stalking_option_on_unreachable' => 0,
         'event_handler_enabled' => 1,
         'event_handler' => 'check_http',
-        'event_handler_arguments' => 'eventHandlerArgumentsChanged',
+        'event_handler_arguments' => '!eventHandlerArgumentsChanged',
         'url' => 'hostMassiveChangeUrlChanged',
         'notes' => 'hostMassiveChangeNotesChanged',
         'action_url' => 'hostMassiveChangeActionUrlChanged',
         'icon' => '',
         'alt_icon' => 'hostMassiveChangeIconChanged',
-        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
-        '2d_coords' => '2,3',
-        '3d_coords' => '42,24,66',
         'severity_level' => '',
         'comments' => 'hostMassiveChangeCommentsChanged'
     );
@@ -299,6 +273,11 @@ class HostConfigurationContext extends CentreonContext
     public function itsPropertiesAreUpdated()
     {
         $this->currentPage = new HostConfigurationListingPage($this);
+        foreach ($this->updatedProperties as $key => $value) {
+            if ($key === "snmp_community") {
+                $value = self::PASSWORD_REPLACEMENT_VALUE;
+            }
+        }
         $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
         $this->comparePageProperties($this->currentPage, $this->updatedProperties);
     }

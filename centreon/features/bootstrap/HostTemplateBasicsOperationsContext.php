@@ -1,12 +1,13 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\HostTemplateConfigurationPage;
-use Centreon\Test\Behat\Configuration\HostTemplateConfigurationListingPage;
 use Centreon\Test\Behat\Configuration\HostCategoryConfigurationPage;
+use Centreon\Test\Behat\Configuration\HostTemplateConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\HostTemplateConfigurationPage;
 
 class HostTemplateBasicsOperationsContext extends CentreonContext
 {
+    public const PASSWORD_REPLACEMENT_VALUE = '**********';
     protected $currentPage;
 
     protected $hostCategory1 = array(
@@ -38,7 +39,6 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
     protected $initialProperties = array(
         'name' => 'hostTemplateName',
         'alias' => 'hostTemplateAlias',
-        'address' => 'hostTemplate@localhost',
         'snmp_community' => 'snmp',
         'snmp_version' => '2c',
         'location' => 'Europe/Paris',
@@ -46,7 +46,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
             'generic-host'
         ),
         'check_command' => 'check_http',
-        'command_arguments' => 'hostTemplateCommandArgument',
+        'command_arguments' => '!hostTemplateCommandArgument',
         'macros' => array(
             'HOSTTEMPLATEMACRONAME' => '22'
         ),
@@ -71,29 +71,20 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'recovery_notification_delay' => 3,
         'service_templates' => 'generic-service',
         'parent_host_categories' => 'hostCategory3Name',
-        'obsess_over_host' => 2,
         'acknowledgement_timeout' => 2,
         'check_freshness' => 0,
         'freshness_threshold' => 34,
         'flap_detection_enabled' => 1,
         'low_flap_threshold' => 67,
         'high_flap_threshold' => 85,
-        'retain_status_information' => 2,
-        'retain_non_status_information' => 0,
-        'stalking_option_on_up' => 1,
-        'stalking_option_on_down' => 0,
-        'stalking_option_on_unreachable' => 1,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
-        'event_handler_arguments' => 'event_handler_arguments',
+        'event_handler_arguments' => '!event_handler_arguments',
         'url' => 'hostTemplateChangeUrl',
         'notes' => 'hostTemplateChangeNotes',
         'action_url' => 'hostTemplateChangeActionUrl',
         'icon' => 'centreon (png)',
         'alt_icon' => 'hostTemplateChangeIcon',
-        'status_map_image' => '',
-        '2d_coords' => '15,84',
-        '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategory1Name (2)',
         'comments' => 'hostTemplateChangeComments'
     );
@@ -101,15 +92,14 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
     protected $duplicatedProperties = array(
         'name' => 'hostTemplateName_1',
         'alias' => 'hostTemplateAlias',
-        'address' => 'hostTemplate@localhost',
-        'snmp_community' => 'snmp',
+        'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '2c',
         'location' => 'Europe/Paris',
         'templates' => array(
             'generic-host'
         ),
         'check_command' => 'check_http',
-        'command_arguments' => 'hostTemplateCommandArgument',
+        'command_arguments' => '!hostTemplateCommandArgument',
         'macros' => array(
             'HOSTTEMPLATEMACRONAME' => '22'
         ),
@@ -134,29 +124,20 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'recovery_notification_delay' => 3,
         'service_templates' => 'generic-service',
         'parent_host_categories' => 'hostCategory3Name',
-        'obsess_over_host' => 2,
         'acknowledgement_timeout' => 2,
         'check_freshness' => 0,
         'freshness_threshold' => 34,
         'flap_detection_enabled' => 1,
         'low_flap_threshold' => 67,
         'high_flap_threshold' => 85,
-        'retain_status_information' => 2,
-        'retain_non_status_information' => 0,
-        'stalking_option_on_up' => 1,
-        'stalking_option_on_down' => 0,
-        'stalking_option_on_unreachable' => 1,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
-        'event_handler_arguments' => 'event_handler_arguments',
+        'event_handler_arguments' => '!event_handler_arguments',
         'url' => 'hostTemplateChangeUrl',
         'notes' => 'hostTemplateChangeNotes',
         'action_url' => 'hostTemplateChangeActionUrl',
         'icon' => 'centreon (png)',
         'alt_icon' => 'hostTemplateChangeIcon',
-        'status_map_image' => '',
-        '2d_coords' => '15,84',
-        '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategory1Name (2)',
         'comments' => 'hostTemplateChangeComments'
     );
@@ -164,7 +145,6 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
     protected $update = array(
         'name' => 'hostTemplateNameChanged',
         'alias' => 'hostTemplateAliasChanged',
-        'address' => 'hostTemplate@localhostChanged',
         'snmp_community' => 'snmpChanged',
         'snmp_version' => '3',
         'location' => 'Europe/Paris',
@@ -172,7 +152,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
             'Printers'
         ),
         'check_command' => 'check_https',
-        'command_arguments' => 'hostTemplateCommandArgumentChanged',
+        'command_arguments' => '!hostTemplateCommandArgumentChanged',
         'macros' => array(
             'HOSTTEMPLATEMACRONAMECHANGED' => '11'
         ),
@@ -197,29 +177,20 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'recovery_notification_delay' => 8,
         'service_templates' => 'Ping-LAN',
         'parent_host_categories' => 'hostCategory4Name',
-        'obsess_over_host' => 1,
         'acknowledgement_timeout' => 0,
         'check_freshness' => 1,
         'freshness_threshold' => 15,
         'flap_detection_enabled' => 0,
         'low_flap_threshold' => 25,
         'high_flap_threshold' => 34,
-        'retain_status_information' => 1,
-        'retain_non_status_information' => 1,
-        'stalking_option_on_up' => 0,
-        'stalking_option_on_down' => 1,
-        'stalking_option_on_unreachable' => 0,
         'event_handler_enabled' => 1,
         'event_handler' => 'check_http',
-        'event_handler_arguments' => 'event_handler_argumentsChanged',
+        'event_handler_arguments' => '!event_handler_argumentsChanged',
         'url' => 'hostTemplateChangeUrlChanged',
         'notes' => 'hostTemplateChangeNotesChanged',
         'action_url' => 'hostTemplateChangeActionUrlChanged',
         'icon' => '',
         'alt_icon' => 'hostTemplateChangeIconChanged',
-        'status_map_image' => 'centreon (png)',
-        '2d_coords' => '48,29',
-        '3d_coords' => '09,25,27',
         'severity_level' => 'hostCategory2Name (13)',
         'comments' => 'hostTemplateChangeCommentsChanged'
     );
@@ -227,15 +198,14 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
     protected $updatedProperties = array(
         'name' => 'hostTemplateNameChanged',
         'alias' => 'hostTemplateAliasChanged',
-        'address' => 'hostTemplate@localhostChanged',
-        'snmp_community' => 'snmpChanged',
+        'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '3',
         'location' => 'Europe/Paris',
         'templates' => array(
             'Printers'
         ),
         'check_command' => 'check_https',
-        'command_arguments' => 'hostTemplateCommandArgumentChanged',
+        'command_arguments' => '!hostTemplateCommandArgumentChanged',
         'macros' => array(
             'HOSTTEMPLATEMACRONAME' => '22',
             'HOSTTEMPLATEMACRONAMECHANGED' => '11'
@@ -261,29 +231,20 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'recovery_notification_delay' => 8,
         'service_templates' => 'Ping-LAN',
         'parent_host_categories' => 'hostCategory4Name',
-        'obsess_over_host' => 1,
         'acknowledgement_timeout' => 0,
         'check_freshness' => 1,
         'freshness_threshold' => 15,
         'flap_detection_enabled' => 0,
         'low_flap_threshold' => 25,
         'high_flap_threshold' => 34,
-        'retain_status_information' => 1,
-        'retain_non_status_information' => 1,
-        'stalking_option_on_up' => 0,
-        'stalking_option_on_down' => 1,
-        'stalking_option_on_unreachable' => 0,
         'event_handler_enabled' => 1,
         'event_handler' => 'check_http',
-        'event_handler_arguments' => 'event_handler_argumentsChanged',
+        'event_handler_arguments' => '!event_handler_argumentsChanged',
         'url' => 'hostTemplateChangeUrlChanged',
         'notes' => 'hostTemplateChangeNotesChanged',
         'action_url' => 'hostTemplateChangeActionUrlChanged',
         'icon' => '',
         'alt_icon' => 'hostTemplateChangeIconChanged',
-        'status_map_image' => 'centreon (png)',
-        '2d_coords' => '48,29',
-        '3d_coords' => '09,25,27',
         'severity_level' => 'hostCategory2Name (13)',
         'comments' => 'hostTemplateChangeCommentsChanged'
     );

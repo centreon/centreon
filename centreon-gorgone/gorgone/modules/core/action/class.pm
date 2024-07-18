@@ -387,14 +387,14 @@ sub action_command {
         }
 
         if ($self->is_command_authorized(command => $command->{command})) {
-            $self->{logger}->writeLogInfo("[action] command not allowed (whitelist): " . $command->{command});
+            $self->{logger}->writeLogError("[action] command not allowed (whitelist): " . $command->{command});
             $self->send_log(
                 socket => $options{socket_log},
                 code => GORGONE_ACTION_FINISH_KO,
                 token => $options{token},
                 logging => $options{data}->{logging},
                 data => {
-                    message => "command not allowed (whitelist) at array index '" . $index . "'"
+                    message => "command not allowed (whitelist) at array index '$index' : $command->{command}"
                 }
             );
             return -1;
@@ -679,14 +679,14 @@ sub action_actionengine {
     }
 
     if ($self->is_command_authorized(command => $options{data}->{content}->{command})) {
-        $self->{logger}->writeLogInfo("[action] command not allowed (whitelist): " . $options{data}->{content}->{command});
+        $self->{logger}->writeLogError("[action] command not allowed (whitelist): " . $options{data}->{content}->{command});
         $self->send_log(
             socket => $options{socket_log},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             logging => $options{data}->{logging},
             data => {
-                message => 'command not allowed (whitelist)'
+                message => 'command not allowed (whitelist)' . $options{data}->{content}->{command}
             }
         );
         return -1;

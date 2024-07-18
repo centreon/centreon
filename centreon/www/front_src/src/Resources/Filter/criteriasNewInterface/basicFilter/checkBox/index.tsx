@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { equals, propEq, reject } from 'ramda';
 
 import { Variant } from '@mui/material/styles/createTypography';
 
@@ -8,23 +8,24 @@ import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
 import {
+  BasicCriteria,
   ChangedCriteriaParams,
   DeactivateProps,
+  ExtendedCriteria,
   SectionType,
   SelectedResourceType
 } from '../../model';
 import useInputData from '../../useInputsData';
-import { findData, removeDuplicateFromObjectArray } from '../../utils';
 import { selectedStatusByResourceTypeAtom } from '../atoms';
 import useSectionsData from '../sections/useSections';
 
 import { useStyles } from './checkBox.style';
-import useCheckBox from './useCheckBox';
+import useSynchronizeSearchBarWithCheckBoxInterface from './useSynchronizeSearchBarWithCheckBoxInterface';
 
 interface Props {
   changeCriteria: (data: ChangedCriteriaParams) => void;
   data: Array<Criteria & CriteriaDisplayProps>;
-  filterName: string;
+  filterName: BasicCriteria | ExtendedCriteria;
   resourceType: SectionType;
 }
 
@@ -42,7 +43,9 @@ const CheckBoxSection = ({
     classes: { root: classes.label },
     variant: 'body2' as Variant
   };
+
   const formGroupProps = { classes: { root: classes.container } };
+
   const [selectedStatusByResourceType, setSelectedStatusByResourceType] =
     useAtom(selectedStatusByResourceTypeAtom);
 
@@ -53,12 +56,10 @@ const CheckBoxSection = ({
     filterName
   });
 
-  const { values } = useCheckBox({
-    changeCriteria,
+  useSynchronizeSearchBarWithCheckBoxInterface({
     data,
     filterName,
     resourceType,
-    selectedStatusByResourceType,
     setSelectedStatusByResourceType
   });
 
@@ -66,11 +67,28 @@ const CheckBoxSection = ({
     return null;
   }
 
+  const options = dataByFilterName.options as Array<SelectEntry>;
+
   const transformData = (
     input: Array<SelectEntry>
   ): Array<string> | undefined => {
     return input?.map((item) => item?.name);
   };
+
+  const getTranslated = (keys: Array<SelectEntry>): Array<SelectEntry> => {
+    return keys.map((entry) => ({
+      id: entry.id,
+      name: t(entry.name)
+    }));
+  };
+
+  const translatedOptions = getTranslated(options);
+
+  const translatedValues = getTranslated(
+    selectedStatusByResourceType?.filter(
+      (e) => e.checked && e.resourceType === resourceType
+    ) ?? []
+  );
 
   const changeFilter = (selectedStatus: Array<SelectedResourceType>): void => {
     const checkedData = selectedStatus?.filter((item) => item?.checked);
@@ -84,58 +102,63 @@ const CheckBoxSection = ({
     });
   };
 
-  const getTranslated = (keys: Array<SelectEntry>): Array<SelectEntry> => {
-    return keys.map((entry) => ({
-      id: entry.id,
-      name: t(entry.name)
-    }));
-  };
+  const handleSelectedStatus = (newStatus): void => {
+    if (selectedStatusByResourceType) {
+      const oldStatus = selectedStatusByResourceType.find(
+        ({ id, resourceType: type }) =>
+          equals(id, newStatus.id) && equals(type, newStatus.resourceType)
+      );
 
-  const translatedOptions = getTranslated(dataByFilterName?.options);
-  const translatedValues = getTranslated(values);
+      const newArrayStatus = oldStatus
+        ? selectedStatusByResourceType.filter(
+            (item) =>
+              !equals(
+                `${item.id}${item.resourceType}`,
+                `${oldStatus.id}${oldStatus.resourceType}`
+              )
+          )
+        : selectedStatusByResourceType;
 
-  const handleChangeStatus = (event): void => {
-    const originalValue = translatedOptions.find(({ name }) =>
-      equals(name, event.target.id)
-    );
-    const item = findData({
-      data: dataByFilterName?.options,
-      filterName: originalValue?.id,
-      findBy: 'id'
-    });
+      const result = [
+        ...newArrayStatus,
+        newStatus
+      ] as Array<SelectedResourceType>;
 
-    if (event.target.checked) {
-      const currentValue = { ...item, checked: true, resourceType };
-      const result = removeDuplicateFromObjectArray({
-        array: selectedStatusByResourceType
-          ? [...selectedStatusByResourceType, currentValue]
-          : [currentValue],
-        byFields: ['id', 'resourceType']
-      });
-      setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
-      changeFilter(result as Array<SelectedResourceType>);
+      setSelectedStatusByResourceType(result);
+      changeFilter(result);
 
       return;
     }
 
-    const currentItem = { ...item, checked: false, resourceType };
+    const result = [newStatus] as Array<SelectedResourceType>;
 
-    const result = reject(
-      propEq('id', item?.id),
-      removeDuplicateFromObjectArray({
-        array: selectedStatusByResourceType
-          ? [...selectedStatusByResourceType, currentItem]
-          : [currentItem],
-        byFields: ['id', 'resourceType']
-      })
-    );
-    setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
-    changeFilter(result as Array<SelectedResourceType>);
+    setSelectedStatusByResourceType(result);
+    changeFilter(result);
+  };
+
+  const handleChangeStatus = (event): void => {
+    const originalValue = translatedOptions.find(({ name }) =>
+      equals(name, event.target.id)
+    ) as SelectEntry;
+
+    const item = options.find(({ id }) => equals(id, originalValue.id));
+
+    if (event.target.checked) {
+      const currentValue = { ...item, checked: true, resourceType };
+      handleSelectedStatus(currentValue);
+
+      return;
+    }
+
+    const currentValue = { ...item, checked: false, resourceType };
+
+    handleSelectedStatus(currentValue);
   };
 
   return (
     <CheckboxGroup
       className={classes.checkbox}
+      dataTestId={`${filterName}-${resourceType}`}
       direction="horizontal"
       formGroupProps={formGroupProps}
       labelProps={labelProps}

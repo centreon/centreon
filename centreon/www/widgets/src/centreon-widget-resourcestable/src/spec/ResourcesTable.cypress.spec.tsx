@@ -16,7 +16,8 @@ import {
   resources,
   columnsForViewByHost,
   columnsForViewByService,
-  selectedColumnIds
+  selectedColumnIds,
+  metaServiceResources
 } from './testUtils';
 
 interface Props {
@@ -27,6 +28,10 @@ interface Props {
 const render = ({ options, data, isPublic = false }: Props): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
+
+  cy.window().then((window) => {
+    cy.stub(window, 'open').as('windowOpen');
+  });
 
   cy.viewport('macbook-11');
 
@@ -261,7 +266,7 @@ describe('View by all', () => {
     });
 
     cy.waitForRequestAndVerifyQueries({
-      queries: [{ key: 'types', value: '["host","service"]' }],
+      queries: [{ key: 'types', value: '["host","service","metaservice"]' }],
       requestAlias: 'getResources'
     });
 
@@ -315,6 +320,33 @@ describe('View by all', () => {
     });
 
     cy.makeSnapshot();
+  });
+
+  it('redirects to the meta service panel when a meta service row is clicked', () => {
+    render({
+      data: { resources: metaServiceResources },
+      options: {
+        ...resourcesOptions,
+        limit: 50
+      }
+    });
+
+    cy.waitForRequestAndVerifyQueries({
+      queries: [
+        {
+          key: 'search',
+          value: '{"$and":[{"$or":[{"name":{"$rg":"^Meta service$"}}]}]}'
+        }
+      ],
+      requestAlias: 'getResources'
+    });
+
+    cy.contains('SA_Total_FW_Connexion').click();
+
+    cy.get('@windowOpen').should(
+      'have.been.calledWith',
+      '/monitoring/resources?details=%7B%22id%22%3A6%2C%22resourcesDetailsEndpoint%22%3A%22%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fmetaservices%2F6%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22details%22%2C%22tabParameters%22%3A%7B%7D%2C%22uuid%22%3A%22m6%22%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%2C%7B%22id%22%3A%22host%22%2C%22name%22%3A%22Host%22%7D%2C%7B%22id%22%3A%22metaservice%22%2C%22name%22%3A%22Meta%20service%22%7D%5D%7D%2C%7B%22name%22%3A%22statuses%22%2C%22value%22%3A%5B%7B%22id%22%3A%22OK%22%2C%22name%22%3A%22Ok%22%7D%2C%7B%22id%22%3A%22UP%22%2C%22name%22%3A%22Up%22%7D%2C%7B%22id%22%3A%22DOWN%22%2C%22name%22%3A%22Down%22%7D%2C%7B%22id%22%3A%22CRITICAL%22%2C%22name%22%3A%22Critical%22%7D%2C%7B%22id%22%3A%22UNREACHABLE%22%2C%22name%22%3A%22Unreachable%22%7D%2C%7B%22id%22%3A%22UNKNOWN%22%2C%22name%22%3A%22Unknown%22%7D%5D%7D%2C%7B%22name%22%3A%22states%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbMeta%20service%5C%5Cb%22%2C%22name%22%3A%22Meta%20service%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+    );
   });
 });
 

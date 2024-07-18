@@ -1,0 +1,11 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Partial update of a token",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "is_revoked": {
+            "type": "boolean"
+        }
+    }
+}

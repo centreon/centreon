@@ -15,7 +15,7 @@ security:
             pattern: ^.*/api/(?:latest|beta|v[0-9]+|v[0-9]+\.[0-9]+)(/it-edition-extensions/login_page|/platform/(?:versions|features|installation/status))$
             security: false
         publicPlaylist:
-            pattern: ^.*/api/(?:latest|beta|v[0-9]+|v[0-9]+\.[0-9]+)(/it-edition-extensions/monitoring/dashboards/playlists/[1-9A-HJ-NP-TV-Za-km-z]{22}(?:/dashboards/\d+(?:/widgets/\d+)?)?)$
+            pattern: ^.*/api/(?:latest|beta|v[0-9]+|v[0-9]+\.[0-9]+)(/it-edition-extensions/monitoring/dashboards/playlists/[1-9A-HJ-NP-Za-km-z]{22}(?:/dashboards/\d+(?:/widgets/\d+)?)?)$
             security: false
         authentication:
             pattern: ^.*(?<!administration)/authentication/(providers/configurations|users)(.*)$

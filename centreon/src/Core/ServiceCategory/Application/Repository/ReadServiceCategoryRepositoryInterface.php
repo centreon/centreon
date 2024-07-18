@@ -157,4 +157,17 @@ interface ReadServiceCategoryRepositoryInterface
      * @return int[]
      */
     public function exist(array $serviceCategoryIds): array;
+
+    /**
+     * Determine if service categories are filtered for given access group ids
+     * true: accessible service categories are filtered (only specified are accessible)
+     * false: accessible service categories are not filtered (all are accessible).
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    public function hasRestrictedAccessToServiceCategories(array $accessGroupIds): bool;
 }

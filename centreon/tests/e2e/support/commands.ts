@@ -3,7 +3,10 @@
 import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
+import '../features/ACLs/commands';
+import '../features/Api-Token/commands';
 import '../features/Dashboards/commands';
+import '../features/Resources-Access-Management/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();

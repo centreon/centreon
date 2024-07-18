@@ -31,6 +31,8 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
@@ -81,6 +83,8 @@ beforeEach(function (): void {
         $this->optionService = $this->createMock(OptionService::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->isCloudPlatform = false,
+        $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
     );
 
     $this->request = new AddServiceRequest();

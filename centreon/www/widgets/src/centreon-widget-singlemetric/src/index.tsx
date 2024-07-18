@@ -30,9 +30,16 @@ const SingleMetric = ({
   isFromPreview,
   playlistHash,
   dashboardId,
-  id
+  id,
+  queryClient,
+  widgetPrefixQuery
 }: Props): JSX.Element => (
-  <Module maxSnackbars={1} seedName="widget-singlemetric" store={store}>
+  <Module
+    maxSnackbars={1}
+    queryClient={queryClient}
+    seedName="widget-singlemetric"
+    store={store}
+  >
     <Graph
       {...panelData}
       {...panelOptions}
@@ -42,6 +49,7 @@ const SingleMetric = ({
       isFromPreview={isFromPreview}
       playlistHash={playlistHash}
       refreshCount={refreshCount}
+      widgetPrefixQuery={widgetPrefixQuery}
     />
   </Module>
 );

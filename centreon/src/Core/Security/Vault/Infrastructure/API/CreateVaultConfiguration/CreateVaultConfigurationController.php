@@ -34,7 +34,6 @@ use Symfony\Component\HttpFoundation\Request;
 final class CreateVaultConfigurationController extends AbstractController
 {
     /**
-     * @param int $vaultId
      * @param CreateVaultConfiguration $useCase
      * @param DefaultPresenter $presenter
      * @param Request $request
@@ -42,7 +41,6 @@ final class CreateVaultConfigurationController extends AbstractController
      * @return object
      */
     public function __invoke(
-        int $vaultId,
         CreateVaultConfiguration $useCase,
         DefaultPresenter $presenter,
         Request $request
@@ -64,7 +62,7 @@ final class CreateVaultConfigurationController extends AbstractController
             __DIR__ . '/CreateVaultConfigurationSchema.json'
         );
 
-        $createVaultConfigurationRequest = $this->createDtoRequest($vaultId, $decodedRequest);
+        $createVaultConfigurationRequest = $this->createDtoRequest($decodedRequest);
 
         $useCase($presenter, $createVaultConfigurationRequest);
 
@@ -72,7 +70,6 @@ final class CreateVaultConfigurationController extends AbstractController
     }
 
     /**
-     * @param int $vaultId
      * @param array{
      *  "name": string,
      *  "address": string,
@@ -85,12 +82,10 @@ final class CreateVaultConfigurationController extends AbstractController
      * @return CreateVaultConfigurationRequest
      */
     private function createDtoRequest(
-        int $vaultId,
         array $decodedRequest
     ): CreateVaultConfigurationRequest {
         $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
         $createVaultConfigurationRequest->name = $decodedRequest['name'];
-        $createVaultConfigurationRequest->typeId = $vaultId;
         $createVaultConfigurationRequest->address = $decodedRequest['address'];
         $createVaultConfigurationRequest->port = $decodedRequest['port'];
         $createVaultConfigurationRequest->rootPath = $decodedRequest['root_path'];

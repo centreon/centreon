@@ -18,9 +18,9 @@ centreon_application_platformtopology_getcompleteplatformtopology:
 
 centreon_application_platformtopology_deleteplatform:
   methods: DELETE
-  path: /platform/topology/{serverId}
+  path: /platform/topology/{platformId}
   requirements:
-    serverId: '\d+'
+    platformId: '\d+'
   controller: 'Centreon\Application\Controller\PlatformTopologyController::deletePlatform'
   condition: "request.attributes.get('version') >= 21.10"
 

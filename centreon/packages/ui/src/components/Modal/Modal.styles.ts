@@ -9,7 +9,7 @@ const useStyles = makeStyles<{
   modal: {
     '& .MuiDialog-paper': {
       gap: theme.spacing(2),
-      padding: theme.spacing(2)
+      padding: theme.spacing(2.5)
     },
     '&[data-size="fullscreen"]': {
       zIndex: 0
@@ -35,8 +35,8 @@ const useStyles = makeStyles<{
       transition: theme.transitions.create('left')
     },
     '&[data-size="large"] .MuiDialog-paper': {
-      maxWidth: '640px',
-      width: '640px'
+      maxWidth: '604px',
+      width: '604px'
     },
     '&[data-size="medium"] .MuiDialog-paper': {
       width: '520px'
@@ -52,6 +52,7 @@ const useStyles = makeStyles<{
   modalActions: {
     '&[data-fixed="true"]': {
       background: theme.palette.background.paper,
+      padding: theme.spacing(1, 2.5, 2.5, 0),
       position: 'fixed',
       width: '100%'
     },
@@ -60,7 +61,7 @@ const useStyles = makeStyles<{
     flexDirection: 'row',
     gap: theme.spacing(2),
     justifyContent: 'flex-end',
-    padding: theme.spacing(1, 2.5, 2.5, 0),
+    padding: theme.spacing(1, 0, 0, 0),
     right: 0,
     zIndex: theme.zIndex.modal
   },
@@ -69,7 +70,6 @@ const useStyles = makeStyles<{
       '&:first-of-type': {
         margin: theme.spacing(0, 0, 1, 0)
       },
-      color: theme.palette.text.secondary,
       margin: theme.spacing(1, 0, 1, 0),
       width: '90%'
     }

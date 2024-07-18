@@ -40,7 +40,7 @@ afterEach(() => {
 Given(
   'a user with update rights on a dashboard featured in the dashboards library',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
   }
 );
 
@@ -73,21 +73,27 @@ Then(
 When(
   'the user fills in the name and description fields with new compliant values',
   () => {
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      '{selectall}{backspace}dashboard-edited'
-    );
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      '{selectall}{backspace}dashboard-edited'
-    );
+    cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+      cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+        '{selectall}{backspace}dashboard-edited'
+      );
+      cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+        '{selectall}{backspace}dashboard-edited'
+      );
+    });
   }
 );
 
 Then('the user is allowed to update the dashboard', () => {
-  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+  cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+  });
 });
 
 When('the user saves the dashboard with its new values', () => {
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  });
 });
 
 Then(
@@ -105,7 +111,8 @@ Then(
 Given(
   'a user with dashboard update rights who is about to update a dashboard with new values',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
+
     cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
     cy.getByLabel({ label: 'Edit properties' }).click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
@@ -150,7 +157,8 @@ Then(
 );
 
 Given('a user with dashboard update rights in a dashboard update form', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
+
   cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
   cy.getByLabel({ label: 'Edit properties' }).click();
 });
@@ -174,7 +182,8 @@ Then('the user can now save the dashboard', () => {
 Given(
   'a user with dashboard update rights in the update form of a dashboard with description',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
+
     cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
     cy.getByLabel({ label: 'Edit properties' }).click();
   }

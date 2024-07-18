@@ -15,6 +15,9 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
     marginTop: theme.spacing(1)
   },
+  clear: {
+    justifyContent: 'start'
+  },
   rightContainer: {
     display: 'flex',
     gap: 4
@@ -35,6 +38,7 @@ const Actions = ({ onSearch, onClear, save }: Props): JSX.Element => {
     <Grid container item className={classes.actions} spacing={1}>
       <Grid item data-testid={labelClear} sx={{ flex: 1 }}>
         <Button
+          className={classes.clear}
           color="primary"
           data-testid="Filter Clear"
           size="small"

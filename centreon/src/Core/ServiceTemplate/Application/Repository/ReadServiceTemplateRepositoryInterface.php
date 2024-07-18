@@ -25,6 +25,7 @@ namespace Core\ServiceTemplate\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 
@@ -42,6 +43,16 @@ interface ReadServiceTemplateRepositoryInterface
     public function findById(int $serviceTemplateId): ?ServiceTemplate;
 
     /**
+     * Find one service template by id and access group ids.
+     *
+     * @param int $serviceTemplateId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return ServiceTemplate|null
+     */
+    public function findByIdAndAccessGroups(int $serviceTemplateId, array $accessGroups): ?ServiceTemplate;
+
+    /**
      * Find all service templates.
      *
      * @param RequestParametersInterface $requestParameters
@@ -51,6 +62,21 @@ interface ReadServiceTemplateRepositoryInterface
      * @return ServiceTemplate[]
      */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Find all service tempalte by request parameters and access groups.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceTemplate[]
+     */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array;
 
     /**
      * Indicates whether the service template already exists.
@@ -84,4 +110,15 @@ interface ReadServiceTemplateRepositoryInterface
      * @return ServiceTemplateInheritance[]
      */
     public function findParents(int $serviceTemplateId): array;
+
+    /**
+     * Find service templates associated to given host id.
+     *
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceTemplate[]
+     */
+    public function findByHostId(int $hostId): array;
 }

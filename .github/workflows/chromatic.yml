@@ -1,0 +1,29 @@
+name: chromatic
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'develop'
+      - 'MON-**'
+    paths:
+      - "centreon/packages/ui/**"
+
+env:
+  directory: "centreon/packages/ui"
+
+jobs:
+  chromatic:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/chromatic
+        with:
+          frontend_directory: ${{ env.directory }}
+          dependencies_lock_file: centreon/pnpm-lock.yaml
+          pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          project_token: ${{ secrets.CHROMATIC_TOKEN }}

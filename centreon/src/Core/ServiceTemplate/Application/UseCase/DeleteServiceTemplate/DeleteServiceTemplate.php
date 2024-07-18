@@ -31,24 +31,33 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
 
 final class DeleteServiceTemplate
 {
-    use LoggerTrait;
+    use LoggerTrait,VaultTrait;
 
     /**
      * @param ReadServiceTemplateRepositoryInterface $readRepository
      * @param WriteServiceTemplateRepositoryInterface $writeRepository
      * @param ContactInterface $user
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
+     * @param ReadServiceMacroRepositoryInterface $readServiceMacroRepository
      */
     public function __construct(
         private readonly ReadServiceTemplateRepositoryInterface $readRepository,
         private readonly WriteServiceTemplateRepositoryInterface $writeRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
+        private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
     ) {
+         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
     /**
@@ -91,6 +100,13 @@ final class DeleteServiceTemplate
                 return;
             }
 
+            if ($this->writeVaultRepository->isVaultConfigured()) {
+                $this->retrieveServiceUuidFromVault($serviceTemplateId);
+                if ($this->uuid !== null) {
+                    $this->writeVaultRepository->delete($this->uuid);
+                }
+            }
+
             $this->writeRepository->deleteById($serviceTemplateId);
             $presenter->setResponseStatus(new NoContentResponse());
             $this->info(
@@ -103,6 +119,24 @@ final class DeleteServiceTemplate
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse(ServiceTemplateException::errorWhileDeleting($ex)));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        }
+    }
+
+    /**
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     */
+    private function retrieveServiceUuidFromVault(int $serviceTemplateId): void
+    {
+        $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplateId);
+        foreach ($macros as $macro) {
+            if (
+                $macro->isPassword() === true
+                && null !== ($this->uuid = $this->getUuidFromPath($macro->getValue()))
+            ) {
+                break;
+            }
         }
     }
 }

@@ -12,10 +12,10 @@ get:
           schema:
             $ref: "Schema/NotifiableRule.yaml"
     '304':
-      $ref: "../../../../Common/Response/NotModified.yaml"
+      $ref: "../../../Common/Response/NotModified.yaml"
     '400':
-      $ref: "../../../../Common/Response/BadRequest.yaml"
+      $ref: "../../../Common/Response/BadRequest.yaml"
     '403':
-      $ref: "../../../../Common/Response/Forbidden.yaml"
+      $ref: "../../../Common/Response/Forbidden.yaml"
     '500':
-      $ref: "../../../../Common/Response/InternalServerError.yaml"
+      $ref: "../../../Common/Response/InternalServerError.yaml"

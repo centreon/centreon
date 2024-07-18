@@ -5,19 +5,25 @@ import { Box, Typography } from '@mui/material';
 
 import { mousePositionAtom } from '../interactionWithGraphAtoms';
 import { formatMetricValueWithUnit } from '../../../common/timeSeries';
+import { Tooltip } from '../../models';
 
 import { useGraphValueTooltip } from './useGraphValueTooltip';
 import { useGraphValueTooltipStyles } from './useGraphValueTooltipStyles';
 
-interface Props {
+interface Props extends Pick<Tooltip, 'sortOrder'> {
   base: number;
+  isSingleMode: boolean;
 }
 
-const GraphValueTooltip = ({ base }: Props): JSX.Element | null => {
+const GraphValueTooltip = ({
+  base,
+  isSingleMode,
+  sortOrder
+}: Props): JSX.Element | null => {
   const { classes } = useGraphValueTooltipStyles();
   const mousePosition = useAtomValue(mousePositionAtom);
 
-  const graphValue = useGraphValueTooltip();
+  const graphValue = useGraphValueTooltip({ isSingleMode, sortOrder });
 
   if (isNil(graphValue) || isNil(mousePosition)) {
     return null;

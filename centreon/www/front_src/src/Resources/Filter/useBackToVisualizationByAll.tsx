@@ -22,7 +22,7 @@ const useBackToVisualizationByAll = (): void => {
   const isViewByService = equals(visualization, Visualization.Service);
   const isViewByAll = or(isViewByHost, isViewByService);
 
-  const searchType = search.match(/^type:[^ ]+/);
+  const searchType = search.match(/type:[^ ]+/);
 
   const isSearchIncludesTypeHost =
     isViewByService && searchType?.[0].includes('host');

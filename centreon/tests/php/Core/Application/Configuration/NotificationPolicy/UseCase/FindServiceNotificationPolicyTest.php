@@ -193,7 +193,7 @@ it('does not find service notification policy when service is not found by admin
 
 it('returns users, user groups and notification status', function () {
     $this->contact
-        ->expects($this->exactly(2))
+        ->expects($this->exactly(3))
         ->method('isAdmin')
         ->willReturn(true);
 

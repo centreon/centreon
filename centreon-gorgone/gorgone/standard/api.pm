@@ -83,7 +83,7 @@ sub root {
             module => $options{module}
         );
     } else {
-        $response = '{"error":"method_unknown","message":"Method not implemented"}';
+        $response = '{"error":"method_unknown","message":"Method not implemented","http_response_code":"404"}';
     }
 
     return $response;
@@ -166,14 +166,14 @@ sub call_internal {
             $content = JSON::XS->new->decode($options{module}->{tokens}->{$action_token}->{data});
         };
         if ($@) {
-            $response = '{"error":"decode_error","message":"Cannot decode response"}';
+            $response = '{"error":"decode_error","message":"Cannot decode response","http_response_code":"400"}';
         } else {
             if (defined($content->{data})) {
                 eval {
                     $response = JSON::XS->new->encode($content->{data});
                 };
                 if ($@) {
-                    $response = '{"error":"encode_error","message":"Cannot encode response"}';
+                    $response = '{"error":"encode_error","message":"Cannot encode response","http_response_code":"400"}';
                 }
             } else {
                 $response = '';

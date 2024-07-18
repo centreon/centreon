@@ -1,8 +1,8 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\HostTemplateConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostTemplateConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\HostTemplateConfigurationPage;
 
 class DisableFieldsOnBlockedObjectsContext extends CentreonContext
 {
@@ -15,7 +15,6 @@ class DisableFieldsOnBlockedObjectsContext extends CentreonContext
         $newHostTemplate->setProperties(array(
             'name' => 'myHostTemplate',
             'alias' => 'myAlias',
-            'address' => '127.0.0.1',
             'macros' => array('macro1' => '001')
         ));
 

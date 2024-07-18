@@ -1,40 +1,46 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-import { renderHook } from '@testing-library/react-hooks/dom';
-import { Provider, createStore, useAtomValue } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { equals } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import useListing from '../Listing/useListing';
-import useLoadResources from '../Listing/useLoadResources';
-import { defaultStatuses, getListingEndpoint } from '../testUtils';
+import { retrievedUser } from '../../Main/testUtils';
+import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import { enabledAutorefreshAtom } from '../Listing/listingAtoms';
+import { resourcesEndpoint } from '../api/endpoint';
+import { Visualization } from '../models';
+import { defaultStatuses } from '../testUtils';
 import {
   labelAcknowledged,
   labelAll,
   labelAllAlerts,
+  labelHost,
   labelHostCategory,
   labelHostGroup,
   labelHostSeverity,
+  labelMetaService,
   labelMonitoringServer,
+  labelNewFilter,
   labelOk,
   labelSearch,
   labelSearchOptions,
+  labelService,
   labelServiceGroup,
   labelState,
   labelStateFilter,
   labelStatus,
+  labelType,
   labelUp
 } from '../translatedLabels';
-import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import { Visualization } from '../models';
-import { resourcesEndpoint } from '../api/endpoint';
 
+import getDefaultCriterias from './Criterias/default';
+import { categoryHostStatus } from './criteriasNewInterface/model';
 import {
   informationLabel,
   labelShowMoreFilters
 } from './criteriasNewInterface/translatedLabels';
-import useFilter from './useFilter';
+import { applyFilterDerivedAtom } from './filterAtoms';
+import { allFilter, unhandledProblemsFilter } from './models';
 
 import Filter from '.';
 
@@ -42,206 +48,20 @@ const emptyListData = {
   meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },
   result: []
 };
-const resourcesByHostType = {
-  alias: 'SensorProbe-Datacenter-04',
-  chart_url: null,
-  duration: '5m 23s',
-  fqdn: 'SensorProbe-Datacenter-04',
-  has_active_checks_enabled: true,
-  has_passive_checks_enabled: false,
-  host_id: 143,
-  icon: {
-    name: 'climate_64',
-    url: '/centreon/img/media/Hardware/climate_64.png'
-  },
-  id: 143,
-  information: 'OK - SensorProbe-Datacenter-04: rta 0.873ms, lost 0%',
-  is_acknowledged: false,
-  is_in_downtime: false,
-  last_check: '2m 26s',
-  last_status_change: '2023-10-11T17:05:57+02:00',
-  links: {
-    endpoints: {
-      acknowledgement:
-        '/centreon/api/latest/monitoring/hosts/143/acknowledgements?limit=1',
-      details: '/centreon/api/latest/monitoring/resources/hosts/143',
-      downtime:
-        '/centreon/api/latest/monitoring/hosts/143/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1697037080%7D,%22end_time%22:%7B%22%24gt%22:1697037080%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1697037080%7D%7D%7D%7D%5D%7D',
-      notification_policy: null,
-      performance_graph: null,
-      status_graph: null,
-      timeline: '/centreon/api/latest/monitoring/hosts/143/timeline'
-    },
-    externals: {
-      action_url: '',
-      notes: {
-        label: '',
-        url: ''
-      }
-    },
-    uris: {
-      configuration: '/centreon/main.php?p=60101&o=c&host_id=143',
-      logs: '/centreon/main.php?p=20301&h=143',
-      reporting: '/centreon/main.php?p=307&host=143'
-    }
-  },
-  monitoring_server_name: 'Central',
-  name: 'SensorProbe-Datacenter-04',
-  notification_enabled: false,
-  parent: null,
-  performance_data: null,
-  service_id: null,
-  severity: null,
-  short_type: 'h',
-  status: {
-    code: 0,
-    name: 'UP',
-    severity_code: 5
-  },
-  tries: '1/5 (H)',
-  type: 'host',
-  uuid: 'h143'
-};
 
-const resourcesByServiceType = {
-  alias: null,
-  chart_url: null,
-  duration: '10s',
-  fqdn: null,
-  has_active_checks_enabled: true,
-  has_passive_checks_enabled: false,
-  host_id: 113,
-  icon: null,
-  id: 863,
-  information: 'Nombre de connexion : 150',
-  is_acknowledged: false,
-  is_in_downtime: false,
-  last_check: '10s',
-  last_status_change: '2023-10-11T17:14:55+02:00',
-  links: {
-    endpoints: {
-      acknowledgement:
-        '/centreon/api/latest/monitoring/hosts/113/services/863/acknowledgements?limit=1',
-      details:
-        '/centreon/api/latest/monitoring/resources/hosts/113/services/863',
-      downtime:
-        '/centreon/api/latest/monitoring/hosts/113/services/863/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1697037305%7D,%22end_time%22:%7B%22%24gt%22:1697037305%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1697037305%7D%7D%7D%7D%5D%7D',
-      notification_policy: null,
-      performance_graph:
-        '/centreon/api/latest/monitoring/hosts/113/services/863/metrics/performance',
-      status_graph:
-        '/centreon/api/latest/monitoring/hosts/113/services/863/metrics/status',
-      timeline:
-        '/centreon/api/latest/monitoring/hosts/113/services/863/timeline'
-    },
-    externals: {
-      action_url: '',
-      notes: {
-        label: '',
-        url: ''
-      }
-    },
-    uris: {
-      configuration: '/centreon/main.php?p=60201&o=c&service_id=863',
-      logs: '/centreon/main.php?p=20301&svc=113_863',
-      reporting:
-        '/centreon/main.php?p=30702&period=yesterday&start=&end=&host_id=113&item=863'
-    }
-  },
-  monitoring_server_name: 'Central',
-  name: 'nbr-connect',
-  notification_enabled: false,
-  parent: {
-    alias: 'fw-sydney',
-    fqdn: 'fw-sydney',
-    host_id: null,
-    icon: null,
-    id: 113,
-    links: {
-      endpoints: {
-        acknowledgement: null,
-        details: null,
-        downtime: null,
-        notification_policy: null,
-        performance_graph: null,
-        status_graph: null,
-        timeline: null
-      },
-      externals: {
-        action_url: null,
-        notes: null
-      },
-      uris: {
-        configuration: null,
-        logs: null,
-        reporting: null
-      }
-    },
-    name: 'fw-sydney',
-    service_id: null,
-    short_type: 'h',
-    status: {
-      code: 0,
-      name: 'UP',
-      severity_code: 5
-    },
-    type: 'host',
-    uuid: 'h113'
-  },
-  performance_data: null,
-  service_id: 863,
-  severity: null,
-  short_type: 's',
-  status: {
-    code: 0,
-    name: 'OK',
-    severity_code: 5
-  },
-  tries: '2/3 (S)',
-  type: 'service',
-  uuid: 'h113-s863'
-};
+const resourcesByHostTypeName = 'SensorProbe-Datacenter-04';
 
-const pollersData = {
-  address: null,
-  description: null,
-  id: 1,
-  is_running: true,
-  last_alive: 1697038658,
-  name: 'Central',
-  version: '23.10.0'
-};
-const hostCategoryData = {
-  id: 3,
-  name: 'Europe'
-};
+const resourcesByServiceTypeName = 'nbr-connect';
 
-const hostSeverityData = {
-  icon: {
-    id: 82,
-    name: 'flag_red',
-    url: 'Criticity/flag_red.png'
-  },
-  id: 8,
-  level: 1,
-  name: 'Priority_1',
-  type: 'host'
-};
+const pollerName = 'Central';
 
-const linuxServersHostGroup = {
-  id: 0,
-  name: 'Linux-servers'
-};
+const hostCategoryName = 'Europe';
 
-const FirewallHostGroup = {
-  id: 1,
-  name: 'Firewall'
-};
+const hostSeverityName = 'Priority_1';
 
-const webAccessServiceGroup = {
-  id: 0,
-  name: 'Web-access'
-};
+const linuxServersHostGroupName = 'Linux-servers';
+
+const webAccessServiceGroupName = 'Web-access';
 
 enum Type {
   checkbox = 'checkbox',
@@ -249,88 +69,186 @@ enum Type {
   text = 'text'
 }
 
-const BasicCriteriasParams = [
-  [
-    'Basic criterias',
+interface Filter {
+  store: ReturnType<typeof createStore>;
+}
+
+const allViews = [Visualization.All, Visualization.Host, Visualization.Service];
+
+const newFilter = {
+  criterias: getDefaultCriterias(),
+  id: '',
+  name: labelNewFilter
+};
+
+const formattedValue = (value: string): RegExp => {
+  const splittedValue = value.split(' ');
+
+  return new RegExp(
+    `(?:${splittedValue.join('.*')}|${splittedValue.reverse().join('.*')})`
+  );
+};
+
+const getSearchValue = ({ value, viewName }): RegExp => {
+  if (equals(viewName, Visualization.All)) {
+    return formattedValue(value);
+  }
+  if (equals(viewName, Visualization.Service)) {
+    return formattedValue(`${value} type:service,metaservice`);
+  }
+
+  return formattedValue(`${value} type:host `);
+};
+
+const getValueByTypeSelecton = ({ criteria, view, value }): string => {
+  if (
+    equals(view, Visualization.All) &&
+    [labelHost, labelService].includes(criteria)
+  ) {
+    return equals(criteria, labelHost)
+      ? `${value} type:host`
+      : `${value} type:service`;
+  }
+
+  return value;
+};
+const CriteriaParams = ({ view }): Array<unknown> => {
+  return [
     [
-      {
-        criteria: 'Host',
-        requestToWait: '@GetResourcesByHostType',
-        searchValue: `parent_name:${resourcesByHostType.name} type:host `,
-        type: Type.select,
-        value: resourcesByHostType.name
-      },
-      {
-        criteria: 'Service',
-        requestToWait: '@GetResourcesByServiceType',
-        searchValue: `name:${resourcesByServiceType.name} type:service `,
-        type: Type.select,
-        value: resourcesByServiceType.name
-      },
-      {
-        criteria: labelState,
-        endpointParam: { states: ['acknowledged'] },
-        searchValue: 'state:acknowledged ',
-        type: Type.checkbox,
-        value: labelAcknowledged
-      },
-      {
-        criteria: labelStatus,
-        endpointParam: { statuses: ['OK'] },
-        searchValue: 'status:ok ',
-        type: Type.checkbox,
-        value: labelOk
-      },
-      {
-        criteria: labelStatus,
-        endpointParam: { statuses: ['Up'] },
-        searchValue: 'status:up ',
-        type: Type.checkbox,
-        value: labelUp
-      },
-      {
-        criteria: labelHostGroup,
-        requestToWait: '@hostgroupsRequest',
-        searchValue: `host_group:${linuxServersHostGroup.name} `,
-        type: Type.select,
-        value: linuxServersHostGroup.name
-      },
-      {
-        criteria: labelServiceGroup,
-        requestToWait: '@serviceGroupsRequest',
-        searchValue: `service_group:${webAccessServiceGroup.name} `,
-        type: Type.select,
-        value: webAccessServiceGroup.name
-      },
-      {
-        criteria: labelMonitoringServer,
-        requestToWait: '@pollersRequest',
-        searchValue: `monitoring_server:${pollersData.name} `,
-        type: Type.select,
-        value: pollersData.name
-      }
-    ]
-  ],
-  [
-    'Extended criterias',
+      'Basic criterias',
+      [
+        {
+          criteria: labelHost,
+          requestToWait: '@GetResourcesByHostType',
+          searchValue: getSearchValue({
+            value: getValueByTypeSelecton({
+              criteria: labelHost,
+              value: `parent_name:${resourcesByHostTypeName}`,
+              view
+            }),
+            viewName: view
+          }),
+          type: Type.select,
+          value: resourcesByHostTypeName,
+          views: allViews
+        },
+        {
+          criteria: labelService,
+          requestToWait: '@GetResourcesByServiceType',
+          searchValue: getSearchValue({
+            value: getValueByTypeSelecton({
+              criteria: labelService,
+              value: `name:${resourcesByServiceTypeName}`,
+              view
+            }),
+            viewName: view
+          }),
+          type: Type.select,
+          value: resourcesByServiceTypeName,
+          views: allViews
+        },
+        {
+          criteria: labelState,
+          searchValue: getSearchValue({
+            value: 'state:acknowledged',
+            viewName: view
+          }),
+          testId: 'states',
+          type: Type.checkbox,
+          value: labelAcknowledged,
+          views: allViews
+        },
+        {
+          criteria: labelStatus,
+          searchValue: getSearchValue({ value: 'status:ok', viewName: view }),
+          testId: 'statuses-service',
+          type: Type.checkbox,
+          value: labelOk,
+          views: allViews
+        },
+        {
+          criteria: labelStatus,
+          searchValue: getSearchValue({ value: 'status:up', viewName: view }),
+          testId: 'statuses-host',
+          type: Type.checkbox,
+          value: labelUp,
+          views: [Visualization.All, Visualization.Service]
+        },
+        {
+          criteria: labelType,
+          searchValue: getSearchValue({
+            value: 'type:metaservice',
+            viewName: view
+          }),
+          testId: 'resource_types',
+          type: Type.checkbox,
+          value: labelMetaService,
+          views: [Visualization.All]
+        },
+        {
+          criteria: labelHostGroup,
+          requestToWait: '@hostGroupsRequest',
+          searchValue: getSearchValue({
+            value: `host_group:${linuxServersHostGroupName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: linuxServersHostGroupName,
+          views: allViews
+        },
+        {
+          criteria: labelServiceGroup,
+          requestToWait: '@serviceGroupsRequest',
+          searchValue: getSearchValue({
+            value: `service_group:${webAccessServiceGroupName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: webAccessServiceGroupName,
+          views: allViews
+        },
+        {
+          criteria: labelMonitoringServer,
+          requestToWait: '@pollersRequest',
+          searchValue: getSearchValue({
+            value: `monitoring_server:${pollerName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: pollerName,
+          views: allViews
+        }
+      ]
+    ],
     [
-      {
-        criteria: labelHostCategory,
-        requestToWait: '@hostCategoryRequest',
-        searchValue: `host_category:${hostCategoryData.name} `,
-        type: Type.select,
-        value: hostCategoryData.name
-      },
-      {
-        criteria: labelHostSeverity,
-        requestToWait: '@hostSeverityRequest',
-        searchValue: `host_severity:${hostSeverityData.name} `,
-        type: Type.select,
-        value: hostSeverityData.name
-      }
+      'Extended criterias',
+      [
+        {
+          criteria: labelHostCategory,
+          requestToWait: '@hostCategoryRequest',
+          searchValue: getSearchValue({
+            value: `host_category:${hostCategoryName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: hostCategoryName,
+          views: allViews
+        },
+        {
+          criteria: labelHostSeverity,
+          requestToWait: '@hostSeverityRequest',
+          searchValue: getSearchValue({
+            value: `host_severity:${hostSeverityName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: hostSeverityName,
+          views: allViews
+        }
+      ]
     ]
-  ]
-];
+  ];
+};
 
 const customFilters = [
   [
@@ -355,76 +273,193 @@ const customFilters = [
   ]
 ];
 
-const store = createStore();
-const FilterWithLoading = (): JSX.Element => {
-  useLoadResources();
+const getStore = (): ReturnType<typeof createStore> => {
+  const store = createStore();
+  store.set(userAtom, retrievedUser);
+  store.set(selectedVisualizationAtom, Visualization.All);
+  store.set(applyFilterDerivedAtom, allFilter);
+  store.set(enabledAutorefreshAtom, false);
 
-  return (
-    <Provider store={store}>
-      <Filter />
-    </Provider>
-  );
+  return store;
 };
 
-const FilterTest = (): JSX.Element | null => {
-  useListing();
-  useFilter();
+interface SetupIntercept {
+  alias: string;
+  fixtureFile?: string;
+  method?: Method;
+  path: string;
+  query?: { name: string; value: string };
+}
 
-  return <FilterWithLoading />;
-};
+const setupIntercept = ({
+  alias,
+  method = Method.GET,
+  path,
+  fixtureFile,
+  query
+}: SetupIntercept): void => {
+  const body = !query
+    ? { alias, method, path }
+    : { alias, method, path, query };
 
-const FilterWithProvider = (): JSX.Element => (
-  <TestQueryProvider>
-    <FilterTest />
-  </TestQueryProvider>
-);
-
-before(() => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-});
-
-describe('Custom filters', () => {
-  beforeEach(() => {
+  if (!fixtureFile) {
     cy.interceptAPIRequest({
-      alias: 'filterRequest',
-      method: Method.GET,
-      path: '**/events-view*',
+      ...body,
       response: emptyListData
     });
 
+    return;
+  }
+  cy.fixture(fixtureFile).then((response) => {
     cy.interceptAPIRequest({
-      alias: 'getResources',
-      method: Method.GET,
-      path: `${resourcesEndpoint}**`,
-      response: {
-        meta: {
-          limit: 30,
-          page: 1,
-          total: 0
-        },
-        result: []
+      ...body,
+      response
+    });
+  });
+};
+
+const initializeRequests = (): void => {
+  setupIntercept({
+    alias: 'GetResourcesByHostType',
+    fixtureFile: 'resources/filter/resourcesByHostType.json',
+    path: `${resourcesEndpoint}**`,
+    query: {
+      name: 'types',
+      value: '["host"]'
+    }
+  });
+
+  setupIntercept({
+    alias: 'GetResourcesByServiceType',
+    fixtureFile: 'resources/filter/resourcesByServiceType.json',
+    path: `${resourcesEndpoint}**`,
+    query: {
+      name: 'types',
+      value: '["service"]'
+    }
+  });
+
+  setupIntercept({
+    alias: 'pollersRequest',
+    fixtureFile: 'resources/filter/pollers.json',
+    path: `**/monitoring/servers?*`
+  });
+
+  setupIntercept({
+    alias: 'hostGroupsRequest',
+    fixtureFile: 'resources/filter/hostGroups.json',
+    path: `**/hostgroups?*`
+  });
+
+  setupIntercept({
+    alias: 'serviceGroupsRequest',
+    fixtureFile: 'resources/filter/webAccessServiceGroup.json',
+    path: `**/servicegroups?*`
+  });
+
+  setupIntercept({
+    alias: 'hostCategoryRequest',
+    fixtureFile: 'resources/filter/hostCategory.json',
+    path: `**/monitoring/hosts/categories?*`
+  });
+
+  setupIntercept({
+    alias: 'hostSeverityRequest',
+    fixtureFile: 'resources/filter/hostSeverity.json',
+    path: `**/monitoring/severities/host?*`
+  });
+};
+
+const setView = ({ store, name }): ReturnType<typeof createStore> => {
+  store.set(selectedVisualizationAtom, name);
+  if (equals(name, Visualization.All)) {
+    return store;
+  }
+
+  const resourceTypeValue = equals(name, Visualization.Host)
+    ? [{ id: 'host', name: labelHost }]
+    : [
+        { id: 'service', name: labelService },
+        { id: 'metaservice', name: labelMetaService }
+      ];
+
+  store.set(applyFilterDerivedAtom, {
+    ...newFilter,
+    criterias: [
+      ...newFilter.criterias,
+      {
+        name: 'resource_types',
+        object_type: null,
+        type: 'multi_select',
+        value: resourceTypeValue
       }
-    });
+    ]
+  });
 
-    cy.mount({
-      Component: <FilterWithProvider />
-    });
+  return store;
+};
+const views = [
+  { initSearch: '', name: Visualization.All },
+  { ids: [labelHost], initSearch: 'type:host ', name: Visualization.Host },
+  {
+    ids: [labelService, labelMetaService],
+    initSearch: 'type:service,metaservice ',
+    name: Visualization.Service
+  }
+];
 
-    cy.viewport(1200, 1000);
+const checkInterfaceByView = ({ ids, initSearch }): void => {
+  ids.forEach((id) => {
+    cy.findByTestId('resource_types').find(`#${id}`).should('be.checked');
+  });
+  cy.findByPlaceholderText(labelSearch).should('have.value', initSearch);
+};
+
+const initialize = (): void => {
+  cy.findByLabelText(labelSearchOptions).click();
+  cy.findByPlaceholderText(labelSearch).clear();
+};
+
+const FilterWrapper = ({ store }: Filter): JSX.Element => {
+  return (
+    <TestQueryProvider>
+      <Provider store={store}>
+        <Filter />
+      </Provider>
+    </TestQueryProvider>
+  );
+};
+
+const mount = ({ store }: Filter): void => {
+  initializeRequests();
+
+  cy.mount({
+    Component: <FilterWrapper store={store} />
+  });
+
+  cy.viewport(1200, 1000);
+};
+
+const initializeCustomFilterStore = (store): ReturnType<typeof createStore> => {
+  store.set(applyFilterDerivedAtom, unhandledProblemsFilter);
+
+  return store;
+};
+
+describe('Custom filters', () => {
+  beforeEach(() => {
+    const updatedStore = initializeCustomFilterStore(getStore());
+    mount({ store: updatedStore });
   });
 
   customFilters.forEach(([filterGroup, criterias, search]) => {
     it(`executes a listing request with ${filterGroup} parameters when ${JSON.stringify(
       criterias
     )} filter is set`, () => {
-      cy.waitForRequest('@filterRequest');
-
       cy.findByLabelText(labelStateFilter).click();
 
       cy.findByText(filterGroup).click();
+      cy.contains(filterGroup);
 
       cy.findByPlaceholderText(labelSearch).should('have.value', search);
 
@@ -433,286 +468,133 @@ describe('Custom filters', () => {
   });
 });
 
-describe('Criterias', () => {
-  beforeEach(() => {
-    cy.interceptAPIRequest({
-      alias: 'filterRequest',
-      method: Method.GET,
-      path: '**/events-view*',
-      response: emptyListData
+views.forEach(({ name, initSearch, ids }) => {
+  describe(`Criterias, view by ${name}`, () => {
+    beforeEach(() => {
+      const updatedStore = setView({ name, store: getStore() });
+
+      mount({ store: updatedStore });
     });
 
-    cy.interceptAPIRequest({
-      alias: 'getResources',
-      method: Method.GET,
-      path: `${resourcesEndpoint}**`,
-      response: {
-        meta: {
-          limit: 30,
-          page: 1,
-          total: 0
-        },
-        result: []
+    it(`displays the criterias interface `, () => {
+      cy.findByLabelText(labelSearchOptions).click();
+      cy.findByText(labelShowMoreFilters).click();
+
+      if (
+        equals(name, Visualization.Host) ||
+        equals(name, Visualization.Service)
+      ) {
+        checkInterfaceByView({ ids, initSearch });
       }
-    });
 
-    const endpointByHostType = getListingEndpoint({
-      limit: 10,
-      resourceTypes: ['host'],
-      sort: {},
-      states: [],
-      statusTypes: [],
-      statuses: []
-    });
-    cy.interceptAPIRequest({
-      alias: 'GetResourcesByHostType',
-      method: Method.GET,
-      path: endpointByHostType,
-      query: {
-        name: 'types',
-        value: '["host"]'
-      },
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [resourcesByHostType]
+      if (equals(name, Visualization.Host)) {
+        [
+          categoryHostStatus.UP,
+          categoryHostStatus.DOWN,
+          categoryHostStatus.UNREACHABLE
+        ].forEach((status) => {
+          cy.get(`#${status}`).should('not.exist');
+        });
       }
+
+      cy.makeSnapshot();
+      initialize();
     });
 
-    const endpointByServiceType = getListingEndpoint({
-      limit: 10,
-      resourceTypes: ['service'],
-      sort: {},
-      states: [],
-      statusTypes: [],
-      statuses: []
-    });
+    CriteriaParams({ view: name }).forEach(([label, data]) => {
+      data.forEach((element) => {
+        const {
+          criteria,
+          value,
+          type,
+          searchValue,
+          requestToWait,
+          views: arrayViews,
+          testId
+        } = element;
 
-    cy.interceptAPIRequest({
-      alias: 'GetResourcesByServiceType',
-      method: Method.GET,
-      path: endpointByServiceType,
-      query: {
-        name: 'types',
-        value: '["service"]'
-      },
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [resourcesByServiceType]
-      }
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'pollersRequest',
-      method: Method.GET,
-      path: '**/monitoring/servers?*',
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [pollersData]
-      }
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'hostgroupsRequest',
-      method: Method.GET,
-      path: '**/hostgroups?*',
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [linuxServersHostGroup]
-      }
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'serviceGroupsRequest',
-      method: Method.GET,
-      path: '**/servicegroups?*',
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [webAccessServiceGroup]
-      }
-    });
-    cy.interceptAPIRequest({
-      alias: 'hostCategoryRequest',
-      method: Method.GET,
-      path: '**/monitoring/hosts/categories?*',
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [hostCategoryData]
-      }
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'hostSeverityRequest',
-      method: Method.GET,
-      path: '**/monitoring/severities/host?*',
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [hostSeverityData]
-      }
-    });
-
-    cy.mount({
-      Component: <FilterWithProvider />
-    });
-
-    cy.viewport(1200, 1000);
-  });
-
-  it(`displays the basic criterias interface`, () => {
-    cy.waitForRequest('@filterRequest');
-
-    cy.findByPlaceholderText(labelSearch).clear();
-    cy.findByLabelText(labelSearchOptions).click();
-
-    cy.makeSnapshot();
-
-    cy.findByLabelText(labelSearchOptions).click();
-  });
-  it(`displays more criterias interface when the corresponding button is clicked`, () => {
-    cy.waitForRequest('@filterRequest');
-
-    cy.findByPlaceholderText(labelSearch).clear();
-    cy.findByLabelText(labelSearchOptions).click();
-
-    cy.findByText(labelShowMoreFilters).click();
-
-    cy.makeSnapshot();
-
-    cy.findByLabelText(labelSearchOptions).click();
-  });
-
-  it('does not display the host select and host statuses when the view by host is enabled', () => {
-    store.set(selectedVisualizationAtom, Visualization.Host);
-
-    cy.findByPlaceholderText(labelSearch).clear();
-    cy.findByLabelText(labelSearchOptions).click();
-
-    cy.findByLabelText('Host').should('not.exist');
-    cy.findByText(labelUp, { exact: true }).should('not.exist');
-
-    cy.makeSnapshot();
-
-    cy.findByLabelText(labelSearchOptions).click();
-  });
-
-  BasicCriteriasParams.forEach(([label, data]) => {
-    data.forEach((element) => {
-      const { criteria, value, type, searchValue } = element;
-
-      it(`executes a listing request with current search and selected ${criteria} criteria value when ${label} has changed`, () => {
-        cy.findByPlaceholderText(labelSearch).clear();
-        cy.get('[data-testid="Filter options"]').click();
-
-        if (equals(label, 'Extended criterias')) {
-          cy.findByText(labelShowMoreFilters).click();
-        }
-
-        if (equals(type, Type.select)) {
-          cy.findByLabelText(criteria).click();
-          cy.waitForRequest('@getResources');
-          cy.findByText(value).click();
-          cy.findByPlaceholderText(labelSearch).should(
-            'have.value',
-            searchValue
-          );
-
-          cy.makeSnapshot();
-
+        it(`synchronize the search bar with ${label} interface when selecting ${criteria} criteria value`, () => {
           cy.findByLabelText(labelSearchOptions).click();
 
-          return;
-        }
-        if (equals(type, Type.checkbox)) {
-          cy.findByText(value).click();
-          cy.findByPlaceholderText(labelSearch).should(
-            'have.value',
-            searchValue
-          );
-          cy.makeSnapshot();
+          if (equals(label, 'Extended criterias')) {
+            cy.findByText(labelShowMoreFilters).click();
+          }
 
-          cy.findByText(value).click();
+          if (equals(type, Type.select) && arrayViews?.includes(name)) {
+            cy.findByTestId(criteria).click();
+            cy.waitForRequest(requestToWait);
+            cy.findByText(value).click();
+            cy.findByPlaceholderText(labelSearch)
+              .invoke('val')
+              .should('match', searchValue);
 
-          cy.findByLabelText(labelSearchOptions).click();
-        }
+            cy.makeSnapshot();
+
+            initialize();
+          }
+          if (equals(type, Type.checkbox) && arrayViews?.includes(name)) {
+            cy.findByText(value).click();
+            cy.findByTestId(testId).find(`#${value}`).should('be.checked');
+
+            cy.findByPlaceholderText(labelSearch)
+              .invoke('val')
+              .should('match', searchValue);
+
+            cy.makeSnapshot();
+
+            cy.findByText(value).click();
+            cy.get(`#${value}`).should('not.be.checked');
+
+            cy.findByPlaceholderText(labelSearch).should(
+              'not.have.value',
+              searchValue
+            );
+            initialize();
+          }
+        });
       });
     });
-  });
 
-  it('syncs the information fields with the search bar', () => {
-    cy.waitForRequest('@filterRequest');
+    it(`syncs the information fields with the search bar`, () => {
+      const matchedValue = getSearchValue({
+        value: 'information:Information',
+        viewName: name
+      });
 
-    cy.findByPlaceholderText(labelSearch).clear();
-    cy.findByLabelText(labelSearchOptions).click();
+      const clearedMatchedValue = equals(name, Visualization.Host)
+        ? 'type:host  '
+        : 'type:service,metaservice  ';
 
-    cy.findByText(labelShowMoreFilters).click();
+      cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByPlaceholderText(informationLabel).type('Information');
+      cy.findByText(labelShowMoreFilters).click();
 
-    cy.findByPlaceholderText(labelSearch).should(
-      'have.value',
-      ' information:Information'
-    );
+      cy.findByPlaceholderText(informationLabel).type('Information');
 
-    cy.findByPlaceholderText(informationLabel).clear();
+      cy.findByPlaceholderText(labelSearch)
+        .invoke('val')
+        .should('match', matchedValue);
 
-    cy.findByPlaceholderText(labelSearch).should('have.value', ' ');
+      cy.findByPlaceholderText(informationLabel).clear();
 
-    cy.findByLabelText(labelSearchOptions).click();
+      cy.findByPlaceholderText(labelSearch).should(
+        'have.value',
+        equals(name, Visualization.All) ? ' ' : clearedMatchedValue
+      );
+
+      initialize();
+    });
   });
 });
 
 describe('Keyboard actions', () => {
   beforeEach(() => {
-    cy.interceptAPIRequest({
-      alias: 'filterRequest',
-      method: Method.GET,
-      path: '**/events-view*',
-      response: emptyListData
-    });
+    initializeRequests();
 
-    cy.interceptAPIRequest({
-      alias: 'getResources',
-      method: Method.GET,
-      path: `${resourcesEndpoint}**`,
-      response: {
-        meta: {
-          limit: 30,
-          page: 1,
-          total: 0
-        },
-        result: []
-      }
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'hostgroupsRequest',
-      method: Method.GET,
-      path: '**/hostgroups?*',
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [linuxServersHostGroup, FirewallHostGroup]
-      }
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'serviceGroupsRequest',
-      method: Method.GET,
-      path: '**/servicegroups?*',
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [webAccessServiceGroup]
-      }
-    });
-
-    cy.mount({
-      Component: <FilterWithProvider />
-    });
-
-    cy.viewport(1200, 1000);
+    mount({ store: getStore() });
   });
 
   it('accepts the selected autocomplete suggestion when the beginning of a criteria is input and the "enter" key is pressed', () => {
-    cy.waitForRequest('@getResources');
-
     const searchBar = cy.findByPlaceholderText(labelSearch);
 
     searchBar.clear();
@@ -744,18 +626,18 @@ describe('Keyboard actions', () => {
     searchBar.type('{Enter}');
     searchBar.should('have.value', 'host_group:');
     searchBar.type('ESX');
-    cy.findByText(linuxServersHostGroup.name).should('exist');
+    cy.findByText(linuxServersHostGroupName).should('exist');
     searchBar.type('{Enter}');
     cy.findByPlaceholderText(labelSearch).should(
       'have.value',
-      `host_group:${linuxServersHostGroup.name}`
+      `host_group:${linuxServersHostGroupName}`
     );
 
     searchBar.type(',');
     cy.findByText('Firewall').should('exist');
     searchBar.type('{downArrow}');
     searchBar.type('{Enter}');
-    cy.waitForRequest('@hostgroupsRequest');
+    cy.waitForRequest('@hostGroupsRequest');
 
     cy.makeSnapshot();
   });

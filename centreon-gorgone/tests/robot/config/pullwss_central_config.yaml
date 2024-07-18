@@ -1,0 +1,33 @@
+gorgone:
+  gorgonecore:
+    id: 1
+  modules:
+    - name: proxy
+      package: "gorgone::modules::core::proxy::hooks"
+      enable: true
+      httpserver:
+        enable: true
+        ssl: false
+        #ssl_cert_file: /etc/centreon-gorgone/keys/certificate.crt
+        #ssl_key_file: /etc/centreon-gorgone/keys/private.key
+        token: "secret_token"
+        address: "0.0.0.0"
+        port: 8086
+
+    - name: register
+      package: "gorgone::modules::core::register::hooks"
+      enable: true
+      config_file: /etc/centreon-gorgone/@UNIQ_ID_FROM_ROBOT_TESTING_CONFIG_FILE@/config.d/pullwss_node_register_one_node.yaml
+
+    - name: httpserver
+      package: "gorgone::modules::core::httpserver::hooks"
+      enable: true
+      address: "0.0.0.0"
+      port: "8085"
+      ssl: false
+      auth:
+        enabled: false
+      allowed_hosts:
+        enabled: true
+        subnets:
+          - 127.0.0.1/32

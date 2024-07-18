@@ -136,7 +136,8 @@ const useColumns = ({
       rowMemoProps: ['severity_level'],
       sortField: 'severity_level',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.component,
+      width: 'minmax(50px, auto)'
     },
     {
       Component: StateColumn,

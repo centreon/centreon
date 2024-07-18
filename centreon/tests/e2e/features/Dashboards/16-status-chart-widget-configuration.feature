@@ -38,3 +38,9 @@ Feature: Configuring Status Chart widget
     Given a dashboard administrator user configuring a Status Chart widget
     When the dashboard administrator user updates the displayed resource type of the widget
     Then the widget is updated to reflect that change of displayed resource type
+
+  @TEST_MON-130764
+  Scenario: Access the resource status page by clicking on a resource from the status chart widget
+    Given a dashboard with a Status Chart widget
+    When the dashboard administrator clicks on a random resource
+    Then the user should be redirected to the resource status screen and all the resources must be displayed

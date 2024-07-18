@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Token\Application\Repository;
 
 use Core\Security\Token\Domain\Model\NewToken;
+use Core\Security\Token\Domain\Model\Token;
 
 interface WriteTokenRepositoryInterface
 {
@@ -41,4 +42,11 @@ interface WriteTokenRepositoryInterface
      * @throws \Throwable
      */
     public function deleteByNameAndUserId(string $tokenName, int $userId): void;
+
+    /**
+     * @param Token $token
+     *
+     * @throws \Throwable
+     */
+    public function update(Token $token): void;
 }

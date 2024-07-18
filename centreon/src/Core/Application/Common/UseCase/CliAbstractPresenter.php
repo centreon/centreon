@@ -63,4 +63,12 @@ abstract class CliAbstractPresenter
     {
         $this->output->writeln($message);
     }
+
+    /**
+     * @param string[] $messages
+     */
+    public function writeMultiLine(array $messages): void
+    {
+        $this->output->writeln($messages);
+    }
 }

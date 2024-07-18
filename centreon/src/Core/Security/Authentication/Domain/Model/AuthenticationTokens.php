@@ -25,41 +25,20 @@ namespace Core\Security\Authentication\Domain\Model;
 
 class AuthenticationTokens
 {
-    /** @var string */
-    private string $sessionToken;
-
-    /** @var NewProviderToken */
-    private NewProviderToken $providerToken;
-
-    /** @var null|NewProviderToken */
-    private ?NewProviderToken $providerRefreshToken;
-
-    /** @var int */
-    private int $userId;
-
-    /** @var int */
-    private int $configurationProviderId;
-
     /**
      * @param int $userId
      * @param int $configurationProviderId
      * @param string $sessionToken
-     * @param NewProviderToken $providerToken
-     * @param NewProviderToken|null $providerRefreshToken
+     * @param NewProviderToken|ProviderToken $providerToken
+     * @param NewProviderToken|ProviderToken|null $providerRefreshToken
      */
     public function __construct(
-        int $userId,
-        int $configurationProviderId,
-        string $sessionToken,
-        NewProviderToken $providerToken,
-        ?NewProviderToken $providerRefreshToken
-    ) {
-        $this->userId = $userId;
-        $this->configurationProviderId = $configurationProviderId;
-        $this->sessionToken = $sessionToken;
-        $this->providerToken = $providerToken;
-        $this->providerRefreshToken = $providerRefreshToken;
-    }
+        private int $userId,
+        private int $configurationProviderId,
+        private string $sessionToken,
+        private NewProviderToken|ProviderToken $providerToken,
+        private NewProviderToken|ProviderToken|null $providerRefreshToken,
+    ) {}
 
     /**
      * @return string
@@ -70,17 +49,17 @@ class AuthenticationTokens
     }
 
     /**
-     * @return NewProviderToken
+     * @return ProviderToken|NewProviderToken
      */
-    public function getProviderToken(): NewProviderToken
+    public function getProviderToken(): ProviderToken|NewProviderToken
     {
         return $this->providerToken;
     }
 
     /**
-     * @return NewProviderToken|null
+     * @return ProviderToken|NewProviderToken|null
      */
-    public function getProviderRefreshToken(): ?NewProviderToken
+    public function getProviderRefreshToken(): ProviderToken|NewProviderToken|null
     {
         return $this->providerRefreshToken;
     }

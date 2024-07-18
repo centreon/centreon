@@ -11,7 +11,10 @@ interface Props {
   graphInterval: GraphInterval;
 }
 
-const useTimeShiftZones = ({ graphInterval, direction }: Props): Interval => {
+export const useTimeShiftZones = ({
+  graphInterval,
+  direction
+}: Props): Interval => {
   const shiftRatio = 2;
 
   const [start, setStart] = useState<Date>();
@@ -68,5 +71,3 @@ const useTimeShiftZones = ({ graphInterval, direction }: Props): Interval => {
 
   return { end, start } as Interval;
 };
-
-export default useTimeShiftZones;

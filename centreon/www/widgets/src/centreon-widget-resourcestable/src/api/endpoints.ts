@@ -1,4 +1,4 @@
-import { equals, flatten, includes, pluck } from 'ramda';
+import { always, cond, equals, flatten, includes, pluck, T } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
@@ -25,14 +25,21 @@ const resourceTypesCustomParameters = [
   'service-group',
   'service-category'
 ];
-const resourceTypesSearchParameters = ['host', 'service'];
+const resourceTypesSearchParameters = ['host', 'service', 'meta-service'];
 
 const categories = ['host-category', 'service-category'];
 
 const resourcesSearchMapping = {
   host: 'parent_name',
+  'meta-service': 'name',
   service: 'name'
 };
+
+const getFormattedType = cond([
+  [equals('all'), always(['host', 'service', 'metaservice'])],
+  [equals('service'), always(['service', 'metaservice'])],
+  [T, (type) => [type]]
+]);
 
 export const buildResourcesEndpoint = ({
   type,
@@ -47,7 +54,7 @@ export const buildResourcesEndpoint = ({
     ? viewByHostEndpoint
     : resourcesEndpoint;
 
-  const formattedType = equals(type, 'all') ? ['host', 'service'] : [type];
+  const formattedType = getFormattedType(type);
   const formattedStatuses = formatStatus(statuses);
 
   const resourcesToApplyToCustomParameters = resources.filter(

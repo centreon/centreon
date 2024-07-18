@@ -201,52 +201,50 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
      */
     public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void
     {
-        /** @var ProviderToken $providerToken */
-        $providerToken = $authenticationTokens->getProviderToken();
+        if ($authenticationTokens->getProviderToken() instanceof ProviderToken) {
+            $this->updateProviderToken($authenticationTokens->getProviderToken());
+        }
 
-        /** @var ProviderToken $providerRefreshToken */
-        $providerRefreshToken = $authenticationTokens->getProviderRefreshToken();
-        $updateTokenStatement = $this->db->prepare(
-            $this->translateDbName(
-                'UPDATE `:db`.security_token
-                SET token=:token, creation_date=:creationDate, expiration_date=:expirationDate WHERE id =:tokenId'
-            )
-        );
-        // Update Provider Token
-        $updateTokenStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);
-        $updateTokenStatement->bindValue(
-            ':creationDate',
-            $providerToken->getCreationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $updateTokenStatement->bindValue(
-            ':expirationDate',
-            $providerToken->getExpirationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $updateTokenStatement->bindValue(':tokenId', $providerToken->getId(), \PDO::PARAM_INT);
-        $updateTokenStatement->execute();
-
-        // Update Refresh Token
-        $updateTokenStatement->bindValue(':token', $providerRefreshToken->getToken(), \PDO::PARAM_STR);
-        $updateTokenStatement->bindValue(
-            ':creationDate',
-            $providerRefreshToken->getCreationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $updateTokenStatement->bindValue(
-            ':expirationDate',
-            $providerRefreshToken->getExpirationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $updateTokenStatement->bindValue(':tokenId', $providerRefreshToken->getId(), \PDO::PARAM_INT);
-        $updateTokenStatement->execute();
+        if ($authenticationTokens->getProviderRefreshToken() instanceof ProviderToken) {
+            $this->updateProviderToken($authenticationTokens->getProviderRefreshToken());
+        }
     }
 
     /**
      * @inheritDoc
      */
-    public function updateProviderToken(NewProviderToken $providerToken): void
+    public function updateProviderToken(ProviderToken $providerToken): void
+    {
+        $updateStatement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    UPDATE `:db`.security_token
+                    SET creation_date = :creation_date,
+                        expiration_date = :expiration_date,
+                        token = :token
+                    WHERE id = :token_id
+                    SQL
+            )
+        );
+        $updateStatement->bindValue(
+            ':creation_date',
+            $providerToken->getCreationDate()->getTimestamp(),
+            \PDO::PARAM_INT
+        );
+        $updateStatement->bindValue(
+            ':expiration_date',
+            $providerToken->getExpirationDate()->getTimestamp(),
+            \PDO::PARAM_INT
+        );
+        $updateStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);
+        $updateStatement->bindValue(':token_id', $providerToken->getId(), \PDO::PARAM_INT);
+        $updateStatement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateProviderTokenExpirationDate(NewProviderToken $providerToken): void
     {
         $updateStatement = $this->db->prepare(
             $this->translateDbName(
@@ -255,7 +253,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
         );
         $updateStatement->bindValue(
             ':expiredAt',
-            $providerToken->getExpirationDate() !== null ? $providerToken->getExpirationDate()->getTimestamp() : null,
+            $providerToken->getExpirationDate()?->getTimestamp(),
             \PDO::PARAM_INT
         );
         $updateStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);

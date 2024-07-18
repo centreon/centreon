@@ -38,7 +38,7 @@ afterEach(() => {
 });
 
 Given('a user with dashboard update rights on the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 When(
@@ -75,7 +75,7 @@ Then('the dashboard is not listed anymore in the dashboards library', () => {
 Given(
   'a user with dashboard edition rights about to delete a dashboard',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
     cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(2).click();
     cy.getByLabel({ label: 'Delete' }).click();
   }

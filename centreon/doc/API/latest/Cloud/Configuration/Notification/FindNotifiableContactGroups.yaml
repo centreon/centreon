@@ -16,11 +16,11 @@ get:
                 items:
                   $ref: 'Schema/NotifiableContactGroups.Listing.yaml'
                 meta:
-                  $ref: '../../../../Common/Schema/Meta.yaml'
+                  $ref: '../../../Common/Schema/Meta.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 

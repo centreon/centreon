@@ -8,9 +8,9 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
+    And a feature flag "vault" of bitmask 3
     And the endpoints are described in Centreon Web API documentation
-    When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    When I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -23,23 +23,6 @@ Feature: Vault Configuration API
     """
     Then the response code should be "201"
 
-  Scenario: Create a new vault configuration as an admin user for vault provider that not exists
-    Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And the endpoints are described in Centreon Web API documentation
-    When I send a POST request to '/api/latest/administration/vaults/2/configurations' with body:
-    """
-      {
-        "name": "myVaultConfiguration",
-        "address": "127.0.0.1",
-        "port": 8200,
-        "root_path": "myStorageFolder",
-        "role_id": "myRoleId",
-        "secret_id": "mySecretId"
-      }
-    """
-    Then the response code should be "404"
-
   Scenario: Create a new vault configuration as a non-admin user with rights to Reach API
     Given the following CLAPI import data:
     """
@@ -47,9 +30,9 @@ Feature: Vault Configuration API
       CONTACT;setparam;kev;reach_api;1
     """
     And I am logged in with "kev"/"Centreon@2022"
-    And a feature flag "vault" of bitmask 2
+    And a feature flag "vault" of bitmask 3
 
-    When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    When I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -76,9 +59,9 @@ Feature: Vault Configuration API
       CONTACT;setparam;kev;reach_api;0
     """
     And I am logged in with "kev"/"Centreon@2022"
-    And a feature flag "vault" of bitmask 2
+    And a feature flag "vault" of bitmask 3
 
-    When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    When I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -93,8 +76,8 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user while the same vault configuration already exists
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    And a feature flag "vault" of bitmask 3
+    And I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -106,7 +89,7 @@ Feature: Vault Configuration API
       }
     """
 
-    When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    When I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myAnotherVaultConfiguration",
@@ -121,8 +104,8 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user with invalid parameter
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    And a feature flag "vault" of bitmask 3
+    When I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -137,8 +120,8 @@ Feature: Vault Configuration API
 
   Scenario: Update an existing vault configuration as an admin user
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    And a feature flag "vault" of bitmask 3
+    And I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -150,7 +133,7 @@ Feature: Vault Configuration API
       }
     """
 
-    When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
+    When I send a PUT request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "address": "127.0.0.1",
@@ -163,8 +146,8 @@ Feature: Vault Configuration API
 
   Scenario: Update a vault configuration that does not exist as an admin user
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
+    And a feature flag "vault" of bitmask 3
+    When I send a PUT request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "address": "127.0.0.1",
@@ -175,47 +158,10 @@ Feature: Vault Configuration API
     """
     Then the response code should be "404"
 
-  Scenario: Update vault configuration as an admin user by setting address, port and root_path to be the same as in another existing one
-    Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
-    """
-      {
-        "name": "myVaultConfiguration",
-        "address": "127.0.0.1",
-        "port": 8200,
-        "root_path": "myStorageFolder",
-        "role_id": "myRoleId",
-        "secret_id": "mySecretId"
-      }
-    """
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
-    """
-      {
-        "name": "myAnotherVaultConfiguration",
-        "address": "127.0.0.2",
-        "port": 8201,
-        "root_path": "myStorageFolder",
-        "role_id": "myAnotherRoleId",
-        "secret_id": "myAnotherSecretId"
-      }
-    """
-
-    When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
-    """
-      {
-        "address": "127.0.0.2",
-        "port": 8201,
-        "role_id": "myRoleId",
-        "secret_id": "mySecretId"
-      }
-    """
-    Then the response code should be "400"
-
   Scenario: Delete vault configuration as an admin user
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    And a feature flag "vault" of bitmask 3
+    And I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -227,13 +173,13 @@ Feature: Vault Configuration API
       }
     """
 
-    When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/1'
+    When I send a DELETE request to '/api/latest/administration/vaults/configurations'
     Then the response code should be "204"
 
   Scenario: Delete vault configuration as a non-admin user
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    And a feature flag "vault" of bitmask 3
+    And I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -251,31 +197,13 @@ Feature: Vault Configuration API
     """
     And I am logged in with "kev"/"Centreon@2022"
 
-    When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/1'
+    When I send a DELETE request to '/api/latest/administration/vaults/configurations'
     Then the response code should be "403"
-
-  Scenario: Delete vault configuration as an admin user while vault provider id does not exist
-    Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
-    """
-      {
-        "name": "myVaultConfiguration",
-        "address": "127.0.0.1",
-        "port": 8200,
-        "root_path": "myStorageFolder",
-        "role_id": "myRoleId",
-        "secret_id": "mySecretId"
-      }
-    """
-
-    When I send a DELETE request to '/api/latest/administration/vaults/2/configurations/1'
-    Then the response code should be "404"
 
   Scenario: Delete vault configuration as an admin user while vault configuration id does not exist
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    And a feature flag "vault" of bitmask 3
+    And I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -287,53 +215,13 @@ Feature: Vault Configuration API
       }
     """
 
-    When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/2'
+    When I send a DELETE request to '/api/latest/administration/vaults/configurations'
     Then the response code should be "404"
 
-  Scenario: List vault configurations by vault provider as an admin user
+  Scenario: Get vault configuration details as a non-admin user
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
-    """
-      {
-        "name": "myVaultConfiguration",
-        "address": "127.0.0.1",
-        "port": 8200,
-        "root_path": "myStorageFolder",
-        "role_id": "myRoleId",
-        "secret_id": "mySecretId"
-      }
-    """
-
-    When I send a GET request to '/api/latest/administration/vaults/1/configurations'
-    Then the response code should be "200"
-    And the JSON should be equal to:
-    """
-      {
-        "result": [
-          {
-            "id": 1,
-            "name": "myVaultConfiguration",
-            "vault_id": 1,
-            "url": "127.0.0.1",
-            "port": 8200,
-            "root_path": "myStorageFolder"
-          }
-        ],
-        "meta": {
-          "page": 1,
-          "limit": 10,
-          "search": {},
-          "sort_by": {},
-          "total": 0
-        }
-      }
-    """
-
-  Scenario: List vault configurations by vault provider as a non-admin user
-    Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    And a feature flag "vault" of bitmask 3
+    And I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -351,31 +239,14 @@ Feature: Vault Configuration API
     """
     And I am logged in with "kev"/"Centreon@2022"
 
-    When I send a GET request to '/api/latest/administration/vaults/1/configurations'
+    When I send a GET request to '/api/latest/administration/vaults/configurations'
     Then the response code should be "403"
 
-  Scenario: List vault configurations by vault provider as an admin user while vault provider id does not exist
-    Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
-    """
-      {
-        "name": "myVaultConfiguration",
-        "address": "127.0.0.1",
-        "port": 8200,
-        "root_path": "myStorageFolder",
-        "role_id": "myRoleId",
-        "secret_id": "mySecretId"
-      }
-    """
-
-    When I send a GET request to '/api/latest/administration/vaults/2/configurations'
-    Then the response code should be "404"
 
   Scenario: List vault configurations by id as an admin user
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    And a feature flag "vault" of bitmask 3
+    And I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -387,7 +258,7 @@ Feature: Vault Configuration API
       }
     """
 
-    When I send a GET request to '/api/latest/administration/vaults/1/configurations/1'
+    When I send a GET request to '/api/latest/administration/vaults/configurations'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
@@ -405,8 +276,8 @@ Feature: Vault Configuration API
 
   Scenario: List vault configurations by id as a non-admin user
     Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    And a feature flag "vault" of bitmask 3
+    And I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -424,49 +295,13 @@ Feature: Vault Configuration API
     """
     And I am logged in with "kev"/"Centreon@2022"
 
-    When I send a GET request to '/api/latest/administration/vaults/1/configurations/1'
+    When I send a GET request to '/api/latest/administration/vaults/configurations'
     Then the response code should be "403"
-
-  Scenario: List vault configurations by id as an admin user while vault provider id does not exist
-    Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
-    """
-      {
-        "name": "myVaultConfiguration",
-        "address": "127.0.0.1",
-        "port": 8200,
-        "root_path": "myStorageFolder",
-        "role_id": "myRoleId",
-        "secret_id": "mySecretId"
-      }
-    """
-
-    When I send a GET request to '/api/latest/administration/vaults/2/configurations/1'
-    Then the response code should be "404"
-
-  Scenario: List vault configurations by id as an admin user while vault configuration id does not exist
-    Given I am logged in
-    And a feature flag "vault" of bitmask 2
-    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
-    """
-      {
-        "name": "myVaultConfiguration",
-        "address": "127.0.0.1",
-        "port": 8200,
-        "root_path": "myStorageFolder",
-        "role_id": "myRoleId",
-        "secret_id": "mySecretId"
-      }
-    """
-
-    When I send a GET request to '/api/latest/administration/vaults/1/configurations/2'
-    Then the response code should be "404"
 
   Scenario: Use vault configuration API when the feature flag is not activated
     Given I am logged in
     And a feature flag "vault" of bitmask 0
-    When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    When I send a POST request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",
@@ -479,13 +314,13 @@ Feature: Vault Configuration API
     """
     Then the response code should be "404"
 
-    When I send a GET request to '/api/latest/administration/vaults/1/configurations'
+    When I send a GET request to '/api/latest/administration/vaults/configurations'
     Then the response code should be "404"
 
-    When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/1'
+    When I send a DELETE request to '/api/latest/administration/vaults/configurations'
     Then the response code should be "404"
 
-    When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
+    When I send a PUT request to '/api/latest/administration/vaults/configurations' with body:
     """
       {
         "name": "myVaultConfiguration",

@@ -25,9 +25,9 @@ namespace Tests\Core\HostTemplate\Domain\Model;
 
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Common\Domain\YesNoDefault;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
-use Core\Common\Domain\YesNoDefault;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
 
 beforeEach(function (): void {
@@ -76,8 +76,6 @@ beforeEach(function (): void {
             ]
         );
     };
-
-
 });
 
 it('should return properly set host template instance (all properties)', function (): void {
@@ -183,7 +181,7 @@ foreach (
 }
 
 // name and conmmands args should be formated
-it("should return trimmed and formatted name field after construct", function (): void {
+it('should return trimmed and formatted name field after construct', function (): void {
     $hostTemplate = new NewHostTemplate('    host template name   ', 'alias');
 
     expect($hostTemplate->getName())->toBe('host_template_name');
@@ -198,7 +196,7 @@ foreach (
     it(
         "should return a trimmed field {$field}",
         function () use ($field): void {
-            $hostTemplate = ($this->createHostTemplate)([$field => ["  arg1  ", "  arg2  "]]);
+            $hostTemplate = ($this->createHostTemplate)([$field => ['  arg1  ', '  arg2  ']]);
             $valueFromGetter = $hostTemplate->{'get' . $field}();
 
             expect($valueFromGetter)->toBe(['arg1', 'arg2']);

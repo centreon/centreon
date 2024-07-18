@@ -1,0 +1,29 @@
+type: object
+properties:
+  critical:
+    type: object
+    properties:
+      total:
+        type: integer
+  unknown:
+    type: object
+    properties:
+      total:
+        type: integer
+  ok:
+    type: object
+    properties:
+      total:
+        type: integer
+  down:
+    type: object
+    properties:
+      total:
+        type: integer
+  pending:
+    type: object
+    properties:
+      total:
+        type: integer
+  total:
+    type: integer

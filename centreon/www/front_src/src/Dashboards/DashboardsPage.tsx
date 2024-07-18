@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 import { PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { labelDashboards } from './translatedLabels';
-import { DashboardConfigModal } from './components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
 import { DashboardAccessRightsModal } from './components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
-import DashboardPageLayout from './components/DashboardPageLayout';
-import DashboardNavbar from './components/DashboardNavbar/DashboardNavbar';
+import { DashboardConfigModal } from './components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
 import DeleteDashboardModal from './components/DashboardLibrary/DeleteDashboardModal';
 import DuplicateDashboardModal from './components/DashboardLibrary/DuplicateDashboardModal';
+import DashboardNavbar from './components/DashboardNavbar/DashboardNavbar';
+import DashboardPageLayout from './components/DashboardPageLayout';
+import { labelDashboards } from './translatedLabels';
 
 const DashboardsPage = (): ReactElement => {
   const { t } = useTranslation();

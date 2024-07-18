@@ -31,13 +31,13 @@ use Core\Application\Common\UseCase\{
     ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
-    NotFoundResponse,
     PresenterInterface
 };
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\{ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface,
-    WriteVaultConfigurationRepositoryInterface};
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultConfigurationRepositoryInterface,
+    WriteVaultConfigurationRepositoryInterface
+};
 
 final class CreateVaultConfiguration
 {
@@ -46,14 +46,12 @@ final class CreateVaultConfiguration
     /**
      * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
      * @param WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository
-     * @param ReadVaultRepositoryInterface $readVaultRepository
      * @param NewVaultConfigurationFactory $newVaultConfigurationFactory
      * @param ContactInterface $user
      */
     public function __construct(
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
-        private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly NewVaultConfigurationFactory $newVaultConfigurationFactory,
         private readonly ContactInterface $user
     ) {
@@ -77,13 +75,7 @@ final class CreateVaultConfiguration
                 return;
             }
 
-            if (
-                $this->readVaultConfigurationRepository->existsSameConfiguration(
-                    $createVaultConfigurationRequest->address,
-                    $createVaultConfigurationRequest->port,
-                    $createVaultConfigurationRequest->rootPath,
-                )
-            ) {
+            if ($this->readVaultConfigurationRepository->exists()) {
                 $this->error(
                     'Vault configuration with these properties already exists',
                     [
@@ -94,15 +86,6 @@ final class CreateVaultConfiguration
                 );
                 $presenter->setResponseStatus(
                     new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
-                );
-
-                return;
-            }
-
-            if (! $this->readVaultRepository->exists($createVaultConfigurationRequest->typeId)) {
-                $this->error('Vault provider not found', ['id' => $createVaultConfigurationRequest->typeId]);
-                $presenter->setResponseStatus(
-                    new NotFoundResponse('Vault provider')
                 );
 
                 return;

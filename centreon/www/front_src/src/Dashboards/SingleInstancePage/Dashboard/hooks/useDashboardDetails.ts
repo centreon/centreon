@@ -52,8 +52,10 @@ export const formatPanel = ({
       : panel.widgetSettings.data || null,
     h: panel.layout.height,
     i: `${panel.id}`,
-    minH: panel.layout.minHeight,
-    minW: panel.layout.minWidth,
+    minH:
+      federatedWidget?.federatedComponentsConfiguration[0].panelMinHeight || 2,
+    minW:
+      federatedWidget?.federatedComponentsConfiguration[0].panelMinWidth || 2,
     name: panel.name,
     options: panel.widgetSettings.options,
     panelConfiguration: federatedWidget

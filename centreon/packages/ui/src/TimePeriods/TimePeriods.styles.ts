@@ -5,12 +5,13 @@ interface StylesProps {
 }
 
 export const useStyles = makeStyles<StylesProps>()((theme, { disabled }) => ({
+  condensed: {
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    rowGap: theme.spacing(1)
+  },
   header: {
-    [theme.breakpoints.down('sm')]: {
-      flexWrap: 'wrap',
-      justifyContent: 'center',
-      rowGap: theme.spacing(1)
-    },
+    alignItems: 'center',
     backgroundColor: disabled ? 'transparent' : 'undefined',
     border: disabled ? 'unset' : 'undefined',
     boxShadow: disabled ? 'unset' : 'undefined',

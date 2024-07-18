@@ -333,6 +333,14 @@ contents:
       owner: "centreon-broker"
       group: "centreon-broker"
 
+
+  - dst: "/var/lib/centreon/vault"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
   - dst: "/var/lib/centreon/installs"
     type: dir
     file_info:

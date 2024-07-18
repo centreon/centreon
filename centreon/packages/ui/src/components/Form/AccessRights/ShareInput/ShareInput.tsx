@@ -68,6 +68,7 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
           data-testid="add"
           disabled={isNil(selectedContact)}
           icon={<AddCircleIcon />}
+          size="small"
           onClick={add}
         />
       </div>

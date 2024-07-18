@@ -67,7 +67,7 @@ abstract class AbstractObject
         );
         $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
         $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-        $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+        $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null) {
             $this->isVaultEnabled = true;
         }

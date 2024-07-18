@@ -2,9 +2,13 @@ import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { useAtomValue } from 'jotai';
 import { TFunction } from 'i18next';
+import { isEmpty, keys, path, toPairs } from 'ramda';
 
 import { labelRequired } from '../translatedLabels';
-import { FederatedWidgetProperties } from '../../../../federatedModules/models';
+import {
+  FederatedWidgetOption,
+  FederatedWidgetProperties
+} from '../../../../federatedModules/models';
 
 import { buildValidationSchema } from './WidgetProperties/Inputs/utils';
 import { widgetPropertiesAtom } from './atoms';
@@ -23,11 +27,15 @@ const getPropertiesValidationSchema = ({
   string,
   Yup.StringSchema<string | undefined, Yup.AnyObjectSchema, string | undefined>
 > => {
-  const filteredProperties = properties
-    ? Object.entries(properties[propertyType] || {})
-    : [];
+  const filteredProperties = (
+    properties ? path(propertyType.split('.'), properties) : []
+  ) as Array<{
+    [key: string]: FederatedWidgetOption & {
+      group?: string;
+    };
+  }>;
 
-  return filteredProperties.reduce(
+  return toPairs(filteredProperties).reduce(
     (acc, [name, inputProp]) => ({
       ...acc,
       [name]: buildValidationSchema({
@@ -58,6 +66,26 @@ const useValidationSchema = (): {
     t
   });
 
+  const inputCategories = keys(widgetProperties?.categories || {});
+
+  const widgetCategoriesValidationSchema = inputCategories.reduce(
+    (acc, category) => {
+      const hasGroups = !isEmpty(
+        path(['categories', category, 'groups'], widgetProperties)
+      );
+
+      return {
+        ...acc,
+        ...getPropertiesValidationSchema({
+          properties: widgetProperties,
+          propertyType: `categories.${category}${hasGroups ? '.elements' : ''}`,
+          t
+        })
+      };
+    },
+    {}
+  );
+
   const requiredText = t(labelRequired) as string;
 
   const schema = Yup.object({
@@ -68,8 +96,8 @@ const useValidationSchema = (): {
         enabled: Yup.boolean().required(requiredText)
       }),
       name: Yup.string().nullable(),
-      openLinksInNewTab: Yup.boolean().required(requiredText),
-      ...widgetOptionsValidationSchema
+      ...widgetOptionsValidationSchema,
+      ...widgetCategoriesValidationSchema
     })
   });
 

@@ -14,6 +14,9 @@ No specific configuration.
 name: pull
 package: "gorgone::modules::core::pull::hooks"
 enable: true
+target_type: tcp
+target_path: 10.30.2.203:5556
+ping: 1
 ```
 
 ## Events

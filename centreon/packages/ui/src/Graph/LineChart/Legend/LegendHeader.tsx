@@ -15,6 +15,8 @@ import LegendContent from './LegendContent';
 interface Props {
   color: string;
   disabled?: boolean;
+  isDisplayedOnSide: boolean;
+  isListMode: boolean;
   line: Line;
   minMaxAvg?;
   value?: string | null;
@@ -25,7 +27,9 @@ const LegendHeader = ({
   color,
   disabled,
   value,
-  minMaxAvg
+  minMaxAvg,
+  isListMode,
+  isDisplayedOnSide
 }: Props): JSX.Element => {
   const { classes, cx } = useLegendHeaderStyles({ color });
 
@@ -36,7 +40,9 @@ const LegendHeader = ({
   const legendName = legend || name;
 
   return (
-    <div className={classes.container}>
+    <div
+      className={cx(!isListMode ? classes.container : classes.containerList)}
+    >
       <Tooltip
         followCursor={false}
         label={
@@ -60,12 +66,21 @@ const LegendHeader = ({
             legendName
           )
         }
-        placement="top"
+        placement={isListMode ? 'right' : 'top'}
       >
         <div className={classes.markerAndLegendName}>
-          <div className={cx(classes.icon, { [classes.disabled]: disabled })} />
+          <div
+            data-icon
+            className={cx(classes.icon, { [classes.disabled]: disabled })}
+          />
           <EllipsisTypography
-            className={cx(classes.text, classes.legendName)}
+            className={cx(
+              classes.text,
+              !isListMode && classes.legendName,
+              !isListMode && isDisplayedOnSide && classes.legendNameSide,
+              isListMode && !isDisplayedOnSide && classes.textListBottom,
+              isListMode && isDisplayedOnSide && classes.textListSide
+            )}
             data-mode={
               value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
             }

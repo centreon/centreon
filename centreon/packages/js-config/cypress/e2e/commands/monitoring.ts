@@ -64,10 +64,52 @@ Cypress.Commands.add(
   }
 );
 
+interface Downtime {
+  host: string;
+  service?: string | null;
+}
+
+Cypress.Commands.add(
+  'waitForDowntime',
+  (downtime: Downtime): Cypress.Chainable => {
+    cy.log('Checking hosts in database');
+
+    let query = `SELECT COUNT(d.downtime_id) AS count_downtimes FROM downtimes as d
+      INNER JOIN hosts as h ON h.host_id = d.host_id AND h.name = '${downtime.host}'`;
+    if (downtime.service) {
+      query += ` INNER JOIN services as s ON s.service_id = d.service_id AND s.description = '${downtime.service}'`;
+    }
+    query += ` WHERE d.started=1`;
+    if (!downtime.service) {
+      query += ` AND d.service_id = 0`;
+    }
+
+    cy.log(query);
+
+    cy.waitUntil(() => {
+      return cy
+        .requestOnDatabase({
+          database: 'centreon_storage',
+          query
+        })
+        .then(([rows]) => {
+          const foundDowntimesCount = rows.length ? rows[0].count_downtimes : 0;
+
+          cy.log('Downtime count in database', foundDowntimesCount);
+
+          return cy.wrap(foundDowntimesCount > 0);
+        });
+    });
+
+    return cy.wrap(null);
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
       submitResults: (props: Array<SubmitResult>) => Cypress.Chainable;
+      waitForDowntime: (downtime: Downtime) => Cypress.Chainable;
     }
   }
 }

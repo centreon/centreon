@@ -1,11 +1,14 @@
 {
-  "federatedComponentsConfiguration": [{
-    "path": "/widgets/resourcestable",
-    "federatedComponents": [
-      "./resourcestable"
-    ],
-    "panelMinWidth": 6
-  }],
+  "federatedComponentsConfiguration": [
+    {
+      "path": "/widgets/resourcestable",
+      "federatedComponents": [
+        "./resourcestable"
+      ],
+      "panelMinWidth": 6,
+      "panelMinHeight": 3
+    }
+  ],
   "moduleFederationName": "widgetresourcestable",
   "moduleName": "centreon-widget-resourcestable"
 }

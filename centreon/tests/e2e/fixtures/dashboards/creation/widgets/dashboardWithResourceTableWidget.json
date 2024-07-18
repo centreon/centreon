@@ -39,7 +39,6 @@
                    "enabled":true
                 },
                 "name":"Resource table",
-                "openLinksInNewTab":true,
                 "selectedColumnIds":[
                    "status",
                    "resource",

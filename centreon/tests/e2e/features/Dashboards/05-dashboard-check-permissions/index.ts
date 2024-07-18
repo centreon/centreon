@@ -81,7 +81,7 @@ Given('an admin user is logged in on a platform with dashboards', () => {
 });
 
 When('the admin user accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 Then(
@@ -136,17 +136,20 @@ Then(
 Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-    `{selectall}{backspace}${dashboards.fromAdminUser.name}-edited`
-  );
+  cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+    cy.get('input[aria-label="Name"]').type(
+      `{selectall}{backspace}${dashboards.fromAdminUser.name}-edited`
+    );
 
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-    `{selectall}{backspace}${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
-  );
+    cy.get('textarea[aria-label="Description"]').type(
+      `{selectall}{backspace}${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
+    );
 
-  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
+  });
 
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.getByLabel({ label: 'page header title' })
     .should('contain.text', `${dashboards.fromAdminUser.name}-edited`)
     .should('be.visible');
@@ -167,7 +170,7 @@ Given('an admin user on the dashboards library', () => {
 });
 
 When('the admin user creates a new dashboard', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -204,10 +207,10 @@ Then(
 Given('an admin user who has just created a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: adminUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
@@ -243,7 +246,7 @@ Given(
 );
 
 When('the dashboard administrator user accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 Then(
@@ -300,16 +303,18 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.name}-edited`
-    );
+    cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+      cy.get('input[aria-label="Name"]').type(
+        `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.name}-edited`
+      );
 
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
-    );
+      cy.get('textarea[aria-label="Description"]').type(
+        `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
+      );
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+      cy.get('button[aria-label="Update"]').should('be.enabled').click();
+    });
+
     cy.getByLabel({ label: 'page header title' })
       .should('be.visible')
       .should(
@@ -337,7 +342,7 @@ Given(
 );
 
 When('the dashboard administrator user creates a new dashboard', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -373,11 +378,10 @@ Then(
 Given('a dashboard administrator user who has just created a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
-  cy.visit('/centreon/home/dashboards');
-
+  cy.visitDashboards();
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
 
@@ -415,7 +419,7 @@ Given(
 );
 
 When('the dashboard editor user accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 Then(
@@ -466,6 +470,7 @@ Then(
     cy.location('search').should('include', 'edit=true');
     cy.get('button[type=button]').contains('Add a widget').should('exist');
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+    cy.getByTestId({ testId: 'edit_dashboard' }).should('be.visible');
   }
 );
 
@@ -474,17 +479,18 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.name}-edited`
-    );
+    cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+      cy.get('input[aria-label="Name"]').type(
+        `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.name}-edited`
+      );
 
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
-    );
+      cy.get('textarea[aria-label="Description"]').type(
+        `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
+      );
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+      cy.get('button[aria-label="Update"]').should('be.enabled').click();
+    });
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.getByLabel({ label: 'page header title' })
       .should(
         'contain.text',
@@ -509,7 +515,11 @@ Given('a non-admin user with the editor role on the dashboard feature', () => {
 });
 
 When('the dashboard editor user creates a new dashboard', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -548,8 +558,7 @@ Given('a dashboard editor user who has just created a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
@@ -581,8 +590,7 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: true
     });
-    cy.visit('/centreon/home/dashboards');
-    cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+    cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardViewerUser.login).click();
@@ -658,7 +666,11 @@ Given('a non-admin user with the viewer role on the dashboard feature', () => {
 });
 
 When('the dashboard viewer accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then('the option to create a new dashboard is not displayed', () => {
@@ -668,10 +680,10 @@ Then('the option to create a new dashboard is not displayed', () => {
 Given('a dashboard viewer user who could not create a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardViewerUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 When('the dashboard viewer user tries to delete a dashboard', () => {

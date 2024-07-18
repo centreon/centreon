@@ -4,6 +4,7 @@ ARG VERSION
 FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${VERSION} AS web_fresh
 
 ARG VERSION
+ARG MYDUMPER_VERSION
 
 COPY *.rpm /tmp/rpms-centreon/
 
@@ -49,7 +50,7 @@ sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
-dnf install -y https://github.com/mydumper/mydumper/releases/download/v0.15.2-7/mydumper-0.15.2-7.el8.x86_64.rpm zstd
+dnf install -y https://github.com/mydumper/mydumper/releases/download/v${MYDUMPER_VERSION}/mydumper-${MYDUMPER_VERSION}.el8.x86_64.rpm zstd
 mkdir -p /usr/local/src/sql/databases
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon_storage -B centreon_storage

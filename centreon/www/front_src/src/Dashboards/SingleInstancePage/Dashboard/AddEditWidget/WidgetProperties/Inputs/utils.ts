@@ -34,7 +34,7 @@ export const getDataProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['data', ...split('.', propertyName)], obj);
 
 const namedEntitySchema = Yup.object().shape({
-  id: Yup.number().required(),
+  id: Yup.mixed().required(),
   name: Yup.string().required()
 });
 
@@ -79,6 +79,10 @@ const getYupValidatorType = ({
       always(Yup.string())
     ],
     [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.slider),
+      always(Yup.number())
+    ],
+    [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.resources),
       always(
         Yup.array()
@@ -114,7 +118,17 @@ const getYupValidatorType = ({
               })
               .optional()
           )
-          .min(1, t(labelPleaseSelectAMetric) as string)
+          .when('resources', ([resources], schema) => {
+            const hasMetaService = resources.some(({ resourceType }) =>
+              equals(resourceType, WidgetResourceType.metaService)
+            );
+
+            if (hasMetaService) {
+              return schema;
+            }
+
+            return schema.min(1, t(labelPleaseSelectAMetric) as string);
+          })
       )
     ],
     [

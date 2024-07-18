@@ -9,7 +9,6 @@ export const useTextStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(1),
-    height: '100%',
     justifyContent: 'center'
   },
   threshold: {

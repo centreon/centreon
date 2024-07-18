@@ -1,0 +1,5 @@
+FindRealTimeServiceCategories:
+    methods: GET
+    path: /monitoring/services/categories
+    controller: 'Core\ServiceCategory\Infrastructure\API\FindRealTimeServiceCategories\FindRealTimeServiceCategoriesController'
+    condition: "request.attributes.get('version') >= 22.10"

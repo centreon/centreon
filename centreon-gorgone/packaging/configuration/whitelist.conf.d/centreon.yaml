@@ -3,7 +3,7 @@
 - ^sudo\s+(/bin/|/usr/bin/)?systemctl\s+(reload|restart)\s+(centengine|centreontrapd|cbd)\s*$
 - ^(sudo\s+)?(/usr/bin/)?service\s+(centengine|centreontrapd|cbd|cbd-sql)\s+(reload|restart)\s*$
 - ^/usr/sbin/centenginestats\s+-c\s+/etc/centreon-engine/+centengine\.cfg\s*$
-- ^cat\s+/var/lib/centreon-engine/[a-zA-Z0-9\-]+-stats\.json\s*$
+- ^cat\s+/var/lib/centreon-engine/+[a-zA-Z0-9\-]+-stats\.json\s*$
 - ^/usr/lib/centreon/plugins/.*$
 - ^/bin/perl /usr/share/centreon/bin/anomaly_detection --seasonality >> /var/log/centreon/anomaly_detection\.log 2>&1\s*$
 - ^/usr/bin/php -q /usr/share/centreon/cron/centreon-helios\.php >> /var/log/centreon-helios\.log 2>&1\s*$
@@ -11,3 +11,10 @@
 - ^mkdir
 - ^/usr/share/centreon/www/modules/centreon-autodiscovery-server/script/run_save_discovered_host
 - ^/usr/share/centreon/bin/centreon -u \"centreon-gorgone\" -p \S+ -w -o CentreonWorker -a processQueue$
+- ^/usr/bin/php (-q )?/usr/share/centreon/cron/[\w,\s.-]+ >> /var/log/centreon-gorgone/[\w,\s.-]+\s+2>&1$
+- ^/usr/bin/php -q /usr/share/centreon/www/modules/centreon-bi-server/tools/purgeArchivesFiles\.php >> /var/log/centreon-gorgone/centreon-bi-archive-retention\.log 2>&1$
+- ^/usr/share/centreon/cron/eventReportBuilder --config=/etc/centreon/conf\.pm >> /var/log/centreon-gorgone/eventReportBuilder\.log 2>&1$
+- ^/usr/share/centreon/cron/dashboardBuilder --config=/etc/centreon/conf\.pm >> /var/log/centreon-gorgone/dashboardBuilder\.log 2>&1$
+- ^/usr/share/centreon/www/modules/centreon-dsm/+cron/centreon_dsm_purge\.pl --config=\"/etc/centreon/conf.pm\" --severity=\S+ >> /var/log/centreon-gorgone/centreon_dsm_purge\.log 2>&1\s*$
+- ^/usr/share/centreon-bi-backup/centreon-bi-backup-web\.sh >> /var/log/centreon-gorgone/centreon-bi-backup-web\.log 2>&1$
+- ^/usr/share/centreon/www/modules/centreon-autodiscovery-server/+cron/centreon_autodisco.pl --config='/etc/centreon/conf.pm' --config-extra='/etc/centreon/centreon_autodisco.pm' --severity=\S+ >> /var/log/centreon-gorgone/centreon_service_discovery.log 2>&1$

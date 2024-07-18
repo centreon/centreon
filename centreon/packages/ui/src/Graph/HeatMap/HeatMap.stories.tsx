@@ -55,6 +55,26 @@ const Template = (args): JSX.Element => {
   return <HeatMap {...args} arrowClassName={classes.arrow} />;
 };
 
+const TileContent = ({
+  data,
+  backgroundColor
+}: {
+  backgroundColor: string;
+  data: Data;
+}): JSX.Element => (
+  <div
+    style={{
+      alignItems: 'center',
+      backgroundColor,
+      display: 'flex',
+      height: '100%',
+      justifyContent: 'center'
+    }}
+  >
+    {data.counter}
+  </div>
+);
+
 export const normal: Story = {
   args: {
     children: TileContent,

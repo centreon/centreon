@@ -36,6 +36,7 @@ use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
@@ -43,6 +44,9 @@ use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 class AddHostValidation
 {
     use LoggerTrait;
+
+    /** @var AccessGroup[] */
+    public array $accessGroups = [];
 
     public function __construct(
         private readonly ReadHostRepositoryInterface $readHostRepository,
@@ -90,10 +94,16 @@ class AddHostValidation
      */
     public function assertIsValidMonitoringServer(int $monitoringServerId): void
     {
-        if (false === $this->readMonitoringServerRepository->exists($monitoringServerId)) {
-            $this->error('Monitoring server does not exist', ['monitoringServerId' => $monitoringServerId]);
+        if ($monitoringServerId !== null) {
+            $exists = ($this->accessGroups === [])
+                ? $this->readMonitoringServerRepository->exists($monitoringServerId)
+                : $this->readMonitoringServerRepository->existsByAccessGroups($monitoringServerId, $this->accessGroups);
 
-            throw HostException::idDoesNotExist('monitoringServerId', $monitoringServerId);
+            if (! $exists) {
+                $this->error('Monitoring server does not exist', ['monitoringServerId' => $monitoringServerId]);
+
+                throw HostException::idDoesNotExist('monitoringServerId', $monitoringServerId);
+            }
         }
     }
 
@@ -139,10 +149,16 @@ class AddHostValidation
      */
     public function assertIsValidSeverity(?int $severityId): void
     {
-        if ($severityId !== null && false === $this->readHostSeverityRepository->exists($severityId) ) {
-            $this->error('Host severity does not exist', ['severity_id' => $severityId]);
+        if ($severityId !== null) {
+            $exists = ($this->accessGroups === [])
+                ? $this->readHostSeverityRepository->exists($severityId)
+                : $this->readHostSeverityRepository->existsByAccessGroups($severityId, $this->accessGroups);
 
-            throw HostException::idDoesNotExist('severityId', $severityId);
+            if (! $exists) {
+                $this->error('Host severity does not exist', ['severity_id' => $severityId]);
+
+                throw HostException::idDoesNotExist('severityId', $severityId);
+            }
         }
     }
 

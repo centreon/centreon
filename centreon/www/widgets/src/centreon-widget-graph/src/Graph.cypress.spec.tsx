@@ -6,7 +6,7 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
 
-import { Data, FormThreshold, FormTimePeriod } from './models';
+import { Data, FormThreshold, FormTimePeriod, PanelOptions } from './models';
 import { graphEndpoint } from './api/endpoints';
 import WidgetLineChart from './LineChart';
 
@@ -83,7 +83,33 @@ const customTimePeriod: FormTimePeriod = {
   timePeriodType: -1
 };
 
-interface InitializeComponentProps {
+interface InitializeComponentProps
+  extends Partial<
+    Pick<
+      PanelOptions,
+      | 'curveType'
+      | 'areaOpacity'
+      | 'dashLength'
+      | 'dashOffset'
+      | 'isCenteredZero'
+      | 'legendDisplayMode'
+      | 'legendPlacement'
+      | 'lineStyleMode'
+      | 'lineWidth'
+      | 'lineWidthMode'
+      | 'showArea'
+      | 'showAxisBorder'
+      | 'showGridLines'
+      | 'showLegend'
+      | 'showPoints'
+      | 'scale'
+      | 'scaleLogarithmicBase'
+      | 'gridLinesType'
+      | 'displayType'
+      | 'barRadius'
+      | 'barOpacity'
+    >
+  > {
   data?: Data;
   isPublic?: boolean;
   threshold?: FormThreshold;
@@ -94,7 +120,8 @@ const initializeComponent = ({
   data = serviceMetrics,
   threshold = defaultThreshold,
   timePeriod = defaultTimePeriod,
-  isPublic = false
+  isPublic = false,
+  ...panelOptions
 }: InitializeComponentProps): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
@@ -138,7 +165,8 @@ const initializeComponent = ({
                 globalRefreshInterval: 30,
                 refreshInterval: 'manual',
                 threshold,
-                timeperiod: timePeriod
+                timeperiod: timePeriod,
+                ...panelOptions
               }}
               playlistHash="hash"
               refreshCount={0}
@@ -239,5 +267,118 @@ describe('Graph Widget', () => {
       expect(request.url.search).to.include('start=2021-09-01T00:00:00.000Z');
       expect(request.url.search).to.include('end=2021-09-02T00:00:00.000Z');
     });
+  });
+
+  it('displays the line chart with a natural curve when the corresponding prop is set', () => {
+    initializeComponent({ curveType: 'natural' });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the line chart with a step curve when the corresponding prop is set', () => {
+    initializeComponent({ curveType: 'step' });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the line chart with a lot of custom style settings when corresponding props are set', () => {
+    initializeComponent({
+      areaOpacity: 10,
+      curveType: 'natural',
+      dashLength: 6,
+      dashOffset: 10,
+      gridLinesType: 'horizontal',
+      isCenteredZero: true,
+      legendDisplayMode: 'list',
+      legendPlacement: 'right',
+      lineStyleMode: 'dash',
+      lineWidth: 1,
+      lineWidthMode: 'custom',
+      showArea: 'show',
+      showAxisBorder: false,
+      showGridLines: true,
+      showLegend: true,
+      showPoints: true
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the bar chart when the corresponding prop is set', () => {
+    initializeComponent({
+      displayType: 'bar'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the customised bar chart when corresponding props are set', () => {
+    initializeComponent({
+      barOpacity: 20,
+      barRadius: 50,
+      displayType: 'bar'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the stacked bar chart when the corresponding prop is set', () => {
+    initializeComponent({
+      displayType: 'bar-stacked'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays custom stacked bar chart when corresponding props are set', () => {
+    initializeComponent({
+      barOpacity: 20,
+      displayType: 'bar-stacked'
+    });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
+
+    cy.makeSnapshot();
   });
 });

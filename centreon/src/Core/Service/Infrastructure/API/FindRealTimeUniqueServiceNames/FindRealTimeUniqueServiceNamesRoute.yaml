@@ -1,0 +1,5 @@
+FindRealTimeUniqueServiceNames:
+  methods: GET
+  path: /monitoring/services/names
+  controller: 'Core\Service\Infrastructure\API\FindRealTimeUniqueServiceNames\FindRealTimeUniqueServiceNamesController'
+  condition: "request.attributes.get('version') >= 24.04"

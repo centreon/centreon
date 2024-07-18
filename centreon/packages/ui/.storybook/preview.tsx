@@ -5,6 +5,7 @@ import { ThemeMode } from "@centreon/ui-context";
 
 import StoryBookThemeProvider from "../src/StoryBookThemeProvider";
 import QueryProvider from "../src/api/QueryProvider";
+import { allModes } from './modes';
 import { Decorator, Preview } from "@storybook/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
@@ -56,7 +57,17 @@ const preview: Preview = {
         date: /Date$/,
       }
     },
-    chromatic: { diffThreshold: 0.1, delay: 100 },
+    chromatic: {
+      diffThreshold: 0.1,
+      delay: 300,
+      modes: {
+        desktop: allModes.desktop,
+      },
+    },
+    viewport: {
+      defaultViewport: 'tablet',
+      defaultOrientation: 'landscape'
+    },
   }
 };
 

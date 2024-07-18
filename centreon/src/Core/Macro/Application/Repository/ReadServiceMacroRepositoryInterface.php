@@ -25,6 +25,9 @@ namespace Core\Macro\Application\Repository;
 
 use Core\Macro\Domain\Model\Macro;
 
+/**
+ * This interface is designed to read macros for both services and service templates.
+ */
 interface ReadServiceMacroRepositoryInterface
 {
     /**
@@ -37,4 +40,13 @@ interface ReadServiceMacroRepositoryInterface
      * @return Macro[]
      */
     public function findByServiceIds(int ...$serviceIds): array;
+
+    /**
+     * Find password macros.
+     *
+     * @throws \Throwable
+     *
+     * @return Macro[]
+     */
+    public function findPasswords(): array;
 }

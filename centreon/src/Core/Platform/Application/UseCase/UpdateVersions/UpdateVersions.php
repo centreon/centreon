@@ -110,10 +110,11 @@ final class UpdateVersions
         if ([] !== $availableUpdates) {
             $this->info('Available updates found for centreon-web', ['updates' => $availableUpdates]);
             $this->runUpdates($availableUpdates);
-            $this->runPostUpdate($this->getCurrentVersion());
         } else {
             $this->info('No available updates to perform for centreon-web');
         }
+        // Must always be run whether there is an update to execute or not.
+        $this->runPostUpdate($this->getCurrentVersion());
     }
 
     /**

@@ -38,9 +38,10 @@ if (!isset($centreon)) {
     exit();
 }
 
-isset($_GET["dt_id"]) ? $dtG = $_GET["dt_id"] : $dtG = null;
-isset($_POST["dt_id"]) ? $dtP = $_POST["dt_id"] : $dtP = null;
-$dtG ? $downtime_id = CentreonDB::escape($dtG) : $downtime_id = CentreonDB::escape($dtP);
+$downtime_id = filter_var(
+    $_GET['hg_id'] ?? $_POST['hg_id'] ?? null,
+    FILTER_VALIDATE_INT
+);
 
 isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
 isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
@@ -90,7 +91,9 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->enable($downtime_id);
+                if ($downtime_id) {
+                    $downtime->enable($downtime_id);
+                }
             } else {
                 unvalidFormMessage();
             }
@@ -100,7 +103,7 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->multiEnable(isset($select) ? $select : array());
+                $downtime->multiEnable($select ?? []);
             } else {
                 unvalidFormMessage();
             }
@@ -110,7 +113,9 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->disable($downtime_id);
+                if ($downtime_id) {
+                    $downtime->disable($downtime_id);
+                }
             } else {
                 unvalidFormMessage();
             }
@@ -120,7 +125,7 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->multiDisable(isset($select) ? $select : array());
+                $downtime->multiDisable($select ?? []);
             } else {
                 unvalidFormMessage();
             }
@@ -130,7 +135,7 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->duplicate(isset($select) ? $select : array(), $dupNbr);
+                $downtime->duplicate($select ?? [], $dupNbr);
             } else {
                 unvalidFormMessage();
             }
@@ -140,7 +145,7 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->multiDelete(isset($select) ? $select : array());
+                $downtime->multiDelete(isset($select) ? array_keys($select) : []);
             } else {
                 unvalidFormMessage();
             }

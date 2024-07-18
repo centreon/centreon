@@ -10,11 +10,15 @@ import { NumberField } from '@centreon/ui';
 import { getProperty } from '../utils';
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import Subtitle from '../../../../components/Subtitle';
 
 import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 import { useTilesStyles } from './Tiles.styles';
 
-const WidgetTiles = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
+const WidgetTiles = ({
+  propertyName,
+  isInGroup
+}: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useTilesStyles();
 
@@ -31,11 +35,11 @@ const WidgetTiles = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     setFieldValue(`options.${propertyName}`, inputValue);
   };
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div className={classes.container}>
-      <Typography>
-        <strong>{t(labelDisplayUpTo)}</strong>
-      </Typography>
+      <Label>{t(labelDisplayUpTo)}</Label>
       <NumberField
         autoSize
         autoSizeDefaultWidth={10}

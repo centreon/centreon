@@ -360,7 +360,7 @@ export const editedRuleFormData = {
       type: 'hostgroup'
     }
   ],
-  description: 'First rule',
+  description: 'resourceAccessRule1',
   is_enabled: true,
   name: 'rule#1'
 };
@@ -381,7 +381,7 @@ export const editedRuleFormDataWithAllContactsAndContactGroups = {
       type: 'hostgroup'
     }
   ],
-  description: 'First rule',
+  description: 'resourceAccessRule1',
   is_enabled: true,
   name: 'rule#1'
 };
@@ -414,18 +414,60 @@ export const findResourceAccessRuleResponse = (): object => ({
     {
       dataset_filter: null,
       resources: [
-        { id: 1, name: 'Ping' },
-        { id: 2, name: 'Traffic' },
-        { id: 3, name: 'Disk' },
-        { id: 4, name: 'Memory' }
+        { id: 23, name: 'Disk-/var' },
+        { id: 22, name: 'Disk-/usr' },
+        { id: 21, name: 'Disk-/opt' },
+        { id: 19, name: 'Disk-/' }
       ],
-      type: 'service_category'
+      type: 'service'
     }
   ],
-  description: 'First rule',
+  description: 'resourceAccessRule1',
   id: 1,
   is_enabled: true,
-  name: 'Rule 1'
+  name: 'rule1'
+});
+
+export const findResourceAccessRuleResponseDecoded = (): object => ({
+  contactGroups: {
+    all: false,
+    values: [
+      { id: 3, name: 'Guest' },
+      { id: 5, name: 'Supervisor' }
+    ]
+  },
+  contacts: {
+    all: false,
+    values: [
+      { id: 1, name: 'admin admin' },
+      { id: 4, name: 'centreon-gorgone' }
+    ]
+  },
+  datasetFilters: [
+    {
+      datasetFilter: {
+        datasetFilter: null,
+        resourceType: 'host',
+        resources: [{ id: 14, name: 'Centreon-Server' }]
+      },
+      resourceType: 'hostgroup',
+      resources: [{ id: 53, name: 'Linux-Servers' }]
+    },
+    {
+      datasetFilter: null,
+      resourceType: 'service',
+      resources: [
+        { id: 23, name: 'Disk-/var' },
+        { id: 22, name: 'Disk-/usr' },
+        { id: 21, name: 'Disk-/opt' },
+        { id: 19, name: 'Disk-/' }
+      ]
+    }
+  ],
+  description: 'resourceAccessRule1',
+  id: 1,
+  isActivated: true,
+  name: 'rule1'
 });
 
 export const platformVersions = {
@@ -525,7 +567,7 @@ export const editedRuleFormDataiWithBusinessViews = {
       type: 'business_view'
     }
   ],
-  description: 'First rule',
+  description: 'resourceAccessRule1',
   is_enabled: true,
   name: 'rule#1'
 };
@@ -546,7 +588,7 @@ export const editedRuleFormDataiWithAllBusinessViews = {
       type: 'business_view'
     }
   ],
-  description: 'First rule',
+  description: 'resourceAccessRule1',
   is_enabled: true,
   name: 'rule#1'
 };

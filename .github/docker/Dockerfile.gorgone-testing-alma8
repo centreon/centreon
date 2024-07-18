@@ -2,18 +2,14 @@ FROM almalinux:8
 
 RUN bash -e <<EOF
 
-dnf install -y dnf-plugins-core zstd curl mariadb
+dnf install -y dnf-plugins-core zstd curl mariadb iproute
 dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
 dnf config-manager --set-enabled 'powertools'
 dnf -y config-manager --add-repo https://packages.centreon.com/rpm-standard/23.10/el8/centreon-23.10.repo
 dnf -y clean all --enablerepo=*
-
 dnf install -y python3.11 python3.11-pip
-pip3.11 install robotframework robotframework-examples
-
-
+pip3.11 install robotframework robotframework-examples robotframework-databaselibrary pymysql robotframework-requests
 
 dnf clean all
-
 
 EOF

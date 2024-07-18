@@ -1,4 +1,4 @@
-@REQ_MON-16477
+@REQ_MON-16477 @system
 Feature: Creating a Notification Rule
   As a Centreon user with access to the Notification Rules page
   The user needs to create a Notification Rule

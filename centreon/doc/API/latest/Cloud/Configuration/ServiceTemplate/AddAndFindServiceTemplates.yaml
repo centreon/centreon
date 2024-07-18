@@ -12,10 +12,10 @@ get:
     * alias
     * is_locked
   parameters:
-    - $ref: '../../../../Common/QueryParameter/Limit.yaml'
-    - $ref: '../../../../Common/QueryParameter/Page.yaml'
-    - $ref: '../../../../Common/QueryParameter/Search.yaml'
-    - $ref: '../../../../Common/QueryParameter/SortBy.yaml'
+    - $ref: '../../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../../Common/QueryParameter/SortBy.yaml'
   responses:
     '200':
       description: "OK"
@@ -29,11 +29,11 @@ get:
                 items:
                   $ref: 'Schema/ServiceTemplate.yaml'
               meta:
-                $ref: '../../../../Common/Schema/Meta.yaml'
+                $ref: '../../../Common/Schema/Meta.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 post:
   tags:
     - Service template
@@ -50,16 +50,16 @@ post:
   responses:
     '201':
       allOf:
-        - $ref: '../../../../Common/Response/Created.yaml'
+        - $ref: '../../../Common/Response/Created.yaml'
         - content:
             application/json:
               schema:
                 $ref: 'Schema/AddServiceTemplateResponse.yaml'
     '400':
-      $ref: '../../../../Common/Response/BadRequest.yaml'
+      $ref: '../../../Common/Response/BadRequest.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '409':
-      $ref: '../../../../Common/Response/Conflict.yaml'
+      $ref: '../../../Common/Response/Conflict.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'

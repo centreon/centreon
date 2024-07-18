@@ -16,7 +16,8 @@ const StatusChart = ({
   refreshCount,
   id,
   dashboardId,
-  playlistHash
+  playlistHash,
+  widgetPrefixQuery
 }: StatusChartProps): JSX.Element => {
   const { cx, classes } = useStyles();
 
@@ -79,6 +80,7 @@ const StatusChart = ({
             resources={resources}
             title={isOfTypeHost ? labelHosts : labelServices}
             unit={unit}
+            widgetPrefixQuery={widgetPrefixQuery}
           />
         );
       })}

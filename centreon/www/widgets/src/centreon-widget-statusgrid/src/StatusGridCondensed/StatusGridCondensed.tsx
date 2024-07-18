@@ -18,8 +18,9 @@ const StatusGridCondensed = ({
   refreshCount,
   dashboardId,
   playlistHash,
-  id
-}: Omit<StatusGridProps, 'store'>): JSX.Element => {
+  id,
+  widgetPrefixQuery
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
   const { classes } = useStatusGridCondensedStyles();
   const { t } = useTranslation();
 
@@ -31,7 +32,8 @@ const StatusGridCondensed = ({
       panelData,
       panelOptions,
       playlistHash,
-      refreshCount
+      refreshCount,
+      widgetPrefixQuery
     });
 
   if (isLoading && !hasData) {

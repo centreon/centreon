@@ -252,7 +252,7 @@ $form->addRule('downtime_name', _("Name is already in use"), 'exist');
 $form->setRequiredNote("<i class='red'>*</i>&nbsp;" . _("Required fields"));
 
 if ($o == "c" || $o == 'w') {
-    $infos = $downtime->getInfos($id);
+    $infos = $downtime->getInfos((int) $id);
     $relations = $downtime->getRelations((int) $id);
     $extractRelationId = static fn(array $item): string => (string) ($item['id'] ?? '');
     $default_dt = [
@@ -409,11 +409,11 @@ if ($form->validate()) {
             $id = $values['dt_id'];
             $activate = $values['downtime_activate']['downtime_activate'];
             $downtime->modify($id, $values['downtime_name'], $values['downtime_description'], $activate);
-            $downtime->deletePeriods($id);
+            $downtime->deletePeriods((int) $id);
             foreach ($values['periods'] as $periods) {
                 $downtime->addPeriod($id, $periods);
             }
-            $downtime->deteleRelations($id);
+            $downtime->deleteRelations($id);
             if (isset($values['host_relation'])) {
                 $downtime->addRelations($id, $values['host_relation'], 'host');
             }

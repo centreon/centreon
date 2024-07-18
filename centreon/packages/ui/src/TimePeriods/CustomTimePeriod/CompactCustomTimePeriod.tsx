@@ -17,14 +17,16 @@ import useStyles from './CompactCustomTimePeriod.styles';
 
 interface Props {
   disabled?: boolean;
+  isCondensed?: boolean;
   onClick: (event) => void;
 }
 
 const CompactCustomTimePeriod = ({
   onClick,
-  disabled = false
+  disabled = false,
+  isCondensed = false
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const { t } = useTranslation();
 
   const { format } = useLocaleDateTimeFormat();
@@ -32,63 +34,73 @@ const CompactCustomTimePeriod = ({
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
 
   return (
-    <div>
-      <Button
-        aria-label={t(labelCompactTimePeriod) as string}
-        className={classes.button}
-        color="primary"
-        data-testid={labelCompactTimePeriod}
-        disabled={disabled}
-        variant="outlined"
-        onClick={onClick}
-      >
-        <div className={classes.buttonContent}>
-          <AccessTimeIcon />
-          <div className={classes.containerDates}>
-            <div className={classes.timeContainer}>
-              <Typography
-                className={classes.label}
-                component="div"
-                variant="caption"
-              >
-                {t(labelFrom)}:
-              </Typography>
+    <Button
+      aria-label={t(labelCompactTimePeriod) as string}
+      className={classes.button}
+      color="primary"
+      data-testid={labelCompactTimePeriod}
+      disabled={disabled}
+      variant="outlined"
+      onClick={onClick}
+    >
+      <div className={classes.buttonContent}>
+        <AccessTimeIcon />
+        <div
+          className={cx(classes.containerDates, {
+            [classes.containerDatesCondensed]: isCondensed
+          })}
+        >
+          <div
+            className={cx(classes.timeContainer, {
+              [classes.timeContainerCondensed]: isCondensed
+            })}
+          >
+            <Typography
+              className={classes.label}
+              component="div"
+              variant="caption"
+            >
+              {t(labelFrom)}:
+            </Typography>
 
-              <Typography
-                className={classes.date}
-                component="div"
-                variant="caption"
-              >
-                {format({
-                  date: customTimePeriod.start,
-                  formatString: dateTimeFormat
-                })}
-              </Typography>
-            </div>
-            <div className={classes.timeContainer}>
-              <Typography
-                className={classes.label}
-                component="div"
-                variant="caption"
-              >
-                {t(labelTo)}:
-              </Typography>
+            <Typography
+              className={classes.date}
+              component="div"
+              variant="caption"
+            >
+              {format({
+                date: customTimePeriod.start,
+                formatString: dateTimeFormat
+              })}
+            </Typography>
+          </div>
+          <div
+            className={cx(classes.timeContainer, {
+              [classes.timeContainerCondensed]: isCondensed
+            })}
+          >
+            <Typography
+              className={classes.label}
+              component="div"
+              variant="caption"
+            >
+              {t(labelTo)}:
+            </Typography>
 
-              <Typography
-                className={classes.date}
-                component="div"
-                variant="caption"
-              >
-                {format({
-                  date: customTimePeriod.end,
-                  formatString: dateTimeFormat
-                })}
-              </Typography>
-            </div>
+            <Typography
+              className={classes.date}
+              component="div"
+              variant="caption"
+            >
+              {format({
+                date: customTimePeriod.end,
+                formatString: dateTimeFormat
+              })}
+            </Typography>
           </div>
         </div>
-      </Button>
-    </div>
+      </div>
+    </Button>
   );
 };
 

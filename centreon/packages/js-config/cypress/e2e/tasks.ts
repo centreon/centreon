@@ -157,7 +157,7 @@ export default (on: Cypress.PluginEvents): void => {
         user: 'centreon'
       });
 
-      const [rows, fields] = await client.execute(query);
+      const [rows, fields] = await client.query(query);
 
       await client.end();
 
@@ -211,6 +211,7 @@ export default (on: Cypress.PluginEvents): void => {
             WEB_IMAGE: webImage
           })
           .withProfiles(...profiles)
+          .withStartupTimeout(120000)
           .withWaitStrategy(
             'web-1',
             Wait.forAll([

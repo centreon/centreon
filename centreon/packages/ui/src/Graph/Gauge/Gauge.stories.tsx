@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import dataLastWeek from '../LineChart/mockedData/lastWeek.json';
+import dataLastWeek from '../mockedData/lastWeek.json';
 
 import { Gauge } from './Gauge';
 
@@ -12,8 +12,16 @@ export default meta;
 type Story = StoryObj<typeof Gauge>;
 
 const Template = (props): JSX.Element => (
-  <div style={{ height: '500px', width: '500px' }}>
-    <Gauge {...props} />
+  <div style={{ display: 'flex', flexDirection: 'row' }}>
+    <div style={{ height: '500px', width: '500px' }}>
+      <Gauge {...props} />
+    </div>
+    <div style={{ height: '100px', width: '120px' }}>
+      <Gauge {...props} />
+    </div>
+    <div style={{ height: '300px', width: '200px' }}>
+      <Gauge {...props} />
+    </div>
   </div>
 );
 

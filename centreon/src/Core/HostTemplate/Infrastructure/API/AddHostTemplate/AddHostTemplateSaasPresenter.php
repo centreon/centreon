@@ -51,7 +51,6 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'name' => $response->name,
                         'alias' => $response->alias,
                         'snmp_version' => $response->snmpVersion,
-                        'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'timezone_id' => $response->timezoneId,
                         'severity_id' => $response->severityId,
                         'check_timeperiod_id' => $response->checkTimeperiodId,
@@ -69,7 +68,6 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                             function ($macro) {
                                 return [
                                     'name' => $macro['name'],
-                                    // Note: do not handle vault storage at the moment
                                     'value' => $macro['isPassword'] ? null : $macro['value'],
                                     'is_password' => $macro['isPassword'],
                                     'description' => $this->emptyStringAsNull($macro['description']),

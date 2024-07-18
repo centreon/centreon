@@ -6,6 +6,7 @@ import { useTheme } from '@mui/material';
 
 import AnimatedPie from './AnimatedPie';
 import { GaugeProps } from './models';
+import { angles } from './utils';
 
 export const thresholdThickness = 12;
 
@@ -83,18 +84,19 @@ const Thresholds = ({
     }
   ];
 
+  const thresholdThicknessFactor = radius / thresholdThickness / 15;
+
   return (
     <>
       {arcs.map(({ thresholdArc, thresholdScaleOrdinal }) => (
         <Pie
+          {...angles}
           data={thresholdArc}
-          endAngle={-Math.PI / 2}
-          innerRadius={radius - thresholdThickness}
+          innerRadius={radius - thresholdThickness * thresholdThicknessFactor}
           key={`arc-${thresholdArc[0].name}`}
           outerRadius={radius}
           pieSortValues={() => -1}
           pieValue={(d) => d.value}
-          startAngle={Math.PI / 2}
         >
           {(pie) => (
             <AnimatedPie<{ name: string; value: number }>

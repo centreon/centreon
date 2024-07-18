@@ -4,7 +4,7 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
   container: {
     display: 'grid',
     gap: theme.spacing(2),
-    gridTemplateColumns: 'auto minmax(50px, 1fr)'
+    gridTemplateColumns: 'minmax(50px, 1fr) minmax(100px, 1fr)'
   },
   linkToResourcesStatus: {
     '&:hover': {
@@ -20,7 +20,11 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
   },
   resourceLabel: {
     cursor: 'pointer',
-    transform: 'translateY(50%)'
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    transform: 'translateY(50%)',
+    whiteSpace: 'nowrap',
+    width: '100%'
   },
   singleBarContainer: {
     cursor: 'pointer'

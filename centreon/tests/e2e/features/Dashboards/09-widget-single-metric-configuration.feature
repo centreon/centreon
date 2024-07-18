@@ -16,13 +16,13 @@ Feature: Configuring a Single Metric Widget
     Then the Single metric widget is added in the dashboard's layout
     And the information about the selected metric is displayed
 
-  # @TEST_MON-23786
-  # Scenario: Duplicating a Single Metric widget
-  #   Given a dashboard featuring a single Single Metric widget
-  #   When the dashboard administrator user duplicates the Single Metric widget
-  #   Then a second Single Metric widget is displayed on the dashboard
-  #   And the second widget reports on the same metric as the first widget
-  #   And the second widget has the same properties as the first widget
+  @TEST_MON-23786 @ignore
+  Scenario: Duplicating a Single Metric widget
+    Given a dashboard featuring a single Single Metric widget
+    When the dashboard administrator user duplicates the Single Metric widget
+    Then a second Single Metric widget is displayed on the dashboard
+    And the second widget reports on the same metric as the first widget
+    And the second widget has the same properties as the first widget
 
   @TEST_MON-23791
   Scenario: Editing the value format of a Single Metric widget

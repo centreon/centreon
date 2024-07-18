@@ -32,6 +32,7 @@ export interface StyleMenuSkeleton {
 }
 
 export enum FederatedWidgetOptionType {
+  buttonGroup = 'button-group',
   checkbox = 'checkbox',
   displayType = 'displayType',
   metrics = 'metrics',
@@ -39,8 +40,11 @@ export enum FederatedWidgetOptionType {
   refreshInterval = 'refresh-interval',
   resources = 'resources',
   richText = 'rich-text',
+  select = 'select',
   singleMetricGraphType = 'single-metric-graph-type',
+  slider = 'slider',
   switch = 'switch',
+  text = 'text',
   textfield = 'textfield',
   threshold = 'threshold',
   tiles = 'tiles',
@@ -54,6 +58,13 @@ interface WidgetHiddenCondition {
   when: string;
 }
 
+export interface SubInput {
+  direction?: 'row' | 'column';
+  displayValue: unknown;
+  input: Omit<FederatedWidgetOption, 'group' | 'hiddenCondition' | 'subInputs'>;
+  name: string;
+}
+
 export interface FederatedWidgetOption {
   defaultValue:
     | unknown
@@ -63,6 +74,7 @@ export interface FederatedWidgetOption {
         then: unknown;
         when: string;
       };
+  group?: string;
   hiddenCondition: WidgetHiddenCondition;
   label: string;
   options?:
@@ -75,10 +87,21 @@ export interface FederatedWidgetOption {
       };
   required?: boolean;
   secondaryLabel: string;
+  subInputs?: Array<SubInput>;
   type: FederatedWidgetOptionType;
 }
 
 export interface FederatedWidgetProperties {
+  categories?: {
+    [category: string]: {
+      elements: {
+        [key: string]: FederatedWidgetOption & {
+          group?: string;
+        };
+      };
+      groups: Array<SelectEntry>;
+    };
+  };
   customBaseColor?: boolean;
   data: {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;

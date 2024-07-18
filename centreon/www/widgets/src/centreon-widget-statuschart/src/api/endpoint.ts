@@ -1,4 +1,4 @@
-import { equals, flatten, includes, pluck } from 'ramda';
+import { equals, flatten } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
@@ -13,24 +13,6 @@ interface BuildResourcesEndpointProps {
   type: 'host' | 'service';
 }
 
-const resourceTypesCustomParameters = [
-  'host-group',
-  'host-category',
-  'service-group',
-  'service-category'
-];
-
-const hostTypesCustomParameters = ['host-group', 'host-category'];
-
-const resourceTypesSearchParameters = ['host', 'service'];
-
-const categories = ['host-category', 'service-category'];
-
-const resourcesSearchMapping = {
-  host: 'parent_name',
-  service: 'name'
-};
-
 export const buildResourcesEndpoint = ({
   type,
   resources
@@ -39,20 +21,21 @@ export const buildResourcesEndpoint = ({
     ? hostStatusesEndpoint
     : serviceStatusesEndpoint;
 
-  const resourcesToApplyToCustomParameters = resources.filter(
-    ({ resourceType }) =>
-      equals(type, 'host')
-        ? includes(resourceType, hostTypesCustomParameters)
-        : includes(resourceType, resourceTypesCustomParameters)
-  );
+  const formattedResources = resources.map((resource) => {
+    if (!equals(type, resource.resourceType)) {
+      return {
+        ...resource,
+        resourceType: `${resource.resourceType.replace('-', '_')}.name`
+      };
+    }
 
-  const resourcesToApplyToSearchParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
-  );
-  const searchConditions = resourcesToApplyToSearchParameters.map(
+    return { ...resource, resourceType: 'name' };
+  });
+
+  const searchConditions = formattedResources.map(
     ({ resourceType, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({
-        field: resourcesSearchMapping[resourceType],
+        field: resourceType,
         values: {
           $rg: `^${resource.name}$`
         }
@@ -62,16 +45,6 @@ export const buildResourcesEndpoint = ({
 
   return buildListingEndpoint({
     baseEndpoint,
-    customQueryParameters: [
-      ...resourcesToApplyToCustomParameters.map(
-        ({ resourceType, resources: resourcesToApply }) => ({
-          name: includes(resourceType, categories)
-            ? `${resourceType.replace('-', '_')}_names`
-            : `${resourceType.replace('-', '')}_names`,
-          value: pluck('name', resourcesToApply)
-        })
-      )
-    ],
     parameters: {
       search: {
         conditions: flatten(searchConditions)

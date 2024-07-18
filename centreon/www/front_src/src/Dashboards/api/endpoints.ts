@@ -7,7 +7,8 @@ export const dashboardsEndpoint = `${baseEndpoint}/configuration/dashboards`;
 export const getPublicDashboardEndpoint = ({
   playlistID,
   dashboardId
-}): string => `/dashboards/playlists/${playlistID}/dashboards/${dashboardId}`;
+}): string =>
+  `/it-edition-extensions/monitoring/dashboards/playlists/${playlistID}/dashboards/${dashboardId}`;
 
 export const getDashboardEndpoint = (id?: NamedEntity['id']): string =>
   `${dashboardsEndpoint}/${id}`;
@@ -35,3 +36,6 @@ export const playlistEndpoint = (id: number | string): string =>
 
 export const dashboardSharesEndpoint = (id: number | string): string =>
   `/configuration/dashboards/${id}/shares`;
+
+export const playlistsByDashboardEndpoint = (id: number | string): string =>
+  `/it-edition-extensions/configuration/dashboards/${id}/playlists`;

@@ -28,6 +28,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\NewToken;
+use Core\Security\Token\Domain\Model\Token;
 
 class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteTokenRepositoryInterface
 {
@@ -90,6 +91,27 @@ class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteToken
 
             throw $ex;
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(Token $token): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `security_authentication_tokens`
+                SET
+                    `is_revoked` = :is_revoked
+                WHERE `token_name` = :token_name
+                    AND `user_id` = :user_id
+                SQL
+        ));
+        $statement->bindValue(':is_revoked', (int) $token->isRevoked(), \PDO::PARAM_INT);
+        $statement->bindValue(':token_name', $token->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':user_id', $token->getUserId(), \PDO::PARAM_INT);
+
+        $statement->execute();
     }
 
     /**

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
@@ -35,8 +36,9 @@ use Core\HostTemplate\Application\UseCase\DeleteHostTemplate\DeleteHostTemplate;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class);
     $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
@@ -47,20 +49,21 @@ beforeEach(function () {
     $this->useCase = new DeleteHostTemplate(
         $this->writeHostTemplateRepository,
         $this->readHostTemplateRepository,
-        $this->user
+        $this->user,
+        $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
     );
-
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
+        ->method('findById')
+        ->willReturn($this->hostTemplate);
     $this->writeHostTemplateRepository
         ->expects($this->once())
         ->method('delete')
@@ -88,15 +91,15 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(HostTemplateException::deleteNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the host template does not exist', function () {
+it('should present a NotFoundResponse when the host template does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('exists')
-        ->willReturn(false);
+        ->method('findById')
+        ->willReturn(null);
 
     ($this->useCase)($this->hostTemplateId, $this->presenter);
 
@@ -106,7 +109,7 @@ it('should present a NotFoundResponse when the host template does not exist', fu
         ->toBe('Host template not found');
 });
 
-it('should present a NoContentResponse on success', function () {
+it('should present a NoContentResponse on success', function (): void {
     $hostTemplateId = 1;
 
     $this->user
@@ -115,8 +118,8 @@ it('should present a NoContentResponse on success', function () {
         ->willReturn(true);
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
+        ->method('findById')
+        ->willReturn($this->hostTemplate);
     $this->writeHostTemplateRepository
         ->expects($this->once())
         ->method('delete');

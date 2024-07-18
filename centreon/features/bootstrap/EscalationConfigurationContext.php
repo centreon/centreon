@@ -1,11 +1,11 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\EscalationConfigurationPage;
 use Centreon\Test\Behat\Configuration\EscalationConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\EscalationConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostConfigurationPage;
-use Centreon\Test\Behat\Configuration\ServiceGroupConfigurationPage;
 use Centreon\Test\Behat\Configuration\MetaServiceConfigurationPage;
+use Centreon\Test\Behat\Configuration\ServiceGroupConfigurationPage;
 
 class EscalationConfigurationContext extends CentreonContext
 {
@@ -14,7 +14,7 @@ class EscalationConfigurationContext extends CentreonContext
     protected $host = array(
         'name' => 'hostName',
         'alias' => 'hostAlias',
-        'address' => 'host@localhost'
+        'address' => '1.2.3.4'
     );
 
     protected $metaService1 = array(

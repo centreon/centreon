@@ -14,7 +14,11 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { buildResourcesEndpoint, resourcesEndpoint } from '../api/endpoints';
+import {
+  buildResourcesEndpoint,
+  hostsEndpoint,
+  resourcesEndpoint
+} from '../api/endpoints';
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
   labelNoHostsFound,
@@ -35,8 +39,9 @@ const StatusGrid = ({
   refreshCount,
   id: widgetId,
   dashboardId,
-  playlistHash
-}: Omit<StatusGridProps, 'store'>): JSX.Element => {
+  playlistHash,
+  widgetPrefixQuery
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -63,7 +68,9 @@ const StatusGrid = ({
       getWidgetEndpoint({
         dashboardId,
         defaultEndpoint: buildResourcesEndpoint({
-          baseEndpoint: resourcesEndpoint,
+          baseEndpoint: equals(resourceType, 'host')
+            ? hostsEndpoint
+            : resourcesEndpoint,
           limit: tiles,
           resources,
           sortBy,
@@ -76,6 +83,7 @@ const StatusGrid = ({
         widgetId
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'statusgrid',
       resourceType,
       JSON.stringify(statuses),
@@ -87,7 +95,8 @@ const StatusGrid = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const hasMoreResources = gt(data?.meta.total || 0, tiles);

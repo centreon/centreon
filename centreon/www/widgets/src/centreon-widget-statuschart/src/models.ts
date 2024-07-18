@@ -22,13 +22,16 @@ export interface PanelOptions {
 }
 
 export interface StatusChartProps
-  extends Omit<CommonWidgetProps<PanelOptions>, 'store'> {
+  extends Omit<CommonWidgetProps<PanelOptions>, 'store' | 'queryClient'> {
   panelData: Data;
   panelOptions: PanelOptions;
 }
 
 export interface ChartType
-  extends Pick<StatusChartProps, 'dashboardId' | 'id' | 'playlistHash'> {
+  extends Pick<
+    StatusChartProps,
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
+  > {
   displayLegend: boolean;
   displayType: DisplayType;
   displayValues: boolean;

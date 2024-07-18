@@ -1,12 +1,16 @@
 import { useMemoComponent } from '@centreon/ui';
 
-import { DeactivateProps, MemoizedChildSectionWrapper } from '../../model';
+import {
+  DeactivateProps,
+  MemoizedChildSectionWrapper,
+  SectionType
+} from '../../model';
 import { findData } from '../../utils';
 import SelectInput from '../SelectInput';
 
 const MemoizedSelectInput = ({
   sectionType,
-  basicData,
+  data,
   changeCriteria,
   filterName,
   searchData,
@@ -16,14 +20,14 @@ const MemoizedSelectInput = ({
     Component: (
       <SelectInput
         changeCriteria={changeCriteria}
-        data={basicData}
+        data={data}
         filterName={filterName}
         isDeactivated={isDeactivated}
-        resourceType={sectionType}
+        resourceType={sectionType as SectionType}
       />
     ),
     memoProps: [
-      findData({ data: basicData, filterName })?.value,
+      ...findData({ data, filterName }),
       searchData?.search,
       isDeactivated
     ]

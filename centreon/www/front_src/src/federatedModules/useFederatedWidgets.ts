@@ -74,7 +74,7 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
     Promise.all(
       widgets?.map((moduleName) =>
         sendRequestProperties({
-          endpoint: getFederatedWidgetProperties(moduleName)
+          endpoint: `${getFederatedWidgetProperties(moduleName)}${timestamp}`
         })
       ) || []
     ).then(setFederatedWidgetsProperties);

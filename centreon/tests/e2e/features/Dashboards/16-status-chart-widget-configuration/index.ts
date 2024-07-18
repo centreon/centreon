@@ -203,9 +203,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -275,13 +273,13 @@ Then(
     cy.verifyLegendItemStyle(
       1,
       [
-        'background: rgb(255, 102, 102)',
-        'background: rgb(253, 155, 39)',
-        'background: rgb(227, 227, 227)',
         'background: rgb(136, 185, 34)',
+        'background: rgb(253, 155, 39)',
+        'background: rgb(255, 102, 102)',
+        'background: rgb(227, 227, 227)',
         'background: rgb(30, 190, 179)'
       ],
-      ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
+      ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
     );
   }
 );
@@ -313,30 +311,20 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
   cy.verifyLegendItemStyle(
     1,
     [
-      'background: rgb(255, 102, 102)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(227, 227, 227)',
       'background: rgb(136, 185, 34)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
+    ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
   );
 });
 
 Given('a dashboard that includes a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).click({ force: true });
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
 });
 
 When(
@@ -350,25 +338,19 @@ Then('the unit of the resources already displayed should be updated', () => {
   cy.verifyLegendItemStyle(
     1,
     [
-      'background: rgb(255, 102, 102)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(227, 227, 227)',
       'background: rgb(136, 185, 34)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['1', '1', '0', '3', '5']
+    ['3', '1', '1', '0', '5']
   );
 });
 
 Given('a dashboard featuring two Status Chart widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoStatuschartWidgets);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@getDashboard');
   cy.wait('@getServiceStatus');
   cy.wait('@getHostStatus');
@@ -397,56 +379,40 @@ Then('only the contents of the other widget are displayed', () => {
   cy.verifyLegendItemStyle(
     0,
     [
-      'background: rgb(255, 102, 102)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(227, 227, 227)',
       'background: rgb(136, 185, 34)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['1', '1', '0', '3', '5']
+    ['3', '1', '1', '0', '5']
   );
 });
 
 Given('a dashboard having a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
 });
 
 When(
   'the dashboard administrator user duplicates the Status Chart widget',
   () => {
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.editDashboard(dashboards.default.name);
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
   }
 );
 
 Then('a second Status Chart widget is displayed on the dashboard', () => {
   cy.verifyLegendItemStyle(
-    2,
-    [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
-    ],
-    ['100.0%', '0.0%', '0.0%', '0.0%']
-  );
-  cy.verifyLegendItemStyle(
     3,
     [
-      'background: rgb(255, 102, 102)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(227, 227, 227)',
       'background: rgb(136, 185, 34)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
+    ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
   );
 });
 
@@ -454,18 +420,8 @@ Given(
   'a dashboard administrator user configuring a Status Chart widget',
   () => {
     cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-    cy.visit('/centreon/home/dashboards');
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByLabel({
-      label: 'Edit widget',
-      tag: 'li'
-    }).click({ force: true });
+    cy.editDashboard(dashboards.default.name);
+    cy.editWidget(1);
   }
 );
 
@@ -482,13 +438,40 @@ Then(
     cy.verifyLegendItemStyle(
       1,
       [
-        'background: rgb(255, 102, 102)',
-        'background: rgb(253, 155, 39)',
-        'background: rgb(227, 227, 227)',
         'background: rgb(136, 185, 34)',
+        'background: rgb(253, 155, 39)',
+        'background: rgb(255, 102, 102)',
+        'background: rgb(227, 227, 227)',
         'background: rgb(30, 190, 179)'
       ],
-      ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
+      ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
     );
+  }
+);
+
+Given('a dashboard with a Status Chart widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.editDashboard(dashboards.default.name);
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.get('[data-testid="Legend"] > *')
+    .first()
+    .find('a')
+    .then(($link) => {
+      const href = $link.attr('href');
+      if (href) {
+        cy.log('First link found:', href);
+        cy.visit(href);
+      } else {
+        cy.log('No link found.');
+      }
+    });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
   }
 );

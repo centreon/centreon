@@ -115,4 +115,9 @@ class HostCategoryException extends \Exception
     {
         return new self(_('Error while retrieving a host category'));
     }
+
+    public static function errorWhileRetrievingRealTimeHostCategories(\Throwable $exception): self
+    {
+        return new self(_('Error while searching host categories in real time context'), 0, $exception);
+    }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find, path, equals } from 'ramda';
+import { propEq, find, path, equals, type } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
@@ -33,7 +33,11 @@ import {
   WidgetCheckboxes,
   WidgetTiles,
   WidgetDisplayType,
-  WidgetSwitch
+  WidgetSwitch,
+  WidgetSelect,
+  WidgetButtonGroup,
+  WidgetSlider,
+  WidgetText
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -56,10 +60,14 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
   [FederatedWidgetOptionType.tiles]: WidgetTiles,
   [FederatedWidgetOptionType.displayType]: WidgetDisplayType,
-  [FederatedWidgetOptionType.switch]: WidgetSwitch
+  [FederatedWidgetOptionType.switch]: WidgetSwitch,
+  [FederatedWidgetOptionType.select]: WidgetSelect,
+  [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup,
+  [FederatedWidgetOptionType.slider]: WidgetSlider,
+  [FederatedWidgetOptionType.text]: WidgetText
 };
 
-const DefaultComponent = (): JSX.Element => (
+export const DefaultComponent = (): JSX.Element => (
   <div data-testid="unknown widget property" />
 );
 
@@ -84,7 +92,7 @@ export const useWidgetInputs = (
 
   const selectedWidgetProperties: {
     [key: string]: FederatedWidgetOption;
-  } | null = selectedWidget?.[widgetKey] || null;
+  } | null = path(widgetKey.split('.'), selectedWidget) || null;
 
   const inputs = useMemo(
     () =>
@@ -94,11 +102,18 @@ export const useWidgetInputs = (
               if (!value.hiddenCondition) {
                 return true;
               }
-
-              return !equals(
-                path(value.hiddenCondition.when.split('.'), values),
-                value.hiddenCondition.matches
+              const formattedValue = path(
+                value.hiddenCondition.when.split('.'),
+                values
               );
+
+              if (equals(type(value.hiddenCondition.matches), 'Array')) {
+                return !(
+                  value.hiddenCondition.matches as Array<unknown>
+                ).includes(formattedValue);
+              }
+
+              return !equals(formattedValue, value.hiddenCondition.matches);
             })
             .map(([key, value]) => {
               const Component =
@@ -106,9 +121,10 @@ export const useWidgetInputs = (
 
               return {
                 Component,
+                group: value.group,
                 key,
                 props: {
-                  ...(value as Omit<
+                  ...(value as unknown as Omit<
                     WidgetPropertyProps,
                     'propertyName' | 'propertyType'
                   >),

@@ -1,47 +1,48 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import { Contact, Token, columnsFromLabels, durationMap } from '../common';
 
 interface filterOptions {
-  status: 'Active' | 'Disabled';
-  name: string;
-  user: string;
-  creator: string;
   creationDate:
     | 'Last 7 days'
     | 'Last 30 days'
     | 'Last 60 days'
     | 'Last 90 days'
     | 'Last 1 year';
+  creator: string;
   expirationDate:
     | 'In 7 days'
     | 'In 30 days'
     | 'In 60 days'
     | 'In 90 days'
     | 'In 1 year';
+  name: string;
+  status: 'Active' | 'Disabled';
+  user: string;
 }
 
 const tokensToSearch: filterOptions = {
-  status: 'Active',
-  name: 'Token_2',
-  user: 'User_1',
-  creator: 'admin admin',
   creationDate: 'Last 7 days',
-  expirationDate: 'In 7 days'
+  creator: 'admin admin',
+  expirationDate: 'In 7 days',
+  name: 'Token_2',
+  status: 'Active',
+  user: 'User_1'
 };
 
-function getDateBasedOnFilter(filterValue: string): Date {
+const getDateBasedOnFilter = (filterValue: string): Date => {
   const today = new Date();
   const date = new Date(today);
   const [prefix, duration, dayOrYear] = filterValue.split(' ');
 
-  let daysToAddOrSubtract = durationMap[duration + ' ' + dayOrYear];
+  const daysToAddOrSubtract = durationMap[`${duration} ${dayOrYear}`];
 
   prefix === 'In'
     ? date.setDate(today.getDate() + daysToAddOrSubtract)
     : date.setDate(today.getDate() - daysToAddOrSubtract);
 
   return date;
-}
+};
 
 beforeEach(() => {
   cy.startContainers();
@@ -94,12 +95,12 @@ Given('API tokens with predefined details are created', () => {
         user_id: token.userId
       };
       cy.request({
-        method: 'POST',
-        url: '/centreon/api/latest/administration/tokens',
         body: payload,
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        method: 'POST',
+        url: '/centreon/api/latest/administration/tokens'
       }).then((response) => {
         expect(response.status).to.eq(201);
       });
@@ -117,13 +118,14 @@ Given('I am on the API tokens page', () => {
 
 When('I filter tokens by {string} and click on Search', (filterBy: string) => {
   if (filterBy === 'Name') {
-    cy.getByTestId({ testId: 'inputSearch', tag: 'input' }).type(
+    cy.getByTestId({ tag: 'input', testId: 'inputSearch' }).type(
       tokensToSearch.name
     );
-    cy.getByTestId({ testId: 'inputSearch', tag: 'input' }).trigger('keydown', {
+    cy.getByTestId({ tag: 'input', testId: 'inputSearch' }).trigger('keydown', {
       keyCode: 13,
       which: 13
     });
+
     return;
   }
 
@@ -157,7 +159,7 @@ When('I filter tokens by {string} and click on Search', (filterBy: string) => {
     }
   }
 
-  cy.getByTestId({ testId: 'Search', tag: 'button' }).click();
+  cy.getByTestId({ tag: 'button', testId: 'Search' }).click();
   cy.getByLabel({ label: 'Filter options', tag: 'button' }).click();
 });
 
@@ -168,7 +170,8 @@ Then(
 
     cy.waitUntil(
       () => {
-        let allPromisesResolved: boolean[] = [];
+        const allPromisesResolved: Array<boolean> = [];
+
         return cy
           .get('.MuiTableBody-root .MuiTableRow-root')
           .each(($row) => {
@@ -217,9 +220,9 @@ Then(
           });
       },
       {
-        timeout: 10000,
+        errorMsg: 'Expected filter failed ',
         interval: 2000,
-        errorMsg: 'Expected filter failed '
+        timeout: 10000
       }
     );
   }

@@ -13,8 +13,9 @@ const ResourceTable = ({
   isFromPreview,
   id,
   dashboardId,
-  playlistHash
-}: Omit<ResourcesTableProps, 'store'>): JSX.Element => {
+  playlistHash,
+  widgetPrefixQuery
+}: Omit<ResourcesTableProps, 'store' | 'queryClient'>): JSX.Element => {
   const { resources } = panelData;
 
   const {
@@ -54,6 +55,7 @@ const ResourceTable = ({
         sortOrder={sortOrder}
         states={states}
         statuses={statuses}
+        widgetPrefixQuery={widgetPrefixQuery}
       />
     </div>
   );

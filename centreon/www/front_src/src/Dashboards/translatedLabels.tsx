@@ -13,6 +13,8 @@ export const labelCreateDashboard = 'Create dashboard';
 export const labelUpdateDashboard = 'Update dashboard';
 export const labelDeleteDashboard = 'Delete dashboard';
 export const labelDuplicateDashboard = 'Duplicate dashboard';
+export const labelDescriptionDeleteDashboardPlaylists =
+  'The {{name}} dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to.';
 export const labelDescriptionDeleteDashboard =
   'The {{name}} dashboard will be permanently deleted.';
 export const labelDashboardCreated = 'Dashboard created';

@@ -167,8 +167,7 @@
           "description": {
             "content": "{\u0022root\u0022:{\u0022children\u0022:[{\u0022children\u0022:[],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022paragraph\u0022,\u0022version\u0022:1}],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022root\u0022,\u0022version\u0022:1}}",
             "enabled": true
-          },
-          "openLinksInNewTab": true
+          }
         }
       }
     }

@@ -51,7 +51,10 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required": true
+      "required": true,
+      "excludedResourceTypes": [
+        "meta-service"
+      ]
     },
     "metrics": {
       "type": "metrics",

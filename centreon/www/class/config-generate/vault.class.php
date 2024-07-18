@@ -34,7 +34,7 @@ class Vault extends AbstractObjectJSON
         );
         $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
         $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-        $this->vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+        $this->vaultConfiguration = $readVaultConfigurationRepository->find();
     }
 
     private function generate($poller_id, $localhost): void

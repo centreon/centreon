@@ -8,7 +8,7 @@ export const useStatusesColumnStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1)
   },
   count: {
-    width: theme.spacing(9.5)
+    width: theme.spacing(9)
   },
   link: {
     color: 'inherit',

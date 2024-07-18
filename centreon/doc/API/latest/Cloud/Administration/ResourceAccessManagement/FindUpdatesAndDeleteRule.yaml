@@ -72,11 +72,11 @@ get:
                 items:
                   $ref: './Schema/DatasetFilterWithNames.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 put:
   tags:
     - Resource Access Management
@@ -93,17 +93,17 @@ put:
           $ref: 'Schema/AddOrUpdateRuleRequest.yaml'
   responses:
     '204':
-      $ref: '../../../../Common/Response/NoContent.yaml'
+      $ref: '../../../Common/Response/NoContent.yaml'
     '400':
-      $ref: '../../../../Common/Response/BadRequest.yaml'
+      $ref: '../../../Common/Response/BadRequest.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '409':
-      $ref: '../../../../Common/Response/Conflict.yaml'
+      $ref: '../../../Common/Response/Conflict.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 delete:
   tags:
     - Resource Access Management
@@ -114,13 +114,13 @@ delete:
     - $ref: 'QueryParameter/RuleId.yaml'
   responses:
     '204':
-      $ref: '../../../../Common/Response/NoContent.yaml'
+      $ref: '../../../Common/Response/NoContent.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 patch:
   tags:
     - Resource Access Management
@@ -142,15 +142,15 @@ patch:
           $ref: 'Schema/PartialRuleUpdateRequest.yaml'
   responses:
     '204':
-      $ref: '../../../../Common/Response/NoContent.yaml'
+      $ref: '../../../Common/Response/NoContent.yaml'
     '400':
-      $ref: '../../../../Common/Response/BadRequest.yaml'
+      $ref: '../../../Common/Response/BadRequest.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '409':
-      $ref: '../../../../Common/Response/Conflict.yaml'
+      $ref: '../../../Common/Response/Conflict.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 

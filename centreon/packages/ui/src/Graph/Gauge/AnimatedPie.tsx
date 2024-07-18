@@ -85,7 +85,9 @@ const AnimatedPie = <Datum,>({
                   'label',
                   thresholds[thresholdType as 'warning' | 'critical']
                 ).map((label) => (
-                  <Typography key={label}>{label}</Typography>
+                  <Typography key={label} variant="body2">
+                    {label}
+                  </Typography>
                 ))}
               </div>
             ),

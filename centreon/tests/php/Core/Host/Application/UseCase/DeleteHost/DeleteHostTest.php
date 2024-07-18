@@ -28,12 +28,15 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Application\UseCase\DeleteHost\DeleteHost;
 use Core\Host\Domain\Model\Host;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
@@ -41,7 +44,6 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\DeleteHost\DeleteHostPresenterStub;
 
 beforeEach(closure: function (): void {
-
     $this->presenter = new DeleteHostPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class);
@@ -55,6 +57,9 @@ beforeEach(closure: function (): void {
         storageEngine: $this->storageEngine = $this->createMock(DataStorageEngineInterface::class),
         readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         writeMonitoringServerRepository: $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
+        writeVaultRepository: $this->createMock(WriteVaultRepositoryInterface::class),
+        readHostMacroRepository: $this->createMock(ReadHostMacroRepositoryInterface::class),
+        readServiceMacroRepository: $this->createMock(ReadServiceMacroRepositoryInterface::class),
     );
 
     $this->host = new Host(
@@ -137,7 +142,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('findServiceIdsLinkedToHostId')
         ->with($hostId)
-        ->willThrowException(new \Exception());
+        ->willThrowException(new Exception());
 
     $this->storageEngine
         ->expects($this->once())
@@ -148,7 +153,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
-        ->toBe(HostException::errorWhileDeleting(new \Exception())->getMessage());
+        ->toBe(HostException::errorWhileDeleting(new Exception())->getMessage());
 });
 
 it('should present a NoContentResponse when the service template has been deleted', function (): void {

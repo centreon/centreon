@@ -1,14 +1,14 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\SnmpTrapsConfigurationPage;
-use Centreon\Test\Behat\Configuration\SnmpTrapsConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\CommandConfigurationPage;
+use Centreon\Test\Behat\Configuration\HostConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\HostConfigurationPage;
+use Centreon\Test\Behat\Configuration\ServiceCategoryConfigurationPage;
 use Centreon\Test\Behat\Configuration\ServiceConfigurationPage;
 use Centreon\Test\Behat\Configuration\ServiceTemplateConfigurationPage;
-use Centreon\Test\Behat\Configuration\ServiceCategoryConfigurationPage;
-use Centreon\Test\Behat\Configuration\HostConfigurationPage;
-use Centreon\Test\Behat\Configuration\HostConfigurationListingPage;
-use Centreon\Test\Behat\Configuration\CommandConfigurationPage;
+use Centreon\Test\Behat\Configuration\SnmpTrapsConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\SnmpTrapsConfigurationPage;
 
 class TrapsSNMPConfigurationContext extends CentreonContext
 {
@@ -106,7 +106,7 @@ class TrapsSNMPConfigurationContext extends CentreonContext
         $this->currentPage->setProperties(array(
             'name' => 'hostName',
             'alias' => 'hostName',
-            'address' => 'host@localhost'
+            'address' => '1.2.3.4'
         ));
         $this->currentPage->save();
         $this->currentPage = new CommandConfigurationPage($this);
@@ -200,7 +200,7 @@ class TrapsSNMPConfigurationContext extends CentreonContext
         $this->currentPage->setProperties(array(
             'name' => 'hostName',
             'alias' => 'hostName',
-            'address' => 'host@localhost'
+            'address' => '1.2.3.4'
         ));
         $this->currentPage->save();
         $this->currentPage = new CommandConfigurationPage($this);
@@ -291,7 +291,7 @@ class TrapsSNMPConfigurationContext extends CentreonContext
         $this->currentPage->setProperties(array(
             'name' => 'hostName',
             'alias' => 'hostName',
-            'address' => 'host@localhost'
+            'address' => '1.2.3.4'
         ));
         $this->currentPage->save();
         $this->currentPage = new CommandConfigurationPage($this);

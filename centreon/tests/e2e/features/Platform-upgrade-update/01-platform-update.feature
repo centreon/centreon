@@ -1,5 +1,5 @@
 @execTimeout(300000)
-@REQ_MON-22132
+@REQ_MON-22132 @system
 Feature: Update platform from version A to version B of the same MAJOR
   An admin user can update a platform, from a version A to version B
   which is higher than version A, within the same MAJOR.

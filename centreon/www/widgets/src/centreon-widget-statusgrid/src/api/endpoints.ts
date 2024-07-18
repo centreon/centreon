@@ -10,6 +10,7 @@ import { Resource } from '../../../models';
 import { formatStatus } from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
+export const hostsEndpoint = '/monitoring/resources/hosts';
 
 interface BuildResourcesEndpointProps {
   baseEndpoint: string;
@@ -151,5 +152,47 @@ export const buildResourcesEndpoint = ({
       sortBy,
       sortOrder
     })
+  });
+};
+
+export const buildCondensedViewEndpoint = ({
+  type,
+  resources,
+  baseEndpoint,
+  statuses
+}: BuildResourcesEndpointProps): string => {
+  const formattedResources = resources.map((resource) => {
+    if (!equals(type, resource.resourceType)) {
+      return {
+        ...resource,
+        resourceType: `${resource.resourceType.replace('-', '_')}.name`
+      };
+    }
+
+    return { ...resource, resourceType: 'name' };
+  });
+
+  const searchConditions = formattedResources.map(
+    ({ resourceType, resources: resourcesToApply }) => {
+      return resourcesToApply.map((resource) => ({
+        field: resourceType,
+        values: {
+          $rg: `^${resource.name}$`
+        }
+      }));
+    }
+  );
+
+  return buildListingEndpoint({
+    baseEndpoint,
+    customQueryParameters:
+      statuses && !isEmpty(statuses)
+        ? [{ name: 'statuses', value: statuses.map(toUpper) }]
+        : [],
+    parameters: {
+      search: {
+        conditions: flatten(searchConditions)
+      }
+    }
   });
 };

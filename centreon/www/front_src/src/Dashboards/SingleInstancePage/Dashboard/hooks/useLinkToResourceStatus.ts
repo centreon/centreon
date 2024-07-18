@@ -1,7 +1,10 @@
 import { all, equals, has, isNil, pluck } from 'ramda';
 import { useSetAtom } from 'jotai';
 
-import { getResourcesUrlForMetricsWidgets } from '../utils';
+import {
+  getResourcesUrlForMetricsWidgets,
+  getUrlForResourcesOnlyWidgets
+} from '../utils';
 import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
 import { Visualization } from '../../../../Resources/models';
 import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
@@ -24,7 +27,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
-  const getLinkToResourceStatusPage = (data, name): string => {
+  const getLinkToResourceStatusPage = (data, name, options): string => {
     const resourcesInput = Object.entries(data).find(
       ([, value]) =>
         has('resourceType', value?.[0]) && has('resources', value?.[0])
@@ -41,6 +44,23 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
 
     if (hasOnlyBA) {
       return `/main.php?p=20701&o=d&ba_id=${resources[0].resources[0].id}`;
+    }
+
+    if (data?.resources && isNil(data?.metrics)) {
+      const { statuses } = options;
+
+      const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
+        resources: data.resources,
+        states: options?.states || [],
+        statuses,
+        type:
+          options?.resourceTypes ||
+          options?.resourceType ||
+          options?.displayType ||
+          options?.type
+      });
+
+      return linkToResourceStatus;
     }
 
     return getResourcesUrlForMetricsWidgets({ data, widgetName: name });

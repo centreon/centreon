@@ -1,6 +1,6 @@
 import { isNil } from 'ramda';
 
-import { Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 
 import FluidTypography from '../../Typography/FluidTypography';
 import { LineChartData, Thresholds } from '../common/models';
@@ -64,15 +64,19 @@ export const Text = ({
 
   return (
     <div className={classes.graphText}>
-      <Typography sx={{ color }} variant="h2">
-        <strong>
-          {formatMetricValueWithUnit({
+      <FluidTypography
+        max="40px"
+        pref={16}
+        sx={{ color, fontWeight: 'bold', textAlign: 'center' }}
+        text={
+          formatMetricValueWithUnit({
             isRaw: displayAsRaw,
             unit: metricUnit,
             value: metricValue
-          })}
-        </strong>
-      </Typography>
+          }) || ''
+        }
+        variant="h2"
+      />
       {thresholds.enabled && (
         <div className={classes.thresholds}>
           <FluidTypography
