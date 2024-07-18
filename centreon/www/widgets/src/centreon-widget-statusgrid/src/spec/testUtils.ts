@@ -110,6 +110,61 @@ export const services = [
   }
 ];
 
+export const bvResources: Array<Resource> = [
+  {
+    resourceType: 'business-view',
+    resources: [
+      {
+        id: 1,
+        name: 'bv1'
+      }
+    ]
+  }
+];
+
+export const baResources: Array<Resource> = [
+  {
+    resourceType: 'business-view',
+    resources: [
+      {
+        id: 1,
+        name: 'bv1'
+      }
+    ]
+  },
+  {
+    resourceType: 'business-activity',
+    resources: [
+      {
+        id: 1,
+        name: 'ba1'
+      }
+    ]
+  }
+];
+
+export const baOptions: PanelOptions = {
+  refreshInterval: 'manual',
+  refreshIntervalCustom: 30,
+  sortBy: 'status',
+  statuses: [SeverityStatus.Success, SeverityStatus.Problem],
+  tiles: 20,
+  viewMode: 'standard'
+};
+
+export const baCondensedOptions: PanelOptions = {
+  refreshInterval: 'manual',
+  refreshIntervalCustom: 30,
+  sortBy: 'status',
+  statuses: [
+    SeverityStatus.Success,
+    SeverityStatus.Problem,
+    SeverityStatus.Pending
+  ],
+  tiles: 20,
+  viewMode: 'condensed'
+};
+
 export const linkToAllRessource =
   '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22name%22%3A%22undefinedundefined%22%7D%5D%7D%2C%7B%22name%22%3A%22statuses%22%2C%22value%22%3A%5B%7B%22id%22%3A%22OK%22%2C%22name%22%3A%22Ok%22%7D%2C%7B%22id%22%3A%22UP%22%2C%22name%22%3A%22Up%22%7D%2C%7B%22id%22%3A%22DOWN%22%2C%22name%22%3A%22Down%22%7D%2C%7B%22id%22%3A%22CRITICAL%22%2C%22name%22%3A%22Critical%22%7D%5D%7D%2C%7B%22name%22%3A%22states%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22parent_name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbHost%5C%5Cb%22%2C%22name%22%3A%22Host%22%7D%5D%7D%2C%7B%22name%22%3A%22host_group%22%2C%22value%22%3A%5B%7B%22id%22%3A%22HG1%22%2C%22name%22%3A%22HG1%22%7D%2C%7B%22id%22%3A%22HG2%22%2C%22name%22%3A%22HG2%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true';
 export const linkToResourcePing =

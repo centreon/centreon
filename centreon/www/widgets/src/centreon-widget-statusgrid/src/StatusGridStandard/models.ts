@@ -7,9 +7,9 @@ export interface Data {
 export interface PanelOptions {
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
-  resourceType: string;
+  resourceType?: string;
   sortBy: string;
-  states: Array<string>;
+  states?: Array<string>;
   statuses: Array<SeverityStatus>;
   tiles: number;
   viewMode: 'standard' | 'condensed';
