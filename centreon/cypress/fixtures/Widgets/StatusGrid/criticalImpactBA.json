@@ -1,5 +1,5 @@
 {
-    "id":1,
+    "id":4,
     "name":"ba4",
     "status":{
        "name":"UNKNOWN",
@@ -47,8 +47,8 @@
           },
           "status":{
              "code":0,
-             "name":"OK",
-             "severity_code":5
+             "name":"CRITICAL",
+             "severity_code":1
           },
           "resource":{
              "id":26,
@@ -56,6 +56,27 @@
              "parent_id":14,
              "parent_name":"Centreon-Server"
           }
-       }
+       },
+       {
+        "id":4,
+        "type":"boolean-rule",
+        "name":"boolean 2",
+        "impact":{
+           "warning":75,
+           "critical":100,
+           "unknown":5
+        },
+        "status":{
+          "code":0,
+          "name":"CRITICAL",
+          "severity_code":1
+       },
+        "resource":{
+           "id":1,
+           "name":"boolean 2",
+           "parent_id":null,
+           "parent_name":null
+        }
+     }
     ]
  }

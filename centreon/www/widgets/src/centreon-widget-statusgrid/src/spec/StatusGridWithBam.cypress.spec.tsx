@@ -2,7 +2,7 @@ import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
-import { always, cond, equals, T } from 'ramda';
+import { always, both, cond, equals, T } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
@@ -56,15 +56,32 @@ const baTestCases = [
   {
     calculationMethod: 'Worst Status',
     id: 1,
+    status: 'ok',
     testFunction: () => {
       cy.contains('Calculation method : Worst Status').should('be.visible');
+      cy.contains(
+        'All KPIs on this business activity are working fine.'
+      ).should('be.visible');
+
+      cy.get(`[data-resourceName=ba1]`).should(
+        'have.css',
+        'color',
+        'rgb(136, 185, 34)'
+      );
     }
   },
   {
     calculationMethod: 'Impact',
     id: 1,
+    status: 'ok',
     testFunction: () => {
       cy.contains('Calculation method : Impact').should('be.visible');
+
+      cy.get(`[data-resourceName=ba1`).should(
+        'have.css',
+        'color',
+        'rgb(136, 185, 34)'
+      );
 
       cy.contains('State information').should('be.visible');
       cy.contains('Health').should('be.visible');
@@ -73,13 +90,24 @@ const baTestCases = [
       cy.contains('80%').should('be.visible');
       cy.contains('Critical threshold').should('be.visible');
       cy.contains('70%').should('be.visible');
+
+      cy.contains(
+        'All KPIs on this business activity are working fine.'
+      ).should('be.visible');
     }
   },
   {
     calculationMethod: 'Ratio',
     id: 1,
+    status: 'ok',
     testFunction: () => {
       cy.contains('Calculation method : Ratio').should('be.visible');
+
+      cy.get(`[data-resourceName=ba1`).should(
+        'have.css',
+        'color',
+        'rgb(136, 185, 34)'
+      );
 
       cy.contains('State information').should('be.visible');
       cy.contains('Critical KPIs').should('be.visible');
@@ -88,6 +116,67 @@ const baTestCases = [
       cy.contains('75%').should('be.visible');
       cy.contains('Critical threshold').should('be.visible');
       cy.contains('80%').should('be.visible');
+
+      cy.contains(
+        'All KPIs on this business activity are working fine.'
+      ).should('be.visible');
+    }
+  },
+  {
+    calculationMethod: 'Impact',
+    id: 4,
+    status: 'critical',
+    testFunction: () => {
+      cy.contains('Calculation method : Impact').should('be.visible');
+
+      cy.get(`[data-resourceName=ba4]`).should(
+        'have.css',
+        'color',
+        'rgb(255, 102, 102)'
+      );
+
+      cy.contains('State information').should('be.visible');
+      cy.contains('Health').should('be.visible');
+      cy.contains('100%').should('be.visible');
+      cy.contains('Warning threshold').should('be.visible');
+      cy.contains('80%').should('be.visible');
+      cy.contains('Critical threshold').should('be.visible');
+      cy.contains('70%').should('be.visible');
+
+      cy.contains('KPIs').should('be.visible');
+      cy.contains('Ping').should('be.visible');
+      cy.contains('12%').should('be.visible');
+      cy.contains('15%').should('be.visible');
+      cy.contains('boolean 2').should('be.visible');
+      cy.contains('75%').should('be.visible');
+      cy.contains('100%').should('be.visible');
+      cy.contains('1/3 KPIs are working fine.').should('be.visible');
+    }
+  },
+  {
+    calculationMethod: 'Ratio',
+    id: 5,
+    status: 'critical',
+    testFunction: () => {
+      cy.contains('Calculation method : Ratio').should('be.visible');
+
+      cy.get(`[data-resourceName=ba5]`).should(
+        'have.css',
+        'color',
+        'rgb(255, 102, 102)'
+      );
+
+      cy.contains('State information').should('be.visible');
+      cy.contains('Critical KPIs').should('be.visible');
+      cy.contains('0%').should('be.visible');
+      cy.contains('Warning threshold').should('be.visible');
+      cy.contains('75%').should('be.visible');
+      cy.contains('Critical threshold').should('be.visible');
+      cy.contains('80%').should('be.visible');
+
+      cy.contains('KPIs').should('be.visible');
+      cy.contains('ba1').should('be.visible');
+      cy.contains('1/3 KPIs are working fine.').should('be.visible');
     }
   }
 ];
@@ -157,7 +246,13 @@ const baRequests = ({ calculationMethod = 'Worst Status', id = 1 }): void => {
     [T, always('Widgets/StatusGrid/worstStatusBA.json')]
   ])(calculationMethod);
 
-  cy.fixture(baResponseURL).then((data) => {
+  const baResponseURLByID = cond([
+    [equals(4), always('Widgets/StatusGrid/criticalImpactBA.json')],
+    [equals(5), always('Widgets/StatusGrid/criticalRatioBA.json')],
+    [T, always(baResponseURL)]
+  ])(id);
+
+  cy.fixture(baResponseURLByID).then((data) => {
     cy.interceptAPIRequest({
       alias: 'getBATooltipDetails',
       method: Method.GET,
@@ -296,23 +391,13 @@ describe('Business activities', () => {
     cy.makeSnapshot();
   });
 
-  baTestCases.forEach(({ id, calculationMethod, testFunction }) => {
-    it(`${calculationMethod}: displays business activity informations when the mouse is over a tile`, () => {
+  baTestCases.forEach(({ id, calculationMethod, testFunction, status }) => {
+    it(`${calculationMethod}-${status}: displays business activity informations when the mouse is over a tile`, () => {
       baRequests({ calculationMethod, id });
 
-      cy.contains('ba1').trigger('mouseover');
+      cy.contains(`ba${id}`).trigger('mouseover');
 
       cy.waitForRequest('@getBATooltipDetails');
-
-      cy.get('[data-resourceName="ba1"]').should(
-        'have.css',
-        'color',
-        'rgb(136, 185, 34)'
-      );
-
-      cy.contains(
-        'All KPIs on this business activity are working fine.'
-      ).should('be.visible');
 
       testFunction();
 
