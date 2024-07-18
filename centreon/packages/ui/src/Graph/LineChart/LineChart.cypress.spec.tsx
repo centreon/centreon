@@ -246,8 +246,13 @@ describe('Line chart', () => {
       cy.makeSnapshot();
     });
 
-    it('displays the legend on the left side of the graph when the corresponding prop is set', () => {
-      initialize({ legend: { mode: 'grid', placement: 'left' } });
+    it.only('displays the legend on the left side of the graph when the corresponding prop is set', () => {
+      initialize({
+        legend: { mode: 'grid', placement: 'left' },
+        tooltip: { mode: 'all', sortOrder: 'descending' }
+      });
+
+      cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
 
       cy.get('[data-display-side="true"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
