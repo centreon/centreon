@@ -1,3 +1,7 @@
+import { createStore, Provider } from 'jotai';
+
+import { userAtom } from '@centreon/ui-context';
+
 import { LineChartData } from '../common/models';
 import dataLastDay from '../mockedData/lastDay.json';
 import dataLastDayWithNullValues from '../mockedData/lastDayWithNullValues.json';
@@ -21,16 +25,26 @@ const initialize = ({
   axis,
   lineStyle
 }: Props): void => {
+  cy.adjustViewport();
+  const store = createStore();
+  store.set(userAtom, {
+    alias: 'admin',
+    locale: 'en',
+    name: 'admin',
+    timezone: 'Europe/Paris'
+  });
   cy.mount({
     Component: (
-      <WrapperLineChart
-        {...argumentsData}
-        axis={axis}
-        data={data as unknown as LineChartData}
-        legend={legend}
-        lineStyle={lineStyle}
-        tooltip={tooltip}
-      />
+      <Provider store={store}>
+        <WrapperLineChart
+          {...argumentsData}
+          axis={axis}
+          data={data as unknown as LineChartData}
+          legend={legend}
+          lineStyle={lineStyle}
+          tooltip={tooltip}
+        />
+      </Provider>
     )
   });
 };
