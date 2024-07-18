@@ -14,7 +14,7 @@ import {
   TextField,
   useResizeObserver
 } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
@@ -74,7 +74,15 @@ const FormCreation = ({
     values
   });
 
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
   const { canManageApiTokens } = useAtomValue(userAtom);
+
+  const getUsersEndpoint = (): string =>
+    platformFeatures?.isCloudPlatform
+      ? getEndpointConfiguredUser({
+          search: { regex: { fields: ['is_admin'], value: '0' } }
+        })
+      : getEndpointConfiguredUser({});
 
   const close = (): void => {
     resetForm();
@@ -163,7 +171,7 @@ const FormCreation = ({
         dataTestId={labelUser}
         disabled={Boolean(token) || !canManageApiTokens}
         field="name"
-        getEndpoint={getEndpointConfiguredUser}
+        getEndpoint={getUsersEndpoint}
         id="user"
         label={t(labelUser)}
         required={!token}
