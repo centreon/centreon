@@ -29,7 +29,8 @@
 							"        \"resource_status_tree_view\": true,\r",
 							"        \"resource_status_filter_revamp\": true,\r",
 							"        \"resource_access_management\": false,\r",
-							"        \"dashboard_playlist\": true\r",
+							"        \"dashboard_playlist\": true,\r",
+							"        \"resources_table_widget_open_tickets\": false,\r",
 							"    });\r",
 							"});"
 						],

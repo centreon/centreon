@@ -70,7 +70,7 @@ module.exports = ({
     },
     video: true,
     videosFolder: `${mainCypressFolder}/results/videos`,
-    viewportHeight: 590,
-    viewportWidth: 1280
+    viewportHeight: 1400,
+    viewportWidth: 1200
   });
 };

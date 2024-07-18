@@ -19136,3 +19136,75 @@ msgstr "Radius de la barre"
 
 msgid "Bar background opacity"
 msgstr "Opacité du fond de la barre"
+
+msgid "Check command sent!"
+msgstr "Commande de vérification envoyée !"
+
+msgid "Forced check command sent!"
+msgstr "Commande de vérification forcée envoyée !"
+
+msgid "Open ticket"
+msgstr "Ouvrir un ticket"
+
+msgid "Open ticket for host"
+msgstr "Ouvrir un ticket pour l'hôte"
+
+msgid "Open ticket for service"
+msgstr "Ouvrir un ticket pour le service"
+
+msgid "Host severities"
+msgstr "Sévérités des hôtes"
+
+msgid "Service severities"
+msgstr "Sévérités des services"
+
+msgid "Select service severities"
+msgstr "Sélectionner les sévérités des services"
+
+msgid "Select host severities"
+msgstr "Sélectionner les sévérités des hôtes"
+
+msgid "Enable Open Tickets"
+msgstr "Activer Open Tickets"
+
+msgid "Ticket provider"
+msgstr "Fournisseur de tickets"
+
+msgid "Select a provider"
+msgstr "Sélectionner un fournisseur"
+
+msgid "Display resources"
+msgstr "Afficher les ressources"
+
+msgid "Resources linked to a ticket"
+msgstr "Ressources liées à un ticket"
+
+msgid "Resources with no ticket"
+msgstr "Ressources sans ticket"
+
+msgid "Hide services with Down host"
+msgstr "Masquer les services dont l'hôte est Indisponible"
+
+msgid "Hide services with Unreachable host"
+msgstr "Masquer les services dont l'hôte est Injoignable"
+
+msgid "Ticket ID"
+msgstr "ID du ticket"
+
+msgid "Ticket subject"
+msgstr "Sujet du ticket"
+
+msgid "Opened on"
+msgstr "Date d'ouverture"
+
+msgid "Create a ticket"
+msgstr "Créer un ticket"
+
+msgid "Rule (ticket provider)"
+msgstr "Règle (fournisseur de tickets)"
+
+msgid "Select rule (ticket provider)"
+msgstr "Sélectionner la règle (fournisseur de tickets)"
+
+msgid "Display resources with these status types"
+msgstr "Afficher les ressources avec ces types de statuts"
