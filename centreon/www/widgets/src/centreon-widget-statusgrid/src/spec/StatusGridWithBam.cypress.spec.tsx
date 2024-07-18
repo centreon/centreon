@@ -2,7 +2,7 @@ import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
-import { always, both, cond, equals, T } from 'ramda';
+import { always, cond, equals, T } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
@@ -449,6 +449,7 @@ describe('Indicators', () => {
       'rgb(136, 185, 34)'
     );
 
+    cy.contains('Parent: ba1');
     cy.contains('Impact applied when true');
     cy.contains('Expression in ok.');
     cy.contains('Click here for details').should(

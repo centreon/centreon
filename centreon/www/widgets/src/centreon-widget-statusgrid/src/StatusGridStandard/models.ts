@@ -78,6 +78,7 @@ export interface ResourceStatus {
 
 export interface ResourceData {
   acknowledgementEndpoint?: string;
+  businessActivity?: string | null;
   downtimeEndpoint?: string;
   id?: number;
   information?: string;

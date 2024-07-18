@@ -21,3 +21,4 @@ export const labelExpressionIn = 'Expression in';
 export const labelImpactAppliedWhen = 'Impact applied when';
 export const labelHealth = 'Health';
 export const labelCriticalKPIs = 'Critical KPIs';
+export const labelParent = 'Parent';

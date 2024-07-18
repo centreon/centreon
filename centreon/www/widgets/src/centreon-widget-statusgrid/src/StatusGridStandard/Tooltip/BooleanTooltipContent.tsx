@@ -18,7 +18,8 @@ import { getBooleanRuleLink, getColor } from '../utils';
 import {
   labelClickHereForDetails,
   labelExpressionIn,
-  labelImpactAppliedWhen
+  labelImpactAppliedWhen,
+  labelParent
 } from '../translatedLabels';
 
 import useBooleanTooltipContent from './useBooleanTooltipContent';
@@ -57,6 +58,15 @@ const BooleanTooltipContent = ({ data }: Props): JSX.Element | null => {
       </Box>
 
       <Box className={classes.body}>
+        {data.businessActivity && (
+          <Box className={classes.baParent}>
+            <Typography className={classes.baParentText} variant="body1">
+              <strong>{t(labelParent)}:</strong> {data.businessActivity}
+            </Typography>
+
+            <Divider variant="fullWidth" />
+          </Box>
+        )}
         <Box className={classes.boleanRulebody}>
           {isLoading && <CircularProgress size={24} />}
           <Box component="span">
@@ -81,7 +91,7 @@ const BooleanTooltipContent = ({ data }: Props): JSX.Element | null => {
             </Typography>
           </Box>
         </Box>
-        <Divider variant="middle" />
+        <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
           color="text.secondary"

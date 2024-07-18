@@ -160,7 +160,8 @@ const StatusGrid = ({
           information,
           links,
           type,
-          resource = null
+          resource = null,
+          business_activity = null
         }) => {
           const statusColor = getColor({
             is_acknowledged,
@@ -173,6 +174,7 @@ const StatusGrid = ({
             backgroundColor: statusColor,
             data: {
               acknowledgementEndpoint: links?.endpoints.acknowledgement,
+              businessActivity: business_activity?.name,
               downtimeEndpoint: links?.endpoints.downtime,
               id,
               information,

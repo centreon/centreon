@@ -49,6 +49,12 @@ export const useTileStyles = makeStyles()((theme) => ({
 }));
 
 export const useHostTooltipContentStyles = makeStyles()((theme) => ({
+  baParent: {
+    paddingBottom: theme.spacing(0.5)
+  },
+  baParentText: {
+    paddingBottom: theme.spacing(0.5)
+  },
   body: {
     padding: theme.spacing(1),
     textAlign: 'center'

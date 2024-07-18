@@ -27,7 +27,8 @@ import {
   labelStateInformation,
   labelWarningThreshold,
   labelHealth,
-  labelCriticalKPIs
+  labelCriticalKPIs,
+  labelParent
 } from '../translatedLabels';
 
 import useBATooltipContent from './useBATooltipContent';
@@ -94,6 +95,15 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
       </Box>
 
       <Box className={classes.body}>
+        {data.businessActivity && (
+          <Box className={classes.baParent}>
+            <Typography className={classes.baParentText} variant="body1">
+              <strong>{t(labelParent)}:</strong> {data.businessActivity}
+            </Typography>
+
+            <Divider variant="fullWidth" />
+          </Box>
+        )}
         <Box className={classes.listContainer}>
           {isLoading && <CircularProgress size={24} />}
           {(isImpact || isRatio) && (
@@ -230,7 +240,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
             </Typography>
           )}
         </Box>
-        <Divider variant="middle" />
+        <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
           color="text.secondary"
