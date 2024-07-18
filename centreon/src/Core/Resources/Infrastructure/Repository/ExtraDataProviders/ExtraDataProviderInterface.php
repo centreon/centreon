@@ -21,20 +21,30 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Application\UseCase\FindResources;
+namespace Core\Resources\Infrastructure\Repository\ExtraDataProviders;
 
-use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDto;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Monitoring\ResourceFilter;
 
-final class FindResourcesResponse
+interface ExtraDataProviderInterface
 {
     /**
-     * @param ResourceResponseDto[] $resources
-     * @param array<string, array<mixed, mixed>> $extraData
+     * @param ResourceFilter $filter
+     *
+     * @return string
      */
-    public function __construct(
-        public array $resources = [],
-        public array $extraData = []
-    ) {
-    }
-}
+    public function getSubFilter(ResourceFilter $filter): string;
 
+    /**
+     * @param ResourceFilter $filter
+     * @param ResourceEntity[] $resources
+     *
+     * @return mixed[]
+     */
+    public function getExtraDataForResources(ResourceFilter $filter, array $resources): array;
+
+    /**
+     * @return string
+     */
+    public function getExtraDataSourceName(): string;
+}

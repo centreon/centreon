@@ -36,6 +36,7 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
+use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
@@ -53,6 +54,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
+
+    /** @var ExtraDataProviderInterface[] */
+    private array $extraInformationProviders;
 
     /** @var array<string, string> */
     private array $resourceConcordances = [
@@ -87,6 +91,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
      * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
+     * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      *
      * @throws \InvalidArgumentException
      */
@@ -94,7 +99,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         DatabaseConnection $db,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
-        private readonly \Traversable $resourceACLProviders
+        private readonly \Traversable $resourceACLProviders,
+        \Traversable $extraDataProviders
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
@@ -110,6 +116,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         $this->resourceTypes = iterator_to_array($resourceTypes);
+        $this->extraInformationProviders = iterator_to_array($extraDataProviders);
     }
 
     public function findParentResourcesById(ResourceFilter $filter): array
@@ -128,6 +135,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.internal_id,
             resources.parent_id,
             resources.parent_name,
+            parent_resource.resource_id AS `parent_resource_id`,
             parent_resource.status AS `parent_status`,
             parent_resource.alias AS `parent_alias`,
             parent_resource.status_ordered AS `parent_status_ordered`,
@@ -182,6 +190,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
          * 'service', 'metaservice', 'host'.
          */
         $request .= $this->addResourceTypeSubRequest($filter);
+
+        foreach ($this->extraInformationProviders as $provider) {
+            $request .= $provider->getSubFilter($filter);
+        }
 
         /**
          * Handle sort parameters.
@@ -375,6 +387,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.internal_id,
             resources.parent_id,
             resources.parent_name,
+            parent_resource.resource_id AS `parent_resource_id`,
             parent_resource.status AS `parent_status`,
             parent_resource.alias AS `parent_alias`,
             parent_resource.status_ordered AS `parent_status_ordered`,
@@ -449,6 +462,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         // Apply only_with_performance_data
         if ($filter->getOnlyWithPerformanceData() === true) {
             $request .= ' AND resources.has_graph = 1';
+        }
+
+        foreach ($this->extraInformationProviders as $provider) {
+            $request .= $provider->getSubFilter($filter);
         }
 
         $request .= $accessGroupRequest;

@@ -21,20 +21,27 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Application\UseCase\FindResources;
+namespace Core\Resources\Infrastructure\API\ExtraDataNormalizer;
 
-use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDto;
-
-final class FindResourcesResponse
+interface ExtraDataNormalizerInterface
 {
     /**
-     * @param ResourceResponseDto[] $resources
-     * @param array<string, array<mixed, mixed>> $extraData
+     * @param int $resourceId
+     * @param mixed $data
+     *
+     * @return mixed[]
      */
-    public function __construct(
-        public array $resources = [],
-        public array $extraData = []
-    ) {
-    }
-}
+    public function normalizeExtraDataForResource(int $resourceId, mixed $data): array;
 
+    /**
+     * @return string
+     */
+    public function getExtraDataSourceName(): string;
+
+    /**
+     * @param string $providerName
+     *
+     * @return bool
+     */
+    public function isValidFor(string $providerName): bool;
+}

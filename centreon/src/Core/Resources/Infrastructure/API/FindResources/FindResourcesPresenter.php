@@ -33,23 +33,25 @@ use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesPresenterInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesResponse;
 use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDto;
+use Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface;
 
 class FindResourcesPresenter extends AbstractPresenter implements FindResourcesPresenterInterface
 {
-    use HttpUrlTrait;
-    use PresenterTrait;
+    use HttpUrlTrait, PresenterTrait;
     private const IMAGE_DIRECTORY = '/img/media/',
-        SERVICE_RESOURCE_TYPE = 'service';
+                  SERVICE_RESOURCE_TYPE = 'service';
 
     /**
      * @param HypermediaCreator $hypermediaCreator
      * @param RequestParametersInterface $requestParameters
      * @param PresenterFormatterInterface $presenterFormatter
+     * @param \Traversable<ExtraDataNormalizerInterface> $extraDataNormalizers
      */
     public function __construct(
         private readonly HypermediaCreator $hypermediaCreator,
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
+        private readonly \Traversable $extraDataNormalizers
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -58,9 +60,30 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
     {
         if ($data instanceof FindResourcesResponse) {
             $result = [];
+            $extraDataProviders = iterator_to_array($this->extraDataNormalizers);
+
             foreach ($data->resources as $resource) {
-                $parentResource = $resource->parent !== null
-                    ? [
+                $parentResource = null;
+                if (
+                    $resource->parent !== null
+                    && $resource->parent->resourceId !== null
+                ) {
+                    $parentResourceExtraData = [];
+
+                   foreach ($data->extraData as $sourceName => $sourceData) {
+                        foreach ($extraDataProviders as $provider) {
+                            if ($provider->isValidFor($sourceName)) {
+                                if (array_key_exists($resource->parent->resourceId, $sourceData)) {
+                                    $parentResourceExtraData[$sourceName] = $provider->normalizeExtraDataForResource(
+                                        $resource->parent->resourceId,
+                                        $sourceData[$resource->parent->resourceId],
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    $parentResource = [
                         'uuid' => $resource->parent->uuid,
                         'id' => $resource->parent->id,
                         'name' => $resource->parent->name,
@@ -74,8 +97,9 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                         'alias' => $resource->parent->alias,
                         'fqdn' => $resource->parent->fqdn,
                         'monitoring_server_name' => $resource->parent->monitoringServerName,
-                    ]
-                    : null;
+                        'extra' => $parentResourceExtraData,
+                    ];
+                }
 
                 $duration = $resource->lastStatusChange !== null
                     ? \CentreonDuration::toString(time() - $resource->lastStatusChange->getTimestamp())
@@ -143,6 +167,23 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                     ],
                 ];
 
+                $resourceExtraData = [];
+
+                if ($resource->resourceId !== null) {
+                    foreach ($data->extraData as $sourceName => $sourceData) {
+                        foreach ($extraDataProviders as $provider) {
+                            if ($provider->isValidFor($sourceName)) {
+                                if (array_key_exists($resource->resourceId, $sourceData)) {
+                                    $resourceExtraData[$sourceName] = $provider->normalizeExtraDataForResource(
+                                        $resource->resourceId,
+                                        $sourceData[$resource->resourceId],
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+
                 $result[] = [
                     'uuid' => $resource->uuid,
                     'duration' => $duration,
@@ -174,6 +215,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                     'is_notification_enabled' => false,
                     'severity' => $severity,
                     'links' => $links,
+                    'extra' => $resourceExtraData,
                 ];
             }
 
