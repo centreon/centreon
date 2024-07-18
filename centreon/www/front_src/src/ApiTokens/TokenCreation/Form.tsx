@@ -75,10 +75,10 @@ const FormCreation = ({
   });
 
   const platformFeatures = useAtomValue(platformFeaturesAtom);
-  const { canManageApiTokens } = useAtomValue(userAtom);
+  const { canManageApiTokens, isAdmin } = useAtomValue(userAtom);
 
   const getUsersEndpoint = (): string =>
-    platformFeatures?.isCloudPlatform
+    (platformFeatures?.isCloudPlatform && !isAdmin)
       ? getEndpointConfiguredUser({
           search: { regex: { fields: ['is_admin'], value: '0' } }
         })
