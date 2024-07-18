@@ -60,7 +60,7 @@ runs:
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
       with:
-        browser: chrome
+        browser: electron
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
