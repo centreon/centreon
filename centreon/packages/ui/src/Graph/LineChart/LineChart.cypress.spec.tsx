@@ -372,6 +372,9 @@ describe('Line chart', () => {
       initialize({ lineStyle: { curve: 'natural' } });
 
       cy.contains('8:00 AM').should('be.visible');
+      cy.get('[data-metric="13536"]').should('be.visible');
+      cy.get('[data-metric="13534"]').should('be.visible');
+      cy.get('[data-metric="13535"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -380,6 +383,9 @@ describe('Line chart', () => {
       initialize({ lineStyle: { curve: 'step' } });
 
       cy.contains('8:00 AM').should('be.visible');
+      cy.get('[data-metric="13536"]').should('be.visible');
+      cy.get('[data-metric="13534"]').should('be.visible');
+      cy.get('[data-metric="13535"]').should('be.visible');
       checkLegendInformation();
 
       cy.makeSnapshot();
