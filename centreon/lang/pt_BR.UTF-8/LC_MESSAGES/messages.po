@@ -17905,7 +17905,7 @@ msgstr ""
 
 # msgid "Display resources with these status types"
 # msgstr ""
-# msgid  "All KPIs on this business activity are working fine."
+# msgid  "All KPIs on this Business Activity are working fine."
 # msgstr ""
 
 # msgid  "are working fine."
@@ -17929,7 +17929,7 @@ msgstr ""
 # msgid "Expression in"
 # msgstr ""
 
-# msgid "Impact applied when"
+# msgid "Impact applied when:"
 # msgstr ""
 
 # msgid "true"
@@ -17944,7 +17944,7 @@ msgstr ""
 # msgid "No KPI found"
 # msgstr ""
 
-# msgid "No business activity found"
+# msgid "No Business Activity found"
 # msgstr ""
 
 # msgid "business activity"

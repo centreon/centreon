@@ -10,4 +10,4 @@ export const labelPreviewRemainsEmpty =
 export const labelNoHostsFound = 'No host found';
 export const labelNoServicesFound = 'No service found';
 export const labelNoKPIFound = 'No KPI found';
-export const labelNoBAFound = 'No business activity found';
+export const labelNoBAFound = 'No Business Activity found';

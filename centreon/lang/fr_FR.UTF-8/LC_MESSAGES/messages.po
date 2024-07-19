@@ -19208,17 +19208,17 @@ msgstr "Sélectionner la règle (fournisseur de tickets)"
 
 msgid "Display resources with these status types"
 msgstr "Afficher les ressources avec ces types de statuts"
-msgid  "All KPIs on this business activity are working fine."
+msgid  "All KPIs on this Business Activity are working fine."
 msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
 
 msgid  "See more information in the geoview"
-msgstr "Voir plus d'informations dans la géovue"
+msgstr "Voir plus d'informations dans la vue géographique"
 
 msgid  "Calculation method"
 msgstr "Méthode de calcul"
 
 msgid  "State information"
-msgstr "Information d'état"
+msgstr "Information de l'état"
 
 msgid  "Warning threshold"
 msgstr "Seuil d'alerte"
@@ -19227,13 +19227,13 @@ msgid  "Critical threshold"
 msgstr "Seuil critique"
 
 msgid "Click here for details"
-msgstr "cliquer ici pour les détails"
+msgstr "Cliquez ici pour les détails"
 
 msgid "Expression in"
 msgstr "Expression en"
 
-msgid "Impact applied when"
-msgstr "Impact appliqué quand"
+msgid "Impact applied when:"
+msgstr "Impact appliqué quand:"
 
 msgid "true"
 msgstr "vrai"
@@ -19244,8 +19244,8 @@ msgstr "faux"
 msgid "No KPI found"
 msgstr "Aucun KPI trouvé"
 
-msgid "No business activity found"
-msgstr "Aucun activité métier trouvé"
+msgid "No Business Activity found"
+msgstr "Aucune activité métier trouvée"
 
 msgid "business activity"
 msgstr "activité métier"

@@ -60,7 +60,7 @@ const baTestCases = [
     testFunction: () => {
       cy.contains('Calculation method : Worst Status').should('be.visible');
       cy.contains(
-        'All KPIs on this business activity are working fine.'
+        'All KPIs on this Business Activity are working fine.'
       ).should('be.visible');
 
       cy.get(`[data-resourceName=ba1]`).should(
@@ -92,7 +92,7 @@ const baTestCases = [
       cy.contains('70%').should('be.visible');
 
       cy.contains(
-        'All KPIs on this business activity are working fine.'
+        'All KPIs on this Business Activity are working fine.'
       ).should('be.visible');
     }
   },
@@ -118,7 +118,7 @@ const baTestCases = [
       cy.contains('80%').should('be.visible');
 
       cy.contains(
-        'All KPIs on this business activity are working fine.'
+        'All KPIs on this Business Activity are working fine.'
       ).should('be.visible');
     }
   },
@@ -450,7 +450,7 @@ describe('Indicators', () => {
     );
 
     cy.contains('Parent: ba1');
-    cy.contains('Impact applied when true');
+    cy.contains('Impact applied when: true');
     cy.contains('Expression in ok.');
     cy.contains('Click here for details').should(
       'have.attr',
