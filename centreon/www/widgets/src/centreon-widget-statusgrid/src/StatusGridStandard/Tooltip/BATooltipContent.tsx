@@ -170,9 +170,11 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
 
           {hasIndicatorsWithProblems && (
             <Box mt={1}>
-              <Box mb={1}>
-                <Divider variant="fullWidth" />
-              </Box>
+              {(isImpact || isRatio) && (
+                <Box mb={1}>
+                  <Divider variant="fullWidth" />
+                </Box>
+              )}
               <Typography className={classes.listHeader}>
                 <strong>KPIs</strong>
               </Typography>
