@@ -46,6 +46,8 @@ const initialize = ({
       </div>
     )
   });
+
+  cy.viewport('macbook-13');
 };
 
 describe('Bar chart', () => {
