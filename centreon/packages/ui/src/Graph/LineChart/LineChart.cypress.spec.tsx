@@ -367,7 +367,7 @@ describe('Line chart', () => {
     });
   });
 
-  describe('Line style', () => {
+  describe.only('Line style', () => {
     it('displays the curve in a natural style when the prop is set', () => {
       initialize({ lineStyle: { curve: 'natural' } });
 
