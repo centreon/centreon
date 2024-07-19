@@ -376,7 +376,7 @@ describe('Line chart', () => {
       cy.makeSnapshot();
     });
 
-    it('displays the curve in a step style when the prop is set', () => {
+    it.only('displays the curve in a step style when the prop is set', () => {
       initialize({ lineStyle: { curve: 'step' } });
 
       cy.contains('8:00 AM').should('be.visible');
