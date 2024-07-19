@@ -61,7 +61,7 @@ runs:
         for ARCH in "noarch" "x86_64"; do
 
           # Build search path based on release_cloud and release_type values
-          # if cloud, search in testing-<release_type> path
+          # if cloud and hotfix or release, search in testing-<release_type> path
           # if non-cloud, search in the testing usual path
           if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]];then
             SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing-${{ inputs.release_type }}/$ARCH/${{ inputs.module }}"
