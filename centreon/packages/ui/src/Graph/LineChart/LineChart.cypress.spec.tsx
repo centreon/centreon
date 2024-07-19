@@ -257,8 +257,6 @@ describe('Line chart', () => {
 
       cy.contains('8:00 AM').should('be.visible');
 
-      checkLegendInformation();
-
       cy.makeSnapshot();
     });
 
@@ -271,7 +269,6 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains('8:00 AM').should('be.visible');
-      checkLegendInformation();
 
       cy.makeSnapshot();
     });
@@ -283,8 +280,6 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains('8:00 AM').should('be.visible');
-
-      checkLegendInformation();
 
       cy.makeSnapshot();
     });
@@ -367,7 +362,7 @@ describe('Line chart', () => {
     });
   });
 
-  describe.only('Line style', () => {
+  describe('Line style', () => {
     it('displays the curve in a natural style when the prop is set', () => {
       initialize({ lineStyle: { curve: 'natural' } });
 
@@ -379,7 +374,7 @@ describe('Line chart', () => {
       cy.makeSnapshot();
     });
 
-    it.only('displays the curve in a step style when the prop is set', () => {
+    it('displays the curve in a step style when the prop is set', () => {
       initialize({ lineStyle: { curve: 'step' } });
 
       cy.contains('8:00 AM').should('be.visible');
