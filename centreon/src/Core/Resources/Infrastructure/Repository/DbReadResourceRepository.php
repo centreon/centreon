@@ -434,7 +434,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
 
         $query .= <<<'SQL'
-            resources.type=1 AND resources.name NOT LIKE "_Module_%"
+            resources.enabled = 1 AND resources.type=1 AND resources.name NOT LIKE "\_Module\_%"
             SQL;
 
         /**
@@ -488,7 +488,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
 
         $query .= <<<'SQL'
-            resources.type=0 AND resources.name NOT LIKE "_Module_%"
+            resources.enabled = 1 AND resources.type=0 AND resources.name NOT LIKE "\_Module\_%"
             SQL;
 
         /**
@@ -542,7 +542,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
         $query .= <<<'SQL'
-            resources.type=1 AND resources.name NOT LIKE "_Module_%"
+            resources.enabled = 1 AND resources.type=1 AND resources.name NOT LIKE "\_Module\_%"
             SQL;
 
         /**
@@ -598,7 +598,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
         $query .= <<<'SQL'
-            resources.type=0 AND resources.name NOT LIKE "_Module_%"
+            resources.enabled = 1 AND resources.type=0 AND resources.name NOT LIKE "\_Module\_%"
             SQL;
 
         /**

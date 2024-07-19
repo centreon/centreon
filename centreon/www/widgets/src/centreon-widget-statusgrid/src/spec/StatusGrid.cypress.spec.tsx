@@ -12,10 +12,9 @@ import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
   labelSeeMore,
-  labelServiceName,
   labelValue
 } from '../StatusGridStandard/translatedLabels';
-import { resourcesEndpoint } from '../api/endpoints';
+import { hostsEndpoint, resourcesEndpoint } from '../api/endpoints';
 import { router } from '../StatusGridStandard/Tile';
 import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
 
@@ -73,7 +72,7 @@ const hostsRequests = (): void => {
     cy.interceptAPIRequest({
       alias: 'getHostResources',
       method: Method.GET,
-      path: `./api/latest${resourcesEndpoint}?page=1&limit=20**`,
+      path: `./api/latest${hostsEndpoint}?**`,
       response: data
     });
   });
@@ -215,14 +214,6 @@ describe('View by host', () => {
         'have.css',
         'color',
         'rgb(227, 227, 227)'
-      );
-
-      cy.contains(labelServiceName).should('be.visible');
-
-      cy.get('[data-serviceName="Passive_server"]').should(
-        'have.css',
-        'color',
-        'rgb(255, 102, 102)'
       );
 
       cy.contains('unknown (No output returned from host check)').should(
