@@ -18,6 +18,20 @@ interface Props
   data?: LineChartData;
 }
 
+const checkLegendInformation = (): void => {
+  cy.contains('hitratio').should('be.visible');
+  cy.contains('querytime').should('be.visible');
+  cy.contains('connTime').should('be.visible');
+  cy.contains('Min: 70.31').should('be.visible');
+  cy.contains('Min: 0.03').should('be.visible');
+  cy.contains('Max: 88.03').should('be.visible');
+  cy.contains('Max: 0.98').should('be.visible');
+  cy.contains('Max: 0.97').should('be.visible');
+  cy.contains('Avg: 78.07').should('be.visible');
+  cy.contains('Avg: 0.5').should('be.visible');
+  cy.contains('Avg: 0.51').should('be.visible');
+};
+
 const initialize = ({
   data = dataLastDay,
   tooltip,
@@ -243,6 +257,8 @@ describe('Line chart', () => {
 
       cy.contains('8:00 AM').should('be.visible');
 
+      checkLegendInformation();
+
       cy.makeSnapshot();
     });
 
@@ -255,6 +271,7 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains('8:00 AM').should('be.visible');
+      checkLegendInformation();
 
       cy.makeSnapshot();
     });
@@ -266,6 +283,8 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains('8:00 AM').should('be.visible');
+
+      checkLegendInformation();
 
       cy.makeSnapshot();
     });
@@ -361,11 +380,12 @@ describe('Line chart', () => {
       initialize({ lineStyle: { curve: 'step' } });
 
       cy.contains('8:00 AM').should('be.visible');
+      checkLegendInformation();
 
       cy.makeSnapshot();
     });
 
-    it.only('shows the area when the prop is set', () => {
+    it('shows the area when the prop is set', () => {
       initialize({ lineStyle: { showArea: true } });
 
       cy.contains('8:00 AM').should('be.visible');
@@ -377,17 +397,7 @@ describe('Line chart', () => {
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
 
-      cy.contains('hitratio').should('be.visible');
-      cy.contains('querytime').should('be.visible');
-      cy.contains('connTime').should('be.visible');
-      cy.contains('Min: 70.31').should('be.visible');
-      cy.contains('Min: 0.03').should('be.visible');
-      cy.contains('Max: 88.03').should('be.visible');
-      cy.contains('Max: 0.98').should('be.visible');
-      cy.contains('Max: 0.97').should('be.visible');
-      cy.contains('Avg: 78.07').should('be.visible');
-      cy.contains('Avg: 0.5').should('be.visible');
-      cy.contains('Avg: 0.51').should('be.visible');
+      checkLegendInformation();
 
       cy.makeSnapshot();
     });
