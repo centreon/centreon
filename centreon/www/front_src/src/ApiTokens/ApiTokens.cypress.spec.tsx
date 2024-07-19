@@ -371,6 +371,7 @@ describe('Api-token', () => {
     const store = createStore();
 
     store.set(userAtom, {
+      canManageApiTokens: true,
       isAdmin: true,
       locale: 'en_US',
       timezone: 'Europe/Paris'
