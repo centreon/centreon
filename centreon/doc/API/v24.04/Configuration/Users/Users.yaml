@@ -11,6 +11,7 @@ get:
     * alias
     * name
     * email
+    * is_admin
   responses:
     '200':
       description: OK
