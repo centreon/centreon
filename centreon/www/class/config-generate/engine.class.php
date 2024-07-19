@@ -323,7 +323,8 @@ class Engine extends AbstractObject
         }
     }
 
-    private function setEngineNotificationState() {
+    private function setEngineNotificationState(): void
+    {
         $kernel = \App\Kernel::createForWeb();
         $featureFlags = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
 
