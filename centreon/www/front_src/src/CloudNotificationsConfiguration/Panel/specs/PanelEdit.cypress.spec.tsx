@@ -1,6 +1,7 @@
 import { Provider, createStore } from 'jotai';
 
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import {
   labelDelete,
@@ -42,8 +43,6 @@ import { editedNotificationIdAtom, panelModeAtom } from '../atom';
 import Form from '..';
 
 import { getNotificationResponse, platformVersions } from './testUtils';
-
-import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 const store = createStore();
 store.set(panelWidthStorageAtom, 800);
