@@ -19233,7 +19233,7 @@ msgid "Expression in"
 msgstr "Expression en"
 
 msgid "Impact applied when:"
-msgstr "Impact appliqué quand:"
+msgstr "Impact appliqué quand :"
 
 msgid "true"
 msgstr "vrai"
