@@ -1,5 +1,6 @@
 const routeMap = {
   about: '/administration/about',
+  additionalConnectorConfiguration: '/configuration/additional-connector',
   apiTokens: '/administration/api-token',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
