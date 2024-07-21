@@ -1,0 +1,92 @@
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
+import { useSnackbar } from '@centreon/ui';
+
+import { labelSelectAtLeastOneColumn } from '../translatedLabels';
+
+import {
+  pageAtom,
+  limitAtom,
+  sortOrderAtom,
+  sortFieldAtom,
+  searchAtom,
+  selectedColumnIdsAtom
+} from './atom';
+import useLoadData from './useLoadData';
+import { defaultSelectedColumnIds } from './Columns';
+
+interface UseListing {
+  changePage: (updatedPage: number) => void;
+  changeSort: ({ sortOrder, sortField }) => void;
+  data;
+  isLoading: boolean;
+  page?: number;
+  resetColumns: () => void;
+  selectColumns;
+  selectedColumnIds: Array<string>;
+  setLimit;
+  sortf: string;
+  sorto: 'asc' | 'desc';
+}
+
+const useListing = (): UseListing => {
+  const { t } = useTranslation();
+  const { showWarningMessage } = useSnackbar();
+
+  const [sorto, setSorto] = useAtom(sortOrderAtom);
+  const [sortf, setSortf] = useAtom(sortFieldAtom);
+  const [page, setPage] = useAtom(pageAtom);
+  const [limit, setLimit] = useAtom(limitAtom);
+  const [selectedColumnIds, setSelectedColumnIds] = useAtom(
+    selectedColumnIdsAtom
+  );
+  const searchValue = useAtomValue(searchAtom);
+
+  const resetColumns = (): void => {
+    setSelectedColumnIds(defaultSelectedColumnIds);
+  };
+
+  const changeSort = ({ sortOrder, sortField }): void => {
+    setSortf(sortField);
+    setSorto(sortOrder);
+  };
+
+  const changePage = (updatedPage): void => {
+    setPage(updatedPage + 1);
+  };
+
+  const selectColumns = (updatedColumnIds: Array<string>): void => {
+    if (updatedColumnIds.length < 3) {
+      showWarningMessage(t(labelSelectAtLeastOneColumn));
+
+      return;
+    }
+
+    setSelectedColumnIds(updatedColumnIds);
+  };
+
+  const { isLoading, data } = useLoadData({
+    limit,
+    page,
+    searchValue,
+    sortField: sortf,
+    sortOrder: sorto
+  });
+
+  return {
+    changePage,
+    changeSort,
+    data,
+    isLoading,
+    page,
+    resetColumns,
+    selectColumns,
+    selectedColumnIds,
+    setLimit,
+    sortf,
+    sorto
+  };
+};
+
+export default useListing;
