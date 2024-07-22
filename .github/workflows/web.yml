@@ -289,7 +289,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
-      name: centreon
+      name: component
       module_name: centreon
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
