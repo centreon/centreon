@@ -2517,7 +2517,7 @@ class CentreonACL
                 . $empty_exists;
         } else {
             // Cant manage empty hostgroup with ACLs. We'll have a problem with acl for conf...
-            $groupIds = array_keys($this->accessGroups);
+            $groupIds = array_keys($this->getAccessGroups());
             $query = $request['select'] . $request['fields'] . " "
                 . "FROM hostgroup, acl_res_group_relations, acl_resources_hg_relations "
                 . "WHERE hg_activate = '1' "
