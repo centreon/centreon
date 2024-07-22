@@ -248,6 +248,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/additional-connectors:
     $ref: "./latest/onPremise/Configuration/AdditionalConnector/AddAdditionalConnector.yaml"
+  /configuration/additional-connectors/{acc_id}:
+    $ref: "./latest/onPremise/Configuration/AdditionalConnector/DeleteAdditionalConnector.yaml"
   /configuration/broker/{brokerId}/{tag}:
     $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:
