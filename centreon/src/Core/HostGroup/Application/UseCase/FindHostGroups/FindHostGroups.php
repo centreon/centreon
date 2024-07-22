@@ -33,34 +33,29 @@ use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
-use Core\HostGroup\Infrastructure\API\FindHostGroups\FindHostGroupsPresenterOnPrem;
-use Core\HostGroup\Infrastructure\API\FindHostGroups\FindHostGroupsPresenterSaas;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindHostGroups
 {
     use LoggerTrait;
-    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
      * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param RequestParametersInterface $requestParameters
      * @param ContactInterface $contact
-     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ContactInterface $contact,
-        private readonly bool $isCloudPlatform,
     ) {
     }
 
     /**
-     * @param FindHostGroupsPresenterOnPrem|FindHostGroupsPresenterSaas $presenter
+     * @param PresenterInterface $presenter
      */
     public function __invoke(PresenterInterface $presenter): void
     {
@@ -72,7 +67,7 @@ final class FindHostGroups
                     'request' => $this->requestParameters->toArray(),
                 ]
             );
-            if ($this->isUserAdmin()) {
+            if ($this->contact->isAdmin()) {
                 $presenter->present($this->findHostGroupAsAdmin());
             } elseif ($this->contactCanExecuteThisUseCase()) {
                 $presenter->present($this->findHostGroupAsContact());
@@ -103,26 +98,6 @@ final class FindHostGroups
         return $this->createResponse(
             $this->readHostGroupRepository->findAll($this->requestParameters)
         );
-    }
-
-    /**
-     * Indicates if the current user is admin or not (cloud + onPremise context).
-     *
-     * @return bool
-     */
-    private function isUserAdmin(): bool
-    {
-        if ($this->contact->isAdmin()) {
-            return true;
-        }
-
-        $userAccessGroupNames = array_map(
-            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
-            $this->readAccessGroupRepository->findByContact($this->contact)
-        );
-
-        return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
-            && $this->isCloudPlatform;
     }
 
     /**
