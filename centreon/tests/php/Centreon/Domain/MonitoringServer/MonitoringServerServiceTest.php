@@ -26,8 +26,8 @@ namespace Tests\Centreon\Domain\MonitoringServer;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
+use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\MonitoringServerService;
-use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -41,8 +41,8 @@ beforeEach(function (): void {
         $this->readAccessGroupsRepository,
         $this->user
     );
-    $this->central = new MonitoringServer(1, 'Central');
-    $this->poller = new MonitoringServer(2, 'Poller');
+    $this->central = (new MonitoringServer())->setId(1)->setName('Central');
+    $this->poller = (new MonitoringServer)->setId(2)->setName('Poller');
     $this->monitoringServers = [$this->central, $this->poller];
 });
 
