@@ -20,19 +20,16 @@ import MoreActions from './MoreActions';
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
-  const {
-    closeMoreActions,
-    moreActionsOpen,
-    openMoreActions,
-    editConnectorConfiguration
-  } = useActions(row);
+
+  const { closeMoreActions, moreActionsOpen, openMoreActions, openEditDialog } =
+    useActions(row);
 
   return (
     <Box className={classes.actions}>
       <IconButton
         ariaLabel={t(labelEditConnectorConfiguration)}
         title={t(labelEditConnectorConfiguration)}
-        onClick={editConnectorConfiguration}
+        onClick={openEditDialog}
       >
         <SettingsIcon className={classes.icon} />
       </IconButton>

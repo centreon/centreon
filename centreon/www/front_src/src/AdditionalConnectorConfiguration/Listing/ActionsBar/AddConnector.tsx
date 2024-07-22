@@ -7,9 +7,9 @@ import { Button } from '@centreon/ui/components';
 import { labelAdd } from '../../translatedLabels';
 
 const AddConnector = ({
-  openConfig
+  openCreateDialog
 }: {
-  openConfig: () => void;
+  openCreateDialog: () => void;
 }): JSX.Element => {
   const { t } = useTranslation();
 
@@ -21,7 +21,7 @@ const AddConnector = ({
       iconVariant="start"
       size="medium"
       variant="primary"
-      onClick={openConfig}
+      onClick={openCreateDialog}
     >
       {t(labelAdd)}
     </Button>

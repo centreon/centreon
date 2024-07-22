@@ -5,6 +5,7 @@ import { Box, Typography } from '@mui/material';
 import Listing from './Listing/Listing';
 import { labelAdditionalConnectorConfiguration } from './translatedLabels';
 import { useStyles } from './Page.styles';
+import AdditionalConnectorModal from './Modal/Modal';
 
 const AdditionalConnectorConfiguration = (): JSX.Element => {
   const { classes } = useStyles();
@@ -21,6 +22,7 @@ const AdditionalConnectorConfiguration = (): JSX.Element => {
       </Typography>
       <Box className={classes.listing}>
         <Listing />
+        <AdditionalConnectorModal />
       </Box>
     </Box>
   );
