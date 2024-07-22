@@ -206,7 +206,7 @@ const PerformanceGraph = <T,>({
             newLineData.map((line) => ({
               ...line,
               display:
-                find(propEq(line.name, 'name'), lineData)?.display ?? true
+                find(propEq('name', line.name), lineData)?.display ?? true
             }))
           );
 
@@ -268,15 +268,14 @@ const PerformanceGraph = <T,>({
     );
   }
 
-  const getLineByMetric = (metric): LineModel => {
-    return find(propEq(metric, 'metric'), lineData) as LineModel;
-  };
+  const getLineByMetric = (metric): LineModel =>
+    find(propEq('metric', metric), lineData) as LineModel;
 
   const toggleMetricLine = (metric): void => {
     const line = getLineByMetric(metric);
 
     setLineData([
-      ...reject(propEq(metric, 'metric'), lineData),
+      ...reject(propEq('metric', metric), lineData),
       { ...line, display: !line.display }
     ]);
   };
@@ -285,7 +284,7 @@ const PerformanceGraph = <T,>({
     const fadedLines = map((line) => ({ ...line, highlight: false }), lineData);
 
     setLineData([
-      ...reject(propEq(metric, 'metric'), fadedLines),
+      ...reject(propEq('metric', metric), fadedLines),
       { ...getLineByMetric(metric), highlight: true }
     ]);
   };
@@ -302,7 +301,7 @@ const PerformanceGraph = <T,>({
   const sortedLines =
     filtredLines?.newSortedLines ?? sortBy(prop('name'), lineData);
   const displayedLines =
-    filtredLines?.newLines ?? reject(propEq(false, 'display'), sortedLines);
+    filtredLines?.newLines ?? reject(propEq('display', false), sortedLines);
 
   const selectMetricLine = (metric: string): void => {
     const metricLine = getLineByMetric(metric);
