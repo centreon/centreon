@@ -17031,3 +17031,126 @@ msgstr "Erweiterter Modus"
 
 # msgid "Bar background opacity"
 # msgstr ""
+
+# msgid "Check command sent!"
+# msgstr ""
+
+# msgid "Forced check command sent!"
+# msgstr ""
+
+# msgid "Open ticket"
+# msgstr "Ouvrir un ticket"
+
+# msgid "Open ticket for host"
+# msgstr ""
+
+# msgid "Open ticket for service"
+# msgstr ""
+
+# msgid "Host severities"
+# msgstr ""
+
+# msgid "Service severities"
+# msgstr ""
+
+# msgid "Select service severities"
+# msgstr ""
+
+# msgid "Select host severities"
+# msgstr ""
+
+# msgid "Enable Open Tickets"
+# msgstr ""
+
+# msgid "Ticket provider"
+# msgstr ""
+
+# msgid "Select a provider"
+# msgstr ""
+
+# msgid "Display resources"
+# msgstr ""
+
+# msgid "Resources linked to a ticket"
+# msgstr ""
+
+# msgid "Resources with no ticket"
+# msgstr ""
+
+# msgid "Hide services with Down host"
+# msgstr ""
+
+# msgstr "hide services with Unreachable host"
+# msgstr ""
+
+# msgstr "Ticket ID"
+# msgstr ""
+
+# msgstr "Ticket subject"
+# msgstr ""
+
+# msgstr "Opened on"
+# msgstr ""
+
+
+# msgid "Create a ticket"
+# msgstr ""
+
+# msgid "Rule (ticket provider)"
+# msgstr ""
+
+# msgid "Select rule (ticket provider)"
+# msgstr ""
+
+# msgid "Display resources with these status types"
+# msgstr ""
+# msgid  "All KPIs on this Business Activity are working fine."
+# msgstr ""
+
+# msgid  "are working fine."
+# msgstr ""
+
+# msgid  "See more information in the geoview"
+# msgstr ""
+
+# msgid  "Calculation method"
+# msgstr ""
+
+# msgid  "State information"
+# msgstr ""
+
+# msgid  "Warning threshold"
+# msgstr ""
+
+# msgid  "Critical threshold"
+# msgstr ""
+
+# msgid "Click here for details"
+# msgstr ""
+
+# msgid "Expression in"
+# msgstr ""
+
+# msgid "Impact applied when:"
+# msgstr ""
+
+# msgid "true"
+# msgstr ""
+
+# msgid "false"
+# msgstr ""
+
+# msgid "No KPI found"
+# msgstr ""
+
+# msgid "No Business Activity found"
+# msgstr ""
+
+# msgid "business activity"
+# msgstr ""
+
+# msgid "Health"
+# msgstr ""
+
+# msgid "Critical KPIs"
+# msgstr ""

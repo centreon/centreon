@@ -9,10 +9,10 @@ import { makeStyles } from 'tss-react/mui';
 import { Typography } from '@mui/material';
 
 import { FallbackPage, LoadingSkeleton, WallpaperPage } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 import useValidationSchema from './validationSchema';
 import { LoginFormValues } from './models';

@@ -66,19 +66,6 @@ class Macro extends AbstractObject
                 $this->macro_service_cache[$macro['svc_svc_id']] = array();
             }
 
-            # Modify macro value for Centreon Vault Storage
-            if (
-                $this->isVaultEnabled
-                && $macro['is_password'] === 1
-            ) {
-                $serviceMacroName = preg_replace(
-                    '/\$(_SERVICE.*)\$/',
-                    '$1',
-                    $macro['svc_macro_name']
-                );
-                $macro['svc_macro_value'] = sprintf("{%s::%s}", $serviceMacroName, $macro['svc_macro_value']);
-            }
-
             $serviceMacroName = preg_replace(
                 '/\$_SERVICE(.*)\$/',
                 '_$1',
@@ -116,14 +103,6 @@ class Macro extends AbstractObject
                 '_$1',
                 $macro['svc_macro_name']
             );
-
-            # Modify macro value for Centreon Vault Storage
-            if (
-                $this->isVaultEnabled
-                && $macro['is_password'] === 1
-            ) {
-                $macro['svc_macro_value'] = sprintf("{%s::%s}", $serviceMacroName, $macro['svc_macro_value']);
-            }
 
             $this->macro_service_cache[$service_id][$serviceMacroName] = $macro['svc_macro_value'];
         }

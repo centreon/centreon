@@ -3,7 +3,7 @@ info:
   title: Centreon Web RestAPI
   description: |
     # New features
-    +
+    + Added endpoint to deploy services in a host based on associated host template(s)
     # Updated features
     + Added host_category filter to /monitoring/hostgroups endpoint
     + Added new filters for the /monitoring/hosts/categories endpoint
@@ -27,8 +27,8 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
   version: "24.04"
 externalDocs:
-  description: You can contact us on our community Slack
-  url: 'https://centreon.slack.com/messages/CCRGLQSE5'
+  description: You can contact us on our community platform The Watch
+  url: 'https://thewatch.centreon.com/'
 servers:
   - url: '{protocol}://{server}:{port}/centreon/api/{version}'
     variables:
@@ -246,8 +246,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/broker/{brokerId}/outputs:
-    $ref: "./latest/onPremise/Configuration/Broker/AddBrokerOutput.yaml"
+  /configuration/broker/{brokerId}/{tag}:
+    $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:
     $ref: "./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:
@@ -390,6 +390,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/{host_id}/services/deploy:
+    $ref: './latest/onPremise/Configuration/Service/DeployServices.yaml'
   /configuration/services/categories:
     get:
       tags:
@@ -1109,8 +1111,6 @@ paths:
           description: "Generation OK"
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/monitoring-servers/reload:
@@ -4649,78 +4649,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /administration/vaults/configurations:
-    post:
-      tags:
-        - Administration
-      summary: "Create vault configuration"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Administration.Vault.Configuration.Write'
-      responses:
-        '201':
-          description: "OK"
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    put:
-      tags:
-        - Administration
-      summary: "Update vault configuration"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Administration.Vault.Configuration.Update'
-      responses:
-        '204':
-          description: "OK"
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    delete:
-      tags:
-        - Administration
-      summary: "Delete vault configuration"
-      responses:
-        '204':
-          description: "OK"
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    get:
-      tags:
-        - Administration
-      summary: "Get vault configuration details"
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Administration.Vault.Configuration.Read'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: "./latest/onPremise/Administration/Vault/VaultConfiguration.yaml"
 components:
   securitySchemes:
     Token:
@@ -5122,24 +5051,6 @@ components:
       required: true
       schema:
         type: string
-    VaultId:
-      in: path
-      name: vault_id
-      description: "ID of vault provider"
-      required: true
-      schema:
-        type: integer
-        format: int64
-        example: 1
-    VaultConfigurationId:
-      in: path
-      name: vault_configuration_id
-      description: "ID of existing vault configuration"
-      required: true
-      schema:
-        type: integer
-        format: int64
-        example: 1
     HostCategoryId:
       in: path
       name: host_category_id
@@ -8244,80 +8155,3 @@ components:
                 type: string
                 description: "Data on JSON Format"
                 example: "{\"action\":\"getthumbprint\",\"data\":{\"thumbprint\":\"xxxx_xxxxxxxxx\"},\"message\":\"ok\"}"
-    Administration.Vault.Configuration.Write:
-      type: object
-      required: [name, address, port, root_path, role_id, secret_id]
-      description: "Vault configuration"
-      properties:
-        name:
-          type: string
-          description: "Vault configuration name"
-          example: "centreon_vault"
-        address:
-          type: string
-          description: "Vault URL or IP"
-          example: "127.0.0.1"
-        port:
-          type: integer
-          description: "Vault Port"
-          example: 8200
-        root_path:
-          type: string
-          description: "Vault root storage path"
-          example: "centreon"
-        role_id:
-          type: string
-          description: "Vault role id"
-        secret_id:
-          type: string
-          description: "Vault secret id"
-    Administration.Vault.Configuration.Update:
-      type: object
-      required: [address, port, role_id, secret_id]
-      description: "Vault configuration"
-      properties:
-        address:
-          type: string
-          description: "Vault URL or IP"
-          example: "127.0.0.1"
-        port:
-          type: integer
-          description: "Vault Port"
-          example: 8200
-        role_id:
-          type: string
-          description: "Vault role id"
-        secret_id:
-          type: string
-          description: "Vault secret id"
-    Administration.Vault.Configuration.Read:
-      type: object
-      description: "Vault configuration"
-      properties:
-        id:
-          type: integer
-          description: "Vault configuration id"
-          example: 1
-        name:
-          type: string
-          description: "Vault configuration name"
-          example: "centreon_vault"
-        vault_id:
-          type: integer
-          description: "Vault provider id"
-          example: 1
-        address:
-          type: string
-          description: "Vault URL or IP"
-          example: "127.0.0.1"
-        port:
-          type: integer
-          description: "Vault Port"
-          example: 8200
-        root_path:
-          type: string
-          description: "Vault root storage path"
-          example: "centreon"
-        role_id:
-          type: string
-          description: "Vault role ID"

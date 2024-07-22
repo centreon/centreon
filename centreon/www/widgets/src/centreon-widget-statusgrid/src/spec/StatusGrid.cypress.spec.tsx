@@ -607,7 +607,7 @@ describe('Condensed view', () => {
       cy.get('[data-label="pending"]').trigger('mouseover');
 
       cy.contains('Status: Pending').should('be.visible');
-      cy.contains('No service found with this status.').should('be.visible');
+      cy.contains('No service found with this status').should('be.visible');
 
       cy.makeSnapshot();
     });

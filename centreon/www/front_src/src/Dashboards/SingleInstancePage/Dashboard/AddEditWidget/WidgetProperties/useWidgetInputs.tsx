@@ -1,10 +1,24 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find, path, equals, type } from 'ramda';
+import {
+  propEq,
+  find,
+  path,
+  equals,
+  has,
+  pluck,
+  difference,
+  isEmpty,
+  reject
+} from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
+import {
+  platformVersionsAtom,
+  featureFlagsDerivedAtom
+} from '@centreon/ui-context';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import {
@@ -37,7 +51,8 @@ import {
   WidgetSelect,
   WidgetButtonGroup,
   WidgetSlider,
-  WidgetText
+  WidgetText,
+  WidgetConnectedAutocomplete
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -64,7 +79,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.select]: WidgetSelect,
   [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup,
   [FederatedWidgetOptionType.slider]: WidgetSlider,
-  [FederatedWidgetOptionType.text]: WidgetText
+  [FederatedWidgetOptionType.text]: WidgetText,
+  [FederatedWidgetOptionType.connectedAutocomplete]: WidgetConnectedAutocomplete
 };
 
 export const DefaultComponent = (): JSX.Element => (
@@ -80,6 +96,8 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
+  const { modules } = useAtomValue(platformVersionsAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
@@ -102,18 +120,36 @@ export const useWidgetInputs = (
               if (!value.hiddenCondition) {
                 return true;
               }
-              const formattedValue = path(
-                value.hiddenCondition.when.split('.'),
-                values
-              );
 
-              if (equals(type(value.hiddenCondition.matches), 'Array')) {
-                return !(
-                  value.hiddenCondition.matches as Array<unknown>
-                ).includes(formattedValue);
+              const { target, method, when, matches } = value.hiddenCondition;
+
+              if (equals(target, 'featureFlags')) {
+                return !equals(
+                  featureFlags?.[value.hiddenCondition.when],
+                  matches
+                );
               }
 
-              return !equals(formattedValue, value.hiddenCondition.matches);
+              if (equals(target, 'modules')) {
+                return !equals(
+                  has(value.hiddenCondition.when, modules),
+                  matches
+                );
+              }
+
+              if (equals(method, 'includes')) {
+                const property = value.hiddenCondition?.property;
+                const items = property
+                  ? pluck(property, path(when.split('.'), values))
+                  : path(when.split('.'), values);
+
+                return (
+                  isEmpty(reject(equals(''), items)) ||
+                  !isEmpty(difference(reject(equals(''), items), matches))
+                );
+              }
+
+              return !equals(path(when.split('.'), values), matches);
             })
             .map(([key, value]) => {
               const Component =

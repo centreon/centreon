@@ -8,6 +8,16 @@ export const useTileStyles = makeStyles()((theme) => ({
     position: 'relative',
     width: '100%'
   },
+  icon: {
+    fontSize: theme.spacing(2)
+  },
+  iconContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    height: theme.spacing(1.5),
+    justifyContent: 'end',
+    width: '100%'
+  },
   link: {
     all: 'unset',
     display: 'block',
@@ -54,9 +64,27 @@ export const useTileStyles = makeStyles()((theme) => ({
 }));
 
 export const useHostTooltipContentStyles = makeStyles()((theme) => ({
+  baParent: {
+    paddingBottom: theme.spacing(0.5)
+  },
+  baParentText: {
+    paddingBottom: theme.spacing(0.5)
+  },
   body: {
     padding: theme.spacing(1),
     textAlign: 'center'
+  },
+  boleanRuleLink: {
+    color: theme.palette.primary.main
+  },
+  boleanRuleLinkWrapper: {
+    marginLeft: theme.spacing(0.5)
+  },
+  boleanRulebody: {
+    paddingBottom: theme.spacing(1)
+  },
+  container: {
+    minWidth: theme.spacing(30)
   },
   dateContainer: {
     padding: theme.spacing(1, 1, 0)
@@ -75,8 +103,27 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1),
     width: '100%'
   },
+  impact: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: theme.spacing(8)
+  },
+  link: {
+    '&:hover': {
+      cursor: 'pointer',
+      textDecoration: 'underline'
+    },
+    all: 'unset',
+    color: theme.palette.primary.main,
+    display: 'block',
+    fontWeight: theme.typography.fontWeightBold,
+    height: '100%',
+    marginTop: theme.spacing(2),
+    textAlign: 'center',
+    width: '100%'
+  },
   listContainer: {
-    maxHeight: theme.spacing(20),
+    maxHeight: theme.spacing(28),
     overflowY: 'auto',
     padding: theme.spacing(0, 1, 1),
     textAlign: 'start'
@@ -93,10 +140,31 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1),
     justifyContent: 'space-between'
   },
+  metricName: {
+    maxWidth: theme.spacing(18),
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
+  },
   parent: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(1)
+  },
+  statusInformation: {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%'
+  },
+  threshold: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%'
+  },
+  thresholdContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%'
   }
 }));

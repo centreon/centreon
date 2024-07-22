@@ -1,4 +1,4 @@
-import { always, cond, equals, isNil } from 'ramda';
+import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -11,12 +11,13 @@ import { Resource } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
 
 import { useTileStyles } from './StatusGrid.styles';
-import { ResourceData } from './models';
+import { IndicatorType, ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
 import State from './State';
 
 interface Props {
   data: ResourceData | null;
+  isBAResourceType: boolean;
   isSmallestSize: boolean;
   resources: Array<Resource>;
   statuses: Array<string>;
@@ -26,6 +27,7 @@ interface Props {
 export const router = {
   useNavigate
 };
+const DefaultIcon = (): JSX.Element => <div />;
 
 const getResourceTypeIcon = cond([
   [equals('host'), always(<HostIcon />)],
@@ -37,13 +39,34 @@ const Tile = ({
   data,
   type,
   statuses,
-  resources
+  resources,
+  isBAResourceType
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles();
 
-  const getLinkToResourceStatus = ({ isForOneResource }): string =>
-    getResourcesUrl({
+  const Icon = cond([
+    [equals(IndicatorType.BusinessActivity), always(BAIcon)],
+    [equals(IndicatorType.BooleanRule), always(BooleanRuleIcon)],
+    [equals(IndicatorType.AnomalyDetection), always(AnomalyDetectionIcon)],
+    [equals(IndicatorType.MetaService), always(MetaServiceIcon)],
+    [equals(IndicatorType.Service), always(ServiceIcon)],
+    [T, always(DefaultIcon)]
+  ])(type);
+
+  const getLinkToResourceStatus = ({ isForOneResource }): string => {
+    if (isBAResourceType) {
+      const url = getLink({
+        hostId: data?.parentId,
+        id: data?.resourceId || data?.id,
+        name: data?.name,
+        type
+      });
+
+      return url;
+    }
+
+    return getResourcesUrl({
       allResources: resources,
       isForOneResource,
       resource: data,
@@ -51,6 +74,7 @@ const Tile = ({
       statuses,
       type
     });
+  };
 
   if (isNil(data)) {
     return (
@@ -106,6 +130,9 @@ const Tile = ({
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
       >
+        <div className={classes.iconContainer}>
+          <Icon className={classes.icon} />
+        </div>
         {displayStatusTile && (
           <State
             isAcknowledged={data.is_acknowledged}

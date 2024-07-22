@@ -16,3 +16,4 @@ export { default as WidgetSelect } from './Select/Select';
 export { default as WidgetButtonGroup } from './ButtonGroup/ButtonGroup';
 export { default as WidgetSlider } from './Slider/Slider';
 export { default as WidgetText } from './Text';
+export { default as WidgetConnectedAutocomplete } from './Autocomplete/ConnectedAutocomplete';

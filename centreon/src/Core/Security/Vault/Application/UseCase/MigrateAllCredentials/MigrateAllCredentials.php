@@ -25,7 +25,11 @@ namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
+use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
@@ -50,6 +54,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class MigrateAllCredentials
 {
@@ -57,24 +62,6 @@ final class MigrateAllCredentials
 
     private MigrateAllCredentialsResponse $response;
 
-    /**
-     * @param WriteVaultRepositoryInterface $writeVaultRepository
-     * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
-     * @param ReadHostRepositoryInterface $readHostRepository
-     * @param ReadHostMacroRepositoryInterface $readHostMacroRepository
-     * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
-     * @param ReadServiceMacroRepositoryInterface $readServiceMacroRepository
-     * @param ReadOptionRepositoryInterface $readOptionRepository
-     * @param ReadPollerMacroRepositoryInterface $readPollerMacroRepository
-     * @param ReadConfigurationRepositoryInterface $readProviderConfigurationRepository
-     * @param WriteHostRepositoryInterface $writeHostRepository
-     * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
-     * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
-     * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
-     * @param WriteOptionRepositoryInterface $writeOptionRepository
-     * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository
-     * @param WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository
-     */
     public function __construct(
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
@@ -92,6 +79,9 @@ final class MigrateAllCredentials
         private readonly WriteOptionRepositoryInterface $writeOptionRepository,
         private readonly WritePollerMacroRepositoryInterface $writePollerMacroRepository,
         private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
+        private readonly ReadBrokerInputOutputRepositoryInterface $readBrokerInputOutputRepository,
+        private readonly WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository,
+        private readonly FeatureFlags $flags,
     ) {
         $this->response = new MigrateAllCredentialsResponse();
     }
@@ -114,6 +104,9 @@ final class MigrateAllCredentials
             $openIdConfiguration = $this->readProviderConfigurationRepository->getConfigurationByType(
                 Provider::OPENID
             );
+            $brokerInputOutputs = $this->flags->isEnabled('vault_broker')
+                ? $this->readBrokerInputOutputRepository->findAll()
+                : [];
 
             $credentials = $this->createCredentialDtos(
                 $hosts,
@@ -122,7 +115,8 @@ final class MigrateAllCredentials
                 $serviceMacros,
                 $pollerMacros,
                 $knowledgeBasePasswordOption,
-                $openIdConfiguration
+                $openIdConfiguration,
+                $brokerInputOutputs,
             );
 
             $this->migrateCredentials(
@@ -133,7 +127,8 @@ final class MigrateAllCredentials
                 $hostMacros,
                 $serviceMacros,
                 $pollerMacros,
-                $openIdConfiguration
+                $openIdConfiguration,
+                $brokerInputOutputs,
             );
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
@@ -151,6 +146,7 @@ final class MigrateAllCredentials
      * @param Macro[] $serviceMacros
      * @param PollerMacro[] $pollerMacros
      * @param Configuration $openIdConfiguration
+     * @param array<int,BrokerInputOutput[]> $brokerInputOutputs
      */
     private function migrateCredentials(
         \Traversable&\Countable $credentials,
@@ -160,7 +156,8 @@ final class MigrateAllCredentials
         array $hostMacros,
         array $serviceMacros,
         array $pollerMacros,
-        Configuration $openIdConfiguration
+        Configuration $openIdConfiguration,
+        array $brokerInputOutputs,
     ): void {
 
         $response->results = new CredentialMigrator(
@@ -173,12 +170,15 @@ final class MigrateAllCredentials
             $this->writeOptionRepository,
             $this->writePollerMacroRepository,
             $this->writeOpenIdConfigurationRepository,
+            $this->readBrokerInputOutputRepository,
+            $this->writeBrokerInputOutputRepository,
             $hosts,
             $hostTemplates,
             $hostMacros,
             $serviceMacros,
             $pollerMacros,
-            $openIdConfiguration
+            $openIdConfiguration,
+            $brokerInputOutputs,
         );
     }
 
@@ -190,6 +190,7 @@ final class MigrateAllCredentials
      * @param PollerMacro[] $pollerMacros
      * @param Option|null $knowledgeBasePasswordOption
      * @param Configuration $openIdConfiguration
+     * @param array<int,BrokerInputOutput[]> $brokerInputOutputs
      *
      * @return \ArrayIterator<int, CredentialDto> $credentials
      */
@@ -200,7 +201,8 @@ final class MigrateAllCredentials
         array $serviceMacros,
         array $pollerMacros,
         ?Option $knowledgeBasePasswordOption,
-        Configuration $openIdConfiguration
+        Configuration $openIdConfiguration,
+        array $brokerInputOutputs,
     ): \ArrayIterator {
 
         $hostSNMPCommunityCredentialDtos = $this->createHostSNMPCommunityCredentialDtos($hosts);
@@ -212,6 +214,7 @@ final class MigrateAllCredentials
             $knowledgeBasePasswordOption
         );
         $openIdConfigurationCredentialDtos = $this->createOpenIdConfigurationCredentialDtos($openIdConfiguration);
+        $brokerConfigurationCredentialDto = $this->createBrokerInputOutputCredentialDtos($brokerInputOutputs);
 
         return new \ArrayIterator(array_merge(
             $hostSNMPCommunityCredentialDtos,
@@ -220,7 +223,8 @@ final class MigrateAllCredentials
             $serviceMacroCredentialDtos,
             $pollerMacroCredentialDtos,
             $knowledgeBasePasswordCredentialDto,
-            $openIdConfigurationCredentialDtos
+            $openIdConfigurationCredentialDtos,
+            $brokerConfigurationCredentialDto,
         ));
     }
 
@@ -233,13 +237,13 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($hosts as $host) {
-            if ($host->getSnmpCommunity() === '' || str_starts_with($host->getSnmpCommunity(), 'secret::')) {
+            if ($host->getSnmpCommunity() === '' || str_starts_with($host->getSnmpCommunity(), VaultConfiguration::VAULT_PATH_PATTERN)) {
                 continue;
             }
             $credential = new CredentialDto();
             $credential->resourceId = $host->getId();
             $credential->type = CredentialTypeEnum::TYPE_HOST;
-            $credential->name = '_HOSTSNMPCOMMUNITY';
+            $credential->name = VaultConfiguration::HOST_SNMP_COMMUNITY_KEY;
             $credential->value = $host->getSnmpCommunity();
             $credentials[] = $credential;
         }
@@ -258,14 +262,14 @@ final class MigrateAllCredentials
         foreach ($hostTemplates as $hostTemplate) {
             if (
                 $hostTemplate->getSnmpCommunity() === ''
-                || str_starts_with($hostTemplate->getSnmpCommunity(), 'secret::'))
+                || str_starts_with($hostTemplate->getSnmpCommunity(), VaultConfiguration::VAULT_PATH_PATTERN))
             {
                 continue;
             }
             $credential = new CredentialDto();
             $credential->resourceId = $hostTemplate->getId();
             $credential->type = CredentialTypeEnum::TYPE_HOST_TEMPLATE;
-            $credential->name = '_HOSTSNMPCOMMUNITY';
+            $credential->name = VaultConfiguration::HOST_SNMP_COMMUNITY_KEY;
             $credential->value = $hostTemplate->getSnmpCommunity();
             $credentials[] = $credential;
         }
@@ -282,7 +286,10 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($hostMacros as $hostMacro) {
-            if ($hostMacro->getValue() === '' || str_starts_with($hostMacro->getValue(), 'secret::')) {
+            if (
+                $hostMacro->getValue() === ''
+                || str_starts_with($hostMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
                 continue;
             }
             $credential = new CredentialDto();
@@ -305,7 +312,10 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($serviceMacros as $serviceMacro) {
-            if ($serviceMacro->getValue() === '' || str_starts_with($serviceMacro->getValue(), 'secret::')) {
+            if (
+                $serviceMacro->getValue() === ''
+                || str_starts_with($serviceMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
                 continue;
             }
             $credential = new CredentialDto();
@@ -328,7 +338,10 @@ final class MigrateAllCredentials
     {
         $credentials = [];
         foreach ($pollerMacros as $pollerMacro) {
-            if ($pollerMacro->getValue() === '' || str_starts_with($pollerMacro->getValue(), 'secret::')) {
+            if (
+                $pollerMacro->getValue() === ''
+                || str_starts_with($pollerMacro->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
                 continue;
             }
             $credential = new CredentialDto();
@@ -353,14 +366,14 @@ final class MigrateAllCredentials
         if (
             $knowledgeBasePasswordOption === null
             || $knowledgeBasePasswordOption->getValue() === null
-            || str_starts_with($knowledgeBasePasswordOption->getValue(), 'secret::')
+            || str_starts_with($knowledgeBasePasswordOption->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
         ){
             return $credentials;
         }
 
         $credential = new CredentialDto();
         $credential->type = CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD;
-        $credential->name = '_KBPASSWORD';
+        $credential->name = VaultConfiguration::KNOWLEDGE_BASE_KEY;
         $credential->value = $knowledgeBasePasswordOption->getValue();
         $credentials[] = $credential;
 
@@ -383,24 +396,93 @@ final class MigrateAllCredentials
 
         if (
             $customConfiguration->getClientId() !== null
-            && ! str_starts_with($customConfiguration->getClientId(), 'secret::')
+            && ! str_starts_with($customConfiguration->getClientId(), VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $credential = new CredentialDto();
             $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;
-            $credential->name = '_OPENID_CLIENT_ID';
+            $credential->name = VaultConfiguration::OPENID_CLIENT_ID_KEY;
             $credential->value = $customConfiguration->getClientId();
             $credentials[] = $credential;
         }
 
         if (
             $customConfiguration->getClientSecret() !== null
-            && ! str_starts_with($customConfiguration->getClientSecret(), 'secret::')
+            && ! str_starts_with($customConfiguration->getClientSecret(), VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $credential = new CredentialDto();
             $credential->type = CredentialTypeEnum::TYPE_OPEN_ID;
-            $credential->name = '_OPENID_CLIENT_SECRET';
+            $credential->name = VaultConfiguration::OPENID_CLIENT_SECRET_KEY;
             $credential->value = $customConfiguration->getClientSecret();
             $credentials[] = $credential;
+        }
+
+        return $credentials;
+    }
+
+    /**
+     * @param array<int,BrokerInputOutput[]> $inputOutputs
+     *
+     * @return CredentialDto[]
+     */
+    private function createBrokerInputOutputCredentialDtos(array $inputOutputs): array
+    {
+        $credentials = [];
+        $fieldsCache = [];
+
+        foreach ($inputOutputs as $brokerId => $inputOutputConfigs) {
+            foreach ($inputOutputConfigs as $config) {
+                if (! isset($fieldsCache[$config->getType()->id])) {
+                    $fieldsCache[$config->getType()->id]
+                        = $this->readBrokerInputOutputRepository->findParametersByType($config->getType()->id);
+                }
+
+                $fields = $fieldsCache[$config->getType()->id];
+                $params = $config->getParameters();
+
+                foreach ($fields as $fieldName => $field) {
+
+                    if (! isset($params[$fieldName])) {
+                        continue;
+                    }
+                    if (is_array($field)) {
+                        if (! is_array($params[$fieldName])) {
+                            // for phpstan, should never happen.
+                            throw new \Exception('unexpected error');
+                        }
+                        foreach ($params[$fieldName] as $groupedParams) {
+                            if (
+                                isset($groupedParams['type'])
+                                && $groupedParams['type'] === 'password'
+                                && isset($groupedParams['value'])
+                                && $groupedParams['value'] !== ''
+                                && ! str_starts_with((string) $groupedParams['value'], 'secret::')
+                                ) {
+                                /** @var array{type:string,name:string,value:string|int} $groupedParams */
+                                $credential = new CredentialDto();
+                                $credential->resourceId = $brokerId;
+                                $credential->type = CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT;
+                                $credential->name = $config->getName() . '_' . $fieldName . '_' . $groupedParams['name'];
+                                $credential->value = (string) $groupedParams['value'];
+                                $credentials[] = $credential;
+                            }
+                        }
+
+                    } elseif ($field->getType() === 'password') {
+                        /** @var string $value */
+                        $value = $params[$fieldName];
+                        if ($value === '' || str_starts_with($value, 'secret::')) {
+                            continue;
+                        }
+
+                        $credential = new CredentialDto();
+                        $credential->resourceId = $brokerId;
+                        $credential->type = CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT;
+                        $credential->name = $config->getName() . '_' . $fieldName;
+                        $credential->value = $value;
+                        $credentials[] = $credential;
+                    }
+                }
+            }
         }
 
         return $credentials;
