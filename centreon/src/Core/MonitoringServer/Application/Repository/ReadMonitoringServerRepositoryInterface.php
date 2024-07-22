@@ -51,6 +51,31 @@ interface ReadMonitoringServerRepositoryInterface {
     public function existsByAccessGroups(int $monitoringServerId, array $accessGroups): bool;
 
     /**
+     * Determine if monitoring servers exist by their IDs.
+     * Return the ids found.
+     *
+     * @param int[] $monitoringServerIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function exist(array $monitoringServerIds): array;
+
+    /**
+     * Determine if monitoring servers exist by their IDs and access groups.
+     * Return the ids found.
+     *
+     * @param int[] $monitoringServerIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function existByAccessGroups(array $monitoringServerIds, array $accessGroups): array;
+
+    /**
      * Get a monitoring server by its associated host ID.
      *
      * @param int $hostId

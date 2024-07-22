@@ -113,4 +113,21 @@ class DbWriteAdditionalConnectorRepository extends AbstractRepositoryRDB impleme
             $statement->execute();
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(int $id): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.`additional_connector`
+                WHERE
+                    `id` = :id
+                SQL
+        ));
+
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $statement->execute();
+    }
 }

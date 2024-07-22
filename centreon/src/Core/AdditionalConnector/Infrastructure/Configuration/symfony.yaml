@@ -27,3 +27,7 @@ services:
     Core\AdditionalConnector\Infrastructure\API\AddAdditionalConnector\AddAdditionalConnectorPresenter:
         arguments:
             $parametersFormatters: !tagged_iterator 'additional_connector.formatters'
+
+    Core\AdditionalConnector\Application\UseCase\DeleteAdditionalConnector\DeleteAdditionalConnector:
+        arguments:
+            $writeVaultAccRepositories: !tagged_iterator 'additional_connector.vault.repositories'
