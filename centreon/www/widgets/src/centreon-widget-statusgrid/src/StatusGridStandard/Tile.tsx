@@ -14,6 +14,13 @@ import { useTileStyles } from './StatusGrid.styles';
 import { IndicatorType, ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
 import State from './State';
+import {
+  AnomalyDetectionIcon,
+  BAIcon,
+  BooleanRuleIcon,
+  MetaServiceIcon
+} from './Icons';
+import { getLink } from './utils';
 
 interface Props {
   data: ResourceData | null;
