@@ -36,11 +36,6 @@ export const router = {
 };
 const DefaultIcon = (): JSX.Element => <div />;
 
-const getResourceTypeIcon = cond([
-  [equals('host'), always(<HostIcon />)],
-  [equals('service'), always(<ServiceIcon />)]
-]);
-
 const Tile = ({
   isSmallestSize,
   data,
@@ -58,6 +53,7 @@ const Tile = ({
     [equals(IndicatorType.AnomalyDetection), always(AnomalyDetectionIcon)],
     [equals(IndicatorType.MetaService), always(MetaServiceIcon)],
     [equals(IndicatorType.Service), always(ServiceIcon)],
+    [equals(IndicatorType.Host), always(HostIcon)],
     [T, always(DefaultIcon)]
   ])(type);
 
@@ -137,9 +133,6 @@ const Tile = ({
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
       >
-        <div className={classes.iconContainer}>
-          <Icon className={classes.icon} />
-        </div>
         {displayStatusTile && (
           <State
             isAcknowledged={data.is_acknowledged}
@@ -148,7 +141,7 @@ const Tile = ({
           />
         )}
         <div className={classes.resourceTypeIcon}>
-          {getResourceTypeIcon(type)}
+          <Icon className={classes.icon} />
         </div>
         <EllipsisTypography className={classes.resourceName} textAlign="center">
           {data.name}
