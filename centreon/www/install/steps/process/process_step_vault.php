@@ -72,7 +72,6 @@ try {
         );
     $vaultConfiguration = new \Core\Security\Vault\Domain\Model\NewVaultConfiguration(
         $encryption,
-        'hashicorp_vault',
         $parameters['address'],
         (int) $parameters['port'],
         $parameters['root_path'],

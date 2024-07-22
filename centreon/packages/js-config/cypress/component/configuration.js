@@ -28,6 +28,11 @@ module.exports = ({
         addMatchImageSnapshotPlugin(on, config);
 
         cypressCodeCoverageTask(on, config);
+        on('task', {
+          coverageReport: () => {
+            return null;
+          }
+        });
 
         on('before:browser:launch', (browser, launchOptions) => {
           if (browser.name === 'chrome' && browser.isHeadless) {
@@ -65,7 +70,7 @@ module.exports = ({
     },
     video: true,
     videosFolder: `${mainCypressFolder}/results/videos`,
-    viewportHeight: 590,
-    viewportWidth: 1280
+    viewportHeight: 1400,
+    viewportWidth: 1200
   });
 };

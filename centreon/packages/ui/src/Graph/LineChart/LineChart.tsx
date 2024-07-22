@@ -123,6 +123,7 @@ const LineChart = ({
     hasSecondUnit: Boolean(secondUnit),
     height,
     legendDisplay: legend?.display,
+    legendHeight: legend?.height,
     legendPlacement: legend?.placement,
     width
   });
@@ -229,6 +230,7 @@ const LineChart = ({
           height={height}
           legend={{
             displayLegend,
+            legendHeight: legend?.height,
             mode: legend?.mode,
             placement: legend?.placement,
             renderExtraComponent: legend?.renderExtraComponent

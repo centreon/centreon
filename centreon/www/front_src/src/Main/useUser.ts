@@ -47,7 +47,8 @@ const useUser = (): (() => null | Promise<void>) => {
           default_page: defaultPage,
           user_interface_density,
           dashboard,
-          isAdmin
+          isAdmin,
+          canManageApiTokens
         } = retrievedUser as User;
 
         setUser({
@@ -58,6 +59,8 @@ const useUser = (): (() => null | Promise<void>) => {
                 favorites: dashboard?.favorites ?? []
               }
             : null,
+          canManageApiTokens,
+          dashboard,
           default_page: defaultPage || '/monitoring/resources',
           id,
           isAdmin,

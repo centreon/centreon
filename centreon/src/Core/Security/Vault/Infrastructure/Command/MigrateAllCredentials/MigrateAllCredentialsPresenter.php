@@ -30,6 +30,7 @@ use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialReco
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialTypeEnum;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentialsPresenterInterface;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentialsResponse;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements MigrateAllCredentialsPresenterInterface
 {
@@ -73,6 +74,8 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
             CredentialTypeEnum::TYPE_HOST_TEMPLATE => 'host_template',
             CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => 'knowledge_base',
             CredentialTypeEnum::TYPE_POLLER_MACRO => 'poller_macro',
+            CredentialTypeEnum::TYPE_OPEN_ID => 'open_id',
+            CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT => 'broker_input_output',
         };
     }
 
@@ -85,15 +88,14 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
      */
     private function prefixMacroName(CredentialRecordedDto|CredentialErrorDto $dto): string
     {
-        if ($dto->credentialName === '_HOSTSNMPCOMMUNITY') {
+        if ($dto->credentialName === VaultConfiguration::HOST_SNMP_COMMUNITY_KEY) {
             return $dto->credentialName;
         }
 
         return match ($dto->type) {
             CredentialTypeEnum::TYPE_HOST, CredentialTypeEnum::TYPE_HOST_TEMPLATE => '_HOST' . $dto->credentialName,
             CredentialTypeEnum::TYPE_SERVICE => '_SERVICE' . $dto->credentialName,
-            CredentialTypeEnum::TYPE_POLLER_MACRO,
-            CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => $dto->credentialName
+            default => $dto->credentialName
         };
 
     }

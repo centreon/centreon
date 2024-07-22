@@ -11,6 +11,7 @@ import utcPlugin from 'dayjs/plugin/utc';
 
 import { ParentSize } from '../..';
 import { LineChartData, Thresholds } from '../common/models';
+import Loading from '../../LoadingSkeleton';
 
 import LineChart from './LineChart';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -73,7 +74,7 @@ const WrapperLineChart = ({
   }
 
   if (!adjustedData) {
-    return null;
+    return <Loading height={height} width={width} />;
   }
 
   return (

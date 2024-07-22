@@ -1,6 +1,6 @@
-import { MutableRefObject, useMemo, useRef, useState } from 'react';
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
-import { equals, flatten, has, isNil, pluck } from 'ramda';
+import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
 import { useAtom } from 'jotai';
 
 import { Skeleton } from '@mui/material';
@@ -22,6 +22,7 @@ import { useTooltipStyles } from '../common/useTooltipStyles';
 import { margin } from '../LineChart/common';
 import { Tooltip } from '../../components';
 import Thresholds from '../common/Thresholds/Thresholds';
+import { useDeepCompare } from '../../utils';
 
 import BarGroup from './BarGroup';
 import { tooltipDataAtom } from './atoms';
@@ -35,7 +36,7 @@ interface Props
   graphRef: MutableRefObject<HTMLDivElement | null>;
   height: number;
   limitLegend?: false | number;
-  orientation: 'vertical' | 'horizontal';
+  orientation: 'vertical' | 'horizontal' | 'auto';
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
   width: number;
@@ -82,7 +83,13 @@ const ResponsiveBarChart = ({
     pluck('value', thresholds?.critical || [])
   ]);
 
-  const isHorizontal = equals(orientation, 'horizontal');
+  const isHorizontal = useMemo(() => {
+    if (!equals(orientation, 'auto')) {
+      return equals(orientation, 'horizontal');
+    }
+
+    return gte(graphWidth, graphHeight + 60);
+  }, [orientation, graphWidth, graphHeight]);
 
   const xScale = useMemo(
     () =>
@@ -142,6 +149,13 @@ const ResponsiveBarChart = ({
       graphWidth,
       isHorizontal
     ]
+  );
+
+  useEffect(
+    () => {
+      setLinesGraph(lines);
+    },
+    useDeepCompare([lines])
   );
 
   const displayLegend = legend?.display ?? true;
@@ -214,7 +228,7 @@ const ResponsiveBarChart = ({
             graphWidth={graphWidth - (isHorizontal ? 0 : margin.left - 15)}
             gridLinesType={axis?.gridLinesType}
             leftScale={leftScale}
-            orientation={orientation}
+            orientation={isHorizontal ? 'horizontal' : 'vertical'}
             rightScale={rightScale}
             showGridLines={showGridLines}
             svgRef={graphSvgRef}
@@ -228,7 +242,7 @@ const ResponsiveBarChart = ({
                 isTooltipHidden={isTooltipHidden}
                 leftScale={leftScale}
                 lines={displayedLines}
-                orientation={orientation}
+                orientation={isHorizontal ? 'horizontal' : 'vertical'}
                 rightScale={rightScale}
                 secondUnit={secondUnit}
                 size={isHorizontal ? graphHeight - margin.top - 5 : graphWidth}

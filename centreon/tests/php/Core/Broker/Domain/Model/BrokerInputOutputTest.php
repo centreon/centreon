@@ -45,10 +45,10 @@ it('should return properly set broker output instance', function (): void {
 });
 
 it('should throw an exception when broker output ID is invalid', function (): void {
-    new BrokerInputOutput(0, 'output', $this->type, $this->name, $this->parameters);
+    new BrokerInputOutput(-1, 'output', $this->type, $this->name, $this->parameters);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::positiveInt(0, 'BrokerInputOutput::id')->getMessage()
+    AssertionException::min(-1, 0, 'BrokerInputOutput::id')->getMessage()
 );
 
 it('should throw an exception when broker output name is empty', function (): void {
