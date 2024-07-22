@@ -110,6 +110,7 @@ export enum IndicatorType {
   AnomalyDetection = 'anomaly-detection',
   BooleanRule = 'boolean-rule',
   BusinessActivity = 'business-activity',
+  Host = 'host',
   MetaService = 'meta-service',
   Service = 'service'
 }

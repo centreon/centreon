@@ -2,10 +2,10 @@ import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 
-import { Box, CardActionArea, Typography, useTheme } from '@mui/material';
+import { Box, CardActionArea, Typography } from '@mui/material';
 import DvrIcon from '@mui/icons-material/Dvr';
 
-import { EllipsisTypography } from '@centreon/ui';
+import { EllipsisTypography, HostIcon, ServiceIcon } from '@centreon/ui';
 
 import { Resource } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
@@ -13,14 +13,14 @@ import { getResourcesUrl } from '../../../utils';
 import { useTileStyles } from './StatusGrid.styles';
 import { IndicatorType, ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
-import { getColor, getLink } from './utils';
+import State from './State';
 import {
   AnomalyDetectionIcon,
   BAIcon,
   BooleanRuleIcon,
-  MetaServiceIcon,
-  ServiceIcon
+  MetaServiceIcon
 } from './Icons';
+import { getLink } from './utils';
 
 interface Props {
   data: ResourceData | null;
@@ -46,7 +46,6 @@ const Tile = ({
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles();
-  const theme = useTheme();
 
   const Icon = cond([
     [equals(IndicatorType.BusinessActivity), always(BAIcon)],
@@ -54,6 +53,7 @@ const Tile = ({
     [equals(IndicatorType.AnomalyDetection), always(AnomalyDetectionIcon)],
     [equals(IndicatorType.MetaService), always(MetaServiceIcon)],
     [equals(IndicatorType.Service), always(ServiceIcon)],
+    [equals(IndicatorType.Host), always(HostIcon)],
     [T, always(DefaultIcon)]
   ])(type);
 
@@ -112,15 +112,14 @@ const Tile = ({
         to={getLinkToResourceStatus({ isForOneResource: true })}
       >
         <Box className={classes.container}>
-          {displayStatusTile ? (
-            <Box
-              className={classes.statusTile}
-              data-mode="compact"
-              sx={{
-                backgroundColor: getColor({ severityCode: data.status, theme })
-              }}
+          {displayStatusTile && (
+            <State
+              isAcknowledged={data.is_acknowledged}
+              isCompact={isSmallestSize}
+              isInDowntime={data.is_in_downtime}
+              type={type}
             />
-          ) : null}
+          )}
         </Box>
       </Link>
     );
@@ -134,17 +133,16 @@ const Tile = ({
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
       >
-        <div className={classes.iconContainer}>
-          <Icon className={classes.icon} />
-        </div>
         {displayStatusTile && (
-          <Box
-            className={classes.statusTile}
-            sx={{
-              backgroundColor: getColor({ severityCode: data.status, theme })
-            }}
+          <State
+            isAcknowledged={data.is_acknowledged}
+            isCompact={isSmallestSize}
+            isInDowntime={data.is_in_downtime}
           />
         )}
+        <div className={classes.resourceTypeIcon}>
+          <Icon className={classes.icon} />
+        </div>
         <EllipsisTypography className={classes.resourceName} textAlign="center">
           {data.name}
         </EllipsisTypography>
