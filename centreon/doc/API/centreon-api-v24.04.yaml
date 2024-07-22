@@ -399,7 +399,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/{host_id}/services/deploy:
-    $ref: './latest/onPremise/Configuration/Service/DeployServices.yaml'
+    $ref: './v24.04/Configuration/Service/DeployServices.yaml'
   /configuration/services/categories:
     get:
       tags:
