@@ -19269,3 +19269,5 @@ msgid "Health"
 msgstr "Santé"
 
 msgid "Critical KPIs"
+msgstr "Indicateurs critiques"
+
