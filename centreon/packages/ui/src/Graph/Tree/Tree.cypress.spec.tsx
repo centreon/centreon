@@ -35,6 +35,8 @@ const initializeStandaloneTree = ({
   treeLink,
   children = SimpleContent
 }: InitializeProps): void => {
+  cy.adjustViewport();
+
   cy.mount({
     Component: (
       <div style={{ height: '99vh' }}>

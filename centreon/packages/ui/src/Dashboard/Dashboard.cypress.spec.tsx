@@ -41,6 +41,8 @@ const dashboardLayout: Array<CustomLayout> = [
 ];
 
 const initialize = (): void => {
+  cy.adjustViewport();
+
   cy.mount({
     Component: (
       <DashboardLayout.Layout layout={dashboardLayout}>
