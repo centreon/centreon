@@ -64,6 +64,7 @@ Feature:
       "is_admin": true,
       "use_deprecated_pages": false,
       "is_export_button_enabled": true,
+      "can_manage_api_tokens": true,
       "theme": "light",
       "user_interface_density": "compact",
       "default_page": null,
