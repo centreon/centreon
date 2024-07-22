@@ -1,6 +1,0 @@
-## BEGIN: GORGONE SUDO
-
-User_Alias      GORGONE=centreon-gorgone
-Defaults:GORGONE !requiretty
-
-GORGONE ALL = NOPASSWD: /usr/local/bin/gorgone_install_plugins.pl
