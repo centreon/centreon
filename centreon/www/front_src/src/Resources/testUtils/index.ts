@@ -1,5 +1,7 @@
 import { findIndex, lensPath, propEq, set } from 'ramda';
 
+import { ListingVariant } from '@centreon/ui-context';
+
 import { CriteriaValue } from '../Filter/Criterias/models';
 import { searchableFields } from '../Filter/Criterias/searchQueryLanguage';
 import { Filter } from '../Filter/models';
@@ -107,6 +109,17 @@ const getFilterWithUpdatedCriteria = ({
   return set(lens, criteriaValue, filter);
 };
 
+const retrievedUser = {
+  alias: 'Admin',
+  default_page: '/monitoring/resources',
+  isExportButtonEnabled: true,
+  locale: 'fr_FR.UTF8',
+  name: 'Admin',
+  timezone: 'Europe/Paris',
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
+};
+
 export {
   cancelTokenRequestParam,
   defaultResourceTypes,
@@ -117,5 +130,6 @@ export {
   getCriteriaValue,
   getFilterWithUpdatedCriteria,
   getListingEndpoint,
-  searchableFields
+  searchableFields,
+  retrievedUser
 };
