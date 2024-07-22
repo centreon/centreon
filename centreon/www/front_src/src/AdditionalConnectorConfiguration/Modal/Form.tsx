@@ -7,13 +7,25 @@ import { Form, FormProps, InputType } from '@centreon/ui';
 import { FormVariant } from '@centreon/ui/components';
 
 import {
+  labelCancel,
   labelCharacters,
+  labelCreate,
+  labelDescription,
   labelMustBeAtLeast,
   labelMustBeMost,
-  labelRequired
+  labelName,
+  labelParameters,
+  labelPollers,
+  labelPort,
+  labelRequired,
+  labelSelectType,
+  labelType,
+  labelUpdate,
+  labelValue
 } from '../translatedLabels';
 
 import { useFormStyles } from './useModalStyles';
+import Parameters from './Parameters/Parameters';
 
 import {
   FormActions,
@@ -22,61 +34,124 @@ import {
 
 export type ConnectorsProperties = {
   description?: string | null;
-  globalRefreshInterval?: {
-    global: string;
-    manual: string;
-    title: string;
-  };
   name: string;
+  parameters;
+  pollers;
+  port: { name: string; value: number };
+  type;
 };
 
 export type DashboardFormProps = {
-  labels: DashboardFormLabels;
   onSubmit?: FormProps<ConnectorsProperties>['submit'];
   resource?: ConnectorsProperties;
   variant?: FormVariant;
 } & Pick<FormActionsProps, 'onCancel'>;
 
-export type DashboardFormLabels = {
+export type ConnectorFormLabels = {
   actions: FormActionsProps['labels'];
-  entity: Required<ConnectorsProperties>;
+  entity;
 };
 
 const ConnectorsForm = ({
   variant = 'create',
   resource,
-  labels,
   onSubmit,
   onCancel
 }: DashboardFormProps): ReactElement => {
   const { classes } = useFormStyles();
   const { t } = useTranslation();
 
+  const actionsLabels = {
+    cancel: t(labelCancel),
+    submit: {
+      create: t(labelCreate),
+      update: t(labelUpdate)
+    }
+  };
+
   const formProps = useMemo<FormProps<ConnectorsProperties>>(
     () => ({
-      initialValues: resource ?? { description: null, name: '' },
+      initialValues: resource ?? {
+        description: null,
+        name: '',
+        parameters: 'parameters',
+        pollers: [],
+        port: { name: 'Port', value: 5700 },
+        type: {}
+      },
       inputs: [
         {
           fieldName: 'name',
           group: 'main',
-          label: labels?.entity?.name,
+          label: t(labelName),
           required: true,
           type: InputType.Text
         },
         {
           fieldName: 'description',
           group: 'main',
-          label: labels?.entity?.description || '',
+          label: t(labelDescription),
           text: {
             multilineRows: 3
           },
           type: InputType.Text
+        },
+        {
+          additionalLabel: t(labelPollers),
+          additionalLabelClassName: classes.additionalLabel,
+          fieldName: 'pollers',
+          group: 'main',
+          label: t(labelPollers),
+          required: true,
+          type: InputType.SingleConnectedAutocomplete
+        },
+        {
+          additionalLabel: t(labelType),
+          additionalLabelClassName: classes.additionalLabel,
+          fieldName: 'type',
+          group: 'main',
+          label: t(labelSelectType),
+          required: true,
+          type: InputType.SingleConnectedAutocomplete
+        },
+        {
+          additionalLabel: t(labelParameters),
+          additionalLabelClassName: classes.additionalLabel,
+          custom: {
+            Component: Parameters
+          },
+          fieldName: 'parameters',
+          group: 'main',
+          label: t(labelParameters),
+          type: InputType.Custom
+        },
+        {
+          additionalLabel: t(labelPort),
+          additionalLabelClassName: classes.additionalLabel,
+          fieldName: 'port',
+          grid: {
+            columns: [
+              {
+                fieldName: 'port.name',
+                label: t(labelName),
+                type: InputType.Text
+              },
+              {
+                fieldName: 'port.value',
+                label: t(labelValue),
+                type: InputType.Text
+              }
+            ]
+          },
+          group: 'main',
+          label: t(labelPort),
+          type: InputType.Grid
         }
       ],
       submit: (values, bag) => onSubmit?.(values, bag),
       validationSchema: object({
         description: string()
-          .label(labels?.entity?.description || '')
+          .label(t(labelDescription) || '')
           .max(
             180,
             (p) =>
@@ -84,24 +159,24 @@ const ConnectorsForm = ({
           )
           .nullable(),
         name: string()
-          .label(labels?.entity?.name)
+          .label(t(labelName))
           .min(3, ({ min, label }) => t(labelMustBeAtLeast, { label, min }))
           .max(50, ({ max, label }) => t(labelMustBeMost, { label, max }))
           .required(t(labelRequired) as string)
       })
     }),
-    [resource, labels, onSubmit]
+    [resource, onSubmit]
   );
 
   const Actions = useCallback(
     () => (
       <FormActions<ConnectorsProperties>
-        labels={labels?.actions}
+        labels={actionsLabels}
         variant={variant}
         onCancel={onCancel}
       />
     ),
-    [labels, onCancel, variant]
+    [onCancel, variant]
   );
 
   return (

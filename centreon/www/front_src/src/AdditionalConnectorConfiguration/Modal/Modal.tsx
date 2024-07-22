@@ -4,12 +4,7 @@ import { equals } from 'ramda';
 import { Modal } from '@centreon/ui/components';
 
 import {
-  labelCancel,
   labelCreateConnectorConfiguration,
-  labelDescription,
-  labelName,
-  labelCreate,
-  labelUpdate,
   labelUpdateConnectorConfiguration
 } from '../translatedLabels';
 
@@ -22,20 +17,6 @@ const AdditionalConnectorModal = (): JSX.Element => {
   const { closeDialog, isDialogOpen, submit, variant } =
     useAdditionalConnectorModal();
 
-  const formLabels = {
-    actions: {
-      cancel: t(labelCancel),
-      submit: {
-        create: t(labelCreate),
-        update: t(labelUpdate)
-      }
-    },
-    entity: {
-      description: t(labelDescription),
-      name: t(labelName)
-    }
-  };
-
   const labelHeader = equals(variant, 'create')
     ? labelCreateConnectorConfiguration
     : labelUpdateConnectorConfiguration;
@@ -45,7 +26,6 @@ const AdditionalConnectorModal = (): JSX.Element => {
       <Modal.Header>{t(labelHeader)}</Modal.Header>
       <Modal.Body>
         <AdditionalConnectorsForm
-          labels={formLabels}
           resource={undefined}
           variant={variant}
           onCancel={closeDialog}
