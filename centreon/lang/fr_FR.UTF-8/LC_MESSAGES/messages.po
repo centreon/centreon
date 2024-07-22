@@ -19124,6 +19124,7 @@ msgstr "Marqué comme favori"
 
 msgid "Not marked as favorite"
 msgstr "Non marqué comme favori"
+
 msgid "Unable to retrieve credentials ['%s'] from vault"
 msgstr "Impossible de récupérer les informations d'identification ['%s'] du coffre"
 
