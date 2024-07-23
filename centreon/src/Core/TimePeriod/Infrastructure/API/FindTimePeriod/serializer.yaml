@@ -1,6 +1,0 @@
-Core\TimePeriod\Domain\Model\TimePeriod:
-    attributes:
-        name:
-            groups: ['primary']
-        alias:
-            groups: ['primary']

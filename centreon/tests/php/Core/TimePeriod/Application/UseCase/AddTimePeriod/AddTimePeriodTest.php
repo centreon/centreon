@@ -47,8 +47,8 @@ beforeEach(function () {
         ],
         [1],
         [
-            new DtoException('monday', '00:00-01:00'),
-            new DtoException('tuesday', '00:00-01:00'),
+            ['day_range' => 'monday', 'time_range' => '00:00-01:00'],
+            ['day_range' => 'tuesday', 'time_range' => '00:00-01:00'],
         ]
     );
 });
