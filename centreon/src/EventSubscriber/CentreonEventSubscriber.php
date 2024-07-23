@@ -41,6 +41,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\{
     ExceptionEvent, RequestEvent, ResponseEvent
 };
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -317,9 +318,13 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                 foreach ($event->getThrowable()->getPrevious()->getViolations() as $violation) {
                     $message .= $violation->getPropertyPath() . ': ' . $violation->getMessage() . "\n";
                 }
-                $errorCode = $event->getThrowable()->getPrevious()->getCode();
-                $statusCode = $event->getThrowable()->getPrevious()->getCode()
-                    ?: Response::HTTP_INTERNAL_SERVER_ERROR;
+                if ($event->getThrowable() instanceof HttpException) {
+                    $errorCode = $event->getThrowable()->getStatusCode();
+                    $statusCode = $event->getThrowable()->getStatusCode();
+                } else {
+                    $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+                    $errorCode = $statusCode;
+                }
             } else {
                 $errorCode = $event->getThrowable()->getCode();
                 $statusCode = $event->getThrowable()->getCode()

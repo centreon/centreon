@@ -1,0 +1,12 @@
+type: object
+properties:
+  day:
+    type: integer
+    description: Number of the day (1=monday)
+    example: 1
+    minimum: 1
+    maximum: 7
+  time_range:
+    type: string
+    description: "Time range for the day"
+    example: "00:00-06:00,07:00-08:00"

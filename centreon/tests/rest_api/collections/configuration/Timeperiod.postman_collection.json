@@ -1492,7 +1492,7 @@
 									"    pm.expect(responseJson.result[1].days).to.be.an('array').that.is.empty;\r",
 									"\r",
 									"    // Check the schedule of the third time period (non-work hours)\r",
-									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    // (during work days, 00:00-09:00,17:00-24:00)\r",
 									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
 									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
 									"    }\r",
@@ -1606,6 +1606,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -1763,6 +1767,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -1834,6 +1842,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -1865,8 +1877,8 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period could not be created, due to a wrong type of value for name and alias.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"    pm.expect(responseJson.message).to.eql(\"[name] Integer value found, but a string is required\\n[alias] Boolean value found, but a string is required\\n\");\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"name: This value should be of type string.\\nalias: This value should be of type string.\\n\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1885,6 +1897,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -2269,6 +2285,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -2320,6 +2340,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -2748,6 +2772,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -2926,6 +2954,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -3002,6 +3034,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -3033,8 +3069,8 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period could not be created, due to a wrong type of value for days, templates and exceptions.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"    pm.expect(responseJson.message).to.eql(\"[days[0].day] String value found, but an integer is required\\n[days[0].time_range] NULL value found, but a string is required\\n[templates[0]] String value found, but an integer is required\\n[exceptions[0].day_range] Integer value found, but a string is required\\n[exceptions[0].time_range] Boolean value found, but a string is required\\n\");\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"days[0][day]: This value should be of type integer.\\ndays[0][time_range]: This value should not be null.\\ntemplates[0]: This value should be of type integer.\\nexceptions[0].dayRange: This value should be of type string.\\nexceptions[0].timeRange: This value should be of type string.\\n\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3053,6 +3089,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -3414,6 +3454,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -3468,6 +3512,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -3898,6 +3946,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
@@ -4636,6 +4688,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+                            {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"

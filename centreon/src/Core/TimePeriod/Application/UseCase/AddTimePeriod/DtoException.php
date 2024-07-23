@@ -29,14 +29,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 class DtoException
 {
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Type('string')]
         #[SerializedName('day_range')]
-        public readonly string $dayRange,
-        #[Assert\NotBlank]
+        public readonly mixed $dayRange,
+        #[Assert\NotNull]
         #[Assert\Type('string')]
         #[SerializedName('time_range')]
-        public readonly string $timeRange,
+        public readonly mixed $timeRange,
     ) {
     }
 }
