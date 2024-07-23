@@ -64,3 +64,11 @@ export const labelParameters = 'Parameters';
 export const labelValue = 'Value';
 export const labelPassword = 'Password';
 export const labelAddParameter = 'Add parameter';
+
+export const labelUrl = 'Url';
+export const labelUsername = 'Username';
+export const labelVcenterName = 'vcenter name';
+
+export const labelAddvCenterESX = 'Add vCenter/ESX';
+
+export const labelAteastOnePollerIsRequired = 'At least one poller is required';

@@ -14,7 +14,7 @@ import { AdditionalConnectors } from '../Listing/models';
 import {
   additionalConnectorsEndpoint,
   getAdditionalConnectorEndpoint
-} from '../Listing/api';
+} from '../api/endpoints';
 
 type UseConnectorConfig = {
   closeDialog: () => void;

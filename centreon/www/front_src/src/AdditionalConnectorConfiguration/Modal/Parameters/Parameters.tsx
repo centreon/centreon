@@ -1,74 +1,53 @@
 /* eslint-disable react/no-array-index-key */
 import { ReactElement } from 'react';
 
-import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
-import AddIcon from '@mui/icons-material/Add';
+import { Divider } from '@mui/material';
 
-import { TextField } from '@centreon/ui';
-import { ItemComposition } from '@centreon/ui/components';
-
-import {
-  labelDelete,
-  labelAddParameter,
-  labelValue,
-  labelName
-} from '../../translatedLabels';
-
+import DeleteDatasetButton from './DeleteButton';
+import AddDatasetButton from './AddButton';
+import Parameter from './Parameter';
 import { useParametersStyles } from './useParametersStyles';
+import useParameters from './useParameters';
 
 const Parameters = (): ReactElement => {
-  const { t } = useTranslation();
   const { classes } = useParametersStyles();
 
-  const addParameter = (): void => undefined;
-
-  const deleteButtonHidden = true;
-  const addbuttonDisabled = false;
-
-  const datasetFilter = [
-    { name: 'vcenter name', value: '' },
-    { name: 'url', value: '' },
-    { name: 'username', value: '' },
-    { name: 'password', value: '' }
-  ];
+  const {
+    addParameterGroup,
+    deleteParameterGroup,
+    getFieldType,
+    isAddButtonDisabled,
+    parameters,
+    changeParameterValue
+  } = useParameters();
 
   return (
-    <div className={classes.resourceComposition}>
-      <ItemComposition
-        IconAdd={<AddIcon />}
-        addbuttonDisabled={addbuttonDisabled}
-        labelAdd={t(labelAddParameter)}
-        onAddItem={addParameter}
-      >
-        {datasetFilter.map((_, index) => (
-          <div className={classes.resourceCompositionItem} key={index}>
-            <ItemComposition.Item
-              className={classes.resourceDataset}
-              deleteButtonHidden={deleteButtonHidden}
-              key={index}
-              labelDelete={t(labelDelete)}
-              onDeleteItem={() => undefined}
-            >
-              <TextField
-                fullWidth
-                dataTestId={labelName}
-                placeholder={t(labelName)}
-                value={undefined}
-                onChange={() => undefined}
+    <div>
+      {parameters?.map((parameter, index) => (
+        <div className={classes.parametersContainer} key={`${index}-parameter`}>
+          <div className={classes.parametersComposition}>
+            <Parameter
+              changeParameterValue={changeParameterValue(index)}
+              getFieldType={getFieldType}
+              parameter={parameter}
+            />
+            {parameters.length > 1 && (
+              <DeleteDatasetButton
+                onDeleteItem={() => deleteParameterGroup(index)}
               />
-              <TextField
-                fullWidth
-                dataTestId={labelValue}
-                placeholder={t(labelValue)}
-                value={undefined}
-                onChange={() => undefined}
-              />
-            </ItemComposition.Item>
+            )}
           </div>
-        ))}
-      </ItemComposition>
-      {/* {error && <FormHelperText error>{t(error)}</FormHelperText>} */}
+          {!equals(parameters.length - 1, index) && (
+            <Divider className={classes.parametersDivider} variant="middle" />
+          )}
+        </div>
+      ))}
+      <AddDatasetButton
+        addButtonDisabled={isAddButtonDisabled}
+        onAddItem={addParameterGroup}
+      />
     </div>
   );
 };

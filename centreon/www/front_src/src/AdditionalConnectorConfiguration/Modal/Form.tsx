@@ -1,12 +1,13 @@
 import { ReactElement, useCallback, useMemo } from 'react';
 
-import { string, object } from 'yup';
+import { string, object, number, array } from 'yup';
 import { useTranslation } from 'react-i18next';
 
 import { Form, FormProps, InputType } from '@centreon/ui';
 import { FormVariant } from '@centreon/ui/components';
 
 import {
+  labelAteastOnePollerIsRequired,
   labelCancel,
   labelCharacters,
   labelCreate,
@@ -18,12 +19,15 @@ import {
   labelPollers,
   labelPort,
   labelRequired,
+  labelSelectPollers,
   labelSelectType,
   labelType,
   labelUpdate,
   labelValue
 } from '../translatedLabels';
+import { getPollersForConnectorTypeEndpoint } from '../api/endpoints';
 
+import { defaultParameters } from './utils';
 import { useFormStyles } from './useModalStyles';
 import Parameters from './Parameters/Parameters';
 
@@ -69,12 +73,17 @@ const ConnectorsForm = ({
     }
   };
 
+  const selectEntryValidationSchema = object().shape({
+    id: number().required('Required'),
+    name: string().required('Required')
+  });
+
   const formProps = useMemo<FormProps<ConnectorsProperties>>(
     () => ({
       initialValues: resource ?? {
         description: null,
         name: '',
-        parameters: 'parameters',
+        parameters: [defaultParameters],
         pollers: [],
         port: { name: 'Port', value: 5700 },
         type: {}
@@ -97,22 +106,26 @@ const ConnectorsForm = ({
           type: InputType.Text
         },
         {
-          additionalLabel: t(labelPollers),
-          additionalLabelClassName: classes.additionalLabel,
-          fieldName: 'pollers',
-          group: 'main',
-          label: t(labelPollers),
-          required: true,
-          type: InputType.SingleConnectedAutocomplete
-        },
-        {
           additionalLabel: t(labelType),
           additionalLabelClassName: classes.additionalLabel,
           fieldName: 'type',
           group: 'main',
           label: t(labelSelectType),
           required: true,
-          type: InputType.SingleConnectedAutocomplete
+          type: InputType.SingleAutocomplete
+        },
+        {
+          additionalLabel: t(labelPollers),
+          additionalLabelClassName: classes.additionalLabel,
+          connectedAutocomplete: {
+            additionalConditionParameters: [],
+            endpoint: getPollersForConnectorTypeEndpoint({})
+          },
+          fieldName: 'pollers',
+          group: 'main',
+          label: t(labelSelectPollers),
+          required: true,
+          type: InputType.MultiConnectedAutocomplete
         },
         {
           additionalLabel: t(labelParameters),
@@ -162,7 +175,14 @@ const ConnectorsForm = ({
           .label(t(labelName))
           .min(3, ({ min, label }) => t(labelMustBeAtLeast, { label, min }))
           .max(50, ({ max, label }) => t(labelMustBeMost, { label, max }))
-          .required(t(labelRequired) as string)
+          .required(t(labelRequired) as string),
+        pollers: array()
+          .of(selectEntryValidationSchema)
+          .min(1, t(labelAteastOnePollerIsRequired))
+        // port: object().shape({
+        //   id: number().required('Required'),
+        //   name: string().required('Required')
+        // })
       })
     }),
     [resource, onSubmit]
