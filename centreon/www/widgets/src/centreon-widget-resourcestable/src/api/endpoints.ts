@@ -1,4 +1,4 @@
-import { always, cond, equals, flatten, includes, pluck, T } from 'ramda';
+import { always, cond, equals, pluck, T } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 

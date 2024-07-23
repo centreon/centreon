@@ -1,9 +1,4 @@
-import { equals, pluck } from 'ramda';
-
-import {
-  resourceTypeQueryParameter,
-  useInfiniteScrollListing
-} from '@centreon/ui';
+import { useInfiniteScrollListing } from '@centreon/ui';
 
 import { resourcesEndpoint } from '../api/endpoint';
 import { tooltipPageAtom } from '../atom';
