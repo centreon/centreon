@@ -12,13 +12,12 @@ info:
     + Added service severity configuration endpoint (PUT)
     + Added hosts status count endpoint (GET)
     + Added endpoint to list unique service names (GET)
-    +
+    + Added endpoint to deploy services in a host based on associated host template(s)
     # Updated features
     + Added metrics by service listing endpoint to service resource type
-    + Added new filters for the /monitoring/services/categories endpoint
-    + Added new filters for the /monitoring/hosts/categories endpoint
-    + Added new filters to the /monitoring/servicegroups endpoint
-    + Added host_category filter to /monitoring/hostgroups endpoint
+    + Handle new filters for the /configuration/hosts/groups endpoint
+    + Handle new filters for the /configuration/services/groups endpoint
+    +
     +
     # Information
     All dates are in **ISO 8601** format
@@ -399,6 +398,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/{host_id}/services/deploy:
+    $ref: './v24.04/Configuration/Service/DeployServices.yaml'
   /configuration/services/categories:
     get:
       tags:
@@ -1115,8 +1116,6 @@ paths:
           description: "Generation OK"
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/monitoring-servers/reload:
