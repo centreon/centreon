@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,25 +21,22 @@
 
 declare(strict_types = 1);
 
-namespace Core\Common\Infrastructure\Repository;
+require_once _CENTREON_PATH_ . 'src/Core/Common/Infrastructure/Repository/SqlMultipleBindTrait.php';
 
-trait SqlMultipleBindTrait
+use \Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+
+/**
+ * @param array<int|string, int|string> $list
+ * @param string $prefix
+ *
+ * @return array{0: array<string, mixed>, 1: string}
+ */
+function createMultipleBindQuery(array $list, string $prefix): array
 {
-    /**
-     * @param array<int|string, int|string> $list
-     * @param string $prefix
-     *
-     * @return array{0: array<string, mixed>, 1: string}
-     */
-    protected function createMultipleBindQuery(array $list, string $prefix): array
-    {
-        $bindValues = [];
-        $list = array_values($list); // Reset index to avoid SQL injection
-
-        foreach ($list as $index => $id) {
-            $bindValues[$prefix . $index] = $id;
+    return (new class {
+        use SqlMultipleBindTrait
+        {
+            SqlMultipleBindTrait::createMultipleBindQuery as public create;
         }
-
-        return [$bindValues, implode(', ', array_keys($bindValues))];
-    }
+    })->create($list, $prefix);
 }
