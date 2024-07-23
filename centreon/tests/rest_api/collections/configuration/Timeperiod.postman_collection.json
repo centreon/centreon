@@ -3070,7 +3070,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period could not be created, due to a wrong type of value for days, templates and exceptions.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
-									"    pm.expect(responseJson.message).to.eql(\"days[0][day]: This value should be of type integer.\\ndays[0][time_range]: This value should not be null.\\ntemplates[0]: This value should be of type integer.\\nexceptions[0].dayRange: This value should be of type string.\\nexceptions[0].timeRange: This value should be of type string.\\n\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"days[0][day]: This value should be of type integer.\\ndays[0][time_range]: This value should not be null.\\ntemplates[0]: This value should be of type integer.\\nexceptions[0][day_range]: This value should be of type string.\\nexceptions[0][time_range]: This value should be of type string.\\n\");\r",
 									"});"
 								],
 								"type": "text/javascript"
