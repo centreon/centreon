@@ -22,14 +22,14 @@ import {
   labelSelectPollers,
   labelSelectType,
   labelType,
-  labelUpdate,
-  labelValue
+  labelUpdate
 } from '../translatedLabels';
 import { getPollersForConnectorTypeEndpoint } from '../api/endpoints';
 
 import { defaultParameters } from './utils';
 import { useFormStyles } from './useModalStyles';
 import Parameters from './Parameters/Parameters';
+import Port from './Parameters/Port';
 
 import {
   FormActions,
@@ -41,7 +41,6 @@ export type ConnectorsProperties = {
   name: string;
   parameters;
   pollers;
-  port: { name: string; value: number };
   type;
 };
 
@@ -83,9 +82,8 @@ const ConnectorsForm = ({
       initialValues: resource ?? {
         description: null,
         name: '',
-        parameters: [defaultParameters],
+        parameters: { port: 5700, vcenters: [defaultParameters] },
         pollers: [],
-        port: { name: 'Port', value: 5700 },
         type: {}
       },
       inputs: [
@@ -133,7 +131,7 @@ const ConnectorsForm = ({
           custom: {
             Component: Parameters
           },
-          fieldName: 'parameters',
+          fieldName: 'parameters.vcenters',
           group: 'main',
           label: t(labelParameters),
           type: InputType.Custom
@@ -141,24 +139,13 @@ const ConnectorsForm = ({
         {
           additionalLabel: t(labelPort),
           additionalLabelClassName: classes.additionalLabel,
-          fieldName: 'port',
-          grid: {
-            columns: [
-              {
-                fieldName: 'port.name',
-                label: t(labelName),
-                type: InputType.Text
-              },
-              {
-                fieldName: 'port.value',
-                label: t(labelValue),
-                type: InputType.Text
-              }
-            ]
+          custom: {
+            Component: Port
           },
+          fieldName: 'prameters.port',
           group: 'main',
           label: t(labelPort),
-          type: InputType.Grid
+          type: InputType.Custom
         }
       ],
       submit: (values, bag) => onSubmit?.(values, bag),

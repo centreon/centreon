@@ -17,13 +17,19 @@ const useParameters = (): UsParameters => {
   const { values, setFieldValue } = useFormikContext<ConnectorConfiguration>();
 
   const addParameterGroup = (): void => {
-    setFieldValue('parameters', [...values.parameters, defaultParameters]);
+    setFieldValue('parameters.vcenters', [
+      ...values.parameters.vcenters,
+      defaultParameters
+    ]);
   };
 
   const isAddButtonDisabled = false;
 
   const deleteParameterGroup = (index): void => {
-    setFieldValue('parameters', remove(index, 1, values.parameters));
+    setFieldValue(
+      'parameters.vcenters',
+      remove(index, 1, values.parameters.vcenters)
+    );
   };
 
   const getFieldType = (name): string =>
@@ -33,7 +39,7 @@ const useParameters = (): UsParameters => {
 
   const changeParameterValue = (index) => (event) => {
     setFieldValue(
-      `parameters.${index}.${event.target.name}`,
+      `parameters.vcenters.${index}.${event.target.name}`,
       event.target.value
     );
   };
@@ -44,7 +50,7 @@ const useParameters = (): UsParameters => {
     deleteParameterGroup,
     getFieldType,
     isAddButtonDisabled,
-    parameters: values.parameters
+    parameters: values.parameters.vcenters
   };
 };
 

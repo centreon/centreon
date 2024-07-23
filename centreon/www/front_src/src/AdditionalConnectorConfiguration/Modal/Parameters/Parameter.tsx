@@ -46,7 +46,7 @@ const Parameter = ({
               <TextField
                 fullWidth
                 required
-                dataTestId={labelValue}
+                dataTestId={name}
                 label={t(labelValue)}
                 name={name}
                 type={getFieldType(name)}
