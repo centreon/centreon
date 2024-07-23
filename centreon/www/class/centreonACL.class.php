@@ -316,11 +316,11 @@ class CentreonACL
 
         if ($this->hasAccessToAllHostGroups === false) {
             [$bindValues, $bindQuery] = createMultipleBindQuery(
-                list: explode(',', $this->getAccessGroupsString()),
+                list: array_keys($this->getAccessGroups()),
                 prefix: ':access_group_id_'
             );
 
-            $aclSubRequest .= ' AND arhr.acl_res_id IN (' . $bindQuery . ')';
+            $aclSubRequest .= ' AND argr.acl_group_id IN (' . $bindQuery . ')';
         }
 
         $request = <<<SQL
@@ -331,8 +331,13 @@ class CentreonACL
             FROM hostgroup hg
             INNER JOIN acl_resources_hg_relations arhr
                 ON hg.hg_id = arhr.hg_hg_id
+            INNER JOIN acl_resources res
+                ON res.acl_res_id = arhr.acl_res_id
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = res.acl_res_id
             WHERE hg.hg_activate = '1'
             $aclSubRequest
+            GROUP BY hg.hg_id, hg.hg_name
             ORDER BY hg.hg_name ASC
         SQL;
 
