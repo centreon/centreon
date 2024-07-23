@@ -10,6 +10,8 @@ Core\TimePeriod\Domain\Model\TimePeriod:
       groups: ['TimePeriod:Read']
     templates:
       groups: ['TimePeriod:Read']
+    exceptions:
+      groups: ['TimePeriod:Read']
 
 Core\TimePeriod\Domain\Model\Template:
   attributes:
@@ -26,3 +28,15 @@ Core\TimePeriod\Domain\Model\Day:
     timeRange:
       type: string
       groups: ['TimePeriod:Read']
+
+Core\TimePeriod\Domain\Model\ExtraTimePeriod:
+  attributes:
+    id:
+      type: integer
+      groups: ['TimePeriod:Read']
+    day_range:
+      type: string
+      groups: ['TimePeriod:Read']
+    time_range:
+      type: string
+      groups: [ 'TimePeriod:Read' ]

@@ -24,6 +24,7 @@ declare(strict_types = 1);
 namespace Core\TimePeriod\Infrastructure\API\AddTimePeriod;
 
 use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriodRequest;
+use Core\TimePeriod\Application\UseCase\AddTimePeriod\DtoException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,9 +46,9 @@ class AddTimePeriodCommand extends Command
     {
         $object = new AddTimePeriodRequest(
             11,
-            'alias',
+            true,
             [
-                ['day' => 1, 'time_range' => '00:00-23:59'],
+                ['day' => '1', 'time_range' => '00:00-23:59'],
                 ['day' => 2, 'time_range' => '00:00-23:59'],
                 ['day' => 3, 'time_range' => '00:00-23:59'],
                 ['day' => 4, 'time_range' => '00:00-23:59'],
@@ -56,7 +57,7 @@ class AddTimePeriodCommand extends Command
                 ['day' => 7, 'time_range' => '00:00-23:59'],
             ],
             [1, 2, 3],
-            []
+            [new DtoException('monday 1', '06:00-07:00')]
         );
 
         $errors = $this->validator->validate($object);

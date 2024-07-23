@@ -21,4 +21,4 @@ framework:
         name_converter: 'serializer.name_converter.camel_case_to_snake_case'
         mapping:
             paths:
-                - '%kernel.project_dir%/src/Core/TimePeriod/Infrastructure/Normalization/TimePeriodNormalization.yaml'
+                - '%kernel.project_dir%/config/symfony_serializer'

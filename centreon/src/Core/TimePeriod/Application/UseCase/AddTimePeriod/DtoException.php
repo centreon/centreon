@@ -31,11 +31,9 @@ class DtoException
     public function __construct(
         #[Assert\NotNull]
         #[Assert\Type('string')]
-        #[SerializedName('day_range')]
         public readonly mixed $dayRange,
         #[Assert\NotNull]
         #[Assert\Type('string')]
-        #[SerializedName('time_range')]
         public readonly mixed $timeRange,
     ) {
     }
