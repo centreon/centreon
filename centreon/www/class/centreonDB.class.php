@@ -294,7 +294,7 @@ class CentreonDB extends \PDO
      * @param string $queryString
      * @param mixed $parameters
      * @param mixed $parametersArgs
-     * @return PDOStatement|null
+     * @return CentreonDBStatement|false
      */
     public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement|false
     {
@@ -308,10 +308,10 @@ class CentreonDB extends \PDO
         $sth = null;
         try {
             if (is_null($parameters)) {
-                $sth = parent::query($queryString);
+                $sth = $this->query($queryString);
             } else {
                 $sth = $this->prepare($queryString);
-                $sth->execute($parameters);
+                $sth = $sth->execute($parameters);
             }
         } catch (\PDOException $e) {
             // skip if we use CentreonDBStatement::execute method
