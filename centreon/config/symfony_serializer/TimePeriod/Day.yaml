@@ -1,0 +1,8 @@
+Core\TimePeriod\Domain\Model\Day:
+  attributes:
+    day:
+      type: string
+      groups: ['TimePeriod:Read']
+    timeRange:
+      type: string
+      groups: ['TimePeriod:Read']
