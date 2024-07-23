@@ -1,0 +1,2038 @@
+newman
+
+TimePeriod
+
+❏ Log in as Admin        
+↳ Login with admin user
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 314ms time ★ 438B↑ 499B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 119B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "admin",
+  │       "password": "Centreon!2021"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 190B
+  │ {"contact":{"id":1,"name":"admin admin","alias":"admin
+  │ ","email":"admin@centreon.com","is_admin":true},"secur
+  │ ity":{"token":"Uk/0qvlndZJN2FRn+gAqXEnaOk2JUjrMVw/Lin8
+  │ tqXNDy1TnjyJCORkFVvCtP6j9"}}
+  └
+  prepare   wait   dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  6ms       12ms   3ms          437µs           286ms            10ms       1ms       321ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has admin rights.
+
+❏ user_with_RW_rights
+↳ Add user_with_RW_rights
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 171ms time ★ 665B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 162B
+  │ {
+  │   "action": "add",
+  │   "object": "CONTACT",
+  │   "values": "user_with_RW_rights;user_with_RW_rights;u
+  │ ser_with_RW_rights@localhost;Centreon!123;0;1;en_US;lo
+  │ cal"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  1ms       489µs   (cache)      (cache)         168ms            1ms        229µs     172ms 
+
+  ✓  The new user has been successfully created.
+
+↳ Add reach_api parameters
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 90ms time ★ 603B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 100B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_with_RW_rights;reach_api;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  798µs     305µs   (cache)      (cache)         87ms             1ms        205µs     90ms  
+
+  ✓  The api access rights has been successfully added.
+
+↳ Add reach_api_rt parameters
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 94ms time ★ 606B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 103B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_with_RW_rights;reach_api_rt;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  1ms       385µs   (cache)      (cache)         92ms             916µs      182µs     94ms  
+
+  ✓  The api rt access rights has been successfully added.
+
+↳ Create ACL Group RW_ALL
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 90ms time ★ 580B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 78B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLGROUP",
+  │   "values": "RW_ALL;RW_ALL"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  698µs     278µs   (cache)      (cache)         88ms             840µs      308µs     90ms  
+
+  ✓  The ACL group has been successfully created.
+
+↳ Link user to RW_ALL
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 96ms time ★ 600B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 98B
+  │ {
+  │   "action": "addcontact",
+  │   "object": "ACLGROUP",
+  │   "values": "RW_ALL;user_with_RW_rights"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  747µs     210µs   (cache)      (cache)         94ms             896µs      430µs     96ms  
+
+  ✓  The contact has been successfully linked to the ACL group.
+
+↳ Link resources to RW_ALL
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 98ms time ★ 595B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 93B
+  │ {
+  │   "action": "addresource",
+  │   "object": "ACLGROUP",
+  │   "values": "RW_ALL;All Resources"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  750µs     455µs   (cache)      (cache)         95ms             1ms        303µs     98ms  
+
+  ✓  The ACL Resources has been successfully linked to the ACL Group.
+
+↳ Create ACL Menu RW
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 89ms time ★ 571B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 69B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLMENU",
+  │   "values": "RW;RW"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  665µs     302µs   (cache)      (cache)         87ms             686µs      164µs     89ms  
+
+  ✓  The ACL menu has been successfully created.
+
+↳ Grant RW right
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 145ms time ★ 588B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 86B
+  │ {
+  │   "action": "grantrw",
+  │   "object": "ACLMENU",
+  │   "values": "RW;1;Configuration"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  1ms       309µs   (cache)      (cache)         143ms            960µs      319µs     145ms 
+
+  ✓  The Read/Write rights has been successfully.
+
+↳ Link RW to RW_ALL
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 95ms time ★ 580B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 78B
+  │ {
+  │   "action": "addmenu",
+  │   "object": "ACLGROUP",
+  │   "values": "RW_ALL;RW"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  483µs     374µs   (cache)      (cache)         92ms             1ms        324µs     95ms  
+
+  ✓  The ACL menu has been successfully linked to the ACL group.
+
+❏ user_with_R_rights
+↳ Add user_with_R_rights
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 184ms time ★ 662B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 159B
+  │ {
+  │   "action": "add",
+  │   "object": "CONTACT",
+  │   "values": "user_with_R_rights;user_with_R_rights;use
+  │ r_with_R_rights@localhost;Centreon!123;0;1;en_US;local
+  │ "
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  549µs     230µs   (cache)      (cache)         182ms            840µs      676µs     184ms 
+
+  ✓  The new user has been successfully created.
+
+↳ Add reach_api parameters
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 222ms time ★ 601B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 99B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_with_R_rights;reach_api;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  1ms       657µs   (cache)      (cache)         219ms            1ms        599µs     223ms 
+
+  ✓  The api access rights has been successfully added.
+
+↳ Add reach_api_rt parameters
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 184ms time ★ 605B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 102B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_with_R_rights;reach_api_rt;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait   dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  1ms       1ms    (cache)      (cache)         181ms            1ms        326µs     185ms 
+
+  ✓  The api rt access rights has been successfully added.
+
+↳ Create ACL Group RO_ALL
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 202ms time ★ 580B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 78B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLGROUP",
+  │   "values": "RO_ALL;RO_ALL"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  855µs     440µs   (cache)      (cache)         200ms            1ms        289µs     202ms 
+
+  ✓  The ACL group has been successfully created.
+
+↳ Link user to RO_ALL
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 205ms time ★ 599B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 97B
+  │ {
+  │   "action": "addcontact",
+  │   "object": "ACLGROUP",
+  │   "values": "RO_ALL;user_with_R_rights"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  661µs     426µs   (cache)      (cache)         203ms            956µs      618µs     206ms 
+
+  ✓  The contact has been successfully linked to the ACL group.
+
+↳ Link resources to RO_ALL
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 157ms time ★ 595B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 93B
+  │ {
+  │   "action": "addresource",
+  │   "object": "ACLGROUP",
+  │   "values": "RO_ALL;All Resources"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  829µs     226µs   (cache)      (cache)         154ms            1ms        295µs     157ms 
+
+  ✓  The ACL Resources has been successfully linked to the ACL Group.
+
+↳ Create ACL Menu RO
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 189ms time ★ 571B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 69B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLMENU",
+  │   "values": "RO;RO"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  791µs     302µs   (cache)      (cache)         187ms            1ms        239µs     189ms 
+
+  ✓  The ACL menu has been successfully created.
+
+↳ Grant RO right
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 273ms time ★ 588B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 86B
+  │ {
+  │   "action": "grantro",
+  │   "object": "ACLMENU",
+  │   "values": "RO;1;Configuration"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  676µs     306µs   (cache)      (cache)         271ms            542µs      132µs     273ms 
+
+  ✓  The Read Only rights has been successfully.
+
+↳ Link RO to RO_ALL
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 120ms time ★ 580B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 78B
+  │ {
+  │   "action": "addmenu",
+  │   "object": "ACLGROUP",
+  │   "values": "RO_ALL;RO"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  606µs     296µs   (cache)      (cache)         118ms            592µs      140µs     120ms 
+
+  ✓  The ACL menu has been successfully linked to the ACL group.
+
+❏ user_nothing
+↳ Add user_nothing
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 175ms time ★ 644B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 141B
+  │ {
+  │   "action": "add",
+  │   "object": "CONTACT",
+  │   "values": "user_nothing;user_nothing;user_nothing@lo
+  │ calhost;Centreon!123;0;1;en_US;local"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  431µs     196µs   (cache)      (cache)         173ms            650µs      130µs     174ms 
+
+  ✓  The new user has been successfully created.
+
+↳ Add reach_api parameters
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 98ms time ★ 595B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 93B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_nothing;reach_api;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  673µs     178µs   (cache)      (cache)         97ms             519µs      133µs     98ms  
+
+  ✓  The api access rights has been successfully added.
+
+↳ Add reach_api_rt parameters
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 87ms time ★ 598B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 96B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_nothing;reach_api_rt;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  388µs     182µs   (cache)      (cache)         85ms             689µs      137µs     86ms  
+
+  ✓  The api rt access rights has been successfully added.
+
+↳ Create ACL Group Nothing
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 89ms time ★ 582B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 80B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLGROUP",
+  │   "values": "Nothing;Nothing"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  559µs     292µs   (cache)      (cache)         87ms             521µs      146µs     89ms  
+
+  ✓  The ACL group has been successfully created.
+
+↳ Link user to Nothing
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 91ms time ★ 594B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 92B
+  │ {
+  │   "action": "addcontact",
+  │   "object": "ACLGROUP",
+  │   "values": "Nothing;user_nothing"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  707µs     188µs   (cache)      (cache)         89ms             490µs      124µs     91ms  
+
+  ✓  The contact has been successfully linked to the ACL group.
+
+↳ Link resources to Nothing
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 88ms time ★ 596B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 94B
+  │ {
+  │   "action": "addresource",
+  │   "object": "ACLGROUP",
+  │   "values": "Nothing;All Resources"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  665µs     208µs   (cache)      (cache)         86ms             568µs      173µs     88ms  
+
+  ✓  The ACL Resources has been successfully linked to the ACL Group.
+
+↳ Create ACL Menu Nothing
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 81ms time ★ 581B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 79B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLMENU",
+  │   "values": "Nothing;Nothing"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  502µs     181µs   (cache)      (cache)         79ms             577µs      229µs     81ms  
+
+  ✓  The ACL menu has been successfully created.
+
+↳ Link Nothing to Nothing
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 89ms time ★ 586B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 84B
+  │ {
+  │   "action": "addmenu",
+  │   "object": "ACLGROUP",
+  │   "values": "Nothing;Nothing"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  444µs     330µs   (cache)      (cache)         87ms             557µs      138µs     88ms  
+
+  ✓  The ACL menu has been successfully linked to the ACL group.
+
+❏ Time Period By Admin
+↳ Login with admin user
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 307ms time ★ 502B↑ 498B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 119B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "admin",
+  │       "password": "Centreon!2021"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 190B
+  │ {"contact":{"id":1,"name":"admin admin","alias":"admin
+  │ ","email":"admin@centreon.com","is_admin":true},"secur
+  │ ity":{"token":"K23THK5BmlI1L7Wm3CMh/jwOxwajCM7vhKQ/DDn
+  │ vXHbETkR+zzL6zDAuRchGBb04"}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  488µs     632µs   (cache)      (cache)         305ms            643µs      126µs     307ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has admin rights.
+
+↳ Show available time periods (4)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 238ms time ★ 436B↑ 1.49kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.18kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none","alias
+  │ ":"Never","days":[],"templates":[],"exceptions":[]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]}],"meta":{"page"
+  │ :1,"limit":10,"search":{},"sort_by":{},"total":4}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  517µs     199µs   (cache)      (cache)         236ms            551µs      151µs     237ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The 4 time periods retrieved are listed with; name, alias, days and times, templates and exceptions
+
+↳ Creation of a new timeperiod (successful)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  201 Created ★ 242ms time ★ 902B↑ 595B↓ size ★ 11↑ 10↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 412B
+  │ {
+  │     "name": "test_name",
+  │     "alias": "test_alias",
+  │     "days": [
+  │         {
+  │             "day": 1,
+  │             "time_range": "06:30-07:00"
+  │         },
+  │         {
+  │             "day": 7,
+  │             "time_range": "06:30-07:00,09:00-10:30"
+  │         }
+  │     ],
+  │     "templates": [
+  │         1
+  │     ],
+  │     "exceptions": [
+  │         {
+  │             "day_range": "monday 1",
+  │             "time_range": "06:00-07:00"
+  │         }
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 259B
+  │ {"id":13,"name":"test_name","alias":"test_alias","days
+  │ ":[{"day":1,"time_range":"06:30-07:00"},{"day":7,"time
+  │ _range":"06:30-07:00,09:00-10:30"}],"templates":[{"id"
+  │ :1,"alias":"Always"}],"exceptions":[{"id":11,"day_rang
+  │ e":"monday 1","time_range":"06:00-07:00"}]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  422µs     201µs   (cache)      (cache)         240ms            554µs      41µs      241ms 
+
+  ✓  The time period has been successfully created, with name 'test_name' and alias 'test_alias'.
+  ✓  The Location parameter is in the header.
+
+↳ Show available time periods after creation (5)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 221ms time ★ 436B↑ 1.75kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.44kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none","alias
+  │ ":"Never","days":[],"templates":[],"exceptions":[]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":13,"name"
+  │ :"test_name","alias":"test_alias","days":[{"day":1,"ti
+  │ me_range":"06:30-07:00"},{"day":7,"time_range":"06:30-
+  │ 07:00,09:00-10:30"}],"templates":[{"id":1,"alias":"Alw
+  │ ays"}],"exceptions":[{"id":11,"day_range":"monday 1","
+  │ time_range":"06:00-07:00"}]}],"meta":{"page":1,"limit"
+  │ :10,"search":{},"sort_by":{},"total":5}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  412µs     182µs   (cache)      (cache)         219ms            537µs      247µs     221ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Creation of a new time period with a duplicate name (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  409 Conflict ★ 252ms time ★ 812B↑ 358B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 322B
+  │ {
+  │     "name": "test_name",
+  │     "alias": "test_alias_duplicated",
+  │     "days": [
+  │         {
+  │             "day": 3,
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ],
+  │     "templates": [],
+  │     "exceptions": [
+  │         {
+  │             "day_range": "4 tuesday in July",
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 82B
+  │ {"code":409,"message":"The time period name \u0027test
+  │ _name\u0027 already exists"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  399µs     177µs   (cache)      (cache)         250ms            640µs      24µs      251ms 
+
+  ✓  The time period with name 'test_name' could not be created, due to a conflict with an existing time period.
+
+↳ Creation of a new time period with a duplicate alias (successful)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  201 Created ★ 277ms time ★ 825B↑ 558B↓ size ★ 11↑ 10↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 335B
+  │ {
+  │     "name": "tést_name_with_duplicated_al1as!",
+  │     "alias": "test_alias",
+  │     "days": [
+  │         {
+  │             "day": 3,
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ],
+  │     "templates": [],
+  │     "exceptions": [
+  │         {
+  │             "day_range": "4 tuesday in July",
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 222B
+  │ {"id":14,"name":"t\u00e9st_name_with_duplicated_al1as!
+  │ ","alias":"test_alias","days":[{"day":3,"time_range":"
+  │ 00:00-24:00"}],"templates":[],"exceptions":[{"id":12,"
+  │ day_range":"4 tuesday in July","time_range":"00:00-24:
+  │ 00"}]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  397µs     184µs   (cache)      (cache)         276ms            511µs      22µs      277ms 
+
+  ✓  The time period with name 'tést_name_with_duplicated_al1as!' and alias 'test_alias' has been successfully created.
+  ✓  The Location parameter is in the header.
+
+↳ Creation of a new time period with wrong type (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  422 Unprocessable Content ★ 238ms time ★ 784B↑ 403B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 294B
+  │ {
+  │     "name": 23,
+  │     "alias": true,
+  │     "days": [
+  │         {
+  │             "day": 3,
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ],
+  │     "templates": [],
+  │     "exceptions": [
+  │         {
+  │             "day_range": "4 tuesday in July",
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 114B
+  │ {"code":422,"message":"name: This value should be of t
+  │ ype string.\nalias: This value should be of type strin
+  │ g.\n"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  365µs     175µs   (cache)      (cache)         237ms            485µs      21µs      238ms 
+
+  ✓  The time period could not be created, due to a wrong type of value for name and alias.
+
+↳ Deletion of a time period (successful)
+  DELETE http://localhost:80/centreon/api/latest/configuration/timeperiods/13  
+  204 No Content ★ 227ms time ★ 442B↑ 218B↓ size ★ 9↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  344µs     155µs   (cache)      (cache)         225ms            455µs      40µs      226ms 
+
+  ✓  The time period with name 'test_name' and alias 'test_alias' has been successfully deleted.
+
+↳ Show available time periods after creation and deletion (5)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 238ms time ★ 436B↑ 1.72kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.41kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none","alias
+  │ ":"Never","days":[],"templates":[],"exceptions":[]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]}],"meta":
+  │ {"page":1,"limit":10,"search":{},"sort_by":{},"total":
+  │ 5}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  342µs     252µs   (cache)      (cache)         236ms            561µs      130µs     238ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Update of a time period (successful)
+  PUT http://localhost:80/centreon/api/latest/configuration/timeperiods/2  
+  204 No Content ★ 233ms time ★ 806B↑ 218B↓ size ★ 11↑ 7↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 321B
+  │ {
+  │     "name": "none_updated",
+  │     "alias": "Never ever",
+  │     "days": [
+  │         {
+  │             "day": 7,
+  │             "time_range": "06:30-10:30"
+  │         }
+  │     ],
+  │     "templates": [],
+  │     "exceptions": [
+  │         {
+  │             "day_range": "monday 2",
+  │             "time_range": "06:00-16:00"
+  │         }
+  │     ]
+  │ }
+  └ 
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  477µs     190µs   (cache)      (cache)         232ms            458µs      19µs      233ms 
+
+  ✓  The time period has been successfully updated, with name 'none_updated' and alias 'Never ever'.
+
+↳ Update of a new time period with a duplicate name (error)
+  PUT http://localhost:80/centreon/api/latest/configuration/timeperiods/3  
+  409 Conflict ★ 230ms time ★ 810B↑ 361B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 325B
+  │ {
+  │     "name": "none_updated",
+  │     "alias": "test_alias_duplicated",
+  │     "days": [
+  │         {
+  │             "day": 3,
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ],
+  │     "templates": [],
+  │     "exceptions": [
+  │         {
+  │             "day_range": "4 tuesday in July",
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 85B
+  │ {"code":409,"message":"The time period name \u0027none
+  │ _updated\u0027 already exists"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  440µs     197µs   (cache)      (cache)         228ms            678µs      131µs     229ms 
+
+  ✓  The time period with name 'nonworkhours' could not be updated, due to a conflict with an existing time period.
+
+↳ Show only one time period
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods/2  
+  200 OK ★ 231ms time ★ 438B↑ 495B↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 187B
+  │ {"name":"none_updated","alias":"Never ever","templates
+  │ ":[],"exceptions":[{"id":13,"day_range":"monday 2","ti
+  │ me_range":"06:00-16:00"}],"days":[{"day":7,"time_range
+  │ ":"06:30-10:30"}],"id":2}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  307µs     166µs   (cache)      (cache)         229ms            712µs      160µs     230ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Creation of a new time period with a empty name (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  422 Unprocessable Content ★ 249ms time ★ 610B↑ 382B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 120B
+  │ {
+  │     "name": "",
+  │     "alias": "test_alias_with_empty_name",
+  │     "days": [],
+  │     "templates": [],
+  │     "exceptions": []
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 93B
+  │ {"code":422,"message":"name: This value is too short. 
+  │ It should have 1 character or more.\n"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  584µs     197µs   (cache)      (cache)         248ms            582µs      39µs      249ms 
+
+  ✓  The time period with an empty name could not be created, due to the name being mandatory.
+
+↳ Creation of a new time period with a empty alias (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  422 Unprocessable Content ★ 270ms time ★ 610B↑ 383B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 120B
+  │ {
+  │     "name": "test_name_with_empty_alias",
+  │     "alias": "",
+  │     "days": [],
+  │     "templates": [],
+  │     "exceptions": []
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 94B
+  │ {"code":422,"message":"alias: This value is too short.
+  │  It should have 1 character or more.\n"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  323µs     161µs   (cache)      (cache)         268ms            690µs      74µs      269ms 
+
+  ✓  The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.
+
+↳ Show available time periods after update (5)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 210ms time ★ 436B↑ 1.82kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.52kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none_updated
+  │ ","alias":"Never ever","days":[{"day":7,"time_range":"
+  │ 06:30-10:30"}],"templates":[],"exceptions":[{"id":13,"
+  │ day_range":"monday 2","time_range":"06:00-16:00"}]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]}],"meta":
+  │ {"page":1,"limit":10,"search":{},"sort_by":{},"total":
+  │ 5}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  529µs     351µs   (cache)      (cache)         208ms            625µs      148µs     210ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Logout from admin user and clear collection variables
+  GET http://localhost:80/centreon/api/latest/logout  
+  200 OK ★ 197ms time ★ 330B↑ 338B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 31B
+  │ {"message":"Successful logout"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  559µs     244µs   (cache)      (cache)         195ms            622µs      186µs     197ms 
+
+  ✓  Logout successful. The displayed message is the one that is expected ('Successful logout').
+
+❏ Time Period By User with Read/Write Right
+↳ Login with Read/Write user
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 309ms time ★ 460B↑ 533B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 132B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "user_with_RW_rights",
+  │       "password": "Centreon!123"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 225B
+  │ {"contact":{"id":26,"name":"user_with_RW_rights","alia
+  │ s":"user_with_RW_rights","email":"user_with_RW_rights@
+  │ localhost","is_admin":false},"security":{"token":"ZaQx
+  │ lBYFVDtwqQNCzwb1AxavcNgqwppszefsDnIcdiovcoIq4V1R8D1Gm0
+  │ 4qh3WM"}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  447µs     244µs   (cache)      (cache)         307ms            687µs      180µs     308ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has not admin rights.
+
+↳ Show available time periods (5)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 232ms time ★ 436B↑ 1.82kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.52kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none_updated
+  │ ","alias":"Never ever","days":[{"day":7,"time_range":"
+  │ 06:30-10:30"}],"templates":[],"exceptions":[{"id":13,"
+  │ day_range":"monday 2","time_range":"06:00-16:00"}]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]}],"meta":
+  │ {"page":1,"limit":10,"search":{},"sort_by":{},"total":
+  │ 5}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  879µs     191µs   (cache)      (cache)         230ms            649µs      136µs     232ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Creation of a new time period (successful)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  201 Created ★ 217ms time ★ 907B↑ 605B↓ size ★ 11↑ 10↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 417B
+  │ {
+  │     "name": "test_name_by_ûser_RW",
+  │     "alias": "test_#l1as_by_user_RW",
+  │     "days": [
+  │         {
+  │             "day": 2,
+  │             "time_range": "23:59-24:00"
+  │         },
+  │         {
+  │             "day": 4,
+  │             "time_range": "00:01-07:02"
+  │         },
+  │         {
+  │             "day": 6,
+  │             "time_range": "00:01-07:02,23:59-24:00"
+  │         }
+  │     ],
+  │     "templates": [
+  │         14
+  │     ],
+  │     "exceptions": []
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 269B
+  │ {"id":15,"name":"test_name_by_\u00fbser_RW","alias":"t
+  │ est_#l1as_by_user_RW","days":[{"day":2,"time_range":"2
+  │ 3:59-24:00"},{"day":4,"time_range":"00:01-07:02"},{"da
+  │ y":6,"time_range":"00:01-07:02,23:59-24:00"}],"templat
+  │ es":[{"id":14,"alias":"test_alias"}],"exceptions":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  438µs     172µs   (cache)      (cache)         215ms            571µs      37µs      216ms 
+
+  ✓  The time period has been successfully created, with name 'test_name_by_ûser_RW' and alias 'test_#l1as_by_user_RW'.
+  ✓  The Location parameter is in the header.
+
+↳ Show available time periods after creation (6)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 206ms time ★ 436B↑ 2.09kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.79kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none_updated
+  │ ","alias":"Never ever","days":[{"day":7,"time_range":"
+  │ 06:30-10:30"}],"templates":[],"exceptions":[{"id":13,"
+  │ day_range":"monday 2","time_range":"06:00-16:00"}]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]},{"id":15
+  │ ,"name":"test_name_by_\u00fbser_RW","alias":"test_#l1a
+  │ s_by_user_RW","days":[{"day":2,"time_range":"23:59-24:
+  │ 00"},{"day":4,"time_range":"00:01-07:02"},{"day":6,"ti
+  │ me_range":"00:01-07:02,23:59-24:00"}],"templates":[{"i
+  │ d":14,"alias":"test_alias"}],"exceptions":[]}],"meta":
+  │ {"page":1,"limit":10,"search":{},"sort_by":{},"total":
+  │ 6}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  411µs     215µs   (cache)      (cache)         204ms            732µs      144µs     206ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Creation of a new time period with a duplicate name (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  409 Conflict ★ 233ms time ★ 834B↑ 369B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 344B
+  │ {
+  │     "name": "test_name_by_user_RW",
+  │     "alias": "test_alias_by_user_RW_duplicated",
+  │     "days": [
+  │         {
+  │             "day": 3,
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ],
+  │     "templates": [],
+  │     "exceptions": [
+  │         {
+  │             "day_range": "4 tuesday in July",
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 93B
+  │ {"code":409,"message":"The time period name \u0027test
+  │ _name_by_user_RW\u0027 already exists"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  305µs     170µs   (cache)      (cache)         231ms            627µs      22µs      232ms 
+
+  ✓  The time period could not be created, due to a conflict with an existing time period.
+
+↳ Creation of a new time period with a duplicate alias (successful)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  201 Created ★ 217ms time ★ 812B↑ 541B↓ size ★ 11↑ 10↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 322B
+  │ {
+  │     "name": "test_name_duplicated",
+  │     "alias": "test_alias",
+  │     "days": [
+  │         {
+  │             "day": 3,
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ],
+  │     "templates": [],
+  │     "exceptions": [
+  │         {
+  │             "day_range": "4 tuesday in July",
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 205B
+  │ {"id":16,"name":"test_name_duplicated","alias":"test_a
+  │ lias","days":[{"day":3,"time_range":"00:00-24:00"}],"t
+  │ emplates":[],"exceptions":[{"id":14,"day_range":"4 tue
+  │ sday in July","time_range":"00:00-24:00"}]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  403µs     311µs   (cache)      (cache)         215ms            525µs      21µs      217ms 
+
+  ✓  The time period with name 'test_name_duplicated' and alias 'test_alias' has been successfully created.
+  ✓  The Location parameter is in the header.
+
+↳ Creation of a new time period with wrong type (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  422 Unprocessable Content ★ 225ms time ★ 844B↑ 598B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 354B
+  │ {
+  │     "name": "Wrong_type_for_days_templates_and_excepti
+  │ ons",
+  │     "alias": "Wrong_type_for_days_templates_and_except
+  │ ions",
+  │     "days": [
+  │         {
+  │             "day": "Hola",
+  │             "time_range": null
+  │         }
+  │     ],
+  │     "templates": ["try"],
+  │     "exceptions": [
+  │         {
+  │             "day_range":2,
+  │             "time_range": false
+  │         }
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 309B
+  │ {"code":422,"message":"days[0][day]: This value should
+  │  be of type integer.\ndays[0][time_range]: This value 
+  │ should not be null.\ntemplates[0]: This value should b
+  │ e of type integer.\nexceptions[0].dayRange: This value
+  │  should be of type string.\nexceptions[0].timeRange: T
+  │ his value should be of type string.\n"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  421µs     237µs   (cache)      (cache)         223ms            479µs      25µs      225ms 
+
+  ✓  The time period could not be created, due to a wrong type of value for days, templates and exceptions.
+
+↳ Deletion of a time period (successful)
+  DELETE http://localhost:80/centreon/api/latest/configuration/timeperiods/16  
+  204 No Content ★ 182ms time ★ 442B↑ 218B↓ size ★ 9↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  372µs     206µs   (cache)      (cache)         180ms            422µs      37µs      181ms 
+
+  ✓  The time period with name 'test_name_duplicated' and alias 'test_alias' has been successfully deleted.
+
+↳ Show available time periods after creation and deletion (6)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 216ms time ★ 436B↑ 2.09kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.79kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none_updated
+  │ ","alias":"Never ever","days":[{"day":7,"time_range":"
+  │ 06:30-10:30"}],"templates":[],"exceptions":[{"id":13,"
+  │ day_range":"monday 2","time_range":"06:00-16:00"}]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]},{"id":15
+  │ ,"name":"test_name_by_\u00fbser_RW","alias":"test_#l1a
+  │ s_by_user_RW","days":[{"day":2,"time_range":"23:59-24:
+  │ 00"},{"day":4,"time_range":"00:01-07:02"},{"day":6,"ti
+  │ me_range":"00:01-07:02,23:59-24:00"}],"templates":[{"i
+  │ d":14,"alias":"test_alias"}],"exceptions":[]}],"meta":
+  │ {"page":1,"limit":10,"search":{},"sort_by":{},"total":
+  │ 6}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  387µs     159µs   (cache)      (cache)         214ms            553µs      150µs     215ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Update of a time period (successful)
+  PUT http://localhost:80/centreon/api/latest/configuration/timeperiods/15  
+  204 No Content ★ 225ms time ★ 1.33kB↑ 218B↓ size ★ 11↑ 7↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 845B
+  │ {
+  │     "name": "24x7-v2",
+  │     "alias": "24_Hours_A_Day,_7_Days_A_Week",
+  │     "days": [
+  │         {
+  │             "day": 1,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 2,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 3,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 4,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 5,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 6,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 7,
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ],
+  │     "templates": [1],
+  │     "exceptions": [{
+  │             "day_range": "wednesday 4",
+  │             "time_range": "06:00-17:00"
+  │         }]
+  │ }
+  └ 
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  395µs     168µs   (cache)      (cache)         223ms            447µs      21µs      224ms 
+
+  ✓  The time period has been successfully updated, with name '24x7-v2' and alias '24_Hours_A_Day,_7_Days_A_Week'.
+
+↳ Show only one time period
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods/4  
+  200 OK ★ 224ms time ★ 438B↑ 581B↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 273B
+  │ {"name":"workhours","alias":"Work hours","templates":[
+  │ ],"exceptions":[],"days":[{"day":1,"time_range":"09:00
+  │ -17:00"},{"day":2,"time_range":"09:00-17:00"},{"day":3
+  │ ,"time_range":"09:00-17:00"},{"day":4,"time_range":"09
+  │ :00-17:00"},{"day":5,"time_range":"09:00-17:00"}],"id"
+  │ :4}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  439µs     169µs   (cache)      (cache)         222ms            528µs      172µs     223ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Creation of a new time period with a empty name (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  422 Unprocessable Content ★ 244ms time ★ 610B↑ 382B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 120B
+  │ {
+  │     "name": "",
+  │     "alias": "test_alias_with_empty_name",
+  │     "days": [],
+  │     "templates": [],
+  │     "exceptions": []
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 93B
+  │ {"code":422,"message":"name: This value is too short. 
+  │ It should have 1 character or more.\n"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  418µs     160µs   (cache)      (cache)         242ms            612µs      30µs      243ms 
+
+  ✓  The time period with an empty name could not be created, due to the name being mandatory.
+
+↳ Creation of a new time period with a empty alias (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  422 Unprocessable Content ★ 221ms time ★ 610B↑ 383B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 120B
+  │ {
+  │     "name": "test_name_with_empty_alias",
+  │     "alias": "",
+  │     "days": [],
+  │     "templates": [],
+  │     "exceptions": []
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 94B
+  │ {"code":422,"message":"alias: This value is too short.
+  │  It should have 1 character or more.\n"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  539µs     180µs   (cache)      (cache)         219ms            469µs      21µs      221ms 
+
+  ✓  The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.
+
+↳ Show available time periods after update (6)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 193ms time ★ 436B↑ 2.28kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.97kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none_updated
+  │ ","alias":"Never ever","days":[{"day":7,"time_range":"
+  │ 06:30-10:30"}],"templates":[],"exceptions":[{"id":13,"
+  │ day_range":"monday 2","time_range":"06:00-16:00"}]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]},{"id":15
+  │ ,"name":"24x7-v2","alias":"24_Hours_A_Day,_7_Days_A_We
+  │ ek","days":[{"day":1,"time_range":"00:00-24:00"},{"day
+  │ ":2,"time_range":"00:00-24:00"},{"day":3,"time_range":
+  │ "00:00-24:00"},{"day":4,"time_range":"00:00-24:00"},{"
+  │ day":5,"time_range":"00:00-24:00"},{"day":6,"time_rang
+  │ e":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"}
+  │ ],"templates":[{"id":1,"alias":"Always"}],"exceptions"
+  │ :[{"id":15,"day_range":"wednesday 4","time_range":"06:
+  │ 00-17:00"}]}],"meta":{"page":1,"limit":10,"search":{},
+  │ "sort_by":{},"total":6}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  403µs     201µs   (cache)      (cache)         191ms            534µs      135µs     193ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Logout from RW user
+  GET http://localhost:80/centreon/api/latest/logout  
+  200 OK ★ 204ms time ★ 330B↑ 338B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 31B
+  │ {"message":"Successful logout"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  930µs     205µs   (cache)      (cache)         202ms            531µs      142µs     204ms 
+
+  ✓  Logout successful. The displayed message is the one that is expected ('Successful logout').
+
+❏ Time Period By User with Read Only Right
+↳ Login with Read Only user
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 273ms time ★ 459B↑ 530B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 131B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "user_with_R_rights",
+  │       "password": "Centreon!123"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 222B
+  │ {"contact":{"id":27,"name":"user_with_R_rights","alias
+  │ ":"user_with_R_rights","email":"user_with_R_rights@loc
+  │ alhost","is_admin":false},"security":{"token":"WmgeIXp
+  │ hczHhZRRPm+HyXty8OYjiK2XrnXJp1ROeJHgx9poE+sDXYi4kqYuxL
+  │ Lbp"}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  526µs     195µs   (cache)      (cache)         271ms            654µs      263µs     273ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has not admin rights.
+
+↳ Show available time periods (6)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 225ms time ★ 436B↑ 2.28kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.97kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none_updated
+  │ ","alias":"Never ever","days":[{"day":7,"time_range":"
+  │ 06:30-10:30"}],"templates":[],"exceptions":[{"id":13,"
+  │ day_range":"monday 2","time_range":"06:00-16:00"}]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]},{"id":15
+  │ ,"name":"24x7-v2","alias":"24_Hours_A_Day,_7_Days_A_We
+  │ ek","days":[{"day":1,"time_range":"00:00-24:00"},{"day
+  │ ":2,"time_range":"00:00-24:00"},{"day":3,"time_range":
+  │ "00:00-24:00"},{"day":4,"time_range":"00:00-24:00"},{"
+  │ day":5,"time_range":"00:00-24:00"},{"day":6,"time_rang
+  │ e":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"}
+  │ ],"templates":[{"id":1,"alias":"Always"}],"exceptions"
+  │ :[{"id":15,"day_range":"wednesday 4","time_range":"06:
+  │ 00-17:00"}]}],"meta":{"page":1,"limit":10,"search":{},
+  │ "sort_by":{},"total":6}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  335µs     157µs   (cache)      (cache)         223ms            587µs      134µs     224ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Creation of a new time period (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  403 Forbidden ★ 208ms time ★ 899B↑ 342B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 409B
+  │ {
+  │     "name": "test_name_by_user_Read",
+  │     "alias": "test_alias_by_user_Read",
+  │     "days": [
+  │         {
+  │             "day": 2,
+  │             "time_range": "23:59-24:00"
+  │         },
+  │         {
+  │             "day": 4,
+  │             "time_range": "00:01-07:02"
+  │         },
+  │         {
+  │             "day": 6,
+  │             "time_range": "00:01-07:02,23:59-24:00"
+  │         }
+  │     ],
+  │     "templates": [],
+  │     "exceptions": [
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 65B
+  │ {"code":403,"message":"You are not allowed to edit tim
+  │ e periods"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  453µs     223µs   (cache)      (cache)         207ms            451µs      23µs      208ms 
+
+  ✓  The time period has not been  created, because the user does have the corrects rights.
+
+↳ Show available time periods after creation (6)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 210ms time ★ 436B↑ 2.28kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.97kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none_updated
+  │ ","alias":"Never ever","days":[{"day":7,"time_range":"
+  │ 06:30-10:30"}],"templates":[],"exceptions":[{"id":13,"
+  │ day_range":"monday 2","time_range":"06:00-16:00"}]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]},{"id":15
+  │ ,"name":"24x7-v2","alias":"24_Hours_A_Day,_7_Days_A_We
+  │ ek","days":[{"day":1,"time_range":"00:00-24:00"},{"day
+  │ ":2,"time_range":"00:00-24:00"},{"day":3,"time_range":
+  │ "00:00-24:00"},{"day":4,"time_range":"00:00-24:00"},{"
+  │ day":5,"time_range":"00:00-24:00"},{"day":6,"time_rang
+  │ e":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"}
+  │ ],"templates":[{"id":1,"alias":"Always"}],"exceptions"
+  │ :[{"id":15,"day_range":"wednesday 4","time_range":"06:
+  │ 00-17:00"}]}],"meta":{"page":1,"limit":10,"search":{},
+  │ "sort_by":{},"total":6}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  505µs     203µs   (cache)      (cache)         208ms            542µs      138µs     209ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Deletion of a time period (error)
+  DELETE http://localhost:80/centreon/api/latest/configuration/timeperiods/3  
+  403 Forbidden ★ 206ms time ★ 441B↑ 342B↓ size ★ 9↑ 9↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 65B
+  │ {"code":403,"message":"You are not allowed to edit tim
+  │ e periods"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  430µs     376µs   (cache)      (cache)         205ms            452µs      22µs      206ms 
+
+  ✓  The time period with name 'nonworkhours' has not been deleted, because the user does not have the correct rights.
+
+↳ Show available time periods after creation and deletion (6)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 225ms time ★ 436B↑ 2.28kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.97kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none_updated
+  │ ","alias":"Never ever","days":[{"day":7,"time_range":"
+  │ 06:30-10:30"}],"templates":[],"exceptions":[{"id":13,"
+  │ day_range":"monday 2","time_range":"06:00-16:00"}]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]},{"id":15
+  │ ,"name":"24x7-v2","alias":"24_Hours_A_Day,_7_Days_A_We
+  │ ek","days":[{"day":1,"time_range":"00:00-24:00"},{"day
+  │ ":2,"time_range":"00:00-24:00"},{"day":3,"time_range":
+  │ "00:00-24:00"},{"day":4,"time_range":"00:00-24:00"},{"
+  │ day":5,"time_range":"00:00-24:00"},{"day":6,"time_rang
+  │ e":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"}
+  │ ],"templates":[{"id":1,"alias":"Always"}],"exceptions"
+  │ :[{"id":15,"day_range":"wednesday 4","time_range":"06:
+  │ 00-17:00"}]}],"meta":{"page":1,"limit":10,"search":{},
+  │ "sort_by":{},"total":6}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  404µs     183µs   (cache)      (cache)         223ms            565µs      136µs     224ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Update of a time period (error)
+  PUT http://localhost:80/centreon/api/latest/configuration/timeperiods/15  
+  403 Forbidden ★ 289ms time ★ 1.33kB↑ 342B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 845B
+  │ {
+  │     "name": "24x7-v2",
+  │     "alias": "24_Hours_A_Day,_7_Days_A_Week",
+  │     "days": [
+  │         {
+  │             "day": 1,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 2,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 3,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 4,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 5,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 6,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 7,
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ],
+  │     "templates": [1],
+  │     "exceptions": [{
+  │             "day_range": "wednesday 4",
+  │             "time_range": "06:00-17:00"
+  │         }]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 65B
+  │ {"code":403,"message":"You are not allowed to edit tim
+  │ e periods"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  602µs     367µs   (cache)      (cache)         287ms            496µs      23µs      289ms 
+
+  ✓  The time period has not been updated, because the user does not have the corretcs rights.
+
+↳ Show only one time period
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods/1  
+  200 OK ★ 224ms time ★ 438B↑ 646B↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 338B
+  │ {"name":"24x7","alias":"Always","templates":[],"except
+  │ ions":[],"days":[{"day":1,"time_range":"00:00-24:00"},
+  │ {"day":2,"time_range":"00:00-24:00"},{"day":3,"time_ra
+  │ nge":"00:00-24:00"},{"day":4,"time_range":"00:00-24:00
+  │ "},{"day":5,"time_range":"00:00-24:00"},{"day":6,"time
+  │ _range":"00:00-24:00"},{"day":7,"time_range":"00:00-24
+  │ :00"}],"id":1}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  409µs     164µs   (cache)      (cache)         222ms            518µs      158µs     223ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Show available time periods after update (6)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  200 OK ★ 215ms time ★ 436B↑ 2.28kB↓ size ★ 9↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.97kB
+  │ {"result":[{"id":1,"name":"24x7","alias":"Always","day
+  │ s":[{"day":1,"time_range":"00:00-24:00"},{"day":2,"tim
+  │ e_range":"00:00-24:00"},{"day":3,"time_range":"00:00-2
+  │ 4:00"},{"day":4,"time_range":"00:00-24:00"},{"day":5,"
+  │ time_range":"00:00-24:00"},{"day":6,"time_range":"00:0
+  │ 0-24:00"},{"day":7,"time_range":"00:00-24:00"}],"templ
+  │ ates":[],"exceptions":[]},{"id":2,"name":"none_updated
+  │ ","alias":"Never ever","days":[{"day":7,"time_range":"
+  │ 06:30-10:30"}],"templates":[],"exceptions":[{"id":13,"
+  │ day_range":"monday 2","time_range":"06:00-16:00"}]},{"
+  │ id":3,"name":"nonworkhours","alias":"Non-Work Hours","
+  │ days":[{"day":1,"time_range":"00:00-09:00,17:00-24:00"
+  │ },{"day":2,"time_range":"00:00-09:00,17:00-24:00"},{"d
+  │ ay":3,"time_range":"00:00-09:00,17:00-24:00"},{"day":4
+  │ ,"time_range":"00:00-09:00,17:00-24:00"},{"day":5,"tim
+  │ e_range":"00:00-09:00,17:00-24:00"},{"day":6,"time_ran
+  │ ge":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"
+  │ }],"templates":[],"exceptions":[]},{"id":4,"name":"wor
+  │ khours","alias":"Work hours","days":[{"day":1,"time_ra
+  │ nge":"09:00-17:00"},{"day":2,"time_range":"09:00-17:00
+  │ "},{"day":3,"time_range":"09:00-17:00"},{"day":4,"time
+  │ _range":"09:00-17:00"},{"day":5,"time_range":"09:00-17
+  │ :00"}],"templates":[],"exceptions":[]},{"id":14,"name"
+  │ :"t\u00e9st_name_with_duplicated_al1as!","alias":"test
+  │ _alias","days":[{"day":3,"time_range":"00:00-24:00"}],
+  │ "templates":[],"exceptions":[{"id":12,"day_range":"4 t
+  │ uesday in July","time_range":"00:00-24:00"}]},{"id":15
+  │ ,"name":"24x7-v2","alias":"24_Hours_A_Day,_7_Days_A_We
+  │ ek","days":[{"day":1,"time_range":"00:00-24:00"},{"day
+  │ ":2,"time_range":"00:00-24:00"},{"day":3,"time_range":
+  │ "00:00-24:00"},{"day":4,"time_range":"00:00-24:00"},{"
+  │ day":5,"time_range":"00:00-24:00"},{"day":6,"time_rang
+  │ e":"00:00-24:00"},{"day":7,"time_range":"00:00-24:00"}
+  │ ],"templates":[{"id":1,"alias":"Always"}],"exceptions"
+  │ :[{"id":15,"day_range":"wednesday 4","time_range":"06:
+  │ 00-17:00"}]}],"meta":{"page":1,"limit":10,"search":{},
+  │ "sort_by":{},"total":6}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  356µs     183µs   (cache)      (cache)         213ms            566µs      138µs     214ms 
+
+  ✓  A list of time periods has been successfully fetched.
+  ✓  The time periods are listed with their alias, days, templates and exceptions
+
+↳ Logout from Read Only user
+  GET http://localhost:80/centreon/api/latest/logout  
+  200 OK ★ 192ms time ★ 330B↑ 338B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 31B
+  │ {"message":"Successful logout"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  483µs     223µs   (cache)      (cache)         190ms            655µs      184µs     192ms 
+
+  ✓  Logout successful. The displayed message is the one that is expected ('Successful logout').
+
+❏ Time Period By User with No Access
+↳ Login with user with no access
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 275ms time ★ 453B↑ 512B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 125B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "user_nothing",
+  │       "password": "Centreon!123"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 204B
+  │ {"contact":{"id":28,"name":"user_nothing","alias":"use
+  │ r_nothing","email":"user_nothing@localhost","is_admin"
+  │ :false},"security":{"token":"801b7BzCYuIEfCwjRsxw0LAqq
+  │ bbCKCYgMRMmqK8oVRepZx7FcaZuIxtE0Jv2iBd4"}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  594µs     223µs   (cache)      (cache)         273ms            743µs      150µs     275ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has not admin rights.
+
+↳ Creation of a new time period (error)
+  POST http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  403 Forbidden ★ 254ms time ★ 919B↑ 342B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 429B
+  │ {
+  │     "name": "test_name_by_user_with_no_access",
+  │     "alias": "test_alias_by_user_with_no_access",
+  │     "days": [
+  │         {
+  │             "day": 2,
+  │             "time_range": "23:59-24:00"
+  │         },
+  │         {
+  │             "day": 4,
+  │             "time_range": "00:01-07:02"
+  │         },
+  │         {
+  │             "day": 6,
+  │             "time_range": "00:01-07:02,23:59-24:00"
+  │         }
+  │     ],
+  │     "templates": [],
+  │     "exceptions": [
+  │     ]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 65B
+  │ {"code":403,"message":"You are not allowed to edit tim
+  │ e periods"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  377µs     159µs   (cache)      (cache)         252ms            550µs      44µs      253ms 
+
+  ✓  The time period has not been  created, because the user does have the corrects rights.
+
+↳ Deletion of a time period (error)
+  DELETE http://localhost:80/centreon/api/latest/configuration/timeperiods/3  
+  403 Forbidden ★ 204ms time ★ 441B↑ 342B↓ size ★ 9↑ 9↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 65B
+  │ {"code":403,"message":"You are not allowed to edit tim
+  │ e periods"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  537µs     320µs   (cache)      (cache)         203ms            502µs      21µs      204ms 
+
+  ✓  The time period with name 'nonworkhours' has not been deleted, because the user does not have the correct rights.
+
+↳ Update of a time period (error)
+  PUT http://localhost:80/centreon/api/latest/configuration/timeperiods/15  
+  403 Forbidden ★ 219ms time ★ 1.33kB↑ 342B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 845B
+  │ {
+  │     "name": "24x7-v2",
+  │     "alias": "24_Hours_A_Day,_7_Days_A_Week",
+  │     "days": [
+  │         {
+  │             "day": 1,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 2,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 3,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 4,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 5,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 6,
+  │             "time_range": "00:00-24:00"
+  │         },
+  │         {
+  │             "day": 7,
+  │             "time_range": "00:00-24:00"
+  │         }
+  │     ],
+  │     "templates": [1],
+  │     "exceptions": [{
+  │             "day_range": "wednesday 4",
+  │             "time_range": "06:00-17:00"
+  │         }]
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 65B
+  │ {"code":403,"message":"You are not allowed to edit tim
+  │ e periods"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  562µs     199µs   (cache)      (cache)         217ms            582µs      20µs      218ms 
+
+  ✓  The time period has not been updated, because the user does not have the corretcs rights.
+
+↳ Show available time period (error)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods/1  
+  403 Forbidden ★ 221ms time ★ 438B↑ 344B↓ size ★ 9↑ 9↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 67B
+  │ {"code":403,"message":"You are not allowed to access t
+  │ ime periods"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  423µs     191µs   (cache)      (cache)         220ms            435µs      21µs      221ms 
+
+  ✓  List of time periods can't be displayed.
+
+↳ Show available time periods (error)
+  GET http://localhost:80/centreon/api/latest/configuration/timeperiods  
+  403 Forbidden ★ 213ms time ★ 436B↑ 344B↓ size ★ 9↑ 9↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 67B
+  │ {"code":403,"message":"You are not allowed to access t
+  │ ime periods"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  521µs     302µs   (cache)      (cache)         212ms            566µs      24µs      213ms 
+
+  ✓  List of time periods can't be displayed.
+
+↳ Logout from user with no access
+  GET http://localhost:80/centreon/api/latest/logout  
+  200 OK ★ 210ms time ★ 330B↑ 338B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 31B
+  │ {"message":"Successful logout"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  276µs     157µs   (cache)      (cache)         208ms            547µs      194µs     209ms 
+
+  ✓  Logout successful. The displayed message is the one that is expected ('Successful logout').
+
+❏ Reset
+↳ Login with admin user
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 271ms time ★ 447B↑ 498B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 119B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "admin",
+  │       "password": "Centreon!2021"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 190B
+  │ {"contact":{"id":1,"name":"admin admin","alias":"admin
+  │ ","email":"admin@centreon.com","is_admin":true},"secur
+  │ ity":{"token":"lxh6e+jiDptlU24XxxijtTv7izppX8m7OW8Tj8G
+  │ J2A0C6TJAGHPOfVzu+iuqoTzi"}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  403µs     256µs   (cache)      (cache)         269ms            593µs      126µs     270ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has admin rights.
+
+↳ Update of a time period (successful)
+  PUT http://localhost:80/centreon/api/latest/configuration/timeperiods/2  
+  204 No Content ★ 208ms time ★ 594B↑ 218B↓ size ★ 11↑ 7↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 109B
+  │ {
+  │     "name": "none",
+  │     "alias": "Never",
+  │     "days": [],
+  │     "templates": [],
+  │     "exceptions": []
+  │ }
+  └ 
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  445µs     190µs   (cache)      (cache)         206ms            433µs      46µs      207ms 
+
+  ✓  The time period has been successfully updated.
+
+↳ Deletion of a time period (successful)
+  DELETE http://localhost:80/centreon/api/latest/configuration/timeperiods/14  
+  204 No Content ★ 189ms time ★ 442B↑ 218B↓ size ★ 9↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  299µs     188µs   (cache)      (cache)         188ms            411µs      21µs      189ms 
+
+  ✓  The time period with name 'tést_name_with_duplicated_al1as!' and alias 'test_alias' has been successfully deleted.
+
+↳ Deletion of a time period (successful)
+  DELETE http://localhost:80/centreon/api/latest/configuration/timeperiods/15  
+  204 No Content ★ 207ms time ★ 442B↑ 218B↓ size ★ 9↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  347µs     221µs   (cache)      (cache)         205ms            534µs      21µs      206ms 
+
+  ✓  The time period with name '24x7-v2' and alias '24_Hours_A_Day,_7_Days_A_Week' has been successfully deleted.
+
+↳ Logout from admin user
+  GET http://localhost:80/centreon/api/latest/logout  
+  200 OK ★ 218ms time ★ 330B↑ 338B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 31B
+  │ {"message":"Successful logout"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  415µs     185µs   (cache)      (cache)         217ms            646µs      139µs     218ms 
+
+  ✓  Logout successful. The displayed message is the one that is expected ('Successful logout').
+
+┌─────────────────────────┬─────────────────────┬────────────────────┐
+│                         │            executed │             failed │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│              iterations │                   1 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│                requests │                  80 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│            test-scripts │                 160 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│      prerequest-scripts │                 132 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│              assertions │                  99 │                  0 │
+├─────────────────────────┴─────────────────────┴────────────────────┤
+│ total run duration: 18s                                            │
+├────────────────────────────────────────────────────────────────────┤
+│ total data received: 25.52kB (approx)                              │
+├────────────────────────────────────────────────────────────────────┤
+│ average response time: 199ms [min: 81ms, max: 314ms, s.d.: 59ms]   │
+├────────────────────────────────────────────────────────────────────┤
+│ average DNS lookup time: 3ms [min: 3ms, max: 3ms, s.d.: 0µs]       │
+├────────────────────────────────────────────────────────────────────┤
+│ average first byte time: 197ms [min: 79ms, max: 307ms, s.d.: 59ms] │
+└────────────────────────────────────────────────────────────────────┘

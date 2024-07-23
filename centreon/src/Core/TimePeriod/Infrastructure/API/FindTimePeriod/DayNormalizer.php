@@ -30,22 +30,23 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class DayNormalizer implements NormalizerInterface
 {
-    public function __construct(private readonly ObjectNormalizer $normalizer,)
+    public function __construct(private readonly ObjectNormalizer $normalizer)
     {
     }
 
     /**
      * @param Day $object
      * @param string|null $format
-     * @param array $context
+     * @param array<string, mixed> $context
      *
      * @throws ExceptionInterface
-     * @return array|\ArrayObject|bool|float|int|string|null
+     *
+     * @return array<string, mixed>|\ArrayObject<int, mixed>|bool|float|int|string|null
      */
-    public function normalize(mixed $object, ?string $format = null, array $context = [])
+    public function normalize(mixed $object, ?string $format = null, array $context = []): float|int|\ArrayObject|bool|array|string|null
     {
         $data = $this->normalizer->normalize($object, $format, $context);
-        if (array_key_exists('time_range', $data)) {
+        if (is_array($data) && array_key_exists('time_range', $data)) {
             $data['time_range'] = (string) $object->getTimeRange();
         }
 

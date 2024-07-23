@@ -27,9 +27,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class AddTimePeriodRequest
 {
-    /**
-     * @param DtoException[] $exceptions
-     */
     public function __construct(
         #[Assert\NotNull]
         #[Assert\Type('string')]
@@ -39,6 +36,8 @@ final class AddTimePeriodRequest
         #[Assert\Type('string')]
         #[Assert\Length(min: 1, max: 200)]
         public readonly mixed $alias,
+        #[Assert\NotNull]
+        #[Assert\Type('array')]
         #[Assert\All([
             new Assert\Collection(
                 fields: [
@@ -53,13 +52,30 @@ final class AddTimePeriodRequest
                 ],
             ),
         ])]
-        public readonly array $days,
+        public readonly mixed $days,
+        #[Assert\NotNull]
+        #[Assert\Type('array')]
         #[Assert\All(
             new Assert\Type('integer'),
         )]
-        public readonly array $templates = [],
-        #[Assert\Valid]
-        public readonly array $exceptions = [],
+        public readonly mixed $templates = [],
+        #[Assert\NotNull]
+        #[Assert\Type('array')]
+        #[Assert\All([
+            new Assert\Collection(
+                fields: [
+                    'day_range' => [
+                        new Assert\NotNull(),
+                        new Assert\Type('string'),
+                    ],
+                    'time_range' => [
+                        new Assert\NotNull(),
+                        new Assert\Type('string'),
+                    ],
+                ],
+            ),
+        ])]
+        public readonly mixed $exceptions = [],
     ) {
     }
 }

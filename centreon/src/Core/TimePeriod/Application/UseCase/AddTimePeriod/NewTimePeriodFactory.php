@@ -55,9 +55,9 @@ final class NewTimePeriodFactory
         $newTimePeriod->setTemplates($dto->templates);
         $newTimePeriod->setExtraTimePeriods(
             array_map(
-                fn (DtoException $exception): NewExtraTimePeriod => new NewExtraTimePeriod(
-                    $exception->dayRange,
-                    new TimeRange($exception->timeRange)
+                fn (array $exception): NewExtraTimePeriod => new NewExtraTimePeriod(
+                    $exception['day_range'],
+                    new TimeRange($exception['time_range'])
                 ),
                 $dto->exceptions
             )
