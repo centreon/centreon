@@ -808,7 +808,7 @@ function updateContactHostCommands($contact_id = null, $ret = array())
 
     for ($i = 0; $i < $resultsCount; $i++) {
         $rq = <<<SQL
-                INSERT INTO contact_hostcommands_relation 
+                INSERT INTO contact_hostcommands_relation
                 (contact_contact_id, command_command_id)
                 VALUES
                 (:contact_id, :command_id)
@@ -824,69 +824,71 @@ function updateContactHostCommands($contact_id = null, $ret = array())
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
 /**
- * @param null $contact_id
- * @param array $ret
+ * @param int $contactId
  */
-function updateContactHostCommands_MC($contact_id = null, $ret = array())
+function updateContactHostCommands_MC($contactId): void
 {
     global $form, $pearDB;
-    if (!$contact_id) {
+
+    if (!is_int($contactId)) {
         return;
     }
-    $rq = "SELECT * FROM contact_hostcommands_relation ";
-    $rq .= "WHERE contact_contact_id = '" . (int)$contact_id . "'";
-    $dbResult = $pearDB->query($rq);
-    $cmds = array();
-    while ($arr = $dbResult->fetch()) {
-        $cmds[$arr["command_command_id"]] = $arr["command_command_id"];
+
+    $query = "SELECT command_command_id FROM contact_hostcommands_relation WHERE contact_contact_id = " . (int)$contactId;
+    $sth = $pearDB->query($query);
+    $hostCommands = $sth->fetchAll();
+
+    if ($hostCommands === false) {
+        return;
     }
-    $ret = $form->getSubmitValue("contact_hostNotifCmds");
-    if (!empty($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
-            if (!isset($cmds[$ret[$i]])) {
-                $rq = "INSERT INTO contact_hostcommands_relation ";
-                $rq .= "(contact_contact_id, command_command_id) ";
-                $rq .= "VALUES ";
-                $rq .= "(" . (int)$contact_id . ", " . $ret[$i] . ")";
-                $dbResult = $pearDB->query($rq);
-            }
+
+    $commandIds = [];
+    foreach ($hostCommands as $hostCommand) { // TODO optimize
+        $commandIds[$hostCommand["command_command_id"]] = $hostCommand["command_command_id"];
+    }
+
+    $contact_hostNotifCmds = $form->getSubmitValue("contact_hostNotifCmds");
+
+    if (!is_array($contact_hostNotifCmds)) {
+        return;
+    }
+
+    foreach ($contact_hostNotifCmds as $commandId) {
+        if (!isset($commandIds[$commandId])) {
+            $query = "INSERT INTO contact_hostcommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
+            $pearDB->query($query, ['contact_id' => (int)$contactId, 'command_id' => (int)$commandId]);
         }
     }
 }
 
 /**
- * @param null $contact_id
- * @param array $ret
+ * @param int $contactId
+ * @param array $fields
  */
-function updateContactServiceCommands($contact_id = null, $ret = array())
+function updateContactServiceCommands($contactId, array $fields = []): void
 {
     global $form, $pearDB;
-    if (!$contact_id) {
+
+    if (!is_int($contactId)) {
         return;
     }
-    $rq = "DELETE FROM contact_servicecommands_relation ";
-    $rq .= "WHERE contact_contact_id = '" . (int)$contact_id . "'";
-    $dbResult = $pearDB->query($rq);
-    if (isset($ret["contact_svNotifCmds"])) {
-        $ret = $ret["contact_svNotifCmds"];
-    } else {
-        $ret = $form->getSubmitValue("contact_svNotifCmds");
+
+    $query = "DELETE FROM contact_servicecommands_relation WHERE contact_contact_id = :contact_id";
+    $successDelete = $pearDB->query($query, ['contact_id' => (int)$contactId]);
+
+    if ($successDelete === false) {
+        return;
     }
 
-    if (is_array($ret) || $ret instanceof Countable) {
-        $resultsCount = count($ret);
-    } else {
-        $resultsCount = 0;
+    $contact_svNotifCmds = $fields["contact_svNotifCmds"] ?? $form->getSubmitValue("contact_svNotifCmds");
+
+    if (!is_array($contact_svNotifCmds)) {
+        return;
     }
 
-    for ($i = 0; $i < $resultsCount; $i++) {
-        $rq = <<<SQL
-                INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_contact_id, :command_command_id)
-                SQL;
-        $statement = $pearDB->prepare($rq);
-        $statement->bindValue(':contact_contact_id', (int) $contact_id, \PDO::PARAM_INT);
-        $statement->bindValue(':command_command_id', (int) $ret[$i], \PDO::PARAM_INT);
-        $dbResult = $statement->execute();
+    foreach ($contact_svNotifCmds as $commandId) {
+        $query = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
+        $pearDB->query($query, ['contact_id' => (int)$contactId, 'command_id' => (int)$commandId]);
     }
 }
 
@@ -894,87 +896,98 @@ function updateContactServiceCommands($contact_id = null, $ret = array())
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
 /**
- * @param null $contact_id
- * @param array $ret
+ * @param int $contactId
  */
-function updateContactServiceCommands_MC($contact_id = null, $ret = array())
+function updateContactServiceCommands_MC($contactId): void
 {
     global $form, $pearDB;
-    if (!$contact_id) {
+
+    if (!is_int($contactId)) {
         return;
     }
-    $rq = "SELECT * FROM contact_servicecommands_relation ";
-    $rq .= "WHERE contact_contact_id = '" . (int)$contact_id . "'";
-    $dbResult = $pearDB->query($rq);
-    $cmds = array();
-    while ($arr = $dbResult->fetch()) {
-        $cmds[$arr["command_command_id"]] = $arr["command_command_id"];
+
+    $query = "SELECT * FROM contact_servicecommands_relation WHERE contact_contact_id = " . (int)$contactId;
+    $sth = $pearDB->query($query);
+    $serviceCommands = $sth->fetchAll();
+
+    if ($serviceCommands === false) {
+        return;
     }
-    $ret = $form->getSubmitValue("contact_svNotifCmds");
-    if (!empty($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
-            if (!isset($cmds[$ret[$i]])) {
-                $rq = "INSERT INTO contact_servicecommands_relation ";
-                $rq .= "(contact_contact_id, command_command_id) ";
-                $rq .= "VALUES ";
-                $rq .= "('" . (int)$contact_id . "', '" . $ret[$i] . "')";
-                $dbResult = $pearDB->query($rq);
-            }
+
+    $contact_svNotifCmds = $form->getSubmitValue("contact_svNotifCmds");
+
+    if (!is_array($contact_svNotifCmds)) {
+        return;
+    }
+
+    foreach ($contact_svNotifCmds as $commandId) {
+        if (!isset($commandIds[$commandId])) {
+            $query = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
+            $pearDB->query($query, ['contact_id' => (int)$contactId, 'command_id' => (int)$commandId]);
         }
     }
 }
 
 /**
- * @param null $contact_id
- * @param array $ret
+ * @param int $contactId
+ * @param array $fields
  */
-function updateContactContactGroup($contact_id = null, $ret = array())
+function updateContactContactGroup($contactId, array $fields = []): void
 {
     global $centreon, $form, $pearDB;
-    if (!$contact_id) {
+
+    if (!is_int($contactId)) {
         return;
     }
-    $rq = "DELETE FROM contactgroup_contact_relation "
-        . "WHERE contact_contact_id = '" . (int)$contact_id . "' "
+
+    $query = "DELETE FROM contactgroup_contact_relation "
+        . "WHERE contact_contact_id = '" . (int)$contactId . "' "
         . "AND ( "
         . "    contactgroup_cg_id IN (SELECT cg_id FROM contactgroup WHERE cg_type = 'local') "
         . "    OR contact_contact_id IN (SELECT contact_id FROM contact WHERE contact_auth_type = 'local') "
         . ") ";
-    $dbResult = $pearDB->query($rq);
+    $successDelete = $pearDB->query($query);
 
-    if (isset($ret["contact_cgNotif"])) {
-        $ret = $ret["contact_cgNotif"];
-    } else {
-        $ret = CentreonUtils::mergeWithInitialValues($form, 'contact_cgNotif');
+    if (!$successDelete) {
+        return;
     }
-    for ($i = 0; $i < count($ret); $i++) {
-        $rq = "INSERT INTO contactgroup_contact_relation ";
-        $rq .= "(contact_contact_id, contactgroup_cg_id) ";
-        $rq .= "VALUES ";
-        $rq .= "('" . (int)$contact_id . "', '" . $ret[$i] . "')";
-        $dbResult = $pearDB->query($rq);
+
+    $contactGroups = $fields["contact_cgNotif"] ?? CentreonUtils::mergeWithInitialValues($form, 'contact_cgNotif');
+
+    if (!is_array($contactGroups)) {
+        return;
     }
-    CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contact_id);
+
+    foreach ($contactGroups as $contactGroupId) {
+        $query = "INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)";
+        $pearDB->query($query, ['contact_id' => (int)$contactId, 'contactgroup_id' => (int)$contactGroupId]);
+    }
+
+    try {
+        CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
+    } catch (Exception $e) {
+        return; // todo use logs
+    }
 }
 
 /*
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
 /**
- * @param null $contact_id
+ * @param null $contactId
  * @param array $ret
  */
-function updateContactContactGroup_MC($contact_id = null, $ret = array())
+function updateContactContactGroup_MC($contactId = null)
 {
     global $centreon, $form, $pearDB;
-    if (!$contact_id) {
+    if (!is_int($contactId)) {
         return;
     }
     $dbResult = $pearDB->prepare(
         "SELECT * FROM contactgroup_contact_relation " .
         "WHERE contact_contact_id = :contactId"
     );
-    $dbResult->bindValue(':contactId', (int)$contact_id, \PDO::PARAM_INT);
+    $dbResult->bindValue(':contactId', (int)$contactId, \PDO::PARAM_INT);
     $dbResult->execute();
     $cmds = array();
     while ($arr = $dbResult->fetch()) {
@@ -989,13 +1002,13 @@ function updateContactContactGroup_MC($contact_id = null, $ret = array())
                     "(contact_contact_id, contactgroup_cg_id) " .
                     "VALUES (:contactId, :contactgroupId)"
                 );
-                $dbResult->bindValue(':contactId', (int)$contact_id, PDO::PARAM_INT);
+                $dbResult->bindValue(':contactId', (int)$contactId, PDO::PARAM_INT);
                 $dbResult->bindValue(':contactgroupId', $ret[$i], PDO::PARAM_INT);
                 $dbResult->execute();
             }
         }
     }
-    CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contact_id);
+    CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
 }
 
 /**
