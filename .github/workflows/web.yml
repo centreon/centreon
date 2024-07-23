@@ -67,6 +67,7 @@ jobs:
             has_frontend_changes:
               - '**/*.[jt]sx?'
               - '**/www/front_src/**'
+              - '**/www/widgets/src/**'
               - '**/tests/e2e/**'
               - '**/package*'
               - '**/lighthouse/**'
