@@ -20,7 +20,6 @@ import {
   flatten
 } from 'ramda';
 import { useAtomValue } from 'jotai';
-import clsx from 'clsx';
 
 import {
   QueryParameter,
