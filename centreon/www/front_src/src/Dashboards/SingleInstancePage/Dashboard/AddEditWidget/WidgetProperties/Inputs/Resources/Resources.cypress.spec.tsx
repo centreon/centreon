@@ -232,6 +232,21 @@ describe('Resources', () => {
     cy.makeSnapshot();
   });
 
+  it('deletes a resource when the corresponding icon is clicked', () => {
+    initialize({});
+
+    cy.findByTestId(labelResourceType).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findByTestId(labelSelectAResource).click();
+    cy.waitForRequest('@getHosts');
+    cy.contains('Host 0').click();
+    cy.findByTestId('CancelIcon').click();
+
+    cy.contains('Host 0').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
   it('selects a resource type and a resource when the data value does not exist', () => {
     initialize({ emptyData: true });
 

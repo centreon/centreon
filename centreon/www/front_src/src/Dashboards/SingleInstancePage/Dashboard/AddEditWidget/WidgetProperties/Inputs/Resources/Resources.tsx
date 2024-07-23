@@ -119,12 +119,12 @@ const Resources = ({
               />
               {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
-                  disableClearable
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary'
                   }}
                   className={classes.resources}
+                  disableClearable={singleResourceSelection}
                   disabled={
                     !canEditField ||
                     (equals(
