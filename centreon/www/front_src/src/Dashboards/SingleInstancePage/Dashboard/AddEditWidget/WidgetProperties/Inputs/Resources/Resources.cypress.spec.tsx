@@ -3,7 +3,7 @@
 import { Formik } from 'formik';
 import { createStore, Provider } from 'jotai';
 import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
-import { difference, includes, omit, pluck, reject } from 'ramda';
+import { difference, includes, pluck, reject } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
