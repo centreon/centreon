@@ -117,7 +117,6 @@ class CentreonACL
     {
         $this->parentTemplates = null;
         $this->resourceGroups = array();
-        $this->hostGroups = array();
         $this->serviceGroups = array();
         $this->serviceCategories = array();
         $this->actions = array();
@@ -311,12 +310,20 @@ class CentreonACL
      */
     private function setHostGroups()
     {
+        $this->hostGroups = [];
+        $this->hostGroupsAlias = [];
+        $this->hostGroupsFilter = [];
         $aclSubRequest = '';
         $bindValues = [];
 
         if ($this->hasAccessToAllHostGroups === false) {
+            $accessGroups = $this->getAccessGroups();
+            if ($accessGroups === []) {
+                return;
+            }
+
             [$bindValues, $bindQuery] = createMultipleBindQuery(
-                list: array_keys($this->getAccessGroups()),
+                list: array_keys($accessGroups),
                 prefix: ':access_group_id_'
             );
 
