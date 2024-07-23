@@ -190,7 +190,7 @@ INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`,
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`,`topology_feature_flag`) VALUES ('Notifications', '/configuration/notifications', '1', '1', 604, 60413, 1, 1,'notification');
 
 -- add additional connector configuration configuration page 
-INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`,`topology_feature_flag`) VALUES ('Additional Connector', '/configuration/additional-connector', '1', '1', 6, 625, 99, 1,'additional_connector_configuration');
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_show`, `topology_feature_flag`) VALUES ( 'Additional Connectors', '/configuration/additional-connectors', '1', '1', 6, 618, 1, 99, '0', 'additional_connector_configuration')
 
 -- add resource access management page
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_feature_flag`) VALUES ( 'Resource Access Management', '/administration/resource-access/rules', '1', '1', 502, 50206, 1, 1, 'resource_access_management');
