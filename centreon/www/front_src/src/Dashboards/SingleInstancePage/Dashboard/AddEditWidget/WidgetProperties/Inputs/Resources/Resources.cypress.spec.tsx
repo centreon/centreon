@@ -183,6 +183,7 @@ describe('Resources', () => {
 
     cy.findAllByTestId(labelResourceType).eq(0).should('have.value', 'host');
     cy.findAllByTestId(labelResourceType).eq(1).should('have.value', 'service');
+    cy.findAllByTestId(labelSelectAResource).eq(1).should('be.disabled');
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.waitForRequest('@getHosts');
