@@ -1,9 +1,13 @@
+import { renderHook } from '@testing-library/react';
 import dayjs from 'dayjs';
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
+import { userAtom } from '@centreon/ui-context';
+
 import dataPingService from '../mockedData/pingService.json';
-import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
+import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 
 import BarChart, { BarChartProps } from './BarChart';
 
@@ -31,6 +35,8 @@ const initialize = ({
   BarChartProps,
   'data' | 'legend' | 'axis' | 'barStyle' | 'orientation' | 'tooltip'
 >): void => {
+  cy.adjustViewport();
+
   cy.mount({
     Component: (
       <div style={{ height: '100%', width: '100%' }}>
@@ -46,12 +52,16 @@ const initialize = ({
       </div>
     )
   });
+
+  cy.viewport('macbook-13');
 };
 
 describe('Bar chart', () => {
   ['horizontal', 'vertical'].forEach((orientation) => {
     it(`displays the bar chart ${orientation}ly`, () => {
       initialize({ orientation });
+      const userData = renderHook(() => useAtomValue(userAtom));
+      userData.result.current.locale = 'en';
 
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');

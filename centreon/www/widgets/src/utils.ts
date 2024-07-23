@@ -105,7 +105,10 @@ export const getResourcesUrl = ({
     : {
         name: 'resource_types',
         value: [
-          { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
+          {
+            id: type,
+            name: `${type?.charAt(0).toUpperCase()}${type?.slice(1)}`
+          }
         ]
       };
 
@@ -115,7 +118,7 @@ export const getResourcesUrl = ({
     map((status: string) => {
       return {
         id: status.toLocaleUpperCase(),
-        name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
+        name: `${status?.charAt(0).toUpperCase()}${status?.slice(1)}`
       };
     })
   )(statuses);
@@ -123,7 +126,7 @@ export const getResourcesUrl = ({
   const formattedStates = states.map((state) => {
     return {
       id: state,
-      name: `${state.charAt(0).toUpperCase()}${state.slice(1)}`
+      name: `${state?.charAt(0).toUpperCase()}${state?.slice(1)}`
     };
   });
 
@@ -250,9 +253,23 @@ export const formatStatusFilter = cond([
   [T, identity]
 ]) as (b: SeverityStatus) => Array<string>;
 
+export const formatBAStatusFilter = cond([
+  [equals(SeverityStatus.Success), always('ok')],
+  [equals(SeverityStatus.Warning), always('warning')],
+  [equals(SeverityStatus.Problem), always('critical')],
+  [equals(SeverityStatus.Undefined), always('unknown')],
+  [equals(SeverityStatus.Pending), always('pending')],
+  [T, identity]
+]) as (b: SeverityStatus) => string;
+
 export const formatStatus = pipe(
   map(formatStatusFilter),
   flatten,
+  map((status) => status.toLocaleUpperCase())
+);
+
+export const formatBAStatus = pipe(
+  map(formatBAStatusFilter),
   map((status) => status.toLocaleUpperCase())
 );
 
@@ -350,3 +367,19 @@ export const getWidgetEndpoint = ({
 
   return defaultEndpoint;
 };
+
+export const getBAStatusBySeverityCode = {
+  [SeverityCode.High]: 'critical',
+  [SeverityCode.Medium]: 'warning',
+  [SeverityCode.OK]: 'ok',
+  [SeverityCode.None]: 'unknown',
+  [SeverityCode.Pending]: 'pending'
+};
+
+export const getBAsURL = (severityCode: number): string => {
+  const status = getBAStatusBySeverityCode[severityCode];
+
+  return `/main.php?p=20701&status=${status}`;
+};
+
+export const indicatorsURL = '/main.php?p=62606';

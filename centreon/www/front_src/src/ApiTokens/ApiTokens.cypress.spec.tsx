@@ -371,6 +371,7 @@ describe('Api-token', () => {
     const store = createStore();
 
     store.set(userAtom, {
+      canManageApiTokens: true,
       isAdmin: true,
       locale: 'en_US',
       timezone: 'Europe/Paris'
@@ -623,7 +624,7 @@ describe('Api-token', () => {
         response: data
       });
     });
-    const now = new Date(Date.UTC(2024, 1, 27, 18, 16, 33));
+    const now = new Date(2024, 1, 27, 18, 16, 33);
 
     cy.clock(now);
 
@@ -869,11 +870,11 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  it('displays the date filters when Customize is selected', () => {
+  it('display the date filters when Customize is selected', () => {
     cy.waitForRequest('@getListTokens');
     cy.findByTestId('Filter options').click();
 
-    const now = new Date(Date.UTC(2024, 1, 27, 18, 16, 33));
+    const now = new Date(2024, 1, 27, 18, 16, 33);
 
     cy.clock(now);
 
@@ -898,11 +899,11 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  it('updates the filter interface when applying custom date filters', () => {
+  it('update the filter interface when applying custom date filters', () => {
     cy.waitForRequest('@getListTokens');
     cy.findByTestId('Filter options').click();
 
-    const now = new Date(Date.UTC(2024, 1, 27, 18, 16, 33));
+    const now = new Date(2024, 1, 27, 18, 16, 33);
 
     cy.clock(now);
 
@@ -935,7 +936,7 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  it('updates the search bar when changes are made to the filter interface', () => {
+  it('update the search bar when changes are made to the filter interface', () => {
     cy.waitForRequest('@getListTokens');
 
     cy.fixture('apiTokens/creation/configuredUsers.json').then((data) => {
@@ -946,7 +947,7 @@ describe('Api-token', () => {
         response: data
       });
     });
-    const now = new Date(Date.UTC(2024, 1, 27, 18, 16, 33));
+    const now = new Date(2024, 1, 27, 18, 16, 33);
 
     cy.clock(now);
 
@@ -984,9 +985,7 @@ describe('Api-token', () => {
       'February 5, 2024 7:16 PM'
     );
 
-    const expectedCreationDate = toIsoString(
-      new Date(Date.UTC(2024, 1, 5, 18, 16, 33))
-    );
+    const expectedCreationDate = toIsoString(new Date(2024, 1, 5, 18, 16, 33));
 
     const expectedSearch = `is_revoked:true creator.name:${translateWhiteSpaceToRegex(
       'Jane Doe'
@@ -999,7 +998,7 @@ describe('Api-token', () => {
 
   it('executes a listing request with the selected filters ', () => {
     cy.waitForRequest('@getListTokens');
-    const now = new Date(Date.UTC(2024, 1, 27, 15, 16, 33));
+    const now = new Date(2024, 1, 27, 15, 16, 33);
     const expirationDate = 'March 28, 2024 4:16 PM';
     const creationDate = 'February 20, 2024 4:16 PM';
 

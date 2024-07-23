@@ -9,7 +9,8 @@ import {
   has,
   pluck,
   difference,
-  isEmpty
+  isEmpty,
+  reject
 } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
@@ -137,11 +138,15 @@ export const useWidgetInputs = (
               }
 
               if (equals(method, 'includes')) {
-                const items = value.hiddenCondition?.property
-                  ? pluck('property', path(when.split('.'), values))
+                const property = value.hiddenCondition?.property;
+                const items = property
+                  ? pluck(property, path(when.split('.'), values))
                   : path(when.split('.'), values);
 
-                return isEmpty(difference(items, matches));
+                return (
+                  isEmpty(reject(equals(''), items)) ||
+                  !isEmpty(difference(reject(equals(''), items), matches))
+                );
               }
 
               return !equals(path(when.split('.'), values), matches);

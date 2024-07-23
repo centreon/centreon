@@ -251,7 +251,7 @@ describe('View by host', () => {
       cy.get('[data-status="unknown"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(229, 216, 243)');
+        .should('have.css', 'background-color', 'rgb(227, 227, 227)');
 
       cy.makeSnapshot();
     });
@@ -279,6 +279,15 @@ describe('View by host', () => {
       cy.contains('February 1, 2021').should('be.visible');
 
       cy.makeSnapshot();
+    });
+
+    it('displays the state', () => {
+      cy.get('[data-isindowntime="true"]').should(
+        'have.css',
+        'background-color',
+        'rgb(229, 216, 243)'
+      );
+      cy.findAllByTestId('HostIcon').eq(0).should('be.visible');
     });
   });
 
@@ -443,6 +452,20 @@ describe('View by service', () => {
 
       cy.makeSnapshot();
     });
+
+    it('displays the state', () => {
+      cy.get('[data-isindowntime="true"]').should(
+        'have.css',
+        'background-color',
+        'rgb(229, 216, 243)'
+      );
+      cy.get('[data-isacknowledged="true"]').should(
+        'have.css',
+        'background-color',
+        'rgb(223, 210, 185)'
+      );
+      cy.findAllByTestId('ServiceIcon').eq(0).should('be.visible');
+    });
   });
 
   describe('Without Resources', () => {
@@ -584,7 +607,7 @@ describe('Condensed view', () => {
       cy.get('[data-label="pending"]').trigger('mouseover');
 
       cy.contains('Status: Pending').should('be.visible');
-      cy.contains('No service found with this status.').should('be.visible');
+      cy.contains('No service found with this status').should('be.visible');
 
       cy.makeSnapshot();
     });

@@ -15,7 +15,9 @@ import {
 
 import { Theme } from '@mui/material';
 
-import { SeverityCode, getStatusColors } from '@centreon/ui';
+import { SeverityCode, getResourcesUrl, getStatusColors } from '@centreon/ui';
+
+import { IndicatorType } from './models';
 
 interface GetColorProps {
   is_acknowledged?: boolean;
@@ -40,7 +42,7 @@ export const getColor = ({
   return getStatusColors({
     severityCode: severityCode as SeverityCode,
     theme
-  }).backgroundColor;
+  })?.backgroundColor;
 };
 
 interface GetStatusFromThresholdsProps {
@@ -104,4 +106,66 @@ export const getStatusFromThresholds = ({
     [gt(criticalValue), always(SeverityCode.Medium)],
     [T, always(SeverityCode.High)]
   ])(data);
+};
+
+const getBALink = (id: number): string => {
+  return `/main.php?p=20701&o=d&ba_id=${id}`;
+};
+
+export const getBooleanRuleLink = (id: number): string => {
+  return `/main.php?p=62611&o=c&boolean_id=${id}`;
+};
+
+const getResourcesStatusLink = ({ type, id, hostId, name }): string => {
+  const resourceStatusType = equals(type, IndicatorType.MetaService)
+    ? 'metaservice'
+    : type;
+
+  const uuid = cond([
+    [equals(IndicatorType.MetaService), always(`m${id}`)],
+    [equals(IndicatorType.Service), always(`h${hostId}-s${id}`)],
+    [equals(IndicatorType.AnomalyDetection), always(`a${id}`)]
+  ])(type);
+
+  return getResourcesUrl({
+    allResources: [],
+    isForOneResource: true,
+    resource: {
+      id,
+      name,
+      parentId: hostId,
+      type: resourceStatusType,
+      uuid
+    },
+    states: [],
+    statuses: [],
+    type: resourceStatusType
+  });
+};
+
+export const getLink = ({ type, id, name, hostId }): string => {
+  return cond([
+    [equals(IndicatorType.BusinessActivity), always(getBALink(id))],
+    [
+      equals(IndicatorType.Service),
+      always(getResourcesStatusLink({ hostId, id, name, type }))
+    ],
+    [
+      equals(IndicatorType.MetaService),
+      always(getResourcesStatusLink({ hostId, id, name, type }))
+    ],
+    [
+      equals(IndicatorType.AnomalyDetection),
+      always(getResourcesStatusLink({ hostId, id, name, type }))
+    ],
+    [equals(IndicatorType.BooleanRule), always(getBooleanRuleLink(id))]
+  ])(type);
+};
+
+export const getMetricsEndpoint = ({ resouceType, id, parentId }): string => {
+  if (equals(resouceType, 'meta-service')) {
+    return `/monitoring/metaservices/${id}/metrics?page=1&limit=30`;
+  }
+
+  return `/monitoring/hosts/${parentId}/services/${id}/metrics`;
 };

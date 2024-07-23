@@ -25,3 +25,4 @@ export * from './useFullscreen';
 export * from './resourcesStatusURL';
 export * from '../Graph/LineChart/helpers';
 export * from '../Graph/LineChart/InteractiveComponents/TimeShiftZones/useTimeShiftZones';
+export * from '../TimePeriods/helpers';

@@ -17104,3 +17104,53 @@ msgstr "Erweiterter Modus"
 
 # msgid "Display resources with these status types"
 # msgstr ""
+# msgid  "All KPIs on this Business Activity are working fine."
+# msgstr ""
+
+# msgid  "are working fine."
+# msgstr ""
+
+# msgid  "See more information in the geoview"
+# msgstr ""
+
+# msgid  "Calculation method"
+# msgstr ""
+
+# msgid  "State information"
+# msgstr ""
+
+# msgid  "Warning threshold"
+# msgstr ""
+
+# msgid  "Critical threshold"
+# msgstr ""
+
+# msgid "Click here for details"
+# msgstr ""
+
+# msgid "Expression in"
+# msgstr ""
+
+# msgid "Impact applied when:"
+# msgstr ""
+
+# msgid "true"
+# msgstr ""
+
+# msgid "false"
+# msgstr ""
+
+# msgid "No KPI found"
+# msgstr ""
+
+# msgid "No Business Activity found"
+# msgstr ""
+
+# msgid "business activity"
+# msgstr ""
+
+# msgid "Health"
+# msgstr ""
+
+# msgid "Critical KPIs"
+# msgstr ""
