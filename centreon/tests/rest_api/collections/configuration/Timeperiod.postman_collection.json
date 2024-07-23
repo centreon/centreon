@@ -2265,8 +2265,8 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period with an empty name could not be created, due to the name being mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"    pm.expect(responseJson.message).to.eql(\"[NewTimePeriod::name] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"name: This value is too short. It should have 1 character or more.\\n\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2320,8 +2320,8 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"    pm.expect(responseJson.message).to.eql(\"[NewTimePeriod::alias] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"alias: This value is too short. It should have 1 character or more.\\n\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3434,8 +3434,8 @@
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period with an empty name could not be created, due to the name being mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"    pm.expect(responseJson.message).to.eql(\"[NewTimePeriod::name] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"name: This value is too short. It should have 1 character or more.\\n\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3492,8 +3492,8 @@
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"    pm.expect(responseJson.message).to.eql(\"[NewTimePeriod::alias] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"alias: This value is too short. It should have 1 character or more.\\n\");\r",
 									"});"
 								],
 								"type": "text/javascript"
