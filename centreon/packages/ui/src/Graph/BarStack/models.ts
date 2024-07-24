@@ -14,6 +14,7 @@ export type BarStackProps = {
   onSingleBarClick?: (barData) => void;
   size?: number;
   title?: string;
+  tooltipProps?: object;
   unit?: 'percentage' | 'number';
   variant?: 'vertical' | 'horizontal';
 };
