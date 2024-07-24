@@ -59,11 +59,11 @@ jobs:
           cd ${{ inputs.module_name }}
           FEATURES=$(cucumber-js "${{ inputs.features_path }}" --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "$FEATURES"
-          echo "features="$FEATURES"" >> $GITHUB_OUTPUT
+          echo "features=$FEATURES" >> $GITHUB_OUTPUT
 
           # Update test tags format for behat compatibility
           TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
-          echo "test_tags="$TEST_TAGS"" >> $GITHUB_OUTPUT
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
   behat-test-run:
     if: ${{ needs.behat-test-list.outputs.features != '' && toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]' }}
