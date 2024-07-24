@@ -1,10 +1,13 @@
-import { always, cond, equals, flatten, includes, pluck, T } from 'ramda';
+import { always, cond, equals, pluck, T } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
 import { DisplayType } from '../Listing/models';
 import { NamedEntity, Resource } from '../../../models';
-import { formatStatus } from '../../../utils';
+import {
+  formatStatus,
+  getResourcesSearchQueryParameters
+} from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
@@ -25,22 +28,6 @@ interface BuildResourcesEndpointProps {
   statuses: Array<string>;
   type: DisplayType;
 }
-
-const resourceTypesCustomParameters = [
-  'host-group',
-  'host-category',
-  'service-group',
-  'service-category'
-];
-const resourceTypesSearchParameters = ['host', 'service', 'meta-service'];
-
-const categories = ['host-category', 'service-category'];
-
-const resourcesSearchMapping = {
-  host: 'parent_name',
-  'meta-service': 'name',
-  service: 'name'
-};
 
 const getFormattedType = cond([
   [equals('all'), always(['host', 'service', 'metaservice'])],
@@ -71,23 +58,8 @@ export const buildResourcesEndpoint = ({
   const formattedType = getFormattedType(type);
   const formattedStatuses = formatStatus(statuses);
 
-  const resourcesToApplyToCustomParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
-  );
-  const resourcesToApplyToSearchParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
-  );
-
-  const searchConditions = resourcesToApplyToSearchParameters.map(
-    ({ resourceType, resources: resourcesToApply }) => {
-      return resourcesToApply.map((resource) => ({
-        field: resourcesSearchMapping[resourceType],
-        values: {
-          $rg: `^${resource.name}$`
-        }
-      }));
-    }
-  );
+  const { resourcesSearchConditions, resourcesCustomParameters } =
+    getResourcesSearchQueryParameters(resources);
 
   const getDisplayResources = (): Array<{ name: string; value: boolean }> => {
     if (equals(displayResources, 'all')) {
@@ -127,21 +99,14 @@ export const buildResourcesEndpoint = ({
           ]
         : []),
       { name: 'states', value: states },
-      ...resourcesToApplyToCustomParameters.map(
-        ({ resourceType, resources: resourcesToApply }) => ({
-          name: includes(resourceType, categories)
-            ? `${resourceType.replace('-', '_')}_names`
-            : `${resourceType.replace('-', '')}_names`,
-          value: pluck('name', resourcesToApply)
-        })
-      )
+      ...resourcesCustomParameters
     ],
     parameters: {
       limit,
       page,
       search: {
         conditions: [
-          ...flatten(searchConditions),
+          ...resourcesSearchConditions,
           ...(isDownHostHidden
             ? [{ field: 'parent_status', values: { $neq: 1 } }]
             : []),
