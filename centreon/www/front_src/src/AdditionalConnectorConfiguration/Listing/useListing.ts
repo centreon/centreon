@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
@@ -10,7 +10,6 @@ import {
   limitAtom,
   sortOrderAtom,
   sortFieldAtom,
-  searchAtom,
   selectedColumnIdsAtom
 } from './atom';
 import useLoadData from './useLoadData';
@@ -37,11 +36,10 @@ const useListing = (): UseListing => {
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
-  const [limit, setLimit] = useAtom(limitAtom);
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(
     selectedColumnIdsAtom
   );
-  const searchValue = useAtomValue(searchAtom);
+  const setLimit = useSetAtom(limitAtom);
 
   const resetColumns = (): void => {
     setSelectedColumnIds(defaultSelectedColumnIds);
@@ -66,13 +64,7 @@ const useListing = (): UseListing => {
     setSelectedColumnIds(updatedColumnIds);
   };
 
-  const { isLoading, data } = useLoadData({
-    limit,
-    page,
-    searchValue,
-    sortField: sortf,
-    sortOrder: sorto
-  });
+  const { isLoading, data } = useLoadData();
 
   return {
     changePage,

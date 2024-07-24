@@ -1,35 +1,32 @@
 import { ReactElement, useCallback, useMemo } from 'react';
 
-import { string, object, number, array } from 'yup';
 import { useTranslation } from 'react-i18next';
+import { find, propEq } from 'ramda';
 
 import { Form, FormProps, InputType } from '@centreon/ui';
 import { FormVariant } from '@centreon/ui/components';
 
 import {
-  labelAteastOnePollerIsRequired,
   labelCancel,
-  labelCharacters,
   labelCreate,
   labelDescription,
-  labelMustBeAtLeast,
-  labelMustBeMost,
   labelName,
   labelParameters,
   labelPollers,
   labelPort,
-  labelRequired,
   labelSelectPollers,
   labelSelectType,
   labelType,
   labelUpdate
-} from '../translatedLabels';
-import { getPollersForConnectorTypeEndpoint } from '../api/endpoints';
+} from '../../translatedLabels';
+import { getPollersForConnectorTypeEndpoint } from '../../api/endpoints';
+import { availableConnectorTypes, defaultParameters } from '../utils';
+import { useFormStyles } from '../useModalStyles';
+import Parameters from '../Parameters/Parameters';
+import Port from '../Parameters/Port';
+import ConnectorType from '../ConnectorType/ConnectorType';
 
-import { defaultParameters } from './utils';
-import { useFormStyles } from './useModalStyles';
-import Parameters from './Parameters/Parameters';
-import Port from './Parameters/Port';
+import useValidationSchema from './useValidationSchema';
 
 import {
   FormActions,
@@ -41,7 +38,7 @@ export type ConnectorsProperties = {
   name: string;
   parameters;
   pollers;
-  type;
+  type: number;
 };
 
 export type DashboardFormProps = {
@@ -72,10 +69,7 @@ const ConnectorsForm = ({
     }
   };
 
-  const selectEntryValidationSchema = object().shape({
-    id: number().required('Required'),
-    name: string().required('Required')
-  });
+  const { validationSchema } = useValidationSchema();
 
   const formProps = useMemo<FormProps<ConnectorsProperties>>(
     () => ({
@@ -84,7 +78,8 @@ const ConnectorsForm = ({
         name: '',
         parameters: { port: 5700, vcenters: [defaultParameters] },
         pollers: [],
-        type: {}
+        type:
+          find(propEq('vmware_v6', 'name'), availableConnectorTypes)?.id || 1
       },
       inputs: [
         {
@@ -106,11 +101,14 @@ const ConnectorsForm = ({
         {
           additionalLabel: t(labelType),
           additionalLabelClassName: classes.additionalLabel,
+          custom: {
+            Component: ConnectorType
+          },
           fieldName: 'type',
           group: 'main',
           label: t(labelSelectType),
           required: true,
-          type: InputType.SingleAutocomplete
+          type: InputType.Custom
         },
         {
           additionalLabel: t(labelPollers),
@@ -149,28 +147,7 @@ const ConnectorsForm = ({
         }
       ],
       submit: (values, bag) => onSubmit?.(values, bag),
-      validationSchema: object({
-        description: string()
-          .label(t(labelDescription) || '')
-          .max(
-            180,
-            (p) =>
-              `${p.label} ${t(labelMustBeMost)} ${p.max} ${t(labelCharacters)}`
-          )
-          .nullable(),
-        name: string()
-          .label(t(labelName))
-          .min(3, ({ min, label }) => t(labelMustBeAtLeast, { label, min }))
-          .max(50, ({ max, label }) => t(labelMustBeMost, { label, max }))
-          .required(t(labelRequired) as string),
-        pollers: array()
-          .of(selectEntryValidationSchema)
-          .min(1, t(labelAteastOnePollerIsRequired))
-        // port: object().shape({
-        //   id: number().required('Required'),
-        //   name: string().required('Required')
-        // })
-      })
+      validationSchema
     }),
     [resource, onSubmit]
   );

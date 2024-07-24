@@ -13,14 +13,18 @@ import { useParameterStyles } from './useParametersStyles';
 
 interface Props {
   changeParameterValue: (event) => void;
+  getError: (propertyName) => string;
   getFieldType: (name: string) => string;
+  handleBlur: (proprtyName: string) => void;
   parameter: Parameter;
 }
 
 const Parameter = ({
   parameter,
   getFieldType,
-  changeParameterValue
+  changeParameterValue,
+  getError,
+  handleBlur
 }: Props): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useParameterStyles();
@@ -47,17 +51,18 @@ const Parameter = ({
                 fullWidth
                 required
                 dataTestId={name}
+                error={getError(name)}
                 label={t(labelValue)}
                 name={name}
                 type={getFieldType(name)}
                 value={parameter[name]}
+                onBlur={handleBlur(name)}
                 onChange={changeParameterValue}
               />
             </ItemComposition.Item>
           </div>
         ))}
       </ItemComposition>
-      {/* {error && <FormHelperText error>{t(error)}</FormHelperText>} */}
     </div>
   );
 };

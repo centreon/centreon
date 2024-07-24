@@ -16,7 +16,7 @@ import {
   labelDeleteAdditionalConnectorDescription,
   labelSomeConnectorsMayNotWorkAnymore
 } from '../../../translatedLabels';
-import { getAdditionalConnectorEndpoint } from '../../api';
+import { getAdditionalConnectorEndpoint } from '../../../api/endpoints';
 
 const DeleteConnectorDialog = (): JSX.Element => {
   const { t } = useTranslation();

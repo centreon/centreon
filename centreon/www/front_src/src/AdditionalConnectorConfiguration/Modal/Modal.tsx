@@ -8,7 +8,7 @@ import {
   labelUpdateConnectorConfiguration
 } from '../translatedLabels';
 
-import AdditionalConnectorsForm from './Form';
+import AdditionalConnectorsForm from './Form/Form';
 import useAdditionalConnectorModal from './useModal';
 
 const AdditionalConnectorModal = (): JSX.Element => {

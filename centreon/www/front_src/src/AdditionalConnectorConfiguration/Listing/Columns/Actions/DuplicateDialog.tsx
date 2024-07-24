@@ -13,7 +13,7 @@ import {
   labelDuplicateConnectorConfiguration,
   labelAdditionalConnectorDuplicated
 } from '../../../translatedLabels';
-import { additionalConnectorsEndpoint } from '../../api';
+import { additionalConnectorsEndpoint } from '../../../api/endpoints';
 
 const DuplicateConnectorDialog = (): JSX.Element => {
   const { t } = useTranslation();

@@ -19,5 +19,5 @@ export interface ConnectorConfiguration {
   name: string;
   parameters: { port: number; vcenters: Array<Parameter> };
   pollers: Array<NamedEntity>;
-  type: NamedEntity;
+  type: number;
 }

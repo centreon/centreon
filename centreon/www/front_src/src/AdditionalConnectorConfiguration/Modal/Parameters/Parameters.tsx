@@ -18,9 +18,10 @@ const Parameters = (): ReactElement => {
     addParameterGroup,
     deleteParameterGroup,
     getFieldType,
-    isAddButtonDisabled,
     parameters,
-    changeParameterValue
+    changeParameterValue,
+    getError,
+    onBlur
   } = useParameters();
 
   return (
@@ -30,7 +31,9 @@ const Parameters = (): ReactElement => {
           <div className={classes.parametersComposition}>
             <Parameter
               changeParameterValue={changeParameterValue(index)}
+              getError={getError(index)}
               getFieldType={getFieldType}
+              handleBlur={onBlur(index)}
               parameter={parameter}
             />
             {parameters.length > 1 && (
@@ -45,7 +48,7 @@ const Parameters = (): ReactElement => {
         </div>
       ))}
       <AddDatasetButton
-        addButtonDisabled={isAddButtonDisabled}
+        addButtonDisabled={false}
         onAddItem={addParameterGroup}
       />
     </div>

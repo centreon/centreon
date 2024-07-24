@@ -1,39 +1,58 @@
+import { useAtomValue } from 'jotai';
+
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
-import { additionalConnectorsEndpoint } from './api';
-import { dashboardDecoderListDecoder } from './api/decoders';
-import { AdditionalConnectors, List } from './models';
+import { additionalConnectorsEndpoint } from '../api/endpoints';
+import { dashboardDecoderListDecoder } from '../api/decoders';
 
-interface LoadDataProps {
-  limit?: number;
-  page: number | undefined;
-  searchValue: string;
-  sortField: string;
-  sortOrder: 'asc' | 'desc';
-}
+import { AdditionalConnectors, List } from './models';
+import {
+  filtersAtom,
+  limitAtom,
+  pageAtom,
+  sortFieldAtom,
+  sortOrderAtom
+} from './atom';
 
 interface LoadDataState {
   data?: List<AdditionalConnectors>;
   isLoading: boolean;
+  reload?;
 }
 
-const useLoadData = ({
-  page,
-  limit,
-  sortField,
-  sortOrder,
-  searchValue
-}: LoadDataProps): LoadDataState => {
+const useLoadData = (): LoadDataState => {
+  const sortOrder = useAtomValue(sortOrderAtom);
+  const sortField = useAtomValue(sortFieldAtom);
+  const page = useAtomValue(pageAtom);
+  const limit = useAtomValue(limitAtom);
+  const filters = useAtomValue(filtersAtom);
+
   const sort = { [sortField]: sortOrder };
 
-  const search = {
-    regex: {
-      fields: ['name'],
-      value: searchValue
+  const searchConditions = [
+    ...(!filters?.pollers
+      ? []
+      : filters.pollers.map((poller) => ({
+          field: 'poller.name',
+          values: {
+            $rg: poller.name
+          }
+        }))),
+    {
+      field: 'type',
+      values: {
+        $rg: filters?.type.name
+      }
+    },
+    {
+      field: 'name',
+      values: {
+        $rg: filters?.name
+      }
     }
-  };
+  ];
 
-  const { data, isLoading } = useFetchQuery({
+  const { data, isFetching, fetchQuery } = useFetchQuery({
     decoder: dashboardDecoderListDecoder,
     getEndpoint: () =>
       buildListingEndpoint({
@@ -41,25 +60,21 @@ const useLoadData = ({
         parameters: {
           limit: limit || 10,
           page: page || 1,
-          search,
+          search: {
+            conditions: searchConditions
+          },
           sort
         }
       }),
-    getQueryKey: () => [
-      'listConnectors',
-      searchValue,
-      sortField,
-      sortOrder,
-      limit,
-      page
-    ],
+    getQueryKey: () => ['listConnectors', sortField, sortOrder, limit, page],
     queryOptions: {
       refetchOnMount: false,
+      staleTime: 0,
       suspense: false
     }
   });
 
-  return { data, isLoading };
+  return { data, isLoading: isFetching, reload: fetchQuery };
 };
 
 export default useLoadData;

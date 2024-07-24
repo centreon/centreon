@@ -71,4 +71,9 @@ export const labelVcenterName = 'vcenter name';
 
 export const labelAddvCenterESX = 'Add vCenter/ESX';
 
+export const labelUrlIsRequired = 'URL is required';
 export const labelAteastOnePollerIsRequired = 'At least one poller is required';
+export const labelAtLeastOneVCenterIsRequired =
+  'At least one vCenter is required';
+export const labelMustBeAvalidURL = 'Must be a valid URL';
+export const labelInvalidPortNumber = 'Invalid port number';
