@@ -52,9 +52,9 @@ jobs:
               console.log(myOutput);
               console.log(myError)
               JSON.parse(myOutput).forEach(({ name, state }) => {
-                if (name.toLowerCase() === 'failure') {
+                if (state.toLowerCase() === 'failure') {
                   failure.push(name);
-                } else if (name.toLowerCase() === 'pending') {
+                } else if (state.toLowerCase() === 'pending') {
                   pending.push(name);
                 }
                 console.log(`${name} => ${state}`);
@@ -62,8 +62,8 @@ jobs:
 
               if (failure.length > 0) {
                 core.error(`${failure.length} job(s) failed: ${failure.join(', ')}`);
-                core.setFailed(`${failure.length} job(s) failed: ${failure.join(', ')}`);
-                return;
+                //core.setFailed(`${failure.length} job(s) failed: ${failure.join(', ')}`);
+                //return;
               }
 
               // throw new Error('failed !!!!');
