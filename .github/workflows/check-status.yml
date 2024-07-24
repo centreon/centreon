@@ -57,7 +57,7 @@ jobs:
                 } else if (name.toLowerCase() === 'pending') {
                   pending.push(name);
                 }
-                console.log(`${check.name} => ${check.state}`);
+                console.log(`${name} => ${state}`);
               });
 
               if (failure.length > 0) {
