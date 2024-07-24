@@ -53,12 +53,12 @@ const useValidationSchema = ({
     subject: string().required(t(labelRequired) as string)
   });
 
-  const timeperiodSchema: Yup.Schema<TimeperiodType> = object()
-    .shape({
-      id: number().required(t(labelRequired) as string),
-      name: string().required(t(labelRequired) as string)
-    })
-    .required(labelTimePeriodFieldShouldNotBeEmpty);
+  const timeperiodSchema: Yup.Schema<TimeperiodType> = object({
+    id: number().required(t(labelRequired)),
+    name: string().required(t(labelRequired))
+  })
+    .nullable()
+    .required(t(labelTimePeriodFieldShouldNotBeEmpty));
 
   const resourceSchema = (
     dependency1: string,
