@@ -21,27 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Core\AdditionalConnector\Application\UseCase\FindAdditionalConnectors;
+namespace Core\AdditionalConnector\Application\UseCase\FindAdditionalConnector;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\AdditionalConnector\Application\Exception\AdditionalConnectorException;
 use Core\AdditionalConnector\Application\Repository\ReadAdditionalConnectorRepositoryInterface;
 use Core\AdditionalConnector\Domain\Model\AdditionalConnector;
+use Core\AdditionalConnector\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-final class FindAdditionalConnectors
+final class FindAdditionalConnector
 {
     use LoggerTrait;
 
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAdditionalConnectorRepositoryInterface $readAdditionalConnectorRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
@@ -50,12 +49,13 @@ final class FindAdditionalConnectors
     }
 
     public function __invoke(
-        FindAdditionalConnectorsPresenterInterface $presenter
+        int $id,
+        FindAdditionalConnectorPresenterInterface $presenter
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ADDITIONAL_CONNECTOR_CONFIGURATION_RW)) {
                 $this->error(
-                    "User doesn't have sufficient rights to read additional connector configurations",
+                    "User doesn't have sufficient rights to read additional connectors configurations",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->presentResponse(
@@ -65,58 +65,61 @@ final class FindAdditionalConnectors
                 return;
             }
 
-            if ($this->user->isAdmin()) {
-                $additionalConnectors = $this->readAdditionalConnectorRepository->findByRequestParameters($this->requestParameters);
-            } else {
-                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                $additionalConnectors = $this->readAdditionalConnectorRepository->findByRequestParametersAndAccessGroups($this->requestParameters, $accessGroups);
+            if (null === $acc = $this->readAdditionalConnectorRepository->find($id)) {
+                $presenter->presentResponse(
+                    new NotFoundResponse('Additional Connector Configuration')
+                );
+
+                return;
             }
 
-            $presenter->presentResponse($this->createResponse($additionalConnectors));
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            if ($this->user->isAdmin()) {
+                $pollers = $this->readAdditionalConnectorRepository->findPollersByAccId($id);
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $pollers = $this->readAdditionalConnectorRepository->findPollersByAccIdAndAccessGroups($id, $accessGroups);
+            }
+
+            $presenter->presentResponse($this->createResponse($acc, $pollers));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new ErrorResponse(
                 $ex instanceof AdditionalConnectorException
                     ? $ex
-                    : AdditionalConnectorException::findAdditionalConnectors()
+                    : AdditionalConnectorException::errorWhileRetrievingObject()
             ));
         }
     }
 
     /**
-     * @param AdditionalConnector[] $additionalConnectors
+     * @param AdditionalConnector $acc
+     * @param Poller[] $pollers
      *
-     * @return FindAdditionalConnectorsResponse
+     * @return FindAdditionalConnectorResponse
      */
-    private function createResponse(array $additionalConnectors): FindAdditionalConnectorsResponse
+    private function createResponse(AdditionalConnector $acc, array $pollers): FindAdditionalConnectorResponse
     {
-        $accDtos = [];
-        foreach ($additionalConnectors as $acc) {
-            $userIds = [];
-            if ($acc->getCreatedBy() !== null) {
-                $userIds[] = $acc->getCreatedBy();
-            }
-            if ($acc->getUpdatedBy() !== null) {
-                $userIds[] = $acc->getUpdatedBy();
-            }
-
-            $users = $this->readContactRepository->findNamesByIds(...$userIds);
-
-            $accDtos[] = new AdditionalConnectorDto(
-                id: $acc->getId(),
-                type: $acc->getType(),
-                name: $acc->getName(),
-                description: $acc->getDescription(),
-                createdBy: $acc->getCreatedBy() ? $users[$acc->getCreatedBy()] : null,
-                updatedBy: $acc->getUpdatedBy() ? $users[$acc->getUpdatedBy()] : null,
-                createdAt: $acc->getCreatedAt(),
-                updatedAt: $acc->getCreatedAt()
-            );
+        $userIds = [];
+        if ($acc->getCreatedBy() !== null) {
+            $userIds[] = $acc->getCreatedBy();
+        }
+        if ($acc->getUpdatedBy() !== null) {
+            $userIds[] = $acc->getUpdatedBy();
         }
 
-        return new FindAdditionalConnectorsResponse($accDtos);
+        $users = $this->readContactRepository->findNamesByIds(...$userIds);
+
+        return new FindAdditionalConnectorResponse(
+            id: $acc->getId(),
+            type: $acc->getType(),
+            name: $acc->getName(),
+            description: $acc->getDescription(),
+            createdBy: $acc->getCreatedBy() ? $users[$acc->getCreatedBy()] : null,
+            updatedBy: $acc->getUpdatedBy() ? $users[$acc->getUpdatedBy()] : null,
+            createdAt: $acc->getCreatedAt(),
+            updatedAt: $acc->getCreatedAt(),
+            parameters: $acc->getParameters(),
+            pollers: $pollers
+        );
     }
 }

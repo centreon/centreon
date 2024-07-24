@@ -188,6 +188,61 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
     /**
      * @inheritDoc
      */
+    public function findPollersByAccIdAndAccessGroups(int $accId, array $accessGroups): array
+    {
+        if ($accessGroups === []) {
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+            return $this->findPollersByAccId($accId);
+        }
+
+        [$accessGroupsBindValues, $accessGroupIdsQuery] = $this->createMultipleBindQuery(
+            array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups),
+            ':acl_'
+        );
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT
+                    rel.`poller_id` as id,
+                    ng.`name`
+                FROM `:db`.`acc_poller_relation` rel
+                INNER JOIN `:db`.acl_resources_poller_relations arpr
+                    ON rel.poller_id = arpr.poller_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = arpr.acl_res_id
+                    AND argr.acl_group_id IN ({$accessGroupIdsQuery})
+                WHERE rel.`acc_id` = :id
+                SQL
+        ));
+        $statement->bindValue(':id', $accId, \PDO::PARAM_INT);
+        foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
+            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Retrieve data
+        $pollers = [];
+        foreach ($statement as $result) {
+            /** @var array{id:int,name:string} $result */
+            $pollers[] = new Poller($result['id'], $result['name']);
+        }
+
+        return $pollers;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);

@@ -86,6 +86,18 @@ interface ReadAdditionalConnectorRepositoryInterface
     public function findPollersByAccId(int $accId): array;
 
     /**
+     * Find all the pollers associated with an ACC ID and AccessGroups.
+     *
+     * @param int $accId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return Poller[]
+     */
+    public function findPollersByAccIdAndAccessGroups(int $accId, array $accessGroups): array;
+
+    /**
      * Find all ACC with request parameters.
      *
      * @param RequestParametersInterface $requestParameters

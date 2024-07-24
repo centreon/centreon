@@ -21,13 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\AdditionalConnector\Application\UseCase\FindAdditionalConnectors;
+namespace Core\AdditionalConnector\Application\UseCase\FindAdditionalConnector;
 
-final class SimpleDto
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindAdditionalConnectorPresenterInterface
 {
-    public function __construct(
-        public int $id = 0,
-        public string $name = '',
-    ) {
-    }
+    public function presentResponse(FindAdditionalConnectorResponse|ResponseStatusInterface $data): void;
 }
