@@ -29,7 +29,7 @@ use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\{ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface};
-use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodRequest, DtoException};
+use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodDto, DtoException};
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 use Tests\Core\TimePeriod\Application\UseCase\ExtractResponse;
 
@@ -38,7 +38,7 @@ beforeEach(function () {
     $this->writeRepository = $this->createMock(WriteTimePeriodRepositoryInterface::class);
     $this->formatter = $this->createMock(JsonFormatter::class);
     $this->user = $this->createMock(ContactInterface::class);
-    $this->timePeriodRequest = new AddTimePeriodRequest(
+    $this->timePeriodRequest = new AddTimePeriodDto(
         'fake_name',
         'fake_alias',
         [

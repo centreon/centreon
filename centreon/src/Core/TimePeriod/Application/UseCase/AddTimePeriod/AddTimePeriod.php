@@ -60,10 +60,10 @@ final class AddTimePeriod
     }
 
     /**
-     * @param AddTimePeriodRequest $request
+     * @param AddTimePeriodDto $request
      * @param PresenterInterface $presenter
      */
-    public function __invoke(AddTimePeriodRequest $request, PresenterInterface $presenter): void
+    public function __invoke(AddTimePeriodDto $request, PresenterInterface $presenter): void
     {
         try {
             $this->info('Add a new time period', ['request' => $request]);
