@@ -16,7 +16,7 @@ on:
 
 jobs:
   check-status:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       # - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
@@ -31,10 +31,10 @@ jobs:
 
             const options = {};
             options.listeners = {
-              stdout: (data: Buffer) => {
+              stdout: (data) => {
                 myOutput += data.toString();
               },
-              stderr: (data: Buffer) => {
+              stderr: (data) => {
                 myError += data.toString();
               }
             };
