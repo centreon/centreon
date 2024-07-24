@@ -46,7 +46,7 @@ jobs:
             );
             console.log(myOutput);
             console.log(myError)
-            myOutput.forEach((check) => {
+            JSON.parse(myOutput).forEach((check) => {
               console.log(`${check.name} => ${check.state}`);
             });
 
