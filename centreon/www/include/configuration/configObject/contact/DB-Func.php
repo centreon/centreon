@@ -835,26 +835,21 @@ function updateContactHostCommands_MC($contactId): void
     }
 
     $query = "SELECT command_command_id FROM contact_hostcommands_relation WHERE contact_contact_id = " . (int)$contactId;
-    $sth = $pearDB->query($query);
-    $hostCommands = $sth->fetchAll();
+    $sth = $pearDB->query($query, null, PDO::FETCH_COLUMN, 0);
+    $hostCommandIdsFromDb = $sth->fetchAll();
 
-    if ($hostCommands === false) {
+    if ($hostCommandIdsFromDb === false) {
         return;
     }
 
-    $commandIds = [];
-    foreach ($hostCommands as $hostCommand) { // TODO optimize
-        $commandIds[$hostCommand["command_command_id"]] = $hostCommand["command_command_id"];
-    }
+    $hostCommandIdsFromForm = $form->getSubmitValue("contact_hostNotifCmds");
 
-    $contact_hostNotifCmds = $form->getSubmitValue("contact_hostNotifCmds");
-
-    if (!is_array($contact_hostNotifCmds)) {
+    if (!is_array($hostCommandIdsFromForm)) {
         return;
     }
 
-    foreach ($contact_hostNotifCmds as $commandId) {
-        if (!isset($commandIds[$commandId])) {
+    foreach ($hostCommandIdsFromForm as $commandId) {
+        if (!in_array($commandId, $hostCommandIdsFromDb, false)) {
             $query = "INSERT INTO contact_hostcommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
             $pearDB->query($query, ['contact_id' => (int)$contactId, 'command_id' => (int)$commandId]);
         }
@@ -880,13 +875,13 @@ function updateContactServiceCommands($contactId, array $fields = []): void
         return;
     }
 
-    $contact_svNotifCmds = $fields["contact_svNotifCmds"] ?? $form->getSubmitValue("contact_svNotifCmds");
+    $serviceCommandsFromForm = $fields["contact_svNotifCmds"] ?? $form->getSubmitValue("contact_svNotifCmds");
 
-    if (!is_array($contact_svNotifCmds)) {
+    if (!is_array($serviceCommandsFromForm)) {
         return;
     }
 
-    foreach ($contact_svNotifCmds as $commandId) {
+    foreach ($serviceCommandsFromForm as $commandId) {
         $query = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
         $pearDB->query($query, ['contact_id' => (int)$contactId, 'command_id' => (int)$commandId]);
     }
@@ -906,22 +901,22 @@ function updateContactServiceCommands_MC($contactId): void
         return;
     }
 
-    $query = "SELECT * FROM contact_servicecommands_relation WHERE contact_contact_id = " . (int)$contactId;
-    $sth = $pearDB->query($query);
-    $serviceCommands = $sth->fetchAll();
+    $query = "SELECT command_command_id FROM contact_servicecommands_relation WHERE contact_contact_id = " . (int)$contactId;
+    $sth = $pearDB->query($query, null, PDO::FETCH_COLUMN, 0);
+    $serviceCommandsFromDb = $sth->fetchAll();
 
-    if ($serviceCommands === false) {
+    if ($serviceCommandsFromDb === false) {
         return;
     }
 
-    $contact_svNotifCmds = $form->getSubmitValue("contact_svNotifCmds");
+    $serviceCommandsFromForm = $form->getSubmitValue("contact_svNotifCmds");
 
-    if (!is_array($contact_svNotifCmds)) {
+    if (!is_array($serviceCommandsFromForm)) {
         return;
     }
 
-    foreach ($contact_svNotifCmds as $commandId) {
-        if (!isset($commandIds[$commandId])) {
+    foreach ($serviceCommandsFromForm as $commandId) {
+        if (!in_array($commandId, $serviceCommandsFromDb, false)) {
             $query = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
             $pearDB->query($query, ['contact_id' => (int)$contactId, 'command_id' => (int)$commandId]);
         }
@@ -952,13 +947,13 @@ function updateContactContactGroup($contactId, array $fields = []): void
         return;
     }
 
-    $contactGroups = $fields["contact_cgNotif"] ?? CentreonUtils::mergeWithInitialValues($form, 'contact_cgNotif');
+    $contactGroupIdsFromForm = $fields["contact_cgNotif"] ?? CentreonUtils::mergeWithInitialValues($form, 'contact_cgNotif');
 
-    if (!is_array($contactGroups)) {
+    if (!is_array($contactGroupIdsFromForm)) {
         return;
     }
 
-    foreach ($contactGroups as $contactGroupId) {
+    foreach ($contactGroupIdsFromForm as $contactGroupId) {
         $query = "INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)";
         $pearDB->query($query, ['contact_id' => (int)$contactId, 'contactgroup_id' => (int)$contactGroupId]);
     }
@@ -974,41 +969,42 @@ function updateContactContactGroup($contactId, array $fields = []): void
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
 /**
- * @param null $contactId
- * @param array $ret
+ * @param int $contactId
  */
-function updateContactContactGroup_MC($contactId = null)
+function updateContactContactGroup_MC($contactId): void
 {
     global $centreon, $form, $pearDB;
+
     if (!is_int($contactId)) {
         return;
     }
-    $dbResult = $pearDB->prepare(
-        "SELECT * FROM contactgroup_contact_relation " .
-        "WHERE contact_contact_id = :contactId"
-    );
-    $dbResult->bindValue(':contactId', (int)$contactId, \PDO::PARAM_INT);
-    $dbResult->execute();
-    $cmds = array();
-    while ($arr = $dbResult->fetch()) {
-        $cmds[$arr["contactgroup_cg_id"]] = $arr["contactgroup_cg_id"];
+
+    $query = "SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = " . (int)$contactId;
+    $sth = $pearDB->query($query, null, PDO::FETCH_COLUMN, 0);
+    $contactGroupIdsFromDb = $sth->fetchAll();
+
+    if ($contactGroupIdsFromDb === false) {
+        return;
     }
-    $ret = $form->getSubmitValue("contact_cgNotif");
-    if (!empty($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
-            if (!isset($cmds[$ret[$i]])) {
-                $dbResult = $pearDB->prepare(
-                    "INSERT INTO contactgroup_contact_relation " .
-                    "(contact_contact_id, contactgroup_cg_id) " .
-                    "VALUES (:contactId, :contactgroupId)"
-                );
-                $dbResult->bindValue(':contactId', (int)$contactId, PDO::PARAM_INT);
-                $dbResult->bindValue(':contactgroupId', $ret[$i], PDO::PARAM_INT);
-                $dbResult->execute();
-            }
+
+    $contactGroupIdsFromForm = $form->getSubmitValue("contact_cgNotif");
+
+    if (!is_array($contactGroupIdsFromForm)) {
+        return;
+    }
+
+    foreach ($contactGroupIdsFromForm as $contactGroupIdFromForm) {
+        if (!in_array($contactGroupIdFromForm, $contactGroupIdsFromDb, false)) {
+            $query = "INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)";
+            $pearDB->query($query, ['contact_id' => (int)$contactId, 'contactgroup_id' => (int)$contactGroupIdFromForm]);
         }
     }
-    CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
+
+    try {
+        CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
+    } catch (Exception $e) {
+        //todo use logs
+    }
 }
 
 /**
