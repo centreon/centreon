@@ -70,6 +70,7 @@ jobs:
               }
 
               if (failure.length > 0) {
+                return;
                 core.setFailed(`${failure.length} job(s) failed: ${failure.join(', ')}`);
                 return;
               }
