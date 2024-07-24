@@ -21,16 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
+namespace Core\AdditionalConnector\Application\UseCase\AddAdditionalConnector;
 
-enum CredentialTypeEnum
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface AddAdditionalConnectorPresenterInterface
 {
-    case TYPE_HOST;
-    case TYPE_HOST_TEMPLATE;
-    case TYPE_SERVICE;
-    case TYPE_KNOWLEDGE_BASE_PASSWORD;
-    case TYPE_POLLER_MACRO;
-    case TYPE_OPEN_ID;
-    case TYPE_BROKER_INPUT_OUTPUT;
-    case TYPE_ADDITIONAL_CONNECTOR_CONFIGURATION;
+    public function presentResponse(AddAdditionalConnectorResponse|ResponseStatusInterface $data): void;
 }
