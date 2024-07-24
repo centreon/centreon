@@ -1,0 +1,1298 @@
+newman
+
+Tokens
+
+❏ 0101 - Log in as Admin
+↳ Login with admin user (successful)
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 629ms time ★ 447B↑ 499B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 119B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "admin",
+  │       "password": "Centreon!2021"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 190B
+  │ {"contact":{"id":1,"name":"admin admin","alias":"admin
+  │ ","email":"admin@centreon.com","is_admin":true},"secur
+  │ ity":{"token":"DIluO/6uD4rFiQ5j20PPQOUscq++WNFbw0sIMHk
+  │ az3A9fMdiptjvRmtmhI7mOMQW"}}
+  └
+  prepare   wait   dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  4ms       9ms    2ms          294µs           604ms            11ms       1ms       634ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has admin rights.
+
+❏ 0102 - user_with_menu_action
+↳ Add user_with_menu_action (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 277ms time ★ 672B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 169B
+  │ {
+  │   "action": "add",
+  │   "object": "CONTACT",
+  │   "values": "user_with_menu_action;user_with_menu_acti
+  │ on;user_with_menu_action@localhost;Centreon!2021;0;1;e
+  │ n_US;local"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  2ms       572µs   (cache)      (cache)         274ms            1ms        217µs     278ms 
+
+  ✓  The new user has been successfully created.
+
+↳ Add reach_api parameters (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 101ms time ★ 605B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 102B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_with_menu_action;reach_api;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  726µs     208µs   (cache)      (cache)         99ms             966µs      255µs     101ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Add reach_api_rt parameters (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 108ms time ★ 608B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 105B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_with_menu_action;reach_api_rt;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  600µs     321µs   (cache)      (cache)         106ms            984µs      200µs     108ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Create ACL Group Menu_Action_TOKEN (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 109ms time ★ 603B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 100B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLGROUP",
+  │   "values": "Menu_Action_TOKEN;Menu_Action_TOKEN"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  586µs     259µs   (cache)      (cache)         107ms            818µs      312µs     109ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link user to Menu_Action_TOKEN (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 104ms time ★ 614B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 111B
+  │ {
+  │   "action": "addcontact",
+  │   "object": "ACLGROUP",
+  │   "values": "Menu_Action_TOKEN;user_with_menu_action"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  636µs     209µs   (cache)      (cache)         102ms            806µs      336µs     104ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link resources to Menu_Action_TOKEN (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 117ms time ★ 607B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 104B
+  │ {
+  │   "action": "addresource",
+  │   "object": "ACLGROUP",
+  │   "values": "Menu_Action_TOKEN;All Resources"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  538µs     468µs   (cache)      (cache)         115ms            814µs      215µs     117ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Create ACL Menu TOKENS (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 107ms time ★ 579B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 77B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLMENU",
+  │   "values": "TOKENS;TOKENS"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  825µs     343µs   (cache)      (cache)         105ms            826µs      176µs     107ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Grant RW right TOKENS (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 106ms time ★ 603B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 100B
+  │ {
+  │   "action": "grantrw",
+  │   "object": "ACLMENU",
+  │ "values": "TOKENS;1;Administration;API Tokens"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  805µs     387µs   (cache)      (cache)         104ms            1ms        339µs     106ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link Menu_Action_TOKEN to TOKENS (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 101ms time ★ 595B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 93B
+  │ {
+  │   "action": "addmenu",
+  │   "object": "ACLGROUP",
+  │   "values": "Menu_Action_TOKEN;TOKENS"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  666µs     404µs   (cache)      (cache)         98ms             1ms        226µs     100ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Create ACL Action Menu_Action_TOKEN (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 100ms time ★ 604B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 101B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLACTION",
+  │   "values": "Menu_Action_TOKEN;Menu_Action_TOKEN"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  670µs     392µs   (cache)      (cache)         97ms             734µs      323µs     100ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Grant manage token action in Menu_Action_TOKEN (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 164ms time ★ 599B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 97B
+  │ {
+  │   "action": "grant",
+  │   "object": "ACLACTION",
+  │ "values": "Menu_Action_TOKEN;manage_tokens"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  687µs     341µs   (cache)      (cache)         162ms            813µs      267µs     164ms 
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link Menu_Action_TOKEN to Menu_Action_TOKEN (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 107ms time ★ 609B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 106B
+  │ {
+  │   "action": "addaction",
+  │   "object": "ACLGROUP",
+  │   "values": "Menu_Action_TOKEN;Menu_Action_TOKEN"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  610µs     204µs   (cache)      (cache)         105ms            811µs      185µs     107ms 
+
+  ✓  The new api access rights has been successfully added.
+
+❏ 0103 - user_with_menu
+↳ Add user_with_menu (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 188ms time ★ 651B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 148B
+  │ {
+  │   "action": "add",
+  │   "object": "CONTACT",
+  │   "values": "user_with_menu;user_with_menu;user_with_m
+  │ enu@localhost;Centreon!2021;0;1;en_US;local"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  403µs     410µs   (cache)      (cache)         186ms            714µs      203µs     187ms 
+
+  ✓  The new user has been successfully created.
+
+↳ Add reach_api parameters (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 97ms time ★ 597B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 95B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_with_menu;reach_api;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  403µs     284µs   (cache)      (cache)         95ms             699µs      241µs     97ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Add reach_api_rt parameters (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 95ms time ★ 600B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 98B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_with_menu;reach_api_rt;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  819µs     188µs   (cache)      (cache)         93ms             862µs      179µs     95ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Create ACL Group Menu_TOKEN (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 87ms time ★ 588B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 86B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLGROUP",
+  │   "values": "Menu_TOKEN;Menu_TOKEN"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  444µs     317µs   (cache)      (cache)         85ms             694µs      135µs     86ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link user to Menu_TOKEN (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 91ms time ★ 599B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 97B
+  │ {
+  │   "action": "addcontact",
+  │   "object": "ACLGROUP",
+  │   "values": "Menu_TOKEN;user_with_menu"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  819µs     239µs   (cache)      (cache)         89ms             544µs      143µs     91ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link resources to Menu_TOKEN (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 98ms time ★ 601B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 99B
+  │ {
+  │   "action": "addresource",
+  │   "object": "ACLGROUP",
+  │   "values": "Menu_TOKEN;All Resources"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  374µs     236µs   (cache)      (cache)         97ms             506µs      145µs     98ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link Menu_Action_TOKEN to TOKENS (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 96ms time ★ 588B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 86B
+  │ {
+  │   "action": "addmenu",
+  │   "object": "ACLGROUP",
+  │   "values": "Menu_TOKEN;TOKENS"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  547µs     168µs   (cache)      (cache)         94ms             639µs      139µs     96ms  
+
+  ✓  The new api access rights has been successfully added.
+
+❏ 0104 - user_no_access
+↳ Add user_no_access_Token (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 175ms time ★ 669B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 166B
+  │ {
+  │   "action": "add",
+  │   "object": "CONTACT",
+  │   "values": "user_no_access_Token;user_no_access_Token
+  │ ;user_no_access_Token@localhost;Centreon!2021;0;1;en_U
+  │ S;local"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  674µs     171µs   (cache)      (cache)         173ms            539µs      134µs     175ms 
+
+  ✓  The new user has been successfully created.
+
+↳ Add reach_api parameters (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 90ms time ★ 604B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 101B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_no_access_Token;reach_api;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  431µs     198µs   (cache)      (cache)         88ms             540µs      141µs     89ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Add reach_api_rt parameters (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 91ms time ★ 607B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 104B
+  │ {
+  │   "action": "setparam",
+  │   "object": "CONTACT",
+  │   "values": "user_no_access_Token;reach_api_rt;1"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  441µs     169µs   (cache)      (cache)         89ms             491µs      136µs     90ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Create ACL Group no_access (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 96ms time ★ 598B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 96B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLGROUP",
+  │   "values": "no_access_Token;no_access_Token"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  940µs     176µs   (cache)      (cache)         94ms             535µs      128µs     96ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link user to no_access (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 90ms time ★ 611B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 108B
+  │ {
+  │   "action": "addcontact",
+  │   "object": "ACLGROUP",
+  │   "values": "no_access_Token;user_no_access_Token"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  1ms       253µs   (cache)      (cache)         88ms             547µs      135µs     90ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link resources to no_access (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 95ms time ★ 605B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 102B
+  │ {
+  │   "action": "addresource",
+  │   "object": "ACLGROUP",
+  │   "values": "no_access_Token;All Resources"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  942µs     196µs   (cache)      (cache)         93ms             513µs      125µs     95ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Create ACL Menu no_access (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 88ms time ★ 597B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 95B
+  │ {
+  │   "action": "add",
+  │   "object": "ACLMENU",
+  │   "values": "no_access_Token;no_access_Token"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  370µs     266µs   (cache)      (cache)         86ms             513µs      133µs     88ms  
+
+  ✓  The new api access rights has been successfully added.
+
+↳ Link no_access to no_access (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 90ms time ★ 603B↑ 280B↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 100B
+  │ {
+  │   "action": "addmenu",
+  │   "object": "ACLGROUP",
+  │   "values": "no_access_Token;no_access_Token"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 13B
+  │ {"result":[]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  784µs     252µs   (cache)      (cache)         88ms             615µs      130µs     90ms  
+
+  ✓  The new api access rights has been successfully added.
+
+❏ 0105 - By Admin
+↳ Login with admin user (successful)
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 300ms time ★ 502B↑ 498B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 119B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "admin",
+  │       "password": "Centreon!2021"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 190B
+  │ {"contact":{"id":1,"name":"admin admin","alias":"admin
+  │ ","email":"admin@centreon.com","is_admin":true},"secur
+  │ ity":{"token":"inGBDmHRd9jAARL0UsY8JG+qpzmA466P0DCkLXW
+  │ D1XVqSI4vny5BWNzejUw93Gp+"}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  329µs     539µs   (cache)      (cache)         298ms            526µs      145µs     299ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has admin rights.
+
+↳ Retrieve users ID (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 100ms time ★ 545B↑ 1.77kB↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 49B
+  │ {
+  │   "action": "show",
+  │   "object": "CONTACT"
+  │ } 
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.5kB
+  │ {"result":[{"id":"1","name":"admin admin","alias":"adm
+  │ in","email":"admin@centreon.com","pager":"","gui acces
+  │ s":"1","admin":"1","activate":"1"},{"id":"4","name":"c
+  │ entreon-gorgone","alias":"centreon-gorgone","email":"g
+  │ orgone@localhost","pager":"","gui access":"0","admin":
+  │ "1","activate":"1"},{"id":"17","name":"Guest","alias":
+  │ "guest","email":"guest@localhost","pager":"","gui acce
+  │ ss":"0","admin":"0","activate":"0"},{"id":"18","name":
+  │ "User","alias":"user","email":"user@localhost","pager"
+  │ :"","gui access":"0","admin":"0","activate":"0"},{"id"
+  │ :"26","name":"user_with_RW_rights","alias":"user_with_
+  │ RW_rights","email":"user_with_RW_rights@localhost","pa
+  │ ger":"","gui access":"1","admin":"0","activate":"1"},{
+  │ "id":"27","name":"user_with_R_rights","alias":"user_wi
+  │ th_R_rights","email":"user_with_R_rights@localhost","p
+  │ ager":"","gui access":"1","admin":"0","activate":"1"},
+  │ {"id":"28","name":"user_nothing","alias":"user_nothing
+  │ ","email":"user_nothing@localhost","pager":"","gui acc
+  │ ess":"1","admin":"0","activate":"1"},{"id":"29","name"
+  │ :"user_with_menu_action","alias":"user_with_menu_actio
+  │ n","email":"user_with_menu_action@localhost","pager":"
+  │ ","gui access":"1","admin":"0","activate":"1"},{"id":"
+  │ 30","name":"user_with_menu","alias":"user_with_menu","
+  │ email":"user_with_menu@localhost","pager":"","gui acce
+  │ ss":"1","admin":"0","activate":"1"},{"id":"31","name":
+  │ "user_no_access_Token","alias":"user_no_access_Token",
+  │ "email":"user_no_access_Token@localhost","pager":"","g
+  │ ui access":"1","admin":"0","activate":"1"}]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  594µs     248µs   (cache)      (cache)         98ms             509µs      130µs     100ms 
+
+
+↳ Retrieve users Name (successful)
+  POST http://localhost:80/centreon/api/index.php?action=action&object=centreon_clapi  
+  200 OK ★ 195ms time ★ 545B↑ 1.77kB↓ size ★ 11↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 49B
+  │ {
+  │   "action": "show",
+  │   "object": "CONTACT"
+  │ } 
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.5kB
+  │ {"result":[{"id":"1","name":"admin admin","alias":"adm
+  │ in","email":"admin@centreon.com","pager":"","gui acces
+  │ s":"1","admin":"1","activate":"1"},{"id":"4","name":"c
+  │ entreon-gorgone","alias":"centreon-gorgone","email":"g
+  │ orgone@localhost","pager":"","gui access":"0","admin":
+  │ "1","activate":"1"},{"id":"17","name":"Guest","alias":
+  │ "guest","email":"guest@localhost","pager":"","gui acce
+  │ ss":"0","admin":"0","activate":"0"},{"id":"18","name":
+  │ "User","alias":"user","email":"user@localhost","pager"
+  │ :"","gui access":"0","admin":"0","activate":"0"},{"id"
+  │ :"26","name":"user_with_RW_rights","alias":"user_with_
+  │ RW_rights","email":"user_with_RW_rights@localhost","pa
+  │ ger":"","gui access":"1","admin":"0","activate":"1"},{
+  │ "id":"27","name":"user_with_R_rights","alias":"user_wi
+  │ th_R_rights","email":"user_with_R_rights@localhost","p
+  │ ager":"","gui access":"1","admin":"0","activate":"1"},
+  │ {"id":"28","name":"user_nothing","alias":"user_nothing
+  │ ","email":"user_nothing@localhost","pager":"","gui acc
+  │ ess":"1","admin":"0","activate":"1"},{"id":"29","name"
+  │ :"user_with_menu_action","alias":"user_with_menu_actio
+  │ n","email":"user_with_menu_action@localhost","pager":"
+  │ ","gui access":"1","admin":"0","activate":"1"},{"id":"
+  │ 30","name":"user_with_menu","alias":"user_with_menu","
+  │ email":"user_with_menu@localhost","pager":"","gui acce
+  │ ss":"1","admin":"0","activate":"1"},{"id":"31","name":
+  │ "user_no_access_Token","alias":"user_no_access_Token",
+  │ "email":"user_no_access_Token@localhost","pager":"","g
+  │ ui access":"1","admin":"0","activate":"1"}]}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  581µs     327µs   (cache)      (cache)         193ms            552µs      124µs     195ms 
+
+
+↳ Create token by admin for admin (successful)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  201 Created ★ 608ms time ★ 518B↑ 581B↓ size ★ 10↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 119B
+  │ {
+  │   "name": "my-first-token-by-admin-for-admin",
+  │   "user_id": 1,
+  │   "expiration_date": "2025-12-31T00:00:00+01:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 306B
+  │ {"name":"my-first-token-by-admin-for-admin","user":{"i
+  │ d":1,"name":"admin admin"},"creator":{"id":1,"name":"a
+  │ dmin admin"},"token":"icwpd7v7vEU7q6ZjV47vEfvbljC84NdO
+  │ 507OZ71NgEr7zDVZNTtTF6v+WWMiB\/fY","creation_date":"20
+  │ 24-07-24T01:23:07+02:00","expiration_date":"2025-12-31
+  │ T00:00:00+01:00","is_revoked":false}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  405µs     173µs   (cache)      (cache)         606ms            755µs      77µs      607ms 
+
+  ✓  The token has been successfully created.
+
+↳ List tokens after first token creation (successful)
+  GET http://localhost:80/centreon/api/latest/administration/tokens?sort_by={"token_name":"ASC"}  
+  200 OK ★ 532ms time ★ 382B↑ 633B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 325B
+  │ {"result":[{"name":"my-first-token-by-admin-for-admin"
+  │ ,"user":{"id":1,"name":"admin admin"},"creator":{"id":
+  │ 1,"name":"admin admin"},"creation_date":"2024-07-24T01
+  │ :23:07+02:00","expiration_date":"2025-12-31T00:00:00+0
+  │ 1:00","is_revoked":false}],"meta":{"page":1,"limit":10
+  │ ,"search":{},"sort_by":{"token_name":"ASC"},"total":1}
+  │ }
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  921µs     387µs   (cache)      (cache)         530ms            504µs      131µs     532ms 
+
+  ✓  A list of token has been successfully fetched.
+  ✓  The tokens retrieved are listed with expected informations
+
+↳ Create token by admin for User_Menu
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  201 Created ★ 264ms time ★ 529B↑ 594B↓ size ★ 10↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 130B
+  │ {
+  │   "name": "my-second-token-by-admin-for-user-with-menu
+  │ ",
+  │   "user_id": 30,
+  │   "expiration_date": "2099-12-31T00:00:00+01:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 319B
+  │ {"name":"my-second-token-by-admin-for-user-with-menu",
+  │ "user":{"id":30,"name":"user_with_menu"},"creator":{"i
+  │ d":1,"name":"admin admin"},"token":"YjSvFkS0UC+rDSGooQ
+  │ Uve1eIu1AHznL0gLCwFEXs+U1bjnCoLNoQCXMcipQUzSVw","creat
+  │ ion_date":"2024-07-24T01:23:08+02:00","expiration_date
+  │ ":"2099-12-31T00:00:00+01:00","is_revoked":false}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  563µs     174µs   (cache)      (cache)         262ms            470µs      22µs      264ms 
+
+  ✓  The token has been successfully created.
+
+↳ List tokens after second token creation (successful)
+  GET http://localhost:80/centreon/api/latest/administration/tokens?sort_by={"token_name":"ASC"}  
+  200 OK ★ 209ms time ★ 382B↑ 878B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 570B
+  │ {"result":[{"name":"my-first-token-by-admin-for-admin"
+  │ ,"user":{"id":1,"name":"admin admin"},"creator":{"id":
+  │ 1,"name":"admin admin"},"creation_date":"2024-07-24T01
+  │ :23:07+02:00","expiration_date":"2025-12-31T00:00:00+0
+  │ 1:00","is_revoked":false},{"name":"my-second-token-by-
+  │ admin-for-user-with-menu","user":{"id":30,"name":"user
+  │ _with_menu"},"creator":{"id":1,"name":"admin admin"},"
+  │ creation_date":"2024-07-24T01:23:08+02:00","expiration
+  │ _date":"2099-12-31T00:00:00+01:00","is_revoked":false}
+  │ ],"meta":{"page":1,"limit":10,"search":{},"sort_by":{"
+  │ token_name":"ASC"},"total":2}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  359µs     184µs   (cache)      (cache)         207ms            615µs      141µs     209ms 
+
+  ✓  A list of token has been successfully fetched.
+  ✓  The tokens retrieved are listed with expected informations
+
+↳ Create token by admin for User_Menu_Action (successful)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  201 Created ★ 279ms time ★ 535B↑ 607B↓ size ★ 10↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 136B
+  │ {
+  │   "name": "my-third-token-by-admin-for-user-with-menu-
+  │ action",
+  │   "user_id": 29,
+  │   "expiration_date": "2099-12-31T00:00:00+01:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 332B
+  │ {"name":"my-third-token-by-admin-for-user-with-menu-ac
+  │ tion","user":{"id":29,"name":"user_with_menu_action"},
+  │ "creator":{"id":1,"name":"admin admin"},"token":"JbMt9
+  │ UNjqNtdXwpX0HRM9UbCxWKpLCvtq5xDlZSQgj9CGZinyY21IaGOx66
+  │ 0z3b+","creation_date":"2024-07-24T01:23:08+02:00","ex
+  │ piration_date":"2099-12-31T00:00:00+01:00","is_revoked
+  │ ":false}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  366µs     215µs   (cache)      (cache)         278ms            474µs      22µs      279ms 
+
+  ✓  The token has been successfully created.
+
+↳ List tokens after third token creation (successful)
+  GET http://localhost:80/centreon/api/latest/administration/tokens?sort_by={"token_name":"ASC"}  
+  200 OK ★ 210ms time ★ 382B↑ 1.14kB↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 828B
+  │ {"result":[{"name":"my-first-token-by-admin-for-admin"
+  │ ,"user":{"id":1,"name":"admin admin"},"creator":{"id":
+  │ 1,"name":"admin admin"},"creation_date":"2024-07-24T01
+  │ :23:07+02:00","expiration_date":"2025-12-31T00:00:00+0
+  │ 1:00","is_revoked":false},{"name":"my-second-token-by-
+  │ admin-for-user-with-menu","user":{"id":30,"name":"user
+  │ _with_menu"},"creator":{"id":1,"name":"admin admin"},"
+  │ creation_date":"2024-07-24T01:23:08+02:00","expiration
+  │ _date":"2099-12-31T00:00:00+01:00","is_revoked":false}
+  │ ,{"name":"my-third-token-by-admin-for-user-with-menu-a
+  │ ction","user":{"id":29,"name":"user_with_menu_action"}
+  │ ,"creator":{"id":1,"name":"admin admin"},"creation_dat
+  │ e":"2024-07-24T01:23:08+02:00","expiration_date":"2099
+  │ -12-31T00:00:00+01:00","is_revoked":false}],"meta":{"p
+  │ age":1,"limit":10,"search":{},"sort_by":{"token_name":
+  │ "ASC"},"total":3}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  437µs     161µs   (cache)      (cache)         208ms            495µs      221µs     210ms 
+
+  ✓  A list of token has been successfully fetched.
+  ✓  The tokens retrieved are listed with expected informations
+
+↳ Create token with duplicated name (error)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  409 Conflict ★ 266ms time ★ 535B↑ 392B↓ size ★ 10↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 136B
+  │ {
+  │   "name": "my-third-token-by-admin-for-user-with-menu-
+  │ action",
+  │   "user_id": 29,
+  │   "expiration_date": "2099-12-31T00:00:00+01:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 116B
+  │ {"code":409,"message":"The token name \u0027my-third-t
+  │ oken-by-admin-for-user-with-menu-action\u0027 already 
+  │ exists"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  413µs     140µs   (cache)      (cache)         264ms            670µs      39µs      266ms 
+
+  ✓  The token has not been created, because the name already exist.
+
+↳ Create token without name (error)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  400 Bad Request ★ 263ms time ★ 484B↑ 339B↓ size ★ 10↑ 8↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 86B
+  │ {
+  │   "name": "",
+  │   "user_id": 1,
+  │   "expiration_date": "2099-12-31T00:00:00+01:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 96B
+  │ {"code":400,"message":"[NewToken::name] The string is 
+  │ empty, but non empty string was expected"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  338µs     141µs   (cache)      (cache)         260ms            1ms        77µs      262ms 
+
+  ✓  The token has not been created, because the name already exist.
+
+↳ Delete someone else token without complete endpoint (error)
+  DELETE http://localhost:80/centreon/api/latest/administration/tokens/my-third-token-by-admin-for-user-with-menu-action  
+  404 Not Found ★ 389ms time ★ 398B↑ 318B↓ size ★ 8↑ 9↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 40B
+  │ {"code":404,"message":"Token not found"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  572µs     709µs   345µs        292µs           386ms            816µs      108µs     389ms 
+
+  ✓  The token with name 'my-third-token-by-admin-for-user-with-menu-actionhas not been deleted, because the endpoint is not complete.
+
+↳ Delete someone else token with complete endpoint (successful)
+  DELETE http://localhost:80/centreon/api/latest/administration/tokens/my-third-token-by-admin-for-user-with-menu-action/users/29  
+  204 No Content ★ 416ms time ★ 407B↑ 218B↓ size ★ 8↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  415µs     302µs   (cache)      (cache)         414ms            595µs      61µs      415ms 
+
+  ✓  The token with name 'my-third-token-by-admin-for-user-with-menu-actionhas been successfully deleted.
+
+↳ List tokens after deletion by admin (successful)
+  GET http://localhost:80/centreon/api/latest/administration/tokens?sort_by={"token_name":"ASC"}  
+  200 OK ★ 270ms time ★ 382B↑ 878B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 570B
+  │ {"result":[{"name":"my-first-token-by-admin-for-admin"
+  │ ,"user":{"id":1,"name":"admin admin"},"creator":{"id":
+  │ 1,"name":"admin admin"},"creation_date":"2024-07-24T01
+  │ :23:07+02:00","expiration_date":"2025-12-31T00:00:00+0
+  │ 1:00","is_revoked":false},{"name":"my-second-token-by-
+  │ admin-for-user-with-menu","user":{"id":30,"name":"user
+  │ _with_menu"},"creator":{"id":1,"name":"admin admin"},"
+  │ creation_date":"2024-07-24T01:23:08+02:00","expiration
+  │ _date":"2099-12-31T00:00:00+01:00","is_revoked":false}
+  │ ],"meta":{"page":1,"limit":10,"search":{},"sort_by":{"
+  │ token_name":"ASC"},"total":2}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  490µs     225µs   (cache)      (cache)         267ms            963µs      264µs     269ms 
+
+  ✓  A list of token has been successfully fetched.
+  ✓  The tokens retrieved are listed with expected informations
+
+↳ Logout from admin user (successful)
+  GET http://localhost:80/centreon/api/latest/logout  
+  200 OK ★ 231ms time ★ 330B↑ 338B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 31B
+  │ {"message":"Successful logout"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  653µs     198µs   (cache)      (cache)         230ms            598µs      373µs     231ms 
+
+  ✓  Logout successful. The displayed message is the one that is expected ('Successful logout').
+
+❏ 0106 - By User with Menu
+↳ Login with user with menu (successful)
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 354ms time ★ 456B↑ 518B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 128B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "user_with_menu",
+  │       "password": "Centreon!2021"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 210B
+  │ {"contact":{"id":30,"name":"user_with_menu","alias":"u
+  │ ser_with_menu","email":"user_with_menu@localhost","is_
+  │ admin":false},"security":{"token":"qgYtlqlsu0dJYKUJv9i
+  │ gTix40UWAlFtocHbRrGa5gNS7J7mAbMymfqCGvXQbmLKz"}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  466µs     215µs   (cache)      (cache)         352ms            546µs      159µs     353ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has not admin rights.
+
+↳ Create token by User_Menu for User_Menu (successful)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  201 Created ★ 272ms time ★ 527B↑ 597B↓ size ★ 10↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 128B
+  │ {
+  │   "name": "my-third-token-by-user-menu-for-user-menu",
+  │   "user_id": 30,
+  │   "expiration_date": "3051-06-02T00:00:00+02:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 322B
+  │ {"name":"my-third-token-by-user-menu-for-user-menu","u
+  │ ser":{"id":30,"name":"user_with_menu"},"creator":{"id"
+  │ :30,"name":"user_with_menu"},"token":"9Mets3oU68CbGIvR
+  │ 1lSHMY3g3G3p54qBu0D\/DO58b4NwR9KlUs0BcYqJl9aoz55s","cr
+  │ eation_date":"2024-07-24T01:23:11+02:00","expiration_d
+  │ ate":"3051-06-02T00:00:00+02:00","is_revoked":false}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  570µs     337µs   (cache)      (cache)         270ms            702µs      78µs      271ms 
+
+  ✓  The token has been successfully created.
+
+↳ Create token for someone else (error)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  409 Conflict ★ 235ms time ★ 527B↑ 355B↓ size ★ 10↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 128B
+  │ {
+  │   "name": "my-third-token-by-user-menu-for-no_access",
+  │   "user_id": 31,
+  │   "expiration_date": "3051-06-02T00:00:00+02:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 79B
+  │ {"code":409,"message":"You are not allowed to add toke
+  │ ns linked to user ID 31"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  1ms       218µs   (cache)      (cache)         233ms            716µs      37µs      235ms 
+
+  ✓  The token has not been created because the user does not have the rights to manage token for others.
+
+↳ List tokens after fourth token creation (successful)
+  GET http://localhost:80/centreon/api/latest/administration/tokens?sort_by={"token_name":"ASC"}  
+  200 OK ★ 230ms time ★ 382B↑ 894B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 586B
+  │ {"result":[{"name":"my-second-token-by-admin-for-user-
+  │ with-menu","user":{"id":30,"name":"user_with_menu"},"c
+  │ reator":{"id":1,"name":"admin admin"},"creation_date":
+  │ "2024-07-24T01:23:08+02:00","expiration_date":"2099-12
+  │ -31T00:00:00+01:00","is_revoked":false},{"name":"my-th
+  │ ird-token-by-user-menu-for-user-menu","user":{"id":30,
+  │ "name":"user_with_menu"},"creator":{"id":30,"name":"us
+  │ er_with_menu"},"creation_date":"2024-07-24T01:23:11+02
+  │ :00","expiration_date":"3051-06-02T00:00:00+02:00","is
+  │ _revoked":false}],"meta":{"page":1,"limit":10,"search"
+  │ :{},"sort_by":{"token_name":"ASC"},"total":2}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  318µs     183µs   (cache)      (cache)         228ms            1ms        215µs     230ms 
+
+  ✓  A list of token has been successfully fetched.
+  ✓  The tokens retrieved are listed with expected informations
+
+↳ Deletion of User_Menu token by User_Menu (successful)
+  DELETE http://localhost:80/centreon/api/latest/administration/tokens/my-third-token-by-user-menu-for-user-menu  
+  204 No Content ★ 242ms time ★ 390B↑ 218B↓ size ★ 8↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  517µs     275µs   (cache)      (cache)         240ms            417µs      38µs      241ms 
+
+  ✓  The token with name 'my-third-token-by-user-menu-for-user-menuhas been successfully deleted.
+
+↳ Deletion Admin token without manage tokens rights (error)
+  DELETE http://localhost:80/centreon/api/latest/administration/tokens/my-first-token-by-admin-for-admin/users/1  
+  400 Bad Request ★ 256ms time ★ 390B↑ 324B↓ size ★ 8↑ 8↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 81B
+  │ {"code":400,"message":"You are not allowed to delete t
+  │ okens linked to user ID 1"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  295µs     161µs   (cache)      (cache)         254ms            516µs      27µs      255ms 
+
+  ✓  The token has not been deleted because user doesn't has the necessary rights.
+
+↳ List tokens after deletion by user with menu (successful)
+  GET http://localhost:80/centreon/api/latest/administration/tokens?sort_by={"token_name":"ASC"}  
+  200 OK ★ 275ms time ★ 382B↑ 648B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 339B
+  │ {"result":[{"name":"my-second-token-by-admin-for-user-
+  │ with-menu","user":{"id":30,"name":"user_with_menu"},"c
+  │ reator":{"id":1,"name":"admin admin"},"creation_date":
+  │ "2024-07-24T01:23:08+02:00","expiration_date":"2099-12
+  │ -31T00:00:00+01:00","is_revoked":false}],"meta":{"page
+  │ ":1,"limit":10,"search":{},"sort_by":{"token_name":"AS
+  │ C"},"total":1}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  395µs     675µs   147µs        193µs           272ms            544µs      160µs     274ms 
+
+  ✓  A list of token has been successfully fetched.
+  ✓  The tokens retrieved are listed with expected informations
+
+↳ Logout from user with menu (successful)
+  GET http://localhost:80/centreon/api/latest/logout  
+  200 OK ★ 241ms time ★ 330B↑ 338B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 31B
+  │ {"message":"Successful logout"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  384µs     199µs   (cache)      (cache)         239ms            569µs      169µs     240ms 
+
+  ✓  Logout successful. The displayed message is the one that is expected ('Successful logout').
+
+❏ 0107 - By User with No Access
+↳ Login with user with no access (successful)
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 271ms time ★ 462B↑ 536B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 134B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "user_no_access_Token",
+  │       "password": "Centreon!2021"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 228B
+  │ {"contact":{"id":31,"name":"user_no_access_Token","ali
+  │ as":"user_no_access_Token","email":"user_no_access_Tok
+  │ en@localhost","is_admin":false},"security":{"token":"p
+  │ 77CeZ4oGok1WBCp8I1CPeIl4HTSCWZ5Psak+wYFMnjpJQ87JUGnSpa
+  │ LM0SpCjBg"}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  477µs     326µs   (cache)      (cache)         269ms            519µs      156µs     271ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has not admin rights.
+
+↳ Create token (error)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  403 Forbidden ★ 267ms time ★ 533B↑ 335B↓ size ★ 10↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 134B
+  │ {
+  │   "name": "my-third-token-by-mr-no_access-for-mr-no_ac
+  │ cess",
+  │   "user_id": 31,
+  │   "expiration_date": "3051-06-02T00:00:00+02:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 58B
+  │ {"code":403,"message":"You are not allowed to add toke
+  │ ns"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  430µs     248µs   (cache)      (cache)         265ms            477µs      24µs      266ms 
+
+  ✓  The token has not been created because user doesn't has the necessary rights.
+
+↳ List tokens (error)
+  GET http://localhost:80/centreon/api/latest/administration/tokens  
+  403 Forbidden ★ 311ms time ★ 345B↑ 340B↓ size ★ 8↑ 9↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 63B
+  │ {"code":403,"message":"You are not allowed to list the
+  │  tokens"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  635µs     318µs   (cache)      (cache)         309ms            489µs      44µs      311ms 
+
+  ✓  The token has not been listed because user doesn't has the necessary rights.
+
+↳ Delete token (error)
+  DELETE http://localhost:80/centreon/api/latest/administration/tokens/my-second-token-by-admin-for-user-with-menu  
+  403 Forbidden ★ 257ms time ★ 392B↑ 338B↓ size ★ 8↑ 9↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 61B
+  │ {"code":403,"message":"You are not allowed to delete t
+  │ okens"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  436µs     157µs   (cache)      (cache)         255ms            464µs      22µs      256ms 
+
+  ✓  The token has not been deleted because user doesn't has the necessary rights.
+
+↳ Logout from user with no access (successful)
+  GET http://localhost:80/centreon/api/latest/logout  
+  200 OK ★ 200ms time ★ 330B↑ 338B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 31B
+  │ {"message":"Successful logout"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  353µs     163µs   (cache)      (cache)         199ms            576µs      262µs     200ms 
+
+  ✓  Logout successful. The displayed message is the one that is expected ('Successful logout').
+
+❏ 0108 - By User with Menu & Action
+↳ Login with user with menu & action (successful)
+  POST http://localhost:80/centreon/api/latest/login  
+  200 OK ★ 294ms time ★ 463B↑ 539B↓ size ★ 10↑ 11↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 135B
+  │ {
+  │   "security": {
+  │     "credentials": {
+  │       "login": "user_with_menu_action",
+  │       "password": "Centreon!2021"
+  │     }
+  │   }
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 231B
+  │ {"contact":{"id":29,"name":"user_with_menu_action","al
+  │ ias":"user_with_menu_action","email":"user_with_menu_a
+  │ ction@localhost","is_admin":false},"security":{"token"
+  │ :"2FKyc5eelH40XNTVuPNZPaqep31b5GdboxFpDIsO6Ea50OZsBwlf
+  │ iMsuzgAWPl/c"}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  343µs     219µs   (cache)      (cache)         292ms            610µs      149µs     293ms 
+
+  ✓  Login successful. The account displayed in response matches with credentials and has not admin rights.
+
+↳ Create a token by User_Menu_Action for User_Menu_Action (successful)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  201 Created ★ 222ms time ★ 542B↑ 626B↓ size ★ 10↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 143B
+  │ {
+  │   "name": "my-fourth-token-by-user-menu-action-for-use
+  │ r-menu-action",
+  │   "user_id": 29,
+  │   "expiration_date": "2024-08-27T00:00:00+02:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 351B
+  │ {"name":"my-fourth-token-by-user-menu-action-for-user-
+  │ menu-action","user":{"id":29,"name":"user_with_menu_ac
+  │ tion"},"creator":{"id":29,"name":"user_with_menu_actio
+  │ n"},"token":"3DzUIjCLm0q+lhe4GqOkGTTzQW0pgr4ucBnTwqS6\
+  │ /gvumXbwHRue9uDSaeKeA3f9","creation_date":"2024-07-24T
+  │ 01:23:15+02:00","expiration_date":"2024-08-27T00:00:00
+  │ +02:00","is_revoked":false}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  306µs     169µs   (cache)      (cache)         221ms            464µs      22µs      222ms 
+
+  ✓  The token has been successfully created.
+
+↳ Create a token with a date in the past (error)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  400 Bad Request ★ 233ms time ★ 529B↑ 394B↓ size ★ 10↑ 8↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 130B
+  │ {
+  │   "name": "my-sixth-token-by-user-menu-action-for-admi
+  │ n",
+  │   "user_id": 1,
+  │   "expiration_date": "1998-12-02T00:00:00+01:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 151B
+  │ {"code":400,"message":"[NewToken::expirationDate] The 
+  │ date \u00221998-12-02T00:00:00+01:00\u0022 was expecte
+  │ d to be at most 2024-07-24T01:23:15+02:00"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  275µs     163µs   (cache)      (cache)         232ms            607µs      28µs      233ms 
+
+  1. The token can't be created with an expiration date in the past.
+
+↳ Create a token by User_Menu_Action for Admin (successful)
+  POST http://localhost:80/centreon/api/latest/administration/tokens  
+  201 Created ★ 221ms time ★ 529B↑ 603B↓ size ★ 10↑ 9↓ headers ★ 0 cookies
+  ┌ ↑ raw ★ 130B
+  │ {
+  │   "name": "my-fifth-token-by-user-menu-action-for-admi
+  │ n",
+  │   "user_id": 1,
+  │   "expiration_date": "9999-12-02T00:00:00+01:00"
+  │ }
+  └ 
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 327B
+  │ {"name":"my-fifth-token-by-user-menu-action-for-admin"
+  │ ,"user":{"id":1,"name":"admin admin"},"creator":{"id":
+  │ 29,"name":"user_with_menu_action"},"token":"kuWnRYJya8
+  │ eRmtmpxHtPbKLfoLCgGdFDTi5kmA45BN9+vHy8ul7B0MepjLu4FrF8
+  │ ","creation_date":"2024-07-24T01:23:15+02:00","expirat
+  │ ion_date":"9999-12-02T00:00:00+01:00","is_revoked":fal
+  │ se}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  302µs     567µs   136µs        348µs           218ms            487µs      27µs      220ms 
+
+  ✓  The token has been successfully created.
+
+↳ List tokens after sixth token creation (successful)
+  GET http://localhost:80/centreon/api/latest/administration/tokens?sort_by={"token_name":"ASC"}  
+  200 OK ★ 254ms time ★ 382B↑ 1.41kB↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 1.1kB
+  │ {"result":[{"name":"my-fifth-token-by-user-menu-action
+  │ -for-admin","user":{"id":1,"name":"admin admin"},"crea
+  │ tor":{"id":29,"name":"user_with_menu_action"},"creatio
+  │ n_date":"2024-07-24T01:23:15+02:00","expiration_date":
+  │ "9999-12-02T00:00:00+01:00","is_revoked":false},{"name
+  │ ":"my-first-token-by-admin-for-admin","user":{"id":1,"
+  │ name":"admin admin"},"creator":{"id":1,"name":"admin a
+  │ dmin"},"creation_date":"2024-07-24T01:23:07+02:00","ex
+  │ piration_date":"2025-12-31T00:00:00+01:00","is_revoked
+  │ ":false},{"name":"my-fourth-token-by-user-menu-action-
+  │ for-user-menu-action","user":{"id":29,"name":"user_wit
+  │ h_menu_action"},"creator":{"id":29,"name":"user_with_m
+  │ enu_action"},"creation_date":"2024-07-24T01:23:15+02:0
+  │ 0","expiration_date":"2024-08-27T00:00:00+02:00","is_r
+  │ evoked":false},{"name":"my-second-token-by-admin-for-u
+  │ ser-with-menu","user":{"id":30,"name":"user_with_menu"
+  │ },"creator":{"id":1,"name":"admin admin"},"creation_da
+  │ te":"2024-07-24T01:23:08+02:00","expiration_date":"209
+  │ 9-12-31T00:00:00+01:00","is_revoked":false}],"meta":{"
+  │ page":1,"limit":10,"search":{},"sort_by":{"token_name"
+  │ :"ASC"},"total":4}}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  328µs     149µs   (cache)      (cache)         252ms            551µs      141µs     253ms 
+
+  ✓  A list of token has been successfully fetched.
+  ✓  The tokens retrieved are listed with expected informations
+
+↳ Delete my token 5 (successful)
+  DELETE http://localhost:80/centreon/api/latest/administration/tokens/my-fourth-token-by-user-menu-action-for-user-menu-action  
+  204 No Content ★ 245ms time ★ 405B↑ 218B↓ size ★ 8↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  873µs     290µs   (cache)      (cache)         244ms            482µs      22µs      245ms 
+
+  ✓  The token with name 'my-fourth-token-by-user-menu-action-for-user-menu-action' has been successfully deleted.
+
+↳ Delete the token 1 of someone else (successful)
+  DELETE http://localhost:80/centreon/api/latest/administration/tokens/my-first-token-by-admin-for-admin/users/1  
+  204 No Content ★ 212ms time ★ 390B↑ 218B↓ size ★ 8↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  369µs     128µs   (cache)      (cache)         210ms            424µs      19µs      211ms 
+
+  ✓  The token with name 'my-first-token-by-admin-for-admin' has been successfully deleted.
+
+↳ Delete the token 2 of someone else (successful)
+  DELETE http://localhost:80/centreon/api/latest/administration/tokens/my-second-token-by-admin-for-user-with-menu/users/30  
+  204 No Content ★ 206ms time ★ 401B↑ 218B↓ size ★ 8↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  344µs     136µs   (cache)      (cache)         204ms            437µs      24µs      205ms 
+
+  ✓  The token with name 'my-second-token-by-admin-for-user-with-menu' has been successfully deleted.
+
+↳ Delete the token 6 of someone else (successful)
+  DELETE http://localhost:80/centreon/api/latest/administration/tokens/my-fifth-token-by-user-menu-action-for-admin/users/1  
+  204 No Content ★ 243ms time ★ 401B↑ 218B↓ size ★ 8↑ 7↓ headers ★ 0 cookies
+  ↓ text/plain ★ text ★ plain ★ utf8
+
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  1ms       226µs   (cache)      (cache)         241ms            554µs      56µs      244ms 
+
+  ✓  The token with name 'my-fifth-token-by-user-menu-action-for-admin' has been successfully deleted.
+
+↳ Logout from user with menu & action (successful)
+  GET http://localhost:80/centreon/api/latest/logout  
+  200 OK ★ 204ms time ★ 330B↑ 338B↓ size ★ 8↑ 11↓ headers ★ 0 cookies
+  ┌ ↓ application/json ★ text ★ json ★ utf8 ★ 31B
+  │ {"message":"Successful logout"}
+  └
+  prepare   wait    dns-lookup   tcp-handshake   transfer-start   download   process   total 
+  485µs     206µs   (cache)      (cache)         202ms            727µs      267µs     203ms 
+
+  ✓  Logout successful. The displayed message is the one that is expected ('Successful logout').
+
+┌─────────────────────────┬─────────────────────┬─────────────────────┐
+│                         │            executed │              failed │
+├─────────────────────────┼─────────────────────┼─────────────────────┤
+│              iterations │                   1 │                   0 │
+├─────────────────────────┼─────────────────────┼─────────────────────┤
+│                requests │                  66 │                   0 │
+├─────────────────────────┼─────────────────────┼─────────────────────┤
+│            test-scripts │                 132 │                   0 │
+├─────────────────────────┼─────────────────────┼─────────────────────┤
+│      prerequest-scripts │                  93 │                   0 │
+├─────────────────────────┼─────────────────────┼─────────────────────┤
+│              assertions │                  71 │                   1 │
+├─────────────────────────┴─────────────────────┴─────────────────────┤
+│ total run duration: 15.6s                                           │
+├─────────────────────────────────────────────────────────────────────┤
+│ total data received: 11.55kB (approx)                               │
+├─────────────────────────────────────────────────────────────────────┤
+│ average response time: 211ms [min: 87ms, max: 629ms, s.d.: 117ms]   │
+├─────────────────────────────────────────────────────────────────────┤
+│ average DNS lookup time: 2ms [min: 136µs, max: 2ms, s.d.: 598µs]    │
+├─────────────────────────────────────────────────────────────────────┤
+│ average first byte time: 209ms [min: 85ms, max: 606ms, s.d.: 116ms] │
+└─────────────────────────────────────────────────────────────────────┘
+
+[31m  # [39m[31m failure        [39m[31m detail                                                                                                [39m
+[90m    [39m[90m                [39m[90m                                                                                                       [39m
+ 1.  AssertionError  The token can't be created with an expiration date in the past.                                       
+                     expected '[NewToken::expirationDate] The date "…' to include '[NewToken::expirationDate] The date "…' 
+                     at assertion:0 in test-script                                                                         
+                     inside "0108 - By User with Menu & Action / Create a token with a date in the past (error)"           
