@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Install Yaml
-        run: pip3 install yamllint==1.35.1
+        run: pip install yamllint==1.35.1 --break-system-packages
 
       - name: Add Yaml Lint Rules
         run: |

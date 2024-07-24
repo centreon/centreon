@@ -66,12 +66,12 @@ jobs:
               }
 
               if (pending.length === 1) {
-                core.info("All jobs have passed")
+                core.info("All jobs are ok")
                 return;
               }
 
               // throw new Error('failed !!!!');
-              await exec.exec("sleep 30s");
+              await exec.exec("sleep 1s");
             }
 
       - name: Check workflow statuses and display token usage
