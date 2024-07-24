@@ -63,9 +63,10 @@ jobs:
               if (failure.length > 0) {
                 core.error(`${failure.length} job(s) failed: ${failure.join(', ')}`);
                 core.setFailed(`${failure.length} job(s) failed: ${failure.join(', ')}`);
+                return;
               }
 
-              throw new Error('failed !!!!');
+              // throw new Error('failed !!!!');
               await exec.exec("sleep 30s");
             }
 
