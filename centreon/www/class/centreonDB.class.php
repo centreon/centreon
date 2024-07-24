@@ -292,11 +292,12 @@ class CentreonDB extends \PDO
      * Query
      *
      * @param string $queryString
-     * @param mixed $parameters
-     * @param mixed $parametersArgs
+     * @param null|mixed $parameters
+     * @param null|int $fetchMode
+     * @param mixed ...$fetch_mode_args
      * @return CentreonDBStatement|false
      */
-    public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement|false
+    public function query($queryString, $parameters = null, $fetchMode = null, ...$fetch_mode_args): CentreonDBStatement|false
     {
         if (!is_null($parameters) && !is_array($parameters)) {
             $parameters = [$parameters];
@@ -308,7 +309,7 @@ class CentreonDB extends \PDO
         $sth = null;
         try {
             if (is_null($parameters)) {
-                $sth = $this->query($queryString);
+                $sth = parent::query($queryString, $fetchMode, $fetch_mode_args);
             } else {
                 $sth = $this->prepare($queryString);
                 $sth = $sth->execute($parameters);
