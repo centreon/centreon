@@ -36,7 +36,7 @@ jobs:
 
               const success = [];
               const failure = [];
-              const pending = [];
+              const in_progress = [];
 
               const options = {};
               options.listeners = {
@@ -58,14 +58,14 @@ jobs:
               JSON.parse(myOutput).forEach(({ name, state }) => {
                 if (state.toLowerCase() === 'failure') {
                   failure.push(name);
-                } else if (state.toLowerCase() === 'pending') {
-                  pending.push(name);
+                } else if (state.toLowerCase() === 'in_progress') {
+                  in_progress.push(name);
                 }
                 console.log(`${name} => ${state}`);
               });
 
-              if (pending.length === 0) {
-                core.setFailed(`${failure.length} job(s) failed: ${failure.join(', ')}`);
+              if (in_progress.length === 0) {
+                core.setFailed("Cannot get pull request check status");
                 return;
               }
 
@@ -74,7 +74,7 @@ jobs:
                 return;
               }
 
-              if (pending.length === 1) {
+              if (in_progress.length === 1) {
                 core.info("All jobs are ok");
                 return;
               }
