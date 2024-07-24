@@ -22,8 +22,6 @@ jobs:
 
       - name: Check workflow statuses and display token usage
         run: |
-          set -x
-
           display_token_usage () {
             echo "current token usage :"
             curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ env.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .rate
@@ -36,8 +34,10 @@ jobs:
           ITERATIONS=1
           while [[ $ITERATIONS -le 60 ]]; do
               display_token_usage
+              echo "api"
               CHECK_SUITES=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r '.conclusion // "pending"') || true
               display_token_usage
+              echo "gh cli"
               gh pr checks ${{ env.PR_NUMBER }} --json name,state
               display_token_usage
 
