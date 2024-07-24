@@ -257,7 +257,7 @@ describe('Line chart', () => {
       cy.get('[data-display-side="false"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -270,7 +270,7 @@ describe('Line chart', () => {
       cy.get('[data-display-side="true"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -281,7 +281,7 @@ describe('Line chart', () => {
       cy.get('[data-display-side="true"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -291,7 +291,7 @@ describe('Line chart', () => {
     it('does not display axis borders when the prop is set', () => {
       initialize({ axis: { showBorder: false } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('line[class*="visx-axis-line"]')
         .eq(0)
@@ -312,7 +312,7 @@ describe('Line chart', () => {
     it('does not display grids when the prop is set', () => {
       initialize({ axis: { showGridLines: false } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('g[class="visx-group visx-rows"]').should('not.exist');
       cy.get('g[class="visx-group visx-columns"]').should('not.exist');
@@ -323,7 +323,7 @@ describe('Line chart', () => {
     it('displays only horizontal lines when the prop is set', () => {
       initialize({ axis: { gridLinesType: 'horizontal' } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('g[class="visx-group visx-rows"]').should('be.visible');
       cy.get('g[class="visx-group visx-columns"]').should('not.exist');
@@ -334,7 +334,7 @@ describe('Line chart', () => {
     it('displays only vertical lines when the prop is set', () => {
       initialize({ axis: { gridLinesType: 'vertical' } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('g[class="visx-group visx-rows"]').should('not.exist');
       cy.get('g[class="visx-group visx-columns"]').should('be.visible');
@@ -345,7 +345,7 @@ describe('Line chart', () => {
     it('rotates the tick label when the props is set', () => {
       initialize({ axis: { yAxisTickLabelRotation: -35 } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('text[transform="rotate(-35, -2, 388)"]').should('be.visible');
 
@@ -355,7 +355,7 @@ describe('Line chart', () => {
     it('displays as centered to zero when the prop is set', () => {
       initialize({ axis: { isCenteredZero: true } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.contains('0.9').should('be.visible');
       cy.contains('-0.9').should('be.visible');
@@ -368,7 +368,7 @@ describe('Line chart', () => {
     it('displays the curve in a natural style when the prop is set', () => {
       initialize({ lineStyle: { curve: 'natural' } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('[data-metric="13536"]').should('be.visible');
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
@@ -379,7 +379,7 @@ describe('Line chart', () => {
     it('displays the curve in a step style when the prop is set', () => {
       initialize({ lineStyle: { curve: 'step' } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('[data-metric="13536"]').should('be.visible');
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
@@ -391,7 +391,7 @@ describe('Line chart', () => {
     it('shows the area when the prop is set', () => {
       initialize({ lineStyle: { showArea: true } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[fill="rgba(102, 153, 204, 0.19999999999999996)"]').should(
         'be.visible'
       );
@@ -408,14 +408,14 @@ describe('Line chart', () => {
     it('shows the area with a custom transparency when props are set', () => {
       initialize({ lineStyle: { areaTransparency: 20, showArea: true } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[fill="rgba(102, 153, 204, 0.8)"]').should('be.visible');
     });
 
     it('shows points when the prop is set', () => {
       initialize({ lineStyle: { showPoints: true } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('circle[cx="4.0625"]').should('be.visible');
       cy.get('circle[cy="163.69430856642046"]').should('be.visible');
 
@@ -425,7 +425,7 @@ describe('Line chart', () => {
     it('displays lines with a custom line width when the prop is set', () => {
       initialize({ lineStyle: { lineWidth: 6 } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[stroke-width="6"]').should('have.length', 3);
 
       cy.makeSnapshot();
@@ -434,7 +434,7 @@ describe('Line chart', () => {
     it('displays lines with dots width when the prop is set', () => {
       initialize({ lineStyle: { dotOffset: 10, lineWidth: 4 } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[stroke-width="4"]')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '4 10');
@@ -443,7 +443,7 @@ describe('Line chart', () => {
     it('displays lines with dots width when the prop is set', () => {
       initialize({ lineStyle: { dashLength: 5, dashOffset: 8 } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[stroke-width="2"]')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 8');
