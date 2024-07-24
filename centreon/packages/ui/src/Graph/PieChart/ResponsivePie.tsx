@@ -42,7 +42,7 @@ const getTooltipPlacement = ({ radianX, radianY }): Placement => {
 
 const ResponsivePie = ({
   title,
-  titlePosition = 'top',
+  titlePosition,
   variant = 'pie',
   width,
   height,
@@ -57,7 +57,8 @@ const ResponsivePie = ({
   displayValues,
   TooltipContent,
   legendDirection = 'column',
-  opacity = 1
+  opacity = 1,
+  tooltipProps = {}
 }: PieProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -175,6 +176,7 @@ const ResponsivePie = ({
                               title={title}
                               total={total}
                               value={arc.data.value}
+                              {...tooltipProps}
                             />
                           )
                         }

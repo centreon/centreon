@@ -13,11 +13,12 @@ export interface PieProps {
   displayValues?: boolean;
   innerRadius?: number;
   legendDirection?: 'row' | 'column';
-  onArcClick?: (arcData: ArcType) => void;
+  onArcClick?: (arcData) => void;
   opacity: number;
   padAngle?: number;
   title?: string;
-  titlePosition?: 'top' | 'bottom';
+  titlePosition?: 'default' | 'bottom';
+  tooltipProps?: object;
   unit?: 'percentage' | 'number';
   variant?: 'pie' | 'donut';
 }
