@@ -10,7 +10,8 @@ import {
   includes,
   pipe,
   map,
-  toPairs
+  toPairs,
+  pluck
 } from 'ramda';
 
 import { SeverityCode, centreonBaseURL } from '@centreon/ui';
@@ -383,3 +384,64 @@ export const getBAsURL = (severityCode: number): string => {
 };
 
 export const indicatorsURL = '/main.php?p=62606';
+
+const resourceTypesCustomParameters = [
+  'host-group',
+  'host-category',
+  'service-group',
+  'service-category'
+];
+const resourcesSearchMapping = {
+  host: 'parent_name',
+  'meta-service': 'name',
+  service: 'name'
+};
+const resourceTypesSearchParameters = ['host', 'service', 'meta-service'];
+const categories = ['host-category', 'service-category'];
+
+export const getResourcesSearchQueryParameters = (
+  resources: Array<Resource> = []
+): {
+  resourcesCustomParameters: Array<{
+    name: string;
+    value: Array<string>;
+  }>;
+  resourcesSearchConditions: Array<{
+    field;
+    values: {
+      $rg: string;
+    };
+  }>;
+} => {
+  const resourcesToApplyToCustomParameters = resources.filter(
+    ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
+  );
+  const resourcesToApplyToSearchParameters = resources.filter(
+    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+  );
+
+  const resourcesSearchConditions = resourcesToApplyToSearchParameters.map(
+    ({ resourceType, resources: resourcesToApply }) => {
+      return resourcesToApply.map((resource) => ({
+        field: resourcesSearchMapping[resourceType],
+        values: {
+          $rg: `^${resource.name}$`
+        }
+      }));
+    }
+  );
+
+  const resourcesCustomParameters = resourcesToApplyToCustomParameters.map(
+    ({ resourceType, resources: resourcesToApply }) => ({
+      name: includes(resourceType, categories)
+        ? `${resourceType.replace('-', '_')}_names`
+        : `${resourceType.replace('-', '')}_names`,
+      value: pluck('name', resourcesToApply)
+    })
+  );
+
+  return {
+    resourcesCustomParameters,
+    resourcesSearchConditions: flatten(resourcesSearchConditions)
+  };
+};
