@@ -9,9 +9,11 @@ export interface PieProps {
   TooltipContent?: (arcData) => JSX.Element | boolean | null;
   data: Array<ArcType>;
   displayLegend?: boolean;
+  displayTitle?: boolean;
   displayTotal?: boolean;
   displayValues?: boolean;
   innerRadius?: number;
+  innerRadiusNoLimit?: boolean;
   legendDirection?: 'row' | 'column';
   onArcClick?: (arcData) => void;
   opacity: number;

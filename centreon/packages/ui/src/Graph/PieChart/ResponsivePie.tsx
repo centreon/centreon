@@ -43,6 +43,7 @@ const getTooltipPlacement = ({ radianX, radianY }): Placement => {
 const ResponsivePie = ({
   title,
   titlePosition,
+  displayTitle = true,
   variant = 'pie',
   width,
   height,
@@ -52,6 +53,7 @@ const ResponsivePie = ({
   displayLegend = true,
   displayTotal = true,
   innerRadius: defaultInnerRadius = 40,
+  innerRadiusNoLimit = false,
   onArcClick,
   padAngle = 0,
   displayValues,
@@ -78,6 +80,7 @@ const ResponsivePie = ({
     data,
     defaultInnerRadius,
     height,
+    innerRadiusNoLimit,
     legendRef,
     titleRef,
     unit,
@@ -110,7 +113,8 @@ const ResponsivePie = ({
         {(equals(variant, 'pie') ||
           isSmall ||
           (equals(variant, 'donut') && equals(titlePosition, 'bottom'))) &&
-          title && (
+          title &&
+          displayTitle && (
             <div className={classes.title} data-testid="Title" ref={titleRef}>
               {`${displayTotal ? numeral(total).format('0a').toUpperCase() : ''} `}
               {t(title)}
@@ -134,7 +138,11 @@ const ResponsivePie = ({
                 cornerRadius={4}
                 data={data}
                 innerRadius={() => {
-                  return equals(variant, 'pie') ? 0 : half - innerRadius;
+                  const iRadius = innerRadiusNoLimit
+                    ? innerRadius
+                    : half - innerRadius;
+
+                  return equals(variant, 'pie') ? 0 : iRadius;
                 }}
                 outerRadius={half}
                 padAngle={padAngle}
@@ -223,6 +231,7 @@ const ResponsivePie = ({
               {equals(variant, 'donut') &&
                 !isSmall &&
                 title &&
+                displayTitle &&
                 !equals(titlePosition, 'bottom') && (
                   <>
                     <Text
