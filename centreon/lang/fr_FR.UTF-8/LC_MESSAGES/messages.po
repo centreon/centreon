@@ -19208,6 +19208,7 @@ msgstr "Sélectionner la règle (fournisseur de tickets)"
 
 msgid "Display resources with these status types"
 msgstr "Afficher les ressources avec ces types de statuts"
+
 msgid  "All KPIs on this Business Activity are working fine."
 msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
 
@@ -19255,3 +19256,24 @@ msgstr "Santé"
 
 msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
+
+msgid "Error while adding an additional connector"
+msgstr "Erreur lors de l'ajout d'un connecteur additionnel"
+
+msgid "You are not allowed to add additional connectors"
+msgstr "Vous n'êtes pas autorisé à créer des connecteurs additionnels"
+
+msgid "An additional connector of type %s is already associated with poller ID(s) '%s'"
+msgstr "Un connecteur additionnel de type %s est déjà associée au(x) collecteur(s) ID(s) '%s'"
+
+msgid "Duplicates not allowed for property '%s'"
+msgstr "Doublons non autorisés pour la propriété '%'"
+
+msgid "'%s' must contain at least one element"
+msgstr "'%s' doit contenir au moins un élément"
+
+msgid "Error while retrieving an additional connector"
+msgstr "Erreur durant la récupération d'un connecteur additionnel"
+
+msgid "The additional connector name '%s' already exists"
+msgstr "Le nom de connecteur additionnel '%s' existe déjà"
