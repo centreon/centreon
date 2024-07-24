@@ -268,8 +268,6 @@ describe('Resources', () => {
   it('deletes a resource when the corresponding is clicked and corresponding prop are set', () => {
     initialize({ singleMetricSelection: true, singleResourceSelection: true });
 
-    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    cy.contains(/^Host$/).click();
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.waitForRequest('@getHosts');
     cy.contains('Host 0').click();
@@ -435,6 +433,27 @@ describe('Resources tree', () => {
     cy.contains('Meta service 0').click();
 
     cy.contains(labelAddFilter).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('allows to select a meta-service or host as resource type when corresponding props and restricted resoource types are set', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'meta-service'],
+      singleMetricSelection: true,
+      singleResourceSelection: true
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Meta service$/).click();
+
+    cy.contains('Service').should('not.exist');
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+
+    cy.contains('Service').should('be.visible');
+    cy.contains('Host').should('be.visible');
 
     cy.makeSnapshot();
   });

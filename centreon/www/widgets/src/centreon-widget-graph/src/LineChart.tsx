@@ -5,7 +5,6 @@ import {
   BarChart,
   LineChart,
   LineChartData,
-  ResourceType,
   useGraphQuery,
   useRefreshInterval
 } from '@centreon/ui';
