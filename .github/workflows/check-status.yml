@@ -26,29 +26,34 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         with:
           script: |
-            let myOutput = '';
-            let myError = '';
+            for (let i = 0; i < 60; i++) {
+              let myOutput = '';
+              let myError = '';
 
-            const options = {};
-            options.listeners = {
-              stdout: (data) => {
-                myOutput += data.toString();
-              },
-              stderr: (data) => {
-                myError += data.toString();
-              }
-            };
+              const options = {};
+              options.listeners = {
+                stdout: (data) => {
+                  myOutput += data.toString();
+                },
+                stderr: (data) => {
+                  myError += data.toString();
+                }
+              };
 
-            const pr_checks = await exec.exec(
-              "gh pr checks --repo centreon/centreon ${{ env.PR_NUMBER }} --json name,state",
-              [],
-              options
-            );
-            console.log(myOutput);
-            console.log(myError)
-            JSON.parse(myOutput).forEach((check) => {
-              console.log(`${check.name} => ${check.state}`);
-            });
+              const pr_checks = await exec.exec(
+                "gh pr checks --repo centreon/centreon ${{ env.PR_NUMBER }} --json name,state",
+                [],
+                options
+              );
+              console.log(myOutput);
+              console.log(myError)
+              JSON.parse(myOutput).forEach((check) => {
+                console.log(`${check.name} => ${check.state}`);
+              });
+
+              throw new Error('failed !!!!');
+              await exec.exec("sleep 30s");
+            }
 
       - name: Check workflow statuses and display token usage
         run: |
