@@ -18,7 +18,7 @@ jobs:
   check-status:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      # - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: actions/github-script@v7
         env:
@@ -26,8 +26,25 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         with:
           script: |
-            const pr_checks = await exec.exec("gh pr checks --repo centreon/centreon ${{ env.PR_NUMBER }} --json name,state");
-            console.log(pr_checks);
+            let myOutput = '';
+            let myError = '';
+
+            const options = {};
+            options.listeners = {
+              stdout: (data: Buffer) => {
+                myOutput += data.toString();
+              },
+              stderr: (data: Buffer) => {
+                myError += data.toString();
+              }
+            };
+
+            const pr_checks = await exec.exec(
+              "gh pr checks --repo centreon/centreon ${{ env.PR_NUMBER }} --json name,state",
+              options
+            );
+            console.log(myOutput);
+            console.log(myError)
             pr_checks.forEach((check) => {
               console.log(`${check.name} => ${check.state}`);
             });
