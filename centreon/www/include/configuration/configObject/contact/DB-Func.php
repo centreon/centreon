@@ -961,7 +961,11 @@ function updateContactContactGroup($contactId, array $fields = []): void
     try {
         CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
     } catch (Exception $e) {
-        return; // todo use logs
+        CentreonLog::create()->insertLog(
+            2,
+            "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}, exception message : {$e->getMessage()}"
+        );
+        return;
     }
 }
 
@@ -1003,7 +1007,11 @@ function updateContactContactGroup_MC($contactId): void
     try {
         CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
     } catch (Exception $e) {
-        //todo use logs
+        CentreonLog::create()->insertLog(
+            2,
+            "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}, exception message : {$e->getMessage()}"
+        );
+        return;
     }
 }
 
