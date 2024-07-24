@@ -33,7 +33,9 @@ jobs:
 
           ITERATIONS=1
           while [[ $ITERATIONS -le 60 ]]; do
+              display_token_usage
               CHECK_SUITES=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r '.conclusion // "pending"') || true
+              display_token_usage
 
               if [ $(echo "$CHECK_SUITES" | grep -o -i 'pending' | wc -l) -eq 0 ]; then
                   echo "Cannot get pull request check status"
