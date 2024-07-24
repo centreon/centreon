@@ -57,8 +57,9 @@ jobs:
         run: |
           pnpm add -g @cucumber/cucumber@10.8.0
           cd ${{ inputs.module_name }}
-          cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          FEATURES=$(cucumber-js "${{ inputs.features_path }}" --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo $FEATURES
+          echo "features=$FEATURES" >> $GITHUB_OUTPUT
 
           # Update test tags format for behat compatibility
           TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
@@ -144,7 +145,7 @@ jobs:
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
-        run: find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | xargs -r rm
+        run: find ./xunit-reports/* -type f -print0 | xargs -0 grep -l -E "<testsuites.+></testsuites>" | xargs -0 -r rm
 
       - if: failure()
         name: Display logs
