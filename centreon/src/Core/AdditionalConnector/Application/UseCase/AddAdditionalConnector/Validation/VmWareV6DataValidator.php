@@ -35,7 +35,7 @@ use Core\AdditionalConnector\Domain\Model\Type;
  */
 class VmWareV6DataValidator implements TypeDataValidatorInterface
 {
-    private const MAX_LENGTH = 255;
+    public const MAX_LENGTH = 255;
     private const TYPE = Type::VMWARE_V6;
 
     /**
@@ -68,10 +68,10 @@ class VmWareV6DataValidator implements TypeDataValidatorInterface
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
             // Validate min length
-            Assertion::notEmpty($vcenter['name'], "parameters.vcenters[{$index}].name");
-            Assertion::notEmpty($vcenter['username'], "parameters.vcenters[{$index}].username");
-            Assertion::notEmpty($vcenter['password'], "parameters.vcenters[{$index}].password");
-            Assertion::notEmpty($vcenter['url'], "parameters.vcenters[{$index}].url");
+            Assertion::notEmptyString($vcenter['name'], "parameters.vcenters[{$index}].name");
+            Assertion::notEmptyString($vcenter['username'], "parameters.vcenters[{$index}].username");
+            Assertion::notEmptyString($vcenter['password'], "parameters.vcenters[{$index}].password");
+            Assertion::notEmptyString($vcenter['url'], "parameters.vcenters[{$index}].url");
 
             // Validate max length
             Assertion::maxLength($vcenter['name'], self::MAX_LENGTH, "parameters.vcenters[{$index}].name");
