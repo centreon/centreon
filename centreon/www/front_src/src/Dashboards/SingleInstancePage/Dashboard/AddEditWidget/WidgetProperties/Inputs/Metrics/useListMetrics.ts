@@ -18,7 +18,12 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 
-import { Metric, ServiceMetric, WidgetDataResource } from '../../../models';
+import {
+  Metric,
+  ServiceMetric,
+  WidgetDataResource,
+  WidgetResourceType
+} from '../../../models';
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
 
@@ -41,6 +46,10 @@ export const useListMetrics = ({
   resources,
   selectedMetrics = []
 }: Props): UseListMetricsState => {
+  const isMetaServiceSelected =
+    equals(resources.length, 1) &&
+    equals(resources[0].resourceType, WidgetResourceType.metaService);
+
   const { data: servicesMetrics, isFetching: isLoadingMetrics } = useFetchQuery<
     ListingModel<ServiceMetric>
   >({
@@ -64,7 +73,8 @@ export const useListMetrics = ({
     queryOptions: {
       enabled:
         !isEmpty(resources) &&
-        all((resource) => !isEmpty(resource.resources), resources),
+        all((resource) => !isEmpty(resource.resources), resources) &&
+        !isMetaServiceSelected,
       suspense: false
     }
   });

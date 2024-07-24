@@ -11,7 +11,11 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import useThresholds from '../../useThresholds';
 import { Resource, GlobalRefreshInterval, Metric } from '../../models';
 import NoResources from '../../NoResources';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import {
+  areResourcesFullfilled,
+  getIsMetaServiceSelected,
+  getWidgetEndpoint
+} from '../../utils';
 
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 import { graphEndpoint } from './api/endpoints';
@@ -22,7 +26,7 @@ interface Props {
   displayType: SingleMetricGraphType;
   globalRefreshInterval: GlobalRefreshInterval;
   id: string;
-  isFromPreview;
+  isFromPreview?: boolean;
   metrics: Array<Metric>;
   playlistHash?: string;
   refreshCount: number;
@@ -90,9 +94,11 @@ const Graph = ({
 
   const areResourcesOk = areResourcesFullfilled(resources);
 
+  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
+
   if (
     !areResourcesOk ||
-    isMetricsEmpty ||
+    (!isMetaServiceSelected && isMetricsEmpty) ||
     (isFromPreview && isGraphLoading && isNil(graphData))
   ) {
     return <NoResources />;
@@ -117,7 +123,7 @@ const Graph = ({
   return (
     <ContentWithCircularLoading
       alignCenter
-      loading={isFromPreview && isGraphLoading}
+      loading={(isFromPreview && isGraphLoading) || false}
     >
       <SingleMetricRenderer
         graphProps={props}

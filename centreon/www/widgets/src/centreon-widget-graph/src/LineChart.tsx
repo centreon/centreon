@@ -5,6 +5,7 @@ import {
   BarChart,
   LineChart,
   LineChartData,
+  ResourceType,
   useGraphQuery,
   useRefreshInterval
 } from '@centreon/ui';
@@ -13,7 +14,11 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import useThresholds from '../../useThresholds';
 import { CommonWidgetProps, Data } from '../../models';
 import NoResources from '../../NoResources';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import {
+  areResourcesFullfilled,
+  getIsMetaServiceSelected,
+  getWidgetEndpoint
+} from '../../utils';
 
 import { PanelOptions } from './models';
 import { graphEndpoint } from './api/endpoints';
@@ -84,7 +89,9 @@ const WidgetLineChart = ({
     thresholds: panelOptions.threshold
   });
 
-  if (!areResourcesOk || isMetricsEmpty) {
+  const isMetaServiceSelected = getIsMetaServiceSelected(panelData.resources);
+
+  if (!areResourcesOk || (!isMetaServiceSelected && isMetricsEmpty)) {
     return <NoResources />;
   }
 

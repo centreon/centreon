@@ -55,7 +55,8 @@ const Resources = ({
     changeResource,
     singleResourceSelection,
     isLastResourceInTree,
-    changeIdValue
+    changeIdValue,
+    hideResourceDeleteButton
   } = useResources({
     excludedResourceTypes,
     propertyName,
@@ -99,7 +100,7 @@ const Resources = ({
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
               deleteButtonHidden={
-                deleteButtonHidden || getResourceStatic(resource.resourceType)
+                deleteButtonHidden || hideResourceDeleteButton()
               }
               key={`${index}${resource.resources[0]}`}
               labelDelete={t(labelDelete)}
