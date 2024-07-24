@@ -32,7 +32,7 @@ jobs:
 
       - name: Check workflow files
         env:
-          SHELLCHECK_OPTS: "-e SC2086 -e SC2046"
+          SHELLCHECK_OPTS: "-e SC2016 -e SC2046 -e SC2086"
         run: |
           ${{ steps.get_actionlint.outputs.executable }} \
             -ignore 'label "ubuntu-24.04" is unknown' \

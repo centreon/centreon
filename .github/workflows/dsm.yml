@@ -117,8 +117,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Change macro
-        run: |
-          find ./centreon-dsm -type f | xargs sed -i -f ./centreon-dsm/packaging/src/centreon-macroreplacement.txt
+        run: find ./centreon-dsm -type f -print0 | xargs -0 sed -i -f ./centreon-dsm/packaging/src/centreon-macroreplacement.txt
         shell: bash
 
       - name: Package

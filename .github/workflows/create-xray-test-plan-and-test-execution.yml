@@ -132,7 +132,7 @@ jobs:
             echo "The summary to search is: $input_summary"
 
             # Extract the key of the existent test plan
-            while read row; do
+            while read -r row; do
               summary=$(echo "$row" | jq -r '.summary')
               if [[ "$summary" == "$input_summary" ]]; then
                 test_plan_key=$(echo "$row" | jq -r '.key')
