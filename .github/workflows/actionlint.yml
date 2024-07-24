@@ -27,7 +27,7 @@ jobs:
 
       - name: Download actionlint
         id: get_actionlint
-        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/v1.7.1/scripts/download-actionlint.bash)
         shell: bash
 
       - name: Check workflow files
@@ -37,7 +37,6 @@ jobs:
           -ignore 'label "veracode" is unknown' \
           -ignore 'label "infra" is unknown' \
           -ignore '"github.head_ref" is potentially untrusted' \
-          -shellcheck= \
           -pyflakes= \
           -color
         shell: bash
