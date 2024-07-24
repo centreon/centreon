@@ -41,6 +41,7 @@ jobs:
 
             const pr_checks = await exec.exec(
               "gh pr checks --repo centreon/centreon ${{ env.PR_NUMBER }} --json name,state",
+              [],
               options
             );
             console.log(myOutput);
