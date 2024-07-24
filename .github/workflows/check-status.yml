@@ -46,7 +46,7 @@ jobs:
             );
             console.log(myOutput);
             console.log(myError)
-            pr_checks.forEach((check) => {
+            myOutput.forEach((check) => {
               console.log(`${check.name} => ${check.state}`);
             });
 
