@@ -62,6 +62,7 @@ jobs:
 
               if (failure.length > 0) {
                 core.error(`${failure.length} job(s) failed: ${failure.join(', ')}`);
+                return;
                 //core.setFailed(`${failure.length} job(s) failed: ${failure.join(', ')}`);
                 //return;
               }
