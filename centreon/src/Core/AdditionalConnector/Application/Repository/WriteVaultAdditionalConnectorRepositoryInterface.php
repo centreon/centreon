@@ -21,16 +21,22 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
+namespace Core\AdditionalConnector\Application\Repository;
 
-enum CredentialTypeEnum
+use Core\AdditionalConnector\Domain\Model\Type;
+
+interface WriteVaultAdditionalConnectorRepositoryInterface
 {
-    case TYPE_HOST;
-    case TYPE_HOST_TEMPLATE;
-    case TYPE_SERVICE;
-    case TYPE_KNOWLEDGE_BASE_PASSWORD;
-    case TYPE_POLLER_MACRO;
-    case TYPE_OPEN_ID;
-    case TYPE_BROKER_INPUT_OUTPUT;
-    case TYPE_ADDITIONAL_CONNECTOR_CONFIGURATION;
+    public function isValidFor(Type $type): bool;
+
+    /**
+     * save credentials in vault and return the parameters updated with vaultPaths.
+     *
+     * @param array<string,mixed> $parameters
+     *
+     * @throws \Throwable
+     *
+     * @return array<string,mixed>
+     */
+    public function saveCredentialInVault(array $parameters): array;
 }

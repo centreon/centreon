@@ -21,16 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
+namespace Core\AdditionalConnector\Infrastructure\API\Formatter;
 
-enum CredentialTypeEnum
+use Core\AdditionalConnector\Domain\Model\Type;
+
+interface ParametersFormatterInterface
 {
-    case TYPE_HOST;
-    case TYPE_HOST_TEMPLATE;
-    case TYPE_SERVICE;
-    case TYPE_KNOWLEDGE_BASE_PASSWORD;
-    case TYPE_POLLER_MACRO;
-    case TYPE_OPEN_ID;
-    case TYPE_BROKER_INPUT_OUTPUT;
-    case TYPE_ADDITIONAL_CONNECTOR_CONFIGURATION;
+    public function isValidFor(Type $type): bool;
+
+    /**
+     * @param array<string,mixed> $parameters
+     *
+     * @return array<string,mixed>
+     */
+    public function format(array $parameters): array;
 }
