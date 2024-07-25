@@ -55,7 +55,7 @@ jobs:
               };
 
               const check_suites = await exec.exec(
-                "gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites",
+                "gh api -H 'Accept: application/vnd.github+json' /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites",
                 [],
                 options
               );
