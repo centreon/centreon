@@ -101,7 +101,7 @@ jobs:
       - name: Format title
         id: title
         run: |
-          MODULE_NAME=$(echo "${{ inputs.module_name }}" | sed -e "s#/#-#g")
+          MODULE_NAME=`echo "${{ inputs.module_name }}" | sed -e "s#/#-#g"`
           echo "replaced=$MODULE_NAME" >> $GITHUB_OUTPUT
         shell: bash
 
