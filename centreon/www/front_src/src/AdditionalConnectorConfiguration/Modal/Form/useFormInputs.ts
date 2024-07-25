@@ -60,6 +60,7 @@ const useFormInputs = (): FormInputsState => {
       additionalLabelClassName: classes.additionalLabel,
       connectedAutocomplete: {
         additionalConditionParameters: [],
+        chipColor: 'primary',
         endpoint: getPollersForConnectorTypeEndpoint({})
       },
       fieldName: 'pollers',
