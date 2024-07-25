@@ -73,9 +73,9 @@ final class DeleteAdditionalConnector
         PresenterInterface $presenter
     ): void {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ADDITIONAL_CONNECTOR_CONFIGURATION_RW)) {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ADDITIONAL_CONNECTOR_RW)) {
                 $this->error(
-                    "User doesn't have sufficient rights to delete additional connector configurations",
+                    "User doesn't have sufficient rights to delete additional connectors",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(

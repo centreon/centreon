@@ -4,4 +4,4 @@ DeleteAdditionalConnector:
   requirements:
     id: '\d+'
   controller: 'Core\AdditionalConnector\Infrastructure\API\DeleteAdditionalConnector\DeleteAdditionalConnectorController'
-  condition: "request.attributes.get('version') >= 24.04"
+  condition: "request.attributes.get('version') >= 24.09"
