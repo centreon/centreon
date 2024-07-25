@@ -45,11 +45,13 @@ jobs:
             }));
             */
 
-            console.log(await github.rest.checks.listSuitesForRef({
+            const result = await github.rest.checks.listSuitesForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: context.ref
-            }));
+              ref: context.sha
+            });
+            console.log(result.data);
+            console.log('hihi')
 
             /*
             console.log(github.rest.checks.get({
