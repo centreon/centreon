@@ -1,7 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { toBlob, toJpeg } from 'html-to-image';
+import { toBlob } from 'html-to-image';
 
 import { useTheme } from '@mui/material';
 
@@ -77,36 +77,21 @@ const useSaveDashboard = (): UseSaveDashboardState => {
 
   const saveDashboard = (): void => {
     const node = document.querySelector('.react-grid-layout') as HTMLElement;
-    toJpeg(node, {
-      backgroundColor: theme.palette.background.default,
-      height: 360,
-      quality: 0.3
-    }).then((data) => {
-      const formData = new FormData();
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      const image = new Image();
-      image.onload = () => {
-        context?.drawImage(image, 0, 0);
-      };
-      image.src = data;
-      context?.canvas.toBlob((blob) => {
+    toBlob(node, { backgroundColor: theme.palette.background.default }).then(
+      (blob) => {
         if (!blob) {
           return;
         }
-        formData.append('directory', 'dashboards');
-        formData.append('data', blob, `dashboard-${dashboardId}.jpg`);
 
-        // fetch(`./api/latest${mediasEndpoint}`, {
-        //   body: formData,
-        //   method: Method.POST
-        // });
+        const formData = new FormData();
+        formData.append('directory', 'dashboards');
+        formData.append('data', blob, `dashboard-${dashboardId}.png`);
 
         mutateMedias({
           payload: formData
         });
-      });
-    });
+      }
+    );
     mutateAsync({
       payload: {
         panels: formatPanelsToAPI(dashboard.layout)
