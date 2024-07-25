@@ -50,4 +50,6 @@ tsconfig.json             @centreon/owners-react
 dependencies/**           @centreon/owners-pipelines
 .coderabbit.yml           @centreon/owners-pipelines
 
-**/config/features.json   @centreon/release-management
+**/config/features.json                 @centreon/release-management
+
+**/tests/rest_api/**                    @centreon/owners-api-testing
