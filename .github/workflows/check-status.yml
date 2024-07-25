@@ -73,6 +73,7 @@ jobs:
                     repo: context.repo.repo,
                     check_suite_id: suite_id
                   });
+                  console.log(resultCheckRuns.data.check_runs)
                   resultCheckRuns.data.check_runs.forEach(({ name, url }) => {
                     failureMessage += ` (${name})[${url}]`;
                   });
