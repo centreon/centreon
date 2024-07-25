@@ -37,110 +37,48 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         with:
           script: |
-            /*
-            console.log(await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: ${{ env.PR_NUMBER }}
-            }));
-            */
-
-            const result = await github.rest.checks.listSuitesForRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: "${{ github.event.pull_request.head.sha }}"
-            });
-            result.data.check_suites.forEach((check_suite) => {
-              console.log(check_suite)
-            });
-            console.log('hihi')
-
-            /*
-            console.log(github.rest.checks.get({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            }));
-
-            const variables = {
-              owner: context.repo.owner,
-              name: context.repo.repo,
-              pullRequestNumber: ${{ env.PR_NUMBER }}
-            }
-            const query = `query($owner:String!, $name:String!, $pullRequestNumber:Int!) {
-              repository(owner:$owner, name:$name){
-                pullRequest(number:$pullRquestNumber){
-                statusCheckRollup{
-                  state,
-                }
-                commits(last:1){
-                  nodes{
-                    commit {
-                      checkSuites(first: 100) {
-                        nodes {
-                          workflowRun { event }
-                          checkRuns(first: 100, filterBy: ) {
-                            nodes {
-                              name
-                              conclusion
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-              }
-            }`;
-            const result = await github.graphql(query, variables);
-            console.log(result);
-            */
             for (let i = 0; i < 60; i++) {
               let myOutput = '';
               let myError = '';
 
               const failure = [];
-              const in_progress = [];
+              const pending = [];
 
-              const options = {};
-              options.listeners = {
-                stdout: (data) => {
-                  myOutput += data.toString();
-                },
-                stderr: (data) => {
-                  myError += data.toString();
+              const result = await github.rest.checks.listSuitesForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: "${{ github.event.pull_request.head.sha }}"
+              });
+              result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
+                if (slug === 'github-actions') {
+                  if (conclusion.toLowerCase() === 'failure') {
+                    failure.push(id);
+                  } else if (conclusion.toLowerCase() === 'pending') {
+                    pending.push(id);
+                  }
                 }
-              };
-
-              const check_suites = await exec.exec(
-                'gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites',
-                [],
-                options
-              );
-              console.log(check_suites);
-
-              const pr_checks = await exec.exec(
-                "gh pr checks --repo centreon/centreon ${{ env.PR_NUMBER }} --json name,state",
-                [],
-                options
-              );
-
-              JSON.parse(myOutput).forEach(({ name, state }) => {
-                if (state.toLowerCase() === 'failure') {
-                  failure.push(name);
-                } else if (state.toLowerCase() === 'in_progress') {
-                  in_progress.push(name);
-                }
-                console.log(`${name} => ${state}`);
+                console.log(`${id} => ${conclusion}`);
               });
 
-              if (in_progress.length === 0) {
+              if (pending.length === 0) {
                 core.setFailed("Cannot get pull request check status");
                 return;
               }
 
               if (failure.length > 0) {
+                let failureMessage = '';
+                failure.forEach((suite_id) => {
+                  const resultCheckRuns = await github.rest.checks.listForSuite({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    check_suite_id: suite_id
+                  });
+                  resultCheckRuns.data.check_runs.forEach({ name, url } => {
+                    failureMessage += ` ($name)[$url]`;
+                  });
+                  core.info(failureMessage);
+                });
+
                 core.setFailed(`${failure.length} job(s) failed: ${failure.join(', ')}`);
                 return;
               }
