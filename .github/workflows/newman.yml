@@ -271,7 +271,7 @@ jobs:
             collection_name=$(basename "$collection_file" .postman_collection.json)
             collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-            if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
+            if [[ " ${summaries[*]} " =~ " ${collection_name_sanitized} " ]]; then
               echo "The test case for $collection_name_sanitized already exists in the test plan."
             else
               # Adding a new test case
@@ -302,7 +302,7 @@ jobs:
                 test_case_id=$(echo "$response" | jq -r '.id')
 
                 # Checking if the test case is a new one
-                if [[ ! " ${existing_test_case_ids[@]} " =~ " ${test_case_id} " ]]; then
+                if [[ ! " ${existing_test_case_ids[*]} " =~ " ${test_case_id} " ]]; then
                   echo "New Test Case with ID: $test_case_id"
                   summaries+=("$collection_name_sanitized")
 
