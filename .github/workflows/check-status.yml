@@ -37,8 +37,12 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         with:
           script: |
-            console.log(github.rest);
-            console.log(github.rest.issues.get({
+            console.log(github.rest.checks.listSuitesForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha
+            }));
+            console.log(github.rest.checks.get({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
