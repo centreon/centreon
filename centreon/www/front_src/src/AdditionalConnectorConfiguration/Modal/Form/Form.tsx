@@ -1,6 +1,9 @@
-import { ReactElement, useCallback } from 'react';
+/* eslint-disable react/no-unstable-nested-components */
+import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
+import { useFormikContext } from 'formik';
+import { useSetAtom } from 'jotai';
 
 import { Form, FormProps } from '@centreon/ui';
 import { FormVariant } from '@centreon/ui/components';
@@ -8,6 +11,7 @@ import { FormVariant } from '@centreon/ui/components';
 import { labelCancel, labelCreate, labelUpdate } from '../../translatedLabels';
 import { useFormStyles } from '../useModalStyles';
 import { AdditionalConnectorConfiguration } from '../models';
+import { isFormDirtyAtom } from '../../atoms';
 
 import useValidationSchema from './useValidationSchema';
 import useFormInitialValues from './useFormInitialValues';
@@ -61,16 +65,21 @@ const AdditionalConnector = ({
     validationSchema
   };
 
-  const Actions = useCallback(
-    () => (
+  const Actions = (): JSX.Element => {
+    const setIsDirty = useSetAtom(isFormDirtyAtom);
+
+    const { dirty } = useFormikContext();
+
+    setIsDirty(dirty);
+
+    return (
       <FormActions<AdditionalConnectorConfiguration>
         labels={actionsLabels}
         variant={variant}
         onCancel={onCancel}
       />
-    ),
-    [onCancel, variant]
-  );
+    );
+  };
 
   return (
     <div className={classes.form}>

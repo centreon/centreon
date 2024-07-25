@@ -11,3 +11,6 @@ export const dialogStateAtom = atom<{
   isOpen: false,
   variant: 'create'
 });
+
+export const isFormDirtyAtom = atom<boolean>(false);
+export const isCloseModalDialogOpenAtom = atom<boolean>(false);

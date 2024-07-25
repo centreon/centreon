@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,11 @@ import {
   labelAdditionalConnectorCreated,
   labelAdditionalConnectorUpdated
 } from '../translatedLabels';
-import { dialogStateAtom } from '../atoms';
+import {
+  dialogStateAtom,
+  isCloseModalDialogOpenAtom,
+  isFormDirtyAtom
+} from '../atoms';
 import { AdditionalConnectorListItem } from '../Listing/models';
 import {
   additionalConnectorsEndpoint,
@@ -33,9 +37,18 @@ const useAdditionalConnectorModal = (): UseConnectorConfig => {
   const { t } = useTranslation();
 
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
+  const isFormDirty = useAtomValue(isFormDirtyAtom);
+  const setIsCloseModalDialogOpenAtom = useSetAtom(isCloseModalDialogOpenAtom);
 
-  const closeDialog = (): void =>
+  const closeDialog = (): void => {
+    if (isFormDirty) {
+      setIsCloseModalDialogOpenAtom(true);
+
+      return;
+    }
+
     setDialogState({ ...dialogState, isOpen: false });
+  };
 
   const requestData = equals(dialogState.variant, 'create')
     ? {
@@ -52,7 +65,7 @@ const useAdditionalConnectorModal = (): UseConnectorConfig => {
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => requestData.endpoint,
     method: requestData.method,
-    onSettled: closeDialog,
+    onSettled: () => setDialogState({ ...dialogState, isOpen: false }),
     onSuccess: () => {
       showSuccessMessage(t(requestData.labelOnSuccess));
       queryClient.invalidateQueries({ queryKey: ['listConnectors'] });

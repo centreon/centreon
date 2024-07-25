@@ -6,6 +6,7 @@ import Listing from './Listing/Listing';
 import { labelAdditionalConnectorConfiguration } from './translatedLabels';
 import { useStyles } from './Page.styles';
 import AdditionalConnectorModal from './Modal/Modal';
+import CloseModalConfirmationDialog from './Modal/CloseModalConfirmation';
 
 const AdditionalConnectorConfiguration = (): JSX.Element => {
   const { classes } = useStyles();
@@ -24,6 +25,7 @@ const AdditionalConnectorConfiguration = (): JSX.Element => {
         <Listing />
         <AdditionalConnectorModal />
       </Box>
+      <CloseModalConfirmationDialog />
     </Box>
   );
 };

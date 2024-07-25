@@ -62,8 +62,8 @@ const DeleteConnectorDialog = (): JSX.Element => {
         isDanger
         disabled={isMutating}
         labels={{
-          cancel: labelCancel,
-          confirm: labelDelete
+          cancel: t(labelCancel),
+          confirm: t(labelDelete)
         }}
         onCancel={close}
         onConfirm={confirm}
