@@ -77,7 +77,7 @@ jobs:
                   console.log(resultCheckRuns.data.check_runs)
                   resultCheckRuns.data.check_runs.forEach(({ conclusion, name, url }) => {
                     if (conclusion === 'failure') {
-                      failedCheckRuns.push(`(${name})[${url}]`)
+                      failedCheckRuns.push(`<a href="${url}">${name}</a>`);
                       failureMessage += ` (${name})[${url}]`;
                     }
                   });
