@@ -42,11 +42,13 @@ jobs:
               repo: context.repo.repo,
               pull_number: ${{ env.PR_NUMBER }}
             }));
+            /*
             console.log(await github.rest.checks.listSuitesForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: context.sha
             }));
+            */
             /*
             console.log(github.rest.checks.get({
               issue_number: context.issue.number,
