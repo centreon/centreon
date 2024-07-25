@@ -13,7 +13,7 @@ import { useParameterStyles } from './useParametersStyles';
 
 interface Props {
   changeParameterValue: (event) => void;
-  getError: (propertyName) => string;
+  getError: (propertyName: string) => string;
   getFieldType: (name: string) => string;
   handleBlur: (proprtyName: string) => void;
   parameter: Parameter;

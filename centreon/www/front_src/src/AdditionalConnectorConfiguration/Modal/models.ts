@@ -14,7 +14,7 @@ export interface Parameter {
   [ParameterKeys.password]: string;
 }
 
-export interface ConnectorConfiguration {
+export interface AdditionalConnectorConfiguration {
   description: null | string;
   name: string;
   parameters: { port: number; vcenters: Array<Parameter> };

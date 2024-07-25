@@ -3,9 +3,9 @@ import { useAtomValue } from 'jotai';
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
 import { additionalConnectorsEndpoint } from '../api/endpoints';
-import { dashboardDecoderListDecoder } from '../api/decoders';
+import { additionalConnectorsListDecoder } from '../api/decoders';
 
-import { AdditionalConnectors, List } from './models';
+import { AdditionalConnectorListItem, List } from './models';
 import {
   filtersAtom,
   limitAtom,
@@ -15,7 +15,7 @@ import {
 } from './atom';
 
 interface LoadDataState {
-  data?: List<AdditionalConnectors>;
+  data?: List<AdditionalConnectorListItem>;
   isLoading: boolean;
   reload?;
 }
@@ -53,7 +53,7 @@ const useLoadData = (): LoadDataState => {
   ];
 
   const { data, isFetching, fetchQuery } = useFetchQuery({
-    decoder: dashboardDecoderListDecoder,
+    decoder: additionalConnectorsListDecoder,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: additionalConnectorsEndpoint,

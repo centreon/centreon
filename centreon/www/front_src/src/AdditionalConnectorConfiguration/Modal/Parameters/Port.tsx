@@ -7,7 +7,7 @@ import { path } from 'ramda';
 import { TextField } from '@centreon/ui';
 
 import { labelValue, labelName, labelPort } from '../../translatedLabels';
-import { ConnectorConfiguration } from '../models';
+import { AdditionalConnectorConfiguration } from '../models';
 
 import { useParameterStyles } from './useParametersStyles';
 
@@ -16,7 +16,7 @@ const Port = (): ReactElement => {
   const { classes } = useParameterStyles();
 
   const { values, setFieldValue, errors, touched, handleBlur } =
-    useFormikContext<ConnectorConfiguration>();
+    useFormikContext<AdditionalConnectorConfiguration>();
 
   const changePortValue = (event): void => {
     setFieldValue('parameters.port', event.target.value);

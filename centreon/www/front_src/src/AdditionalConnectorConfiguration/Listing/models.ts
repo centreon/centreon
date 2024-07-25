@@ -1,9 +1,9 @@
 export type NamedEntity = {
-  id: number | string;
+  id: number;
   name: string;
 };
 
-export interface AdditionalConnectors extends NamedEntity {
+export interface AdditionalConnectorListItem extends NamedEntity {
   createdAt: string;
   createdBy: NamedEntity | null;
   description: string | null;

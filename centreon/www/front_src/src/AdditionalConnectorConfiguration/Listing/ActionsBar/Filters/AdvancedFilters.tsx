@@ -25,14 +25,10 @@ import useLoadData from '../../useLoadData';
 import { getPollersEndpoint } from '../../../api/endpoints';
 import {
   availableConnectorTypes,
+  filtersDefaultValue,
   findConnectorTypeById
-} from '../../../Modal/utils';
-
-export const filtersDefaultValue = {
-  name: '',
-  pollers: [],
-  type: { id: '1', name: 'vmware_v6' }
-};
+} from '../../../utils';
+import { NamedEntity } from '../../models';
 
 const AdvancedFilters = (): JSX.Element => {
   const { t } = useTranslation();
@@ -46,13 +42,16 @@ const AdvancedFilters = (): JSX.Element => {
   };
 
   const changeType = (event): void => {
-    const type = findConnectorTypeById(event.target.value);
+    const type = findConnectorTypeById(event.target.value) as NamedEntity;
 
     setFilters({ ...filters, type });
   };
 
   const changePollers = (_, pollers: Array<SelectEntry>): void => {
-    const selectedpollers = map(pick(['id', 'name']), pollers || []);
+    const selectedpollers = map(
+      pick(['id', 'name']),
+      pollers || []
+    ) as Array<NamedEntity>;
 
     setFilters({
       ...filters,
@@ -94,7 +93,6 @@ const AdvancedFilters = (): JSX.Element => {
       />
 
       <SelectField
-        disabled
         dataTestId={labelType}
         label={t(labelType)}
         options={availableConnectorTypes}

@@ -1,9 +1,10 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
+import { filtersDefaultValue } from '../utils';
+
 import { defaultSelectedColumnIds } from './Columns';
-import { AdditionalConnectors, NamedEntity } from './models';
-import { filtersDefaultValue } from './ActionsBar/Filters/AdvancedFilters';
+import { AdditionalConnectorListItem, NamedEntity } from './models';
 
 type SortOrder = 'asc' | 'desc';
 
@@ -17,10 +18,11 @@ export const selectedColumnIdsAtom = atomWithStorage(
   defaultSelectedColumnIds
 );
 
-export const connectorsToDeleteAtom = atom<AdditionalConnectors | null>(null);
-export const connectorsToDuplicateAtom = atom<AdditionalConnectors | null>(
+export const connectorsToDeleteAtom = atom<AdditionalConnectorListItem | null>(
   null
 );
+export const connectorsToDuplicateAtom =
+  atom<AdditionalConnectorListItem | null>(null);
 
 export const filtersAtom = atomWithStorage<{
   name: string;

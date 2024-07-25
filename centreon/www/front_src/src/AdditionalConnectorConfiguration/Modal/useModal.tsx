@@ -10,17 +10,20 @@ import {
   labelAdditionalConnectorUpdated
 } from '../translatedLabels';
 import { dialogStateAtom } from '../atoms';
-import { AdditionalConnectors } from '../Listing/models';
+import { AdditionalConnectorListItem } from '../Listing/models';
 import {
   additionalConnectorsEndpoint,
   getAdditionalConnectorEndpoint
 } from '../api/endpoints';
+import { adaptFormDataToApiPayload } from '../api/adapters';
+
+import { AdditionalConnectorConfiguration } from './models';
 
 type UseConnectorConfig = {
   closeDialog: () => void;
-  connector: AdditionalConnectors | null;
+  connector: AdditionalConnectorListItem | null;
   isDialogOpen: boolean;
-  submit: (values: AdditionalConnectors, _) => void;
+  submit: (values: AdditionalConnectorConfiguration, _) => void;
   variant: 'create' | 'update';
 };
 
@@ -56,8 +59,8 @@ const useAdditionalConnectorModal = (): UseConnectorConfig => {
     }
   });
 
-  const submit = (values: AdditionalConnectors): void => {
-    mutateAsync({ payload: values });
+  const submit = (values: AdditionalConnectorConfiguration): void => {
+    mutateAsync({ payload: adaptFormDataToApiPayload(values) });
   };
 
   return {

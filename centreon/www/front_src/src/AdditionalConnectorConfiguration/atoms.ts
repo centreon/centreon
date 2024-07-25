@@ -1,9 +1,9 @@
 import { atom } from 'jotai';
 
-import { AdditionalConnectors } from './Listing/models';
+import { AdditionalConnectorListItem } from './Listing/models';
 
 export const dialogStateAtom = atom<{
-  connector: AdditionalConnectors | null;
+  connector: AdditionalConnectorListItem | null;
   isOpen: boolean;
   variant: 'create' | 'update';
 }>({

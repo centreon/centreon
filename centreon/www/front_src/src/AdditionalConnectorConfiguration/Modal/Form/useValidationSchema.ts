@@ -33,7 +33,6 @@ const useValidationSchema = (): { validationSchema } => {
 
   const vcenterSchema = object().shape({
     Password: string().label(t(labelPassword)).required(t(labelRequired)),
-    // Url: string().required(t(labelUrlIsRequired)).url(t(labelMustBeAvalidURL)),
     Url: urlValidationSchema,
     Username: string().required(t(labelRequired)),
     'Vcenter name': string().required(t(labelRequired))

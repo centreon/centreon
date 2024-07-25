@@ -1,8 +1,12 @@
 import { useFormikContext } from 'formik';
 import { includes, remove } from 'ramda';
 
-import { ConnectorConfiguration, Parameter, ParameterKeys } from '../models';
-import { defaultParameters } from '../utils';
+import {
+  AdditionalConnectorConfiguration,
+  Parameter,
+  ParameterKeys
+} from '../models';
+import { defaultParameters } from '../../utils';
 
 interface UsParameters {
   addParameterGroup: () => void;
@@ -16,7 +20,7 @@ interface UsParameters {
 
 const useParameters = (): UsParameters => {
   const { values, setFieldValue, errors, touched, handleBlur } =
-    useFormikContext<ConnectorConfiguration>();
+    useFormikContext<AdditionalConnectorConfiguration>();
 
   const getError =
     (index: number) =>

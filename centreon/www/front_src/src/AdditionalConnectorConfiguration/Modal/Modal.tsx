@@ -8,13 +8,13 @@ import {
   labelUpdateConnectorConfiguration
 } from '../translatedLabels';
 
-import AdditionalConnectorsForm from './Form/Form';
+import AdditionalConnectorForm from './Form/Form';
 import useAdditionalConnectorModal from './useModal';
 
 const AdditionalConnectorModal = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const { closeDialog, isDialogOpen, submit, variant } =
+  const { closeDialog, isDialogOpen, submit, variant, connector } =
     useAdditionalConnectorModal();
 
   const labelHeader = equals(variant, 'create')
@@ -25,8 +25,8 @@ const AdditionalConnectorModal = (): JSX.Element => {
     <Modal open={isDialogOpen} size="large" onClose={closeDialog}>
       <Modal.Header>{t(labelHeader)}</Modal.Header>
       <Modal.Body>
-        <AdditionalConnectorsForm
-          resource={undefined}
+        <AdditionalConnectorForm
+          connectorId={connector?.id}
           variant={variant}
           onCancel={closeDialog}
           onSubmit={submit}

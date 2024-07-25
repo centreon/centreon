@@ -6,8 +6,8 @@ import { useFormikContext } from 'formik';
 import { SelectField } from '@centreon/ui';
 
 import { labelSelectType, labelType } from '../../translatedLabels';
-import { ConnectorConfiguration } from '../models';
-import { availableConnectorTypes } from '../utils';
+import { AdditionalConnectorConfiguration } from '../models';
+import { availableConnectorTypes } from '../../utils';
 
 import { useConnectorTypeStyles } from './useConnectorTypeStyles';
 
@@ -16,7 +16,7 @@ const ConnectorType = (): ReactElement => {
   const { classes } = useConnectorTypeStyles();
 
   const { values, setFieldValue, errors, touched, handleBlur } =
-    useFormikContext<ConnectorConfiguration>();
+    useFormikContext<AdditionalConnectorConfiguration>();
 
   const changeTypeValue = (event): void => {
     setFieldValue('type', event.target.value);
