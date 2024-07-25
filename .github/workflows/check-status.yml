@@ -23,6 +23,12 @@ jobs:
           echo "current token usage :"
           curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit
           echo ""
+          gh pr checks --repo centreon/centreon ${{ github.event.number }} --json name,state
+          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit
+          echo ""
+          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit
+          echo ""
+          exi 1
 
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
@@ -81,9 +87,3 @@ jobs:
             }
 
             core.setFailed("Timeout: some jobs are still in progress");
-
-      - name: Check workflow statuses and display token usage
-        run: |
-          echo "current token usage :"
-          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit
-          echo ""
