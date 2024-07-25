@@ -73,9 +73,10 @@ jobs:
                     repo: context.repo.repo,
                     check_suite_id: suite_id
                   });
-                  resultCheckRuns.data.check_runs.forEach({ name, url } => {
-                    failureMessage += ` ($name)[$url]`;
-                  });
+                  console.log(resultCheckRuns)
+                  # resultCheckRuns.data.check_runs.forEach({ name, url } => {
+                  #   failureMessage += ` ($name)[$url]`;
+                  # });
                   core.info(failureMessage);
                 }
 
