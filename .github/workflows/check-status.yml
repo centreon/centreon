@@ -81,10 +81,11 @@ jobs:
                       failedCheckRuns.push(`<a href="${html_url}">${name} (${conclusion})</a>`);
                     }
                   });
-                  core.summary.addRaw(`${failedCheckRuns.length} job(s) failed:`, true)
-                  core.summary.addList(failedCheckRuns);
-                  core.summary.write()
                 }
+
+                core.summary.addRaw(`${failedCheckRuns.length} job(s) failed:`, true)
+                core.summary.addList(failedCheckRuns);
+                core.summary.write()
 
                 core.setFailed(`${failure.length} workflow(s) failed`);
                 return;
@@ -101,6 +102,7 @@ jobs:
             core.setFailed("Timeout: some jobs are still in progress");
 
       - name: Check workflow statuses and display token usage
+        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
