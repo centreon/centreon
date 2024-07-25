@@ -57,7 +57,6 @@ export const labelPassword = 'Password';
 export const labelAddParameter = 'Add parameter';
 export const labelUrl = 'Url';
 export const labelUsername = 'Username';
-export const labelVcenterName = 'vcenter name';
 export const labelAddvCenterESX = 'Add vCenter/ESX';
 export const labelUrlIsRequired = 'URL is required';
 export const labelAteastOnePollerIsRequired = 'At least one poller is required';
@@ -65,9 +64,9 @@ export const labelAtLeastOneVCenterIsRequired =
   'At least one vCenter is required';
 export const labelMustBeAvalidURL = 'Must be a valid URL or IP address';
 export const labelInvalidPortNumber = 'Invalid port number';
+export const labelVcenterNameMustBeUnique = 'Vcenter name should be unique';
 
 export const labelDoYouWantToQuitWithoutSaving =
   'Do you want to quit without saving the changes?';
 export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';
-
 export const labelConfirm = 'Confirm';

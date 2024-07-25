@@ -13,7 +13,8 @@ import {
   labelName,
   labelPassword,
   labelRequired,
-  labelUrlIsRequired
+  labelUrlIsRequired,
+  labelVcenterNameMustBeUnique
 } from '../../translatedLabels';
 
 const useValidationSchema = (): { validationSchema } => {
@@ -35,7 +36,25 @@ const useValidationSchema = (): { validationSchema } => {
     Password: string().label(t(labelPassword)).required(t(labelRequired)),
     Url: urlValidationSchema,
     Username: string().required(t(labelRequired)),
-    'Vcenter name': string().required(t(labelRequired))
+    'Vcenter name': string()
+      .required(t(labelRequired))
+      .test(
+        'unique-vcenter-name',
+        t(labelVcenterNameMustBeUnique),
+        (value, context) => {
+          if (!value) return true;
+
+          const { options } = context;
+
+          const vcenters = options.context?.parameters.vcenters || [];
+
+          const duplicate =
+            vcenters.filter((vcenter) => vcenter['Vcenter name'] === value)
+              .length > 1;
+
+          return !duplicate;
+        }
+      )
   });
 
   const parametersSchema = object().shape({

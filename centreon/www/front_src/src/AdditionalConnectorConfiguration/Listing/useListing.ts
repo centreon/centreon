@@ -8,8 +8,8 @@ import { ListingModel, useSnackbar } from '@centreon/ui';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 import { dialogStateAtom } from '../atoms';
 
-import { pageAtom, limitAtom, sortOrderAtom, sortFieldAtom } from './atom';
 import useLoadData from './useLoadData';
+import { pageAtom, limitAtom, sortOrderAtom, sortFieldAtom } from './atom';
 import { defaultSelectedColumnIds } from './Columns';
 import { AdditionalConnectorListItem } from './models';
 
