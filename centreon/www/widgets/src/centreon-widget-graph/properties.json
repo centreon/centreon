@@ -350,9 +350,12 @@
 					},
 					"hiddenCondition": {
 						"target": "options",
-						"method": "equals",
+						"method": "includes",
 						"when": "options.displayType",
-						"matches": "line"
+						"matches": [
+							"line",
+							"bar-stacked"
+						]
 					}
 				},
 				"barOpacity": {
