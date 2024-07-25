@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Application\UseCase\FindTimePeriod;
+namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
-use Core\TimePeriod\Domain\Model\TimePeriod;
-
-final class FindTimePeriodResponse implements StandardResponseInterface
+final class AddTimePeriodDto
 {
-    public function __construct(readonly public TimePeriod $timePeriod)
-    {
-    }
-
-    public function getData(): mixed
-    {
-        return $this->timePeriod;
+    /**
+     * @param string $name
+     * @param string $alias
+     * @param array<array{day: int, time_range: string}> $days
+     * @param int[] $templates
+     * @param array<array{day_range: string, time_range: string}> $exceptions
+     */
+    public function __construct(
+        public readonly string $name,
+        public readonly string $alias,
+        public readonly array $days,
+        public readonly array $templates,
+        public readonly array $exceptions,
+    ) {
     }
 }
