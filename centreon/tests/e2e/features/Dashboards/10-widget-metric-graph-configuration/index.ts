@@ -649,22 +649,9 @@ When(
 
 Then('the graph should be displayed as a bar chart', () => {
   cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
-    cy.wrap($el)
-      .waitUntil(
-        () => {
-          return cy.wrap($el.attr('data-testid') !== undefined);
-        },
-        {
-          interval: 2000,
-          timeout: 9000
-        }
-      )
-      .then(() => {
-        const dataTestId = $el.attr('data-testid');
-        const height = $el.attr('height');
-        if (!dataTestId.endsWith('null') && height !== '0') {
-          cy.wrap($el).should('exist').and('be.visible');
-        }
-      });
+    const height = $el.attr('height');
+    if (height !== '0') {
+      cy.wrap($el).should('exist').and('be.visible');
+    }
   });
 });
