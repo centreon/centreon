@@ -1,0 +1,37 @@
+post:
+  tags:
+    - Broker
+  summary: "Add a Broker input/output"
+  description: "Add a Broker input/output configuration"
+  parameters:
+    - $ref: 'QueryParameter/BrokerId.yaml'
+    - in: path
+      name: tag
+      description: "The configuration tag"
+      required: true
+      schema:
+        type: string
+        enum: [inputs, outputs]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/AddBrokerInputOutputRequest.yaml'
+  responses:
+    '201':
+      description: "Object created"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/AddBrokerInputOutputResponse.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

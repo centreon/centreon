@@ -75,6 +75,7 @@ jobs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-ids.outputs.test_plan_id }}
       issue_list_ids: ${{ steps.xray-newman.outputs.issue_list_ids }}
+      api-issue-ids: ${{ steps.xray-newman.outputs.api-issue-ids }}
     defaults:
       run:
         shell: bash
@@ -225,6 +226,7 @@ jobs:
 
             # Display results
             echo "API Issue IDs: ${api_issue_ids[@]}"
+            echo "api-issue-ids=${api_issue_ids[@]}" >> $GITHUB_OUTPUT
           }
 
           get_test_plan_issue_ids
@@ -378,7 +380,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 8
           run_install: false
@@ -398,7 +400,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Login to registry
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
@@ -579,40 +581,43 @@ jobs:
               local command=$2
               local attempt=0
               local exit_code=0
-              local wait_time=1
 
-              until [ $attempt -ge $max_attempts ]; do
-                attempt=$(( attempt + 1 ))
+              while [ $attempt -lt $max_attempts ]; do
+                attempt=$((attempt + 1))
+                echo "Attempt $attempt/$max_attempts: $command"
                 eval "$command"
                 exit_code=$?
                 if [ $exit_code -eq 0 ]; then
                   break
                 fi
-                echo "Attempt $attempt/$max_attempts failed. Retrying in $wait_time seconds..."
-                sleep $wait_time
-                wait_time=$(( wait_time * 2 ))
+                echo "Error: $exit_code"
+                echo "Response: $(curl -v -s -o /dev/null -w "%{http_code}" "$command")"
+                sleep 30
               done
 
-              return $exit_code
+              if [ $exit_code -ne 0 ]; then
+                echo "Failed after $max_attempts attempts"
+                exit 1
+              fi
             }
 
             for summary_file in newman-json-test-reports/*.json; do
                 test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
                 test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
-                issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
-                echo "issue_ids content: $issue_ids"
+                issue_ids="${{ needs.associate-test-cases.outputs.api-issue-ids }}"
+
+                # Convert issue_ids string to an array using space as the delimiter
+                IFS=' ' read -r -a issue_ids_array <<< "$issue_ids"
+                echo "issue_ids content: ${issue_ids_array[*]}"
 
                 filename=$(basename "$summary_file")
                 collection_name="${filename%-summary.json}"
                 collection_name="${collection_name//-/_}"
-                echo "Contenu de collection_name : $collection_name"
-
                 failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
                 failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
                 failures=$(jq -r '.Run.Failures' "$summary_file")
 
-                summaries=()
-                for issue_id in "${issue_ids[@]}"; do
+                for issue_id in "${issue_ids_array[@]}"; do
                     echo "Processing issue ID: $issue_id"
                     jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
@@ -685,13 +690,14 @@ jobs:
       - name: Perform Jira Transitions
         if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
-          issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
           transition_ids=("61" "81" "21" "31")
+          issue_ids="${{ needs.associate-test-cases.outputs.api-issue-ids }}"
 
-          # Display the final set of issue IDs
-          echo "All Issue IDs: ${issue_ids[@]}"
+          # Convert issue_ids string to an array using space as the delimiter
+          IFS=' ' read -r -a issue_ids_array <<< "$issue_ids"
+          echo "issue_ids content: ${issue_ids_array[*]}"
 
-          for test_issue_id in "${issue_ids[@]}"; do
+          for test_issue_id in "${issue_ids_array[@]}"; do
             # Make a GET request to get information about available transitions
             get_response=$(curl --request GET \
               --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \

@@ -4,6 +4,7 @@ import { scaleBand } from '@visx/scale';
 import { equals, gt, pick } from 'ramda';
 
 import { useBarStack, UseBarStackProps } from './useBarStack';
+import { BarStyle } from './models';
 
 const xScale = scaleBand<number>({
   domain: [0, 0],
@@ -14,6 +15,7 @@ const xScale = scaleBand<number>({
 interface Props extends Omit<UseBarStackProps, 'xScale'> {
   barIndex: number;
   barPadding: number;
+  barStyle: BarStyle;
   barWidth: number;
   isTooltipHidden: boolean;
 }
@@ -34,7 +36,8 @@ const BarStack = ({
   barWidth,
   barPadding,
   barIndex,
-  isTooltipHidden
+  isTooltipHidden,
+  barStyle
 }: Props): JSX.Element => {
   const {
     BarStackComponent,
@@ -61,10 +64,13 @@ const BarStack = ({
               <rect
                 data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}`}
                 fill={bar.color}
-                height={isHorizontal ? Math.abs(bar.height) : barWidth}
+                height={Math.ceil(
+                  isHorizontal ? Math.abs(bar.height) : barWidth
+                )}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
-                width={isHorizontal ? barWidth : Math.abs(bar.width)}
-                x={
+                opacity={barStyle.opacity}
+                width={Math.ceil(isHorizontal ? barWidth : Math.abs(bar.width))}
+                x={Math.ceil(
                   isHorizontal
                     ? barPadding
                     : getPadding({
@@ -72,8 +78,8 @@ const BarStack = ({
                         padding: bar.x,
                         size: bar.width
                       })
-                }
-                y={
+                )}
+                y={Math.ceil(
                   isHorizontal
                     ? getPadding({
                         isNegativeValue,
@@ -81,7 +87,7 @@ const BarStack = ({
                         size: bar.height
                       })
                     : barPadding
-                }
+                )}
                 onMouseEnter={
                   isTooltipHidden
                     ? undefined
@@ -107,7 +113,8 @@ const propsToMemoize = [
   'lines',
   'barPadding',
   'barIndex',
-  'isTooltipHidden'
+  'isTooltipHidden',
+  'barStyle'
 ];
 
 export default memo(BarStack, (prevProps, nextProps) => {

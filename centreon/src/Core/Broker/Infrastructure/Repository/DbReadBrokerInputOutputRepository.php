@@ -39,6 +39,16 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
  *      parent_grp_id:null|int,
  *      fieldIndex:null|int
  * }
+ * @phpstan-type _ExtendedInputOutput array{
+ *      config_id:int,
+ *      config_group:string,
+ *      config_group_id:int,
+ *      config_key:string,
+ *      config_value:string,
+ *      subgrp_id:null|int,
+ *      parent_grp_id:null|int,
+ *      fieldIndex:null|int
+ * }
  */
 class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements ReadBrokerInputOutputRepositoryInterface
 {
@@ -192,12 +202,78 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findVaultPathByBrokerId(int $brokerId): ?string
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    cfg.config_value
+                FROM `:db`.`cfg_centreonbroker_info` cfg
+                WHERE cfg.config_id = :brokerId
+                    AND cfg.config_value LIKE 'secret::%'
+                LIMIT 1
+                SQL
+        ));
+        $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetchColumn();
+        /** @var string|null|false $result */
+
+        return $result !== false ? $result : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAll(): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    cfg.config_id,
+                    cfg.config_group,
+                    cfg.config_group_id,
+                    cfg.config_key,
+                    cfg.config_value,
+                    cfg.subgrp_id,
+                    cfg.parent_grp_id,
+                    cfg.fieldIndex
+                FROM `:db`.`cfg_centreonbroker_info` cfg
+                SQL
+        ));
+        $statement->execute();
+
+        $data = [];
+        while (($row = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var _ExtendedInputOutput $row */
+            $data[$row['config_id'] . '_' . $row['config_group']. '_' . $row['config_group_id']][] = $row;
+        }
+
+        $results = [];
+        foreach ($data as $values) {
+            $firstElem = current($values);
+
+            /** @var _ExtendedInputOutput[] $values */
+            $inputOutput = $this->createFromArray($values, $firstElem['config_group'], true);
+            if ($inputOutput !== null) {
+                $results[$firstElem['config_id']][] = $inputOutput;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * @param _InputOutput[] $result
      * @param string $tag
+     * @param bool $withPasswords
      *
      * @return BrokerInputOutput|null
      */
-    private function createFromArray(array $result, string $tag): ?BrokerInputOutput
+    private function createFromArray(array $result, string $tag, bool $withPasswords = false): ?BrokerInputOutput
     {
         $parameters = [];
         $groupedFields = [];
@@ -211,7 +287,7 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
                 continue;
             }
             if ($row['config_key'] === 'blockId') {
-                $typeId = (int) str_replace('1_', '', $row['config_value']);
+                $typeId = (int) str_replace(['1_', '2_'], '', $row['config_value']);
 
                 continue;
             }
@@ -251,12 +327,14 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
             }
         }
 
-        // removing password values
-        foreach (array_keys($groupedFields) as $groupedFieldName) {
-            $parameters[$groupedFieldName] = array_map(
-                $this->removePasswordValue(...),
-                array_values($parameters[$groupedFieldName])
-            );
+        if (false === $withPasswords) {
+            // removing password values
+            foreach (array_keys($groupedFields) as $groupedFieldName) {
+                $parameters[$groupedFieldName] = array_map(
+                    $this->removePasswordValue(...),
+                    array_values($parameters[$groupedFieldName])
+                );
+            }
         }
 
         // for phpstan, should never happen

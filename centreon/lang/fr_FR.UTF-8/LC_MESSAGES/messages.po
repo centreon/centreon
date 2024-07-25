@@ -19110,8 +19110,148 @@ msgstr "Axe"
 msgid "Tooltip"
 msgstr "Infobulle"
 
+msgid "Unable to retrieve credentials ['%s'] from vault"
+msgstr "Impossible de récupérer les informations d'identification ['%s'] du coffre"
+
+msgid "Unknown provider type: %s"
+msgstr "Type de fournisseur inconnu : %s"
+
 msgid "Add filter"
 msgstr "Ajouter un filtre"
 
 msgid "Add resource dataset"
 msgstr "Ajouter un jeu de données de ressources"
+
+msgid "Bar"
+msgstr "Barre"
+
+msgid "Stacked bar"
+msgstr "Barre empilée"
+
+msgid "Orientation"
+msgstr "Orientation"
+
+msgid "Bar radius"
+msgstr "Radius de la barre"
+
+msgid "Bar background opacity"
+msgstr "Opacité du fond de la barre"
+
+msgid "Check command sent!"
+msgstr "Commande de vérification envoyée !"
+
+msgid "Forced check command sent!"
+msgstr "Commande de vérification forcée envoyée !"
+
+msgid "Open ticket"
+msgstr "Ouvrir un ticket"
+
+msgid "Open ticket for host"
+msgstr "Ouvrir un ticket pour l'hôte"
+
+msgid "Open ticket for service"
+msgstr "Ouvrir un ticket pour le service"
+
+msgid "Host severities"
+msgstr "Sévérités des hôtes"
+
+msgid "Service severities"
+msgstr "Sévérités des services"
+
+msgid "Select service severities"
+msgstr "Sélectionner les sévérités des services"
+
+msgid "Select host severities"
+msgstr "Sélectionner les sévérités des hôtes"
+
+msgid "Enable Open Tickets"
+msgstr "Activer Open Tickets"
+
+msgid "Ticket provider"
+msgstr "Fournisseur de tickets"
+
+msgid "Select a provider"
+msgstr "Sélectionner un fournisseur"
+
+msgid "Display resources"
+msgstr "Afficher les ressources"
+
+msgid "Resources linked to a ticket"
+msgstr "Ressources liées à un ticket"
+
+msgid "Resources with no ticket"
+msgstr "Ressources sans ticket"
+
+msgid "Hide services with Down host"
+msgstr "Masquer les services dont l'hôte est Indisponible"
+
+msgid "Hide services with Unreachable host"
+msgstr "Masquer les services dont l'hôte est Injoignable"
+
+msgid "Ticket ID"
+msgstr "ID du ticket"
+
+msgid "Ticket subject"
+msgstr "Sujet du ticket"
+
+msgid "Opened on"
+msgstr "Date d'ouverture"
+
+msgid "Create a ticket"
+msgstr "Créer un ticket"
+
+msgid "Rule (ticket provider)"
+msgstr "Règle (fournisseur de tickets)"
+
+msgid "Select rule (ticket provider)"
+msgstr "Sélectionner la règle (fournisseur de tickets)"
+
+msgid "Display resources with these status types"
+msgstr "Afficher les ressources avec ces types de statuts"
+msgid  "All KPIs on this Business Activity are working fine."
+msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
+
+msgid  "See more information in the geoview"
+msgstr "Voir plus d'informations dans la vue géographique"
+
+msgid  "Calculation method"
+msgstr "Méthode de calcul"
+
+msgid  "State information"
+msgstr "Information de l'état"
+
+msgid  "Warning threshold"
+msgstr "Seuil d'alerte"
+
+msgid  "Critical threshold"
+msgstr "Seuil critique"
+
+msgid "Click here for details"
+msgstr "Cliquez ici pour les détails"
+
+msgid "Expression in"
+msgstr "Expression en"
+
+msgid "Impact applied when:"
+msgstr "Impact appliqué quand :"
+
+msgid "true"
+msgstr "vrai"
+
+msgid "false"
+msgstr "faux"
+
+msgid "No KPI found"
+msgstr "Aucun KPI trouvé"
+
+msgid "No Business Activity found"
+msgstr "Aucune activité métier trouvée"
+
+msgid "business activity"
+msgstr "activité métier"
+
+msgid "Health"
+msgstr "Santé"
+
+msgid "Critical KPIs"
+msgstr "Indicateurs critiques"

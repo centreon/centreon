@@ -27,6 +27,7 @@ interface Props {
   isHorizontal?: boolean;
   legend: {
     displayLegend: boolean;
+    legendHeight?: number;
     mode?: 'grid' | 'list';
     placement?: 'left' | 'right' | 'bottom';
     renderExtraComponent?: ReactNode;
@@ -112,7 +113,10 @@ const BaseChart = ({
         </Stack>
       </div>
       {legend.displayLegend && displayLegendInBottom && (
-        <div ref={legendRef}>
+        <div
+          ref={legendRef}
+          style={{ height: legend?.legendHeight ?? 'undefined' }}
+        >
           <Legend
             base={base}
             height={height}

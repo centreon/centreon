@@ -1,8 +1,13 @@
+import { renderHook } from '@testing-library/react';
 import dayjs from 'dayjs';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+
+import { userAtom } from '@centreon/ui-context';
 
 import dataPingService from '../mockedData/pingService.json';
-import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
+import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 
 import BarChart, { BarChartProps } from './BarChart';
 
@@ -30,6 +35,8 @@ const initialize = ({
   BarChartProps,
   'data' | 'legend' | 'axis' | 'barStyle' | 'orientation' | 'tooltip'
 >): void => {
+  cy.adjustViewport();
+
   cy.mount({
     Component: (
       <div style={{ height: '100%', width: '100%' }}>
@@ -45,16 +52,30 @@ const initialize = ({
       </div>
     )
   });
+
+  cy.viewport('macbook-13');
 };
 
 describe('Bar chart', () => {
   ['horizontal', 'vertical'].forEach((orientation) => {
     it(`displays the bar chart ${orientation}ly`, () => {
       initialize({ orientation });
+      const userData = renderHook(() => useAtomValue(userAtom));
+      userData.result.current.locale = 'en';
 
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
+
+      if (equals(orientation, 'horizontal')) {
+        cy.findByTestId('single-bar-3-2-0.08644')
+          .should('have.attr', 'height')
+          .should('equals', '295');
+      } else {
+        cy.findByTestId('single-bar-3-2-0.08644')
+          .should('have.attr', 'width')
+          .should('equals', '863');
+      }
 
       cy.makeSnapshot();
     });
@@ -66,6 +87,16 @@ describe('Bar chart', () => {
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
+      if (equals(orientation, 'horizontal')) {
+        cy.findByTestId('single-bar-3-2-0.08644')
+          .should('have.attr', 'height')
+          .should('equals', '171');
+      } else {
+        cy.findByTestId('single-bar-3-2-0.08644')
+          .should('have.attr', 'width')
+          .should('equals', '432');
+      }
+
       cy.makeSnapshot();
     });
 
@@ -76,6 +107,16 @@ describe('Bar chart', () => {
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
+      if (equals(orientation, 'horizontal')) {
+        cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
+          .should('have.attr', 'height')
+          .should('equals', '187');
+      } else {
+        cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
+          .should('have.attr', 'width')
+          .should('equals', '546');
+      }
+
       cy.makeSnapshot();
     });
 
@@ -85,6 +126,16 @@ describe('Bar chart', () => {
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
+
+      if (equals(orientation, 'horizontal')) {
+        cy.findByTestId('stacked-bar-3-0-0.08644')
+          .should('have.attr', 'height')
+          .should('equals', '265');
+      } else {
+        cy.findByTestId('stacked-bar-3-0-0.08644')
+          .should('have.attr', 'width')
+          .should('equals', '773');
+      }
 
       cy.makeSnapshot();
     });
@@ -100,6 +151,16 @@ describe('Bar chart', () => {
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
+      if (equals(orientation, 'horizontal')) {
+        cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
+          .should('have.attr', 'height')
+          .should('equals', '94');
+      } else {
+        cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
+          .should('have.attr', 'width')
+          .should('equals', '273');
+      }
+
       cy.makeSnapshot();
     });
 
@@ -114,7 +175,15 @@ describe('Bar chart', () => {
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      cy.makeSnapshot();
+      if (equals(orientation, 'horizontal')) {
+        cy.findByTestId('stacked-bar-3-0-0.08644')
+          .should('have.attr', 'height')
+          .should('equals', '133');
+      } else {
+        cy.findByTestId('stacked-bar-3-0-0.08644')
+          .should('have.attr', 'width')
+          .should('equals', '387');
+      }
     });
 
     it(`displays bar chart ${orientation}ly with a custom style`, () => {
@@ -128,7 +197,15 @@ describe('Bar chart', () => {
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      cy.makeSnapshot();
+      if (equals(orientation, 'horizontal')) {
+        cy.findByTestId('stacked-bar-3-0-0.08644')
+          .should('have.attr', 'height')
+          .should('equals', '265');
+      } else {
+        cy.findByTestId('stacked-bar-3-0-0.08644')
+          .should('have.attr', 'width')
+          .should('equals', '773');
+      }
     });
   });
 
@@ -148,6 +225,10 @@ describe('Bar chart', () => {
       'be.visible'
     );
     cy.contains('0.11 ms').should('be.visible');
+
+    cy.findByTestId('single-bar-3-2-0.08644')
+      .should('have.attr', 'height')
+      .should('equals', '295');
 
     cy.makeSnapshot();
   });
@@ -169,6 +250,10 @@ describe('Bar chart', () => {
     cy.findByTestId('stacked-bar-1-0-0.05296').realHover();
 
     cy.contains('06/19/2024').should('not.exist');
+
+    cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
+      .should('have.attr', 'height')
+      .should('equals', '187');
 
     cy.makeSnapshot();
   });
@@ -203,6 +288,10 @@ describe('Bar chart', () => {
     cy.contains('0.02 ms').should('be.visible');
     cy.contains('0.11 ms').should('be.visible');
 
+    cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
+      .should('have.attr', 'height')
+      .should('equals', '187');
+
     cy.makeSnapshot();
   });
 
@@ -227,6 +316,10 @@ describe('Bar chart', () => {
       'be.visible'
     );
     cy.contains('0.05 ms').should('be.visible');
+
+    cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
+      .should('have.attr', 'height')
+      .should('equals', '187');
 
     cy.makeSnapshot();
   });

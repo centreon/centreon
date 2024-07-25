@@ -24,6 +24,7 @@ import {
   SelectEntry,
   buildListingEndpoint
 } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
@@ -46,7 +47,6 @@ import {
 } from '../../../translatedLabels';
 import { baseEndpoint } from '../../../../api/endpoint';
 import { selectedDatasetFiltersAtom } from '../../../atom';
-import { platformVersionsAtom } from '../../../../Main/atoms/platformVersionsAtom';
 
 type UseDatasetFilterState = {
   addResource: () => void;

@@ -1,4 +1,4 @@
-import { MouseEvent, MutableRefObject, ReactNode, useState } from 'react';
+import { MouseEvent, MutableRefObject, useState } from 'react';
 
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +35,6 @@ interface Props {
   end: string;
   open: boolean;
   performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
-  renderAdditionalGraphActions?: ReactNode;
   resource?: Resource | ResourceDetails;
   start: string;
   timeline?: Array<TimelineEvent>;
@@ -56,8 +55,7 @@ const GraphActions = ({
   performanceGraphRef,
   open,
   end,
-  start,
-  renderAdditionalGraphActions
+  start
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -156,14 +154,17 @@ const GraphActions = ({
           >
             <SaveAsImageIcon fontSize="inherit" />
           </IconButton>
-          <>
-            <FederatedComponent
-              buttonConfigurationData={{ resource }}
-              path="/anomaly-detection"
-              styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
-            />
-            {renderAdditionalGraphActions}
-          </>
+          <FederatedComponent
+            path="/anomaly-detection/configuration-button"
+            styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
+          />
+          <FederatedComponent
+            end={end}
+            path="/anomaly-detection/modal"
+            resource={resource}
+            start={start}
+            styleMenuSkeleton={{ height: 0, width: 0 }}
+          />
           <Menu
             keepMounted
             anchorEl={menuAnchor}

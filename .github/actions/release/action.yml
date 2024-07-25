@@ -33,7 +33,7 @@ runs:
         set -eux
 
         # Variables
-        COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
+        COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-ha" "centreon-open-tickets" "centreon-web")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         declare -a TMP_STABLE_TAGS=()
         declare -a NEW_STABLE_TAGS=()
@@ -189,7 +189,7 @@ runs:
         JIRA_RELEASE_NAME=""
         JIRA_PROJECT_ID="${{ inputs.jira_project_id }}"
         JIRA_RELEASE_RELEASED="false"
-        JIRA_RELEASE_ID="$(git log |grep -E "^\s+Centreon.*#[0-9]{5,}#)" |grep -Eo "([0-9]{5,})" |head -n 1)"
+        JIRA_RELEASE_ID="$(git log |grep -E "Centreon\ next.*\#[0-9]{5,}\#\)" |grep -o -P "(?<=#)[0-9]{5,}(?=#)" |head -n 1)"
 
         # Create JIRA version for each released component
         echo "Creating JIRA releases."

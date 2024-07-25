@@ -35,10 +35,10 @@ const SingleBar = ({
     <rect
       data-testid={`single-bar-${bar.key}-${bar.index}-${bar.value}`}
       fill={bar.color}
-      height={isHorizontal ? barLength : bar.height}
+      height={Math.ceil(isHorizontal ? barLength : bar.height)}
       opacity={barStyle.opacity}
       rx={(isHorizontal ? bar.width : bar.height) * barStyle.radius}
-      width={isHorizontal ? bar.width : barLength}
+      width={Math.ceil(isHorizontal ? bar.width : barLength)}
       x={isHorizontal ? bar.x : barPadding}
       y={isHorizontal ? barPadding : bar.y}
       {...listeners}

@@ -18,6 +18,7 @@ import { getColor } from '../utils';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
+  labelParent,
   labelValue
 } from '../translatedLabels';
 
@@ -69,6 +70,15 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
         </Box>
       </Box>
       <Box className={classes.body}>
+        {data.businessActivity && (
+          <Box className={classes.baParent}>
+            <Typography className={classes.baParentText} variant="body1">
+              <strong>{t(labelParent)}:</strong> {data.businessActivity}
+            </Typography>
+
+            <Divider variant="fullWidth" />
+          </Box>
+        )}
         {mentionStatus && (
           <Typography className={classes.listContainer}>
             {data.statusName} {data.information}
@@ -88,10 +98,14 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
           )}
           {problematicMetrics.map(({ name, status, value }) => (
             <Box className={classes.metric} key={name}>
-              <Typography variant="body1">{name}</Typography>
+              <Typography className={classes.metricName} variant="body2">
+                {name}
+              </Typography>
               <Typography
-                sx={{ color: getColor({ severityCode: status, theme }) }}
-                variant="body1"
+                sx={
+                  status && { color: getColor({ severityCode: status, theme }) }
+                }
+                variant="body2"
               >
                 {value}
               </Typography>
@@ -104,7 +118,7 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
             </Typography>
           )}
         </Box>
-        <Divider variant="middle" />
+        <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
           color="text.secondary"

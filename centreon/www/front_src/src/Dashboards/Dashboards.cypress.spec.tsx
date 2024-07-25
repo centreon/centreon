@@ -6,13 +6,13 @@ import i18next from 'i18next';
 import {
   DashboardGlobalRole,
   ListingVariant,
-  userAtom
+  userAtom,
+  platformVersionsAtom
 } from '@centreon/ui-context';
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { Method } from '@centreon/js-config/cypress/component/commands';
 
 import { labelMoreActions } from '../Resources/translatedLabels';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 import { DashboardsPage } from './DashboardsPage';
 import { DashboardRole } from './api/models';

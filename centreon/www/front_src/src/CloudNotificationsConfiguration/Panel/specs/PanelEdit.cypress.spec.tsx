@@ -1,6 +1,7 @@
 import { Provider, createStore } from 'jotai';
 
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import {
   labelDelete,
@@ -42,8 +43,6 @@ import { editedNotificationIdAtom, panelModeAtom } from '../atom';
 import Form from '..';
 
 import { getNotificationResponse, platformVersions } from './testUtils';
-
-import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 const store = createStore();
 store.set(panelWidthStorageAtom, 800);
@@ -454,8 +453,7 @@ describe('Edit Panel', () => {
   it('confirms that the Message field is properly rendered with the edited notification message', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findByTestId('EmailBody').contains('Bonjour');
-    cy.findByTestId('EmailBody').contains('Cordialement');
+    cy.findByTestId('EmailBody').contains('Hello');
 
     cy.get('#panel-content').scrollTo('bottom');
 

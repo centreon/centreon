@@ -40,6 +40,13 @@ if (! isset($centreon)) {
 
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 /**
  * Indicates if the resource name has already been used.
  *
@@ -175,8 +182,6 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
 {
     global $pearDB;
 
-    $resourcesFromVault = getFromVault();
-
     foreach (array_keys($resourceIds) as $resourceId) {
         if (is_int($resourceId)) {
             $dbResult = $pearDB->query("SELECT * FROM cfg_resource WHERE resource_id = {$resourceId} LIMIT 1");
@@ -194,15 +199,18 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
 
             for ($newIndex = 1; $newIndex <= $nbrDup[$resourceId]; $newIndex++) {
                 $name = $resourceConfiguration['resource_name'] . '_' . $newIndex;
-                $value = (
-                        (bool) $resourceConfiguration['is_password']
-                        && str_starts_with($resourceConfiguration['resource_line'], 'secret::')
-                    )
-                    ? $resourcesFromVault[str_replace('$', '', $resourceConfiguration['resource_name'])]
-                    : $resourceConfiguration['resource_line'];
+                $value = $resourceConfiguration['resource_line'];
+                if (
+                    (bool) $resourceConfiguration['is_password'] === true
+                    && str_starts_with($resourceConfiguration['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)
+                ) {
+                    $resourcesFromVault =  getFromVault($resourceConfiguration['resource_line']);
+                    $value = $resourcesFromVault[
+                        str_replace('$', '', $resourceConfiguration['resource_name'])
+                    ];
+                }
 
                 if (testExistence($name) && ! is_null($value)) {
-
                     $vaultPath = saveInVault($name, $value);
                     $value = $vaultPath ?? $value;
 
@@ -270,7 +278,7 @@ function updateResource($resourceId): void
         $isActivate = true;
     }
 
-    if ($_REQUEST['is_password'] && ! str_starts_with($_REQUEST['resource_line'], 'secret::')) {
+    if ($_REQUEST['is_password'] && ! str_starts_with($_REQUEST['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)) {
         $vaultPath = saveInVault($_REQUEST['resource_name'], $_REQUEST['resource_line']);
         $_REQUEST['resource_line'] = $vaultPath ?? $_REQUEST['resource_line'];
     }
@@ -438,26 +446,27 @@ function getLinkedPollerList($resource_id)
 }
 
 /**
+ * @param string $vaultPath
+ *
  * @return array<string,string>
  */
-function getFromVault(): array
+function getFromVault(string $vaultPath): array
 {
-    global $pearDB;
-
-    $kernel = App\Kernel::createForWeb();
-    /** @var Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(Centreon\Domain\Log\Logger::class);
-    /** @var Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
+        /**@var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         try {
             return readPollerMacroSecretsInVault(
-                vaultConfiguration: $vaultConfiguration,
-                logger: $logger,
-                uuid: retrievePollerMacroUuidFromDatabase($pearDB, $vaultConfiguration->getName()),
+                readVaultRepository: $readVaultRepository,
+                vaultPath:  $vaultPath
             );
         } catch (Throwable $ex) {
             $logger->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -471,26 +480,27 @@ function getFromVault(): array
 function saveInVault(string $key, string $value): ?string {
     global $pearDB;
 
-    $kernel = App\Kernel::createForWeb();
-    /** @var Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(Centreon\Domain\Log\Logger::class);
-    /** @var Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
-    );
-    $uuidGenerator = $kernel->getContainer()->get(
-        Utility\Interfaces\UUIDGeneratorInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
+        /**@var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+        /**@var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
         try {
             return upsertPollerMacroSecretInVault(
-                $vaultConfiguration,
-                $uuidGenerator,
-                $logger,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $key,
                 $value,
-                retrievePollerMacroUuidFromDatabase($pearDB, $vaultConfiguration->getName()),
+                retrievePollerMacroVaultPathFromDatabase($pearDB)
             );
         } catch (Throwable $ex) {
             $logger->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -505,25 +515,35 @@ function saveInVault(string $key, string $value): ?string {
  * @param array{resource_line:string,resource_name:string} $data
  */
 function deleteFromVault(array $data): void {
-    if (str_starts_with($data['resource_line'], 'secret::')) {
-        $vaultPathParts = explode('/', $data['resource_line']);
-        $uuid = end($vaultPathParts);
+    if (str_starts_with($data['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)) {
+        $uuid = preg_match(
+                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+                $data['resource_line'],
+                $matches
+            )
+            && isset($matches[2]) ? $matches[2] : null;
 
-        $kernel = App\Kernel::createForWeb();
-        /** @var Centreon\Domain\Log\Logger $logger */
-        $logger = $kernel->getContainer()->get(Centreon\Domain\Log\Logger::class);
-        /** @var Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
+        $kernel = Kernel::createForWeb();
+        /** @var Logger $logger */
+        $logger = $kernel->getContainer()->get(Logger::class);
+        /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
         $readVaultConfigurationRepository = $kernel->getContainer()->get(
-            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+            ReadVaultConfigurationRepositoryInterface::class
         );
 
         $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null) {
+            /**@var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+            /**@var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
             try {
                 deletePollerMacroSecretInVault(
-                    $vaultConfiguration,
-                    $logger,
+                    $readVaultRepository,
+                    $writeVaultRepository,
                     $uuid,
+                    $data['resource_line'],
                     $data['resource_name'],
                 );
             } catch (Throwable $ex) {

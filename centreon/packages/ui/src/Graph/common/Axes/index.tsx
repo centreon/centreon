@@ -32,27 +32,29 @@ const Axes = ({
 }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const { lines, showBorder, yAxisTickLabelRotation } = data;
+  const isHorizontal = equals(orientation, 'horizontal');
 
-  const { axisLeft, axisRight } = useAxisY({ data, graphHeight: height });
+  const { axisLeft, axisRight } = useAxisY({
+    data,
+    graphHeight: height,
+    graphWidth: width,
+    isHorizontal
+  });
 
   const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
 
   const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
+  const [start, end] = xScale.domain();
+
   const tickFormat =
-    data?.axisX?.xAxisTickFormat ??
-    getXAxisTickFormat({
-      start: xScale.domain()[0],
-      start: xScale.domain()[-1]
-    });
+    data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat({ end, start });
 
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });
 
   const hasMoreThanTwoUnits = !isNil(thirdUnit);
   const displayAxisRight = !isNil(secondUnit) && !hasMoreThanTwoUnits;
-
-  const isHorizontal = equals(orientation, 'horizontal');
 
   const AxisBottom = isHorizontal ? Axis.AxisBottom : Axis.AxisLeft;
   const AxisLeft = isHorizontal ? Axis.AxisLeft : Axis.AxisTop;
@@ -76,7 +78,7 @@ const Axes = ({
         <UnitLabel
           unit={firstUnit}
           x={isHorizontal ? -8 : width + 8}
-          y={isHorizontal ? 16 : 0}
+          y={isHorizontal ? 16 : -2}
         />
       )}
 
@@ -88,8 +90,8 @@ const Axes = ({
         tickLabelProps={() => ({
           ...axisLeft.tickLabelProps(),
           angle: yAxisTickLabelRotation,
-          dx: isHorizontal ? -8 : 2,
-          dy: isHorizontal ? 4 : -4
+          dx: isHorizontal ? -8 : 16,
+          dy: isHorizontal ? 4 : -6
         })}
         tickLength={2}
       />

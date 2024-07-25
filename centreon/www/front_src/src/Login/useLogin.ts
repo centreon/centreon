@@ -18,12 +18,12 @@ import {
 } from 'ramda';
 
 import { useSnackbar, useFetchQuery, ResponseError } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
 import useUser from '../Main/useUser';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 import routeMap from '../reactRoutes/routeMap';
 import useInitializeTranslation from '../Main/useInitializeTranslation';
 import centreonLogo from '../assets/logo-centreon-colors.svg';
