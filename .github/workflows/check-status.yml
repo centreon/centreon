@@ -74,9 +74,9 @@ jobs:
                     check_suite_id: suite_id
                   });
                   resultCheckRuns.data.check_runs.forEach(({ name, url }) => {
-                    failureMessage += ` ($name)[$url]`;
+                    failureMessage += ` (${name})[${url}]`;
                   });
-                  core.info(failureMessage);
+                  core.error(failureMessage);
                 }
 
                 core.setFailed(`${failure.length} workflow(s) failed`);
