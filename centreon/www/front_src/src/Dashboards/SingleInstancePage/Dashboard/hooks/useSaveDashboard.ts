@@ -77,21 +77,22 @@ const useSaveDashboard = (): UseSaveDashboardState => {
 
   const saveDashboard = (): void => {
     const node = document.querySelector('.react-grid-layout') as HTMLElement;
-    toBlob(node, { backgroundColor: theme.palette.background.default }).then(
-      (blob) => {
-        if (!blob) {
-          return;
-        }
-
-        const formData = new FormData();
-        formData.append('directory', 'dashboards');
-        formData.append('data', blob, `dashboard-${dashboardId}.png`);
-
-        mutateMedias({
-          payload: formData
-        });
+    toBlob(node, {
+      backgroundColor: theme.palette.background.default,
+      height: 360
+    }).then((blob) => {
+      if (!blob) {
+        return;
       }
-    );
+
+      const formData = new FormData();
+      formData.append('directory', 'dashboards');
+      formData.append('data', blob, `dashboard-${dashboardId}.png`);
+
+      mutateMedias({
+        payload: formData
+      });
+    });
     mutateAsync({
       payload: {
         panels: formatPanelsToAPI(dashboard.layout)
