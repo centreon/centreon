@@ -44,7 +44,7 @@ final class TicketExtraDataFormatter implements ExtraDataNormalizerInterface
     /**
      * @inheritDoc
      */
-    public function normalizeExtraDataForResource(int $resourceId, mixed $data): array
+    public function normalizeExtraDataForResource(mixed $data): array
     {
         /** @var array{id:int, subject:string, created_at:\DateTimeInterface} $data */
         return [

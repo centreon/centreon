@@ -75,7 +75,6 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                             if ($provider->isValidFor($sourceName)) {
                                 if (array_key_exists($resource->parent->resourceId, $sourceData)) {
                                     $parentResourceExtraData[$sourceName] = $provider->normalizeExtraDataForResource(
-                                        $resource->parent->resourceId,
                                         $sourceData[$resource->parent->resourceId],
                                     );
                                 }
@@ -175,7 +174,6 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                             if ($provider->isValidFor($sourceName)) {
                                 if (array_key_exists($resource->resourceId, $sourceData)) {
                                     $resourceExtraData[$sourceName] = $provider->normalizeExtraDataForResource(
-                                        $resource->resourceId,
                                         $sourceData[$resource->resourceId],
                                     );
                                 }

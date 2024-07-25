@@ -232,7 +232,6 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
                     if ($provider->isValidFor($sourceName)) {
                         if (array_key_exists($response->parent->resourceId, $sourceData)) {
                             $extra[$sourceName] = $provider->normalizeExtraDataForResource(
-                                $response->parent->resourceId,
                                 $sourceData[$response->parent->resourceId],
                             );
                         }
@@ -250,7 +249,6 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
                         if ($provider->isValidFor($sourceName)) {
                             if (array_key_exists($response->resourceId, $sourceData)) {
                                 $extra[$sourceName] = $provider->normalizeExtraDataForResource(
-                                    $response->resourceId,
                                     $sourceData[$response->resourceId],
                                 );
                             }

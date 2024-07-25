@@ -26,12 +26,11 @@ namespace Core\Resources\Infrastructure\API\ExtraDataNormalizer;
 interface ExtraDataNormalizerInterface
 {
     /**
-     * @param int $resourceId
      * @param mixed $data
      *
      * @return mixed[]
      */
-    public function normalizeExtraDataForResource(int $resourceId, mixed $data): array;
+    public function normalizeExtraDataForResource(mixed $data): array;
 
     /**
      * @return string
