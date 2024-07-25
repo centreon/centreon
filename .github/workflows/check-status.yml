@@ -67,6 +67,7 @@ jobs:
 
               if (failure.length > 0) {
                 let failureMessage = '';
+                const failedCheckRuns = [];
                 for await (const suite_id of failure) {
                   const resultCheckRuns = await github.rest.checks.listForSuite({
                     owner: context.repo.owner,
@@ -74,9 +75,14 @@ jobs:
                     check_suite_id: suite_id
                   });
                   console.log(resultCheckRuns.data.check_runs)
-                  resultCheckRuns.data.check_runs.forEach(({ name, url }) => {
-                    failureMessage += ` (${name})[${url}]`;
+                  resultCheckRuns.data.check_runs.forEach(({ conclusion, name, url }) => {
+                    if (conclusion === 'failure') {
+                      failedCheckRuns.push(`(${name})[${url}]`)
+                      failureMessage += ` (${name})[${url}]`;
+                    }
                   });
+                  core.summary.addList(failedCheckRuns);
+                  core.summary.write()
                   core.error(failureMessage);
                 }
 
