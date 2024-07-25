@@ -37,6 +37,11 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         with:
           script: |
+            console.log(await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: ${{ env.PR_NUMBER }}
+            }));
             console.log(await github.rest.checks.listSuitesForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
