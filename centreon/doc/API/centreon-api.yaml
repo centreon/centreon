@@ -1393,57 +1393,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/timeperiods:
-    get:
-      tags:
-      - Time period
-      summary: "Get all time periods"
-      description: |
-        Get list of all time periods
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * name
-        * alias
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.TimePeriod'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    post:
-      tags:
-      - Time period
-      summary: "Create a new time period"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Configuration.NewTimePeriod'
-      responses:
-        '201':
-          description: "Time period created"
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './latest/onPremise/Configuration/TimePeriod/AddOneAndFindTimePeriods.yaml'
   /configuration/timeperiods/{id}:
     delete:
       tags:

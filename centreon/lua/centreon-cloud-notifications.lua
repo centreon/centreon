@@ -142,9 +142,11 @@ local function get_configuration()
     if not ok then
       broker_log:error(0, "Unable to call the API to get the configuration.: " .. tostring(err))
     end
-    update_conf(full.resp)
     local resp_code = c:getinfo(cURL.INFO_RESPONSE_CODE)
     broker_log:info(2, "Response code: " .. resp_code)
+    if resp_code == 200 then
+      update_conf(full.resp)
+    end
     if resp_code == 401 then
       broker_log:info(1, "Expired token. Trying to get a new one")
       login()
