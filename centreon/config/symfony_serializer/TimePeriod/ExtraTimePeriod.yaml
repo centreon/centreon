@@ -1,11 +1,8 @@
 Core\TimePeriod\Domain\Model\ExtraTimePeriod:
   attributes:
     id:
-      type: integer
       groups: ['TimePeriod:Read']
     day_range:
-      type: string
       groups: ['TimePeriod:Read']
     time_range:
-      type: string
       groups: ['TimePeriod:Read']

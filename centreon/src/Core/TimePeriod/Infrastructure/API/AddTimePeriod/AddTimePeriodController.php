@@ -24,50 +24,27 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Infrastructure\API\AddTimePeriod;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Log\LoggerTrait;
-use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodDto, AddTimePeriodRequest};
+use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodRequest};
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 
 final class AddTimePeriodController extends AbstractController
 {
-    use LoggerTrait;
-
     /**
      * @param AddTimePeriod $useCase
-     * @param AddTimePeriodRequest $input
+     * @param AddTimePeriodRequest $request
      * @param AddTimePeriodsPresenter $presenter
      *
      * @return Response
      */
     public function __invoke(
         AddTimePeriod $useCase,
-        #[MapRequestPayload] AddTimePeriodRequest $input,
+        #[MapRequestPayload] AddTimePeriodRequest $request,
         AddTimePeriodsPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
-        $useCase($this->createDto($input), $presenter);
+        $useCase($request->toDto(), $presenter);
 
         return $presenter->show();
-    }
-
-    private function createDto(AddTimePeriodRequest $data): AddTimePeriodDto
-    {
-        return new AddTimePeriodDto(
-            is_string($data->name) ? $data->name : '',
-            is_string($data->alias) ? $data->alias : '',
-            array_map(
-                fn (array $day): array => ['day' => $day['day'], 'time_range' => $day['time_range']],
-                $data->days ?? []
-            ),
-            $data->templates ?? [],
-            array_map(
-                fn (array $exception): array => [
-                    'day_range' => $exception['day_range'],
-                    'time_range' => $exception['time_range'],
-                ],
-                $data->exceptions ?? []
-            ),
-        );
     }
 }

@@ -33,10 +33,6 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 final class FindTimePeriodController extends AbstractController
 {
-    public function __construct()
-    {
-    }
-
     /**
      * @param FindTimePeriod $useCase
      * @param StandardPresenter $presenter

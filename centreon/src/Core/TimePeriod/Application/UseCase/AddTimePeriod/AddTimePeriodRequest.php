@@ -59,13 +59,13 @@ final class AddTimePeriodRequest
                 ],
             ),
         ])]
-        public readonly ?array $days,
+        public readonly mixed $days,
         #[Assert\NotNull]
         #[Assert\Type('array')]
         #[Assert\All(
             new Assert\Type('integer'),
         )]
-        public readonly ?array $templates,
+        public readonly mixed $templates,
         #[Assert\NotNull]
         #[Assert\Type('array')]
         #[Assert\All([
@@ -82,7 +82,27 @@ final class AddTimePeriodRequest
                 ],
             ),
         ])]
-        public readonly ?array $exceptions = [],
+        public readonly mixed $exceptions = [],
     ) {
+    }
+
+    public function toDto(): AddTimePeriodDto
+    {
+        return new AddTimePeriodDto(
+            is_string($this->name) ? $this->name : '',
+            is_string($this->alias) ? $this->alias : '',
+            array_map(
+                fn (array $day): array => ['day' => $day['day'], 'time_range' => $day['time_range']],
+                is_array($this->days) ? $this->days : []
+            ),
+            is_array($this->templates) ? $this->templates : [],
+            array_map(
+                fn (array $exception): array => [
+                    'day_range' => $exception['day_range'],
+                    'time_range' => $exception['time_range'],
+                ],
+                is_array($this->exceptions) ? $this->exceptions : []
+            ),
+        );
     }
 }

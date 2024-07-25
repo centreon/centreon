@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Api;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\StandardPresenterInterface;
 use Core\Application\Common\UseCase\StandardResponseInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -33,8 +32,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class StandardPresenter implements StandardPresenterInterface
 {
-    use LoggerTrait;
-
     /**
      * @param Serializer $serializer
      */
