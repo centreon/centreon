@@ -83,7 +83,7 @@ jobs:
                 return;
               }
 
-              if (in_progress.length === 1) {
+              if (pending.length === 1) {
                 core.info("All jobs are ok");
                 return;
               }
