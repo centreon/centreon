@@ -67,7 +67,7 @@ jobs:
 
               if (failure.length > 0) {
                 let failureMessage = '';
-                failure.forEach(async (suite_id) => {
+                for await (const suite_id of failure) {
                   const resultCheckRuns = await github.rest.checks.listForSuite({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
@@ -79,12 +79,12 @@ jobs:
                   core.info(failureMessage);
                 });
 
-                core.setFailed(`${failure.length} job(s) failed`);
+                core.setFailed(`${failure.length} workflow(s) failed`);
                 return;
               }
 
               if (pending.length === 1) {
-                core.info("All jobs are ok");
+                core.info("All workflows are ok");
                 return;
               }
 
