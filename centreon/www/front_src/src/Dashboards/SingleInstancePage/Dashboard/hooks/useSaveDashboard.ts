@@ -1,13 +1,13 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { toJpeg } from 'html-to-image';
+import { toBlob, toJpeg } from 'html-to-image';
 
 import { useTheme } from '@mui/material';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import { getDashboardEndpoint } from '../../../api/endpoints';
+import { getDashboardEndpoint, mediasEndpoint } from '../../../api/endpoints';
 import { resource } from '../../../api/models';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
@@ -67,9 +67,12 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   const { showSuccessMessage } = useSnackbar();
 
   const { mutateAsync } = useMutationQuery({
-    baseEndpoint: 'http://localhost:3001/centreon/',
     getEndpoint: () => getDashboardEndpoint(dashboardId),
     method: Method.PATCH
+  });
+  const { mutateAsync: mutateMedias } = useMutationQuery({
+    getEndpoint: () => mediasEndpoint,
+    method: Method.POST
   });
 
   const saveDashboard = (): void => {
@@ -77,19 +80,42 @@ const useSaveDashboard = (): UseSaveDashboardState => {
     toJpeg(node, {
       backgroundColor: theme.palette.background.default,
       height: 360,
-      quality: 0.2
+      quality: 0.3
     }).then((data) => {
-      mutateAsync({
-        payload: {
-          panels: formatPanelsToAPI(dashboard.layout),
-          thumbnail: data
+      const formData = new FormData();
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      const image = new Image();
+      image.onload = () => {
+        context?.drawImage(image, 0, 0);
+      };
+      image.src = data;
+      context?.canvas.toBlob((blob) => {
+        if (!blob) {
+          return;
         }
-      }).then(() => {
-        showSuccessMessage(t(labelYourDashboardHasBeenSaved));
-        switchPanelsEditionMode(false);
-        queryClient.invalidateQueries({
-          queryKey: [resource.dashboard, dashboardId]
+        formData.append('directory', 'dashboards');
+        formData.append('data', blob, `dashboard-${dashboardId}.jpg`);
+
+        // fetch(`./api/latest${mediasEndpoint}`, {
+        //   body: formData,
+        //   method: Method.POST
+        // });
+
+        mutateMedias({
+          payload: formData
         });
+      });
+    });
+    mutateAsync({
+      payload: {
+        panels: formatPanelsToAPI(dashboard.layout)
+      }
+    }).then(() => {
+      showSuccessMessage(t(labelYourDashboardHasBeenSaved));
+      switchPanelsEditionMode(false);
+      queryClient.invalidateQueries({
+        queryKey: [resource.dashboard, dashboardId]
       });
     });
   };
