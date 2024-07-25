@@ -1,6 +1,0 @@
-Core\Domain\RealTime\Model\Icon:
-  attributes:
-    name:
-      groups: ['group1']
-    url:
-      groups: ['group1']
