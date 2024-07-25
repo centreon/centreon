@@ -50,7 +50,9 @@ jobs:
               repo: context.repo.repo,
               ref: "${{ github.event.pull_request.head.sha }}"
             });
-            console.log(result);
+            result.data.check_suites.forEach((check_suite) => {
+              console.log(check_suite)
+            });
             console.log('hihi')
 
             /*
