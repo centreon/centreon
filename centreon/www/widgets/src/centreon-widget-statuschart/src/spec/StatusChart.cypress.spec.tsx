@@ -301,7 +301,7 @@ displayTypes.forEach(({ displayType, label }) => {
       cy.makeSnapshot(`${label} : displays values with the unit "number"`);
     });
 
-    describe('Tooltip', () => {
+    describe.only('Tooltip', () => {
       ['service', 'host'].forEach((resourceType) => {
         it(`displays tooltip with correct information on hover for type ${resourceType}`, () => {
           const statuses = equals(resourceType, 'host')
