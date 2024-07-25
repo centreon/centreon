@@ -37,6 +37,40 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         with:
           script: |
+            console.log(github.rest);
+            # const variables = {
+            #   owner: context.repo.owner,
+            #   name: context.repo.repo,
+            #   pullRequestNumber: ${{ env.PR_NUMBER }}
+            # }
+            # const query = `query($owner:String!, $name:String!, $pullRequestNumber:Int!) {
+            #   repository(owner:$owner, name:$name){
+            #     pullRequest(number:$pullRquestNumber){
+            #     statusCheckRollup{
+            #       state,
+            #     }
+            #     commits(last:1){
+            #       nodes{
+            #         commit {
+            #           checkSuites(first: 100) {
+            #             nodes {
+            #               workflowRun { event }
+            #               checkRuns(first: 100, filterBy: ) {
+            #                 nodes {
+            #                   name
+            #                   conclusion
+            #                 }
+            #               }
+            #             }
+            #           }
+            #         }
+            #       }
+            #     }
+            #   }
+            #   }
+            # }`;
+            # const result = await github.graphql(query, variables);
+            # console.log(result);
             for (let i = 0; i < 60; i++) {
               let myOutput = '';
               let myError = '';
