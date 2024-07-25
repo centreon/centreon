@@ -7226,7 +7226,8 @@ components:
                   example: "/centreon/img/media/ppm/applications-monitoring-centreon-central-centreon-128-2.png"
         extra:
           type: array
-          items: {}
+          items:
+            type: object
     Monitoring.ResourceLinks:
       type: object
       properties:

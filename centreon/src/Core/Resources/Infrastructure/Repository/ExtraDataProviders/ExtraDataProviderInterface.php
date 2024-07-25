@@ -47,4 +47,13 @@ interface ExtraDataProviderInterface
      * @return string
      */
     public function getExtraDataSourceName(): string;
+
+    /**
+     * Indicates regarding the data set in the ResourceFilter if the provider should add or not extra data to resources.
+     *
+     * @param ResourceFilter $filter
+     *
+     * @return bool
+     */
+    public function supportsExtraData(ResourceFilter $filter): bool;
 }

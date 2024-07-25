@@ -64,6 +64,14 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
     /**
      * @inheritDoc
      */
+    public function supportsExtraData(ResourceFilter $filter): bool
+    {
+        return $filter->getRuleId() !== null;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getSubFilter(ResourceFilter $filter): string
     {
 
@@ -160,24 +168,24 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             throw new \Exception('Macro name used for rule not found');
         }
 
-        $hostIds = [];
-        $serviceIds = [];
+        $parentResourceIds = [];
+        $resourceIds = [];
 
         // extract resource id for services and linked hosts
         foreach ($this->getServiceResources($resources) as $resource) {
             if (
                 $resource->getResourceId() !== null
-                && ! in_array($resource->getResourceId(), $hostIds)
+                && ! in_array($resource->getResourceId(), $parentResourceIds)
             ) {
-                $serviceIds[] = $resource->getResourceId();
+                $resourceIds[] = $resource->getResourceId();
             }
 
             if (
                 $resource->getParent() !== null
                 && $resource->getParent()->getResourceId() !== null
-                && ! in_array($resource->getParent()->getResourceId(), $hostIds)
+                && ! in_array($resource->getParent()->getResourceId(), $parentResourceIds)
             ) {
-                $hostIds[] = $resource->getParent()->getResourceId();
+                $parentResourceIds[] = $resource->getParent()->getResourceId();
             }
         }
 
@@ -185,18 +193,19 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         foreach ($this->getHostResources($resources) as $resource) {
             if (
                 $resource->getResourceId() !== null
-                && ! in_array($resource->getResourceId(), $hostIds)
+                && ! in_array($resource->getResourceId(), $parentResourceIds)
             ) {
-                $hostIds[] = $resource->getResourceId();
+                $parentResourceIds[] = $resource->getResourceId();
             }
         }
 
         // avoid key re-indexing. index = resource_id
-        return $this->getServiceTickets($serviceIds, $macroName) + $this->getHostTickets($hostIds, $macroName);
+        return $this->getResourceTickets($resourceIds, $macroName)
+            + $this->getParentResourceTickets($parentResourceIds, $macroName);
     }
 
     /**
-     * @param int[] $services
+     * @param int[] $resources
      * @param string $macroName
      * @return array<int, array{
      *  id:int,
@@ -205,13 +214,13 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
      * }>|array{}
 
      */
-    private function getServiceTickets(array $services, string $macroName): array
+    private function getResourceTickets(array $resources, string $macroName): array
     {
-        if ($services === []) {
+        if ($resources === []) {
             return [];
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($services), ':resource_id');
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($resources), ':resource_id');
 
         $request = <<<SQL
             SELECT
@@ -264,7 +273,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
     }
 
     /**
-     * @param int[] $hosts
+     * @param int[] $parentResources
      * @param string $macroName
      * @return array<int, array{
      *  id:int,
@@ -272,13 +281,13 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
      *  created_at:\DateTimeInterface
      * }>|array{}
      */
-    private function getHostTickets(array $hosts, string $macroName): array
+    private function getParentResourceTickets(array $parentResources, string $macroName): array
     {
-        if ($hosts === []) {
+        if ($parentResources === []) {
             return [];
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($hosts), ':resource_id');
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($parentResources), ':resource_id');
 
         $request = <<<SQL
             SELECT

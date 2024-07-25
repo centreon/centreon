@@ -56,7 +56,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /** @var ExtraDataProviderInterface[] */
-    private array $extraInformationProviders;
+    private array $extraDataProviders;
 
     /** @var array<string, string> */
     private array $resourceConcordances = [
@@ -116,7 +116,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         $this->resourceTypes = iterator_to_array($resourceTypes);
-        $this->extraInformationProviders = iterator_to_array($extraDataProviders);
+        $this->extraDataProviders = iterator_to_array($extraDataProviders);
     }
 
     public function findParentResourcesById(ResourceFilter $filter): array
@@ -191,8 +191,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
          */
         $request .= $this->addResourceTypeSubRequest($filter);
 
-        foreach ($this->extraInformationProviders as $provider) {
-            $request .= $provider->getSubFilter($filter);
+        foreach ($this->extraDataProviders as $provider) {
+            if ($provider->supportsExtraData($filter)) {
+                $request .= $provider->getSubFilter($filter);
+            }
         }
 
         /**
@@ -464,7 +466,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $request .= ' AND resources.has_graph = 1';
         }
 
-        foreach ($this->extraInformationProviders as $provider) {
+        foreach ($this->extraDataProviders as $provider) {
             $request .= $provider->getSubFilter($filter);
         }
 

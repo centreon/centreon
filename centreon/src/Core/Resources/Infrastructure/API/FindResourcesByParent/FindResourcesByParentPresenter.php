@@ -41,11 +41,8 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
     use HttpUrlTrait;
     use PresenterTrait;
     private const IMAGE_DIRECTORY = '/img/media/',
-        HOST_RESOURCE_TYPE = 'host',
-        SERVICE_RESOURCE_TYPE = 'service';
-
-    /** @var ExtraDataNormalizerInterface[] */
-    private array $extraDataPresenterProviders;
+                  HOST_RESOURCE_TYPE = 'host',
+                  SERVICE_RESOURCE_TYPE = 'service';
 
     /**
      * @param HypermediaCreator $hypermediaCreator
@@ -57,9 +54,8 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
         private readonly HypermediaCreator $hypermediaCreator,
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
-        \Traversable $extraDataNormalizers
+        private readonly \Traversable $extraDataNormalizers
     ) {
-        $this->extraDataPresenterProviders = iterator_to_array($extraDataNormalizers);
         parent::__construct($presenterFormatter);
     }
 
@@ -221,47 +217,49 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
             'links' => $links,
         ];
 
-        $extra = [];
         if (
             $response->type === self::HOST_RESOURCE_TYPE
             && $response->parent !== null
-            && $response->parent->resourceId !== null
         ) {
-            foreach ($extraData as $sourceName => $sourceData) {
-                foreach ($this->extraDataPresenterProviders as $provider) {
-                    if ($provider->isValidFor($sourceName)) {
-                        if (array_key_exists($response->parent->resourceId, $sourceData)) {
-                            $extra[$sourceName] = $provider->normalizeExtraDataForResource(
-                                $sourceData[$response->parent->resourceId],
-                            );
-                        }
-                    }
-                }
-            }
             $resource['name'] = $response->name;
             $resource['parent'] = null;
             $resource['children'] = [];
-            $resource['extra'] = $extra;
+            $resource['extra'] = $response->parent->resourceId !== null
+                ? $this->normalizeExtraDataForResource($response->parent->resourceId, $extraData)
+                : [];
         } else {
-            if ($response->resourceId !== null) {
-                foreach ($extraData as $sourceName => $sourceData) {
-                    foreach ($this->extraDataPresenterProviders as $provider) {
-                        if ($provider->isValidFor($sourceName)) {
-                            if (array_key_exists($response->resourceId, $sourceData)) {
-                                $extra[$sourceName] = $provider->normalizeExtraDataForResource(
-                                    $sourceData[$response->resourceId],
-                                );
-                            }
-                        }
-                    }
-                }
-            }
             $resource['resource_name'] = $response->name;
             $resource['parent'] = ['id' => $response->hostId];
-            $resource['parent']['extra'] = $extra;
+            $resource['parent']['extra'] = $response->resourceId !== null
+                ? $this->normalizeExtraDataForResource($response->resourceId, $extraData)
+                : [];
         }
 
         return $resource;
+    }
+
+    /**
+     * @param int $resourceId
+     * @param array<string, array<mixed, mixed>> $extraData
+     *
+     * @return mixed[]
+     */
+    private function normalizeExtraDataForResource(int $resourceId, array $extraData): array
+    {
+        $data = [];
+        foreach ($extraData as $sourceName => $sourceData) {
+            foreach (iterator_to_array($this->extraDataNormalizers) as $provider) {
+                if ($provider->isValidFor($sourceName)) {
+                    if (array_key_exists($resourceId, $sourceData)) {
+                        $data[$sourceName] = $provider->normalizeExtraDataForResource(
+                            $sourceData[$resourceId],
+                        );
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
     /**

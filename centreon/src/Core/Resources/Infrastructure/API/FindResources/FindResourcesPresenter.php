@@ -56,33 +56,14 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
         parent::__construct($presenterFormatter);
     }
 
-    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $data): void
+    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $response): void
     {
-        if ($data instanceof FindResourcesResponse) {
+        if ($response instanceof FindResourcesResponse) {
             $result = [];
-            $extraDataProviders = iterator_to_array($this->extraDataNormalizers);
 
-            foreach ($data->resources as $resource) {
-                $parentResource = null;
-                if (
-                    $resource->parent !== null
-                    && $resource->parent->resourceId !== null
-                ) {
-                    $parentResourceExtraData = [];
-
-                   foreach ($data->extraData as $sourceName => $sourceData) {
-                        foreach ($extraDataProviders as $provider) {
-                            if ($provider->isValidFor($sourceName)) {
-                                if (array_key_exists($resource->parent->resourceId, $sourceData)) {
-                                    $parentResourceExtraData[$sourceName] = $provider->normalizeExtraDataForResource(
-                                        $sourceData[$resource->parent->resourceId],
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-                    $parentResource = [
+            foreach ($response->resources as $resource) {
+                $parentResource = ($resource->parent !== null && $resource->parent->resourceId !== null)
+                    ? [
                         'uuid' => $resource->parent->uuid,
                         'id' => $resource->parent->id,
                         'name' => $resource->parent->name,
@@ -96,9 +77,12 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                         'alias' => $resource->parent->alias,
                         'fqdn' => $resource->parent->fqdn,
                         'monitoring_server_name' => $resource->parent->monitoringServerName,
-                        'extra' => $parentResourceExtraData,
-                    ];
-                }
+                        'extra' => $this->normalizeExtraDataForResource(
+                            $resource->parent->resourceId,
+                            $response->extraData,
+                        ),
+                    ]
+                    : null;
 
                 $duration = $resource->lastStatusChange !== null
                     ? \CentreonDuration::toString(time() - $resource->lastStatusChange->getTimestamp())
@@ -166,22 +150,6 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                     ],
                 ];
 
-                $resourceExtraData = [];
-
-                if ($resource->resourceId !== null) {
-                    foreach ($data->extraData as $sourceName => $sourceData) {
-                        foreach ($extraDataProviders as $provider) {
-                            if ($provider->isValidFor($sourceName)) {
-                                if (array_key_exists($resource->resourceId, $sourceData)) {
-                                    $resourceExtraData[$sourceName] = $provider->normalizeExtraDataForResource(
-                                        $sourceData[$resource->resourceId],
-                                    );
-                                }
-                            }
-                        }
-                    }
-                }
-
                 $result[] = [
                     'uuid' => $resource->uuid,
                     'duration' => $duration,
@@ -213,7 +181,9 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                     'is_notification_enabled' => false,
                     'severity' => $severity,
                     'links' => $links,
-                    'extra' => $resourceExtraData,
+                    'extra' => $resource->resourceId !== null
+                        ? $this->normalizeExtraDataForResource($resource->resourceId, $response->extraData)
+                        : [],
                 ];
             }
 
@@ -222,8 +192,32 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                 'meta' => $this->requestParameters->toArray(),
             ]);
         } else {
-            $this->setResponseStatus($data);
+            $this->setResponseStatus($response);
         }
+    }
+
+    /**
+     * @param int $resourceId
+     * @param array<string, array<mixed, mixed>> $extraData
+     *
+     * @return mixed[]
+     */
+    private function normalizeExtraDataForResource(int $resourceId, array $extraData): array
+    {
+        $data = [];
+        foreach ($extraData as $sourceName => $sourceData) {
+            foreach (iterator_to_array($this->extraDataNormalizers) as $provider) {
+                if ($provider->isValidFor($sourceName)) {
+                    if (array_key_exists($resourceId, $sourceData)) {
+                        $data[$sourceName] = $provider->normalizeExtraDataForResource(
+                            $sourceData[$resourceId],
+                        );
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
     private function generateUrlWithMacrosResolved(string $url, ResourceResponseDto $resource): string
