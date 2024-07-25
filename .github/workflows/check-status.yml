@@ -77,8 +77,8 @@ jobs:
                   });
                   console.log(resultCheckRuns.data.check_runs)
                   resultCheckRuns.data.check_runs.forEach(({ conclusion, name, html_url }) => {
-                    if (conclusion === 'failure') {
-                      failedCheckRuns.push(`<a href="${html_url}">${name}</a>`);
+                    if (conclusion === 'failure' || conclusion === 'cancelled') {
+                      failedCheckRuns.push(`<a href="${html_url}">${name} (${conclusion})</a>`);
                     }
                   });
                   core.summary.addRaw(`${failedCheckRuns.length} job(s) failed:`, true)
