@@ -56,7 +56,7 @@ jobs:
                   } else if (conclusion === null) {
                     pending.push(id);
                   }
-                  console.log(`check suite ${id} => ${conclusion}`);
+                  console.log(`check suite ${id} => ${conclusion === null ? 'pending' : conclusion}`);
                 }
               });
 
