@@ -75,15 +75,14 @@ jobs:
                     check_suite_id: suite_id
                   });
                   console.log(resultCheckRuns.data.check_runs)
-                  resultCheckRuns.data.check_runs.forEach(({ conclusion, name, url }) => {
+                  resultCheckRuns.data.check_runs.forEach(({ conclusion, name, html_url }) => {
                     if (conclusion === 'failure') {
-                      failedCheckRuns.push(`<a href="${url}">${name}</a>`);
-                      failureMessage += ` (${name})[${url}]`;
+                      failedCheckRuns.push(`<a href="${html_url}">${name}</a>`);
                     }
                   });
+                  core.summary.addRaw(`${failedCheckRuns.length} job(s) failed:`, true)
                   core.summary.addList(failedCheckRuns);
                   core.summary.write()
-                  core.error(failureMessage);
                 }
 
                 core.setFailed(`${failure.length} workflow(s) failed`);
