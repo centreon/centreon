@@ -669,59 +669,59 @@ jobs:
       xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  # newman-test:
-  #   needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).databases }}
-  #   name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
+  newman-test:
+    needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).databases }}
+    name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
-  #   uses: ./.github/workflows/newman.yml
-  #   with:
-  #     collection_path: centreon/tests/rest_api/collections
-  #     image_name: centreon-web
-  #     os: ${{ matrix.operating_system }}
-  #     container_name: my_centreon_container
-  #     centreon_url: http://localhost
-  #     centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-  #     database_image: bitnami/${{ matrix.database }}
-  #     dependencies_lock_file: centreon/pnpm-lock.yaml
-  #     major_version: ${{ needs.get-version.outputs.major_version }}
-  #     stability: ${{ needs.get-version.outputs.stability }}
-  #     xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+    uses: ./.github/workflows/newman.yml
+    with:
+      collection_path: centreon/tests/rest_api/collections
+      image_name: centreon-web
+      os: ${{ matrix.operating_system }}
+      container_name: my_centreon_container
+      centreon_url: http://localhost
+      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+      database_image: bitnami/${{ matrix.database }}
+      dependencies_lock_file: centreon/pnpm-lock.yaml
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
 
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  #     client_id: ${{ secrets.XRAY_CLIENT_ID }}
-  #     client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-  #     jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-  #     jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  # legacy-e2e-test:
-  #   needs: [get-version, changes, dockerize]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
-  #   name: legacy-e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
+  legacy-e2e-test:
+    needs: [get-version, changes, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+    name: legacy-e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: legacy-e2e
-  #     module_name: centreon
-  #     database_image: bitnami/${{ matrix.database }}
-  #     image_name: centreon-web
-  #     os: ${{ matrix.operating_system }}
-  #     features_path: features
-  #     test_tags: ${{ matrix.test_tags }}
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: legacy-e2e
+      module_name: centreon
+      database_image: bitnami/${{ matrix.database }}
+      image_name: centreon-web
+      os: ${{ matrix.operating_system }}
+      features_path: features
+      test_tags: ${{ matrix.test_tags }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
     # needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
@@ -748,7 +748,7 @@ jobs:
       package_directory: centreon/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
-      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+      # xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
