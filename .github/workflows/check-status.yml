@@ -56,7 +56,7 @@ jobs:
                   } else if (conclusion === null) {
                     pending.push(id);
                   }
-                  console.log(`${id} => ${conclusion}`);
+                  console.log(`check suite ${id} => ${conclusion}`);
                 }
               });
 
@@ -74,7 +74,7 @@ jobs:
                     repo: context.repo.repo,
                     check_suite_id: suite_id
                   });
-                  console.log(resultCheckRuns.data.check_runs)
+
                   resultCheckRuns.data.check_runs.forEach(({ conclusion, name, html_url }) => {
                     if (conclusion === 'failure' || conclusion === 'cancelled') {
                       failedCheckRuns.push(`<a href="${html_url}">${name} (${conclusion})</a>`);
@@ -94,6 +94,8 @@ jobs:
                 core.info("All workflows are ok");
                 return;
               }
+
+              core.info(`${pending.length} workflows in progress`);
 
               await exec.exec("sleep 30s");
             }
