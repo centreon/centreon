@@ -17966,3 +17966,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "You don't have sufficient permission for this action"
 #  msgstr ""
+
+#  msgid "Error while searching for additional connectors"
+#  msgstr ""
+
+#  msgid "You are not allowed to access additional connectors"
+#  msgstr ""

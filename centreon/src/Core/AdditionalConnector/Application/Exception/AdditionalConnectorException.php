@@ -50,7 +50,7 @@ class AdditionalConnectorException extends \Exception
      */
     public static function findAdditionalConnectors(): self
     {
-        return new self(_('Error while searching additional connector configurations'));
+        return new self(_('Error while searching for additional connectors'));
     }
 
     /**
@@ -72,9 +72,9 @@ class AdditionalConnectorException extends \Exception
     /**
      * @return self
      */
-    public static function readNotAllowed(): self
+    public static function accessNotAllowed(): self
     {
-        return new self(_('You are not allowed to read additional connector configurations'));
+        return new self(_('You are not allowed to access additional connectors'));
     }
 
     /**

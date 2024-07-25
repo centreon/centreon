@@ -19286,3 +19286,9 @@ msgstr "Vous n'êtes pas autorisé à supprimer des connecteurs additionnels"
 
 msgid "You don't have sufficient permission for this action"
 msgstr "Vous ne disposez pas de droits suffisants pour cette action"
+
+msgid "Error while searching for additional connectors"
+msgstr "Erreur lors de la recherche de connecteurs additionnels"
+
+msgid "You are not allowed to access additional connectors"
+msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs additionnels"

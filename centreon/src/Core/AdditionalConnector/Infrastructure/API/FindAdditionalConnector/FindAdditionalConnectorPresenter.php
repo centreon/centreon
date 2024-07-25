@@ -26,13 +26,32 @@ namespace Core\AdditionalConnector\Infrastructure\API\FindAdditionalConnector;
 use Core\AdditionalConnector\Application\UseCase\FindAdditionalConnector\FindAdditionalConnectorPresenterInterface;
 use Core\AdditionalConnector\Application\UseCase\FindAdditionalConnector\FindAdditionalConnectorResponse;
 use Core\AdditionalConnector\Domain\Model\Poller;
+use Core\AdditionalConnector\Domain\Model\Type;
+use Core\AdditionalConnector\Infrastructure\API\Formatter\ParametersFormatterInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
 class FindAdditionalConnectorPresenter extends AbstractPresenter implements FindAdditionalConnectorPresenterInterface
 {
     use PresenterTrait;
+
+    /** @var ParametersFormatterInterface[] */
+    private array $parametersFormatters;
+
+    /**
+     * @param PresenterFormatterInterface $presenterFormatter
+     * @param \Traversable<ParametersFormatterInterface> $parametersFormatters
+     */
+    public function __construct(
+        protected PresenterFormatterInterface $presenterFormatter,
+        \Traversable $parametersFormatters
+    ) {
+        $this->parametersFormatters = iterator_to_array($parametersFormatters);
+
+        parent::__construct($presenterFormatter);
+    }
 
     /**
      * @inheritDoc
@@ -47,7 +66,7 @@ class FindAdditionalConnectorPresenter extends AbstractPresenter implements Find
                 'name' => $response->name,
                 'type' => $response->type->value,
                 'description' => $response->description,
-                'parameters' => $response->parameters,
+                'parameters' => $this->formatParameters($response->type, $response->parameters),
                 'pollers' => array_map(
                     static fn(Poller $poller): array => ['id' => $poller->id, 'name' => $poller->name],
                     $response->pollers
@@ -58,5 +77,22 @@ class FindAdditionalConnectorPresenter extends AbstractPresenter implements Find
                 'udpated_by' => $response->updatedBy,
             ]);
         }
+    }
+
+    /**
+     * @param Type $type
+     * @param array<string,mixed> $parameters
+     *
+     * @return array<string,mixed>
+     */
+    private function formatParameters(Type $type, array $parameters): array
+    {
+        foreach ($this->parametersFormatters as $formatter) {
+            if ($formatter->isValidFor($type)) {
+                return $formatter->format($parameters);
+            }
+        }
+
+        return $parameters;
     }
 }

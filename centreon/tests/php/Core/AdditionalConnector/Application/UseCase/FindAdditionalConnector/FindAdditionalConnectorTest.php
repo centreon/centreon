@@ -71,7 +71,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
     expect($this->presenter->data)
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->data->getMessage())
-        ->toBe(AdditionalConnectorException::readNotAllowed()->getMessage());
+        ->toBe(AdditionalConnectorException::accessNotAllowed()->getMessage());
 });
 
 it('should present a ErrorResponse when an exception is thrown', function (): void {

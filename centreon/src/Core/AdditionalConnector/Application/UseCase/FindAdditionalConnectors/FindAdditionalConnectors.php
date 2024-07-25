@@ -59,7 +59,7 @@ final class FindAdditionalConnectors
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->presentResponse(
-                    new ForbiddenResponse(AdditionalConnectorException::readNotAllowed())
+                    new ForbiddenResponse(AdditionalConnectorException::accessNotAllowed())
                 );
 
                 return;
