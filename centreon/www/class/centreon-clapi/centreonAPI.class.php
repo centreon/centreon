@@ -1028,7 +1028,7 @@ class CentreonAPI
         $res = $this->DB->query("SELECT * FROM informations WHERE `key` = 'version'");
         $data = $res->fetchRow();
         print "Centreon version " . $data["value"] . "\n";
-        $res = $this->DB->query("SELECT mod_release FROM modules_informations WHERE name = 'centreon-clapi'");
+        $res = $this->DB->query("SELECT informations.value FROM informations WHERE informations.key = 'version'");
         $clapiVersion = 'undefined';
         if ($res->rowCount()) {
             $data = $res->fetchRow();
