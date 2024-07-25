@@ -22,7 +22,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "current api rate usage:"
+          echo "current rest api rate usage:"
           curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .rate
           echo ""
           echo ""
@@ -37,10 +37,9 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         with:
           script: |
-            for (let i = 0; i < 60; i++) {
-              let myOutput = '';
-              let myError = '';
+            await exec.exec("sleep 20s");
 
+            for (let i = 0; i < 60; i++) {
               const failure = [];
               const cancelled = [];
               const pending = [];
@@ -96,21 +95,7 @@ jobs:
                 return;
               }
 
-              await exec.exec("sleep 10s");
+              await exec.exec("sleep 30s");
             }
 
             core.setFailed("Timeout: some jobs are still in progress");
-
-      - name: Check workflow statuses and display token usage
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "current api rate usage:"
-          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .rate
-          echo ""
-          echo ""
-          echo "current graphql rate usage:"
-          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .resources.graphql
-          echo ""
-          echo ""
