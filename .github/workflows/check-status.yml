@@ -74,9 +74,9 @@ jobs:
                     check_suite_id: suite_id
                   });
                   console.log(resultCheckRuns)
-                  # resultCheckRuns.data.check_runs.forEach({ name, url } => {
-                  #   failureMessage += ` ($name)[$url]`;
-                  # });
+                  // resultCheckRuns.data.check_runs.forEach({ name, url } => {
+                  //   failureMessage += ` ($name)[$url]`;
+                  // });
                   core.info(failureMessage);
                 }
 
