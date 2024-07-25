@@ -1,9 +1,10 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { useSnackbar } from '@centreon/ui';
+import { ListingModel, useSnackbar } from '@centreon/ui';
 
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
+import { dialogStateAtom } from '../atoms';
 
 import {
   pageAtom,
@@ -14,15 +15,17 @@ import {
 } from './atom';
 import useLoadData from './useLoadData';
 import { defaultSelectedColumnIds } from './Columns';
+import { AdditionalConnectorListItem } from './models';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
   changeSort: ({ sortOrder, sortField }) => void;
-  data;
+  data?: ListingModel<AdditionalConnectorListItem>;
   isLoading: boolean;
+  openEditDialog: (connector: AdditionalConnectorListItem) => void;
   page?: number;
   resetColumns: () => void;
-  selectColumns;
+  selectColumns: (updatedColumnIds: Array<string>) => void;
   selectedColumnIds: Array<string>;
   setLimit;
   sortf: string;
@@ -40,6 +43,7 @@ const useListing = (): UseListing => {
     selectedColumnIdsAtom
   );
   const setLimit = useSetAtom(limitAtom);
+  const setDialogState = useSetAtom(dialogStateAtom);
 
   const resetColumns = (): void => {
     setSelectedColumnIds(defaultSelectedColumnIds);
@@ -64,6 +68,14 @@ const useListing = (): UseListing => {
     setSelectedColumnIds(updatedColumnIds);
   };
 
+  const openEditDialog = (connector: AdditionalConnectorListItem): void => {
+    setDialogState({
+      connector,
+      isOpen: true,
+      variant: 'update'
+    });
+  };
+
   const { isLoading, data } = useLoadData();
 
   return {
@@ -71,6 +83,7 @@ const useListing = (): UseListing => {
     changeSort,
     data,
     isLoading,
+    openEditDialog,
     page,
     resetColumns,
     selectColumns,

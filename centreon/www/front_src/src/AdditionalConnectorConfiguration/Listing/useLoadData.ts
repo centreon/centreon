@@ -1,6 +1,10 @@
 import { useAtomValue } from 'jotai';
 
-import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
+import {
+  buildListingEndpoint,
+  ListingModel,
+  useFetchQuery
+} from '@centreon/ui';
 
 import { additionalConnectorsEndpoint } from '../api/endpoints';
 import { additionalConnectorsListDecoder } from '../api/decoders';
@@ -52,7 +56,9 @@ const useLoadData = (): LoadDataState => {
     }
   ];
 
-  const { data, isFetching, fetchQuery } = useFetchQuery({
+  const { data, isFetching, fetchQuery } = useFetchQuery<
+    ListingModel<AdditionalConnectorListItem>
+  >({
     decoder: additionalConnectorsListDecoder,
     getEndpoint: () =>
       buildListingEndpoint({

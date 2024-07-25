@@ -23,7 +23,8 @@ const Listing = (): JSX.Element => {
     sorto,
     isLoading,
     data,
-    selectedColumnIds
+    selectedColumnIds,
+    openEditDialog
   } = useListing();
 
   return (
@@ -46,6 +47,7 @@ const Listing = (): JSX.Element => {
         onLimitChange={setLimit}
         onPaginate={changePage}
         onResetColumns={resetColumns}
+        onRowClick={openEditDialog}
         onSelectColumns={selectColumns}
         onSort={changeSort}
       />
