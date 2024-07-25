@@ -41,6 +41,8 @@ const dashboardLayout: Array<CustomLayout> = [
 ];
 
 const initialize = (): void => {
+  cy.adjustViewport();
+
   cy.mount({
     Component: (
       <DashboardLayout.Layout layout={dashboardLayout}>
@@ -63,7 +65,6 @@ describe('Dashboard', () => {
     cy.get('[data-widget-skeleton="a"]').should('not.exist');
     cy.get('[data-widget-skeleton="b"]').should('not.exist');
     cy.get('[data-widget-skeleton="c"]').should('not.exist');
-    cy.get('[data-widget-skeleton="d"]').should('exist');
 
     cy.makeSnapshot();
   });

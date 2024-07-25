@@ -98,3 +98,9 @@ Feature: Configuring metrics graph widget
     Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
     When the dashboard administrator selects the list display mode
     Then the Metrics Graph widget should refresh to display items in a list format
+
+  @TEST_MON-143621
+  Scenario: Update Metrics Graph display to bar chart
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator clicks the "Display as Bar Chart" button
+    Then the graph should be displayed as a bar chart

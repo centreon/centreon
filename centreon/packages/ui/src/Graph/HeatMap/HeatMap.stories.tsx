@@ -55,17 +55,10 @@ const Template = (args): JSX.Element => {
   return <HeatMap {...args} arrowClassName={classes.arrow} />;
 };
 
-const TileContent = ({
-  data,
-  backgroundColor
-}: {
-  backgroundColor: string;
-  data: Data;
-}): JSX.Element => (
+const TileContent = ({ data }: { data: Data }): JSX.Element => (
   <div
     style={{
       alignItems: 'center',
-      backgroundColor,
       display: 'flex',
       height: '100%',
       justifyContent: 'center'

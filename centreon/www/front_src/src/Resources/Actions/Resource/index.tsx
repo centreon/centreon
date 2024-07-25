@@ -12,7 +12,6 @@ import IconAcknowledge from '@mui/icons-material/Person';
 import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
-import IconDowntime from '../../icons/Downtime';
 import { Resource } from '../../models';
 import {
   labelAcknowledge,
@@ -34,6 +33,7 @@ import {
   MoreSecondaryActions,
   ResourceActions
 } from '../model';
+import Downtime from '../../icons/Downtime';
 
 import AcknowledgeForm from './Acknowledge';
 import useAclQuery from './aclQuery';
@@ -286,7 +286,7 @@ const ResourceActions = ({
             <ResourceActionButton
               disabled={disableDowntime}
               displayCondensed={displayCondensed}
-              icon={<IconDowntime />}
+              icon={<Downtime />}
               label={t(labelSetDowntime)}
               permitted={isDowntimePermitted}
               testId="mainSetDowntime"
