@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -6,13 +8,7 @@ import { ListingModel, useSnackbar } from '@centreon/ui';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 import { dialogStateAtom } from '../atoms';
 
-import {
-  pageAtom,
-  limitAtom,
-  sortOrderAtom,
-  sortFieldAtom,
-  selectedColumnIdsAtom
-} from './atom';
+import { pageAtom, limitAtom, sortOrderAtom, sortFieldAtom } from './atom';
 import useLoadData from './useLoadData';
 import { defaultSelectedColumnIds } from './Columns';
 import { AdditionalConnectorListItem } from './models';
@@ -35,13 +31,13 @@ interface UseListing {
 const useListing = (): UseListing => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
+  const [selectedColumnIds, setSelectedColumnIds] = useState(
+    defaultSelectedColumnIds
+  );
 
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
-  const [selectedColumnIds, setSelectedColumnIds] = useAtom(
-    selectedColumnIdsAtom
-  );
   const setLimit = useSetAtom(limitAtom);
   const setDialogState = useSetAtom(dialogStateAtom);
 
