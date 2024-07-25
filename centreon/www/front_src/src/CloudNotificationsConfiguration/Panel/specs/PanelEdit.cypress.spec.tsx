@@ -396,7 +396,7 @@ describe('Edit Panel', () => {
   it('validates that when the Contacts field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findAllByLabelText('Clear').eq(3).click();
+    cy.findAllByLabelText('Clear').eq(3).click({ force: true });
     cy.findByTestId(labelSearchContacts).click();
 
     cy.clickOutside();
@@ -412,7 +412,7 @@ describe('Edit Panel', () => {
   it('validates that when the Time period field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findAllByLabelText('Clear').eq(2).click();
+    cy.findAllByLabelText('Clear').eq(2).click({ force: true });
     cy.findByTestId(labelTimePeriod).click();
 
     cy.clickOutside();
