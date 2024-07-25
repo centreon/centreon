@@ -32,10 +32,7 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required": true,
-      "excludedResourceTypes": [
-        "meta-service"
-      ]
+      "required": true
     },
     "metrics": {
       "type": "metrics",
@@ -104,10 +101,10 @@
             }
           ],
           "hiddenCondition": {
-            "target" : "options",
+            "target": "options",
             "when": "options.displayType",
             "method": "includes",
-            "matches":  [
+            "matches": [
               "bar",
               "bar-stacked"
             ]

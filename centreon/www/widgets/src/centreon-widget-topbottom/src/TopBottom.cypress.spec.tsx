@@ -14,6 +14,7 @@ import { TopBottomSettings } from './models';
 import Widget, { TopBottomWrapper } from '.';
 
 interface Props {
+  data?: Data;
   isPublic?: boolean;
   topBottomSettings?: TopBottomSettings;
 }
@@ -24,7 +25,7 @@ const defaultSettings = {
   showLabels: true
 } as const;
 
-const data: Data = {
+const widgetData: Data = {
   metrics: [
     {
       id: 2,
@@ -54,6 +55,21 @@ const data: Data = {
   ]
 };
 
+const metaServiceData: Data = {
+  metrics: [],
+  resources: [
+    {
+      resourceType: 'meta-service',
+      resources: [
+        {
+          id: 1,
+          name: 'M1'
+        }
+      ]
+    }
+  ]
+};
+
 const defaultThreshold: FormThreshold = {
   criticalType: 'default',
   customCritical: 0,
@@ -67,7 +83,8 @@ const linkToResourcePing1 =
 
 const initializeComponent = ({
   topBottomSettings = defaultSettings,
-  isPublic = false
+  isPublic = false,
+  data = widgetData
 }: Props): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
@@ -249,5 +266,20 @@ describe('TopBottom', () => {
     cy.findAllByTestId('link to Ping_1')
       .eq(1)
       .should('have.attr', 'href', linkToResourcePing1);
+  });
+
+  it('sends a request with meta-service when the corresponding data is provided', () => {
+    initializeComponent({
+      data: metaServiceData
+    });
+
+    cy.waitForRequest('@getTop').then(({ request }) => {
+      const searchParameters = request.url.searchParams;
+
+      expect(searchParameters.get('search')).to.equal(
+        '{"$and":[{"metaservice.id":{"$in":[1]}}]}'
+      );
+      expect(searchParameters.get('metrics_names')).to.equal(null);
+    });
   });
 });

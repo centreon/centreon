@@ -74,7 +74,8 @@ export const resourceTypeQueryParameter = {
   [WidgetResourceType.hostGroup]: 'hostgroup.id',
   [WidgetResourceType.serviceCategory]: 'servicecategory.id',
   [WidgetResourceType.serviceGroup]: 'servicegroup.id',
-  [WidgetResourceType.service]: 'service.name'
+  [WidgetResourceType.service]: 'service.name',
+  [WidgetResourceType.metaService]: 'metaservice.id'
 };
 
 const areResourcesFullfilled = (value: Array<Resource>): boolean =>
@@ -114,6 +115,10 @@ const useGraphQuery = ({
 
   const prefixQuery = prefix ? [prefix] : [];
 
+  const isMetaServiceSelected =
+    equals(resources.length, 1) &&
+    equals(resources[0].resourceType, WidgetResourceType.metaService);
+
   const {
     data: graphData,
     isFetching,
@@ -140,7 +145,7 @@ const useGraphQuery = ({
 
       return `${endpoint}&start=${startAndEnd.start}&end=${
         startAndEnd.end
-      }&metric_names=[${formattedDefinedMetrics.join(',')}]`;
+      }${isMetaServiceSelected ? '' : `&metric_names=[${formattedDefinedMetrics.join(',')}]`}`;
     },
     getQueryKey: () => [
       ...prefixQuery,
@@ -151,7 +156,9 @@ const useGraphQuery = ({
       refreshCount || 0
     ],
     queryOptions: {
-      enabled: areResourcesFullfilled(resources) && !isEmpty(definedMetrics),
+      enabled:
+        areResourcesFullfilled(resources) &&
+        (isMetaServiceSelected || !isEmpty(definedMetrics)),
       refetchInterval: refreshInterval,
       suspense: false
     },
