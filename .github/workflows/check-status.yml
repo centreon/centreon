@@ -51,13 +51,13 @@ jobs:
               });
               result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
                 if (slug === 'github-actions') {
-                  if (conclusion.toLowerCase() === 'failure') {
+                  if (conclusion === 'failure') {
                     failure.push(id);
-                  } else if (conclusion.toLowerCase() === 'pending') {
+                  } else if (conclusion === 'pending') {
                     pending.push(id);
                   }
+                  console.log(`${id} => ${conclusion}`);
                 }
-                console.log(`${id} => ${conclusion}`);
               });
 
               if (pending.length === 0) {
