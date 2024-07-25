@@ -8,34 +8,21 @@ import { Divider } from '@mui/material';
 import DeleteDatasetButton from './DeleteButton';
 import AddDatasetButton from './AddButton';
 import Parameter from './Parameter';
-import { useParametersStyles } from './useParametersStyles';
 import useParameters from './useParameters';
+import { useParametersStyles } from './useParametersStyles';
 
 const Parameters = (): ReactElement => {
   const { classes } = useParametersStyles();
 
-  const {
-    addParameterGroup,
-    deleteParameterGroup,
-    getFieldType,
-    parameters,
-    changeParameterValue,
-    getError,
-    onBlur
-  } = useParameters();
+  const { addParameterGroup, deleteParameterGroup, parameters } =
+    useParameters();
 
   return (
     <div>
       {parameters?.map((parameter, index) => (
         <div className={classes.parametersContainer} key={`${index}-parameter`}>
           <div className={classes.parametersComposition}>
-            <Parameter
-              changeParameterValue={changeParameterValue(index)}
-              getError={getError(index)}
-              getFieldType={getFieldType}
-              handleBlur={onBlur(index)}
-              parameter={parameter}
-            />
+            <Parameter index={index} parameter={parameter} />
             {parameters.length > 1 && (
               <DeleteDatasetButton
                 onDeleteItem={() => deleteParameterGroup(index)}

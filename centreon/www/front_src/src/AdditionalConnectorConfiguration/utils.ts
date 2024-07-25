@@ -5,7 +5,7 @@ import { ParameterKeys } from './Modal/models';
 
 export const defaultParameters = {
   [ParameterKeys.name]: 'my_vcenter',
-  [ParameterKeys.url]: 'https://ip|hostname/sdk',
+  [ParameterKeys.url]: 'https://<ip|hostname>/sdk',
   [ParameterKeys.username]: '',
   [ParameterKeys.password]: ''
 };

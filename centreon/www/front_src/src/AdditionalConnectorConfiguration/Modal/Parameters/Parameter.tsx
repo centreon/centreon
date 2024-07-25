@@ -10,24 +10,19 @@ import { labelValue, labelName } from '../../translatedLabels';
 import { Parameter } from '../models';
 
 import { useParameterStyles } from './useParametersStyles';
+import useParameter from './useParameter';
 
 interface Props {
-  changeParameterValue: (event) => void;
-  getError: (propertyName: string) => string;
-  getFieldType: (name: string) => string;
-  handleBlur: (proprtyName: string) => void;
+  index: number;
   parameter: Parameter;
 }
 
-const Parameter = ({
-  parameter,
-  getFieldType,
-  changeParameterValue,
-  getError,
-  handleBlur
-}: Props): ReactElement => {
+const Parameter = ({ parameter, index }: Props): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useParameterStyles();
+
+  const { changeParameterValue, getError, getFieldType, handleBlur } =
+    useParameter({ index });
 
   return (
     <div className={classes.parameterComposition}>
@@ -51,12 +46,12 @@ const Parameter = ({
                 fullWidth
                 required
                 dataTestId={name}
-                error={getError(name)}
+                error={getError?.(name)}
                 label={t(labelValue)}
                 name={name}
                 type={getFieldType(name)}
                 value={parameter[name]}
-                onBlur={handleBlur(name)}
+                onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
                 onChange={changeParameterValue}
               />
             </ItemComposition.Item>
