@@ -77,7 +77,7 @@ jobs:
                     failureMessage += ` ($name)[$url]`;
                   });
                   core.info(failureMessage);
-                });
+                }
 
                 core.setFailed(`${failure.length} workflow(s) failed`);
                 return;
