@@ -121,9 +121,9 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('hasTopologyRole')
         ->willReturn(true);
    $this->readAdditionalConnectorRepository
-        ->expects($this->once())
-        ->method('find')
-        ->willReturn($this->testedAdditionalConnector);
+       ->expects($this->once())
+       ->method('find')
+       ->willReturn($this->testedAdditionalConnector);
     $this->user
         ->expects($this->once())
         ->method('isAdmin')

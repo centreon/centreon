@@ -53,9 +53,9 @@ final class FindAdditionalConnectors
         FindAdditionalConnectorsPresenterInterface $presenter
     ): void {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ADDITIONAL_CONNECTOR_CONFIGURATION_RW)) {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ADDITIONAL_CONNECTOR_RW)) {
                 $this->error(
-                    "User doesn't have sufficient rights to read additional connector configurations",
+                    "User doesn't have sufficient rights to read additional connectors",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->presentResponse(

@@ -2,4 +2,4 @@ FindAdditionalConnectors:
   methods: GET
   path: /configuration/additional-connectors
   controller: 'Core\AdditionalConnector\Infrastructure\API\FindAdditionalConnectors\FindAdditionalConnectorsController'
-  condition: "request.attributes.get('version') >= 24.07"
+  condition: "request.attributes.get('version') >= 24.09"
