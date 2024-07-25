@@ -37,7 +37,11 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         with:
           script: |
-            console.log(github.rest);
+            console.log(github.rest.issues.get({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            }));
             # const variables = {
             #   owner: context.repo.owner,
             #   name: context.repo.repo,
