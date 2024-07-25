@@ -53,7 +53,7 @@ jobs:
                 if (slug === 'github-actions') {
                   if (conclusion === 'failure') {
                     failure.push(id);
-                  } else if (conclusion === 'pending') {
+                  } else if (conclusion === null) {
                     pending.push(id);
                   }
                   console.log(`${id} => ${conclusion}`);
