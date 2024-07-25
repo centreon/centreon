@@ -42,6 +42,7 @@ jobs:
               let myError = '';
 
               const failure = [];
+              const cancelled = [];
               const pending = [];
 
               const result = await github.rest.checks.listSuitesForRef({
@@ -51,7 +52,7 @@ jobs:
               });
               result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
                 if (slug === 'github-actions') {
-                  if (conclusion === 'failure') {
+                  if (conclusion === 'failure' || conclusion === 'cancelled') {
                     failure.push(id);
                   } else if (conclusion === null) {
                     pending.push(id);
