@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\ActionLog\Infrastructure\Repository;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
@@ -30,6 +31,8 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteActionLogRepositoryInterface
 {
+    use LoggerTrait;
+
     /**
      * @param DatabaseConnection $db
      */
@@ -123,6 +126,8 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                 $this->db->commit();
             }
         } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             if (! $aleadyInTransction) {
                 $this->db->rollBack();
             }
