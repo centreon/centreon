@@ -134,7 +134,7 @@ jobs:
             TARGETS=( "${{ github.base_ref || github.ref_name }}" "dev-${{ inputs.major_version }}.x" develop )
           fi
 
-          for TARGET in ${TARGETS[@]}; do
+          for TARGET in "${TARGETS[@]}"; do
             RESULT=0
             echo "[INFO] - Searching baseline file for $TARGET's"
             aws s3 ls "$BUCKET/$TARGET/results.json" || RESULT=$( echo $? )
