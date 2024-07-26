@@ -5,7 +5,10 @@ import { generatePath, useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 
-import { DataTable } from '@centreon/ui/components';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Box } from '@mui/material';
+
+import { DataTable, IconButton, Tooltip } from '@centreon/ui/components';
 import { userAtom } from '@centreon/ui-context';
 
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
@@ -92,20 +95,32 @@ const DashboardsOverview = (): ReactElement => {
   const GridTable = (
     <DataTable isEmpty={isEmptyList} variant="grid">
       {dashboards.map((dashboard) => (
-        <DataTable.Item
-          hasCardAction
-          Actions={<DashboardCardActions dashboard={dashboard} />}
-          description={dashboard.description ?? undefined}
-          hasActions={hasEditPermission(dashboard)}
-          key={dashboard.id}
-          thumbnail={
-            dashboard.thumbnail
-              ? `${dashboard.thumbnail}?${new Date().getTime()}`
-              : fallbackThumbnail
-          }
-          title={dashboard.name}
-          onClick={navigateToDashboard(dashboard)}
-        />
+        <div className={classes.dashboardItemContainer} key={dashboard.id}>
+          <DataTable.Item
+            hasCardAction
+            Actions={<DashboardCardActions dashboard={dashboard} />}
+            description={dashboard.description ?? undefined}
+            hasActions={hasEditPermission(dashboard)}
+            thumbnail={
+              dashboard.thumbnail
+                ? `${dashboard.thumbnail}?${new Date().getTime()}`
+                : fallbackThumbnail
+            }
+            title={dashboard.name}
+            onClick={navigateToDashboard(dashboard)}
+          />
+          {!dashboard.thumbnail && (
+            <Box className={classes.thumbnailFallbackIcon}>
+              <Tooltip
+                followCursor={false}
+                label="Save your dashboard again to generate a thumbnail"
+                placement="top"
+              >
+                <InfoOutlinedIcon color="primary" />
+              </Tooltip>
+            </Box>
+          )}
+        </div>
       ))}
     </DataTable>
   );

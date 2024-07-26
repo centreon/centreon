@@ -32,6 +32,10 @@ const useStyles = makeStyles()((theme) => ({
       display: 'flex',
       justifyContent: 'space-between'
     },
+    '&:hover img[alt*="thumbnail"]': {
+      transform: 'scale(1.1)',
+      transformOrigin: 'center'
+    },
     borderRadius: theme.shape.borderRadius,
     display: 'flex',
     flexDirection: 'column',
@@ -49,10 +53,6 @@ const useStyles = makeStyles()((theme) => ({
     overflow: 'hidden'
   },
   thumbnail: {
-    '&:hover': {
-      transform: 'scale(1.1)',
-      transformOrigin: 'center'
-    },
     height: theme.spacing(10.25),
     objectFit: 'cover',
     objectPosition: 'top',
