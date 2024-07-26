@@ -64,11 +64,11 @@ export type Dashboard = NamedEntity & {
   ownRole: DashboardRole;
   panels?: Array<DashboardPanel>;
   shares: Shares;
+  thumbnail: string | null;
   refresh: {
     type: 'global' | 'manual';
     interval: number | null;
   };
-  thumbnail?: string;
 };
 
 export type PublicDashboard = NamedEntity & {

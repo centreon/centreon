@@ -6,6 +6,7 @@ import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 
 import { DataTable } from '@centreon/ui/components';
+import { userAtom } from '@centreon/ui-context';
 
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
@@ -20,6 +21,8 @@ import { DashboardListing } from '../DashboardListing';
 import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import DashboardCardActions from '../DashboardCardActions/DashboardCardActions';
+import thumbnailFallbackLight from '../../../../assets/thumbnail-fallback-light.svg';
+import thumbnailFallbackDark from '../../../../assets/thumbnail-fallback-dark.svg';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 import { useStyles } from './DashboardsOverview.styles';
@@ -31,6 +34,7 @@ const DashboardsOverview = (): ReactElement => {
 
   const viewMode = useAtomValue(viewModeAtom);
   const search = useAtomValue(searchAtom);
+  const user = useAtomValue(userAtom);
 
   const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
   const { createDashboard } = useDashboardConfig();
@@ -50,6 +54,14 @@ const DashboardsOverview = (): ReactElement => {
   const isCardsView = useMemo(
     () => equals(viewMode, ViewMode.Cards),
     [viewMode]
+  );
+
+  const fallbackThumbnail = useMemo(
+    () =>
+      equals(user.themeMode, 'light')
+        ? thumbnailFallbackLight
+        : thumbnailFallbackDark,
+    [user.themeMode]
   );
 
   const emptyStateLabels = {
@@ -77,8 +89,6 @@ const DashboardsOverview = (): ReactElement => {
     );
   }
 
-  console.log(dashboards);
-
   const GridTable = (
     <DataTable isEmpty={isEmptyList} variant="grid">
       {dashboards.map((dashboard) => (
@@ -88,7 +98,11 @@ const DashboardsOverview = (): ReactElement => {
           description={dashboard.description ?? undefined}
           hasActions={hasEditPermission(dashboard)}
           key={dashboard.id}
-          thumbnail={dashboard.thumbnail}
+          thumbnail={
+            dashboard.thumbnail
+              ? `${dashboard.thumbnail}?${new Date().getTime()}`
+              : fallbackThumbnail
+          }
           title={dashboard.name}
           onClick={navigateToDashboard(dashboard)}
         />

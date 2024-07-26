@@ -8,6 +8,9 @@ import {
   Typography as MuiTypography
 } from '@mui/material';
 
+import Image from '../../../Image/Image';
+import LoadingSkeleton from '../../../LoadingSkeleton';
+
 import { useStyles } from './DataTableItem.styles';
 
 export interface DataTableItemProps {
@@ -16,7 +19,7 @@ export interface DataTableItemProps {
   hasActions?: boolean;
   hasCardAction?: boolean;
   onClick?: () => void;
-  thumbnail?: string;
+  thumbnail?: string | null;
   title: string;
 }
 
@@ -50,8 +53,9 @@ const DataTableItem = forwardRef(
         <ActionArea aria-label="view" onClick={() => onClick?.()}>
           {thumbnail && (
             <img
-              alt={`thumbnail-${title}`}
+              alt={`thumbnail-${title}-${description}`}
               className={classes.thumbnail}
+              loading="lazy"
               src={thumbnail}
             />
           )}
