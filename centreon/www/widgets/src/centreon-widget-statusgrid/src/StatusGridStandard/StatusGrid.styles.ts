@@ -4,6 +4,7 @@ export const useTileStyles = makeStyles()((theme) => ({
   container: {
     cursor: 'pointer',
     height: '100%',
+    paddingTop: theme.spacing(4.5),
     position: 'relative',
     width: '100%'
   },
@@ -25,6 +26,11 @@ export const useTileStyles = makeStyles()((theme) => ({
   resourceName: {
     fontWeight: theme.typography.fontWeightMedium
   },
+  resourceTypeIcon: {
+    position: 'absolute',
+    right: 8,
+    top: 4
+  },
   seeMoreContainer: {
     alignItems: 'center',
     display: 'flex',
@@ -33,18 +39,27 @@ export const useTileStyles = makeStyles()((theme) => ({
     justifyContent: 'center',
     width: '100%'
   },
+  stateContent: {
+    display: 'flex',
+    flexDirection: 'row',
+    height: '100%',
+    marginTop: theme.spacing(0.5),
+    width: '100%'
+  },
+  stateIcon: {
+    marginLeft: theme.spacing(0.5)
+  },
   statusTile: {
     '&[data-mode="compact"]': {
-      height: theme.spacing(1.25),
-      width: theme.spacing(1.25)
+      height: theme.spacing(2),
+      width: '100%'
     },
-    border: `1px solid ${theme.palette.text.primary}`,
     borderRadius: theme.shape.borderRadius,
-    height: theme.spacing(1.5),
+    height: theme.spacing(3.5),
     position: 'absolute',
-    right: '10%',
-    top: '10%',
-    width: theme.spacing(1.5)
+    right: '0%',
+    top: '0%',
+    width: '100%'
   }
 }));
 

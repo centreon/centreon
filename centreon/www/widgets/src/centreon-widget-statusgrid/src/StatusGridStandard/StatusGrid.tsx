@@ -164,8 +164,6 @@ const StatusGrid = ({
           business_activity = null
         }) => {
           const statusColor = getColor({
-            is_acknowledged,
-            is_in_downtime,
             severityCode: status?.severity_code,
             theme
           });

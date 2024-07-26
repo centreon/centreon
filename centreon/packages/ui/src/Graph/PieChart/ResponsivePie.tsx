@@ -53,7 +53,8 @@ const ResponsivePie = ({
   onArcClick,
   displayValues,
   TooltipContent,
-  legendDirection = 'column'
+  legendDirection = 'column',
+  tooltipProps = {}
 }: PieProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -163,6 +164,7 @@ const ResponsivePie = ({
                               title={title}
                               total={total}
                               value={arc.data.value}
+                              {...tooltipProps}
                             />
                           )
                         }

@@ -410,8 +410,6 @@ describe('Line chart', () => {
 
       cy.contains('8:00 AM').should('be.visible');
       cy.get('path[fill="rgba(102, 153, 204, 0.8)"]').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it('shows points when the prop is set', () => {

@@ -33,7 +33,8 @@ const ResponsiveBarStack = ({
   unit = 'number',
   displayValues,
   variant = 'vertical',
-  legendDirection = 'column'
+  legendDirection = 'column',
+  tooltipProps = {}
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
   const { classes, cx } = useBarStackStyles();
@@ -143,6 +144,7 @@ const ResponsiveBarStack = ({
                                 title={title}
                                 total={total}
                                 value={barStack.bars[0].bar.data[barStack.key]}
+                                {...tooltipProps}
                               />
                             )
                           }
