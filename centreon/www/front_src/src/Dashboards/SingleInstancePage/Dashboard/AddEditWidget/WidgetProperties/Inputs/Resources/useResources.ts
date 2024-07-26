@@ -423,7 +423,7 @@ const useResources = ({
 
     return (
       widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleResourceSelection &&
+      widgetProperties?.singleHostPerMetric &&
       hasSelectedHost
     );
   }, [value]);
