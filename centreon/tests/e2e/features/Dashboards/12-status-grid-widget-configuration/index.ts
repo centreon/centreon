@@ -263,10 +263,11 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 
 Then('only the contents of the other widget are displayed', () => {
   cy.get('[class*="resourceName"]')
+    .eq(0)
     .parent()
     .parent()
     .invoke('removeAttr', 'target')
-    .click();
+    .click({ force: true });
   cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
   cy.get('[class*="resourceName"]').contains('host3').should('exist');
@@ -369,7 +370,7 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
     .should(($a) => {
       $a.attr('target', '_self');
     })
-    .click();
+    .click({ force: true });
   cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
 });
 
@@ -422,10 +423,11 @@ Given('a dashboard with a Status Grid widget', () => {
 
 When('the dashboard administrator clicks on a random resource', () => {
   cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
+    .eq(0)
     .parent()
     .parent()
     .invoke('removeAttr', 'target')
-    .click();
+    .click({ force: true });
 });
 
 Then(
