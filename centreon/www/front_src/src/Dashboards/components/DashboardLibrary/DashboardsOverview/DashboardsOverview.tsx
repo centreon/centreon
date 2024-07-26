@@ -8,7 +8,7 @@ import { equals, isNil } from 'ramda';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Box } from '@mui/material';
 
-import { DataTable, IconButton, Tooltip } from '@centreon/ui/components';
+import { DataTable, Tooltip } from '@centreon/ui/components';
 import { userAtom } from '@centreon/ui-context';
 
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
