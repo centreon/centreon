@@ -69,37 +69,38 @@
       ],
       "defaultValue": []
     },
-    "hostSeverities":{
+    "hostSeverities": {
       "type": "connected-autocomplete",
       "label": "Host severities",
       "secondaryLabel": "Select host severities",
       "baseEndpoint": "/monitoring/severities/host",
-      "isSingleAutocomplete" : false
+      "isSingleAutocomplete": false
     },
-    "serviceSeverities":{
+    "serviceSeverities": {
       "type": "connected-autocomplete",
       "label": "Service severities",
       "secondaryLabel": "Select service severities",
       "baseEndpoint": "/monitoring/severities/service",
-      "isSingleAutocomplete" : false
+      "isSingleAutocomplete": false
     },
     "isOpenTicketEnabled": {
       "type": "switch",
       "label": "Enable Open Tickets",
       "defaultValue": false,
       "hiddenCondition": {
-        "target" : "featureFlags",
+        "target": "featureFlags",
         "when": "resouresTableOpenTickets",
         "method": "equals",
         "matches": false
-      }
+      },
+      "hasModule": "centreon-open-tickets"
     },
-    "provider":{
+    "provider": {
       "type": "connected-autocomplete",
       "label": "Rule (ticket provider)",
       "secondaryLabel": "Select rule (ticket provider)",
       "baseEndpoint": "/open-tickets/providers",
-      "isSingleAutocomplete" : true,
+      "isSingleAutocomplete": true,
       "hiddenCondition": {
         "target": "options",
         "when": "options.isOpenTicketEnabled",
