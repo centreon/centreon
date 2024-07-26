@@ -19257,5 +19257,5 @@ msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
 
 msgid "Save your dashboard to generate a thumbnail"
-msgstr "Sauvegardez votre tableau de bord afin générer une vignette"
+msgstr "Sauvegardez votre tableau de bord pour générer une vignette"
 
