@@ -53,7 +53,7 @@ const useStyles = makeStyles()((theme) => ({
       transform: 'scale(1.1)',
       transformOrigin: 'center'
     },
-    height: theme.spacing(10),
+    height: theme.spacing(10.25),
     objectFit: 'cover',
     objectPosition: 'top',
     transition: 'transform 150ms ease-out',
