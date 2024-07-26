@@ -14,6 +14,7 @@ import { userAtom } from '@centreon/ui-context';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
   labelCreateADashboard,
+  labelSaveYourDashboardForThumbnail,
   labelWelcomeToDashboardInterface
 } from '../../../translatedLabels';
 import { Dashboard } from '../../../api/models';
@@ -113,10 +114,13 @@ const DashboardsOverview = (): ReactElement => {
             <Box className={classes.thumbnailFallbackIcon}>
               <Tooltip
                 followCursor={false}
-                label="Save your dashboard again to generate a thumbnail"
+                label={t(labelSaveYourDashboardForThumbnail)}
                 placement="top"
               >
-                <InfoOutlinedIcon color="primary" />
+                <InfoOutlinedIcon
+                  color="primary"
+                  data-testid="thumbnail-fallback"
+                />
               </Tooltip>
             </Box>
           )}

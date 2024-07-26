@@ -8,9 +8,6 @@ import {
   Typography as MuiTypography
 } from '@mui/material';
 
-import Image from '../../../Image/Image';
-import LoadingSkeleton from '../../../LoadingSkeleton';
-
 import { useStyles } from './DataTableItem.styles';
 
 export interface DataTableItemProps {
@@ -55,6 +52,7 @@ const DataTableItem = forwardRef(
             <img
               alt={`thumbnail-${title}-${description}`}
               className={classes.thumbnail}
+              data-testId={`thumbnail-${title}-${description}`}
               loading="lazy"
               src={thumbnail}
             />
