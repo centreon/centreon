@@ -216,6 +216,8 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
                 FROM `:db`.`acc_poller_relation` rel
                 INNER JOIN `:db`.acl_resources_poller_relations arpr
                     ON rel.poller_id = arpr.poller_id
+                JOIN `:db`.`nagios_server` ng
+                    ON rel.poller_id = ng.id
                 INNER JOIN `:db`.acl_res_group_relations argr
                     ON argr.acl_res_id = arpr.acl_res_id
                     AND argr.acl_group_id IN ({$accessGroupIdsQuery})
@@ -346,9 +348,9 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
                 ON  acc.id = rel.acc_id
             INNER JOIN `:db`.`nagios_server` ns
                 ON rel.poller_id = ns.id
-            INNER JOIN `:db`.acl_resources_poller_relations arpr
+            LEFT JOIN `:db`.acl_resources_poller_relations arpr
                 ON ns.id = arpr.poller_id
-            INNER JOIN `:db`.acl_res_group_relations argr
+            LEFT JOIN `:db`.acl_res_group_relations argr
                 ON argr.acl_res_id = arpr.acl_res_id
                 AND argr.acl_group_id IN ({$accessGroupIdsQuery})
             SQL;
