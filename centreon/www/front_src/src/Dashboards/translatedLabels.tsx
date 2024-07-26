@@ -69,4 +69,4 @@ export const labelYouAreGoingToDeleteUser =
 export const labelUserDeleted = 'User deleted';
 export const labelShareWithContacts = 'Share with contacts';
 export const labelSaveYourDashboardForThumbnail =
-  'Save your dashboard again to generate a thumbnail';
+  'Save your dashboard to generate a thumbnail';
