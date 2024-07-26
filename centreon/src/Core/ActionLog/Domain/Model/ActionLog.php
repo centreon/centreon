@@ -47,7 +47,7 @@ class ActionLog
         private readonly string $objectName,
         private readonly string $actionType,
         private readonly int $contactId,
-        \DateTime $creationDate = null
+        ?\DateTime $creationDate = null
     ) {
         if ($creationDate === null) {
             $this->creationDate = new \DateTime();
@@ -67,7 +67,7 @@ class ActionLog
      *
      * @return ActionLog
      */
-    public function setId(?int $id): ActionLog
+    public function setId(?int $id): self
     {
         $this->id = $id;
 
@@ -87,7 +87,7 @@ class ActionLog
      *
      * @return ActionLog
      */
-    public function setCreationDate(?\DateTime $creationDate): ActionLog
+    public function setCreationDate(?\DateTime $creationDate): self
     {
         $this->creationDate = $creationDate;
 

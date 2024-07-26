@@ -29,9 +29,9 @@ interface WriteActionLogRepositoryInterface
     /**
      * @param ActionLog $actionLog
      *
-     * @return int
-     *
      * @throws \Throwable
+     *
+     * @return int
      */
     public function addAction(ActionLog $actionLog): int;
 
