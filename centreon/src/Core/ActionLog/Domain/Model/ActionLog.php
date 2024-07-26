@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,56 +18,117 @@
  * For more information : contact@centreon.com
  *
  */
+declare(strict_types=1);
 
-declare(strict_types = 1);
+namespace Core\ActionLog\Domain\Model;
 
-namespace Core\Common\Domain;
-
-class LogAction
+class ActionLog
 {
+    public const ACTION_TYPE_ADD = 'a';
+    public const ACTION_TYPE_DELETE = 'd';
+    public const ACTION_TYPE_ENABLE = 'enable';
+    public const ACTION_TYPE_DISABLE = 'disable';
+
+    private ?int $id;
+
+    private ?\DateTime $creationDate;
+
     /**
-     * @param \DateTime $dataTime
      * @param string $objectType
      * @param int $objectId
      * @param string $objectName
      * @param string $actionType
      * @param int $contactId
+     * @param \DateTime|null $creationDate
      */
     public function __construct(
-        private readonly \DateTime $dateTime,
         private readonly string $objectType,
         private readonly int $objectId,
         private readonly string $objectName,
         private readonly string $actionType,
         private readonly int $contactId,
+        \DateTime $creationDate = null
     ) {
+        if ($creationDate === null) {
+            $this->creationDate = new \DateTime();
+        }
     }
 
-    public function getDateTime(): \DateTime
+    /**
+     * @return int|null
+     */
+    public function getId(): ?int
     {
-        return $this->dateTime;
+        return $this->id;
     }
 
+    /**
+     * @param int|null $id
+     *
+     * @return ActionLog
+     */
+    public function setId(?int $id): ActionLog
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getCreationDate(): ?\DateTime
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * @param \DateTime|null $creationDate
+     *
+     * @return ActionLog
+     */
+    public function setCreationDate(?\DateTime $creationDate): ActionLog
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectType(): string
     {
         return $this->objectType;
     }
 
+    /**
+     * @return int
+     */
     public function getObjectId(): int
     {
         return $this->objectId;
     }
 
+    /**
+     * @return string
+     */
     public function getObjectName(): string
     {
         return $this->objectName;
     }
 
+    /**
+     * @return string
+     */
     public function getActionType(): string
     {
         return $this->actionType;
     }
 
+    /**
+     * @return int
+     */
     public function getContactId(): int
     {
         return $this->contactId;

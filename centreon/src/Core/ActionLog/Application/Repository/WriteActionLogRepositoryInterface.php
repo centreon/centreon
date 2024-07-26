@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,19 +18,28 @@
  * For more information : contact@centreon.com
  *
  */
+declare(strict_types=1);
 
-declare(strict_types = 1);
+namespace Core\ActionLog\Application\Repository;
 
-namespace Core\Common\Application\Repository;
+use Core\ActionLog\Domain\Model\ActionLog;
 
-use Core\Common\Domain\LogAction;
-
-interface WriteLogActionRepositoryInterface
+interface WriteActionLogRepositoryInterface
 {
     /**
-     * @param LogAction $log
+     * @param ActionLog $actionLog
+     *
+     * @return int
      *
      * @throws \Throwable
      */
-    public function add(LogAction $log): void;
+    public function addAction(ActionLog $actionLog): int;
+
+    /**
+     * @param ActionLog $actionLog
+     * @param array<string, string|int|bool> $details
+     *
+     * @throws \Throwable
+     */
+    public function addActionDetails(ActionLog $actionLog, array $details): void;
 }
