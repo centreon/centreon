@@ -1,7 +1,13 @@
 import { ReactElement } from 'react';
 
+import { useTranslation } from 'react-i18next';
+
 import { Chip } from '@mui/material';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutline';
+
+import { Tooltip } from '@centreon/ui/components';
+
+import { labelRemoovevCenterESX } from '../../translatedLabels';
 
 import { useDeleteButtonStyles } from './useParametersStyles';
 
@@ -17,15 +23,18 @@ const DeleteIcon = (): ReactElement => {
 
 const DeleteButton = ({ onDeleteItem }: Props): ReactElement => {
   const { classes } = useDeleteButtonStyles();
+  const { t } = useTranslation();
 
   return (
     <div className={classes.deleteButtonContainer}>
-      <Chip
-        className={classes.deleteIconChip}
-        deleteIcon={<DeleteIcon />}
-        onClick={onDeleteItem}
-        onDelete={onDeleteItem}
-      />
+      <Tooltip label={t(labelRemoovevCenterESX)} position="bottom">
+        <Chip
+          className={classes.deleteIconChip}
+          deleteIcon={<DeleteIcon />}
+          onClick={onDeleteItem}
+          onDelete={onDeleteItem}
+        />
+      </Tooltip>
     </div>
   );
 };

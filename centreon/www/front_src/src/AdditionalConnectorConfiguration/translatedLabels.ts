@@ -2,6 +2,7 @@ export const labelAdditionalConnectorConfiguration =
   'Additional connector configuration';
 export const labelName = 'Name';
 export const labelType = 'Type';
+export const labelTypes = 'Types';
 export const labelDescription = 'Description';
 export const labelCreator = 'Creator';
 export const labelCreationDate = 'Creation date';
@@ -58,6 +59,7 @@ export const labelAddParameter = 'Add parameter';
 export const labelUrl = 'Url';
 export const labelUsername = 'Username';
 export const labelAddvCenterESX = 'Add vCenter/ESX';
+export const labelRemoovevCenterESX = 'Remove vCenter/ESX';
 export const labelUrlIsRequired = 'URL is required';
 export const labelAteastOnePollerIsRequired = 'At least one poller is required';
 export const labelAtLeastOneVCenterIsRequired =
