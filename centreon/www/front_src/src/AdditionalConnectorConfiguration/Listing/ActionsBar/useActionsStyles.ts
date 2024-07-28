@@ -26,7 +26,6 @@ export const useFilterStyles = makeStyles()((theme) => ({
   filters: {
     alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(0.5),
-    width: '70%'
+    width: '80%'
   }
 }));

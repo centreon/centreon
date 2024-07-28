@@ -6,7 +6,7 @@ import { SearchField } from '@centreon/ui';
 
 import { labelSearch } from '../../../translatedLabels';
 import { useFilterStyles } from '../useActionsStyles';
-import { filtersAtom } from '../../atom';
+import { searchAtom } from '../../atom';
 import useLoadData from '../../useLoadData';
 
 import PopoverFilter from './PopoverFilter';
@@ -15,15 +15,15 @@ const Filters = (): JSX.Element => {
   const { classes } = useFilterStyles();
   const { t } = useTranslation();
 
-  const [filters, setFilters] = useAtom(filtersAtom);
+  const [search, setSearch] = useAtom(searchAtom);
 
   const { reload } = useLoadData();
 
   const onChange = (e): void => {
-    setFilters({ ...filters, name: e.target.value });
+    setSearch(e.target.value);
   };
 
-  const search = (event): void => {
+  const onSearch = (event): void => {
     const enterKeyPressed = equals(event.key, 'Enter');
     if (!enterKeyPressed) {
       return;
@@ -40,9 +40,9 @@ const Filters = (): JSX.Element => {
       className={classes.filters}
       dataTestId={t(labelSearch)}
       placeholder={t(labelSearch)}
-      value={filters?.name}
+      value={search}
       onChange={onChange}
-      onKeyDown={search}
+      onKeyDown={onSearch}
     />
   );
 };

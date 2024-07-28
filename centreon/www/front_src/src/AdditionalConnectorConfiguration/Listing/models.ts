@@ -22,3 +22,9 @@ export type List<TEntity> = {
   meta: ListMeta;
   result: Array<TEntity>;
 };
+
+export interface FiltersType {
+  name: string;
+  pollers: Array<NamedEntity>;
+  types: Array<NamedEntity>;
+}

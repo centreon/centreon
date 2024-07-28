@@ -18,10 +18,10 @@ const ActionsBar = (): JSX.Element => {
 
   return (
     <Grid container className={classes.actions}>
-      <Grid item flex={2}>
+      <Grid item flex={1}>
         <AddDashboard openCreateDialog={openCreateDialog} />
       </Grid>
-      <Grid item flex={5}>
+      <Grid item flex={3}>
         <Filters />
       </Grid>
     </Grid>

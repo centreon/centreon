@@ -1,9 +1,8 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
 
 import { filtersDefaultValue } from '../utils';
 
-import { AdditionalConnectorListItem, NamedEntity } from './models';
+import { AdditionalConnectorListItem, FiltersType } from './models';
 
 type SortOrder = 'asc' | 'desc';
 
@@ -18,8 +17,6 @@ export const connectorsToDeleteAtom = atom<AdditionalConnectorListItem | null>(
 export const connectorsToDuplicateAtom =
   atom<AdditionalConnectorListItem | null>(null);
 
-export const filtersAtom = atomWithStorage<{
-  name: string;
-  pollers: Array<NamedEntity>;
-  type: NamedEntity;
-}>('acc-filters', filtersDefaultValue);
+export const filtersAtom = atom<FiltersType>(filtersDefaultValue);
+
+export const searchAtom = atom<string>('');

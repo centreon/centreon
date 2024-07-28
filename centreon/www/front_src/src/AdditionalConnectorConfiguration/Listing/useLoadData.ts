@@ -34,7 +34,7 @@ const useLoadData = (): LoadDataState => {
   const sort = { [sortField]: sortOrder };
 
   const searchConditions = [
-    ...(!filters?.pollers
+    ...(!filters.pollers
       ? []
       : filters.pollers.map((poller) => ({
           field: 'poller.name',
@@ -42,16 +42,18 @@ const useLoadData = (): LoadDataState => {
             $rg: poller.name
           }
         }))),
-    {
-      field: 'type',
-      values: {
-        $rg: filters?.type.name
-      }
-    },
+    ...(!filters?.types
+      ? []
+      : filters.pollers.map((type) => ({
+          field: 'type',
+          values: {
+            $rg: type.name
+          }
+        }))),
     {
       field: 'name',
       values: {
-        $rg: filters?.name
+        $rg: filters.name
       }
     }
   ];
