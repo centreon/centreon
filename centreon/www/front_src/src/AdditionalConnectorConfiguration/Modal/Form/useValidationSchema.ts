@@ -4,16 +4,15 @@ import { useTranslation } from 'react-i18next';
 import {
   labelAtLeastOneVCenterIsRequired,
   labelAteastOnePollerIsRequired,
-  labelCharacters,
   labelDescription,
+  labelDescriptionMustBeMost,
   labelInvalidPortNumber,
-  labelMustBeAtLeast,
   labelMustBeAvalidURL,
-  labelMustBeMost,
   labelName,
+  labelNameMustBeAtLeast,
+  labelNameMustBeMost,
   labelPassword,
   labelRequired,
-  labelUrlIsRequired,
   labelVcenterNameMustBeUnique
 } from '../../translatedLabels';
 
@@ -21,7 +20,7 @@ const useValidationSchema = (): { validationSchema } => {
   const { t } = useTranslation();
 
   const urlValidationSchema = string()
-    .required(t(labelUrlIsRequired))
+    .required(t(labelRequired))
     .matches(
       /^(https?:\/\/)?((([a-zA-Z\d]([a-zA-Z\d-]*[a-zA-Z\d])*)\.)+[a-zA-Z]{2,}|((\d{1,3}\.){3}\d{1,3})|(\[([a-fA-F\d:]+)\]))(:\d+)?(\/[-a-zA-Z\d%_.~+]*)*(\?[;&a-zA-Z\d%_.~+=-]*)?(#[-a-zA-Z\d_]*)?$/i,
       t(labelMustBeAvalidURL)
@@ -71,15 +70,12 @@ const useValidationSchema = (): { validationSchema } => {
   const validationSchema = object({
     description: string()
       .label(t(labelDescription) || '')
-      .max(
-        180,
-        (p) => `${p.label} ${t(labelMustBeMost)} ${p.max} ${t(labelCharacters)}`
-      )
+      .max(180, t(labelDescriptionMustBeMost))
       .nullable(),
     name: string()
       .label(t(labelName))
-      .min(3, ({ min, label }) => t(labelMustBeAtLeast, { label, min }))
-      .max(50, ({ max, label }) => t(labelMustBeMost, { label, max }))
+      .min(3, t(labelNameMustBeAtLeast))
+      .max(50, t(labelNameMustBeMost))
       .required(t(labelRequired)),
     parameters: parametersSchema,
     pollers: array()

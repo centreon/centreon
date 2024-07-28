@@ -5,8 +5,8 @@ import { equals } from 'ramda';
 
 import { Divider } from '@mui/material';
 
-import DeleteDatasetButton from './DeleteButton';
-import AddDatasetButton from './AddButton';
+import DeleteParameterGroupButton from './DeleteButton';
+import AddParameterGroupButton from './AddButton';
 import Parameter from './Parameter';
 import useParameters from './useParameters';
 import { useParametersStyles } from './useParametersStyles';
@@ -24,7 +24,7 @@ const Parameters = (): ReactElement => {
           <div className={classes.parametersComposition}>
             <Parameter index={index} parameter={parameter} />
             {parameters.length > 1 && (
-              <DeleteDatasetButton
+              <DeleteParameterGroupButton
                 onDeleteItem={() => deleteParameterGroup(index)}
               />
             )}
@@ -34,7 +34,7 @@ const Parameters = (): ReactElement => {
           )}
         </div>
       ))}
-      <AddDatasetButton
+      <AddParameterGroupButton
         addButtonDisabled={false}
         onAddItem={addParameterGroup}
       />

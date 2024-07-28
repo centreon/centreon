@@ -6,21 +6,27 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import AdditionalConnectorConfiguration from '../Page';
 import {
   additionalConnectorsEndpoint,
-  getAdditionalConnectorEndpoint
+  getAdditionalConnectorEndpoint,
+  getPollersForConnectorTypeEndpoint
 } from '../api/endpoints';
 import {
   labelAdditionalConnectorConfiguration,
   labelAddvCenterESX,
+  labelAteastOnePollerIsRequired,
   labelCancel,
   labelCreate,
   labelCreateConnectorConfiguration,
   labelDescription,
   labelEditConnectorConfiguration,
+  labelInvalidPortNumber,
   labelMoreFilters,
+  labelMustBeAvalidURL,
   labelName,
+  labelNameMustBeAtLeast,
   labelParameters,
   labelPort,
-  labelRemoovevCenterESX,
+  labelRemoveVCenterESX,
+  labelRequired,
   labelSearch,
   labelSelectPollers,
   labelType,
@@ -38,7 +44,7 @@ const mockPageRequests = (): void => {
     cy.interceptAPIRequest({
       alias: 'getConnectors',
       method: Method.GET,
-      path: `${additionalConnectorsEndpoint}**`,
+      path: `${additionalConnectorsEndpoint}?**`,
       response: connectors
     });
   });
@@ -48,6 +54,15 @@ const mockPageRequests = (): void => {
       alias: 'getConnector',
       method: Method.GET,
       path: `${getAdditionalConnectorEndpoint(1)}**`,
+      response: connector
+    });
+  });
+
+  cy.fixture('ACC/pollers-vmware.json').then((connector) => {
+    cy.interceptAPIRequest({
+      alias: 'geAllowedPollers',
+      method: Method.GET,
+      path: `${getPollersForConnectorTypeEndpoint({})}**`,
       response: connector
     });
   });
@@ -329,31 +344,233 @@ describe('Additional Connctor Configuration', () => {
       cy.matchImageSnapshot();
     });
 
-    it('disables the update button when no change has been made to the modal form', () => {});
-    it('disables the create/update button when there is error(s) in form field(s)', () => {});
-    it('enable the create/update button when there is all mondatory fields are field', () => {});
+    it('disables the update button when no change has been made to the modal form', () => {
+      initializeModal({ variant: 'update' });
 
-    it('hides Delete Parameter Group button when there is only one paramter group', () => {});
-    it('displays parameters group with four unchangable parameter names', () => {});
-    it(`add new parameter group when the ${labelAddvCenterESX} button is clicked`, () => {});
-    it(`removes a parameter group when the ${labelRemoovevCenterESX} button is clicked`, () => {});
+      cy.findByText(labelUpdateConnectorConfiguration).should('be.visible');
+
+      cy.findByTestId('Modal')
+        .children()
+        .eq(2)
+        .children()
+        .first()
+        .scrollTo('bottom');
+
+      cy.get(`button[data-testid="submit"`)
+        .should('be.visible')
+        .should('have.text', labelUpdate)
+        .should('be.disabled');
+
+      cy.matchImageSnapshot();
+    });
+    it('disables the create/update button when there is error(s) in form field(s)', () => {
+      initializeModal({ variant: 'update' });
+
+      cy.findByText(labelUpdateConnectorConfiguration).should('be.visible');
+      cy.findByLabelText(labelName).clear();
+
+      cy.findByTestId('Modal')
+        .children()
+        .eq(2)
+        .children()
+        .first()
+        .scrollTo('bottom');
+
+      cy.get(`button[data-testid="submit"`)
+        .should('be.visible')
+        .should('have.text', labelUpdate)
+        .should('be.disabled');
+    });
+    it('enables the create/update button when all mondatory fields are field', () => {
+      initializeModal({ variant: 'create' });
+
+      cy.findByText(labelCreateConnectorConfiguration).should('be.visible');
+
+      cy.get(`button[data-testid="submit"`)
+        .should('have.text', labelCreate)
+        .should('be.disabled');
+
+      cy.findByLabelText(labelName).type('New name');
+
+      cy.findByTestId(labelSelectPollers).click();
+
+      cy.contains('poller1').click();
+
+      cy.findByTestId(labelSelectPollers).click();
+
+      cy.get(`input[data-testid="Url_value"`)
+        .clear()
+        .type('http://10.10.10.10/sdk');
+
+      cy.get(`input[data-testid="Username_value"`).type('username');
+      cy.get(`input[data-testid="Password_value"`).type('password');
+
+      cy.get(`button[data-testid="submit"`)
+        .should('be.visible')
+        .should('have.text', labelCreate)
+        .should('not.be.disabled');
+
+      cy.matchImageSnapshot();
+    });
+
+    it('hides Delete Parameter Group buttons when there is only one paramter group', () => {
+      initializeModal({ variant: 'create' });
+
+      cy.findByTestId(labelRemoveVCenterESX).should('not.exist');
+    });
+    it(`add new parameter group when the ${labelAddvCenterESX} button is clicked`, () => {
+      initializeModal({ variant: 'create' });
+
+      cy.findAllByTestId('parameterGroup').should('have.length', 1);
+
+      cy.findByText(labelAddvCenterESX).click();
+
+      cy.findByTestId('Modal')
+        .children()
+        .eq(2)
+        .children()
+        .first()
+        .scrollTo('bottom');
+
+      cy.findAllByTestId('parameterGroup').should('have.length', 2);
+
+      cy.matchImageSnapshot();
+    });
+    it(`removes a parameter group when the ${labelRemoveVCenterESX} button is clicked`, () => {
+      initializeModal({ variant: 'create' });
+
+      cy.findByText(labelAddvCenterESX).click();
+
+      cy.findByTestId('Modal')
+        .children()
+        .eq(2)
+        .children()
+        .first()
+        .scrollTo('bottom');
+
+      cy.findAllByTestId(labelRemoveVCenterESX).should('have.length', 2);
+
+      cy.findAllByTestId('parameterGroup').should('have.length', 2);
+
+      cy.findAllByTestId(labelRemoveVCenterESX).first().click();
+
+      cy.findAllByTestId('parameterGroup').should('have.length', 1);
+    });
 
     describe('Form validation', () => {
-      it('name field is required', () => {});
-      it('name length must be between 3 and 50 characters', () => {});
-      it('description field is not required', () => {});
-      it('description length must be less than 180', () => {});
-      it('at least one poller is required', () => {});
-      it('connector type field is required', () => {});
-      it('port field is required', () => {});
-      it('port should be a valid integer', () => {});
-      it('port should be between 0 and 65535', () => {});
+      beforeEach(() => {
+        initializeModal({ variant: 'create' });
+      });
+      it('name field is required', () => {
+        cy.findByLabelText(labelName).clear();
 
-      it('vcenter name field is required', () => {});
-      it('vcenter url field is required', () => {});
-      it('vcenter url sould be a valid URL or an IP address', () => {});
-      it('vcenter username field is required', () => {});
-      it('vcenter password field is required', () => {});
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelRequired).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+
+      it('at least one poller is required', () => {
+        cy.findByTestId(labelSelectPollers).click();
+
+        cy.contains('poller1').click();
+        cy.get('body').click(0, 0);
+
+        cy.findByTestId('CancelIcon').click();
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelAteastOnePollerIsRequired).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+
+      keys(defaultParameters).forEach((parameter) => {
+        it(`${parameter} field is required`, () => {
+          cy.get(`input[data-testid="${parameter}_value"`).clear();
+
+          cy.get('body').click(0, 0);
+
+          cy.contains(labelRequired).should('be.visible');
+
+          cy.matchImageSnapshot();
+        });
+      });
+
+      it('port field is required', () => {
+        cy.get(`input[data-testid=${labelPort}_value`).clear();
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelRequired).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+
+      it('name length must be between 3 and 50 characters', () => {
+        cy.findByLabelText(labelName).clear().type('ab');
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelNameMustBeAtLeast).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+      it('description field is not required', () => {
+        cy.findByLabelText(labelDescription).clear();
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelRequired).should('not.exist');
+
+        cy.matchImageSnapshot();
+      });
+      it('port should be a valid integer', () => {
+        cy.get(`input[data-testid=${labelPort}_value`).clear().type('0.1');
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelInvalidPortNumber).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+      it('port should be between 0 and 65535', () => {
+        cy.get(`input[data-testid=${labelPort}_value`).clear().type('70000');
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelInvalidPortNumber).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+      it('vcenter url must be a valid URL or an IP address', () => {
+        ['abc', '170.600.12', 'http://exa_mple.com'].forEach((url) => {
+          cy.get('input[data-testid="Url_value"').clear().type(url);
+
+          cy.get('body').click(0, 0);
+
+          cy.contains(labelMustBeAvalidURL).should('be.visible');
+
+          cy.matchImageSnapshot();
+        });
+
+        ['192.110.0.1/sdk', '170.12.12.1', 'http://example.com'].forEach(
+          (url) => {
+            cy.get('input[data-testid="Url_value"').clear().type(url);
+
+            cy.get('body').click(0, 0);
+
+            cy.contains(labelMustBeAvalidURL).should('not.exist');
+
+            cy.matchImageSnapshot();
+          }
+        );
+      });
+    });
+
+    describe('API requests', () => {
+      it('sends a Post request when the the Modal is in "Creation Mode" and the form is filled with ACC data and the Create Button is clicked ', () => {});
+      it('sends an Update request when the Modal is in "Edition Mode" an the form is filled with ACC data and the Updaye Button is clicked ', () => {});
     });
   });
 });

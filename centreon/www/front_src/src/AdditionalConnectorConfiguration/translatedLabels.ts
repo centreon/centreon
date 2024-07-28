@@ -38,11 +38,11 @@ export const labelAdditionalConnectorUpdated =
 export const labelDuplicateConnectorConfiguration =
   'Duplicate connector configuration';
 export const labelSave = 'Save';
-export const labelMustBeMost = '{{label}} can be at most {{max}} characters';
-export const labelMustBeAtLeast =
-  '{{label}} should be at least {{min}} characters long';
+export const labelNameMustBeMost = 'Name can be at most 50 characters';
+export const labelDescriptionMustBeMost = 'Name can be at most 50 characters';
+export const labelNameMustBeAtLeast =
+  'Name should be at least 3 characters long';
 export const labelRequired = 'Required';
-export const labelCharacters = 'characters';
 export const labelCreateConnectorConfiguration =
   'Create additional connector configuration';
 export const labelUpdateConnectorConfiguration =
@@ -59,8 +59,7 @@ export const labelAddParameter = 'Add parameter';
 export const labelUrl = 'Url';
 export const labelUsername = 'Username';
 export const labelAddvCenterESX = 'Add vCenter/ESX';
-export const labelRemoovevCenterESX = 'Remove vCenter/ESX';
-export const labelUrlIsRequired = 'URL is required';
+export const labelRemoveVCenterESX = 'Remove vCenter/ESX';
 export const labelAteastOnePollerIsRequired = 'At least one poller is required';
 export const labelAtLeastOneVCenterIsRequired =
   'At least one vCenter is required';

@@ -7,7 +7,7 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutline';
 
 import { Tooltip } from '@centreon/ui/components';
 
-import { labelRemoovevCenterESX } from '../../translatedLabels';
+import { labelRemoveVCenterESX } from '../../translatedLabels';
 
 import { useDeleteButtonStyles } from './useParametersStyles';
 
@@ -27,9 +27,10 @@ const DeleteButton = ({ onDeleteItem }: Props): ReactElement => {
 
   return (
     <div className={classes.deleteButtonContainer}>
-      <Tooltip label={t(labelRemoovevCenterESX)} position="bottom">
+      <Tooltip label={t(labelRemoveVCenterESX)} position="bottom">
         <Chip
           className={classes.deleteIconChip}
+          data-testid={labelRemoveVCenterESX}
           deleteIcon={<DeleteIcon />}
           onClick={onDeleteItem}
           onDelete={onDeleteItem}
