@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Core\AdditionalConnector\Infrastructure\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\AdditionalConnector\Application\Repository\ReadAdditionalConnectorRepositoryInterface;
 use Core\AdditionalConnector\Domain\Model\AdditionalConnector;
 use Core\AdditionalConnector\Domain\Model\Poller;
@@ -31,6 +33,8 @@ use Core\AdditionalConnector\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\MonitoringServer\Infrastructure\Repository\MonitoringServerRepositoryTrait;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * @phpstan-type _AdditionalConnector array{
@@ -47,7 +51,7 @@ use Core\Common\Infrastructure\Repository\RepositoryTrait;
  */
 class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implements ReadAdditionalConnectorRepositoryInterface
 {
-    use RepositoryTrait;
+    use RepositoryTrait, MonitoringServerRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -81,14 +85,13 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
      */
     public function find(int $accId): ?AdditionalConnector
     {
-        $sql = <<<'SQL'
-            SELECT *
-            FROM `:db`.`additional_connector` acc
-            WHERE acc.`id` = :id
-            SQL;
-
-        // Prepare SQL + bind values
-        $statement = $this->db->prepare($this->translateDbName($sql));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT *
+                FROM `:db`.`additional_connector` acc
+                WHERE acc.`id` = :id
+                SQL
+        ));
         $statement->bindValue(':id', $accId, \PDO::PARAM_INT);
         $statement->execute();
 
@@ -102,13 +105,12 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
 
     public function findAll(): array
     {
-        $sql = <<<'SQL'
-            SELECT *
-            FROM `:db`.`additional_connector` acc
-            SQL;
-
-        // Prepare SQL + bind values
-        $statement = $this->db->prepare($this->translateDbName($sql));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT *
+                FROM `:db`.`additional_connector` acc
+                SQL
+        ));
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
@@ -126,20 +128,19 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
      */
     public function findPollersByType(Type $type): array
     {
-        $sql = <<<'SQL'
-            SELECT
-                rel.`poller_id` as id,
-                ng.`name`
-            FROM `:db`.`acc_poller_relation` rel
-            JOIN `:db`.`additional_connector` acc
-                ON rel.acc_id = acc.id
-            JOIN `:db`.`nagios_server` ng
-                ON rel.poller_id = ng.id
-            WHERE acc.`type` = :type
-            SQL;
-
-        // Prepare SQL + bind values
-        $statement = $this->db->prepare($this->translateDbName($sql));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    rel.`poller_id` as id,
+                    ng.`name`
+                FROM `:db`.`acc_poller_relation` rel
+                JOIN `:db`.`additional_connector` acc
+                    ON rel.acc_id = acc.id
+                JOIN `:db`.`nagios_server` ng
+                    ON rel.poller_id = ng.id
+                WHERE acc.`type` = :type
+                SQL
+        ));
         $statement->bindValue(':type', $type->value, \PDO::PARAM_STR);
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
@@ -159,18 +160,17 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
      */
     public function findPollersByAccId(int $accId): array
     {
-        $sql = <<<'SQL'
-            SELECT
-                rel.`poller_id` as id,
-                ng.`name`
-            FROM `:db`.`acc_poller_relation` rel
-            JOIN `:db`.`nagios_server` ng
-                ON rel.poller_id = ng.id
-            WHERE rel.`acc_id` = :id
-            SQL;
-
-        // Prepare SQL + bind values
-        $statement = $this->db->prepare($this->translateDbName($sql));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    rel.`poller_id` as id,
+                    ng.`name`
+                FROM `:db`.`acc_poller_relation` rel
+                JOIN `:db`.`nagios_server` ng
+                    ON rel.poller_id = ng.id
+                WHERE rel.`acc_id` = :id
+                SQL
+        ));
         $statement->bindValue(':id', $accId, \PDO::PARAM_INT);
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
@@ -183,6 +183,221 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
         }
 
         return $pollers;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findPollersByAccIdAndAccessGroups(int $accId, array $accessGroups): array
+    {
+        if ($accessGroups === []) {
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+            return $this->findPollersByAccId($accId);
+        }
+
+        [$accessGroupsBindValues, $accessGroupIdsQuery] = $this->createMultipleBindQuery(
+            array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups),
+            ':acl_'
+        );
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT
+                    rel.`poller_id` as id,
+                    ng.`name`
+                FROM `:db`.`acc_poller_relation` rel
+                INNER JOIN `:db`.acl_resources_poller_relations arpr
+                    ON rel.poller_id = arpr.poller_id
+                JOIN `:db`.`nagios_server` ng
+                    ON rel.poller_id = ng.id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = arpr.acl_res_id
+                    AND argr.acl_group_id IN ({$accessGroupIdsQuery})
+                WHERE rel.`acc_id` = :id
+                SQL
+        ));
+        $statement->bindValue(':id', $accId, \PDO::PARAM_INT);
+        foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
+            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Retrieve data
+        $pollers = [];
+        foreach ($statement as $result) {
+            /** @var array{id:int,name:string} $result */
+            $pollers[] = new Poller($result['id'], $result['name']);
+        }
+
+        return $pollers;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): array
+    {
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'acc.name',
+            'type' => 'acc.type',
+            'poller.id' => 'rel.poller_id',
+            'poller.name' => 'ns.name',
+        ]);
+
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                acc.*
+            FROM `:db`.`additional_connector` acc
+            LEFT JOIN `:db`.`acc_poller_relation` rel
+                ON  acc.id = rel.acc_id
+            INNER JOIN `:db`.`nagios_server` ns
+                ON rel.poller_id = ns.id
+            SQL;
+
+        // Search
+        $request .= $sqlTranslator->translateSearchParameterToSql();
+        $request .= ' GROUP BY acc.name';
+
+        // Sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= ! is_null($sortRequest)
+            ? $sortRequest
+            : ' ORDER BY acc.id ASC';
+
+        // Pagination
+        $request .= $sqlTranslator->translatePaginationToSql();
+        $request = $this->translateDbName($request);
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            if ($type !== null) {
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $additionalConnectors = [];
+        foreach ($statement as $result) {
+            /** @var _AdditionalConnector $result */
+            $additionalConnectors[] = $this->createFromArray($result);
+        }
+
+        return $additionalConnectors;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array {
+        if ($accessGroups === []) {
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+            return $this->findByRequestParameters($requestParameters);
+        }
+
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'acc.name',
+            'type' => 'acc.type',
+            'poller.id' => 'rel.poller_id',
+            'poller.name' => 'ns.name',
+        ]);
+
+        [$accessGroupsBindValues, $accessGroupIdsQuery] = $this->createMultipleBindQuery(
+            array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups),
+            ':acl_'
+        );
+
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS
+                acc.*
+            FROM `:db`.`additional_connector` acc
+            LEFT JOIN `:db`.`acc_poller_relation` rel
+                ON  acc.id = rel.acc_id
+            INNER JOIN `:db`.`nagios_server` ns
+                ON rel.poller_id = ns.id
+            LEFT JOIN `:db`.acl_resources_poller_relations arpr
+                ON ns.id = arpr.poller_id
+            LEFT JOIN `:db`.acl_res_group_relations argr
+                ON argr.acl_res_id = arpr.acl_res_id
+                AND argr.acl_group_id IN ({$accessGroupIdsQuery})
+            SQL;
+
+        // Search
+        $request .= $sqlTranslator->translateSearchParameterToSql();
+        $request .= ' GROUP BY acc.name';
+
+        // Sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= ! is_null($sortRequest)
+            ? $sortRequest
+            : ' ORDER BY acc.id ASC';
+
+        // Pagination
+        $request .= $sqlTranslator->translatePaginationToSql();
+        $request = $this->translateDbName($request);
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            if ($type !== null) {
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+        foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
+            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $additionalConnectors = [];
+        foreach ($statement as $result) {
+            /** @var _AdditionalConnector $result */
+            $additionalConnectors[] = $this->createFromArray($result);
+        }
+
+        return $additionalConnectors;
     }
 
     /**

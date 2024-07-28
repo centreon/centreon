@@ -40,9 +40,49 @@ class AdditionalConnectorException extends \Exception
     /**
      * @return self
      */
+    public static function deleteAdditionalConnector(): self
+    {
+        return new self(_('Error while deleting an additional connector configuration'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function findAdditionalConnectors(): self
+    {
+        return new self(_('Error while searching for additional connectors'));
+    }
+
+    /**
+     * @return self
+     */
     public static function addNotAllowed(): self
     {
         return new self(_('You are not allowed to add additional connectors'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete additional connector configurations'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function accessNotAllowed(): self
+    {
+        return new self(_('You are not allowed to access additional connectors'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function unsufficientRights(): self
+    {
+        return new self(_("You don't have sufficient permission for this action"));
     }
 
     /**
