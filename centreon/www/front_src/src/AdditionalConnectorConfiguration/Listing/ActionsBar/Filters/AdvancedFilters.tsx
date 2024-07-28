@@ -83,7 +83,7 @@ const AdvancedFilters = (): JSX.Element => {
   useUpdateSearchBarBasedOnFilters();
 
   return (
-    <div className={classes.additionalFilters} data-testid="FilterContainer">
+    <div className={classes.additionalFilters} data-testid="advancedFilters">
       <TextField
         fullWidth
         dataTestId={labelName}

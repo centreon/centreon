@@ -25,7 +25,7 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
     useParameter({ index });
 
   return (
-    <div className={classes.parameterComposition}>
+    <div className={classes.parameterComposition} data-testid="parameterGroup">
       <ItemComposition addButtonHidden>
         {keys(parameter).map((name) => (
           <div className={classes.parameterCompositionItem} key={name}>
@@ -38,14 +38,14 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
                 disabled
                 fullWidth
                 required
-                dataTestId={labelName}
+                dataTestId={name}
                 label={t(labelName)}
                 value={t(name)}
               />
               <TextField
                 fullWidth
                 required
-                dataTestId={name}
+                dataTestId={`${name}_value`}
                 error={getError?.(name)}
                 label={t(labelValue)}
                 name={name}

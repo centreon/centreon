@@ -17,14 +17,13 @@ type Props = {
 const AddButton = ({ addButtonDisabled, onAddItem }: Props): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useAddButtonStyles();
-  const dataTestId = 'addNewContainer';
 
   return (
     <Divider className={classes.addButtonDivider} variant="middle">
       <Button
         aria-label={labelAddvCenterESX}
         className={classes.addButton}
-        data-testid={dataTestId}
+        data-testid={labelAddvCenterESX}
         disabled={addButtonDisabled}
         onClick={onAddItem}
       >

@@ -38,7 +38,7 @@ const Filters = (): JSX.Element => {
       fullWidth
       EndAdornment={PopoverFilter}
       className={classes.filters}
-      dataTestId={t(labelSearch)}
+      dataTestId={labelSearch}
       placeholder={t(labelSearch)}
       value={search}
       onChange={onChange}

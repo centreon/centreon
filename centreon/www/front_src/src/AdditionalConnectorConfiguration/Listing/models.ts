@@ -13,6 +13,12 @@ export interface AdditionalConnectorListItem extends NamedEntity {
   updatedBy: NamedEntity | null;
 }
 
+export interface DialogState {
+  connector: AdditionalConnectorListItem | null;
+  isOpen: boolean;
+  variant: 'create' | 'update';
+}
+
 export type ListMeta = {
   limit: number;
   page: number;

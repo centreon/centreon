@@ -22,7 +22,12 @@ const AdditionalConnectorModal = (): JSX.Element => {
     : labelUpdateConnectorConfiguration;
 
   return (
-    <Modal open={isDialogOpen} size="large" onClose={closeDialog}>
+    <Modal
+      data-testid="Modal"
+      open={isDialogOpen}
+      size="large"
+      onClose={closeDialog}
+    >
       <Modal.Header>{t(labelHeader)}</Modal.Header>
       <Modal.Body>
         <AdditionalConnectorForm
