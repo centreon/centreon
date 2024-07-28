@@ -23,13 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
-use Core\AdditionalConnector\Application\Repository\WriteAdditionalConnectorRepositoryInterface;
-use Core\AdditionalConnector\Domain\Model\AdditionalConnector;
-use Core\AdditionalConnector\Domain\Model\Type as AccType;
 use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerInputOutput;
-use Core\Broker\Domain\Model\Type as BrokerIOType;
+use Core\Broker\Domain\Model\Type;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
@@ -55,9 +52,7 @@ use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialErro
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialRecordedDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialTypeEnum;
-use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\Migrator\VmWareV6CredentialMigrator;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use DateTimeImmutable;
 use Utility\UUIDGenerator;
 
 beforeEach(function (): void {
@@ -71,8 +66,6 @@ beforeEach(function (): void {
     $this->writeOpenIdConfigurationRepository = $this->createMock(WriteOpenIdConfigurationRepositoryInterface::class);
     $this->readBrokerInputOutputRepository = $this->createMock(ReadBrokerInputOutputRepositoryInterface::class);
     $this->writeBrokerInputOutputRepository = $this->createMock(WriteBrokerInputOutputRepositoryInterface::class);
-    $this->writeAccRepository = $this->createMock(WriteAdditionalConnectorRepositoryInterface::class);
-    $this->accCredentialMigrators = [$this->createMock(VmWareV6CredentialMigrator::class)];
 
     $this->credential1 = new CredentialDto();
     $this->credential1->resourceId = 1;
@@ -165,7 +158,7 @@ beforeEach(function (): void {
     $this->brokerInputOutputs = new BrokerInputOutput(
         id: 0,
         tag: 'output',
-        type: new BrokerIOType(29, 'Database configuration writer'),
+        type: new Type(29, 'Database configuration writer'),
         name: 'my-output',
         parameters: [
             'db_type' => 'db2',
@@ -174,27 +167,6 @@ beforeEach(function (): void {
             'db_user' => 'admin',
             'db_password' => 'my-password',
             'db_name' => 'centreon',
-        ]
-    );
-
-    $this->additionalConnector = new AdditionalConnector(
-        id: 1,
-        name: 'my-ACC',
-        type: AccType::VMWARE_V6,
-        createdBy: 1,
-        updatedBy: 1,
-        createdAt: new DateTimeImmutable(),
-        updatedAt: new DateTimeImmutable(),
-        parameters: [
-            'port' => 4242,
-            'vcenters' => [
-                [
-                    'name' => 'my-vcenter',
-                    'url' => 'http://10.10.10.10/sdk',
-                    'username' => 'admin',
-                    'password' => 'my-pwd',
-                ],
-            ],
         ]
     );
 });
@@ -220,8 +192,6 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
         readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
         writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
-        writeAccRepository: $this->writeAccRepository,
-        accCredentialMigrators: $this->accCredentialMigrators,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,
         hostMacros: $this->hostMacros,
@@ -229,7 +199,6 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
         pollerMacros: $this->pollerMacros,
         openIdProviderConfiguration: $this->openIdProviderConfiguration,
         brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
-        additionalConnectors: [$this->additionalConnector],
     );
 
     foreach ($credentialMigrator as $status) {
@@ -266,8 +235,6 @@ it('tests getIterator method with poller macros', function (): void {
         writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
         readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
         writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
-        writeAccRepository: $this->writeAccRepository,
-        accCredentialMigrators: $this->accCredentialMigrators,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,
         hostMacros: $this->hostMacros,
@@ -275,7 +242,6 @@ it('tests getIterator method with poller macros', function (): void {
         pollerMacros: $this->pollerMacros,
         openIdProviderConfiguration: $this->openIdProviderConfiguration,
         brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
-        additionalConnectors: [$this->additionalConnector],
     );
 
     foreach ($credentialMigrator as $status) {
@@ -309,8 +275,6 @@ it('tests getIterator method with broker input/output configuration', function (
         writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
         readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
         writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
-        writeAccRepository: $this->writeAccRepository,
-        accCredentialMigrators: $this->accCredentialMigrators,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,
         hostMacros: $this->hostMacros,
@@ -318,7 +282,6 @@ it('tests getIterator method with broker input/output configuration', function (
         pollerMacros: $this->pollerMacros,
         openIdProviderConfiguration: $this->openIdProviderConfiguration,
         brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
-        additionalConnectors: [$this->additionalConnector],
     );
 
     foreach ($credentialMigrator as $status) {
@@ -351,8 +314,6 @@ it('tests getIterator method with exception', function (): void {
         writeOpenIdConfigurationRepository: $this->writeOpenIdConfigurationRepository,
         readBrokerInputOutputRepository: $this->readBrokerInputOutputRepository,
         writeBrokerInputOutputRepository: $this->writeBrokerInputOutputRepository,
-        writeAccRepository: $this->writeAccRepository,
-        accCredentialMigrators: $this->accCredentialMigrators,
         hosts: $this->hosts,
         hostTemplates: $this->hostTemplates,
         hostMacros: $this->hostMacros,
@@ -360,7 +321,6 @@ it('tests getIterator method with exception', function (): void {
         pollerMacros: $this->pollerMacros,
         openIdProviderConfiguration: $this->openIdProviderConfiguration,
         brokerInputOutputs: [5 => [$this->brokerInputOutputs]],
-        additionalConnectors: [$this->additionalConnector],
     );
 
     foreach ($credentialMigrator as $status) {

@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Host\Infrastructure\Repository\HostRepositoryTrait;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Utility\SqlConcatenator;
@@ -40,7 +41,7 @@ use Utility\SqlConcatenator;
  */
 class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements ReadMonitoringServerRepositoryInterface
 {
-    use MonitoringServerRepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
+    use HostRepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -92,7 +93,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
             $accessGroups
         );
 
-        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+        if ($this->hasAccessToAllHosts($accessGroupIds)) {
             return $this->exists($monitoringServerId);
         }
 
