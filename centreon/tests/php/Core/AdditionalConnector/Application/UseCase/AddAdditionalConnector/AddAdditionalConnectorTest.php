@@ -80,7 +80,7 @@ beforeEach(function (): void {
         updatedBy: $this->testedAdditionalConnectorUpdatedBy = $this->testedAdditionalConnectorCreatedBy,
         createdAt: $this->testedAdditionalConnectorCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
         updatedAt: $this->testedAdditionalConnectorUpdatedAt = $this->testedAdditionalConnectorCreatedAt,
-        parameters: $this->testedAdditionalConnectorParameters = $this->testedAddAdditionalConnectorRequest->parameters,
+        parameters: $this->testedAdditionalConnectorGlobalRefresh = $this->testedAddAdditionalConnectorRequest->parameters,
     ))->setDescription('toto');
 });
 

@@ -57,13 +57,4 @@ interface WriteAdditionalConnectorRepositoryInterface
      * @throws \Throwable
      */
     public function linkToPollers(int $accId, array $pollers): void;
-
-    /**
-     * Delete an additonal connector configuration.
-     *
-     * @param int $id
-     *
-     * @throws \Throwable
-     */
-    public function delete(int $id): void;
 }

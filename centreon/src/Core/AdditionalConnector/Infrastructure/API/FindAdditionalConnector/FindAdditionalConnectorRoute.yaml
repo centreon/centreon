@@ -1,7 +1,0 @@
-FindAdditionalConnector:
-  methods: GET
-  path: /configuration/additional-connectors/{id}
-  requirements:
-    id: '\d+'
-  controller: 'Core\AdditionalConnector\Infrastructure\API\FindAdditionalConnector\FindAdditionalConnectorController'
-  condition: "request.attributes.get('version') >= 24.09"

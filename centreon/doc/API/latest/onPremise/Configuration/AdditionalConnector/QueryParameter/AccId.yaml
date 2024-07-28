@@ -1,8 +1,0 @@
-in: path
-name: acc_id
-required: true
-description: "Additional Connector ID"
-schema:
-  type: integer
-  minimum: 1
-  example: 1
