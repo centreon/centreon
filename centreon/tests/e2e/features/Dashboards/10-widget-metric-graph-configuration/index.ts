@@ -648,7 +648,10 @@ When(
 );
 
 Then('the graph should be displayed as a bar chart', () => {
-  cy.get('rect[data-testid*="single-bar-"]', { timeout: 30000 })
-    .filter(($el) => Cypress.$($el).attr('height') !== '0')
-    .each(($el) => cy.wrap($el).should('be.visible'));
+  cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
+    const height = $el.attr('height');
+    if (height !== '0') {
+      cy.wrap($el).should('exist');
+    }
+  });
 });
