@@ -80,6 +80,7 @@ export interface FederatedWidgetOption {
         when: string;
       };
   group?: string;
+  hasModule?: string;
   hiddenCondition: WidgetHiddenCondition;
   label: string;
   options?:

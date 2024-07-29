@@ -10,7 +10,9 @@ import {
   pluck,
   difference,
   isEmpty,
-  reject
+  reject,
+  includes,
+  type
 } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
@@ -117,6 +119,10 @@ export const useWidgetInputs = (
       selectedWidgetProperties
         ? Object.entries(selectedWidgetProperties)
             .filter(([, value]) => {
+              const hasModule = value.hasModule
+                ? has(value.hasModule, modules)
+                : true;
+
               if (!value.hiddenCondition) {
                 return true;
               }
@@ -124,32 +130,32 @@ export const useWidgetInputs = (
               const { target, method, when, matches } = value.hiddenCondition;
 
               if (equals(target, 'featureFlags')) {
-                return !equals(
-                  featureFlags?.[value.hiddenCondition.when],
-                  matches
-                );
-              }
-
-              if (equals(target, 'modules')) {
-                return !equals(
-                  has(value.hiddenCondition.when, modules),
-                  matches
+                return (
+                  hasModule &&
+                  !equals(featureFlags?.[value.hiddenCondition.when], matches)
                 );
               }
 
               if (equals(method, 'includes')) {
+                const formValue = path(when.split('.'), values);
                 const property = value.hiddenCondition?.property;
-                const items = property
-                  ? pluck(property, path(when.split('.'), values))
-                  : path(when.split('.'), values);
+                const items = property ? pluck(property, formValue) : formValue;
+                const areItemsString = equals(type(items), 'String');
 
                 return (
-                  isEmpty(reject(equals(''), items)) ||
-                  !isEmpty(difference(reject(equals(''), items), matches))
+                  hasModule &&
+                  (isEmpty(reject(equals(''), items)) ||
+                    (areItemsString
+                      ? !includes(items, matches)
+                      : !isEmpty(
+                          difference(reject(equals(''), items), matches)
+                        )))
                 );
               }
 
-              return !equals(path(when.split('.'), values), matches);
+              return (
+                hasModule && !equals(path(when.split('.'), values), matches)
+              );
             })
             .map(([key, value]) => {
               const Component =
