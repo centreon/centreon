@@ -37,7 +37,6 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Tests\Core\AdditionalConnector\Application\UseCase\FindAdditionalConnector\FindAdditionalConnectorPresenterStub;
 
 beforeEach(function (): void {
     $this->useCase = new FindAdditionalConnector(
