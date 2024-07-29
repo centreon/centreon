@@ -285,14 +285,14 @@ class CentreonDB extends \PDO
     /**
      * @param $query
      * @param int $fetchMode
-     * @param ...$fetchModeArgs
+     * @param array $fetchModeArgs
      * @return PDOStatement|bool
      * @throws CentreonDbException
      */
-    public function executeQuery($query, int $fetchMode = PDO::FETCH_ASSOC, ...$fetchModeArgs): PDOStatement|bool
+    public function executeQuery($query, int $fetchMode = PDO::FETCH_ASSOC, array $fetchModeArgs = []): PDOStatement|bool
     {
         try {
-            return parent::query($query, $fetchMode, $fetchModeArgs);
+            return parent::query($query, $fetchMode, ...$fetchModeArgs);
         } catch (PDOException $e) {
             $message = "Error while executing the simple query: {$e->getMessage()}";
             $this->logSqlError($query, $message);
@@ -306,6 +306,29 @@ class CentreonDB extends \PDO
                 $e
             );
         }
+    }
+
+    /**
+     * @param string $query
+     * @return array
+     * @throws CentreonDbException
+     */
+    public function executeQueryFetchAll(string $query): array
+    {
+        $pdoSth = $this->executeQuery($query);
+        return $this->fetchAll($pdoSth);
+    }
+
+    /**
+     * @param string $query
+     * @param int $column
+     * @return array
+     * @throws CentreonDbException
+     */
+    public function executeQueryFetchColumn(string $query, int $column = 0): array
+    {
+        $pdoSth = $this->executeQuery($query, PDO::FETCH_COLUMN, [$column]);
+        return $this->fetchAll($pdoSth);
     }
 
     /**
