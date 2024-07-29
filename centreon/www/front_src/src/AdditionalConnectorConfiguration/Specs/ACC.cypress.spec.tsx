@@ -458,10 +458,9 @@ describe('Additional Connctor Configuration', () => {
     });
 
     describe('Form validation', () => {
-      beforeEach(() => {
-        initializeModal({ variant: 'create' });
-      });
       it('name field is required', () => {
+        initializeModal({ variant: 'create' });
+
         cy.findByLabelText(labelName).clear();
 
         cy.get('body').click(0, 0);
@@ -472,6 +471,8 @@ describe('Additional Connctor Configuration', () => {
       });
 
       it('at least one poller is required', () => {
+        initializeModal({ variant: 'create' });
+
         cy.findByTestId(labelSelectPollers).click();
 
         cy.contains('poller1').click();
@@ -485,19 +486,81 @@ describe('Additional Connctor Configuration', () => {
         cy.matchImageSnapshot();
       });
 
-      keys(defaultParameters).forEach((parameter) => {
-        it(`${parameter} field is required`, () => {
-          cy.get(`input[data-testid="${parameter}_value"`).clear();
+      it(`vcenter name field is required`, () => {
+        initializeModal({ variant: 'create' });
 
-          cy.get('body').click(0, 0);
+        cy.get(`input[data-testid="Vcenter name_value"`).clear();
 
-          cy.contains(labelRequired).should('be.visible');
+        cy.get('body').click(0, 0);
 
-          cy.matchImageSnapshot();
-        });
+        cy.contains(labelRequired).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+
+      it(`vcenter URL field is required`, () => {
+        initializeModal({ variant: 'create' });
+
+        cy.get(`input[data-testid="Url_value"`).clear();
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelRequired).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+
+      it(`vcenter username is required in Creation Mode`, () => {
+        initializeModal({ variant: 'create' });
+
+        cy.get(`input[data-testid="Username_value"`).clear();
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelRequired).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+
+      it(`vcenter username is not required Edition Mode`, () => {
+        initializeModal({ variant: 'update' });
+
+        cy.get(`input[data-testid="Username_value"`).clear();
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelRequired).should('not.exist');
+
+        cy.matchImageSnapshot();
+      });
+
+      it(`vcenter password field is required in Creation Mode`, () => {
+        initializeModal({ variant: 'create' });
+
+        cy.get(`input[data-testid="Password_value"`).clear();
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelRequired).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+
+      it(`vcenter password field is not required in Edition Mode`, () => {
+        initializeModal({ variant: 'update' });
+
+        cy.get(`input[data-testid="Password_value"`).clear();
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelRequired).should('not.exist');
+
+        cy.matchImageSnapshot();
       });
 
       it('port field is required', () => {
+        initializeModal({ variant: 'create' });
+
         cy.get(`input[data-testid=${labelPort}_value`).clear();
 
         cy.get('body').click(0, 0);
@@ -508,6 +571,8 @@ describe('Additional Connctor Configuration', () => {
       });
 
       it('name length must be between 3 and 50 characters', () => {
+        initializeModal({ variant: 'create' });
+
         cy.findByLabelText(labelName).clear().type('ab');
 
         cy.get('body').click(0, 0);
@@ -517,6 +582,8 @@ describe('Additional Connctor Configuration', () => {
         cy.matchImageSnapshot();
       });
       it('description field is not required', () => {
+        initializeModal({ variant: 'create' });
+
         cy.findByLabelText(labelDescription).clear();
 
         cy.get('body').click(0, 0);
@@ -526,6 +593,8 @@ describe('Additional Connctor Configuration', () => {
         cy.matchImageSnapshot();
       });
       it('port should be a valid integer', () => {
+        initializeModal({ variant: 'create' });
+
         cy.get(`input[data-testid=${labelPort}_value`).clear().type('0.1');
 
         cy.get('body').click(0, 0);
@@ -535,6 +604,8 @@ describe('Additional Connctor Configuration', () => {
         cy.matchImageSnapshot();
       });
       it('port should be between 0 and 65535', () => {
+        initializeModal({ variant: 'create' });
+
         cy.get(`input[data-testid=${labelPort}_value`).clear().type('70000');
 
         cy.get('body').click(0, 0);
@@ -544,6 +615,8 @@ describe('Additional Connctor Configuration', () => {
         cy.matchImageSnapshot();
       });
       it('vcenter url must be a valid URL or an IP address', () => {
+        initializeModal({ variant: 'create' });
+
         ['abc', '170.600.12', 'http://exa_mple.com'].forEach((url) => {
           cy.get('input[data-testid="Url_value"').clear().type(url);
 
