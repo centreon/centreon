@@ -217,8 +217,57 @@ const formData = {
       type: 'servicegroup'
     }
   ],
-  timeperiod_id: 1,
+  timeperiod_id: '1',
   users: [17]
+};
+
+const timePeriodsResponse = {
+  meta: {
+    limit: 10,
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: 1
+  },
+  result: [
+    {
+      alias: '24 x 7',
+      days: [
+        {
+          day: 1,
+          time_range: '09:00-17:00'
+        },
+        {
+          day: 2,
+          time_range: '09:00-17:00'
+        },
+        {
+          day: 3,
+          time_range: '09:00-17:00'
+        },
+        {
+          day: 4,
+          time_range: '09:00-17:00'
+        },
+        {
+          day: 5,
+          time_range: '09:00-17:00'
+        }
+      ],
+      exceptions: [],
+      id: '1',
+      name: '24X7',
+      templates: []
+    },
+    {
+      alias: 'Never',
+      days: [],
+      exceptions: [],
+      id: 2,
+      name: 'none',
+      templates: []
+    }
+  ]
 };
 
 const emailBodyText = [
@@ -237,5 +286,6 @@ export {
   hostGroupsResponse,
   serviceGroupsResponse,
   platformVersions,
-  emailBodyText
+  emailBodyText,
+  timePeriodsResponse
 };
