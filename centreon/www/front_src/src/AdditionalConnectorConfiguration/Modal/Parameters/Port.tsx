@@ -6,7 +6,7 @@ import { path } from 'ramda';
 
 import { TextField } from '@centreon/ui';
 
-import { labelValue, labelPort } from '../../translatedLabels';
+import { labelValue, labelPort, labelName } from '../../translatedLabels';
 import { AdditionalConnectorConfiguration } from '../models';
 
 import { useParameterStyles } from './useParametersStyles';
@@ -35,9 +35,8 @@ const Port = (): ReactElement => {
       <TextField
         disabled
         fullWidth
-        required
         dataTestId={labelPort}
-        label={t(labelPort)}
+        label={t(labelName)}
         value={t(labelPort)}
       />
       <TextField

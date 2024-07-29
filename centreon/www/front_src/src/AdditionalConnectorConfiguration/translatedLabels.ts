@@ -52,7 +52,6 @@ export const labelUpdate = 'Update';
 export const labelSelectType = 'Select type';
 export const labelSelectPollers = 'Select poller(s)';
 export const labelPort = 'Port';
-export const labelParameters = 'Parameters';
 export const labelValue = 'Value';
 export const labelPassword = 'Password';
 export const labelAddParameter = 'Add parameter';
@@ -71,3 +70,5 @@ export const labelDoYouWantToQuitWithoutSaving =
   'Do you want to quit without saving the changes?';
 export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';
 export const labelConfirm = 'Confirm';
+export const labelParameters = 'Parameters';
+export const labelParametersTooltip = 'Parameters tooltip';

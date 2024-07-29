@@ -42,7 +42,6 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
               <TextField
                 disabled
                 fullWidth
-                required
                 dataTestId={name}
                 label={t(labelName)}
                 value={t(name)}
