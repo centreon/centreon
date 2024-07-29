@@ -644,6 +644,19 @@ When(
       label: 'Bar',
       tag: 'div'
     }).click();
+    cy.waitUntil(
+      () => {
+        return cy
+          .getByLabel({ label: 'Bar', tag: 'div' })
+          .within(() => {
+            cy.getByTestId({ tag: 'svg', testId: 'CheckCircleIcon' });
+          })
+          .then(($element) => {
+            return cy.wrap($element.length === 1);
+          });
+      },
+      { interval: 3000, timeout: 9000 }
+    );
   }
 );
 
