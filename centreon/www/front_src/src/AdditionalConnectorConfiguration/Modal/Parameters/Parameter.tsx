@@ -21,8 +21,13 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useParameterStyles();
 
-  const { changeParameterValue, getError, getFieldType, handleBlur } =
-    useParameter({ index });
+  const {
+    changeParameterValue,
+    getError,
+    getFieldType,
+    handleBlur,
+    getIsFieldRequired
+  } = useParameter({ index });
 
   return (
     <div className={classes.parameterComposition} data-testid="parameterGroup">
@@ -44,11 +49,11 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
               />
               <TextField
                 fullWidth
-                required
                 dataTestId={`${name}_value`}
                 error={getError?.(name)}
                 label={t(labelValue)}
                 name={name}
+                required={getIsFieldRequired(name)}
                 type={getFieldType(name)}
                 value={parameter[name]}
                 onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}

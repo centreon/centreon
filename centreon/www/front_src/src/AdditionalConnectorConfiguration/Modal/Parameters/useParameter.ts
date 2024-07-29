@@ -1,16 +1,21 @@
 import { useFormikContext } from 'formik';
-import { includes, path, split } from 'ramda';
+import { equals, includes, path, split } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { AdditionalConnectorConfiguration, ParameterKeys } from '../models';
+import { dialogStateAtom } from '../../atoms';
 
 interface UsParameter {
   changeParameterValue: (event) => void;
   getError: (name: string) => string | undefined;
   getFieldType: (name) => string;
+  getIsFieldRequired: (name: string) => boolean;
   handleBlur;
 }
 
 const useParameter = ({ index }: { index: number }): UsParameter => {
+  const { variant } = useAtomValue(dialogStateAtom);
+
   const { setFieldValue, errors, touched, handleBlur } =
     useFormikContext<AdditionalConnectorConfiguration>();
 
@@ -36,7 +41,24 @@ const useParameter = ({ index }: { index: number }): UsParameter => {
     );
   };
 
-  return { changeParameterValue, getError, getFieldType, handleBlur };
+  const getIsFieldRequired = (name): boolean => {
+    if (
+      equals(variant, 'create') ||
+      !includes(name, [ParameterKeys.username, ParameterKeys.password])
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  return {
+    changeParameterValue,
+    getError,
+    getFieldType,
+    getIsFieldRequired,
+    handleBlur
+  };
 };
 
 export default useParameter;
