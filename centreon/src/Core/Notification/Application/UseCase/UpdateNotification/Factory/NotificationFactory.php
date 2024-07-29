@@ -55,7 +55,7 @@ final class NotificationFactory
         return new Notification(
             $request->id,
             $request->name,
-            new ConfigurationTimePeriod(1, ConfigurationTimePeriod::ALL_TIME_PERIOD),
+            new ConfigurationTimePeriod($request->timeperiodId, ''),
             $request->isActivated
         );
     }
