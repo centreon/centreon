@@ -102,7 +102,7 @@ function keepOneContactAtLeast($ct_id = null)
 {
     global $pearDB, $form, $centreon;
 
-    if (!isset($contact_id)) {
+    if (!isset($ct_id)) {
         $contact_id = $ct_id;
     } elseif (isset($_GET["contact_id"])) {
         $contact_id = htmlentities($_GET["contact_id"], ENT_QUOTES, "UTF-8");
@@ -689,7 +689,6 @@ function updateContact($contactId = null)
     if (!$contactId) {
         return;
     }
-    $ret = array();
     $ret = $form->getSubmitValues();
     // remove illegal chars in data sent by the user
     $ret['contact_name'] = CentreonUtils::escapeSecure($ret['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
