@@ -221,6 +221,8 @@ class CentreonDB extends \PDO
     public function prepareQuery(string $query, array $options = []): PDOStatement|bool
     {
         try {
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
             return parent::prepare($query, $options);
         } catch (PDOException $e) {
             $message = "Error while preparing the query: {$e->getMessage()}";
@@ -234,6 +236,12 @@ class CentreonDB extends \PDO
                 ],
                 $e
             );
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->log],
+            ]);
         }
     }
 
@@ -247,6 +255,9 @@ class CentreonDB extends \PDO
     public function executePreparedQuery(PDOStatement $pdoStatement, array $bindParams, bool $withParamType = false): bool
     {
         try {
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
+
             if (empty($bindParams)) {
                 throw new CentreonDbException(
                     "Binding parameters are empty",
@@ -279,6 +290,12 @@ class CentreonDB extends \PDO
                 ],
                 $e
             );
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->log],
+            ]);
         }
     }
 
@@ -292,6 +309,8 @@ class CentreonDB extends \PDO
     public function executeQuery($query, int $fetchMode = PDO::FETCH_ASSOC, array $fetchModeArgs = []): PDOStatement|bool
     {
         try {
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
             return parent::query($query, $fetchMode, ...$fetchModeArgs);
         } catch (PDOException $e) {
             $message = "Error while executing the simple query: {$e->getMessage()}";
@@ -305,6 +324,12 @@ class CentreonDB extends \PDO
                 ],
                 $e
             );
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->log],
+            ]);
         }
     }
 
