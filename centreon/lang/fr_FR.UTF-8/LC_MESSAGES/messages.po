@@ -19339,6 +19339,3 @@ msgstr "Le nom du vCenter"
 
 msgid "Do you want to quit without saving the changes?"
 msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
-
-msgid "Your form has unsaved changes"
-msgstr "Votre formulaire contient des modifications non enregistrées"
