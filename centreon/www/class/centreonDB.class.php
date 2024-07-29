@@ -791,19 +791,14 @@ class CentreonDB extends \PDO
      *
      * @param string $queryString
      * @param null|mixed $parameters
-     * @param null|int $fetchMode
-     * @param mixed ...$fetch_mode_args
+     * @param mixed ...$parametersArgs
      * @return CentreonDBStatement|false
      *
+     * @throws PDOException
      * @deprecated Instead use {@see CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()}
      * @see CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()
      */
-    public function query(
-        $queryString,
-        $parameters = null,
-        $fetchMode = null,
-        ...$fetch_mode_args
-    ): CentreonDBStatement|bool {
+    public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement|bool {
         if (!is_null($parameters) && !is_array($parameters)) {
             $parameters = [$parameters];
         }
@@ -814,7 +809,7 @@ class CentreonDB extends \PDO
         $sth = null;
         try {
             if (is_null($parameters)) {
-                $sth = parent::query($queryString, $fetchMode, $fetch_mode_args);
+                $sth = parent::query($queryString);
             } else {
                 $sth = $this->prepare($queryString);
                 $sth = $sth->execute($parameters);
