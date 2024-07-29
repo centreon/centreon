@@ -44,7 +44,7 @@ const mockPageRequests = (): void => {
     cy.interceptAPIRequest({
       alias: 'getConnectors',
       method: Method.GET,
-      path: `${additionalConnectorsEndpoint}?**`,
+      path: `**${additionalConnectorsEndpoint}?**`,
       response: connectors
     });
   });
@@ -53,7 +53,7 @@ const mockPageRequests = (): void => {
     cy.interceptAPIRequest({
       alias: 'getConnector',
       method: Method.GET,
-      path: `${getAdditionalConnectorEndpoint(1)}**`,
+      path: `**${getAdditionalConnectorEndpoint(1)}**`,
       response: connector
     });
   });
@@ -62,7 +62,7 @@ const mockPageRequests = (): void => {
     cy.interceptAPIRequest({
       alias: 'geAllowedPollers',
       method: Method.GET,
-      path: `${getPollersForConnectorTypeEndpoint({})}**`,
+      path: `**${getPollersForConnectorTypeEndpoint({})}**`,
       response: connector
     });
   });
