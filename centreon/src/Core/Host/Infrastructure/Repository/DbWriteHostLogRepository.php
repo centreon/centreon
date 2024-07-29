@@ -44,7 +44,6 @@ use Core\Host\Domain\Model\SnmpVersion;
 class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHostRepositoryInterface
 {
     use LoggerTrait;
-
     public const HOST_OBJECT_TYPE = 'host';
 
     /**
