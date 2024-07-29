@@ -17578,6 +17578,9 @@ msgstr "Modo avanzado"
 # msgid "Vcenter name should be unique"
 # msgstr ""
 
+# msgid "Vcenter name"
+# msgstr ""
+
 # msgid "Do you want to quit without saving the changes?"
 # msgstr ""
 

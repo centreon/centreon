@@ -19271,9 +19271,6 @@ msgstr "Modifier la configuration du connecteur"
 msgid "More filters"
 msgstr "Plus de filtres"
 
-msgid "Pollers"
-msgstr "Collecteurs"
-
 msgid "Delete additional connector configuration"
 msgstr "Supprimer la configuration supplémentaire du connecteur"
 
@@ -19313,17 +19310,8 @@ msgstr "Mettre à jour la configuration supplémentaire du connecteur"
 msgid "Select poller(s)"
 msgstr "Sélectionner le(s) collecteur(s)"
 
-msgid "Password"
-msgstr "Mot de passe"
-
 msgid "Add parameter"
 msgstr "Ajouter un paramètre"
-
-msgid "Url"
-msgstr "URL"
-
-msgid "Username"
-msgstr "Nom d'utilisateur"
 
 msgid "Add vCenter/ESX"
 msgstr "Ajouter vCenter/ESX"
@@ -19345,6 +19333,9 @@ msgstr "Numéro de port invalide"
 
 msgid "Vcenter name should be unique"
 msgstr "Le nom du vCenter doit être unique"
+
+msgid "Vcenter name"
+msgstr "Le nom du vCenter"
 
 msgid "Do you want to quit without saving the changes?"
 msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
