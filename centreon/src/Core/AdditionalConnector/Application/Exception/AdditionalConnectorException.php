@@ -48,6 +48,14 @@ class AdditionalConnectorException extends \Exception
     /**
      * @return self
      */
+    public static function findAdditionalConnectors(): self
+    {
+        return new self(_('Error while searching for additional connectors'));
+    }
+
+    /**
+     * @return self
+     */
     public static function addNotAllowed(): self
     {
         return new self(_('You are not allowed to add additional connectors'));
@@ -59,6 +67,14 @@ class AdditionalConnectorException extends \Exception
     public static function deleteNotAllowed(): self
     {
         return new self(_('You are not allowed to delete additional connectors'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function accessNotAllowed(): self
+    {
+        return new self(_('You are not allowed to access additional connectors'));
     }
 
     /**
