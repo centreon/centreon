@@ -3,7 +3,7 @@ import { NamedEntity } from '../Listing/models';
 export enum ParameterKeys {
   name = 'Vcenter name',
   password = 'Password',
-  url = 'Url',
+  url = 'URL',
   username = 'Username'
 }
 
