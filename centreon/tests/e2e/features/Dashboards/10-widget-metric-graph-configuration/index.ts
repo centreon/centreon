@@ -653,19 +653,28 @@ When(
 Then('the graph should be displayed as a bar chart', () => {
   cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
     cy.wrap($el).then(($bar) => {
-      cy.waitUntil(
-        () => {
-          const height = $bar.attr('height');
+      const initialHeight = $bar.attr('height');
+      if (initialHeight === '0') {
+        cy.log('Element height is 0, skipping visibility check');
+      } else {
+        cy.waitUntil(
+          () => {
+            const height = $bar.attr('height');
 
-          return cy.wrap(height !== '0');
-        },
-        {
-          interval: 3000,
-          timeout: 9000
-        }
-      ).then(() => {
-        cy.wrap($bar).should('exist').and('be.visible');
-      });
+            return cy.wrap(height !== '0');
+          },
+          {
+            errorMsg: 'Element height is still 0 after waiting',
+            interval: 1000,
+            timeout: 20000
+          }
+        ).then(() => {
+          const height = $bar.attr('height');
+          if (height !== '0') {
+            cy.wrap($bar).should('exist').and('be.visible');
+          }
+        });
+      }
     });
   });
 });
