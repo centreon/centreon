@@ -1,10 +1,10 @@
 import { MouseEvent, MutableRefObject, useState } from 'react';
 
+import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
-import { useAtomValue } from 'jotai';
 
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
@@ -17,6 +17,7 @@ import {
 } from '@centreon/ui';
 
 import FederatedComponent from '../../../components/FederatedComponents';
+import { selectedResourceDetailsEndpointDerivedAtom } from '../../Details/detailsAtoms';
 import { ResourceDetails } from '../../Details/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
@@ -29,7 +30,6 @@ import {
   labelPerformancePage,
   labelSmallSize
 } from '../../translatedLabels';
-import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
 
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 
@@ -68,7 +68,9 @@ const GraphActions = ({
   const { format } = useLocaleDateTimeFormat();
   const navigate = useNavigate();
 
-  const selectedResourcesDetails = useAtomValue(selectedResourcesDetailsAtom);
+  const resourceDetailsEndPoint = useAtomValue(
+    selectedResourceDetailsEndpointDerivedAtom
+  );
 
   const openSizeExportMenu = (event: MouseEvent<HTMLButtonElement>): void => {
     setMenuAnchor(event.currentTarget);
@@ -165,7 +167,7 @@ const GraphActions = ({
           <FederatedComponent
             end={end}
             path="/anomaly-detection/modal"
-            resourceEndpoint={selectedResourcesDetails}
+            resourceEndpoint={resourceDetailsEndPoint}
             start={start}
             styleMenuSkeleton={{ height: 0, width: 0 }}
             type={resource?.type}
