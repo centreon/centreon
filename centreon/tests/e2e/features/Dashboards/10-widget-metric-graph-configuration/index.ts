@@ -664,7 +664,7 @@ Then('the graph should be displayed as a bar chart', () => {
             return cy.wrap(height !== '0');
           },
           {
-            errorMsg: 'Element height is still 0 after waiting',
+            errorMsg: 'Element height is still undefined',
             interval: 1000,
             timeout: 20000
           }
