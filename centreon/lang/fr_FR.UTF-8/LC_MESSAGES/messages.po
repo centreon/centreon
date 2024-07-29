@@ -19292,3 +19292,6 @@ msgstr "Erreur lors de la recherche de connecteurs additionnels"
 
 msgid "You are not allowed to access additional connectors"
 msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs additionnels"
+
+msgid "Error while searching for available pollers for type '%s'"
+msgstr "Erreur lors de la recherche de collecteurs disponible pour le type '%s'"

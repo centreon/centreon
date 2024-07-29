@@ -17524,3 +17524,6 @@ msgstr "Modo avanzado"
 
 #  msgid "You are not allowed to access additional connectors"
 #  msgstr ""
+
+#  msgid "Error while searching for available pollers for type '%s'"
+#  msgstr ""
