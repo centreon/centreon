@@ -1,4 +1,6 @@
-import { ColumnType, Column } from '@centreon/ui';
+import { useTranslation } from 'react-i18next';
+
+import { ColumnType, Column, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelActions,
@@ -13,11 +15,12 @@ import {
 
 import { Actions } from './Actions';
 
-const getColumns = ({
-  t
-}): {
+const useColumns = (): {
   columns: Array<Column>;
 } => {
+  const { t } = useTranslation();
+  const { format } = useLocaleDateTimeFormat();
+
   const columns = [
     {
       disablePadding: false,
@@ -56,7 +59,11 @@ const getColumns = ({
     },
     {
       disablePadding: false,
-      getFormattedString: ({ createdAt }): string => createdAt?.slice(0, 10),
+      getFormattedString: ({ createdAt }): string =>
+        format({
+          date: createdAt,
+          formatString: 'L'
+        }),
       id: 'created_at',
       label: t(labelCreationDate),
       sortField: 'created_at',
@@ -74,7 +81,13 @@ const getColumns = ({
     },
     {
       disablePadding: false,
-      getFormattedString: ({ updatedAt }): string => updatedAt?.slice(0, 10),
+      getFormattedString: ({ updatedAt }): string =>
+        updatedAt
+          ? format({
+              date: updatedAt,
+              formatString: 'L'
+            })
+          : '',
       id: 'updated_at',
       label: t(labelLastUpdate),
       sortField: 'updated_at',
@@ -94,4 +107,4 @@ const getColumns = ({
   return { columns };
 };
 
-export default getColumns;
+export default useColumns;

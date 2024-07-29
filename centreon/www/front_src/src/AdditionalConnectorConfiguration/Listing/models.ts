@@ -5,11 +5,11 @@ export type NamedEntity = {
 
 export interface AdditionalConnectorListItem extends NamedEntity {
   createdAt: string;
-  createdBy: NamedEntity | null;
+  createdBy: NamedEntity;
   description: string | null;
   name: string;
   type: string;
-  updatedAt: string;
+  updatedAt: string | null;
   updatedBy: NamedEntity | null;
 }
 

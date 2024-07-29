@@ -1,16 +1,13 @@
-import { useTranslation } from 'react-i18next';
-
 import { MemoizedListing } from '@centreon/ui';
 
-import { getColumns } from './Columns';
 import ActionsBar from './ActionsBar/ActionsBar';
 import useListing from './useListing';
 import DeleteConnectorDialog from './Columns/Actions/DeleteDialog';
 import DuplicateConnectorDialog from './Columns/Actions/DuplicateDialog';
+import useColumns from './Columns/columns';
 
 const Listing = (): JSX.Element => {
-  const { t } = useTranslation();
-  const { columns } = getColumns({ t });
+  const { columns } = useColumns();
 
   const {
     changePage,
