@@ -820,25 +820,15 @@ function updateContactHostCommands($contact_id = null, $ret = array())
     }
 }
 
-/*
- * For massive change. We just add the new list if the elem doesn't exist yet
- */
 /**
  * @param int $contactId
+ * @return void
  */
-function updateContactHostCommands_MC($contactId): void
+function updateContactHostCommands_MC(int $contactId): void
 {
     global $form, $pearDB;
 
-    if (!is_int($contactId)) {
-        return;
-    }
-
-    $query = "SELECT command_command_id FROM contact_hostcommands_relation WHERE contact_contact_id = " . (int)$contactId;
-    $sth = $pearDB->query($query, null, PDO::FETCH_COLUMN, 0);
-    $hostCommandIdsFromDb = $sth->fetchAll();
-
-    if ($hostCommandIdsFromDb === false) {
+    if ($contactId <= 0) {
         return;
     }
 
@@ -848,30 +838,43 @@ function updateContactHostCommands_MC($contactId): void
         return;
     }
 
-    foreach ($hostCommandIdsFromForm as $commandId) {
-        if (!in_array($commandId, $hostCommandIdsFromDb, false)) {
-            $query = "INSERT INTO contact_hostcommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
-            $pearDB->query($query, ['contact_id' => (int)$contactId, 'command_id' => (int)$commandId]);
+    try {
+        $query = "SELECT command_command_id FROM contact_hostcommands_relation WHERE contact_contact_id = {$contactId}";
+        $hostCommandIdsFromDb = $pearDB->fetchColumn($pearDB->executeQuery($query));
+
+        if($hostCommandIdsFromDb === false) {
+            return;
         }
+
+        $query = "INSERT INTO contact_hostcommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
+        $pdoSth = $pearDB->prepareQuery($query);
+        foreach ($hostCommandIdsFromForm as $commandId) {
+            if (!in_array($commandId, $hostCommandIdsFromDb, false)) {
+                $pearDB->executePreparedQuery(
+                    $pdoSth,
+                    ['contact_id' => $contactId, 'command_id' => (int)$commandId]
+                );
+            }
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->insertLog(
+            2,
+            "Error while updating the relationship between contacts and host commands by massive change | {$e->toJson()}"
+        );
+        return;
     }
 }
 
 /**
  * @param int $contactId
  * @param array $fields
+ * @return void
  */
-function updateContactServiceCommands($contactId, array $fields = []): void
+function updateContactServiceCommands(int $contactId, array $fields = []): void
 {
     global $form, $pearDB;
 
-    if (!is_int($contactId)) {
-        return;
-    }
-
-    $query = "DELETE FROM contact_servicecommands_relation WHERE contact_contact_id = :contact_id";
-    $successDelete = $pearDB->query($query, ['contact_id' => (int)$contactId]);
-
-    if ($successDelete === false) {
+    if ($contactId <= 0) {
         return;
     }
 
@@ -881,9 +884,28 @@ function updateContactServiceCommands($contactId, array $fields = []): void
         return;
     }
 
-    foreach ($serviceCommandsFromForm as $commandId) {
+    try {
+        $query = "DELETE FROM contact_servicecommands_relation WHERE contact_contact_id = :contact_id";
+        $successDelete = $pearDB->executePreparedQuery($pearDB->prepareQuery($query), ['contact_id' => $contactId]);
+
+        if ($successDelete === false) {
+            return;
+        }
+
         $query = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
-        $pearDB->query($query, ['contact_id' => (int)$contactId, 'command_id' => (int)$commandId]);
+        $pdoSth = $pearDB->prepareQuery($query);
+        foreach ($serviceCommandsFromForm as $commandId) {
+            $pearDB->executePreparedQuery(
+                $pdoSth,
+                ['contact_id' => $contactId, 'command_id' => (int)$commandId]
+            );
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->insertLog(
+            2,
+            "Error while updating the relationship between contacts and service commands | {$e->toJson()}"
+        );
+        return;
     }
 }
 
@@ -892,20 +914,13 @@ function updateContactServiceCommands($contactId, array $fields = []): void
  */
 /**
  * @param int $contactId
+ * @return void
  */
-function updateContactServiceCommands_MC($contactId): void
+function updateContactServiceCommands_MC(int $contactId): void
 {
     global $form, $pearDB;
 
-    if (!is_int($contactId)) {
-        return;
-    }
-
-    $query = "SELECT command_command_id FROM contact_servicecommands_relation WHERE contact_contact_id = " . (int)$contactId;
-    $sth = $pearDB->query($query, null, PDO::FETCH_COLUMN, 0);
-    $serviceCommandsFromDb = $sth->fetchAll();
-
-    if ($serviceCommandsFromDb === false) {
+    if ($contactId <= 0) {
         return;
     }
 
@@ -915,47 +930,86 @@ function updateContactServiceCommands_MC($contactId): void
         return;
     }
 
-    foreach ($serviceCommandsFromForm as $commandId) {
-        if (!in_array($commandId, $serviceCommandsFromDb, false)) {
-            $query = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
-            $pearDB->query($query, ['contact_id' => (int)$contactId, 'command_id' => (int)$commandId]);
+    try {
+        $query = "SELECT command_command_id FROM contact_servicecommands_relation WHERE contact_contact_id = {$contactId}";
+        $serviceCommandsFromDb = $pearDB->fetchColumn($pearDB->executeQuery($query));
+
+        if ($serviceCommandsFromDb === false) {
+            return;
         }
+
+        $query = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
+        $pdoSth = $pearDB->prepareQuery($query);
+        foreach ($serviceCommandsFromForm as $commandId) {
+            if (!in_array($commandId, $serviceCommandsFromDb, false)) {
+                $pearDB->executePreparedQuery(
+                    $pdoSth,
+                    ['contact_id' => $contactId, 'command_id' => (int)$commandId]
+                );
+            }
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->insertLog(
+            2,
+            "Error while updating the relationship between contacts and service commands | {$e->toJson()}"
+        );
+        return;
     }
 }
 
 /**
  * @param int $contactId
  * @param array $fields
+ * @return void
  */
-function updateContactContactGroup($contactId, array $fields = []): void
+function updateContactContactGroup(int $contactId, array $fields = []): void
 {
     global $centreon, $form, $pearDB;
 
-    if (!is_int($contactId)) {
+    if ($contactId <= 0) {
         return;
     }
 
-    $query = "DELETE FROM contactgroup_contact_relation "
-        . "WHERE contact_contact_id = '" . (int)$contactId . "' "
-        . "AND ( "
-        . "    contactgroup_cg_id IN (SELECT cg_id FROM contactgroup WHERE cg_type = 'local') "
-        . "    OR contact_contact_id IN (SELECT contact_id FROM contact WHERE contact_auth_type = 'local') "
-        . ") ";
-    $successDelete = $pearDB->query($query);
-
-    if (!$successDelete) {
+    try {
+        $contactGroupIdsFromForm = $fields["contact_cgNotif"] ?? CentreonUtils::mergeWithInitialValues(
+            $form,
+            'contact_cgNotif'
+        );
+    } catch (InvalidArgumentException $e) {
         return;
     }
-
-    $contactGroupIdsFromForm = $fields["contact_cgNotif"] ?? CentreonUtils::mergeWithInitialValues($form, 'contact_cgNotif');
 
     if (!is_array($contactGroupIdsFromForm)) {
         return;
     }
 
-    foreach ($contactGroupIdsFromForm as $contactGroupId) {
+    try {
+        $query = "DELETE FROM contactgroup_contact_relation "
+            . "WHERE contact_contact_id = :contact_id "
+            . "AND ( "
+            . "    contactgroup_cg_id IN (SELECT cg_id FROM contactgroup WHERE cg_type = 'local') "
+            . "    OR contact_contact_id IN (SELECT contact_id FROM contact WHERE contact_auth_type = 'local') "
+            . ") ";
+        $successDelete = $pearDB->executePreparedQuery($pearDB->prepareQuery($query), ['contact_id' => $contactId]);
+
+        if (!$successDelete) {
+            return;
+        }
+
         $query = "INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)";
-        $pearDB->query($query, ['contact_id' => (int)$contactId, 'contactgroup_id' => (int)$contactGroupId]);
+        $pdoSth = $pearDB->prepareQuery($query);
+        foreach ($contactGroupIdsFromForm as $contactGroupId) {
+            $pearDB->executePreparedQuery(
+                $pdoSth,
+                ['contact_id' => $contactId, 'contactgroup_id' => (int)$contactGroupId]
+            );
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->insertLog(
+            2,
+            "Error while updating the relationship between contacts and contact groups | {$e->toJson()}"
+        );
+        return;
     }
 
     try {
@@ -974,20 +1028,13 @@ function updateContactContactGroup($contactId, array $fields = []): void
  */
 /**
  * @param int $contactId
+ * @return void
  */
-function updateContactContactGroup_MC($contactId): void
+function updateContactContactGroup_MC(int $contactId): void
 {
     global $centreon, $form, $pearDB;
 
-    if (!is_int($contactId)) {
-        return;
-    }
-
-    $query = "SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = " . (int)$contactId;
-    $sth = $pearDB->query($query, null, PDO::FETCH_COLUMN, 0);
-    $contactGroupIdsFromDb = $sth->fetchAll();
-
-    if ($contactGroupIdsFromDb === false) {
+    if ($contactId <= 0) {
         return;
     }
 
@@ -997,11 +1044,30 @@ function updateContactContactGroup_MC($contactId): void
         return;
     }
 
-    foreach ($contactGroupIdsFromForm as $contactGroupIdFromForm) {
-        if (!in_array($contactGroupIdFromForm, $contactGroupIdsFromDb, false)) {
-            $query = "INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)";
-            $pearDB->query($query, ['contact_id' => (int)$contactId, 'contactgroup_id' => (int)$contactGroupIdFromForm]);
+    try {
+        $query = "SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = {$contactId}";
+        $contactGroupIdsFromDb = $pearDB->fetchColumn($pearDB->executeQuery($query));
+
+        if ($contactGroupIdsFromDb === false) {
+            return;
         }
+
+        $query = "INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)";
+        $pdoSth = $pearDB->prepareQuery($query);
+        foreach ($contactGroupIdsFromForm as $contactGroupIdFromForm) {
+            if (!in_array($contactGroupIdFromForm, $contactGroupIdsFromDb, false)) {
+                $pearDB->executePreparedQuery(
+                    $pdoSth,
+                    ['contact_id' => $contactId, 'contactgroup_id' => (int)$contactGroupIdFromForm]
+                );
+            }
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->insertLog(
+            2,
+            "Error while updating the relationship between contacts and contact groups by massive change | {$e->toJson()}"
+        );
+        return;
     }
 
     try {
@@ -1127,68 +1193,97 @@ function insertLdapContactInDB($tmpContacts = array())
 /**
  *
  * Update ACL groups links with this user
- * @param $contact_id
+ * @param int $contactId
+ * @param array $fields
+ * @return void
  */
-function updateAccessGroupLinks($contact_id, $ret = array())
+function updateAccessGroupLinks(int $contactId, array $fields = []): void
 {
     global $form, $pearDB;
 
-    if (!$contact_id) {
+    if ($contactId <= 0) {
         return;
     }
 
-    /*
-     * Empty all ACL Links
-     */
-    $pearDB->query("DELETE FROM acl_group_contacts_relations WHERE contact_contact_id = '" . (int)$contact_id . "'");
-
-    if (isset($ret['contact_acl_groups'])) {
-        $ret = $ret['contact_acl_groups'];
-    } else {
-        $ret = CentreonUtils::mergeWithInitialValues($form, 'contact_acl_groups');
+    try {
+        $aclGroupIds = $fields['contact_acl_groups'] ?? CentreonUtils::mergeWithInitialValues(
+            $form,
+            'contact_acl_groups'
+        );
+    } catch (InvalidArgumentException $e) {
+        return;
     }
 
-    for ($i = 0; $i < count($ret); $i++) {
-        $rq = "INSERT INTO acl_group_contacts_relations ";
-        $rq .= "(contact_contact_id, acl_group_id) ";
-        $rq .= "VALUES ";
-        $rq .= "('" . (int)$contact_id . "', '" . $ret[$i] . "')";
-        $dbResult = $pearDB->query($rq);
+    if (!is_array($aclGroupIds)) {
+        return;
+    }
+
+    try {
+        $query = "DELETE FROM acl_group_contacts_relations WHERE contact_contact_id = :contact_id";
+        $successDelete = $pearDB->executePreparedQuery($pearDB->prepareQuery($query), ['contact_id' => $contactId]);
+
+        if (!$successDelete) {
+            return;
+        }
+
+        $query = "INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id) VALUES (:contact_id, :acl_group_id)";
+        $pdoSth = $pearDB->prepareQuery($query);
+        foreach ($aclGroupIds as $aclGroupId) {
+            $pearDB->executePreparedQuery($pdoSth, ['contact_id' => $contactId, 'acl_group_id' => (int)$aclGroupId]);
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->insertLog(
+            2,
+            "Error while updating the relationship between contacts and acl groups | {$e->toJson()}"
+        );
+        return;
     }
 }
 
 /**
  *
  * Update ACL groups links with this user during massive changes
- * @param $contact_id
- * @param $ret
+ * @param int $contactId
+ * @param $flag
+ * @return void
  */
-function updateAccessGroupLinks_MC($contact_id, $flag)
+function updateAccessGroupLinks_MC(int $contactId, $flag): void
 {
     global $form, $pearDB;
 
-    if (!$contact_id) {
+    if ($contactId <= 0) {
         return;
     }
 
-    $ret = array();
-    $ret = $form->getSubmitValues();
+    $aclGroupIds = $form->getSubmitValue("contact_acl_groups");
 
-    /*
-     * Empty all ACL Links
-     */
-    if ($flag) {
-        $query = "DELETE FROM acl_group_contacts_relations WHERE contact_contact_id = '" . (int)$contact_id . "'";
-        $pearDB->query($query);
+    if (!is_array($aclGroupIds)) {
+        return;
     }
-    if (isset($ret["contact_acl_groups"])) {
-        foreach ($ret["contact_acl_groups"] as $key => $value) {
-            $rq = "INSERT INTO acl_group_contacts_relations ";
-            $rq .= "(contact_contact_id, acl_group_id) ";
-            $rq .= "VALUES ";
-            $rq .= "('" . (int)$contact_id . "', '" . $value . "')";
-            $dbResult = $pearDB->query($rq);
+
+    try {
+        if ($flag) {
+            $query = "DELETE FROM acl_group_contacts_relations WHERE contact_contact_id = :contact_id";
+            $successDelete = $pearDB->executePreparedQuery(
+                $pearDB->prepareQuery($query),
+                ['contact_id' => $contactId]
+            );
+            if (!$successDelete) {
+                return;
+            }
         }
+
+        $query = "INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id) VALUES (:contact_id, :acl_group_id)";
+        $pdoSth = $pearDB->prepareQuery($query);
+        foreach ($aclGroupIds as $aclGroupId) {
+            $pearDB->executePreparedQuery($pdoSth, ['contact_id' => $contactId, 'acl_group_id' => (int)$aclGroupId]);
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->insertLog(
+            2,
+            "Error while updating the relationship between contacts and acl groups by massive change | {$e->toJson()}"
+        );
+        return;
     }
 }
 
