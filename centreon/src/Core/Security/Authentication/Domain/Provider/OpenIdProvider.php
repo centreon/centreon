@@ -115,6 +115,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @param GroupsMappingSecurityAccess $groupsMapping
      * @param AttributePathFetcher $attributePathFetcher
      * @param ReadVaultRepositoryInterface $readVaultRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private HttpClientInterface $client,
@@ -127,6 +128,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly AttributePathFetcher $attributePathFetcher,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly bool $isCloudPlatform
     ) {
         $pearDB = $this->dependencyInjector['configuration_db'];
         $this->centreonLog = new CentreonUserLog(-1, $pearDB);
@@ -197,6 +199,11 @@ class OpenIdProvider implements OpenIdProviderInterface
         if ($user->canReachFrontend()) {
             $user->setCanReachRealtimeApi(true);
         }
+
+        if ($this->isCloudPlatform) {
+            $user->setCanReachConfigurationApi(true);
+        }
+
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
         $this->info('Auto import complete', [

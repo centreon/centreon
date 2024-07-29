@@ -3308,7 +3308,7 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    var moment = require('moment');\r",
-									"    pm.variables.set('currentdate', moment.utc().format((\"YYYY-MM-DD\")));\r",
+									"    pm.variables.set('currentdate', moment.utc().local().format((\"YYYY-MM-DD\")));\r",
 									"\r",
 									"    // Creation of a variable with the name of the new token\r",
 									"    var response = pm.response.json();\r",

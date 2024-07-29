@@ -133,7 +133,7 @@ jobs:
                 # Parsing and processing test IDs
                 current_test_issue_ids=($(echo "$response" | jq -r '.data.getTests.results[].issueId'))
 
-                echo "Current Test Issue IDs: ${current_test_issue_ids[@]}"
+                echo "Current Test Issue IDs: ${current_test_issue_ids[*]}"
 
                 # Check if there are no more test issues
                 if [ ${#current_test_issue_ids[@]} -eq 0 ]; then
@@ -149,21 +149,21 @@ jobs:
             done
 
             # Display all retrieved test issue IDs
-            echo "All Test Issue IDs: ${test_issue_ids[@]}"
+            echo "All Test Issue IDs: ${test_issue_ids[*]}"
           }
 
           get_test_ids
 
           formatted_getTest_issue_ids_str="["
           for issue_id in "${test_issue_ids[@]}"; do
-          formatted_getTest_issue_ids_str+="\"$issue_id\","
+            formatted_getTest_issue_ids_str+="\"$issue_id\","
           done
           formatted_getTest_issue_ids_str="${formatted_getTest_issue_ids_str%,}"
           formatted_getTest_issue_ids_str+="]"
           echo "$formatted_getTest_issue_ids_str"
 
           # Display the retrieved test issue IDs
-          echo "Test Issue IDs: ${test_issue_ids[@]}"
+          echo "Test Issue IDs: ${test_issue_ids[*]}"
 
           # Mutation to add tests to the test plan
           xray_graphql_addTestsToTestPlan='{
@@ -205,7 +205,7 @@ jobs:
 
                 # Parsing and processing test IDs
                 current_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | .issueId'))
-                echo "Current Issue IDs: ${current_issue_ids[@]}"
+                echo "Current Issue IDs: ${current_issue_ids[*]}"
 
                 # Concatenate the current batch of results to the overall issue_ids array
                 issue=("${issue[@]}" "${current_issue_ids[@]}")
@@ -225,8 +225,8 @@ jobs:
             done
 
             # Display results
-            echo "API Issue IDs: ${api_issue_ids[@]}"
-            echo "api-issue-ids=${api_issue_ids[@]}" >> $GITHUB_OUTPUT
+            echo "API Issue IDs: ${api_issue_ids[*]}"
+            echo "api-issue-ids=${api_issue_ids[*]}" >> $GITHUB_OUTPUT
           }
 
           get_test_plan_issue_ids
@@ -271,7 +271,7 @@ jobs:
             collection_name=$(basename "$collection_file" .postman_collection.json)
             collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-            if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
+            if [[ " ${summaries[*]} " =~ " ${collection_name_sanitized} " ]]; then
               echo "The test case for $collection_name_sanitized already exists in the test plan."
             else
               # Adding a new test case
@@ -302,7 +302,7 @@ jobs:
                 test_case_id=$(echo "$response" | jq -r '.id')
 
                 # Checking if the test case is a new one
-                if [[ ! " ${existing_test_case_ids[@]} " =~ " ${test_case_id} " ]]; then
+                if [[ ! " ${existing_test_case_ids[*]} " =~ " ${test_case_id} " ]]; then
                   echo "New Test Case with ID: $test_case_id"
                   summaries+=("$collection_name_sanitized")
 
@@ -330,7 +330,7 @@ jobs:
 
           get_test_plan_issue_ids
           issue_list_ids=("${issue[@]}")
-          echo "issue_list_ids=("${issue[@]}")" >> $GITHUB_OUTPUT
+          echo "issue_list_ids=("${issue[*]}")" >> $GITHUB_OUTPUT
 
           test_issue_ids=("${issue_list_ids[@]}")
           formatted_test_issue_ids_str="["

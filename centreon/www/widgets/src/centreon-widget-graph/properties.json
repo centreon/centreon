@@ -105,8 +105,8 @@
 					],
 					"hiddenCondition": {
 						"target": "options",
-						"when": "options.displayType",
 						"method": "includes",
+						"when": "options.displayType",
 						"matches": [
 							"bar",
 							"bar-stacked"
@@ -119,7 +119,9 @@
 					"label": "Display curve points",
 					"defaultValue": false,
 					"hiddenCondition": {
+						"target": "options",
 						"when": "options.displayType",
+						"method": "includes",
 						"matches": [
 							"bar",
 							"bar-stacked"
@@ -158,6 +160,8 @@
 						}
 					],
 					"hiddenCondition": {
+						"target": "options",
+						"method": "includes",
 						"when": "options.displayType",
 						"matches": [
 							"bar",
@@ -202,6 +206,8 @@
 						}
 					],
 					"hiddenCondition": {
+						"target": "options",
+						"method": "includes",
 						"when": "options.displayType",
 						"matches": [
 							"bar",
@@ -215,6 +221,8 @@
 					"defaultValue": "solid",
 					"label": "Line style",
 					"hiddenCondition": {
+						"target": "options",
+						"method": "includes",
 						"when": "options.displayType",
 						"matches": [
 							"bar",
@@ -324,6 +332,8 @@
 						}
 					],
 					"hiddenCondition": {
+						"target": "options",
+						"method": "equals",
 						"when": "options.displayType",
 						"matches": "line"
 					}
@@ -339,6 +349,8 @@
 						"unit": "%"
 					},
 					"hiddenCondition": {
+						"target": "options",
+						"method": "includes",
 						"when": "options.displayType",
 						"matches": [
 							"line",
@@ -357,6 +369,8 @@
 						"unit": "%"
 					},
 					"hiddenCondition": {
+						"target": "options",
+						"method": "equals",
 						"when": "options.displayType",
 						"matches": "line"
 					}
