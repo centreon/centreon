@@ -1,0 +1,7 @@
+FindPollers:
+  methods: GET
+  path: /configuration/additional-connectors/pollers/{type}
+  requirements:
+    type: '(vmware_v6)'
+  controller: 'Core\AdditionalConnector\Infrastructure\API\FindPollers\FindPollersController'
+  condition: "request.attributes.get('version') >= 24.09"

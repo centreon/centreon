@@ -54,6 +54,19 @@ class AdditionalConnectorException extends \Exception
     }
 
     /**
+     * @param string $type
+     *
+     * @return self
+     */
+    public static function findPollers(string $type): self
+    {
+        return new self( sprintf(
+            _("Error while searching for available pollers for type '%s'"),
+            $type
+        ));
+    }
+
+    /**
      * @return self
      */
     public static function addNotAllowed(): self
