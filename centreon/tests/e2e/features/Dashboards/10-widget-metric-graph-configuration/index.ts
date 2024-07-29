@@ -649,12 +649,12 @@ When(
 
 Then('the graph should be displayed as a bar chart', () => {
   cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
-    cy.wrap($el);
+    cy.wrap(`this is the elm: ${$el}`);
   });
-  // cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
-  //   const height = $el.attr('height');
-  //   if (height !== '0') {
-  //     cy.wrap($el).should('exist').and('be.visible');
-  //   }
-  // });
+  cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
+    const height = $el.attr('height');
+    if (height !== '0') {
+      cy.wrap($el).should('exist').and('be.visible');
+    }
+  });
 });
