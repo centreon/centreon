@@ -42,7 +42,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * {@inheritDoc}
      */
-    public function add(NewNotification $notification): int
+    public function addNewNotification(NewNotification $notification): int
     {
         $this->debug('Add notification configuration', ['notification' => $notification]);
 
@@ -65,7 +65,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function addMessages(int $notificationId, array $messages): void
+    public function addMessagesToNotification(int $notificationId, array $messages): void
     {
         $this->debug('Add notification messages', ['notification_id' => $notificationId, 'messages' => $messages]);
 
@@ -102,7 +102,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function addUsers(int $notificationId, array $userIds): void
+    public function addUsersToNotification(int $notificationId, array $userIds): void
     {
         $this->debug('Add users to notification', ['notification_id' => $notificationId, 'users' => $userIds]);
 
@@ -135,7 +135,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function addContactGroups(int $notificationId, array $contactGroupIds): void
+    public function addContactGroupsToNotification(int $notificationId, array $contactGroupIds): void
     {
 
         if ($contactGroupIds === []) {
@@ -167,7 +167,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function update(Notification $notification): void
+    public function updateNotification(Notification $notification): void
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -192,7 +192,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function deleteMessages(int $notificationId): void
+    public function deleteNotificationMessages(int $notificationId): void
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -207,7 +207,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function deleteUsers(int $notificationId): void
+    public function deleteUsersFromNotification(int $notificationId): void
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -222,7 +222,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function deleteContactGroups(int $notificationId): void
+    public function deleteContactGroupsFromNotification(int $notificationId): void
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -268,7 +268,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function delete(int $notificationId): int
+    public function deleteNotification(int $notificationId): int
     {
         $request = <<<'SQL'
             DELETE FROM `:db`.`notification`

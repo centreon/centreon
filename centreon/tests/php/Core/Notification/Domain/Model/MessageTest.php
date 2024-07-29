@@ -24,32 +24,32 @@ declare(strict_types=1);
 namespace Tests\Core\Notification\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Notification\Domain\Model\NotificationMessage;
-use Core\Notification\Domain\Model\NotificationChannel;
+use Core\Notification\Domain\Model\Message;
+use Core\Notification\Domain\Model\Channel;
 
 beforeEach(function (): void {
-    $this->channel = NotificationChannel::Slack;
+    $this->channel = Channel::Slack;
     $this->subject = 'some subject';
     $this->message = 'some message';
     $this->formattedMessage = '<p>some message</p>';
 });
 
 it('should return properly set notification message instance', function (): void {
-    $message = new NotificationMessage(
+    $message = new Message(
         $this->channel,
         $this->subject,
         $this->message,
         $this->formattedMessage
     );
 
-    expect($message->getChannel())->toBe(NotificationChannel::Slack)
+    expect($message->getChannel())->toBe(Channel::Slack)
         ->and($message->getSubject())->toBe($this->subject)
         ->and($message->getRawMessage())->toBe($this->message)
         ->and($message->getFormattedMessage())->toBe($this->formattedMessage);
 });
 
 it('should trim the "subject" and "message" fields', function (): void {
-    $message = new NotificationMessage(
+    $message = new Message(
         $this->channel,
         $subjectWithSpaces = '  my-subject  ',
         $messageWithSpaces = '  my-message  ',
@@ -62,50 +62,50 @@ it('should trim the "subject" and "message" fields', function (): void {
 });
 
 it('should throw an exception when notification message subject is too long', function (): void {
-    new NotificationMessage(
+    new Message(
         $this->channel,
-        str_repeat('a', NotificationMessage::MAX_SUBJECT_LENGTH + 1),
+        str_repeat('a', Message::MAX_SUBJECT_LENGTH + 1),
         $this->message
     );
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(
-        str_repeat('a', NotificationMessage::MAX_SUBJECT_LENGTH + 1),
-        NotificationMessage::MAX_SUBJECT_LENGTH + 1,
-        NotificationMessage::MAX_SUBJECT_LENGTH,
-        'NotificationMessage::subject'
+        str_repeat('a', Message::MAX_SUBJECT_LENGTH + 1),
+        Message::MAX_SUBJECT_LENGTH + 1,
+        Message::MAX_SUBJECT_LENGTH,
+        'Message::subject'
     )->getMessage()
 );
 
 it('should throw an exception when notification message content is too long', function (): void {
-    new NotificationMessage(
+    new Message(
         $this->channel,
         $this->subject,
-        str_repeat('a', NotificationMessage::MAX_MESSAGE_LENGTH + 1),
+        str_repeat('a', Message::MAX_MESSAGE_LENGTH + 1),
     );
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(
-        str_repeat('a', NotificationMessage::MAX_MESSAGE_LENGTH + 1),
-        NotificationMessage::MAX_MESSAGE_LENGTH + 1,
-        NotificationMessage::MAX_MESSAGE_LENGTH,
-        'NotificationMessage::message'
+        str_repeat('a', Message::MAX_MESSAGE_LENGTH + 1),
+        Message::MAX_MESSAGE_LENGTH + 1,
+        Message::MAX_MESSAGE_LENGTH,
+        'Message::message'
     )->getMessage()
 );
 
 it('should throw an exception when notification formatted message content is too long', function (): void {
-    new NotificationMessage(
+    new Message(
         $this->channel,
         $this->subject,
         $this->message,
-        str_repeat('a', NotificationMessage::MAX_MESSAGE_LENGTH + 1),
+        str_repeat('a', Message::MAX_MESSAGE_LENGTH + 1),
     );
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(
-        str_repeat('a', NotificationMessage::MAX_MESSAGE_LENGTH + 1),
-        NotificationMessage::MAX_MESSAGE_LENGTH + 1,
-        NotificationMessage::MAX_MESSAGE_LENGTH,
-        'NotificationMessage::formattedMessage'
+        str_repeat('a', Message::MAX_MESSAGE_LENGTH + 1),
+        Message::MAX_MESSAGE_LENGTH + 1,
+        Message::MAX_MESSAGE_LENGTH,
+        'Message::formattedMessage'
     )->getMessage()
 );

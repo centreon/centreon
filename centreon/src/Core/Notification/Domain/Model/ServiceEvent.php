@@ -21,13 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
+namespace Core\Notification\Domain\Model;
 
-final class ChannelEmailContactResponseDto
+enum ServiceEvent
 {
-    public function __construct(
-        public string $fullName = '',
-        public string $emailAddress = '',
-    ) {
-    }
+    case Ok;
+    case Warning;
+    case Critical;
+    case Unknown;
 }

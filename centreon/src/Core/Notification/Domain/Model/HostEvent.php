@@ -21,16 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups;
+namespace Core\Notification\Domain\Model;
 
-use Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response\NotifiableContactGroupDto;
-
-final class FindNotifiableContactGroupsResponse
+enum HostEvent
 {
-    /**
-     * @param array<NotifiableContactGroupDto> $notifiableContactGroups
-     */
-    public function __construct(public array $notifiableContactGroups = [])
-    {
-    }
+    case Up;
+    case Down;
+    case Unreachable;
 }

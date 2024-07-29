@@ -31,29 +31,38 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Contact\Domain\Model\BasicContact;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Core\Notification\Application\UseCase\FindNotifiableRule\Response\ChannelEmailContactResponseDto;
-use Core\Notification\Application\UseCase\FindNotifiableRule\Response\ChannelEmailResponseDto;
-use Core\Notification\Domain\Model\ConfigurationUser;
+use Core\Notification\Application\UseCase\FindNotifiableRule\Response\ContactDto;
+use Core\Notification\Application\UseCase\FindNotifiableRule\Response\EmailDto;
+use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\Contact as NotificationContact;
+use Core\Notification\Domain\Model\Message;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindNotifiableRule
 {
     use LoggerTrait;
 
+    /** @var AccessGroup[]|null */
+    private ?array $accessGroups = null;
+
     public function __construct(
         private readonly ReadNotificationRepositoryInterface $notificationRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly ContactInterface $user,
     ) {
     }
 
     public function __invoke(
         int $notificationId,
-        FindNotifiableRulePresenterInterface $presenter
+        FindNotifiableRulePresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE)) {
@@ -77,7 +86,7 @@ final class FindNotifiableRule
                     $this->createResponse(
                         notification: $notification,
                         messages: $this->notificationRepository->findMessagesByNotificationId($notificationId),
-                        contacts: $this->notificationRepository->findUsersByNotificationId($notificationId),
+                        contacts: $this->findUsersByNotificationId($notificationId),
                         contactGroups: $this->findContactGroupsByNotificationId($notificationId),
                     )
                 );
@@ -101,8 +110,6 @@ final class FindNotifiableRule
     }
 
     /**
-     * Retrieve notification contactgroup with user rights.
-     *
      * @param int $notificationId
      *
      * @throws \Throwable
@@ -114,16 +121,55 @@ final class FindNotifiableRule
         if ($this->user->isAdmin()) {
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
         }
+  
+            return $this->notificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
+                $notificationId,
+                $this->findAccessGroupsOfNonAdminUser()
+            );
+        
+    }
 
-        return $this->notificationRepository
-            ->findContactGroupsByNotificationIdAndUserId($notificationId, $this->user->getId());
+    /**
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     *
+     * @return NotificationContact[]
+     */
+    private function findUsersByNotificationId(int $notificationId): array
+    {
+        if ($this->user->isAdmin()) {
+            return $this->notificationRepository->findUsersByNotificationId($notificationId);
+        }
+  
+            return $this->notificationRepository->findUsersByNotificationIdAndAccessGroups(
+                $notificationId,
+                $this->findAccessGroupsOfNonAdminUser()
+            );
+        
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return AccessGroup[]
+     */
+    private function findAccessGroupsOfNonAdminUser(): array
+    {
+        if ($this->accessGroups === null) {
+            $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+        }
+
+        return $this->accessGroups;
     }
 
     /**
      * @param Notification $notification
-     * @param NotificationMessage[] $messages
-     * @param array<int, ConfigurationUser> $contacts
+     * @param Message[] $messages
+     * @param array<int, NotificationContact> $contacts
      * @param ContactGroup[] $contactGroups
+     *
+     * @throws \Throwable
      *
      * @return FindNotifiableRuleResponse
      */
@@ -136,36 +182,66 @@ final class FindNotifiableRule
         $response = new FindNotifiableRuleResponse();
         $response->notificationId = $notification->getId();
 
-        $contactsFromContactGroups = $this->notificationRepository->findUsersByContactGroupIds(
-            ...array_map(
-                static fn(ContactGroup $contactGroup): int => $contactGroup->getId(),
-                $contactGroups
-            )
+        // Retrieve contacts from contact groups
+        $contactGroupIds = array_map(
+            static fn(ContactGroup $contactGroup) => $contactGroup->getId(),
+            $contactGroups
         );
-        $allContacts = array_values(array_replace($contacts, $contactsFromContactGroups));
+        $contactIdsFromContactGroups = $this->readContactRepository->findContactIdsByContactGroups($contactGroupIds);
+        $contactsFromContactGroups = $this->readContactRepository->findByIds($contactIdsFromContactGroups);
+
+        $contactDtos = $this->createContactDto([
+            ...$contactsFromContactGroups,
+            ...$contacts,
+        ]);
 
         foreach ($messages as $message) {
             switch ($message->getChannel()) {
-                case NotificationChannel::Email:
-                    $response->channels->email = new ChannelEmailResponseDto(
-                        contacts: array_map(
-                            static fn(ConfigurationUser $user) => new ChannelEmailContactResponseDto(
-                                fullName: $user->getName(),
-                                emailAddress: $user->getEmail(),
-                            ),
-                            $allContacts
-                        ),
+                case Channel::Email:
+                    $response->channels->email = new EmailDto(
+                        contacts: $contactDtos,
                         subject: $message->getSubject(),
                         formattedMessage: $message->getFormattedMessage(),
                     );
                     break;
-                case NotificationChannel::Slack:
-                case NotificationChannel::Sms:
+                case Channel::Slack:
+                case Channel::Sms:
                     // Not implemented yet, 2023-09-07.
                     break;
             }
         }
 
         return $response;
+    }
+
+    /**
+     * @param NotificationContact[]|BasicContact[] $contacts
+     *
+     * @return ContactDto[]
+     */
+    private function createContactDto (array $contacts): array
+    {
+        $contactDtos = [];
+        $contactIdsAlreadyCreated = [];
+        foreach ($contacts as $contact) {
+            if (in_array($contact->getId(), $contactIdsAlreadyCreated, true)) {
+                continue;
+            }
+            if ($contact instanceof NotificationContact) {
+                $contactDtos[] = new ContactDto(
+                    fullName: $contact->getName(),
+                    emailAddress: $contact->getEmail(),
+                );
+                $contactIdsAlreadyCreated[] = $contact->getId();
+            } elseif ($contact instanceof BasicContact) {
+                $contactDtos[] = new ContactDto(
+                    fullName: $contact->getName(),
+                    emailAddress: $contact->getEmail(),
+                );
+                $contactIdsAlreadyCreated[] = $contact->getId();
+            }
+        }
+
+        return $contactDtos;
     }
 }

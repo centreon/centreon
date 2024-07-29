@@ -58,7 +58,7 @@ it('should present a NotFoundResponse when the notification to delete is not fou
 
     $this->writeRepository
         ->expects($this->once())
-        ->method('delete')
+        ->method('deleteNotification')
         ->willReturn(0);
 
     (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
@@ -76,7 +76,7 @@ it('should present an ErrorResponse when an unhandled error occurs', function ()
 
     $this->writeRepository
         ->expects($this->once())
-        ->method('delete')
+        ->method('deleteNotification')
         ->willThrowException(new \Exception());
 
     (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
@@ -94,7 +94,7 @@ it('should present a NoContentResponse when a notification is deleted', function
 
     $this->writeRepository
         ->expects($this->once())
-        ->method('delete')
+        ->method('deleteNotification')
         ->willReturn(1);
 
     (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);

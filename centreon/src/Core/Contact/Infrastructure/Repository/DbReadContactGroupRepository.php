@@ -24,16 +24,30 @@ declare(strict_types=1);
 namespace Core\Contact\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 
+/**
+ * @phpstan-type _ContactGroup array{
+ *       cg_id: int,
+ *       cg_name: string,
+ *       cg_alias: string,
+ *       cg_comment?: string,
+ *       cg_activate: string,
+ *       cg_type: string
+ *   }
+ */
 class DbReadContactGroupRepository extends AbstractRepositoryDRB implements ReadContactGroupRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
@@ -151,46 +165,56 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
     /**
      * @inheritDoc
      */
-    public function findAll(): array
+    public function findAll(?RequestParametersInterface $requestParameters = null): array
     {
-        $request = 'SELECT SQL_CALC_FOUND_ROWS cg_id, cg_name FROM contactgroup';
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+            FROM `:db`.contactgroup
+            SQL;
+
+        $sqlTranslator = $requestParameters !== null
+            ? new SqlRequestParametersTranslator($requestParameters)
+            : null;
+
+        $sqlTranslator?->setConcordanceArray([
+            'id' => 'cg_id',
+            'name' => 'cg_name',
+            'alias' => 'cg_alias',
+            'type' => 'cg_type',
+            'comments' => 'cg_comment',
+            'is_activated' => 'cg_activate',
+        ]);
+        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
         // Search
-        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= $searchRequest !== null
-            ? $searchRequest . ' AND '
-            : ' WHERE ';
-
-        $request .= "cg_activate = '1' ";
-
+        $request .= $sqlTranslator?->translateSearchParameterToSql();
         // Sort
-        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY cg_id ASC';
+        $sortRequest = $sqlTranslator?->translateSortParameterToSql();
+        $request .= ! is_null($sortRequest)
+            ? $sortRequest
+            : ' ORDER BY cg_id ASC';
 
         // Pagination
-        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+        $request .= $sqlTranslator?->translatePaginationToSql();
 
-        $statement = $this->db->prepare($request);
+        $statement = $this->db->prepare($this->translateDbName($request));
 
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            /**
-             * @var int
-             */
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
+        if ($sqlTranslator !== null) {
+            foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+                $type = (int) key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
         }
 
         $statement->execute();
-
-        // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
+        $sqlTranslator?->calculateNumberOfRows($this->db);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
 
         $contactGroups = [];
-        while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        foreach ($statement as $result) {
+            /** @var _ContactGroup $result */
             $contactGroups[] = DbContactGroupFactory::createFromRecord($result);
         }
 
@@ -202,9 +226,13 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAllByUserId(int $userId): array
     {
-        $request = 'SELECT SQL_CALC_FOUND_ROWS cg_id, cg_name FROM contactgroup cg '
-            . 'INNER JOIN contactgroup_contact_relation ccr '
-            . 'ON ccr.contactgroup_cg_id = cg.cg_id';
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+            FROM `:db`.contactgroup cg
+            INNER JOIN `:db`.contactgroup_contact_relation ccr
+                ON ccr.contactgroup_cg_id = cg.cg_id
+            SQL;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -221,7 +249,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
 
-        $statement = $this->db->prepare($request);
+        $statement = $this->db->prepare($this->translateDbName($request));
 
         foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
             /**
@@ -242,6 +270,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 
         $contactGroups = [];
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _ContactGroup $result */
             $contactGroups[] = DbContactGroupFactory::createFromRecord($result);
         }
 
@@ -256,14 +285,19 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         $this->debug('Getting Contact Group by id', [
             'contact_group_id' => $contactGroupId,
         ]);
-        $statement = $this->db->prepare('SELECT cg_id,cg_name FROM contactgroup WHERE cg_id = :contactGroupId');
+        $statement = $this->db->prepare(
+            $this->translateDbName(<<<'SQL'
+                SELECT cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                FROM `:db`.contactgroup
+                WHERE cg_id = :contactGroupId
+                SQL
+            )
+        );
         $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
         $statement->execute();
         $contactGroup = null;
         if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /**
-             * @var array<string, string> $result
-             */
+            /** @var _ContactGroup $result */
             $contactGroup = DbContactGroupFactory::createFromRecord($result);
         }
         $this->debug(
@@ -295,7 +329,12 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         $contactGroups = [];
         $boundIds = implode(', ', array_keys($queryBindValues));
         $statement = $this->db->prepare(
-            "SELECT cg_id,cg_name FROM contactgroup WHERE cg_id IN ({$boundIds})"
+            $this->translateDbName(<<<SQL
+                SELECT cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                FROM `:db`.contactgroup
+                WHERE cg_id IN ({$boundIds})
+                SQL
+            )
         );
         foreach ($queryBindValues as $bindKey => $contactGroupId) {
             $statement->bindValue($bindKey, $contactGroupId, \PDO::PARAM_INT);
@@ -303,6 +342,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         $statement->execute();
 
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _ContactGroup $result */
             $contactGroups[] = DbContactGroupFactory::createFromRecord($result);
         }
         $this->debug('Contact Group found: ' . count($contactGroups));
@@ -313,35 +353,79 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
     /**
      * @inheritDoc
      */
-    public function findByIdsAndUserId(array $contactGroupIds, int $userId): array
+    public function findByAccessGroups(
+        array $accessGroups,
+        ?RequestParametersInterface $requestParameters = null,
+    ): array
     {
-        $queryBindValues = [];
-        foreach ($contactGroupIds as $contactGroupId) {
-            $queryBindValues[':contact_group_' . $contactGroupId] = $contactGroupId;
-        }
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
 
-        if (empty($queryBindValues)) {
-            return [];
-        }
-        $contactGroups = [];
-        $boundIds = implode(', ', array_keys($queryBindValues));
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT cg_id,cg_name FROM `:db`.contactgroup cg
-                INNER JOIN `:db`.contactgroup_contact_relation ccr
-                    ON ccr.contactgroup_cg_id = cg.cg_id
-                WHERE ccr.contact_contact_id = :userId
-                    AND cg_activate = '1'
-                    AND cg.cg_id IN ({$boundIds});
+        [$bindValues, $subQuery] = $this->createMultipleBindQuery($accessGroupIds, ':id_');
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS
+                    cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                FROM `:db`.contactgroup cg
+                INNER JOIN `:db`.acl_group_contactgroups_relations gcgr
+                    ON cg.cg_id = gcgr.cg_cg_id
                 SQL
-        ));
-        foreach ($queryBindValues as $bindKey => $contactGroupId) {
-            $statement->bindValue($bindKey, $contactGroupId, \PDO::PARAM_INT);
-        }
-        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
-        $statement->execute();
+        );
+        $sqlTranslator = $requestParameters !== null
+            ? new SqlRequestParametersTranslator($requestParameters)
+            : null;
 
-        while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        $sqlTranslator?->setConcordanceArray([
+            'id' => 'cg_id',
+            'name' => 'cg_name',
+            'alias' => 'cg_alias',
+            'type' => 'cg_type',
+            'comments' => 'cg_comment',
+            'is_activated' => 'cg_activate',
+        ]);
+        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
+
+        // Search
+        if ($search = $sqlTranslator?->translateSearchParameterToSql()) {
+            $request .= $search . " AND gcgr.acl_group_id IN ({$subQuery})";
+        } else {
+            $request .= " WHERE gcgr.acl_group_id IN ({$subQuery})";
+        }
+
+        $request .= ' GROUP BY cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type';
+        // Sort
+        $sortRequest = $sqlTranslator?->translateSortParameterToSql();
+        $request .= $sortRequest !== null
+            ? $sortRequest
+            : ' ORDER BY cg_id ASC';
+
+        // Pagination
+        $request .= $sqlTranslator?->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        if ($sqlTranslator !== null) {
+            foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+                $type = (int) key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+        $sqlTranslator?->calculateNumberOfRows($this->db);
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $contactGroups = [];
+        foreach ($statement as $result) {
+            /** @var _ContactGroup $result */
             $contactGroups[] = DbContactGroupFactory::createFromRecord($result);
         }
 

@@ -52,4 +52,24 @@ class AbstractRepositoryRDB
             $request
         );
     }
+
+    /**
+     * Calculate the number of rows returned by a SELECT FOUND_ROWS() query.
+     * Don't forget to call this method just after the query that you want to
+     * count the number of rows.
+     * The previous query must be a SELECT SQL_CALC_FOUND_ROWS query.
+     *
+     * @return int|null
+     */
+    protected function calculateNumberOfRows(): ?int
+    {
+        if (
+            false === ($result = $this->db->query('SELECT FOUND_ROWS()'))
+            || false === ($value = $result->fetchColumn())
+        ) {
+            return null;
+        }
+
+        return (int) $value;
+    }
 }

@@ -33,6 +33,8 @@ final class FindNotificationController extends AbstractController
      * @param int $notificationId
      * @param FindNotification $useCase
      * @param FindNotificationPresenter $presenter
+     *
+     * @return Response
      */
     public function __invoke(int $notificationId, FindNotification $useCase, FindNotificationPresenter $presenter): Response
     {

@@ -19,16 +19,12 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups;
+namespace Core\Contact\Domain\Model;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-
-interface FindNotifiableContactGroupsPresenterInterface
+enum ContactGroupType
 {
-    /**
-     * @param FindNotifiableContactGroupsResponse|ResponseStatusInterface $data
-     */
-    public function presentResponse(FindNotifiableContactGroupsResponse|ResponseStatusInterface $data): void;
+    case Local;
+    case Ldap;
 }

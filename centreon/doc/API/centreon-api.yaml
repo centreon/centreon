@@ -10,7 +10,8 @@ info:
     + Added new filters for the /monitoring/services/categories endpoint
     + Remove snmp_community property from the hosts and host templates listing endpoints
     + Added new filters to the /monitoring/servicegroups endpoint
-    +
+    + Update /configuration/contacts/groups endpoint by adding new listing properties
+    
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -53,6 +54,7 @@ tags:
   - name: Authentication
     description: "Login and logout endpoints to retrieve authentication token"
   - name: Command
+  - name: Contact group
   - name: Downtime
   - name: Gorgone
   - name: Host
@@ -1504,31 +1506,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/contacts/groups:
-    get:
-      tags:
-      - User
-      summary: "List contact groups"
-      description: "List configured contact groups"
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.ContactGroup'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './latest/onPremise/Configuration/ContactGroup/FindContactGroups.yaml'
   /configuration/dashboards:
     $ref: './latest/onPremise/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
@@ -6220,20 +6198,6 @@ components:
           type: string
           description: "Contact template name"
           example: "Contact Template"
-    Configuration.ContactGroup:
-      type: object
-      required:
-        - id
-        - name
-      properties:
-        id:
-          type: integer
-          description: "Contact group id"
-          example: 1
-        name:
-          type: string
-          description: "Contact group name"
-          example: "Contact group"
     Configuration.AccessGroup:
       type: object
       required:

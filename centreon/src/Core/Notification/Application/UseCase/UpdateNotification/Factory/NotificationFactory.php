@@ -28,10 +28,10 @@ use Core\Common\Domain\TrimmedString;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationRequest;
-use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\TimePeriod;
 
-final class NotificationFactory
+class NotificationFactory
 {
     use LoggerTrait;
 
@@ -55,7 +55,7 @@ final class NotificationFactory
         return new Notification(
             $request->id,
             $request->name,
-            new ConfigurationTimePeriod(1, ConfigurationTimePeriod::ALL_TIME_PERIOD),
+            new TimePeriod(1, TimePeriod::ALL_TIME_PERIOD),
             $request->isActivated
         );
     }

@@ -34,7 +34,7 @@ use Core\Notification\Application\UseCase\FindNotifiableResources\{
     NotifiableHostDto,
     NotifiableResourceDto
 };
-use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, NotifiableService, NotificationServiceEvent};
+use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, NotifiableService, ServiceEvent};
 use Tests\Core\Notification\Infrastructure\API\FindNotifiableResources\FindNotifiableResourcesPresenterStub;
 
 beforeEach(function () {
@@ -103,7 +103,7 @@ it(
                     'myHost',
                     'mytHost',
                     [],
-                    [new NotifiableService(13, 'Ping', null, [NotificationServiceEvent::Ok])]
+                    [new NotifiableService(13, 'Ping', null, [ServiceEvent::Ok])]
                 )
             ]
             )
@@ -169,7 +169,7 @@ it(
                     'myHost',
                     'mytHost',
                     [],
-                    [new NotifiableService(13, 'Ping', null, [NotificationServiceEvent::Ok])]
+                    [new NotifiableService(13, 'Ping', null, [ServiceEvent::Ok])]
                 )
             ]
             )

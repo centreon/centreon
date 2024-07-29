@@ -37,13 +37,13 @@ use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface
 use Core\Notification\Application\UseCase\FindNotification\FindNotification;
 use Core\Notification\Application\UseCase\FindNotification\FindNotificationResponse;
 use Core\Notification\Domain\Model\ConfigurationResource;
-use Core\Notification\Domain\Model\ConfigurationTimePeriod;
-use Core\Notification\Domain\Model\ConfigurationUser;
+use Core\Notification\Domain\Model\TimePeriod;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationHostEvent;
-use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\HostEvent;
+use Core\Notification\Domain\Model\Message;
 use Core\Notification\Domain\Model\NotificationResource;
+use Core\Notification\Domain\Model\Contact as NotificationContact;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Notification\Infrastructure\API\FindNotification\FindNotificationPresenterStub;
 
@@ -121,14 +121,14 @@ it('should get the resources with ACL calculation when the user is not admin', f
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notification = new Notification(1, 'notification', new ConfigurationTimePeriod(1, '24x7'), false);
-    $notificationMessage = new NotificationMessage(
-        NotificationChannel::from('Slack'),
+    $notification = new Notification(1, 'notification', new TimePeriod(1, '24x7'), false);
+    $notificationMessage = new Message(
+        Channel::from('Slack'),
         'Message subject',
         'Message content',
         '<p>Message content</p>'
     );
-    $notificationUser = new ConfigurationUser(3, 'test-user', 'email-user');
+    $notificationUser = new NotificationContact(3, 'test-user', 'email-user');
 
     $this->notificationRepository
         ->expects($this->once())
@@ -140,10 +140,19 @@ it('should get the resources with ACL calculation when the user is not admin', f
         ->method('findMessagesByNotificationId')
         ->willReturn([$notificationMessage]);
 
+    $this->readAccessGroupRepository
+        ->expects($this->atLeastOnce())
+        ->method('findByContact');
+
     $this->notificationRepository
         ->expects($this->once())
-        ->method('findUsersByNotificationId')
+        ->method('findUsersByNotificationIdAndAccessGroups')
         ->willReturn([$notificationUser]);
+
+    $this->notificationRepository
+        ->expects($this->once())
+        ->method('findContactGroupsByNotificationIdAndAccessGroups')
+        ->willReturn([]);
 
     $this->repositoryProvider
         ->expects($this->once())
@@ -170,21 +179,21 @@ it('should present a FindNotificationResponse when everything is OK', function (
     );
 
     $contactGroups = [
-        new ContactGroup(1,'contactgroup_1'),
-        new ContactGroup(2,'contactgroup_2'),
+        new ContactGroup(1, 'contactgroup_1', 'contactgroup_1'),
+        new ContactGroup(2, 'contactgroup_2', 'contactgroup_2'),
     ];
 
-    $notification = new Notification(1, 'notification', new ConfigurationTimePeriod(1, '24x7'), false);
-    $notificationMessage = new NotificationMessage(
-        NotificationChannel::from('Slack'),
+    $notification = new Notification(1, 'notification', new TimePeriod(1, '24x7'), false);
+    $notificationMessage = new Message(
+        Channel::from('Slack'),
         'Message subject',
         'Message content',
         '<p>Message content</p>'
     );
-    $notificationUser = new ConfigurationUser(3, 'test-user', 'email-user');
+    $notificationUser = new NotificationContact(3, 'test-user', 'email-user');
     $notificationResource = new NotificationResource(
-        NotificationResource::HOSTGROUP_RESOURCE_TYPE,
-        NotificationHostEvent::class,
+        NotificationResource::TYPE_HOST_GROUP,
+        HostEvent::class,
         [new ConfigurationResource(1, 'hostgroup-resource')],
         NotificationHostEventConverter::fromBitFlags(4)
     );
@@ -247,8 +256,8 @@ it('should present a FindNotificationResponse when everything is OK', function (
         ->and($this->presenter->response->contactGroups[1]['id'])->toBe(2)
         ->and($this->presenter->response->contactGroups[1]['name'])->toBe('contactgroup_2')
         ->and($this->presenter->response->resources)->toBeArray()
-        ->and($this->presenter->response->resources[0]['type'])->toBe(NotificationResource::HOSTGROUP_RESOURCE_TYPE)
-        ->and($this->presenter->response->resources[0]['events'])->toBe([NotificationHostEvent::Unreachable])
+        ->and($this->presenter->response->resources[0]['type'])->toBe(NotificationResource::TYPE_HOST_GROUP)
+        ->and($this->presenter->response->resources[0]['events'])->toBe([HostEvent::Unreachable])
         ->and($this->presenter->response->resources[0]['ids'][0]['id'])->toBe(1)
         ->and($this->presenter->response->resources[0]['ids'][0]['name'])->toBe('hostgroup-resource');
 });

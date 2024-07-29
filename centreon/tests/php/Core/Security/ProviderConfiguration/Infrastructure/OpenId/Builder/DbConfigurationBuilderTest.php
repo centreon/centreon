@@ -129,7 +129,7 @@ it('should return a Provider when all mandatory parameters are present', functio
 
     // Note: contact_template and contact_group are overridden
     $this->customConfiguration['contact_template'] = new ContactTemplate(1, 'contact_template');
-    $this->customConfiguration['contact_group'] = new ContactGroup(1, 'contact_group');
+    $this->customConfiguration['contact_group'] = new ContactGroup(1, 'contact_group', 'contact_group');
     $this->customConfiguration['authentication_conditions'] = new AuthenticationConditions(
         true,
         "info.groups",

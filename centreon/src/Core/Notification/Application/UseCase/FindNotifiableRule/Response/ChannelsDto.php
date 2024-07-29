@@ -23,17 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
 
-final class ChannelEmailResponseDto
+final class ChannelsDto
 {
-    /**
-     * @param list<ChannelEmailContactResponseDto> $contacts
-     * @param string $subject
-     * @param string $formattedMessage
-     */
     public function __construct(
-        public array $contacts = [],
-        public string $subject = '',
-        public string $formattedMessage = '',
+        public null|EmailDto $email = null,
+        public null|ChannelSlackDto $slack = null,
+        public null|ChannelSmsDto $sms = null,
     ) {
     }
 }
