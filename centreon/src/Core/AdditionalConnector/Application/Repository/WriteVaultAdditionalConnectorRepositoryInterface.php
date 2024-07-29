@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AdditionalConnector\Application\Repository;
 
+use Core\AdditionalConnector\Domain\Model\AdditionalConnector;
 use Core\AdditionalConnector\Domain\Model\Type;
 
 interface WriteVaultAdditionalConnectorRepositoryInterface
@@ -39,4 +40,13 @@ interface WriteVaultAdditionalConnectorRepositoryInterface
      * @return array<string,mixed>
      */
     public function saveCredentialInVault(array $parameters): array;
+
+    /**
+     * Delete an ACC credentials from vault.
+     *
+     * @param AdditionalConnector $acc
+     *
+     * @throws \Throwable
+     */
+    public function deleteFromVault(AdditionalConnector $acc): void;
 }
