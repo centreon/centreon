@@ -780,42 +780,46 @@ function updateContact_MC($contact_id = null)
 }
 
 /**
- * @param null $contact_id
- * @param array $ret
+ * @param int $contactId
+ * @param array $fields
+ * @return void
  */
-function updateContactHostCommands($contact_id = null, $ret = array())
+function updateContactHostCommands(int $contactId, array $fields = []): void
 {
     global $form, $pearDB;
 
-    if (!$contact_id) {
+    if ($contactId <= 0) {
         return;
     }
-    $rq = "DELETE FROM contact_hostcommands_relation ";
-    $rq .= "WHERE contact_contact_id = '" . (int)$contact_id . "'";
-    $dbResult = $pearDB->query($rq);
-    if (isset($ret["contact_hostNotifCmds"])) {
-        $ret = $ret["contact_hostNotifCmds"];
-    } else {
-        $ret = $form->getSubmitValue("contact_hostNotifCmds");
-    }
 
-    if (is_array($ret) || $ret instanceof Countable) {
-        $resultsCount = count($ret);
-    } else {
-        $resultsCount = 0;
-    }
+    try {
+        $query = "DELETE FROM contact_hostcommands_relation WHERE contact_contact_id = :contact_id";
+        $successDelete = $pearDB->executePreparedQuery($pearDB->prepare($query), ['contact_id' => $contactId]);
 
-    for ($i = 0; $i < $resultsCount; $i++) {
-        $rq = <<<SQL
-                INSERT INTO contact_hostcommands_relation
-                (contact_contact_id, command_command_id)
-                VALUES
-                (:contact_id, :command_id)
-                SQL;
-        $statement = $pearDB->prepare($rq);
-        $statement->bindValue(':contact_id', (int)$contact_id, \PDO::PARAM_INT);
-        $statement->bindValue(':command_id', (int)$ret[$i], \PDO::PARAM_INT);
-        $dbResult = $statement->execute();
+        if (!$successDelete) {
+            return;
+        }
+
+        $hostCommandIdsFromForm = $fields["contact_hostNotifCmds"] ?? $form->getSubmitValue("contact_hostNotifCmds");
+
+        if (!is_array($hostCommandIdsFromForm)) {
+            return;
+        }
+
+        $query = "INSERT INTO contact_hostcommands_relation(contact_contact_id, command_command_id) VALUES(:contact_id, :command_id)";
+        $pdoSth = $pearDB->prepareQuery($query);
+        foreach ($hostCommandIdsFromForm as $hostCommandIdFromForm) {
+            $pearDB->executePreparedQuery(
+                $pdoSth,
+                ['contact_id' => $contactId, 'command_id' => (int)$hostCommandIdFromForm]
+            );
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->insertLog(
+            2,
+            "Error while updating the relationship between contacts and host commands | {$e->toJson()}"
+        );
+        return;
     }
 }
 
@@ -841,7 +845,7 @@ function updateContactHostCommands_MC(int $contactId): void
         $query = "SELECT command_command_id FROM contact_hostcommands_relation WHERE contact_contact_id = {$contactId}";
         $hostCommandIdsFromDb = $pearDB->fetchColumn($pearDB->executeQuery($query));
 
-        if($hostCommandIdsFromDb === false) {
+        if ($hostCommandIdsFromDb === false) {
             return;
         }
 
