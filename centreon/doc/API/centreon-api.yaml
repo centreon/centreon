@@ -250,6 +250,8 @@ paths:
     $ref: "./latest/onPremise/Configuration/AdditionalConnector/AddAndFindAdditionalConnectors.yaml"
   /configuration/additional-connectors/{acc_id}:
     $ref: "./latest/onPremise/Configuration/AdditionalConnector/DeleteAndFindAdditionalConnector.yaml"
+  /configuration/additional-connectors/pollers/{type}:
+    $ref: "./latest/onPremise/Configuration/AdditionalConnector/FindPollers.yaml"
   /configuration/broker/{brokerId}/{tag}:
     $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:
