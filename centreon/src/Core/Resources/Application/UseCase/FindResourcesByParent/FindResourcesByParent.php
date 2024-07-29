@@ -25,7 +25,7 @@ namespace Core\Resources\Application\UseCase\FindResourcesByParent;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Monitoring\Resource;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -158,14 +158,14 @@ final class FindResourcesByParent
     }
 
     /**
-     * @param resource[] $resources
+     * @param ResourceEntity[] $resources
      *
      * @return int[]
      */
     private function extractParentIdsFromResources(array $resources): array
     {
         $hostIds = array_map(
-            static fn (Resource $resource) => (int) $resource->getParent()?->getId(),
+            static fn (ResourceEntity $resource) => (int) $resource->getParent()?->getId(),
             $resources
         );
 
@@ -175,7 +175,7 @@ final class FindResourcesByParent
     /**
      * @param ResourceFilter $filter
      *
-     * @return resource[]
+     * @return ResourceEntity[]
      */
     private function findResourcesAsAdmin(ResourceFilter $filter): array
     {
@@ -185,7 +185,7 @@ final class FindResourcesByParent
     /**
      * @param ResourceFilter $filter
      *
-     * @return resource[]
+     * @return ResourceEntity[]
      */
     private function findParentResources(ResourceFilter $filter): array
     {
@@ -197,7 +197,7 @@ final class FindResourcesByParent
      *
      * @throws \Throwable
      *
-     * @return resource[]
+     * @return ResourceEntity[]
      */
     private function findResourcesAsUser(ResourceFilter $filter): array
     {
