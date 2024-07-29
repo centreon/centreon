@@ -17977,3 +17977,12 @@ msgstr ""
 
 # msgid "The additional connector name '%s' already exists"
 # msgstr ""
+
+# msgid "Error while deleting an additional connector"
+# msgstr ""
+
+# msgid "You are not allowed to delete additional connectors"
+# msgstr ""
+
+#  msgid "You don't have sufficient permission for this action"
+#  msgstr ""
