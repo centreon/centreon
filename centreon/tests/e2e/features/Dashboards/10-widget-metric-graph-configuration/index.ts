@@ -650,10 +650,14 @@ When(
 Then('the graph should be displayed as a bar chart', () => {
   cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
     cy.wrap(`this is the elm: ${$el.attr('height')}`);
+    cy.wrap($el).should('exist');
   });
   cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
     cy.wrap($el).then(($bar) => {
       if ($el.attr('height') !== '0') {
+        cy.log(
+          `this is the bar: ${$bar}, this is the height: ${$bar.attr('height')}`
+        );
         cy.wrap($bar).should('exist').and('be.visible');
       }
     });
