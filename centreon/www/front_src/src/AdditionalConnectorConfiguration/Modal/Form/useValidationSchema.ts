@@ -1,5 +1,6 @@
 import { string, object, number, array } from 'yup';
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import {
   labelAtLeastOneVCenterIsRequired,
@@ -11,12 +12,14 @@ import {
   labelName,
   labelNameMustBeAtLeast,
   labelNameMustBeMost,
-  labelPassword,
   labelRequired,
   labelVcenterNameMustBeUnique
 } from '../../translatedLabels';
 
-const useValidationSchema = (): { validationSchema } => {
+interface Props {
+  variant: 'create' | 'update';
+}
+const useValidationSchema = ({ variant }: Props): { validationSchema } => {
   const { t } = useTranslation();
 
   const urlValidationSchema = string()
@@ -31,10 +34,14 @@ const useValidationSchema = (): { validationSchema } => {
     name: string().required(t(labelRequired))
   });
 
+  const secretsSchema = {
+    Password: string().required(t(labelRequired)),
+    Username: string().required(t(labelRequired))
+  };
+
   const vcenterSchema = object().shape({
-    Password: string().label(t(labelPassword)).required(t(labelRequired)),
+    ...(equals(variant, 'create') && secretsSchema),
     Url: urlValidationSchema,
-    Username: string().required(t(labelRequired)),
     'Vcenter name': string()
       .required(t(labelRequired))
       .test(

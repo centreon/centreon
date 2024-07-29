@@ -10,8 +10,8 @@ export enum ParameterKeys {
 export interface Parameter {
   [ParameterKeys.name]: string;
   [ParameterKeys.url]: string;
-  [ParameterKeys.username]: string;
-  [ParameterKeys.password]: string;
+  [ParameterKeys.username]: string | null;
+  [ParameterKeys.password]: string | null;
 }
 
 export interface AdditionalConnectorConfiguration {

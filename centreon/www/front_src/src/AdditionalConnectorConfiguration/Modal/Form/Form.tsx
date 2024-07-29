@@ -51,7 +51,7 @@ const AdditionalConnector = ({
   };
 
   const { inputs } = useFormInputs();
-  const { validationSchema } = useValidationSchema();
+  const { validationSchema } = useValidationSchema({ variant });
   const { initialValues, isLoading } = useFormInitialValues({
     id: connectorId,
     variant

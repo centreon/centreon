@@ -44,8 +44,8 @@ const vcenterDecoder = JsonDecoder.object<Parameter>(
   {
     [ParameterKeys.name]: JsonDecoder.string,
     [ParameterKeys.url]: JsonDecoder.string,
-    [ParameterKeys.username]: JsonDecoder.string,
-    [ParameterKeys.password]: JsonDecoder.string
+    [ParameterKeys.username]: JsonDecoder.nullable(JsonDecoder.string),
+    [ParameterKeys.password]: JsonDecoder.nullable(JsonDecoder.string)
   },
   'vcenter',
   {
