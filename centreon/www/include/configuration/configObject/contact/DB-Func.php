@@ -843,11 +843,7 @@ function updateContactHostCommands_MC(int $contactId): void
 
     try {
         $query = "SELECT command_command_id FROM contact_hostcommands_relation WHERE contact_contact_id = {$contactId}";
-        $hostCommandIdsFromDb = $pearDB->fetchColumn($pearDB->executeQuery($query));
-
-        if ($hostCommandIdsFromDb === false) {
-            return;
-        }
+        $hostCommandIdsFromDb = $pearDB->executeQueryFetchColumn($query);
 
         $query = "INSERT INTO contact_hostcommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
         $pdoSth = $pearDB->prepareQuery($query);
@@ -881,17 +877,17 @@ function updateContactServiceCommands(int $contactId, array $fields = []): void
         return;
     }
 
-    $serviceCommandsFromForm = $fields["contact_svNotifCmds"] ?? $form->getSubmitValue("contact_svNotifCmds");
-
-    if (!is_array($serviceCommandsFromForm)) {
-        return;
-    }
-
     try {
         $query = "DELETE FROM contact_servicecommands_relation WHERE contact_contact_id = :contact_id";
         $successDelete = $pearDB->executePreparedQuery($pearDB->prepareQuery($query), ['contact_id' => $contactId]);
 
         if ($successDelete === false) {
+            return;
+        }
+
+        $serviceCommandsFromForm = $fields["contact_svNotifCmds"] ?? $form->getSubmitValue("contact_svNotifCmds");
+
+        if (!is_array($serviceCommandsFromForm)) {
             return;
         }
 
@@ -935,11 +931,7 @@ function updateContactServiceCommands_MC(int $contactId): void
 
     try {
         $query = "SELECT command_command_id FROM contact_servicecommands_relation WHERE contact_contact_id = {$contactId}";
-        $serviceCommandsFromDb = $pearDB->fetchColumn($pearDB->executeQuery($query));
-
-        if ($serviceCommandsFromDb === false) {
-            return;
-        }
+        $serviceCommandsFromDb = $pearDB->executeQueryFetchColumn($query);
 
         $query = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
         $pdoSth = $pearDB->prepareQuery($query);
@@ -1049,11 +1041,7 @@ function updateContactContactGroup_MC(int $contactId): void
 
     try {
         $query = "SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = {$contactId}";
-        $contactGroupIdsFromDb = $pearDB->fetchColumn($pearDB->executeQuery($query));
-
-        if ($contactGroupIdsFromDb === false) {
-            return;
-        }
+        $contactGroupIdsFromDb = $pearDB->executeQueryFetchColumn($query);
 
         $query = "INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)";
         $pdoSth = $pearDB->prepareQuery($query);
