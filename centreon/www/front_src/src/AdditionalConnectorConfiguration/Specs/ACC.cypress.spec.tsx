@@ -398,7 +398,7 @@ describe('Additional Connctor Configuration', () => {
 
       cy.findByTestId(labelSelectPollers).click();
 
-      cy.get(`input[data-testid="Url_value"`)
+      cy.get(`input[data-testid="URL_value"`)
         .clear()
         .type('http://10.10.10.10/sdk');
 
@@ -501,7 +501,7 @@ describe('Additional Connctor Configuration', () => {
       it(`vcenter URL field is required`, () => {
         initializeModal({ variant: 'create' });
 
-        cy.get(`input[data-testid="Url_value"`).clear();
+        cy.get(`input[data-testid="URL_value"`).clear();
 
         cy.get('body').click(0, 0);
 
@@ -618,7 +618,7 @@ describe('Additional Connctor Configuration', () => {
         initializeModal({ variant: 'create' });
 
         ['abc', '170.600.12', 'http://exa_mple.com'].forEach((url) => {
-          cy.get('input[data-testid="Url_value"').clear().type(url);
+          cy.get('input[data-testid="URL_value"').clear().type(url);
 
           cy.get('body').click(0, 0);
 
@@ -629,7 +629,7 @@ describe('Additional Connctor Configuration', () => {
 
         ['192.110.0.1/sdk', '170.12.12.1', 'http://example.com'].forEach(
           (url) => {
-            cy.get('input[data-testid="Url_value"').clear().type(url);
+            cy.get('input[data-testid="URL_value"').clear().type(url);
 
             cy.get('body').click(0, 0);
 
