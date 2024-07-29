@@ -652,9 +652,20 @@ When(
 
 Then('the graph should be displayed as a bar chart', () => {
   cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
-    const height = $el.attr('height');
-    if (height !== '0') {
-      cy.wrap($el).should('exist').and('be.visible');
-    }
+    cy.wrap($el).then(($bar) => {
+      cy.waitUntil(
+        () => {
+          const height = $bar.attr('height');
+
+          return cy.wrap(height !== '0');
+        },
+        {
+          interval: 3000,
+          timeout: 9000
+        }
+      ).then(() => {
+        cy.wrap($bar).should('exist').and('be.visible');
+      });
+    });
   });
 });
