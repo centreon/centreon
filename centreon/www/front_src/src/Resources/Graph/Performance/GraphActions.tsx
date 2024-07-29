@@ -4,6 +4,7 @@ import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai';
 
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
@@ -28,7 +29,7 @@ import {
   labelPerformancePage,
   labelSmallSize
 } from '../../translatedLabels';
-import useLoadDetails from '../../Details/useLoadDetails';
+import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
 
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 
@@ -67,7 +68,7 @@ const GraphActions = ({
   const { format } = useLocaleDateTimeFormat();
   const navigate = useNavigate();
 
-  const { loadDetails } = useLoadDetails();
+  const selectedResourcesDetails = useAtomValue(selectedResourcesDetailsAtom);
 
   const openSizeExportMenu = (event: MouseEvent<HTMLButtonElement>): void => {
     setMenuAnchor(event.currentTarget);
@@ -164,10 +165,10 @@ const GraphActions = ({
           <FederatedComponent
             end={end}
             path="/anomaly-detection/modal"
-            reloadDetails={loadDetails}
-            resource={resource}
+            resourceEndpoint={selectedResourcesDetails}
             start={start}
             styleMenuSkeleton={{ height: 0, width: 0 }}
+            type={resource?.type}
           />
           <Menu
             keepMounted
