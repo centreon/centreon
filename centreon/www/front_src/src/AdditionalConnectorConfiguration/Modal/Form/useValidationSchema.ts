@@ -41,7 +41,7 @@ const useValidationSchema = ({ variant }: Props): { validationSchema } => {
 
   const vcenterSchema = object().shape({
     ...(equals(variant, 'create') && secretsSchema),
-    Url: urlValidationSchema,
+    URL: urlValidationSchema,
     'Vcenter name': string()
       .required(t(labelRequired))
       .test(
