@@ -735,7 +735,7 @@ class CentreonDB extends \PDO
      */
     private function logSqlError(string $query, string $message): void
     {
-        $this->log->insertLog(2, "{$message}, PDO::errorInfos : {$this->errorInfo()}, QUERY : {$query}");
+        $this->log->insertLog(2, "{$message} QUERY : {$query}");
     }
 
     //******************************************** DEPRECATED METHODS ***********************************************//
