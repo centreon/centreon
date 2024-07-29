@@ -19255,3 +19255,99 @@ msgstr "Santé"
 
 msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
+
+msgid "Additional connector configuration"
+msgstr "Configuration supplémentaire du connecteur"
+
+msgid "Types"
+msgstr "Types"
+
+msgid "Updated by"
+msgstr "Mis à jour par"
+
+msgid "Edit connector configuration"
+msgstr "Modifier la configuration du connecteur"
+
+msgid "More filters"
+msgstr "Plus de filtres"
+
+msgid "Pollers"
+msgstr "Collecteurs"
+
+msgid "Delete additional connector configuration"
+msgstr "Supprimer la configuration supplémentaire du connecteur"
+
+msgid "The {{name}} additional connector configuration will be permanently deleted."
+msgstr "La configuration supplémentaire du connecteur {{name}} sera définitivement supprimée."
+
+msgid "Some of your connectors may not work anymore."
+msgstr "Certains de vos connecteurs peuvent ne plus fonctionner."
+
+msgid "Additional connector configuration deleted"
+msgstr "Configuration supplémentaire du connecteur supprimée"
+
+msgid "Additional connector configuration duplicated"
+msgstr "Configuration supplémentaire du connecteur dupliquée"
+
+msgid "Additional connector configuration created"
+msgstr "Configuration supplémentaire du connecteur créée"
+
+msgid "Additional connector configuration updated"
+msgstr "Configuration supplémentaire du connecteur mise à jour"
+
+msgid "Duplicate connector configuration"
+msgstr "Dupliquer la configuration du connecteur"
+
+msgid "Name can be at most 50 characters"
+msgstr "Le nom peut comporter au maximum 50 caractères"
+
+msgid "Name should be at least 3 characters long"
+msgstr "Le nom doit comporter au moins 3 caractères"
+
+msgid "Create additional connector configuration"
+msgstr "Créer une configuration supplémentaire de connecteur"
+
+msgid "Update additional connector configuration"
+msgstr "Mettre à jour la configuration supplémentaire du connecteur"
+
+msgid "Select poller(s)"
+msgstr "Sélectionner le(s) collecteur(s)"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Add parameter"
+msgstr "Ajouter un paramètre"
+
+msgid "Url"
+msgstr "URL"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Add vCenter/ESX"
+msgstr "Ajouter vCenter/ESX"
+
+msgid "Remove vCenter/ESX"
+msgstr "Supprimer vCenter/ESX"
+
+msgid "At least one poller is required"
+msgstr "Au moins un collecteur est requis"
+
+msgid "At least one vCenter is required"
+msgstr "Au moins un vCenter est requis"
+
+msgid "Must be a valid URL or IP address"
+msgstr "Doit être une URL ou une adresse IP valide"
+
+msgid "Invalid port number"
+msgstr "Numéro de port invalide"
+
+msgid "Vcenter name should be unique"
+msgstr "Le nom du vCenter doit être unique"
+
+msgid "Do you want to quit without saving the changes?"
+msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
+
+msgid "Your form has unsaved changes"
+msgstr "Votre formulaire contient des modifications non enregistrées"

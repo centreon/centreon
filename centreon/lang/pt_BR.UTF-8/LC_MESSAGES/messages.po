@@ -17955,3 +17955,99 @@ msgstr ""
 
 # msgid "Critical KPIs"
 # msgstr ""
+
+# msgid "Additional connector configuration"
+# msgstr ""
+
+# msgid "Types"
+# msgstr ""
+
+# msgid "Updated by"
+# msgstr ""
+
+# msgid "Edit connector configuration"
+# msgstr ""
+
+# msgid "More filters"
+# msgstr ""
+
+# msgid "Pollers"
+# msgstr ""
+
+# msgid "Delete additional connector configuration"
+# msgstr ""
+
+# msgid "The {{name}} additional connector configuration will be permanently deleted."
+# msgstr ""
+
+# msgid "Some of your connectors may not work anymore."
+# msgstr ""
+
+# msgid "Additional connector configuration deleted"
+# msgstr ""
+
+# msgid "Additional connector configuration duplicated"
+# msgstr ""
+
+# msgid "Additional connector configuration created"
+# msgstr ""
+
+# msgid "Additional connector configuration updated"
+# msgstr ""
+
+# msgid "Duplicate connector configuration"
+# msgstr ""
+
+# msgid "Name can be at most 50 characters"
+# msgstr ""
+
+# msgid "Name should be at least 3 characters long"
+# msgstr ""
+
+# msgid "Create additional connector configuration"
+# msgstr ""
+
+# msgid "Update additional connector configuration"
+# msgstr ""
+
+# msgid "Select poller(s)"
+# msgstr ""
+
+# msgid "Password"
+# msgstr ""
+
+# msgid "Add parameter"
+# msgstr ""
+
+# msgid "Url"
+# msgstr ""
+
+# msgid "Username"
+# msgstr ""
+
+# msgid "Add vCenter/ESX"
+# msgstr ""
+
+# msgid "Remove vCenter/ESX"
+# msgstr ""
+
+# msgid "At least one poller is required"
+# msgstr ""
+
+# msgid "At least one vCenter is required"
+# msgstr ""
+
+# msgid "Must be a valid URL or IP address"
+# msgstr ""
+
+# msgid "Invalid port number"
+# msgstr ""
+
+# msgid "Vcenter name should be unique"
+# msgstr ""
+
+# msgid "Do you want to quit without saving the changes?"
+# msgstr ""
+
+# msgid "Your form has unsaved changes"
+# msgstr ""
