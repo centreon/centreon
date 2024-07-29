@@ -28,6 +28,7 @@ import {
   labelPerformancePage,
   labelSmallSize
 } from '../../translatedLabels';
+import useLoadDetails from '../../Details/useLoadDetails';
 
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 
@@ -65,6 +66,8 @@ const GraphActions = ({
 
   const { format } = useLocaleDateTimeFormat();
   const navigate = useNavigate();
+
+  const { loadDetails } = useLoadDetails();
 
   const openSizeExportMenu = (event: MouseEvent<HTMLButtonElement>): void => {
     setMenuAnchor(event.currentTarget);
@@ -161,6 +164,7 @@ const GraphActions = ({
           <FederatedComponent
             end={end}
             path="/anomaly-detection/modal"
+            reloadDetails={loadDetails}
             resource={resource}
             start={start}
             styleMenuSkeleton={{ height: 0, width: 0 }}
