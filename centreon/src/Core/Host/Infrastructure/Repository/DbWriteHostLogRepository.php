@@ -256,7 +256,7 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
             }
 
             if ($value instanceof SnmpVersion) {
-                $value = $value?->value;
+                $value = $value->value;
             }
 
             if (is_array($value)) {
