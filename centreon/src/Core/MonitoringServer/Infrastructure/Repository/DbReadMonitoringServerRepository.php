@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Host\Infrastructure\Repository\HostRepositoryTrait;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Utility\SqlConcatenator;
@@ -40,7 +41,7 @@ use Utility\SqlConcatenator;
  */
 class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements ReadMonitoringServerRepositoryInterface
 {
-    use MonitoringServerRepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
+    use HostRepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -92,7 +93,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
             $accessGroups
         );
 
-        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+        if ($this->hasAccessToAllHosts($accessGroupIds)) {
             return $this->exists($monitoringServerId);
         }
 
@@ -120,77 +121,6 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function exist(array $monitoringServerIds): array
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
-            $monitoringServerIds,
-            ':monitoringServerIds_'
-        );
-
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT id
-                FROM `:db`.`nagios_server`
-                WHERE `id` IN ({$bindQuery})
-                SQL
-        ));
-
-        foreach ($bindValues as $bindParam => $bindValue) {
-            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        return $statement->fetchAll(\PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function existByAccessGroups(array $monitoringServerIds, array $accessGroups): array
-    {
-         if ($accessGroups === []) {
-
-            return [];
-        }
-
-        $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
-            $accessGroups
-        );
-
-        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
-            return $this->exist($monitoringServerIds);
-        }
-
-        [$bindValuesPollerIds, $bindQueryPollerIds] = $this->createMultipleBindQuery(
-            $monitoringServerIds,
-            ':monitoringServerIds_'
-        );
-        [$bindValuesACLs, $bindQueryACLs] = $this->createMultipleBindQuery($accessGroupIds, ':accessGroupIds_');
-
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT arpr.`poller_id`
-                FROM `:db`.`acl_resources_poller_relations` arpr
-                INNER JOIN `:db`.`acl_res_group_relations` argr
-                    ON argr.`acl_res_id` = arpr.`acl_res_id`
-                WHERE arpr.`poller_id` IN ({$bindQueryPollerIds})
-                    AND argr.`acl_group_id` IN ({$bindQueryACLs})
-                SQL
-        ));
-
-        $bindValues = [...$bindValuesPollerIds, ...$bindValuesACLs];
-        foreach ($bindValues as $bindParam => $bindValue) {
-            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     public function findByHost(int $hostId): ?MonitoringServer
