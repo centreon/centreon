@@ -45,7 +45,7 @@ class AdditionalConnectorVMWareV6 extends AbstractObjectJSON
         $additionalConnectorsVMWareV6 = $readAdditionalConnectorRepository->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
 
         // Cast to object to ensure that an empty JSON and not an empty array is write in file if no ACC exists.
-        $object = (object)[];
+        $object = (object) [];
         if ($additionalConnectorsVMWareV6 !== null) {
             $ACCParameters = $additionalConnectorsVMWareV6->getParameters();
 

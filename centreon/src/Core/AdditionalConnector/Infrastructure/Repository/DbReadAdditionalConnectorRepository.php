@@ -521,6 +521,9 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
         return $additionalConnectors;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findByPollerAndType(int $pollerId, string $type): ?AdditionalConnector
     {
         $statement = $this->db->prepare($this->translateDbName(

@@ -144,7 +144,7 @@ interface ReadAdditionalConnectorRepositoryInterface
     ): array;
 
     /**
-     * Find an ACC for the given poller.
+     * Find an ACC for the given poller and type.
      *
      * @param int $pollerId
      * @param string $type
