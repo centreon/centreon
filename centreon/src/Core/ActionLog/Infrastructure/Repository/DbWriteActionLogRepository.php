@@ -67,7 +67,7 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
         );
 
         $statement = $this->db->prepare($request);
-        $statement->bindValue(':creation_date', $creationDate, \PDO::PARAM_INT);
+        $statement->bindValue(':creation_date', $actionLog->getCreationDate()->getTimestamp(), \PDO::PARAM_INT);
         $statement->bindValue(':object_type', $actionLog->getObjectType(), \PDO::PARAM_STR);
         $statement->bindValue(':object_id', $actionLog->getObjectId(), \PDO::PARAM_INT);
         $statement->bindValue(':object_name', $actionLog->getObjectName(), \PDO::PARAM_STR);
