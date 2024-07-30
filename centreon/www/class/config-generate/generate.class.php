@@ -70,7 +70,7 @@ require_once dirname(__FILE__) . '/severity.class.php';
 require_once dirname(__FILE__) . '/timeperiod.class.php';
 require_once dirname(__FILE__) . '/timezone.class.php';
 require_once dirname(__FILE__) . '/vault.class.php';
-
+require_once dirname(__FILE__) . '/AdditionalConnectorVMWareV6.class.php';
 class Generate
 {
     private const GENERATION_FOR_ENGINE = 1;
@@ -260,7 +260,9 @@ class Generate
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
-
+        AdditionalConnectorVMWareV6::getInstance($this->dependencyInjector)->generateFromPollerId(
+            $this->current_poller['id']
+        );
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         Host::getInstance($this->dependencyInjector)->generateFromPollerId(
             $this->current_poller['id'],

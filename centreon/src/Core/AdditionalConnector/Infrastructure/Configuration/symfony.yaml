@@ -35,3 +35,7 @@ services:
     Core\AdditionalConnector\Application\UseCase\DeleteAdditionalConnector\DeleteAdditionalConnector:
         arguments:
             $writeVaultAccRepositories: !tagged_iterator 'additional_connector.vault.repositories'
+
+    Core\AdditionalConnector\Application\Repository\ReadAdditionalConnectorRepositoryInterface:
+        class: Core\AdditionalConnector\Infrastructure\Repository\DbReadAdditionalConnectorRepository
+        public: true
