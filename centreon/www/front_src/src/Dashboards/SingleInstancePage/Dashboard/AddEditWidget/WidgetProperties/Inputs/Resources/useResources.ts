@@ -76,6 +76,7 @@ interface UseResourcesState {
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
   getResourceTypeOptions: (index, resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
+  hasSelectedHostForSingleMetricwidget?: boolean;
   isLastResourceInTree: boolean;
   singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
@@ -515,6 +516,19 @@ const useResources = ({
     return ({ name }) => name;
   };
 
+  const hasSelectedHostForSingleMetricwidget = useMemo(() => {
+    const hasSelectedHost = value?.some(
+      ({ resources, resourceType }) =>
+        equals(resourceType, WidgetResourceType.host) && !isEmpty(resources)
+    );
+
+    return (
+      widgetProperties?.singleMetricSelection &&
+      widgetProperties?.singleResourceSelection &&
+      hasSelectedHost
+    );
+  }, [value]);
+
   return {
     addResource,
     changeIdValue,
@@ -528,6 +542,7 @@ const useResources = ({
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
+    hasSelectedHostForSingleMetricwidget,
     isLastResourceInTree,
     singleResourceSelection: widgetProperties?.singleResourceSelection,
     value: value || []

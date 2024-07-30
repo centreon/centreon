@@ -456,6 +456,8 @@ services:
 
     Security\Domain\Authentication\Interfaces\OpenIdProviderInterface:
         class: Core\Security\Authentication\Domain\Provider\OpenIdProvider
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
         tags: ['authentication.providers']
 
     Security\Domain\Authentication\Interfaces\WebSSOProviderInterface:
