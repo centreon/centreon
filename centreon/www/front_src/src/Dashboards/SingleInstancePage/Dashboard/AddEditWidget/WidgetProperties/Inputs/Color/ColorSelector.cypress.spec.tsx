@@ -29,7 +29,11 @@ const initialize = ({
           }}
           onSubmit={cy.stub()}
         >
-          <ColorSelector isInGroup={isInGroup} propertyName="test" label={labelBackgroundColor} />
+          <ColorSelector
+            isInGroup={isInGroup}
+            label={labelBackgroundColor}
+            propertyName="test"
+          />
         </Formik>
       </Provider>
     )

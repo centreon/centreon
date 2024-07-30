@@ -136,3 +136,5 @@ export const labelIfYouClickOnDiscard =
 export const labelSelectTimezone = 'Select time zone';
 export const labelSelectTimeFormat = 'Select time format';
 export const labelBackgroundColor = 'Background color';
+export const label12Hours = '12 hours';
+export const label24Hours = '24 hours';
