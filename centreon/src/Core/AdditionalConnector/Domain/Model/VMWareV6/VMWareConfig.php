@@ -33,6 +33,9 @@ class VMWareConfig
     {
     }
 
+    /**
+     * @return VSphereServer[]
+     */
     public function getVSphereServers(): array
     {
         return $this->vSphereServers;
