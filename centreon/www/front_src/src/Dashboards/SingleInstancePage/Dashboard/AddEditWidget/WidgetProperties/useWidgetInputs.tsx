@@ -54,7 +54,10 @@ import {
   WidgetButtonGroup,
   WidgetSlider,
   WidgetText,
-  WidgetConnectedAutocomplete
+  WidgetConnectedAutocomplete,
+  WidgetTimezone,
+  WidgetLocale,
+  WidgetColorSelector
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -82,7 +85,11 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup,
   [FederatedWidgetOptionType.slider]: WidgetSlider,
   [FederatedWidgetOptionType.text]: WidgetText,
-  [FederatedWidgetOptionType.connectedAutocomplete]: WidgetConnectedAutocomplete
+  [FederatedWidgetOptionType.connectedAutocomplete]:
+    WidgetConnectedAutocomplete,
+  [FederatedWidgetOptionType.timezone]: WidgetTimezone,
+  [FederatedWidgetOptionType.locale]: WidgetLocale,
+  [FederatedWidgetOptionType.color]: WidgetColorSelector
 };
 
 export const DefaultComponent = (): JSX.Element => (
