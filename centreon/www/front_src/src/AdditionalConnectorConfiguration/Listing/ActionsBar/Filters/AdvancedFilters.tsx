@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
-import { equals, map, pick, propEq, reject } from 'ramda';
+import { equals, isNil, map, pick, propEq, reject } from 'ramda';
 
 import {
   MultiAutocompleteField,
@@ -57,13 +57,21 @@ const AdvancedFilters = (): JSX.Element => {
     setFilters({ ...filters, pollers: selectedpollers });
   };
 
-  const deletePoller = (_, option): void => {
-    const pollers = reject(propEq(option.id, 'id'), filters.pollers);
+  const deleteItem =
+    (name) =>
+    (_, option): void => {
+      const newItems = reject(propEq(option.id, 'id'), filters[name]);
 
-    setFilters({
-      ...filters,
-      pollers
-    });
+      setFilters({
+        ...filters,
+        [name]: newItems
+      });
+    };
+
+  const isOptionEqualToValue = (option, selectedValue): boolean => {
+    return isNil(option)
+      ? false
+      : equals(option.name.toString(), selectedValue.name.toString());
   };
 
   const isClearDisabled = equals(filters, filtersDefaultValue);
@@ -93,10 +101,13 @@ const AdvancedFilters = (): JSX.Element => {
       />
 
       <MultiAutocompleteField
+        disableSortedOptions
         chipProps={{
-          color: 'primary'
+          color: 'primary',
+          onDelete: deleteItem('types')
         }}
         dataTestId={labelTypes}
+        isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelTypes)}
         options={availableConnectorTypes}
         value={filters.types}
@@ -107,10 +118,11 @@ const AdvancedFilters = (): JSX.Element => {
         disableSortedOptions
         chipProps={{
           color: 'primary',
-          onDelete: deletePoller
+          onDelete: deleteItem('pollers')
         }}
         dataTestId={labelPollers}
         getEndpoint={getPollersEndpoint}
+        isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelPollers)}
         value={filters.pollers}
         onChange={changePollers}

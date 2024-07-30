@@ -10,6 +10,7 @@ import { searchAtom } from '../../atom';
 import useLoadData from '../../useLoadData';
 
 import PopoverFilter from './PopoverFilter';
+import useUpdateFiltersBasedOnSearchBar from './useUpdateFiltersBasedOnSearchBar';
 
 const Filters = (): JSX.Element => {
   const { classes } = useFilterStyles();
@@ -18,6 +19,8 @@ const Filters = (): JSX.Element => {
   const [search, setSearch] = useAtom(searchAtom);
 
   const { reload } = useLoadData();
+
+  useUpdateFiltersBasedOnSearchBar();
 
   const onChange = (e): void => {
     setSearch(e.target.value);
