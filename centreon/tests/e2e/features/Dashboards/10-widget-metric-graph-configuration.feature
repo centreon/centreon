@@ -101,6 +101,6 @@ Feature: Configuring metrics graph widget
 
   @TEST_MON-119934
   Scenario: Update Metrics Graph display to bar chart
-      Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
-      When the dashboard administrator clicks the "Display as Bar Chart" button
-      Then the graph should be displayed as a bar chart
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator clicks the "Display as Bar Chart" button
+    Then the graph should be displayed as a bar chart
