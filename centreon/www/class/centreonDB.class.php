@@ -845,7 +845,10 @@ class CentreonDB extends \PDO
      * @throws PDOException
      * @deprecated Instead use {@see CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()}
      * @see CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()
+     *
+     * #[\ReturnTypeWillChange] to fix the change of the method's signature and avoid a fatal error
      */
+    #[\ReturnTypeWillChange]
     public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement|bool {
         if (!is_null($parameters) && !is_array($parameters)) {
             $parameters = [$parameters];
