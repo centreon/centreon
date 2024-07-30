@@ -61,17 +61,16 @@ class AdditionalConnectorVMWareV6 extends AbstractObjectJSON
             $vmWareConfig = new VMWareConfig(vSphereServers: $VSphereServers, port: $ACCParameters['port']);
 
             $object = [
-                self::MODULE_KEY_NAME => [
-                    'vsphere_server' => array_map(
-                        fn(VSphereServer $vSphereServer): array => [$vSphereServer->getName() => [
-                            'url' => $vSphereServer->getUrl(),
-                            'username' => $vSphereServer->getUsername(),
-                            'password' => $vSphereServer->getPassword()
-                        ]],
-                        $vmWareConfig->getVSphereServers()
-                    ),
-                    'port' => $vmWareConfig->getPort(),
-                ]
+                'vsphere_server' => array_map(
+                    fn(VSphereServer $vSphereServer): array => [
+                        'name' => $vSphereServer->getName(),
+                        'url' => $vSphereServer->getUrl(),
+                        'username' => $vSphereServer->getUsername(),
+                        'password' => $vSphereServer->getPassword()
+                    ],
+                    $vmWareConfig->getVSphereServers()
+                ),
+                'port' => $vmWareConfig->getPort(),
             ];
         }
         $this->generate_filename = 'centreon_vmware.json';
