@@ -210,7 +210,8 @@ describe('Additional Connctor Configuration', () => {
 
       cy.findByText(labelCreateConnectorConfiguration).should('be.visible');
 
-      cy.findByLabelText(labelName)
+      cy.findAllByTestId(labelName)
+        .eq(1)
         .should('be.visible')
         .should('have.value', '');
 
@@ -271,7 +272,8 @@ describe('Additional Connctor Configuration', () => {
 
       cy.findByText(labelUpdateConnectorConfiguration).should('be.visible');
 
-      cy.findByLabelText(labelName)
+      cy.findAllByTestId(labelName)
+        .eq(1)
         .should('be.visible')
         .should('have.value', 'VMWare1');
 
@@ -367,7 +369,7 @@ describe('Additional Connctor Configuration', () => {
       initializeModal({ variant: 'update' });
 
       cy.findByText(labelUpdateConnectorConfiguration).should('be.visible');
-      cy.findByLabelText(labelName).clear();
+      cy.findAllByTestId(labelName).eq(1).clear();
 
       cy.findByTestId('Modal')
         .children()
@@ -390,7 +392,7 @@ describe('Additional Connctor Configuration', () => {
         .should('have.text', labelCreate)
         .should('be.disabled');
 
-      cy.findByLabelText(labelName).type('New name');
+      cy.findAllByTestId(labelName).eq(1).type('New name');
 
       cy.findByTestId(labelSelectPollers).click();
 
@@ -461,7 +463,7 @@ describe('Additional Connctor Configuration', () => {
       it('name field is required', () => {
         initializeModal({ variant: 'create' });
 
-        cy.findByLabelText(labelName).clear();
+        cy.findAllByTestId(labelName).eq(1).clear();
 
         cy.get('body').click(0, 0);
 
@@ -573,7 +575,7 @@ describe('Additional Connctor Configuration', () => {
       it('name length must be between 3 and 50 characters', () => {
         initializeModal({ variant: 'create' });
 
-        cy.findByLabelText(labelName).clear().type('ab');
+        cy.findAllByTestId(labelName).eq(1).clear().type('ab');
 
         cy.get('body').click(0, 0);
 

@@ -30,6 +30,7 @@ const useFormInputs = (): FormInputsState => {
 
   const inputs = [
     {
+      dataTestId: labelName,
       fieldName: 'name',
       group: 'main',
       label: t(labelName),
