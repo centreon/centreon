@@ -212,13 +212,7 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
      */
     public function addParent(int $childId, int $parentId, int $order): void
     {
-        try {
-            $this->writeHostRepository->addParent($childId, $parentId, $order);
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            throw $ex;
-        }
+        $this->writeHostRepository->addParent($childId, $parentId, $order);
     }
 
     /**
@@ -226,13 +220,7 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
      */
     public function deleteParents(int $childId): void
     {
-        try {
-            $this->writeHostRepository->deleteParents($childId);
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            throw $ex;
-        }
+        $this->writeHostRepository->deleteParents($childId);
     }
 
     /**
