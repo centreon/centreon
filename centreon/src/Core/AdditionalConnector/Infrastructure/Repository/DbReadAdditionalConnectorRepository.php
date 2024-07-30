@@ -521,6 +521,34 @@ class DbReadAdditionalConnectorRepository extends AbstractRepositoryRDB implemen
         return $additionalConnectors;
     }
 
+    public function findByPollerAndType(int $pollerId, string $type): ?AdditionalConnector
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    acc.*
+                FROM `:db`.`additional_connector` acc
+                JOIN `:db`.`acc_poller_relation` rel
+                    ON acc.id = rel.acc_id
+                WHERE rel.poller_id = :poller_id
+                AND  acc.type = :type
+                LIMIT 1
+                SQL
+        ));
+
+        $statement->bindValue(':poller_id', $pollerId, \PDO::PARAM_INT);
+        $statement->bindValue(':type', $type, \PDO::PARAM_STR);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        foreach ($statement as $result) {
+            /** @var _AdditionalConnector $result */
+            return $this->createFromArray($result);
+        }
+
+        return null;
+    }
+
     /**
      * @param _AdditionalConnector $row
      *

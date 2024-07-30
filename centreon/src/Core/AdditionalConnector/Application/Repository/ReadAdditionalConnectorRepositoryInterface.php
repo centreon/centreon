@@ -142,4 +142,17 @@ interface ReadAdditionalConnectorRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array;
+
+    /**
+     * Find an ACC for the given poller.
+     *
+     * @param int $pollerId
+     * @param string $type
+     *
+     * @throws \Throwable
+     *
+     * @return AdditionalConnector|null
+     */
+    public function findByPollerAndType(int $pollerId, string $type): ?AdditionalConnector;
+
 }
