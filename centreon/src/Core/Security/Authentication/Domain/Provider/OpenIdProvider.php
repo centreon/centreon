@@ -465,6 +465,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      * Get Connection Token from OpenId Provider.
      *
      * @param string $authorizationCode
+     * @param string|null $redirectUrl
      *
      * @throws SSOAuthenticationException
      */
