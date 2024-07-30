@@ -31,6 +31,7 @@
 							"        \"resource_access_management\": false,\r",
 							"        \"dashboard_playlist\": true,\r",
 							"        \"resources_table_widget_open_tickets\": false,\r",
+							"        \"additional_connector_configuration\": false,\r",
 							"    });\r",
 							"});"
 						],
