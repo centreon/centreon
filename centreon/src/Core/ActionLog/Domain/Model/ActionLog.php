@@ -25,13 +25,14 @@ namespace Core\ActionLog\Domain\Model;
 class ActionLog
 {
     public const ACTION_TYPE_ADD = 'a';
+    public const ACTION_TYPE_CHANGE = 'c';
     public const ACTION_TYPE_DELETE = 'd';
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
 
     private ?int $id;
 
-    private ?\DateTime $creationDate;
+    private \DateTime $creationDate;
 
     /**
      * @param string $objectType
@@ -75,23 +76,11 @@ class ActionLog
     }
 
     /**
-     * @return \DateTime|null
+     * @return \DateTime
      */
-    public function getCreationDate(): ?\DateTime
+    public function getCreationDate(): \DateTime
     {
         return $this->creationDate;
-    }
-
-    /**
-     * @param \DateTime|null $creationDate
-     *
-     * @return ActionLog
-     */
-    public function setCreationDate(?\DateTime $creationDate): self
-    {
-        $this->creationDate = $creationDate;
-
-        return $this;
     }
 
     /**
