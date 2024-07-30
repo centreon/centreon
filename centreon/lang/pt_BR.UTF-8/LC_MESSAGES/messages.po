@@ -17905,6 +17905,7 @@ msgstr ""
 
 # msgid "Display resources with these status types"
 # msgstr ""
+
 # msgid  "All KPIs on this Business Activity are working fine."
 # msgstr ""
 
@@ -17955,6 +17956,43 @@ msgstr ""
 
 # msgid "Critical KPIs"
 # msgstr ""
+
+# msgid "Error while adding an additional connector"
+# msgstr ""
+
+# msgid "You are not allowed to add additional connectors"
+# msgstr ""
+
+# msgid "An additional connector configuration of type '%s' is already associated with poller ID(s) '%s'"
+# msgstr ""
+
+# msgid "Duplicates not allowed for property '%s'"
+# msgstr ""
+
+# msgid "'%s' must contain at least one element"
+# msgstr ""
+
+# msgid "Error while retrieving an additional connector"
+# msgstr ""
+
+# msgid "The additional connector name '%s' already exists"
+# msgstr ""
+
+# msgid "Error while deleting an additional connector"
+# msgstr ""
+
+# msgid "You are not allowed to delete additional connectors"
+# msgstr ""
+
+#  msgid "You don't have sufficient permission for this action"
+#  msgstr ""
+
+#  msgid "Error while searching for additional connectors"
+#  msgstr ""
+
+#  msgid "You are not allowed to access additional connectors"
+#  msgstr ""
+
 
 # msgid "Additional connector configuration"
 # msgstr ""
