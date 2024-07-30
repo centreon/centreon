@@ -154,5 +154,4 @@ interface ReadAdditionalConnectorRepositoryInterface
      * @return AdditionalConnector|null
      */
     public function findByPollerAndType(int $pollerId, string $type): ?AdditionalConnector;
-
 }
