@@ -20,3 +20,5 @@ export { default as WidgetConnectedAutocomplete } from './Autocomplete/Connected
 export { default as WidgetTimezone } from './Timezone/Timezone';
 export { default as WidgetLocale } from './Locale/Locale';
 export { default as WidgetColorSelector } from './Color/Color';
+export { default as WidgetTimeFormat } from './TimeFormat/TimeFormat';
+export { default as WidgetDatePicker } from './DatePicker/DatePicker';

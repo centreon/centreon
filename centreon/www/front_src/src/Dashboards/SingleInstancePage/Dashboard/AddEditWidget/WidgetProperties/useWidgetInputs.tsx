@@ -57,7 +57,9 @@ import {
   WidgetConnectedAutocomplete,
   WidgetTimezone,
   WidgetLocale,
-  WidgetColorSelector
+  WidgetColorSelector,
+  WidgetTimeFormat,
+  WidgetDatePicker
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -89,7 +91,9 @@ export const propertiesInputType = {
     WidgetConnectedAutocomplete,
   [FederatedWidgetOptionType.timezone]: WidgetTimezone,
   [FederatedWidgetOptionType.locale]: WidgetLocale,
-  [FederatedWidgetOptionType.color]: WidgetColorSelector
+  [FederatedWidgetOptionType.color]: WidgetColorSelector,
+  [FederatedWidgetOptionType.timeFormat]: WidgetTimeFormat,
+  [FederatedWidgetOptionType.datePicker]: WidgetDatePicker
 };
 
 export const DefaultComponent = (): JSX.Element => (

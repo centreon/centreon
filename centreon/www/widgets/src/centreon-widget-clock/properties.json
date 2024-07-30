@@ -18,6 +18,10 @@
 				"name": "Time Format"
 			},
 			{
+				"id": "countdown",
+				"name": "Countdown"
+			},
+			{
 				"id": "color",
 				"name": "Background color"
 			}
@@ -72,19 +76,21 @@
 				}
 			},
 			"timeFormat": {
-				"type": "button-group",
-				"group": "timeFormat",
-				"options": [
-					{
-						"id": "12",
-						"name": "12 hours"
-					},
-					{
-						"id": "24",
-						"name": "24 hours"
-					}
-				],
-				"defaultValue": "12"
+				"type": "time-format",
+				"group": "timeFormat"
+			},
+			"countdown": {
+				"type": "date-picker",
+				"group": "countdown",
+				"datePicker": {
+					"maxDays": 99
+				},
+				"hiddenCondition": {
+					"target": "options",
+					"when": "options.displayType",
+					"method": "equals",
+					"matches": "clock"
+				}
 			},
 			"backgroundColor": {
 				"type": "color",

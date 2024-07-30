@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import { isNotNil } from 'ramda';
 
 import { userAtom } from '@centreon/ui-context';
+import { SelectEntry } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { localeInputKeyDerivedAtom } from '../../../atoms';
@@ -25,15 +26,13 @@ export const useTimeFormat = ({
   ) as string;
 
   const localeValue =
-    localeInputKey && (values.options[localeInputKey] as string | undefined);
+    localeInputKey &&
+    (values.options[localeInputKey] as SelectEntry | undefined);
 
   useEffect(() => {
-    if (isNotNil(value)) {
-      return;
-    }
     const isMeridiem =
       dayjs()
-        .locale(localeValue ?? locale.replace('_', '-'))
+        .locale(localeValue?.id ?? locale.replace('_', '-'))
         .format('LT').length > 5;
     setFieldValue(`options.${propertyName}`, isMeridiem ? '12' : '24');
   }, [localeValue]);

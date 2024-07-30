@@ -86,7 +86,11 @@ export const localeInputKeyDerivedAtom = atom<string | undefined>((get) => {
 
   const properties = concat(
     Object.entries(widgetProperties.data || {}),
-    Object.entries(widgetProperties.options || {})
+    Object.entries(
+      (widgetProperties.options.groups
+        ? widgetProperties.options.elements
+        : widgetProperties.options) || {}
+    )
   );
 
   const metricInput = properties.find(([, { type }]) =>
@@ -105,7 +109,11 @@ export const timezoneInputKeyDerivedAtom = atom<string | undefined>((get) => {
 
   const properties = concat(
     Object.entries(widgetProperties.data || {}),
-    Object.entries(widgetProperties.options || {})
+    Object.entries(
+      (widgetProperties.options.groups
+        ? widgetProperties.options.elements
+        : widgetProperties.options) || {}
+    )
   );
 
   const metricInput = properties.find(([, { type }]) =>

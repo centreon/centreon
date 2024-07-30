@@ -22,6 +22,9 @@ export interface ShowInput {
 export interface WidgetPropertyProps {
   baseEndpoint: string;
   className?: string;
+  datePicker?: {
+    maxDays?: number;
+  };
   defaultValue?: unknown;
   disabled?: boolean;
   disabledCondition?: (values: Widget) => boolean;
