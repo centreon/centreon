@@ -26,8 +26,6 @@ use Core\AdditionalConnector\Domain\Model\VMWareV6\{VMWareConfig, VSphereServer}
 
 class AdditionalConnectorVMWareV6 extends AbstractObjectJSON
 {
-    public const MODULE_KEY_NAME = 'centreon_vm_ware_config';
-
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
