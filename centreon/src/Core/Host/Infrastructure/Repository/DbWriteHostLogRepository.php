@@ -107,6 +107,9 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
     {
         try {
             $host = $this->readHostRepository->findById($hostId);
+            if ($host === null) {
+                throw new RepositoryException('Cannot find host to update.');
+            }
             $this->writeHostRepository->deleteById($hostId);
 
             $actionLog = new ActionLog(
@@ -233,9 +236,9 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
     }
 
     /**
-     * @param Host $host
+     * @param NewHost $host
      *
-     * @return array<string,int|bool|string|null>
+     * @return array<string,int|bool|string>
      */
     private function getHostPropertiesAsArray(NewHost $host): array {
         $hostPropertiesArray = [];
@@ -261,18 +264,18 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
 
             if (is_array($value)) {
                 if ($value === []) {
-                    $value = null;
-                }
+                    $value = '';
+                } else {
+                    if (is_string($value[0])) {
+                        $value = '!' . implode(
+                            '!',
+                            str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $value)
+                        );
+                    }
 
-                if (is_string($value[0])) {
-                    $value = '!' . implode(
-                        '!',
-                        str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $value)
-                    );
-                }
-
-                if ($value[0] instanceof HostEvent) {
-                    $value = HostEventConverter::toString($value);
+                    if ($value[0] instanceof HostEvent) {
+                        $value = HostEventConverter::toString($value);
+                    }
                 }
             }
 
