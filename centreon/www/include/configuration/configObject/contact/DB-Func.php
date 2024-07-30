@@ -34,6 +34,9 @@
  *
  */
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -240,6 +243,7 @@ function unblockContactInDB(int|array|null $contact = null): void
         $centreon->CentreonLogAction->insertLog("contact", $row['contact_id'], $row['contact_name'], "unblock");
     }
 }
+
 /**
  * Delete Contacts
  * @param array $contacts
@@ -788,7 +792,16 @@ function updateContactHostCommands(int $contactId, array $fields = []): void
 {
     global $form, $pearDB;
 
+    $kernel = Kernel::createForWeb();
+
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+
     if ($contactId <= 0) {
+        $logger->error(
+            "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
@@ -831,7 +844,16 @@ function updateContactHostCommands_MC(int $contactId): void
 {
     global $form, $pearDB;
 
+    $kernel = Kernel::createForWeb();
+
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+
     if ($contactId <= 0) {
+        $logger->error(
+            "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
@@ -873,7 +895,16 @@ function updateContactServiceCommands(int $contactId, array $fields = []): void
 {
     global $form, $pearDB;
 
+    $kernel = Kernel::createForWeb();
+
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+
     if ($contactId <= 0) {
+        $logger->error(
+            "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
@@ -919,7 +950,16 @@ function updateContactServiceCommands_MC(int $contactId): void
 {
     global $form, $pearDB;
 
+    $kernel = Kernel::createForWeb();
+
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+
     if ($contactId <= 0) {
+        $logger->error(
+            "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
@@ -961,7 +1001,16 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
 {
     global $centreon, $form, $pearDB;
 
+    $kernel = Kernel::createForWeb();
+
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+
     if ($contactId <= 0) {
+        $logger->error(
+            "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
@@ -971,6 +1020,10 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
             'contact_cgNotif'
         );
     } catch (InvalidArgumentException $e) {
+        $logger->error(
+            "Error while merging with initial values : [InvalidArgumentException] {$e->getMessage()}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
@@ -1029,7 +1082,16 @@ function updateContactContactGroup_MC(int $contactId): void
 {
     global $centreon, $form, $pearDB;
 
+    $kernel = Kernel::createForWeb();
+
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+
     if ($contactId <= 0) {
+        $logger->error(
+            "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
@@ -1192,7 +1254,16 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): void
 {
     global $form, $pearDB;
 
+    $kernel = Kernel::createForWeb();
+
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+
     if ($contactId <= 0) {
+        $logger->error(
+            "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
@@ -1202,6 +1273,10 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): void
             'contact_acl_groups'
         );
     } catch (InvalidArgumentException $e) {
+        $logger->error(
+            "Error while merging with initial values : [InvalidArgumentException] {$e->getMessage()}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
@@ -1242,7 +1317,16 @@ function updateAccessGroupLinks_MC(int $contactId, $flag): void
 {
     global $form, $pearDB;
 
+    $kernel = Kernel::createForWeb();
+
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+
     if ($contactId <= 0) {
+        $logger->error(
+            "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+        );
         return;
     }
 
