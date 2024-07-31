@@ -59,9 +59,13 @@ const DateTimePickerInput = ({
 
   const formatDate = useCallback(
     (currentDate: Date | null): Dayjs => {
+      if (timezone) {
+        return dayjs(currentDate).tz(timezone);
+      }
+
       return isUTC
         ? dayjs.utc(currentDate)
-        : dayjs.tz(currentDate, timezone ?? user.timezone);
+        : dayjs.tz(currentDate, user.timezone);
     },
     [isUTC, timezone, user.timezone]
   );

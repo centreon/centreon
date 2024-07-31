@@ -53,8 +53,13 @@ export const useDatePicker = ({
     [formTimezone, user]
   );
 
+  const firstMountDate = useMemo(() => new Date().getTime(), []);
+
   const currentDate = useMemo(
-    () => dayjs(value).locale(locale).tz(timezone),
+    () =>
+      dayjs(value ?? firstMountDate)
+        .locale(locale)
+        .tz(timezone),
     [value, locale, timezone]
   );
 

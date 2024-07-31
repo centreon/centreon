@@ -51,13 +51,7 @@
 			},
 			"timezone": {
 				"type": "timezone",
-				"group": "timezone",
-				"hiddenCondition": {
-					"target": "options",
-					"when": "options.showTimezone",
-					"method": "equals",
-					"matches": false
-				}
+				"group": "timezone"
 			},
 			"showDate": {
 				"label": "Show date",
@@ -67,13 +61,7 @@
 			},
 			"locale": {
 				"type": "locale",
-				"group": "locale",
-				"hiddenCondition": {
-					"target": "options",
-					"when": "options.showDate",
-					"method": "equals",
-					"matches": false
-				}
+				"group": "locale"
 			},
 			"timeFormat": {
 				"type": "time-format",
