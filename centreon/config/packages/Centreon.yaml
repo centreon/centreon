@@ -344,6 +344,10 @@ services:
             tags: ['dashboard.playlist.widget.data.providers']
         Symfony\Component\Console\Command\Command:
             tags: ['script.command']
+        Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface:
+            tags: ['monitoring.resource.extra.providers']
+        Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface:
+            tags: ['monitoring.resource.extra.normalizers']
 
     Core\Common\Infrastructure\CommandInitializer:
         class: Core\Common\Infrastructure\CommandInitializer
