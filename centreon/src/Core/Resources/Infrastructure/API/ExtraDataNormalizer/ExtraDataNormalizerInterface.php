@@ -21,18 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Resources\Application\UseCase\FindResources;
+namespace Core\Resources\Infrastructure\API\ExtraDataNormalizer;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Resources\Application\UseCase\FindResources\FindResourcesPresenterInterface;
-use Core\Resources\Application\UseCase\FindResources\FindResourcesResponse;
-
-class FindResourcesPresenterStub implements FindResourcesPresenterInterface
+interface ExtraDataNormalizerInterface
 {
-    public FindResourcesResponse|ResponseStatusInterface $data;
+    /**
+     * @param mixed $data
+     *
+     * @return mixed[]
+     */
+    public function normalizeExtraDataForResource(mixed $data): array;
 
-    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $response): void
-    {
-        $this->data = $response;
-    }
+    /**
+     * @return string
+     */
+    public function getExtraDataSourceName(): string;
+
+    /**
+     * @param string $providerName
+     *
+     * @return bool
+     */
+    public function isValidFor(string $providerName): bool;
 }
