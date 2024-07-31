@@ -1,19 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { useAtomValue } from 'jotai';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { userAtom } from '@centreon/ui-context';
-
 import { PanelOptions } from './models';
 import { useClockStyles } from './Clock.styles';
 import CustomFluidTypography from './CustomFluidTypography';
 import { labelHour, labelMinute } from './translatedLabels';
 import ClockInformation from './ClockInformation';
+import { useGetLocaleAndTimezone } from './useGetLocaleAndTimezone';
+import BackgroundColor from './BackgroundColor';
 
 const Clock = ({
   timezone,
@@ -31,16 +30,8 @@ const Clock = ({
   const [showPoints, setShowPoints] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const user = useAtomValue(userAtom);
-
-  const timezoneToUse = useMemo(
-    () => (timezone?.id ?? user.timezone) as string,
-    [user.timezone, timezone]
-  );
-  const localeToUse = useMemo(
-    () => (locale?.id ?? user.locale) as string,
-    [user.locale, locale]
-  );
+  const { locale: localeToUse, timezone: timezoneToUse } =
+    useGetLocaleAndTimezone({ locale, timezone });
 
   const currentDate = date.locale(localeToUse).tz(timezoneToUse);
 
@@ -115,12 +106,9 @@ const Clock = ({
               </Typography>
             </div>
           </div>
-          <div
-            className={classes.background}
-            data-hasDescription={hasDescription}
-            style={{
-              backgroundColor: backgroundColor ?? '#255891'
-            }}
+          <BackgroundColor
+            backgroundColor={backgroundColor}
+            hasDescription={hasDescription}
           />
         </>
       )}

@@ -1,4 +1,5 @@
 import { Dayjs } from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
@@ -8,6 +9,7 @@ import { Tooltip, Typography } from '@mui/material';
 import { EllipsisTypography } from '@centreon/ui';
 
 import { useClockStyles } from './Clock.styles';
+import { labelEndsAt } from './translatedLabels';
 
 interface Props {
   date: Dayjs;
@@ -26,11 +28,12 @@ const ClockInformation = ({
   isClock,
   width
 }: Props): JSX.Element => {
+  const { t } = useTranslation();
   const { classes } = useClockStyles();
 
   const Icon = isClock ? QueryBuilderIcon : HourglassTopIcon;
 
-  const isSmall = width < 200;
+  const isSmall = width < (isClock ? 200 : 300);
 
   const timezoneDisplay = isSmall ? (
     <Tooltip placement="top" title={timezone}>
@@ -42,17 +45,33 @@ const ClockInformation = ({
     </EllipsisTypography>
   );
 
+  const dateDisplay = isClock ? (
+    <Typography className={classes.date} fontWeight="bold">
+      {date.format('L')}
+    </Typography>
+  ) : (
+    <Tooltip
+      placement="top"
+      title={`${t(labelEndsAt)}: ${date.format('L LT')}`}
+    >
+      <div>
+        <EllipsisTypography
+          className={classes.date}
+          fontWeight="bold"
+        >{`${t(labelEndsAt)}: ${date.format('L LT')}`}</EllipsisTypography>
+      </div>
+    </Tooltip>
+  );
+
   return (
-    <div className={classes.clockInformation} data-isSmall={isSmall}>
+    <div
+      className={classes.clockInformation}
+      data-isSmall={isSmall}
+      data-timer={!isClock}
+    >
       <Icon className={classes.icon} />
       {showTimezone ? timezoneDisplay : <div />}
-      {showDate ? (
-        <Typography className={classes.date} fontWeight="bold">
-          {date.format('L')}
-        </Typography>
-      ) : (
-        <div />
-      )}
+      {showDate ? dateDisplay : <div />}
     </div>
   );
 };
