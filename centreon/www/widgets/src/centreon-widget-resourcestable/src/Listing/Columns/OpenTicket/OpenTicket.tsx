@@ -49,9 +49,11 @@ const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
           data-testid={labelOpenTicketForService}
           disabled={hasTicket}
           size="large"
-          title={
-            hasTicket ? TooltipContent(ticket) : t(labelOpenTicketForService)
-          }
+          title={TooltipContent({
+            ...ticket,
+            hasNoTicket: hasTicket,
+            isHost: false
+          })}
           tooltipClassName={hasTicket ? classes.tooltip : undefined}
           onClick={createServiceTicket}
         >
@@ -68,11 +70,11 @@ const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
           data-testid={labelOpenTicketForHost}
           disabled={didHostHasTicket}
           size="large"
-          title={
-            didHostHasTicket
-              ? TooltipContent(isHost ? ticket : parentTicket)
-              : t(labelOpenTicketForService)
-          }
+          title={TooltipContent({
+            ...(isHost ? ticket : parentTicket),
+            hasNoTicket: didHostHasTicket,
+            isHost: true
+          })}
           tooltipClassName={didHostHasTicket ? classes.tooltip : undefined}
           onClick={createHostTicket}
         >
