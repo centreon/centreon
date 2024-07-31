@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import { SingleAutocompleteField } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -25,7 +26,7 @@ const Locale = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       disabled={!canEditField}
       label={t(labelSelectTimeFormat)}
       options={locales}
-      value={value ?? { id: formattedUserLocale, name: formattedUserLocale }}
+      value={value ?? locales.find(({ id }) => equals(id, formattedUserLocale))}
       onChange={changeValue}
     />
   );

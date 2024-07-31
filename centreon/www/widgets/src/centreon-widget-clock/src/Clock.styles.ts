@@ -1,25 +1,43 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useClockStyles = makeStyles()((theme) => ({
-  clockInformation: {
-    display: 'flex',
-    flexDirection: 'row',
-    maxWidth: theme.spacing(40),
-    minWidth: theme.spacing(32)
+  background: {
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0
   },
-  container: {
+  clockInformation: {
+    alignItems: 'center',
     display: 'grid',
-    gridTemplateRows: '0.4fr 1fr',
-    height: '100%',
+    gridTemplateColumns: '1fr minmax(110px, 0.5fr) 1fr',
     width: '100%'
   },
+  clockLabel: {
+    alignContent: 'center',
+    alignItems: 'flex-start',
+    display: 'flex',
+    height: '100%',
+    justifyContent: 'center'
+  },
+  container: {
+    color: theme.palette.common.white,
+    display: 'grid',
+    gridTemplateColumns: '100%',
+    gridTemplateRows: '30px 1fr',
+    height: '100%',
+    position: 'relative',
+    width: '100%',
+    zIndex: 1
+  },
   date: {
-    alignSelf: 'right'
+    justifySelf: 'start'
   },
   icon: {
-    alignSelf: 'left'
+    justifySelf: 'end'
   },
   timezone: {
-    alignSelf: 'center'
+    justifySelf: 'center'
   }
 }));

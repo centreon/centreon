@@ -1,9 +1,12 @@
+import { SelectEntry } from '@centreon/ui';
+
 export interface PanelOptions {
   backgroundColor?: string;
   countdown?: number;
   displayType: 'clock' | 'timer';
-  locale?: string;
+  locale?: SelectEntry;
   showDate: boolean;
   showTimezone: boolean;
-  timezone?: string;
+  timeFormat: '12' | '24';
+  timezone?: SelectEntry;
 }
