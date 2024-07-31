@@ -32,10 +32,10 @@ use PDOStatement;
 use ValueError;
 
 $dbConfig = new CentreonDbConfig(
-    dbHostCentreon: getenv('MYSQL_HOST'),
-    dbHostCentreonStorage: getenv('MYSQL_HOST'),
-    dbUser: getenv('MYSQL_USER'),
-    dbPassword: getenv('MYSQL_PASSWORD'),
+    dbHostCentreon: 'db',
+    dbHostCentreonStorage: 'db',
+    dbUser: 'centreon',
+    dbPassword: 'centreon',
     dbNameCentreon: 'centreon',
     dbNameCentreonStorage: 'centreon_storage',
     dbPort: 3306
