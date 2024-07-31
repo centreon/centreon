@@ -26,7 +26,7 @@ export const labelDeleteAdditionalConnectorConfiguration =
 export const labelDeleteAdditionalConnectorDescription =
   'The {{name}} additional connector configuration will be permanently deleted.';
 export const labelSomeConnectorsMayNotWorkAnymore =
-  'Some of your connectors may not work anymore.';
+  'The corresponding connectors will not work anymore.';
 export const labelAdditionalConnectorDeleted =
   'Additional connector configuration deleted';
 export const labelAdditionalConnectorDuplicated =
@@ -38,10 +38,11 @@ export const labelAdditionalConnectorUpdated =
 export const labelDuplicateConnectorConfiguration =
   'Duplicate connector configuration';
 export const labelSave = 'Save';
-export const labelNameMustBeMost = 'Name can be at most 50 characters';
-export const labelDescriptionMustBeMost = 'Name can be at most 50 characters';
+export const labelNameMustBeMost = 'The name can be at most 50 characters long';
+export const labelDescriptionMustBeMost =
+  'The name can be at most 50 characters long';
 export const labelNameMustBeAtLeast =
-  'Name should be at least 3 characters long';
+  'The name should be at least 3 characters long';
 export const labelRequired = 'Required';
 export const labelCreateConnectorConfiguration =
   'Create additional connector configuration';
@@ -62,9 +63,10 @@ export const labelRemoveVCenterESX = 'Remove vCenter/ESX';
 export const labelAteastOnePollerIsRequired = 'At least one poller is required';
 export const labelAtLeastOneVCenterIsRequired =
   'At least one vCenter is required';
-export const labelMustBeAvalidURL = 'Must be a valid URL or IP address';
+export const labelMustBeAvalidURL = 'Please enter a valid URL or IP address';
 export const labelInvalidPortNumber = 'Invalid port number';
-export const labelVcenterNameMustBeUnique = 'Vcenter name should be unique';
+export const labelVcenterNameMustBeUnique =
+  'The name of the Vcenter should be unique';
 
 export const labelDoYouWantToQuitWithoutSaving =
   'Do you want to quit without saving the changes?';

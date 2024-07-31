@@ -17960,7 +17960,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "The {{name}} additional connector configuration will be permanently deleted."
 # msgstr ""
 
-# msgid "Some of your connectors may not work anymore."
+# msgid "The corresponding connectors will not work anymore."
 # msgstr ""
 
 # msgid "Additional connector configuration deleted"
@@ -17978,10 +17978,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Duplicate connector configuration"
 # msgstr ""
 
-# msgid "Name can be at most 50 characters"
+# msgid "The name can be at most 50 characters long"
 # msgstr ""
 
-# msgid "Name should be at least 3 characters long"
+# msgid "The name should be at least 3 characters long"
 # msgstr ""
 
 # msgid "Create additional connector configuration"
@@ -18017,13 +18017,13 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "At least one vCenter is required"
 # msgstr ""
 
-# msgid "Must be a valid URL or IP address"
+# msgid "Please enter a valid URL or IP address"
 # msgstr ""
 
 # msgid "Invalid port number"
 # msgstr ""
 
-# msgid "Vcenter name should be unique"
+# msgid "The name of the Vcenter should be unique"
 # msgstr ""
 
 # msgid "Vcenter name"
