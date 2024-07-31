@@ -1,6 +1,10 @@
 ---
 name: docker-stable
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_run:
     workflows: ["web"]
@@ -17,6 +21,7 @@ jobs:
   dockerize-stable:
     needs: [get-version]
     runs-on: ubuntu-22.04
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability == 'stable' }}
 
     env:
       project: centreon-web
