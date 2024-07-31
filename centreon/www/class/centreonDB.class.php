@@ -59,6 +59,11 @@ class CentreonDB extends \PDO
     public const LABEL_DB_REALTIME = 'centstorage';
 
     /**
+     * @var int
+     */
+    private const RETRY = 3;
+
+    /**
      * @var array<string,\CentreonDB>
      */
     private static $instance = [];
@@ -136,16 +141,27 @@ class CentreonDB extends \PDO
      *
      * @throws Exception
      */
-    public function __construct($db = self::LABEL_DB_CONFIGURATION, $retry = 3)
+    public function __construct($db = self::LABEL_DB_CONFIGURATION, $retry = self::RETRY, CentreonDbConfig $dbConfig = null)
     {
         try {
-            $conf_centreon['hostCentreon'] = hostCentreon;
-            $conf_centreon['hostCentstorage'] = hostCentstorage;
-            $conf_centreon['user'] = user;
-            $conf_centreon['password'] = password;
-            $conf_centreon['db'] = db;
-            $conf_centreon['dbcstg'] = dbcstg;
-            $conf_centreon['port'] = port;
+
+            if (!is_null($dbConfig)) {
+                $conf_centreon['hostCentreon'] = $dbConfig->getDbHostCentreon();
+                $conf_centreon['hostCentstorage'] = $dbConfig->getDbHostCentreonStorage();
+                $conf_centreon['user'] = $dbConfig->getDbUser();
+                $conf_centreon['password'] = $dbConfig->getDbPassword();
+                $conf_centreon['db'] = $dbConfig->getDbNameCentreon();
+                $conf_centreon['dbcstg'] = $dbConfig->getDbNameCentreonStorage();
+                $conf_centreon['port'] = (string) $dbConfig->getDbPort();
+            } else {
+                $conf_centreon['hostCentreon'] = hostCentreon;
+                $conf_centreon['hostCentstorage'] = hostCentstorage;
+                $conf_centreon['user'] = user;
+                $conf_centreon['password'] = password;
+                $conf_centreon['db'] = db;
+                $conf_centreon['dbcstg'] = dbcstg;
+                $conf_centreon['port'] = port;
+            }
 
             $this->log = new CentreonLog();
 
@@ -195,13 +211,13 @@ class CentreonDB extends \PDO
             $this->lineRead = 0;
 
             parent::__construct(
-                $this->dsn['phptype'] . ":" . "dbname=" . $this->dsn['database'] .
-                ";host=" . $this->dsn['hostspec'] . ";port=" . $this->dsn['port'],
+                "{$this->dsn['phptype']}:dbname={$this->dsn['database']};host={$this->dsn['hostspec']};port={$this->dsn['port']}",
                 $this->dsn['username'],
                 $this->dsn['password'],
                 $this->options
             );
         } catch (Exception $e) {
+            $this->log->insertLog(2, "Unable to connect to database : {$e->getMessage()}");
             if (php_sapi_name() !== "cli") {
                 $this->displayConnectionErrorPage(
                     $e->getCode() === 2002 ? "Unable to connect to database" : $e->getMessage()
@@ -213,6 +229,28 @@ class CentreonDB extends \PDO
     }
 
     /**
+     * Factory
+     * @param CentreonDbConfig $dbConfig
+     * @return CentreonDB
+     * @throws Exception
+     */
+    public static function connectToCentreonDb(CentreonDbConfig $dbConfig) : CentreonDB
+    {
+        return new self(self::LABEL_DB_CONFIGURATION, self::RETRY, $dbConfig);
+    }
+
+    /**
+     * Factory
+     * @param CentreonDbConfig $dbConfig
+     * @return CentreonDB
+     * @throws Exception
+     */
+    public static function connectToCentreonStorageDb(CentreonDbConfig $dbConfig) : CentreonDB
+    {
+        return new self(self::LABEL_DB_REALTIME, self::RETRY, $dbConfig);
+    }
+
+    /**
      * @param string $query
      * @param array $options
      * @return PDOStatement|bool
@@ -220,6 +258,15 @@ class CentreonDB extends \PDO
      */
     public function prepareQuery(string $query, array $options = []): PDOStatement|bool
     {
+        if (empty($query)) {
+            throw new CentreonDbException(
+                'Error while preparing query, query must not be empty',
+                [
+                    'query' => $query,
+                ]
+            );
+        }
+
         try {
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
@@ -246,6 +293,8 @@ class CentreonDB extends \PDO
     }
 
     /**
+     * When $withParamType is true, $bindParams must have an array as value like ['value', PDO::PARAM_*]
+     * Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
      * @param PDOStatement $pdoStatement
      * @param array $bindParams
      * @param bool $withParamType
@@ -267,10 +316,27 @@ class CentreonDB extends \PDO
 
             if ($withParamType) {
                 foreach ($bindParams as $paramName => $bindParam) {
-                    if (is_array($bindParam) && !empty($bindParam)) {
+                    if (is_array($bindParam) && !empty($bindParam) && count($bindParam) === 2) {
                         $paramValue = $bindParam[0];
                         $paramType = $bindParam[1];
+                        if (
+                            !in_array(
+                                $paramType,
+                                [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
+                                true
+                            )
+                        ){
+                            throw new CentreonDbException(
+                                "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
+                                ['bind_param' => $bindParam]
+                            );
+                        }
                         $this->makeBindValue($pdoStatement, $paramName, $paramValue, $paramType);
+                    } else {
+                        throw new CentreonDbException(
+                            "Incorrect format for bindParam values, it must to be an array like ['value', PDO::PARAM_*]",
+                            ['bind_params' => $bindParams]
+                        );
                     }
                 }
                 return $pdoStatement->execute();
@@ -308,6 +374,15 @@ class CentreonDB extends \PDO
      */
     public function executeQuery($query, int $fetchMode = PDO::FETCH_ASSOC, array $fetchModeArgs = []): PDOStatement|bool
     {
+        if (empty($query)) {
+            throw new CentreonDbException(
+                'Error while executing query, query must not be empty',
+                [
+                    'query' => $query,
+                ]
+            );
+        }
+
         try {
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
@@ -436,14 +511,68 @@ class CentreonDB extends \PDO
 
     /**
      * @param PDOStatement $pdoStatement
+     * @param array|null $bindParams
+     * @return bool (no signature for this method because of a bug with tests with \Centreon\Test\Mock\CentreonDb::execute())
+     * @throws CentreonDbException
+     */
+    public function execute(PDOStatement $pdoStatement, ?array $bindParams = null)
+    {
+        try {
+            if (is_array($bindParams) && empty($bindParams)) {
+                throw new CentreonDbException(
+                    "To execute the query, bindParams must to be an array filled or null, empty array given",
+                    ['bind_params' => $bindParams]
+                );
+            }
+            return $pdoStatement->execute($bindParams);
+        } catch (PDOException $e) {
+            $message = "Error while executing the query: {$e->getMessage()}";
+            $this->logSqlError($pdoStatement->queryString, $message);
+            throw new CentreonDbException(
+                $message,
+                [
+                    'query' => $pdoStatement->queryString,
+                    'pdo_error_code' => $e->getCode(),
+                    'pdo_error_infos' => $e->errorInfo,
+                ],
+                $e
+            );
+        }
+    }
+
+    /**
+     *  Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
+     * @param PDOStatement $pdoStatement
      * @param int|string $paramName
      * @param mixed $value
      * @param int $type
      * @return bool
      * @throws CentreonDbException
      */
-    public function makeBindValue(PDOStatement $pdoStatement, int|string $paramName, mixed $value, int $type = PDO::PARAM_STR): bool
-    {
+    public function makeBindValue(
+        PDOStatement $pdoStatement,
+        int|string $paramName,
+        mixed $value,
+        int $type = PDO::PARAM_STR
+    ): bool {
+        if (empty($paramName)) {
+            throw new CentreonDbException(
+                "paramName must to be filled, empty given",
+                ['param_name' => $paramName]
+            );
+        }
+        if (
+            !in_array(
+                $type,
+                [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
+                true
+            )
+        ) {
+            throw new CentreonDbException(
+                "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
+                ['param_name' => $paramName]
+            );
+        }
         try {
             return $pdoStatement->bindValue($paramName, $value, $type);
         } catch (PDOException $e) {
@@ -480,6 +609,24 @@ class CentreonDB extends \PDO
         int $maxLength = 0
     ): bool
     {
+        if (empty($paramName)) {
+            throw new CentreonDbException(
+                "paramName must to be filled, empty given",
+                ['param_name' => $paramName]
+            );
+        }
+        if (
+            !in_array(
+                $type,
+                [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
+                true
+            )
+        ) {
+            throw new CentreonDbException(
+                "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
+                ['param_name' => $paramName]
+            );
+        }
         try {
             return $pdoStatement->bindParam($paramName, $var, $type, $maxLength);
         } catch (PDOException $e) {
@@ -531,7 +678,7 @@ class CentreonDB extends \PDO
      * @return string
      * @throws CentreonDbException
      */
-    public function escapeString(string $string, int $type): string
+    public function escapeString(string $string, int $type = PDO::PARAM_STR): string
     {
         $quotedString = parent::quote($string, $type);
         if ($quotedString === false) {
@@ -796,18 +943,6 @@ class CentreonDB extends \PDO
     public function autoCommit($val)
     {
         /* Deprecated */
-    }
-
-    /**
-     * @param PDOStatement|false $stmt
-     * @param string[] $arrayValues
-     * @return bool
-     * @deprecated No longer used by internal code and not recommended, instead use {@see CentreonDB::executePreparedQuery()}
-     * @see CentreonDB::executePreparedQuery()
-     */
-    public function execute($stmt, $arrayValues)
-    {
-        return $stmt->execute($arrayValues);
     }
 
     /**
