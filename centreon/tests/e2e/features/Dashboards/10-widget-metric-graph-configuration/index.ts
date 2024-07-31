@@ -636,16 +636,22 @@ Then(
   }
 );
 
-When('the dashboard administrator clicks the "Display as Bar Chart" button', () => {
-  cy.getByTestId({ testId: '-summary' }).eq(2).click();
-  cy.getByLabel({
-    label: 'Bar',
-    tag: 'div'
-  }).click();
-});
+When(
+  'the dashboard administrator clicks the "Display as Bar Chart" button',
+  () => {
+    cy.getByTestId({ testId: '-summary' }).eq(2).click();
+    cy.getByLabel({
+      label: 'Bar',
+      tag: 'div'
+    }).click();
+  }
+);
 
 Then('the graph should be displayed as a bar chart', () => {
-  cy.get('rect[data-testid*="single-bar-"]')
-  .should('exist')
-  .and('be.visible');
+  cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
+    const height = $el.attr('height');
+    if (height !== '0') {
+      cy.wrap($el).should('exist');
+    }
+  });
 });

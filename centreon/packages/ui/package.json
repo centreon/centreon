@@ -39,6 +39,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./components": "./src/components/index.ts",
+    "./Graph/*": "./src/Graph/*",
     "./fonts/*": "./src/fonts/*",
     "./test/testRenderer": "./test/testRenderer.tsx"
   },
@@ -106,8 +107,10 @@
     "vite-plugin-svgr": "^4.2.0",
     "vite-plugin-turbosnap": "^1.0.3"
   },
+  "peerDependencies": {
+    "@centreon/ui-context": "file:../ui-context"
+  },
   "dependencies": {
-    "@centreon/ui-context": "file:../ui-context",
     "@lexical/html": "^0.16.1",
     "@lexical/link": "^0.16.1",
     "@lexical/list": "^0.16.1",

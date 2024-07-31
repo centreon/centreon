@@ -6,3 +6,9 @@ services:
 
   CentreonOpenTickets\:
     resource: '../../../src/CentreonOpenTickets/*'
+
+  _instanceof:
+    Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface:
+      tags: ['monitoring.resource.extra.providers']
+    Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface:
+        tags: ['monitoring.resource.extra.normalizers']

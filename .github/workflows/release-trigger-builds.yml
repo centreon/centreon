@@ -62,12 +62,12 @@ jobs:
 
           if [[ "${{ inputs.dispatch_content }}" == "FULL" ]]; then
             echo "Requested ${{ inputs.dispatch_content }} content, triggering all component workflows."
-            for COMPONENT in ${COMPONENTS_OSS_FULL[@]}; do
+            for COMPONENT in "${COMPONENTS_OSS_FULL[@]}"; do
               gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
             done
           else
             echo "Requested ${{ inputs.dispatch_content }} content, triggering centreon named components only."
-            for COMPONENT in ${COMPONENTS_OSS[@]}; do
+            for COMPONENT in "${COMPONENTS_OSS[@]}"; do
               gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
             done
           fi
