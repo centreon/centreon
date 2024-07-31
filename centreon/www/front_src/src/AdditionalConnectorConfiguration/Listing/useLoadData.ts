@@ -44,18 +44,22 @@ const useLoadData = (): LoadDataState => {
         }))),
     ...(!filters?.types
       ? []
-      : filters.pollers.map((type) => ({
+      : filters.types.map((type) => ({
           field: 'type',
           values: {
             $rg: type.name
           }
         }))),
-    {
-      field: 'name',
-      values: {
-        $rg: filters.name
-      }
-    }
+    ...(filters.name
+      ? [
+          {
+            field: 'name',
+            values: {
+              $rg: filters.name
+            }
+          }
+        ]
+      : [])
   ];
 
   const { data, isFetching, fetchQuery } = useFetchQuery<

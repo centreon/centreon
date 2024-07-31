@@ -23,5 +23,5 @@ export const findConnectorTypeByName = (name): NamedEntity | undefined => {
 export const filtersDefaultValue = {
   name: '',
   pollers: [],
-  types: [{ id: 1, name: 'vmware_v6' }]
+  types: []
 };

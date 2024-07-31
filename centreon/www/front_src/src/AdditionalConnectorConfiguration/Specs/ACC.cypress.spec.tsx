@@ -7,13 +7,17 @@ import AdditionalConnectorConfiguration from '../Page';
 import {
   additionalConnectorsEndpoint,
   getAdditionalConnectorEndpoint,
-  getPollersForConnectorTypeEndpoint
+  getPollersForConnectorTypeEndpoint,
+  pollersEndpoint
 } from '../api/endpoints';
 import {
   labelAdditionalConnectorConfiguration,
+  labelAdditionalConnectorCreated,
+  labelAdditionalConnectorUpdated,
   labelAddvCenterESX,
   labelAteastOnePollerIsRequired,
   labelCancel,
+  labelClear,
   labelCreate,
   labelCreateConnectorConfiguration,
   labelDescription,
@@ -24,12 +28,14 @@ import {
   labelName,
   labelNameMustBeAtLeast,
   labelParameters,
+  labelPollers,
   labelPort,
   labelRemoveVCenterESX,
   labelRequired,
   labelSearch,
   labelSelectPollers,
   labelType,
+  labelTypes,
   labelUpdate,
   labelUpdateConnectorConfiguration
 } from '../translatedLabels';
@@ -38,6 +44,8 @@ import { dialogStateAtom } from '../atoms';
 import { defaultParameters } from '../utils';
 import { DialogState } from '../Listing/models';
 import { ParameterKeys } from '../Modal/models';
+import Filters from '../Listing/ActionsBar/Filters/Filters';
+import Listing from '../Listing/Listing';
 
 const mockPageRequests = (): void => {
   cy.fixture('ACC/additionalConnectors.json').then((connectors) => {
@@ -58,12 +66,18 @@ const mockPageRequests = (): void => {
     });
   });
 
-  cy.fixture('ACC/pollers-vmware.json').then((connector) => {
+  cy.fixture('ACC/pollers-vmware.json').then((pollers) => {
     cy.interceptAPIRequest({
       alias: 'geAllowedPollers',
       method: Method.GET,
       path: `**${getPollersForConnectorTypeEndpoint({})}**`,
-      response: connector
+      response: pollers
+    });
+    cy.interceptAPIRequest({
+      alias: 'geAllowedPollers',
+      method: Method.GET,
+      path: `**${pollersEndpoint}**`,
+      response: pollers
     });
   });
 };
@@ -111,6 +125,42 @@ const initializeModal = ({ variant = 'create' }: InitializeModal): void => {
         <TestQueryProvider>
           <Provider store={modalStore}>
             <AdditionalConnectorModal />
+          </Provider>
+        </TestQueryProvider>
+      </SnackbarProvider>
+    )
+  });
+};
+
+const initializeFilter = (): void => {
+  mockPageRequests();
+
+  cy.viewport(1200, 1000);
+
+  cy.mount({
+    Component: (
+      <SnackbarProvider>
+        <TestQueryProvider>
+          <Provider store={modalStore}>
+            <Filters />
+          </Provider>
+        </TestQueryProvider>
+      </SnackbarProvider>
+    )
+  });
+};
+
+const initializeListing = (): void => {
+  mockPageRequests();
+
+  cy.viewport(1200, 1000);
+
+  cy.mount({
+    Component: (
+      <SnackbarProvider>
+        <TestQueryProvider>
+          <Provider store={modalStore}>
+            <Listing />
           </Provider>
         </TestQueryProvider>
       </SnackbarProvider>
@@ -187,7 +237,33 @@ describe('Additional Connctor Configuration', () => {
     });
   });
   describe('Listing', () => {
-    it('renders the listing component', () => {});
+    it('displays the first page of the ACC listing', () => {
+      initializeListing();
+      cy.contains('VMWare1');
+      cy.contains('Description for VMWare1');
+
+      cy.matchImageSnapshot();
+    });
+    it('sends a new listing request whith a new limit param when the corrresponding button was clicked', () => {
+      initializeListing();
+
+      cy.get('#Rows\\ per\\ page').click();
+      cy.contains(/^20$/).click();
+
+      cy.waitForRequest('@getConnectors').then(({ request }) => {
+        expect(JSON.parse(request.url.searchParams.get('limit'))).to.equal(20);
+      });
+    });
+
+    it('sends a new listing request whith a new page param when the corrresponding button was clicked', () => {
+      initializeListing();
+
+      cy.findByLabelText('Next page').click();
+
+      cy.waitForRequest('@getConnectors').then(({ request }) => {
+        expect(JSON.parse(request.url.searchParams.get('page'))).to.equal(2);
+      });
+    });
     it('displays all listing columns', () => {});
     it('displays listing actions', () => {});
     describe('Actions', () => {
@@ -196,12 +272,166 @@ describe('Additional Connctor Configuration', () => {
       it('duplicate', () => {}); // ?
     });
     it('sorting', () => {});
-    it('pagination', () => {});
   });
   describe('Filters', () => {
-    it('render Filters', () => {
-      it('displays the search bar component', () => {});
-      it('displays the advanced filters component when the correspanding icon is clicked', () => {});
+    beforeEach(initializeFilter);
+    it('displays the search bar component', () => {
+      cy.get(`input[data-testid="${labelSearch}"`).should('be.visible');
+
+      cy.matchImageSnapshot();
+    });
+    it('displays the advanced filters component when the correspanding icon is clicked', () => {
+      cy.findByTestId(labelMoreFilters).click();
+
+      cy.get(`input[data-testid="${labelName}"`).should('be.visible');
+      cy.findByTestId(labelPollers).should('be.visible');
+      cy.findByTestId(labelTypes).should('be.visible');
+
+      cy.get(`button[data-testid="${labelSearch}"`).should('be.visible');
+      cy.get(`button[data-testid="${labelClear}"`).should('be.visible');
+
+      cy.matchImageSnapshot();
+    });
+    it('updates the filters with the value of the search bar', () => {
+      cy.get(`input[data-testid="${labelSearch}"`)
+        .clear()
+        .type('vmware1 types:vmware_v6 pollers:poller1,poller2');
+
+      cy.findByTestId(labelMoreFilters).click();
+
+      cy.get(`input[data-testid="${labelName}"`).should(
+        'have.value',
+        'vmware1'
+      );
+
+      cy.findByTestId(labelTypes)
+        .parent()
+        .within(() => {
+          cy.contains('vmware_v6');
+        });
+
+      cy.findByTestId(labelPollers)
+        .parent()
+        .within(() => {
+          cy.contains('poller1');
+          cy.contains('poller2');
+        });
+    });
+    it('update the search bar with the value of filters ', () => {
+      cy.get(`input[data-testid="${labelSearch}"`).clear();
+
+      cy.findByTestId(labelMoreFilters).click();
+
+      cy.get(`input[data-testid="${labelName}"`).type('vmware1');
+
+      cy.findByTestId(labelTypes).click();
+      cy.contains('vmware_v6').click();
+      cy.findByTestId(labelTypes).click();
+
+      cy.findByTestId(labelPollers).click();
+      cy.contains('poller1').click();
+      cy.contains('poller2').click();
+      cy.findByTestId(labelPollers).click();
+
+      cy.get(`input[data-testid="${labelSearch}"`).should(
+        'have.value',
+        'name:vmware1 types:vmware_v6 pollers:poller1,poller2'
+      );
+
+      cy.matchImageSnapshot();
+    });
+    it('sends a lising request with selected filters when the enter key was pressed', () => {
+      cy.get(`input[data-testid="${labelSearch}"`)
+        .clear()
+        .type('vmware1 types:vmware_v6 pollers:poller1,poller2')
+        .type('{enter}');
+
+      cy.waitForRequest('@getConnectors').then(({ request }) => {
+        expect(
+          JSON.parse(request.url.searchParams.get('search'))
+        ).to.deep.equal({
+          $and: [
+            {
+              $or: [
+                { 'poller.name': { $rg: 'poller1' } },
+                { 'poller.name': { $rg: 'poller2' } }
+              ]
+            },
+            { $or: [{ type: { $rg: 'vmware_v6' } }] },
+            { $or: [{ name: { $rg: 'vmware1' } }] }
+          ]
+        });
+      });
+    });
+    it('sends a lising request with selected filters when the search button was clicked', () => {
+      cy.get(`input[data-testid="${labelSearch}"`).clear();
+
+      cy.findByTestId(labelMoreFilters).click();
+
+      cy.get(`input[data-testid="${labelName}"`).type('vmware1');
+
+      cy.findByTestId(labelTypes).click();
+      cy.contains('vmware_v6').click();
+      cy.findByTestId(labelTypes).click();
+
+      cy.findByTestId(labelPollers).click();
+      cy.contains('poller1').click();
+      cy.contains('poller2').click();
+      cy.findByTestId(labelPollers).click();
+
+      cy.get(`button[data-testid="${labelSearch}"`).click();
+
+      cy.waitForRequest('@getConnectors').then(({ request }) => {
+        expect(
+          JSON.parse(request.url.searchParams.get('search'))
+        ).to.deep.equal({
+          $and: [
+            {
+              $or: [
+                { 'poller.name': { $rg: 'poller1' } },
+                { 'poller.name': { $rg: 'poller2' } }
+              ]
+            },
+            { $or: [{ type: { $rg: 'vmware_v6' } }] },
+            { $or: [{ name: { $rg: 'vmware1' } }] }
+          ]
+        });
+      });
+    });
+
+    it('clear filters and search bar and send a listing request without search values when the clear button was clicked', () => {
+      cy.get(`input[data-testid="${labelSearch}"`)
+        .clear()
+        .type('vmware1 types:vmware_v6 pollers:poller1,poller2');
+
+      cy.findByTestId(labelMoreFilters).click();
+
+      cy.get(`button[data-testid="${labelClear}"`).click();
+
+      cy.get(`input[data-testid="${labelSearch}"`).should('have.value', '');
+
+      cy.get(`input[data-testid="${labelName}"`).should('have.value', '');
+
+      cy.findByTestId(labelTypes)
+        .parent()
+        .within(() => {
+          cy.findByText('vmware_v6').should('not.exist');
+        });
+
+      cy.findByTestId(labelPollers)
+        .parent()
+        .within(() => {
+          cy.findByText('poller1').should('not.exist');
+          cy.findByText('poller2').should('not.exist');
+        });
+
+      cy.waitForRequest('@getConnectors').then(({ request }) => {
+        expect(
+          JSON.parse(request.url.searchParams.get('search'))
+        ).to.deep.equal({ $and: [] });
+      });
+
+      cy.matchImageSnapshot();
     });
   });
   describe('Modal', () => {
@@ -644,8 +874,49 @@ describe('Additional Connctor Configuration', () => {
     });
 
     describe('API requests', () => {
-      it('sends a Post request when the the Modal is in "Creation Mode" and the form is filled with ACC data and the Create Button is clicked ', () => {});
-      it('sends an Update request when the Modal is in "Edition Mode" an the form is filled with ACC data and the Updaye Button is clicked ', () => {});
+      it.only('sends a Post request when the the Modal is in "Creation Mode" and the Create Button is clicked ', () => {
+        initializeModal({ variant: 'create' });
+
+        cy.findByText(labelCreateConnectorConfiguration).should('be.visible');
+
+        cy.get(`button[data-testid="submit"`)
+          .should('have.text', labelCreate)
+          .should('be.disabled');
+
+        cy.findAllByTestId(labelName).eq(1).type('New name');
+
+        cy.findByTestId(labelSelectPollers).click();
+
+        cy.contains('poller1').click();
+
+        cy.findByTestId(labelSelectPollers).click();
+
+        cy.get(`input[data-testid="URL_value"`)
+          .clear()
+          .type('http://10.10.10.10/sdk');
+
+        cy.get(`input[data-testid="Username_value"`).type('username');
+        cy.get(`input[data-testid="Password_value"`).type('password');
+
+        cy.get(`button[data-testid="submit"`).click();
+
+        cy.contains(labelAdditionalConnectorCreated);
+
+        cy.matchImageSnapshot();
+      });
+      it.only('sends an Update request when the Modal is in "Edition Mode" and the Update Button is clicked ', () => {
+        initializeModal({ variant: 'update' });
+
+        cy.findByText(labelCreateConnectorConfiguration).should('be.visible');
+
+        cy.findAllByTestId(labelName).eq(1).clear().type('Updated name');
+
+        cy.get(`button[data-testid="submit"`).click();
+
+        cy.contains(labelAdditionalConnectorUpdated);
+
+        cy.matchImageSnapshot();
+      });
     });
   });
 });
