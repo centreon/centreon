@@ -1,0 +1,5 @@
+AddAdditionalConnector:
+  methods: POST
+  path: /configuration/additional-connectors
+  controller: 'Core\AdditionalConnector\Infrastructure\API\AddAdditionalConnector\AddAdditionalConnectorController'
+  condition: "request.attributes.get('version') >= 24.09"
