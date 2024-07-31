@@ -90,7 +90,8 @@ const Preview = (): JSX.Element | null => {
                 36 -
                 46
               }px`,
-              overflow: 'auto'
+              overflow: 'auto',
+              position: 'relative'
             }}
           >
             <FederatedComponent

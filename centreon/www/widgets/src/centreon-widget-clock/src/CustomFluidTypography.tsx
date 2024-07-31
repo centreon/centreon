@@ -1,14 +1,18 @@
 import { ParentSize } from '@centreon/ui';
 
 interface Props {
-  children: (fontZise: number) => JSX.Element;
+  children: (props) => JSX.Element;
 }
 
 const CustomFluidTypography = ({ children }: Props): JSX.Element => {
   return (
     <ParentSize>
       {({ height, width }) =>
-        children(Math.min(height, width) / (height > width ? 3 : 2.2))
+        children({
+          fontSize: Math.min(height, width) / (height > width ? 3.5 : 3.2),
+          height,
+          width
+        })
       }
     </ParentSize>
   );

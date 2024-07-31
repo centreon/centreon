@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useAtomValue } from 'jotai';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
-import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import { Typography } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
@@ -11,15 +12,25 @@ import { userAtom } from '@centreon/ui-context';
 import { PanelOptions } from './models';
 import { useClockStyles } from './Clock.styles';
 import CustomFluidTypography from './CustomFluidTypography';
+import { labelHour, labelMinute } from './translatedLabels';
+import ClockInformation from './ClockInformation';
 
 const Clock = ({
   timezone,
   locale,
   showTimezone,
   showDate,
-  backgroundColor
-}: PanelOptions): JSX.Element => {
+  backgroundColor,
+  timeFormat,
+  hasDescription
+}: PanelOptions & { hasDescription: boolean }): JSX.Element => {
   const { classes } = useClockStyles();
+  const { t } = useTranslation();
+
+  const [date, setDate] = useState(dayjs());
+  const [showPoints, setShowPoints] = useState(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const user = useAtomValue(userAtom);
 
   const timezoneToUse = useMemo(
@@ -31,11 +42,13 @@ const Clock = ({
     [user.locale, locale]
   );
 
-  const currentDate = dayjs().locale(localeToUse).tz(timezoneToUse);
+  const currentDate = date.locale(localeToUse).tz(timezoneToUse);
 
   const isMeridiem = useMemo(
-    () => dayjs().locale(localeToUse).format('LT').length > 5,
-    [localeToUse]
+    () =>
+      equals(timeFormat, '12') ||
+      dayjs().locale(localeToUse).format('LT').length > 5,
+    [localeToUse, timeFormat]
   );
 
   const hours = useMemo(
@@ -45,46 +58,66 @@ const Clock = ({
   const minutes = useMemo(() => currentDate.format('mm'), [currentDate]);
   const meridiem = useMemo(() => currentDate.format('A'), [currentDate]);
 
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setDate(dayjs());
+      setShowPoints((currentShowPoints) => !currentShowPoints);
+    }, 2000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
   return (
     <CustomFluidTypography>
-      {(fontSize) => (
+      {({ width, fontSize }) => (
         <>
           <div className={classes.container}>
-            <div className={classes.clockInformation}>
-              <QueryBuilderIcon className={classes.icon} />
-              {showTimezone ? (
-                <Typography className={classes.timezone}>
-                  {timezoneToUse}
-                </Typography>
-              ) : (
-                <div />
-              )}
-              {showDate ? (
-                <Typography className={classes.date} fontWeight="bold">
-                  {currentDate.format('L')}
-                </Typography>
-              ) : (
-                <div />
-              )}
-            </div>
+            <ClockInformation
+              isClock
+              date={currentDate}
+              showDate={showDate}
+              showTimezone={showTimezone}
+              timezone={timezoneToUse}
+              width={width}
+            />
             <div className={classes.clockLabel}>
               <Typography
-                component="span"
-                fontSize={`${fontSize}px`}
-              >{`${hours}:${minutes}`}</Typography>
+                fontSize={fontSize}
+              >{`${hours}${showPoints ? ':' : ' '}${minutes}`}</Typography>
               {isMeridiem && (
                 <Typography
-                  component="span"
-                  fontSize={`${fontSize / 3}px`}
+                  fontSize={fontSize / 3}
                   lineHeight={3}
+                  sx={{ ml: 1 }}
                 >
                   {meridiem}
                 </Typography>
               )}
             </div>
+            <div
+              className={classes.clockHourMinuteSubLabel}
+              style={{
+                gridTemplateColumns: `1fr ${fontSize / 2}px 1fr`,
+                paddingRight: isMeridiem ? fontSize - fontSize / 3 : 0,
+                top: 30 + fontSize * 1.1 + 10
+              }}
+            >
+              <Typography className={classes.icon} fontSize={fontSize / 2.8}>
+                {t(labelHour)}
+              </Typography>
+              <div />
+              <Typography className={classes.date} fontSize={fontSize / 2.8}>
+                {t(labelMinute)}
+              </Typography>
+            </div>
           </div>
           <div
             className={classes.background}
+            data-hasDescription={hasDescription}
             style={{
               backgroundColor: backgroundColor ?? '#255891'
             }}
