@@ -3,7 +3,6 @@ import { MemoizedListing } from '@centreon/ui';
 import ActionsBar from './ActionsBar/ActionsBar';
 import useListing from './useListing';
 import DeleteConnectorDialog from './Columns/Actions/DeleteDialog';
-import DuplicateConnectorDialog from './Columns/Actions/DuplicateDialog';
 import useColumns from './Columns/columns';
 
 const Listing = (): JSX.Element => {
@@ -49,7 +48,6 @@ const Listing = (): JSX.Element => {
         onSort={changeSort}
       />
       <DeleteConnectorDialog />
-      <DuplicateConnectorDialog />
     </>
   );
 };

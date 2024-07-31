@@ -18,8 +18,6 @@ import Parameters from '../Parameters/Parameters';
 import Port from '../Parameters/Port';
 import ConnectorType from '../ConnectorType/ConnectorType';
 
-import ParameterTitle from './ParameterTitle';
-
 interface FormInputsState {
   inputs: Array<InputProps>;
 }
@@ -73,7 +71,8 @@ const useFormInputs = (): FormInputsState => {
       type: InputType.MultiConnectedAutocomplete
     },
     {
-      additionalLabel: <ParameterTitle />,
+      additionalLabel: t(labelParameters),
+      additionalLabelClassName: classes.parametersTitleText,
       custom: {
         Component: Parameters
       },

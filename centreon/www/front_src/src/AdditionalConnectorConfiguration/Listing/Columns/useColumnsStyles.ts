@@ -7,5 +7,9 @@ export const useColumnStyles = makeStyles()((theme) => ({
   },
   icon: {
     fontSize: theme.spacing(2)
+  },
+  removeIcon: {
+    color: theme.palette.error.main,
+    fontSize: theme.spacing(2.25)
   }
 }));

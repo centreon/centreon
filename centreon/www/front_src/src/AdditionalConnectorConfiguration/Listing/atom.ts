@@ -14,8 +14,6 @@ export const sortFieldAtom = atom<string>('name');
 export const connectorsToDeleteAtom = atom<AdditionalConnectorListItem | null>(
   null
 );
-export const connectorsToDuplicateAtom =
-  atom<AdditionalConnectorListItem | null>(null);
 
 export const filtersAtom = atom<FiltersType>(filtersDefaultValue);
 

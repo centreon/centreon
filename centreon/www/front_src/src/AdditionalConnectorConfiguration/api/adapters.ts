@@ -2,27 +2,10 @@ import { pluck } from 'ramda';
 
 import {
   AdditionalConnectorConfiguration,
-  ParameterKeys
+  ParameterKeys,
+  Payload
 } from '../Modal/models';
 import { findConnectorTypeById } from '../utils';
-
-interface Payload
-  extends Omit<
-    AdditionalConnectorConfiguration,
-    'type' | 'pollers' | 'parameters'
-  > {
-  parameters: {
-    port: number;
-    vcenters: Array<{
-      name: string;
-      password: string;
-      url: string;
-      username: string;
-    }>;
-  };
-  pollers: Array<number>;
-  type: string;
-}
 
 export const adaptFormDataToApiPayload = (
   formData: AdditionalConnectorConfiguration
