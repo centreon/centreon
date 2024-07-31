@@ -1,4 +1,3 @@
----
 name: docker-stable
 
 concurrency:
