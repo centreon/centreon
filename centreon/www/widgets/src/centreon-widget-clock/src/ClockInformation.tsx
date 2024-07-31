@@ -5,6 +5,8 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import PublicIcon from '@mui/icons-material/Public';
 import { Tooltip, Typography } from '@mui/material';
 
+import { EllipsisTypography } from '@centreon/ui';
+
 import { useClockStyles } from './Clock.styles';
 
 interface Props {
@@ -35,7 +37,9 @@ const ClockInformation = ({
       <PublicIcon className={classes.timezone} />
     </Tooltip>
   ) : (
-    <Typography className={classes.timezone}>{timezone}</Typography>
+    <EllipsisTypography className={classes.timezone}>
+      {timezone}
+    </EllipsisTypography>
   );
 
   return (

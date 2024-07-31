@@ -24,7 +24,8 @@ export const useClockStyles = makeStyles()((theme) => ({
     },
     alignItems: 'center',
     display: 'grid',
-    gridTemplateColumns: '0.8fr minmax(110px, 0.5fr) 1fr',
+    gap: theme.spacing(1),
+    gridTemplateColumns: '0.8fr minmax(110px, 0.6fr) 1fr',
     width: '100%'
   },
   clockLabel: {
