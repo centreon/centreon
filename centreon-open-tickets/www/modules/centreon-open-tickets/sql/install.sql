@@ -5,6 +5,10 @@
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`) VALUES
 (NULL, 'Open Tickets', '604', NULL, NULL, '8', NULL, NULL, '0', '1', '1'),
 (NULL, 'Rules', '604', '60420', '10', '8', './modules/centreon-open-tickets/views/rules/index.php', NULL, NULL, '1', '1');
+
+INSERT INTO `topology` (`topology_name`, `topology_parent`, `topology_page`, `topology_url`, `topology_show`, `readonly`)
+VALUES ('Submit Ticket', 604, 60421, './modules/centreon-open-tickets/views/rules/submitTicket/action.php', '0', '0');
+
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/jquery.sheepItPlugin.js');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/jquery.serialize-object.min.js');
 INSERT INTO `topology_JS` (`id_page`, `PathName_js`) VALUES ('60420', './modules/centreon-open-tickets/lib/doClone.js');
