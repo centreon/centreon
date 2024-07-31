@@ -34,38 +34,41 @@ use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDt
 use Core\Resources\Application\UseCase\FindResourcesByParent\FindResourcesByParentPresenterInterface;
 use Core\Resources\Application\UseCase\FindResourcesByParent\FindResourcesByParentResponse;
 use Core\Resources\Application\UseCase\FindResourcesByParent\Response\ResourcesByParentResponseDto;
+use Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface;
 
 class FindResourcesByParentPresenter extends AbstractPresenter implements FindResourcesByParentPresenterInterface
 {
     use HttpUrlTrait;
     use PresenterTrait;
     private const IMAGE_DIRECTORY = '/img/media/',
-        HOST_RESOURCE_TYPE = 'host',
-        SERVICE_RESOURCE_TYPE = 'service';
+                  HOST_RESOURCE_TYPE = 'host',
+                  SERVICE_RESOURCE_TYPE = 'service';
 
     /**
      * @param HypermediaCreator $hypermediaCreator
      * @param RequestParametersInterface $requestParameters
      * @param PresenterFormatterInterface $presenterFormatter
+     * @param \Traversable<ExtraDataNormalizerInterface> $extraDataNormalizers
      */
     public function __construct(
         private readonly HypermediaCreator $hypermediaCreator,
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
+        private readonly \Traversable $extraDataNormalizers
     ) {
         parent::__construct($presenterFormatter);
     }
 
     /**
-     * @param FindResourcesByParentResponse|ResponseStatusInterface $data
+     * @param FindResourcesByParentResponse|ResponseStatusInterface $response
      */
-    public function presentResponse(FindResourcesByParentResponse|ResponseStatusInterface $data): void
+    public function presentResponse(FindResourcesByParentResponse|ResponseStatusInterface $response): void
     {
-        if ($data instanceof FindResourcesByParentResponse) {
+        if ($response instanceof FindResourcesByParentResponse) {
             $result = [];
-            foreach ($data->resources as $resourcesByParent) {
-                $parent = $this->createResourceFromResponse($resourcesByParent->parent);
-                $parent['children']['resources'] = $this->createChildrenFromResponse($resourcesByParent->children);
+            foreach ($response->resources as $resourcesByParent) {
+                $parent = $this->createResourceFromResponse($resourcesByParent->parent, $response->extraData);
+                $parent['children']['resources'] = $this->createChildrenFromResponse($resourcesByParent->children, $response->extraData);
                 $parent['children']['total'] = $resourcesByParent->total;
                 $parent['children']['status_count'] = $this->createStatusesCountFromResponse($resourcesByParent);
 
@@ -77,7 +80,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
                 'meta' => $this->requestParameters->toArray(),
             ]);
         } else {
-            $this->setResponseStatus($data);
+            $this->setResponseStatus($response);
         }
     }
 
@@ -99,23 +102,25 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
 
     /**
      * @param ResourceResponseDto[] $children
+     * @param array<string, array<mixed, mixed>> $extraData
      *
      * @return array<int, array<string, mixed>>
      */
-    private function createChildrenFromResponse(array $children): array
+    private function createChildrenFromResponse(array $children, array $extraData): array
     {
         return array_map(
-            fn (ResourceResponseDto $resource) => $this->createResourceFromResponse($resource),
+            fn (ResourceResponseDto $resource) => $this->createResourceFromResponse($resource, $extraData),
             $children
         );
     }
 
     /**
      * @param ResourceResponseDto $response
+     * @param array<string, array<mixed, mixed>> $extraData
      *
-     * @return array<string, mixed>
+     * @return array<string, array<string, mixed>>
      */
-    private function createResourceFromResponse(ResourceResponseDto $response): array
+    private function createResourceFromResponse(ResourceResponseDto $response, array $extraData): array
     {
         $duration = $response->lastStatusChange !== null
             ? \CentreonDuration::toString(time() - $response->lastStatusChange->getTimestamp())
@@ -212,15 +217,49 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
             'links' => $links,
         ];
 
-        if ($response->type === self::HOST_RESOURCE_TYPE) {
+        if (
+            $response->type === self::HOST_RESOURCE_TYPE
+            && $response->parent !== null
+        ) {
             $resource['name'] = $response->name;
             $resource['parent'] = null;
+            $resource['children'] = [];
+            $resource['extra'] = $response->parent->resourceId !== null
+                ? $this->normalizeExtraDataForResource($response->parent->resourceId, $extraData)
+                : [];
         } else {
             $resource['resource_name'] = $response->name;
             $resource['parent'] = ['id' => $response->hostId];
+            $resource['parent']['extra'] = $response->resourceId !== null
+                ? $this->normalizeExtraDataForResource($response->resourceId, $extraData)
+                : [];
         }
 
         return $resource;
+    }
+
+    /**
+     * @param int $resourceId
+     * @param array<string, array<mixed, mixed>> $extraData
+     *
+     * @return mixed[]
+     */
+    private function normalizeExtraDataForResource(int $resourceId, array $extraData): array
+    {
+        $data = [];
+        foreach ($extraData as $sourceName => $sourceData) {
+            foreach (iterator_to_array($this->extraDataNormalizers) as $provider) {
+                if ($provider->isValidFor($sourceName)) {
+                    if (array_key_exists($resourceId, $sourceData)) {
+                        $data[$sourceName] = $provider->normalizeExtraDataForResource(
+                            $sourceData[$resourceId],
+                        );
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
     /**

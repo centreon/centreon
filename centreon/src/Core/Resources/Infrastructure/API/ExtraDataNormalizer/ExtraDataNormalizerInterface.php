@@ -19,7 +19,28 @@
  *
  */
 
-// Regenerate routes. Should be present in the
-// upgrade scripts of all versions.
-require __DIR__ . '/../../../php/generate_routes.php';
+declare(strict_types=1);
 
+namespace Core\Resources\Infrastructure\API\ExtraDataNormalizer;
+
+interface ExtraDataNormalizerInterface
+{
+    /**
+     * @param mixed $data
+     *
+     * @return mixed[]
+     */
+    public function normalizeExtraDataForResource(mixed $data): array;
+
+    /**
+     * @return string
+     */
+    public function getExtraDataSourceName(): string;
+
+    /**
+     * @param string $providerName
+     *
+     * @return bool
+     */
+    public function isValidFor(string $providerName): bool;
+}

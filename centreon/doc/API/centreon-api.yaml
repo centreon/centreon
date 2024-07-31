@@ -10,6 +10,8 @@ info:
     + Added new filters for the /monitoring/services/categories endpoint
     + Remove snmp_community property from the hosts and host templates listing endpoints
     + Added new filters to the /monitoring/servicegroups endpoint
+    + Added new filters for /monitoring/resources /monitoring/resources/hosts related to Open Tickets
+    + Added new key 'extra' that contains extra data from modules installed for resources endpoints
     +
     # Information
     All dates are in **ISO 8601** format
@@ -7222,6 +7224,10 @@ components:
                   type: string
                   description: "URL for the icon"
                   example: "/centreon/img/media/ppm/applications-monitoring-centreon-central-centreon-128-2.png"
+        extra:
+          type: array
+          items:
+            type: object
     Monitoring.ResourceLinks:
       type: object
       properties:

@@ -24,10 +24,12 @@ import {
   labelSearchContacts,
   labelSearchBusinessViews,
   labelBusinessViews,
-  labelBusinessViewsEvents
+  labelBusinessViewsEvents,
+  labelSelectTimePeriod
 } from '../../translatedLabels';
 import { hostEvents, serviceEvents } from '../utils';
 import {
+  availableTimePeriodsEndpoint,
   businessViewsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
@@ -236,19 +238,21 @@ const useFormInputs = ({
           }
         ]
       : []),
-
     {
       additionalLabel: <TimePeriodTitle />,
       additionalLabelClassName: classes.additionalLabel,
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        endpoint: availableTimePeriodsEndpoint
+      },
       dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',
-      getDisabled: T,
       group: basicFormGroups[1].name,
       inputClassName: classes.input,
-      label: t(labelTimePeriod),
-      type: InputType.Checkbox
+      label: t(labelSelectTimePeriod),
+      required: true,
+      type: InputType.SingleConnectedAutocomplete
     },
-
     {
       additionalLabel: t(labelNotificationChannels),
       additionalLabelClassName: classes.additionalLabel,
@@ -290,7 +294,6 @@ const useFormInputs = ({
       },
       group: basicFormGroups[1].name,
       inputClassName: classes.input,
-      label: t(labelNotificationChannels),
       type: InputType.Grid
     },
 
