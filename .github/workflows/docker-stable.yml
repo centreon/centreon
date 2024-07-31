@@ -10,6 +10,8 @@ on:
     workflows: ["web"]
     types:
       - completed
+    branches:
+      - "master"
   workflow_dispatch:
 
 jobs:
@@ -21,7 +23,7 @@ jobs:
   dockerize-stable:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability == 'stable' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability == 'stable' && github.ref_name == 'master' }}
 
     env:
       project: centreon-web
