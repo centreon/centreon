@@ -35,13 +35,13 @@ $centreonLog = new CentreonLog();
 $pearDB = new CentreonDB();
 
 $pearDB->beginTransaction();
-    try {
-       deleteExpiredProviderRefreshTokens($centreonLog, $pearDB);
-       deleteExpiredProviderTokens($centreonLog, $pearDB);
-       deleteExpiredSessions($centreonLog, $pearDB);
+try {
+   deleteExpiredProviderRefreshTokens($centreonLog, $pearDB);
+   deleteExpiredProviderTokens($centreonLog, $pearDB);
+   deleteExpiredSessions($centreonLog, $pearDB);
 
-       $pearDB->commit();
-    } catch (\Throwable) {
+   $pearDB->commit();
+} catch (\Throwable) {
     $pearDB->rollBack();
     $centreonLog->insertLog(
         2,
