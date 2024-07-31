@@ -34,8 +34,8 @@ const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
     setResourcesToOpenTicket([{ hostID: row?.id }]);
   };
 
-  const ticket = row?.extras?.open_tickets?.ticket;
-  const parentTicket = row?.parent?.extras?.open_tickets?.ticket;
+  const ticket = row?.extra?.open_tickets?.tickets;
+  const parentTicket = row?.parent?.extra?.open_tickets?.tickets;
 
   const hasTicket = !!ticket?.id;
   const didHostHasTicket = !!parentTicket?.id || (isHost && hasTicket);
