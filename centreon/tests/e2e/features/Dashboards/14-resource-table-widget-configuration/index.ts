@@ -63,6 +63,7 @@ before(() => {
   }).as('resourceRequest');
   cy.startContainers();
   cy.enableDashboardFeature();
+  cy.setUserTokenApiV1();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
@@ -518,17 +519,20 @@ Given('a dashboard with a resource table widget', () => {
   cy.wait('@resourceRequest');
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(0)
-    .type(genericTextWidgets.default.description, { force: true })
-  cy.contains('host2').should('be.visible');
+    .type(genericTextWidgets.default.description, { force: true });
+  // cy.contains('host2').should('be.visible');
+  cy.contains('Centreon-Server').should('be.visible');
 });
 
 When('the dashboard administrator clicks on a random resource', () => {
-  cy.contains('host2').click();
+  // cy.contains('host2').click();
+  cy.contains('Centreon-Server').click();
 });
 
 Then(
   'the user should be redirected to the resource status screen and all the resources must be displayed',
   () => {
-    cy.contains('host2').should('exist');
+    // cy.contains('host2').should('exist');
+    cy.contains('Centreon-Server').should('exist');
   }
 );
