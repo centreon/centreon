@@ -1,23 +1,22 @@
 <?php
 
 /*
- * Copyright 2015-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 require_once realpath(__DIR__ . '/../../../../../../config/centreon.config.php');
@@ -42,6 +41,9 @@ $centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1,
 
 <?php
 
+const SERVICE_OPEN_TICKET_COMMAND_ID = 3;
+const HOST_OPEN_TICKET_COMMAND_ID = 4;
+
 function format_popup(): void
 {
     global $cmd,
@@ -52,21 +54,22 @@ function format_popup(): void
 
     $rules = [];
 
-    $statement = $db->query('SELECT rule_id, alias, provider_id FROM centreon.mod_open_tickets_rule');
+    $statement = $db->query('SELECT rule_id, alias, provider_id FROM mod_open_tickets_rule');
+
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         $rules[$row['rule_id']] = $row;
     }
-    $uniq_id = uniqid();
-    if ($cmd === 3) {
-        $title = _('Open Service Ticket');
-    } else {
-        $title = _('Open Host Ticket');
-    }
+
+    $uniqId = uniqid();
+
+    $title = $cmd === SERVICE_OPEN_TICKET_COMMAND_ID
+        ? _('Open Service Ticket')
+        : _('Open Host Ticket');
 
     $result = null;
 
     if (isset($_GET['rule_id'])) {
-        $selection = $_GET['selection'] ?? $_GET['host_id'] . ',' . $_GET['service_id'];
+        $selection = $_GET['selection'] ?? $_GET['host_id'] . ';' . $_GET['service_id'];
         $result = $rule->getFormatPopupProvider(
             $_GET['rule_id'],
             [
@@ -78,8 +81,8 @@ function format_popup(): void
                 ],
             ],
             0,
-            $uniq_id,
-            $_REQUEST['cmd'],
+            $uniqId,
+            $_GET['cmd'],
             $selection
         );
     }
@@ -92,7 +95,7 @@ function format_popup(): void
         $template->assign('provider_id', $rules[$_GET['rule_id']]['provider_id']);
         $template->assign('rule_id', $_GET['rule_id']);
         $template->assign('widgetId', 0);
-        $template->assign('uniqId', $uniq_id);
+        $template->assign('uniqId', $uniqId);
         $template->assign('title', $title);
         $template->assign('cmd', $cmd);
         $template->assign('selection', $selection);
@@ -122,7 +125,7 @@ function format_popup(): void
 }
 
 try {
-    if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['cmd'])) {
+    if (! isset($_SESSION['centreon']) || ! isset($_GET['cmd'])) {
         throw new Exception('Missing data');
     }
     $db = new CentreonDB();
@@ -131,10 +134,11 @@ try {
     }
     /** @var Centreon $centreon */
     $centreon = $_SESSION['centreon'];
-    $oreon = $centreon;
-    $cmd = $_REQUEST['cmd'];
+    $oreon = $centreon->user;
 
-    $widgetId = $_REQUEST['widgetId'];
+    $cmd = filter_input(INPUT_GET, 'cmd', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+
+    $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
     $selections = explode(',', $_REQUEST['selection']);
 
     $widgetObj = new CentreonWidget($centreon, $db);
@@ -142,8 +146,13 @@ try {
 
     $rule = new Centreon_OpenTickets_Rule($db);
 
-    if ($cmd === 3 || $cmd === 4) {
+    if (
+        $cmd === SERVICE_OPEN_TICKET_COMMAND_ID
+        || $cmd === HOST_OPEN_TICKET_COMMAND_ID
+    ) {
         format_popup();
+    } else {
+        throw new Exception('Unhandled data provided for cmd parameter');
     }
 } catch (Exception $e) {
     echo $e->getMessage() . '<br/>';
