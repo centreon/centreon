@@ -93,17 +93,17 @@ final class AddHost
     public function __invoke(AddHostRequest $request, AddHostPresenterInterface $presenter): void
     {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE)) {
-                $this->error(
-                    "User doesn't have sufficient rights to add a host",
-                    ['user_id' => $this->user->getId()]
-                );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(HostException::addNotAllowed()->getMessage())
-                );
-
-                return;
-            }
+//            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE)) {
+//                $this->error(
+//                    "User doesn't have sufficient rights to add a host",
+//                    ['user_id' => $this->user->getId()]
+//                );
+//                $presenter->presentResponse(
+//                    new ForbiddenResponse(HostException::addNotAllowed()->getMessage())
+//                );
+//
+//                return;
+//            }
 
             if (! $this->user->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);

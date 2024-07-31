@@ -33,6 +33,7 @@ use Core\Host\Application\UseCase\AddHost\AddHostRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class AddHostController extends AbstractController
 {
@@ -49,6 +50,7 @@ final class AddHostController extends AbstractController
      *
      * @return Response
      */
+    #[IsGranted('write_host', null, 'You are not allowed to add hosts from voters', Response::HTTP_FORBIDDEN)]
     public function __invoke(
         Request $request,
         AddHost $useCase,
@@ -56,8 +58,6 @@ final class AddHostController extends AbstractController
         AddHostOnPremPresenter $onPremPresenter,
         bool $isCloudPlatform,
     ): Response {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-
         if ($isCloudPlatform) {
             return $this->executeUseCaseSaas($useCase, $saasPresenter, $request);
         }
