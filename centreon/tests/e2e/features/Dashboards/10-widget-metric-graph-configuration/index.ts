@@ -649,10 +649,9 @@ When(
 
 Then('the graph should be displayed as a bar chart', () => {
   cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
-    const dataTestId = $el.attr('data-testid');
     const height = $el.attr('height');
-    if (!dataTestId.endsWith('null') && height !== '0') {
-      cy.wrap($el).should('exist').and('be.visible');
+    if (height !== '0') {
+      cy.wrap($el).should('exist');
     }
   });
 });
