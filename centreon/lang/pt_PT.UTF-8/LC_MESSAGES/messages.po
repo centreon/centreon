@@ -17935,3 +17935,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Critical KPIs"
 # msgstr ""
+
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
+

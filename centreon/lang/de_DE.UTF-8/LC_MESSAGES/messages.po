@@ -17154,3 +17154,7 @@ msgstr "Erweiterter Modus"
 
 # msgid "Critical KPIs"
 # msgstr ""
+
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
+
