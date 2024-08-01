@@ -26,16 +26,16 @@ export const useClockStyles = makeStyles()((theme) => ({
       gridTemplateColumns: '0.8fr minmax(30px, 0.2fr) 1fr'
     },
     '&[data-timer="true"]': {
-      gridTemplateColumns: '0.8fr minmax(110px, 0.6fr) 1fr'
+      gridTemplateColumns: '0.7fr minmax(100px, 0.6fr) 1fr'
     },
     alignItems: 'center',
     display: 'grid',
     gap: theme.spacing(0.5),
-    gridTemplateColumns: '0.8fr minmax(110px, 0.6fr) 1fr',
+    gridTemplateColumns: '0.8fr minmax(100px, 0.6fr) 1fr',
     width: '100%'
   },
   clockLabel: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     display: 'flex',
     height: '100%',
     justifyContent: 'center'
@@ -56,6 +56,13 @@ export const useClockStyles = makeStyles()((theme) => ({
   },
   icon: {
     justifySelf: 'end'
+  },
+  timerLabel: {
+    '&[data-hidden="true"]': {
+      opacity: 0
+    },
+    opacity: 1,
+    transition: `opacity ease-out ${theme.transitions.duration.short}ms`
   },
   timezone: {
     justifySelf: 'center'

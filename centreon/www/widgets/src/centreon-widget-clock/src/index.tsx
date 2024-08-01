@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utcPlugin from 'dayjs/plugin/utc';
 import timezonePlugin from 'dayjs/plugin/timezone';
+import duration from 'dayjs/plugin/duration';
 
 import { Module } from '@centreon/ui';
 
@@ -21,6 +22,7 @@ import Timer from './Timer';
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
+dayjs.extend(duration);
 
 interface Props extends CommonWidgetProps<PanelOptions> {
   panelOptions: PanelOptions;

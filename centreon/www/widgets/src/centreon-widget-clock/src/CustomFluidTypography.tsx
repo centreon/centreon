@@ -9,7 +9,7 @@ const CustomFluidTypography = ({ children }: Props): JSX.Element => {
     <ParentSize>
       {({ height, width }) =>
         children({
-          fontSize: Math.min(height, width) / (height > width ? 3.5 : 3.2),
+          fontSize: Math.min(height, width) / (height > width ? 3.7 : 3.4),
           height,
           width
         })

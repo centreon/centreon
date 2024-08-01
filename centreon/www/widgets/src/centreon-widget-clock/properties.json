@@ -65,7 +65,13 @@
 			},
 			"timeFormat": {
 				"type": "time-format",
-				"group": "timeFormat"
+				"group": "timeFormat",
+				"hiddenCondition": {
+					"target": "options",
+					"when": "options.displayType",
+					"method": "equals",
+					"matches": "timer"
+				}
 			},
 			"countdown": {
 				"type": "date-picker",

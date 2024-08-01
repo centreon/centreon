@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
 import { Typography } from '@mui/material';
@@ -9,7 +8,6 @@ import { Typography } from '@mui/material';
 import { PanelOptions } from './models';
 import { useClockStyles } from './Clock.styles';
 import CustomFluidTypography from './CustomFluidTypography';
-import { labelHour, labelMinute } from './translatedLabels';
 import ClockInformation from './ClockInformation';
 import { useGetLocaleAndTimezone } from './useGetLocaleAndTimezone';
 import BackgroundColor from './BackgroundColor';
@@ -24,7 +22,6 @@ const Clock = ({
   hasDescription
 }: PanelOptions & { hasDescription: boolean }): JSX.Element => {
   const { classes } = useClockStyles();
-  const { t } = useTranslation();
 
   const [date, setDate] = useState(dayjs());
   const [showPoints, setShowPoints] = useState(true);
@@ -83,27 +80,12 @@ const Clock = ({
                 <Typography
                   fontSize={fontSize / 3}
                   lineHeight={3}
+                  style={{ marginBottom: fontSize / 2 }}
                   sx={{ ml: 1 }}
                 >
                   {meridiem}
                 </Typography>
               )}
-            </div>
-            <div
-              className={classes.clockHourMinuteSubLabel}
-              style={{
-                gridTemplateColumns: `1fr ${fontSize / 2}px 1fr`,
-                paddingRight: isMeridiem ? fontSize - fontSize / 3 : 0,
-                top: 30 + fontSize * 1.1 + 10
-              }}
-            >
-              <Typography className={classes.icon} fontSize={fontSize / 2.8}>
-                {t(labelHour)}
-              </Typography>
-              <div />
-              <Typography className={classes.date} fontSize={fontSize / 2.8}>
-                {t(labelMinute)}
-              </Typography>
             </div>
           </div>
           <BackgroundColor

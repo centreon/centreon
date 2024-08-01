@@ -40,9 +40,13 @@ const ClockInformation = ({
       <PublicIcon className={classes.timezone} />
     </Tooltip>
   ) : (
-    <EllipsisTypography className={classes.timezone}>
-      {timezone}
-    </EllipsisTypography>
+    <Tooltip placement="top" title={timezone}>
+      <div>
+        <EllipsisTypography className={classes.timezone}>
+          {timezone}
+        </EllipsisTypography>
+      </div>
+    </Tooltip>
   );
 
   const dateDisplay = isClock ? (
