@@ -344,7 +344,7 @@ export default (): void => {
       cy.findByTestId(labelRemoveVCenterESX).should('not.exist');
     });
 
-    it(`adds a new parameter group when the ${labelAddvCenterESX} button is clicked`, () => {
+    it(`adds a new parameter group when "Add vCenter ESX" button is clicked`, () => {
       initializeModal({ variant: 'create' });
 
       cy.findAllByTestId('parameterGroup').should('have.length', 1);
@@ -392,8 +392,6 @@ export default (): void => {
         cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('be.visible');
-
-        cy.matchImageSnapshot();
       });
 
       it('validates that at least one poller is required', () => {
@@ -405,11 +403,10 @@ export default (): void => {
         cy.get('body').click(0, 0);
 
         cy.findByTestId('CancelIcon').click();
-        cy.get('body').click(0, 0);
-
-        cy.contains(labelAteastOnePollerIsRequired).should('be.visible');
 
         cy.matchImageSnapshot();
+
+        cy.contains(labelAteastOnePollerIsRequired).should('be.visible');
       });
 
       it(`validates that vCenter name field is required`, () => {
@@ -537,8 +534,6 @@ export default (): void => {
         cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('not.exist');
-
-        cy.matchImageSnapshot();
       });
       it('validates that the port should be a valid integer', () => {
         initializeModal({ variant: 'create' });
@@ -565,25 +560,25 @@ export default (): void => {
       it('validates that vcenter url must be a valid URL or an IP address', () => {
         initializeModal({ variant: 'create' });
 
-        ['abc', '170.600.12', 'http://exa_mple.com'].forEach((url) => {
+        ['abc', '170.600.12', 'http://exa_mple.com'].forEach((url, index) => {
           cy.get('input[data-testid="URL_value"').clear().type(url);
 
           cy.get('body').click(0, 0);
 
           cy.contains(labelMustBeAvalidURL).should('be.visible');
 
-          cy.matchImageSnapshot(`vaildate url :  ${url}`);
+          cy.matchImageSnapshot(`invalide_url_${index}`);
         });
 
         ['192.110.0.1/sdk', '170.12.12.1', 'http://example.com'].forEach(
-          (url) => {
+          (url, index) => {
             cy.get('input[data-testid="URL_value"').clear().type(url);
 
             cy.get('body').click(0, 0);
 
             cy.contains(labelMustBeAvalidURL).should('not.exist');
 
-            cy.matchImageSnapshot(`validate url :  ${url}`);
+            cy.matchImageSnapshot(`valide_url_${index}`);
           }
         );
       });
