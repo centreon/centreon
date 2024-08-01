@@ -31,10 +31,21 @@ use PDO;
 use PDOStatement;
 use ValueError;
 
+/**
+ * @param string $nameEnvVar
+ * @return string|bool
+ */
+function getEnvironmentVariable(string $nameEnvVar): string|bool
+{
+    $envVarValue = getenv($nameEnvVar, true) ?: getenv($nameEnvVar);
+    return (is_string($envVarValue)) ? $envVarValue : false;
+}
+
+$dbHost = getEnvironmentVariable('MYSQL_HOST');
+$dbUser = getEnvironmentVariable('MYSQL_USER');
+$dbPassword = getEnvironmentVariable('MYSQL_PASSWORD');
+
 $dbConfig = null;
-$dbHost = getenv('MYSQL_HOST');
-$dbUser = getenv('MYSQL_USER');
-$dbPassword = getenv('MYSQL_PASSWORD');
 
 if ($dbHost !== false && $dbUser !== false && $dbPassword !== false) {
     $dbConfig = new CentreonDbConfig(
@@ -53,22 +64,22 @@ if ($dbHost !== false && $dbUser !== false && $dbPassword !== false) {
  * @param string $dbName
  * @return bool
  */
-function testConnectionDb(CentreonDbConfig $dbConfig, string $dbName): bool
+function hasConnectionDb(CentreonDbConfig $dbConfig, string $dbName): bool
 {
-        try {
-            if ($dbName === $dbConfig->getDbNameCentreon()) {
-                new PDO (
-                    "mysql:dbname={$dbConfig->getDbNameCentreon()};host={$dbConfig->getDbHostCentreon()};port={$dbConfig->getDbPort()}",
-                    $dbConfig->getDbUser(), $dbConfig->getDbPassword(), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-                );
-            } elseif ($dbName === $dbConfig->getDbNameCentreonStorage()) {
-                new PDO (
-                    "mysql:dbname={$dbConfig->getDbNameCentreonStorage()};host={$dbConfig->getDbHostCentreonStorage()};port={$dbConfig->getDbPort()}",
-                    $dbConfig->getDbUser(), $dbConfig->getDbPassword(), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-                );
-            } else {
-                return false;
-            }
+    try {
+        if ($dbName === $dbConfig->getDbNameCentreon()) {
+            new PDO (
+                "mysql:dbname={$dbConfig->getDbNameCentreon()};host={$dbConfig->getDbHostCentreon()};port={$dbConfig->getDbPort()}",
+                $dbConfig->getDbUser(), $dbConfig->getDbPassword(), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            );
+        } elseif ($dbName === $dbConfig->getDbNameCentreonStorage()) {
+            new PDO (
+                "mysql:dbname={$dbConfig->getDbNameCentreonStorage()};host={$dbConfig->getDbHostCentreonStorage()};port={$dbConfig->getDbPort()}",
+                $dbConfig->getDbUser(), $dbConfig->getDbPassword(), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            );
+        } else {
+            return false;
+        }
         return true;
     } catch (\PDOException $e) {
         return false;
@@ -77,8 +88,7 @@ function testConnectionDb(CentreonDbConfig $dbConfig, string $dbName): bool
 
 // ************************************** With centreon database connection *******************************************
 
-if (!is_null($dbConfig) && testConnectionDb($dbConfig, $dbConfig->getDbNameCentreon())) {
-
+if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentreon())) {
     it(
         'connect to centreon database with CentreonDB constructor',
         function () use ($dbConfig) {
@@ -450,15 +460,13 @@ if (!is_null($dbConfig) && testConnectionDb($dbConfig, $dbConfig->getDbNameCentr
             expect($escapedString)->toBeString()->toBe('\'1\'');
         }
     );
-
 } else {
     it('no centreon database available for testing the CentreonDB connector, so these tests were ignored');
 }
 
 // ********************************** With centreon_storage database connection ***************************************
 
-if (!is_null($dbConfig) && testConnectionDb($dbConfig, $dbConfig->getDbNameCentreonStorage())) {
-
+if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentreonStorage())) {
     it(
         'connect to centreon_storage database with CentreonDB constructor',
         function () use ($dbConfig) {
@@ -480,7 +488,6 @@ if (!is_null($dbConfig) && testConnectionDb($dbConfig, $dbConfig->getDbNameCentr
                 ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
     );
-
 } else {
     it('no centreon_storage database available for testing the CentreonDB connector, so these tests were ignored');
 }
