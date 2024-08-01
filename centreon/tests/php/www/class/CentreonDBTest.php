@@ -31,15 +31,22 @@ use PDO;
 use PDOStatement;
 use ValueError;
 
-$dbConfig = new CentreonDbConfig(
-    dbHostCentreon: getenv('MYSQL_HOST'),
-    dbHostCentreonStorage: getenv('MYSQL_HOST'),
-    dbUser: getenv('MYSQL_USER'),
-    dbPassword: getenv('MYSQL_PASSWORD'),
-    dbNameCentreon: 'centreon',
-    dbNameCentreonStorage: 'centreon_storage',
-    dbPort: 3306
-);
+$dbConfig = null;
+$dbHost = getenv('MYSQL_HOST');
+$dbUser = getenv('MYSQL_USER');
+$dbPassword = getenv('MYSQL_PASSWORD');
+
+if ($dbHost !== false && $dbUser !== false && $dbPassword !== false) {
+    $dbConfig = new CentreonDbConfig(
+        dbHostCentreon: $dbHost,
+        dbHostCentreonStorage: $dbHost,
+        dbUser: $dbUser,
+        dbPassword: $dbPassword,
+        dbNameCentreon: 'centreon',
+        dbNameCentreonStorage: 'centreon_storage',
+        dbPort: 3306
+    );
+}
 
 /**
  * @param CentreonDbConfig $dbConfig
@@ -70,7 +77,7 @@ function testConnectionDb(CentreonDbConfig $dbConfig, string $dbName): bool
 
 // ************************************** With centreon database connection *******************************************
 
-if (testConnectionDb($dbConfig, $dbConfig->getDbNameCentreon())) {
+if (!is_null($dbConfig) && testConnectionDb($dbConfig, $dbConfig->getDbNameCentreon())) {
 
     it(
         'connect to centreon database with CentreonDB constructor',
@@ -448,7 +455,7 @@ it(
 
 // ********************************** With centreon_storage database connection ***************************************
 
-if (testConnectionDb($dbConfig, $dbConfig->getDbNameCentreonStorage())) {
+if (!is_null($dbConfig) && testConnectionDb($dbConfig, $dbConfig->getDbNameCentreonStorage())) {
 
     it(
         'connect to centreon_storage database with CentreonDB constructor',
