@@ -7,7 +7,6 @@ import { SelectField } from '@centreon/ui';
 
 import { labelSelectType, labelType } from '../../translatedLabels';
 import { AdditionalConnectorConfiguration } from '../models';
-import { availableConnectorTypes } from '../../utils';
 
 import { useConnectorTypeStyles } from './useConnectorTypeStyles';
 
