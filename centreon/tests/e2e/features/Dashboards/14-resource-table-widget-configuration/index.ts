@@ -63,7 +63,6 @@ before(() => {
   }).as('resourceRequest');
   cy.startContainers();
   cy.enableDashboardFeature();
-  cy.setUserTokenApiV1();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
