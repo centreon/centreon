@@ -1,3 +1,7 @@
+import { memo } from 'react';
+
+import { equals } from 'ramda';
+
 import { useClockStyles } from './Clock.styles';
 
 const BackgroundColor = ({
@@ -20,4 +24,4 @@ const BackgroundColor = ({
   );
 };
 
-export default BackgroundColor;
+export default memo(BackgroundColor, equals);

@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
@@ -11,7 +13,6 @@ import {
   labelDay,
   labelHour,
   labelMinute,
-  labelPleaseSelectAValidCountdown,
   labelSecond
 } from './translatedLabels';
 import CustomFluidTypography from './CustomFluidTypography';
@@ -122,4 +123,4 @@ const Timer = ({
   );
 };
 
-export default Timer;
+export default memo(Timer, equals);

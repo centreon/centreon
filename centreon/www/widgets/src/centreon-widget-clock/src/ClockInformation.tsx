@@ -1,5 +1,8 @@
+import { memo } from 'react';
+
 import { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
@@ -80,4 +83,4 @@ const ClockInformation = ({
   );
 };
 
-export default ClockInformation;
+export default memo(ClockInformation, equals);

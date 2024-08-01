@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 
 import dayjs from 'dayjs';
 import { equals } from 'ramda';
@@ -98,4 +98,4 @@ const Clock = ({
   );
 };
 
-export default Clock;
+export default memo(Clock, equals);
