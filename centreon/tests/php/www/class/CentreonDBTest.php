@@ -32,79 +32,90 @@ use PDOStatement;
 use ValueError;
 
 $dbConfig = new CentreonDbConfig(
-    dbHostCentreon: 'db',
-    dbHostCentreonStorage: 'db',
-    dbUser: 'centreon',
-    dbPassword: 'centreon',
+    dbHostCentreon: getenv('MYSQL_HOST'),
+    dbHostCentreonStorage: getenv('MYSQL_HOST'),
+    dbUser: getenv('MYSQL_USER'),
+    dbPassword: getenv('MYSQL_PASSWORD'),
     dbNameCentreon: 'centreon',
     dbNameCentreonStorage: 'centreon_storage',
     dbPort: 3306
 );
 
-it(
-    'connect to centreon database with CentreonDB constructor',
-    function () use ($dbConfig) {
-        $db = new CentreonDB(db: CentreonDB::LABEL_DB_CONFIGURATION, dbConfig: $dbConfig);
-        expect($db)->toBeInstanceOf(CentreonDB::class);
-        $dbName = $db->executeQuery("select database()")->fetchColumn();
-        expect($dbName)->toBe('centreon')
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+/**
+ * @param CentreonDbConfig $dbConfig
+ * @param string $dbName
+ * @return bool
+ */
+function testConnectionDb(CentreonDbConfig $dbConfig, string $dbName): bool
+{
+        try {
+            if ($dbName === $dbConfig->getDbNameCentreon()) {
+                new PDO (
+                    "mysql:dbname={$dbConfig->getDbNameCentreon()};host={$dbConfig->getDbHostCentreon()};port={$dbConfig->getDbPort()}",
+                    $dbConfig->getDbUser(), $dbConfig->getDbPassword(), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                );
+            } elseif ($dbName === $dbConfig->getDbNameCentreonStorage()) {
+                new PDO (
+                    "mysql:dbname={$dbConfig->getDbNameCentreonStorage()};host={$dbConfig->getDbHostCentreonStorage()};port={$dbConfig->getDbPort()}",
+                    $dbConfig->getDbUser(), $dbConfig->getDbPassword(), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                );
+            } else {
+                return false;
+            }
+        return true;
+    } catch (\PDOException $e) {
+        return false;
     }
-);
+}
 
-it(
-    'connect to centreon_storage database with CentreonDB constructor',
-    function () use ($dbConfig) {
-        $db = new CentreonDB(db: CentreonDB::LABEL_DB_REALTIME, dbConfig: $dbConfig);
-        expect($db)->toBeInstanceOf(CentreonDB::class);
-        $dbName = $db->executeQuery("select database()")->fetchColumn();
-        expect($dbName)->toBe('centreon_storage')
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-    }
-);
+// ************************************** With centreon database connection *******************************************
 
-it(
-    'connect to centreon database with CentreonDB::connectToCentreonDb factory',
-    function () use ($dbConfig) {
-        $db = CentreonDB::connectToCentreonDb($dbConfig);
-        expect($db)->toBeInstanceOf(CentreonDB::class);
-        $dbName = $db->executeQuery("select database()")->fetchColumn();
-        expect($dbName)->toBe('centreon')
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-    }
-);
+if (testConnectionDb($dbConfig, $dbConfig->getDbNameCentreon())) {
 
-it(
-    'connect to centreon_storage database with CentreonDB::connectToCentreonStorageDb factory',
-    function () use ($dbConfig) {
-        $db = CentreonDB::connectToCentreonStorageDb($dbConfig);
-        expect($db)->toBeInstanceOf(CentreonDB::class);
-        $dbName = $db->executeQuery("select database()")->fetchColumn();
-        expect($dbName)->toBe('centreon_storage')
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-    }
-);
+    it(
+        'connect to centreon database with CentreonDB constructor',
+        function () use ($dbConfig) {
+            $db = new CentreonDB(db: CentreonDB::LABEL_DB_CONFIGURATION, dbConfig: $dbConfig);
+            expect($db)->toBeInstanceOf(CentreonDB::class);
+            $dbName = $db->executeQuery("select database()")->fetchColumn();
+            expect($dbName)->toBe('centreon')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
 
-it(
-    'execute query with a correct query',
-    function () use ($dbConfig) {
-        $db = CentreonDB::connectToCentreonDb($dbConfig);
-        $pdoSth = $db->executeQuery("select database()");
-        expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-        $dbName = $pdoSth->fetchColumn();
-        expect($dbName)->toBe('centreon')
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-    }
-);
+    it(
+        'connect to centreon database with CentreonDB::connectToCentreonDb factory',
+        function () use ($dbConfig) {
+            $db = CentreonDB::connectToCentreonDb($dbConfig);
+            expect($db)->toBeInstanceOf(CentreonDB::class);
+            $dbName = $db->executeQuery("select database()")->fetchColumn();
+            expect($dbName)->toBe('centreon')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
 
-it(
-    'execute query with an incorrect query',
-    function () use ($dbConfig) {
-        $db = CentreonDB::connectToCentreonDb($dbConfig);
-        $db->executeQuery("foo");
-        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-    }
-)->throws(CentreonDbException::class);
+    it(
+        'execute query with a correct query',
+        function () use ($dbConfig) {
+            $db = CentreonDB::connectToCentreonDb($dbConfig);
+            $pdoSth = $db->executeQuery("select database()");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $dbName = $pdoSth->fetchColumn();
+            expect($dbName)->toBe('centreon')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'execute query with an incorrect query',
+        function () use ($dbConfig) {
+            $db = CentreonDB::connectToCentreonDb($dbConfig);
+            $db->executeQuery("foo");
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(CentreonDbException::class);
+
+}
 
 it(
     'execute query with an empty query',
@@ -349,7 +360,7 @@ it(
         $successExecute = $db->execute($pdoSth);
         expect($successExecute)->toBeTrue()
             ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
+    }
 );
 
 it(
@@ -434,3 +445,31 @@ it(
         expect($escapedString)->toBeString()->toBe('\'1\'');
     }
 );
+
+// ********************************** With centreon_storage database connection ***************************************
+
+if (testConnectionDb($dbConfig, $dbConfig->getDbNameCentreonStorage())) {
+
+    it(
+        'connect to centreon_storage database with CentreonDB constructor',
+        function () use ($dbConfig) {
+            $db = new CentreonDB(db: CentreonDB::LABEL_DB_REALTIME, dbConfig: $dbConfig);
+            expect($db)->toBeInstanceOf(CentreonDB::class);
+            $dbName = $db->executeQuery("select database()")->fetchColumn();
+            expect($dbName)->toBe('centreon_storage')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'connect to centreon_storage database with CentreonDB::connectToCentreonStorageDb factory',
+        function () use ($dbConfig) {
+            $db = CentreonDB::connectToCentreonStorageDb($dbConfig);
+            expect($db)->toBeInstanceOf(CentreonDB::class);
+            $dbName = $db->executeQuery("select database()")->fetchColumn();
+            expect($dbName)->toBe('centreon_storage')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+}
