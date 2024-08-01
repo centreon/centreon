@@ -305,7 +305,7 @@ export default (): void => {
         .should('have.text', labelUpdate)
         .should('be.disabled');
     });
-    it('enables the create/update button when all mondatory fields are field', () => {
+    it('enables the create button when all mandatory fields are filled', () => {
       initializeModal({ variant: 'create' });
 
       cy.findByText(labelCreateConnectorConfiguration).should('be.visible');
@@ -337,12 +337,13 @@ export default (): void => {
       cy.matchImageSnapshot();
     });
 
-    it('hides Delete Parameter Group buttons when there is only one paramter group', () => {
+    it('hides Delete Parameter Group buttons when there is only one parameter group', () => {
       initializeModal({ variant: 'create' });
 
       cy.findByTestId(labelRemoveVCenterESX).should('not.exist');
     });
-    it(`add new parameter group when the ${labelAddvCenterESX} button is clicked`, () => {
+
+    it(`adds a new parameter group when the ${labelAddvCenterESX} button is clicked`, () => {
       initializeModal({ variant: 'create' });
 
       cy.findAllByTestId('parameterGroup').should('have.length', 1);
@@ -382,7 +383,7 @@ export default (): void => {
     });
 
     describe('Form validation', () => {
-      it('name field is required', () => {
+      it('validates that the name field is required', () => {
         initializeModal({ variant: 'create' });
 
         cy.findAllByTestId(labelName).eq(1).clear();
@@ -394,7 +395,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it('at least one poller is required', () => {
+      it('validates that at least one poller is required', () => {
         initializeModal({ variant: 'create' });
 
         cy.findByTestId(labelSelectPollers).click();
@@ -410,7 +411,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`vcenter name field is required`, () => {
+      it(`validates that vcenter name field is required`, () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="Vcenter name_value"`).clear();
@@ -422,7 +423,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`vcenter URL field is required`, () => {
+      it(`validates that vcenter URL field is required`, () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="URL_value"`).clear();
@@ -434,7 +435,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`vcenter username is required in Creation Mode`, () => {
+      it(`validates that vcenter username is required in Creation Mode`, () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="Username_value"`).clear();
@@ -446,7 +447,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`vcenter username is not required Edition Mode`, () => {
+      it(`validates that vcenter username is not required Edition Mode`, () => {
         initializeModal({ variant: 'update' });
 
         cy.get(`input[data-testid="Username_value"`).clear();
@@ -458,7 +459,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`vcenter password field is required in Creation Mode`, () => {
+      it(`validates that vcenter password field is required in Creation Mode`, () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="Password_value"`).clear();
@@ -470,7 +471,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`vcenter password field is not required in Edition Mode`, () => {
+      it(`validates that vcenter password field is not required in Edition Mode`, () => {
         initializeModal({ variant: 'update' });
 
         cy.get(`input[data-testid="Password_value"`).clear();
@@ -482,7 +483,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it('port field is required', () => {
+      it('validates that port field is required', () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid=${labelPort}_value`).clear();
@@ -494,7 +495,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it('name length must be between 3 and 50 characters', () => {
+      it('validates that name length must be between 3 and 50 characters', () => {
         initializeModal({ variant: 'create' });
 
         cy.findAllByTestId(labelName).eq(1).clear().type('ab');
@@ -505,7 +506,7 @@ export default (): void => {
 
         cy.matchImageSnapshot();
       });
-      it('description field is not required', () => {
+      it('validates that the description field is not required', () => {
         initializeModal({ variant: 'create' });
 
         cy.findByLabelText(labelDescription).clear();
@@ -516,7 +517,7 @@ export default (): void => {
 
         cy.matchImageSnapshot();
       });
-      it('port should be a valid integer', () => {
+      it('validates that the port should be a valid integer', () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid=${labelPort}_value`).clear().type('0.1');
@@ -527,7 +528,7 @@ export default (): void => {
 
         cy.matchImageSnapshot();
       });
-      it('port should be between 0 and 65535', () => {
+      it('validates that the port should be between 0 and 65535', () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid=${labelPort}_value`).clear().type('70000');
@@ -538,7 +539,7 @@ export default (): void => {
 
         cy.matchImageSnapshot();
       });
-      it('vcenter url must be a valid URL or an IP address', () => {
+      it('validates that vcenter url must be a valid URL or an IP address', () => {
         initializeModal({ variant: 'create' });
 
         ['abc', '170.600.12', 'http://exa_mple.com'].forEach((url) => {
@@ -548,7 +549,7 @@ export default (): void => {
 
           cy.contains(labelMustBeAvalidURL).should('be.visible');
 
-          cy.matchImageSnapshot();
+          cy.matchImageSnapshot(`vaildate url :  ${url}`);
         });
 
         ['192.110.0.1/sdk', '170.12.12.1', 'http://example.com'].forEach(
@@ -559,14 +560,14 @@ export default (): void => {
 
             cy.contains(labelMustBeAvalidURL).should('not.exist');
 
-            cy.matchImageSnapshot();
+            cy.matchImageSnapshot(`validate url :  ${url}`);
           }
         );
       });
     });
 
     describe('API requests', () => {
-      it('sends a Post request when the the Modal is in "Creation Mode" and the Create Button is clicked ', () => {
+      it('sends a Post request when the Modal is in "Creation Mode" and the Create Button is clicked', () => {
         initializeModal({ variant: 'create' });
 
         cy.findByText(labelCreateConnectorConfiguration).should('be.visible');
@@ -598,7 +599,7 @@ export default (): void => {
 
         cy.matchImageSnapshot();
       });
-      it('sends an Update request when the Modal is in "Edition Mode" and the Update Button is clicked ', () => {
+      it('sends an Update request when the Modal is in "Edition Mode" and the Update Button is clicked.', () => {
         initializeModal({ variant: 'update' });
 
         cy.findByText(labelUpdateConnectorConfiguration).should('be.visible');
