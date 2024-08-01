@@ -50,7 +50,7 @@ final class AddHostController extends AbstractController
      *
      * @return Response
      */
-    #[IsGranted('write_host', null, 'You are not allowed to add hosts from voters', Response::HTTP_FORBIDDEN)]
+    #[IsGranted('write_host', null, 'You are not allowed to add hosts', Response::HTTP_FORBIDDEN)]
     public function __invoke(
         Request $request,
         AddHost $useCase,
