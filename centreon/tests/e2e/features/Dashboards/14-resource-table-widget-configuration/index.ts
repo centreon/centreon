@@ -524,7 +524,7 @@ Given('a dashboard with a resource table widget', () => {
 });
 
 When('the dashboard administrator clicks on a random resource', () => {
-  cy.contains('host2').eq(1).click();
+  cy.contains('host2').eq(1).click({ force: true });
 });
 
 Then(
