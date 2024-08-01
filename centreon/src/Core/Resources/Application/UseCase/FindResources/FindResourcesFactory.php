@@ -40,18 +40,22 @@ final class FindResourcesFactory
 {
     /**
      * @param list<ResourceEntity> $resources
+     * @param array<string, array<mixed, mixed>> $extraData
      *
      * @return FindResourcesResponse
      */
     public static function createResponse(
         array $resources,
+        array $extraData = [],
     ): FindResourcesResponse {
         $response = new FindResourcesResponse();
+        $response->extraData = $extraData;
 
         foreach ($resources as $resource) {
             $parentResource = $resource->getParent();
 
             $resourceDto = new ResourceResponseDto();
+            $resourceDto->resourceId = $resource->getResourceId();
             $resourceDto->uuid = $resource->getUuid();
             $resourceDto->id = $resource->getId();
             $resourceDto->internalId = $resource->getInternalId();
@@ -129,6 +133,7 @@ final class FindResourcesFactory
         }
 
         $dto = new ParentResourceResponseDto();
+        $dto->resourceId = $parentResource->getResourceId();
         $dto->uuid = $parentResource->getUuid();
         $dto->id = $parentResource->getId();
         $dto->name = $parentResource->getName();

@@ -14,7 +14,7 @@ on:
         default: false
         type: boolean
   schedule:
-    - cron: "0 3 * * 2-6"
+    - cron: "0 3 * * 1-5"
   pull_request:
     types:
       - opened
@@ -67,6 +67,7 @@ jobs:
             has_frontend_changes:
               - '**/*.[jt]sx?'
               - '**/www/front_src/**'
+              - '**/www/widgets/src/**'
               - '**/tests/e2e/**'
               - '**/package*'
               - '**/lighthouse/**'
@@ -112,11 +113,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - run: |
           NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x")
-          for target in ${NIGHTLY_TARGETS[@]}; do
+          for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run web.yml -r "$target" -f is_nightly=true
           done
@@ -289,7 +290,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
-      name: centreon
+      name: component
       module_name: centreon
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml

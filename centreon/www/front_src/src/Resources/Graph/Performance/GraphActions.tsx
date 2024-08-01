@@ -65,11 +65,12 @@ const GraphActions = ({
   const [menuAnchor, setMenuAnchor] = useState<Element | null>(null);
   const [exporting, setExporting] = useState<boolean>(false);
 
-  const selectedResourceDetailsEndpoint = useAtomValue(
-    selectedResourceDetailsEndpointDerivedAtom
-  );
   const { format } = useLocaleDateTimeFormat();
   const navigate = useNavigate();
+
+  const resourceDetailsEndPoint = useAtomValue(
+    selectedResourceDetailsEndpointDerivedAtom
+  );
 
   const openSizeExportMenu = (event: MouseEvent<HTMLButtonElement>): void => {
     setMenuAnchor(event.currentTarget);
@@ -166,7 +167,7 @@ const GraphActions = ({
           <FederatedComponent
             end={end}
             path="/anomaly-detection/modal"
-            resourceEndpoint={selectedResourceDetailsEndpoint}
+            resourceEndpoint={resourceDetailsEndPoint}
             start={start}
             styleMenuSkeleton={{ height: 0, width: 0 }}
             type={resource?.type}

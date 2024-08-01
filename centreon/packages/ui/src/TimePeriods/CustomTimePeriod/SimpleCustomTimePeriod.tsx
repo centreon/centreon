@@ -1,7 +1,8 @@
 import PickersStartEndDate from './PopoverCustomTimePeriod/PickersStartEndDate';
 import {
   AcceptDateProps,
-  PickersStartEndDateDirection
+  PickersStartEndDateDirection,
+  PickersStartEndDateProps
 } from './PopoverCustomTimePeriod/models';
 
 interface Props {
@@ -13,14 +14,19 @@ interface Props {
 const SimpleCustomTimePeriod = ({
   startDate,
   endDate,
-  changeDate
-}: Props): JSX.Element => {
+  changeDate,
+  ...rest
+}: Props &
+  Partial<
+    Omit<PickersStartEndDateProps, 'startDate' | 'endDate' | 'changeDate'>
+  >): JSX.Element => {
   return (
     <PickersStartEndDate
       changeDate={changeDate}
       direction={PickersStartEndDateDirection.row}
       endDate={endDate}
       startDate={startDate}
+      {...rest}
     />
   );
 };
