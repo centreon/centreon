@@ -524,12 +524,12 @@ Given('a dashboard with a resource table widget', () => {
 });
 
 When('the dashboard administrator clicks on a random resource', () => {
-  cy.contains('host2').eq(0).click();
+  cy.contains('host2').eq(1).click();
 });
 
 Then(
   'the user should be redirected to the resource status screen and all the resources must be displayed',
   () => {
-    cy.contains('host2').eq(0).should('exist');
+    cy.contains('host2').should('exist');
   }
 );
