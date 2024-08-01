@@ -33,12 +33,12 @@ use ValueError;
 
 /**
  * @param string $nameEnvVar
- * @return string|bool
+ * @return string|null
  */
-function getEnvironmentVariable(string $nameEnvVar): string|bool
+function getEnvironmentVariable(string $nameEnvVar): ?string
 {
     $envVarValue = getenv($nameEnvVar, true) ?: getenv($nameEnvVar);
-    return (is_string($envVarValue)) ? $envVarValue : false;
+    return (is_string($envVarValue)) ? $envVarValue : null;
 }
 
 $dbHost = getEnvironmentVariable('MYSQL_HOST');
@@ -47,7 +47,7 @@ $dbPassword = getEnvironmentVariable('MYSQL_PASSWORD');
 
 $dbConfig = null;
 
-if ($dbHost !== false && $dbUser !== false && $dbPassword !== false) {
+if (!is_null($dbHost) && !is_null($dbUser) && !is_null($dbPassword)) {
     $dbConfig = new CentreonDbConfig(
         dbHostCentreon: $dbHost,
         dbHostCentreonStorage: $dbHost,
