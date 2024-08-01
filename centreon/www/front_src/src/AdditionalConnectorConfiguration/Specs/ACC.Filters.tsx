@@ -79,7 +79,7 @@ export default (): void => {
     it('updates the filters with the value from the search bar', () => {
       cy.get(`input[data-testid="${labelSearch}"`)
         .clear()
-        .type('vmware1 types:vmware_v6 pollers:poller1,poller2');
+        .type('vmware1 types:VMWare_6/7 pollers:poller1,poller2');
 
       cy.findByTestId(labelMoreFilters).click();
 
@@ -91,7 +91,7 @@ export default (): void => {
       cy.findByTestId(labelTypes)
         .parent()
         .within(() => {
-          cy.contains('vmware_v6');
+          cy.contains('VMWare_6/7');
         });
 
       cy.findByTestId(labelPollers)
@@ -109,7 +109,7 @@ export default (): void => {
       cy.get(`input[data-testid="${labelName}"`).type('vmware1');
 
       cy.findByTestId(labelTypes).click();
-      cy.contains('vmware_v6').click();
+      cy.contains('VMWare_6/7').click();
       cy.findByTestId(labelTypes).click();
 
       cy.findByTestId(labelPollers).click();
@@ -119,7 +119,7 @@ export default (): void => {
 
       cy.get(`input[data-testid="${labelSearch}"`).should(
         'have.value',
-        'name:vmware1 types:vmware_v6 pollers:poller1,poller2'
+        'name:vmware1 types:VMWare_6/7 pollers:poller1,poller2'
       );
 
       cy.matchImageSnapshot();
@@ -127,7 +127,7 @@ export default (): void => {
     it('sends a listing request with selected filters when the "Enter" key is pressed', () => {
       cy.get(`input[data-testid="${labelSearch}"`)
         .clear()
-        .type('vmware1 types:vmware_v6 pollers:poller1,poller2')
+        .type('vmware1 types:VMWare_6/7 pollers:poller1,poller2')
         .type('{enter}');
 
       cy.waitForRequest('@getConnectors').then(({ request }) => {
@@ -155,7 +155,7 @@ export default (): void => {
       cy.get(`input[data-testid="${labelName}"`).type('vmware1');
 
       cy.findByTestId(labelTypes).click();
-      cy.contains('vmware_v6').click();
+      cy.contains('VMWare_6/7').click();
       cy.findByTestId(labelTypes).click();
 
       cy.findByTestId(labelPollers).click();
@@ -186,7 +186,7 @@ export default (): void => {
     it('clears filters and the search bar, and sends a listing request with empty search parameter when the clear button is clicked', () => {
       cy.get(`input[data-testid="${labelSearch}"`)
         .clear()
-        .type('vmware1 types:vmware_v6 pollers:poller1,poller2');
+        .type('vmware1 types:VMWare_6/7 pollers:poller1,poller2');
 
       cy.findByTestId(labelMoreFilters).click();
 
@@ -199,7 +199,7 @@ export default (): void => {
       cy.findByTestId(labelTypes)
         .parent()
         .within(() => {
-          cy.findByText('vmware_v6').should('not.exist');
+          cy.findByText('VMWare_6/7').should('not.exist');
         });
 
       cy.findByTestId(labelPollers)

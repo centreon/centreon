@@ -28,7 +28,8 @@ import {
   labelSelectPollers,
   labelType,
   labelUpdate,
-  labelUpdateConnectorConfiguration
+  labelUpdateConnectorConfiguration,
+  labelVcenterNameMustBeUnique
 } from '../translatedLabels';
 import AdditionalConnectorModal from '../Modal/Modal';
 import { dialogStateAtom } from '../atoms';
@@ -146,7 +147,7 @@ export default (): void => {
         .children()
         .first()
         .should('be.visible')
-        .should('have.text', 'vmware_v6');
+        .should('have.text', 'VMWare 6/7');
 
       cy.findByTestId(labelSelectPollers).should('be.visible');
 
@@ -208,7 +209,7 @@ export default (): void => {
         .children()
         .first()
         .should('be.visible')
-        .should('have.text', 'vmware_v6');
+        .should('have.text', 'VMWare 6/7');
 
       cy.findByText('Poller1').should('be.visible');
       cy.findByText('Poller2').should('be.visible');
@@ -411,10 +412,10 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vcenter name field is required`, () => {
+      it(`validates that vCenter name field is required`, () => {
         initializeModal({ variant: 'create' });
 
-        cy.get(`input[data-testid="Vcenter name_value"`).clear();
+        cy.get(`input[data-testid="vCenter name_value"`).clear();
 
         cy.get('body').click(0, 0);
 
@@ -423,7 +424,29 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vcenter URL field is required`, () => {
+      it(`validates that vCenter name must be unique for its own ACC`, () => {
+        initializeModal({ variant: 'create' });
+
+        cy.findByText(labelAddvCenterESX).click();
+
+        cy.get(`input[data-testid="vCenter name_value"`)
+          .eq(0)
+          .clear()
+          .type('vcenter1');
+
+        cy.get(`input[data-testid="vCenter name_value"`)
+          .eq(1)
+          .clear()
+          .type('vcenter1');
+
+        cy.get('body').click(0, 0);
+
+        cy.contains(labelVcenterNameMustBeUnique).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+
+      it(`validates that vCenter URL field is required`, () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="URL_value"`).clear();
@@ -435,7 +458,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vcenter username is required in Creation Mode`, () => {
+      it(`validates that vCenter username is required in Creation Mode`, () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="Username_value"`).clear();
@@ -447,7 +470,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vcenter username is not required Edition Mode`, () => {
+      it(`validates that vCenter username is not required Edition Mode`, () => {
         initializeModal({ variant: 'update' });
 
         cy.get(`input[data-testid="Username_value"`).clear();
@@ -459,7 +482,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vcenter password field is required in Creation Mode`, () => {
+      it(`validates that vCenter password field is required in Creation Mode`, () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="Password_value"`).clear();
@@ -471,7 +494,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vcenter password field is not required in Edition Mode`, () => {
+      it(`validates that vCenter password field is not required in Edition Mode`, () => {
         initializeModal({ variant: 'update' });
 
         cy.get(`input[data-testid="Password_value"`).clear();

@@ -114,7 +114,7 @@ export default (): void => {
           });
         });
 
-        cy.makeSnapshot(
+        cy.matchImageSnapshot(
           `column sorting --  executes a listing request when the ${label} column is clicked`
         );
       });

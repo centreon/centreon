@@ -31,7 +31,7 @@ const additionalConnectorsDecoder =
       createdAt: 'created_at',
       createdBy: 'created_by',
       updatedAt: 'updated_at',
-      updatedBy: 'udpated_by'
+      updatedBy: 'updated_by'
     }
   );
 
