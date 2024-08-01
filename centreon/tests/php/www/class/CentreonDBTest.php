@@ -38,7 +38,7 @@ use ValueError;
 function getEnvironmentVariable(string $nameEnvVar): ?string
 {
     $envVarValue = getenv($nameEnvVar, true) ?: getenv($nameEnvVar);
-    return (is_string($envVarValue)) ? $envVarValue : null;
+    return (is_string($envVarValue) && !empty($envVarValue)) ? $envVarValue : null;
 }
 
 $dbHost = getEnvironmentVariable('MYSQL_HOST');
@@ -47,7 +47,10 @@ $dbPassword = getEnvironmentVariable('MYSQL_PASSWORD');
 
 $dbConfig = null;
 
+var_dump(['host' => $dbHost, 'user' => $dbUser, 'pass' => $dbPassword]);
+
 if (!is_null($dbHost) && !is_null($dbUser) && !is_null($dbPassword)) {
+    var_dump('before centreondbconfig');
     $dbConfig = new CentreonDbConfig(
         dbHostCentreon: $dbHost,
         dbHostCentreonStorage: $dbHost,
@@ -92,6 +95,7 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
     it(
         'connect to centreon database with CentreonDB constructor',
         function () use ($dbConfig) {
+            var_dump('first_test');
             $db = new CentreonDB(db: CentreonDB::LABEL_DB_CONFIGURATION, dbConfig: $dbConfig);
             expect($db)->toBeInstanceOf(CentreonDB::class);
             $dbName = $db->executeQuery("select database()")->fetchColumn();
