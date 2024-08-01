@@ -17176,3 +17176,9 @@ msgstr "Erweiterter Modus"
 
 # msgid "The additional connector configuration name '%s' already exists"
 # msgstr ""
+
+# msgid "Error while deleting an additional connector configuration"
+# msgstr ""
+
+#  msgid "You don't have sufficient permissions for this action"
+#  msgstr ""
