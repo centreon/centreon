@@ -49,6 +49,15 @@ interface WriteAccRepositoryInterface
     public function update(Acc $acc): void;
 
     /**
+     * Delete an additonal connector configuration.
+     *
+     * @param int $id
+     *
+     * @throws \Throwable
+     */
+    public function delete(int $id): void;
+
+    /**
      * Link listed poller to the additional connector (ACC).
      *
      * @param int $accId

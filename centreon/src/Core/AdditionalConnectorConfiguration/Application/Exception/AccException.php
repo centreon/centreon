@@ -29,20 +29,24 @@ class AccException extends \Exception
 {
     public const CODE_CONFLICT = 1;
 
-    /**
-     * @return self
-     */
     public static function addAcc(): self
     {
         return new self(_('Error while adding an additional connector configuration'));
     }
 
-    /**
-     * @return self
-     */
+    public static function deleteAcc(): self
+    {
+        return new self(_('Error while deleting an additional connector configuration'));
+    }
+
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access additional connector configurations'));
+    }
+
+    public static function unsufficientRights(): self
+    {
+        return new self(_("You don't have sufficient permissions for this action"));
     }
 
     /**
@@ -103,19 +107,11 @@ class AccException extends \Exception
         );
     }
 
-    /**
-     * @return self
-     */
     public static function errorWhileRetrievingObject(): self
     {
         return new self(_('Error while retrieving an additional connector configuration'));
     }
 
-    /**
-     * @param string $name
-     *
-     * @return self
-     */
     public static function nameAlreadyExists(string $name): self
     {
         return new self(

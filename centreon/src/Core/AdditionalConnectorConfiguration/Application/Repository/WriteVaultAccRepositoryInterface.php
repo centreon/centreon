@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AdditionalConnectorConfiguration\Application\Repository;
 
+use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\AccParametersInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 
@@ -40,4 +41,13 @@ interface WriteVaultAccRepositoryInterface
      * @return AccParametersInterface
      */
     public function saveCredentialInVault(AccParametersInterface $parameters): AccParametersInterface;
+
+    /**
+     * Delete an ACC credentials from vault.
+     *
+     * @param Acc $acc
+     *
+     * @throws \Throwable
+     */
+    public function deleteFromVault(Acc $acc): void;
 }
