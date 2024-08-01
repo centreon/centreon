@@ -34,8 +34,8 @@ import {
 import AdditionalConnectorModal from '../Modal/Modal';
 import { dialogStateAtom } from '../atoms';
 import { defaultParameters } from '../utils';
-import { DialogState } from '../Listing/models';
 import { ParameterKeys } from '../Modal/models';
+import { DialogState } from '../Listing/models';
 
 const mockPageRequests = (): void => {
   cy.fixture('ACC/additionalConnectors.json').then((connectors) => {
