@@ -21,22 +21,22 @@
 
 declare(strict_types = 1);
 
-require_once _CENTREON_PATH_ . '/src/Core/Common/Infrastructure/Repository/SqlMultipleBindTrait.php';
+namespace Core\Application\Common\UseCase;
 
-use \Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
-/**
- * @param array<int|string, int|string> $list
- * @param string $prefix
- *
- * @return array{0: array<string, mixed>, 1: string}
- */
-function createMultipleBindQuery(array $list, string $prefix): array
+interface StandardPresenterInterface
 {
-    return (new class {
-        use SqlMultipleBindTrait
-        {
-            SqlMultipleBindTrait::createMultipleBindQuery as public create;
-        }
-    })->create($list, $prefix);
+    /**
+     * @param StandardResponseInterface $data
+     * @param array<string, mixed> $context
+     * @param string $format
+     *
+     * @return string
+     */
+    public function present(
+        StandardResponseInterface $data,
+        array $context = [],
+        string $format = JsonEncoder::FORMAT,
+    ): string;
 }

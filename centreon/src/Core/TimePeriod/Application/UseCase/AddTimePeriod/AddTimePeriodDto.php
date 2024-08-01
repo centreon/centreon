@@ -19,24 +19,25 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-require_once _CENTREON_PATH_ . '/src/Core/Common/Infrastructure/Repository/SqlMultipleBindTrait.php';
+namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
-use \Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
-
-/**
- * @param array<int|string, int|string> $list
- * @param string $prefix
- *
- * @return array{0: array<string, mixed>, 1: string}
- */
-function createMultipleBindQuery(array $list, string $prefix): array
+final class AddTimePeriodDto
 {
-    return (new class {
-        use SqlMultipleBindTrait
-        {
-            SqlMultipleBindTrait::createMultipleBindQuery as public create;
-        }
-    })->create($list, $prefix);
+    /**
+     * @param string $name
+     * @param string $alias
+     * @param array<array{day: int, time_range: string}> $days
+     * @param int[] $templates
+     * @param array<array{day_range: string, time_range: string}> $exceptions
+     */
+    public function __construct(
+        public readonly string $name,
+        public readonly string $alias,
+        public readonly array $days,
+        public readonly array $templates,
+        public readonly array $exceptions,
+    ) {
+    }
 }
