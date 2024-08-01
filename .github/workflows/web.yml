@@ -650,8 +650,7 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
   create-xray-test-plan-and-test-execution:
-    # needs: [get-version, dockerize]
-    needs: [get-version]
+    needs: [get-version, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
     strategy:
       fail-fast: false
@@ -725,8 +724,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
-    # needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
-    needs: [get-version, create-xray-test-plan-and-test-execution]
+    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
