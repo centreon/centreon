@@ -19331,10 +19331,10 @@ msgstr "Entrez une URL ou une adresse IP valide"
 msgid "Invalid port number"
 msgstr "Numéro de port invalide"
 
-msgid "The name of the Vcenter should be unique"
+msgid "The name of the vCenter should be unique"
 msgstr "Le nom du vCenter doit être unique"
 
-msgid "Vcenter name"
+msgid "vCenter name"
 msgstr "Nom du vCenter"
 
 msgid "Do you want to quit without saving the changes?"

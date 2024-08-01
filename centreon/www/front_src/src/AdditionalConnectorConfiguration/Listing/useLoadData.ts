@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import {
   buildListingEndpoint,
@@ -47,7 +48,7 @@ const useLoadData = (): LoadDataState => {
       : filters.types.map((type) => ({
           field: 'type',
           values: {
-            $rg: type.name
+            $rg: equals(type.name, 'VMWare_6/7') ? 'vmware_v6' : type.name
           }
         }))),
     ...(filters.name

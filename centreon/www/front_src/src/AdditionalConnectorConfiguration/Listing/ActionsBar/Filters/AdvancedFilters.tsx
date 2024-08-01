@@ -23,7 +23,7 @@ import { useFilterStyles } from '../useActionsStyles';
 import { filtersAtom } from '../../atom';
 import useLoadData from '../../useLoadData';
 import { getPollersEndpoint } from '../../../api/endpoints';
-import { availableConnectorTypes, filtersDefaultValue } from '../../../utils';
+import { filtersDefaultValue } from '../../../utils';
 import { NamedEntity } from '../../models';
 
 import useUpdateSearchBarBasedOnFilters from './useUpdateSearchBarBasedOnFilters';
@@ -109,7 +109,7 @@ const AdvancedFilters = (): JSX.Element => {
         dataTestId={labelTypes}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelTypes)}
-        options={availableConnectorTypes}
+        options={[{ id: 1, name: 'VMWare_6/7' }]}
         value={filters.types}
         onChange={changeTypes}
       />

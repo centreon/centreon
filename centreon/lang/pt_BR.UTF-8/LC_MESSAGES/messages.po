@@ -18043,10 +18043,10 @@ msgstr ""
 # msgid "Invalid port number"
 # msgstr ""
 
-# msgid "The name of the Vcenter should be unique"
+# msgid "The name of the vCenter should be unique"
 # msgstr ""
 
-# msgid "Vcenter name"
+# msgid "vCenter name"
 # msgstr ""
 
 # msgid "Do you want to quit without saving the changes?"

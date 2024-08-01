@@ -33,7 +33,7 @@ const ConnectorType = (): ReactElement => {
         error={error as string}
         label={t(labelSelectType)}
         name="type"
-        options={availableConnectorTypes}
+        options={[{ id: 1, name: 'VMWare 6/7' }]}
         selectedOptionId={values.type}
         onBlur={handleBlur('parameters.port')}
         onChange={changeTypeValue}

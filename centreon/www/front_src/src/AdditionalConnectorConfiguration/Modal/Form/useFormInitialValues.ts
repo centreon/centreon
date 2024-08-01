@@ -1,10 +1,6 @@
-import { equals, find, propEq } from 'ramda';
+import { equals } from 'ramda';
 
-import {
-  availableConnectorTypes,
-  defaultParameters,
-  findConnectorTypeByName
-} from '../../utils';
+import { defaultParameters } from '../../utils';
 import { AdditionalConnectorConfiguration } from '../models';
 import { getAdditionalConnectorEndpoint } from '../../api/endpoints';
 import { additionalConnectorDecoder } from '../../api/decoders';
@@ -20,13 +16,13 @@ const defaultInitialValues = {
   name: '',
   parameters: { port: 5700, vcenters: [defaultParameters] },
   pollers: [],
-  type: find(propEq('vmware_v6', 'name'), availableConnectorTypes)?.id || 1
+  type: 1
 };
 
 const formatInitialValues = (connector): AdditionalConnectorConfiguration => {
   const formattedConnector = {
     ...connector,
-    type: findConnectorTypeByName(connector.type)?.id
+    type: 1
   };
 
   return formattedConnector;

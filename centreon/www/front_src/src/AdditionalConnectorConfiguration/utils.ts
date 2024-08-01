@@ -16,10 +16,6 @@ export const findConnectorTypeById = (id): NamedEntity | undefined => {
   return find(propEq(parseInt(id, 10), 'id'), availableConnectorTypes);
 };
 
-export const findConnectorTypeByName = (name): NamedEntity | undefined => {
-  return find(propEq(name, 'name'), availableConnectorTypes);
-};
-
 export const filtersDefaultValue = {
   name: '',
   pollers: [],

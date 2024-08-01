@@ -66,7 +66,7 @@ export const labelAtLeastOneVCenterIsRequired =
 export const labelMustBeAvalidURL = 'Please enter a valid URL or IP address';
 export const labelInvalidPortNumber = 'Invalid port number';
 export const labelVcenterNameMustBeUnique =
-  'The name of the Vcenter should be unique';
+  'The name of the vCenter should be unique';
 
 export const labelDoYouWantToQuitWithoutSaving =
   'Do you want to quit without saving the changes?';

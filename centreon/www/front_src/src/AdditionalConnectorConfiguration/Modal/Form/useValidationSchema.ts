@@ -42,7 +42,7 @@ const useValidationSchema = ({ variant }: Props): { validationSchema } => {
   const vcenterSchema = object().shape({
     ...(equals(variant, 'create') && secretsSchema),
     URL: urlValidationSchema,
-    'Vcenter name': string()
+    'vCenter name': string()
       .required(t(labelRequired))
       .test(
         'unique-vcenter-name',
@@ -55,7 +55,7 @@ const useValidationSchema = ({ variant }: Props): { validationSchema } => {
           const vcenters = options.context?.parameters.vcenters || [];
 
           const duplicate =
-            vcenters.filter((vcenter) => vcenter['Vcenter name'] === value)
+            vcenters.filter((vcenter) => vcenter['vCenter name'] === value)
               .length > 1;
 
           return !duplicate;
