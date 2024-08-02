@@ -19257,11 +19257,11 @@ msgstr "Santé"
 msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
 
-msgid "Error while adding an additional connector configuratiuon"
+msgid "Error while adding an additional connector configuration"
 msgstr "Erreur lors de l'ajout d'une configuration additionnelle de connecteur"
 
 msgid "You are not allowed to access additional connector configurations"
-msgstr "Vous n'êtes pas autorisé à accéder des configurations additionnelles de connecteurs"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations additionnelles de connecteurs"
 
 msgid "An additional connector configuration of type %s is already associated with poller ID(s) '%s'"
 msgstr "Une configuration additionnelle de connecteur de type %s est déjà associée au(x) ID(s) de collecteur(s) '%s'"
