@@ -852,6 +852,7 @@ function multipleServiceInDB(
                          */
                         $mTpRq1 = "SELECT * FROM `on_demand_macro_service` WHERE `svc_svc_id` ='" . $key . "'";
                         $dbResult3 = $pearDB->query($mTpRq1);
+                        $macroPasswords = [];
                         while ($sv = $dbResult3->fetch()) {
                             $macName = str_replace("\$", "", $sv["svc_macro_name"]);
                             $macVal = $sv['svc_macro_value'];
@@ -2450,9 +2451,13 @@ function updateService_MC($service_id = null, $params = array())
         $rq .= "geo_coords = '" . $ret["geo_coords"] . "', ";
     }
 
-    $rq .= (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null)
-        ? "service_activate = '" . $ret["service_activate"]["service_activate"] . "', "
-        : "service_activate = '1', ";
+    if (!$isServiceTemplate) {
+        if (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null) {
+            $rq .= "service_activate = '" . $ret["service_activate"]["service_activate"] . "', ";
+        }
+    } else {
+        $rq .= "service_activate = '1', ";
+    }
 
     if (strcmp("UPDATE service SET ", $rq)) {
         // Delete last ',' in request
@@ -2486,6 +2491,33 @@ function updateService_MC($service_id = null, $params = array())
     }
     if (isset($ret['criticality_id']) && $ret['criticality_id']) {
         setServiceCriticality($service_id, $ret['criticality_id']);
+    }
+
+    //If there is a vault configuration write into vault
+    if ($vaultConfiguration !== null) {
+        try {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+
+            $updatedPasswordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+                return $macro['macroPassword'] === '1'
+                    && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+            });
+            updateServiceSecretsInVaultFromMC(
+                $readVaultRepository,
+                $writeVaultRepository,
+                $logger,
+                $vaultPath,
+                (int) $service_id,
+                $updatedPasswordMacros
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
     }
 
     /* Prepare value for changelog */
@@ -3131,9 +3163,11 @@ function updateServiceHost_MC($service_id = null)
         SQL
     );
     $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+
     $statement->execute();
     $hsvs = [];
     $hgsvs = [];
+
     while ($arr = $statement->fetch()) {
         if ($arr["host_host_id"]) {
             $hsvs[$arr["host_host_id"]] = $arr["host_host_id"];
