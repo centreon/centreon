@@ -38,7 +38,10 @@ describe('Locale', () => {
   it('displays the user locale as pre-selected when any value was previously selected', () => {
     initialize({});
 
-    cy.findByTestId(labelSelectTimeFormat).should('have.value', 'de-DE');
+    cy.findByTestId(labelSelectTimeFormat).should(
+      'have.value',
+      'German (Germany) (de-DE)'
+    );
 
     cy.makeSnapshot();
   });
