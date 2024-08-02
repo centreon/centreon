@@ -2908,7 +2908,7 @@ function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePat
 
     $headers = [
         'Content-Type' => 'application/json',
-        'X-AUTH-TOKEN' => $_COOKIE['PHPSESSID'],
+        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
     ];
     $response = $client->request(
         'POST',
