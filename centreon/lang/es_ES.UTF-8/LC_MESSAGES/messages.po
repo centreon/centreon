@@ -17515,3 +17515,40 @@ msgstr "Modo avanzado"
 
 #  msgid "You don't have sufficient permissions for this action"
 #  msgstr ""
+
+# msgid "Select time zone"
+# msgstr ""
+
+# msgid "Select time format"
+# msgstr ""
+
+# msgid "12 hours"
+# msgstr ""
+
+# msgid "24 hours"
+# msgstr ""
+
+# msgid "Ends at"
+# msgstr ""
+
+# msgid "Time zone"
+# msgstr ""
+
+# msgid "Date format"
+# msgstr ""
+
+# msgid "Time format"
+# msgstr ""
+
+# msgid "Countdown"
+# msgstr ""
+
+# msgid "Timer"
+# msgstr ""
+
+# msgid "Show time zone"
+# msgstr ""
+
+# msgid "Show date"
+# msgstr ""
+
