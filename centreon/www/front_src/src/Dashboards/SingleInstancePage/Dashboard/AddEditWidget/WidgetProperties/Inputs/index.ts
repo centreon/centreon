@@ -13,3 +13,7 @@ export { default as WidgetCheckboxes } from './Checboxes/Chekboxes';
 export { default as WidgetTiles } from './Tiles/Tiles';
 export { default as WidgetDisplayType } from './DisplayType/DisplayType';
 export { default as WidgetSelect } from './Select/Select';
+export { default as WidgetButtonGroup } from './ButtonGroup/ButtonGroup';
+export { default as WidgetSlider } from './Slider/Slider';
+export { default as WidgetText } from './Text';
+export { default as WidgetConnectedAutocomplete } from './Autocomplete/ConnectedAutocomplete';

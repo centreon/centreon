@@ -14,7 +14,7 @@ import {
   getWidgetEndpoint,
   severityCodeBySeverityStatus
 } from '../../../utils';
-import { buildResourcesEndpoint } from '../api/endpoints';
+import { buildCondensedViewEndpoint } from '../api/endpoints';
 
 import { getStatusesEndpoint } from './api/endpoints';
 import { getStatusNamesPerResourceType } from './utils';
@@ -40,7 +40,10 @@ export const useStatusGridCondensed = ({
   playlistHash,
   dashboardId,
   id,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isBAResourceType,
+  isBVResourceType,
+  lastSelectedResourceType
 }: Pick<
   StatusGridProps,
   | 'panelOptions'
@@ -51,7 +54,11 @@ export const useStatusGridCondensed = ({
   | 'id'
   | 'playlistHash'
   | 'widgetPrefixQuery'
->): UseStatusGridCondensedState => {
+> & {
+  isBAResourceType;
+  isBVResourceType;
+  lastSelectedResourceType;
+}): UseStatusGridCondensedState => {
   const { refreshInterval, resourceType, statuses, refreshIntervalCustom } =
     panelOptions;
   const { resources } = panelData;
@@ -66,21 +73,28 @@ export const useStatusGridCondensed = ({
 
   const formattedStatuses = formatStatus(statuses);
 
+  const resourceTypeToUse =
+    isBVResourceType || isBAResourceType
+      ? lastSelectedResourceType
+      : resourceType;
+
   const statusesToUse = pipe(
     getStatusNamesPerResourceType,
     map(toUpper),
     intersection(formattedStatuses)
-  )(resourceType);
+  )(resourceTypeToUse);
+
+  const baseEndpoint = getStatusesEndpoint(resourceTypeToUse);
 
   const { data, isLoading } = useFetchQuery<StatusType>({
     getEndpoint: () =>
       getWidgetEndpoint({
         dashboardId,
-        defaultEndpoint: buildResourcesEndpoint({
-          baseEndpoint: getStatusesEndpoint(resourceType),
-          page: 0,
+        defaultEndpoint: buildCondensedViewEndpoint({
+          baseEndpoint,
           resources,
-          statuses: statusesToUse
+          statuses: statusesToUse,
+          type: resourceType
         }),
         isOnPublicPage,
         playlistHash,
@@ -107,7 +121,7 @@ export const useStatusGridCondensed = ({
       pipe<[list: ReadonlyArray<SeverityStatus>], Array<FormattedStatus>>(
         map((severityStatus: SeverityStatus) => {
           const status = getStatusNameByStatusSeverityandResourceType({
-            resourceType,
+            resourceType: resourceTypeToUse,
             status: severityStatus
           });
           const count = data?.[status];

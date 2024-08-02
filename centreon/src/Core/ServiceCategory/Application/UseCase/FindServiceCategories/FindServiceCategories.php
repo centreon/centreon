@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceCategory\Application\Exception\ServiceCategoryException;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
@@ -38,12 +39,21 @@ use Core\ServiceCategory\Domain\Model\ServiceCategory;
 final class FindServiceCategories
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
+    /**
+     * @param ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository
+     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param RequestParametersInterface $requestParameters
+     * @param ContactInterface $user
+     * @param bool $isCloudPlatform
+     */
     public function __construct(
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -53,7 +63,7 @@ final class FindServiceCategories
     public function __invoke(PresenterInterface $presenter): void
     {
         try {
-            if ($this->user->isAdmin()) {
+            if ($this->isUserAdmin()) {
                 $serviceCategories = $this->readServiceCategoryRepository->findByRequestParameter($this->requestParameters);
                 $presenter->present($this->createResponse($serviceCategories));
             } elseif (
@@ -61,7 +71,7 @@ final class FindServiceCategories
                 || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE)
             ) {
                 $this->debug('User is not admin, use ACLs to retrieve service categories', ['user' => $this->user->getName()]);
-                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
+                $accessGroups = $this->accessGroupRepository->findByContact($this->user);
                 $serviceCategories = $this->readServiceCategoryRepository->findByRequestParameterAndAccessGroups(
                     $accessGroups,
                     $this->requestParameters
@@ -81,6 +91,26 @@ final class FindServiceCategories
                 new ErrorResponse(ServiceCategoryException::findServiceCategories($ex))
             );
         }
+    }
+
+    /**
+     * Indicates if the current user is admin or not (cloud + onPremise context).
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->accessGroupRepository->findByContact($this->user)
+        );
+
+        return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
+            && $this->isCloudPlatform;
     }
 
     /**

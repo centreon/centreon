@@ -36,12 +36,8 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
-use Core\Resources\Domain\Model\HostsStatusCount;
-use Core\Resources\Domain\Model\ResourcesStatusCount;
-use Core\Resources\Domain\Model\ServicesStatusCount;
-use Core\Resources\Infrastructure\Repository\ResourceACLProviders\HostACLProvider;
+use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
-use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ServiceACLProvider;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
@@ -58,6 +54,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
+
+    /** @var ExtraDataProviderInterface[] */
+    private array $extraDataProviders;
 
     /** @var array<string, string> */
     private array $resourceConcordances = [
@@ -76,7 +75,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         'parent_id' => 'resources.parent_id',
         'parent_name' => 'resources.parent_name',
         'parent_alias' => 'parent_resource.alias',
-        'parent_status' => 'parent_status',
+        'parent_status' => 'parent_resource.status',
         'severity_level' => 'severity_level',
         'in_downtime' => 'resources.in_downtime',
         'acknowledged' => 'resources.acknowledged',
@@ -92,6 +91,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
      * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
+     * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      *
      * @throws \InvalidArgumentException
      */
@@ -99,7 +99,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         DatabaseConnection $db,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
-        private readonly \Traversable $resourceACLProviders
+        private readonly \Traversable $resourceACLProviders,
+        \Traversable $extraDataProviders
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
@@ -115,6 +116,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         $this->resourceTypes = iterator_to_array($resourceTypes);
+        $this->extraDataProviders = iterator_to_array($extraDataProviders);
     }
 
     public function findParentResourcesById(ResourceFilter $filter): array
@@ -133,6 +135,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.internal_id,
             resources.parent_id,
             resources.parent_name,
+            parent_resource.resource_id AS `parent_resource_id`,
             parent_resource.status AS `parent_status`,
             parent_resource.alias AS `parent_alias`,
             parent_resource.status_ordered AS `parent_status_ordered`,
@@ -187,6 +190,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
          * 'service', 'metaservice', 'host'.
          */
         $request .= $this->addResourceTypeSubRequest($filter);
+
+        foreach ($this->extraDataProviders as $provider) {
+            if ($provider->supportsExtraData($filter)) {
+                $request .= $provider->getSubFilter($filter);
+            }
+        }
 
         /**
          * Handle sort parameters.
@@ -355,263 +364,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findResourcesStatusCount(string $resourceType, ResourceFilter $filter): ResourcesStatusCount
-    {
-        $hostsStatusCount = null;
-        $servicesStatusCount = null;
-        if ($resourceType === ResourceEntity::TYPE_HOST) {
-            $hostsStatusCount = $this->findHostsStatusCount($filter);
-        }
-        if ($resourceType === ResourceEntity::TYPE_SERVICE) {
-            $servicesStatusCount = $this->findServicesStatusCount($filter);
-        }
-
-        return new ResourcesStatusCount($hostsStatusCount, $servicesStatusCount);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findResourcesStatusCountByAccessGroupIds(
-        string $resourceType,
-        array $accessGroupIds,
-        ResourceFilter $filter,
-    ): ResourcesStatusCount {
-        $hostsStatusCount = null;
-        $servicesStatusCount = null;
-        if ($resourceType === ResourceEntity::TYPE_HOST) {
-            $hostsStatusCount = $this->findHostsStatusCountByAccessGroupIds($accessGroupIds, $filter);
-        }
-        if ($resourceType === ResourceEntity::TYPE_SERVICE) {
-            $servicesStatusCount = $this->findServicesStatusCountByAccessGroupIds($accessGroupIds, $filter);
-        }
-
-        return new ResourcesStatusCount($hostsStatusCount, $servicesStatusCount);
-    }
-
-    /**
-     * Count all hosts status.
-     *
-     * @param ResourceFilter $filter
-     *
-     * @return HostsStatusCount|null
-     */
-    private function findHostsStatusCount(ResourceFilter $filter): ?HostsStatusCount
-    {
-        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
-        $query = <<<'SQL'
-            SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
-                LEFT JOIN `:dbstg`.`resources` parent_resource
-                ON parent_resource.id = resources.parent_id
-            SQL;
-
-        $collector = new StatementCollector();
-
-        /**
-         * Resource tag filter by name
-         * - servicegroups
-         * - hostgroups
-         * - servicecategories
-         * - hostcategories.
-         */
-        $query .= $this->addResourceTagsSubRequest($filter, $collector);
-
-        /**
-         * Handle search values.
-         */
-        $searchSubRequest = null;
-
-        try {
-            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
-        } catch (RequestParametersTranslatorException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            throw new RepositoryException($ex->getMessage(), 0, $ex);
-        }
-
-        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
-
-        $query .= <<<'SQL'
-            resources.type=1 AND resources.name NOT LIKE "_Module_%"
-            SQL;
-
-        /**
-         * Resource filter by status.
-         */
-        $query .= $this->addResourceStatusSubRequest($filter);
-
-        return $this->fetchHostsStatusCount($query, $collector);
-    }
-
-    /**
-     * Count all services status.
-     *
-     * @param ResourceFilter $filter
-     *
-     * @return ServicesStatusCount|null
-     */
-    private function findServicesStatusCount(ResourceFilter $filter): ?ServicesStatusCount
-    {
-        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
-        $query = <<<'SQL'
-            SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
-                LEFT JOIN `:dbstg`.`resources` parent_resource
-                ON parent_resource.id = resources.parent_id
-            SQL;
-
-        $collector = new StatementCollector();
-
-        /**
-         * Resource tag filter by name
-         * - servicegroups
-         * - hostgroups
-         * - servicecategories
-         * - hostcategories.
-         */
-        $query .= $this->addResourceTagsSubRequest($filter, $collector);
-
-        /**
-         * Handle search values.
-         */
-        $searchSubRequest = null;
-
-        try {
-            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
-        } catch (RequestParametersTranslatorException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            throw new RepositoryException($ex->getMessage(), 0, $ex);
-        }
-
-        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
-
-        $query .= <<<'SQL'
-            resources.type=0 AND resources.name NOT LIKE "_Module_%"
-            SQL;
-
-        /**
-         * Resource filter by status.
-         */
-        $query .= $this->addResourceStatusSubRequest($filter);
-
-        return $this->fetchServicesStatusCount($query, $collector);
-    }
-
-    /**
-     * Count all hosts status filtered by given ACL Group IDs.
-     *
-     * @param int[] $accessGroupIds
-     * @param ResourceFilter $filter
-     *
-     * @return HostsStatusCount|null
-     */
-    private function findHostsStatusCountByAccessGroupIds(array $accessGroupIds, ResourceFilter $filter): ?HostsStatusCount
-    {
-        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
-        $query = <<<'SQL'
-            SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
-                LEFT JOIN `:dbstg`.`resources` parent_resource
-                ON parent_resource.id = resources.parent_id
-            SQL;
-
-        $collector = new StatementCollector();
-
-        /**
-         * Resource tag filter by name
-         * - servicegroups
-         * - hostgroups
-         * - servicecategories
-         * - hostcategories.
-         */
-        $query .= $this->addResourceTagsSubRequest($filter, $collector);
-
-        /**
-         * Handle search values.
-         */
-        $searchSubRequest = null;
-
-        try {
-            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
-        } catch (RequestParametersTranslatorException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            throw new RepositoryException($ex->getMessage(), 0, $ex);
-        }
-
-        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
-        $query .= <<<'SQL'
-            resources.type=1 AND resources.name NOT LIKE "_Module_%"
-            SQL;
-
-        /**
-         * Resource filter by status.
-         */
-        $query .= $this->addResourceStatusSubRequest($filter);
-
-        $query .= ' AND ' . (new HostACLProvider())->buildACLSubRequest($accessGroupIds);
-
-        return $this->fetchHostsStatusCount($query, $collector);
-    }
-
-    /**
-     * Count all hosts status filtered by given ACL Group IDs.
-     *
-     * @param int[] $accessGroupIds
-     * @param ResourceFilter $filter
-     *
-     * @return ServicesStatusCount|null
-     */
-    private function findServicesStatusCountByAccessGroupIds(array $accessGroupIds, ResourceFilter $filter): ?ServicesStatusCount
-    {
-        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
-        $query = <<<'SQL'
-            SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
-                LEFT JOIN `:dbstg`.`resources` parent_resource
-                ON parent_resource.id = resources.parent_id
-            SQL;
-
-        $collector = new StatementCollector();
-
-        /**
-         * Resource tag filter by name
-         * - servicegroups
-         * - hostgroups
-         * - servicecategories
-         * - hostcategories.
-         */
-        $query .= $this->addResourceTagsSubRequest($filter, $collector);
-
-        /**
-         * Handle search values.
-         */
-        $searchSubRequest = null;
-
-        try {
-            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
-        } catch (RequestParametersTranslatorException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            throw new RepositoryException($ex->getMessage(), 0, $ex);
-        }
-
-        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
-        $query .= <<<'SQL'
-            resources.type=0 AND resources.name NOT LIKE "_Module_%"
-            SQL;
-
-        /**
-         * Resource filter by status.
-         */
-        $query .= $this->addResourceStatusSubRequest($filter);
-
-        $query .= ' AND ' . (new ServiceACLProvider())->buildACLSubRequest($accessGroupIds);
-
-        return $this->fetchServicesStatusCount($query, $collector);
-    }
-
-    /**
      * @param ResourceFilter $filter
      * @param StatementCollector $collector
      * @param string $accessGroupRequest
@@ -637,6 +389,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.internal_id,
             resources.parent_id,
             resources.parent_name,
+            parent_resource.resource_id AS `parent_resource_id`,
             parent_resource.status AS `parent_status`,
             parent_resource.alias AS `parent_alias`,
             parent_resource.status_ordered AS `parent_status_ordered`,
@@ -711,6 +464,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         // Apply only_with_performance_data
         if ($filter->getOnlyWithPerformanceData() === true) {
             $request .= ' AND resources.has_graph = 1';
+        }
+
+        foreach ($this->extraDataProviders as $provider) {
+            $request .= $provider->getSubFilter($filter);
         }
 
         $request .= $accessGroupRequest;
@@ -821,68 +578,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $iconIds = $this->getIconIdsFromResources();
         $icons = $this->getIconsDataForResources($iconIds);
         $this->completeResourcesWithIcons($icons);
-    }
-
-    /**
-     * @param string $request
-     * @param StatementCollector $collector
-     *
-     * @throws \PDOException
-     *
-     * @return HostsStatusCount|null
-     */
-    private function fetchHostsStatusCount(string $request, StatementCollector $collector): ?HostsStatusCount
-    {
-        $statement = $this->db->prepare(
-            $this->translateDbName($request)
-        );
-
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            /** @var int $data_type */
-            $data_type = key($data);
-            $collector->addValue($key, current($data), $data_type);
-        }
-
-        $collector->bind($statement);
-        $statement->execute();
-
-        $hostsStatusCount = null;
-        if ($resourceRecord = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
-            $hostsStatusCount = DbHostsStatusCountFactory::createFromRecord($resourceRecord);
-        }
-
-        return $hostsStatusCount;
-    }
-
-    /**
-     * @param string $request
-     * @param StatementCollector $collector
-     *
-     * @throws \PDOException
-     *
-     * @return ServicesStatusCount|null
-     */
-    private function fetchServicesStatusCount(string $request, StatementCollector $collector): ?ServicesStatusCount
-    {
-        $statement = $this->db->prepare(
-            $this->translateDbName($request)
-        );
-
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            /** @var int $data_type */
-            $data_type = key($data);
-            $collector->addValue($key, current($data), $data_type);
-        }
-
-        $collector->bind($statement);
-        $statement->execute();
-
-        $hostsStatusCount = null;
-        if ($resourceRecord = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
-            $hostsStatusCount = DbServicesStatusCountFactory::createFromRecord($resourceRecord);
-        }
-
-        return $hostsStatusCount;
     }
 
     /**

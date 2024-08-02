@@ -8,6 +8,7 @@ import IconAcknowledge from '@mui/icons-material/Person';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 import {
+  DowntimeIcon,
   IconButton,
   SeverityCode,
   StatusChip,
@@ -16,7 +17,6 @@ import {
 
 import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 import useAclQuery from '../../Actions/Resource/aclQuery';
-import IconDowntime from '../../icons/Downtime';
 import {
   labelAcknowledge,
   labelActionNotPermitted,
@@ -126,7 +126,7 @@ const StatusColumnOnHover = ({
         })}
         onClick={(): void => actions.onDowntime(row)}
       >
-        <IconDowntime fontSize="small" />
+        <DowntimeIcon fontSize="small" />
       </IconButton>
 
       <IconButton

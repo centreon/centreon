@@ -12,10 +12,9 @@ import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
   labelSeeMore,
-  labelServiceName,
   labelValue
 } from '../StatusGridStandard/translatedLabels';
-import { resourcesEndpoint } from '../api/endpoints';
+import { hostsEndpoint, resourcesEndpoint } from '../api/endpoints';
 import { router } from '../StatusGridStandard/Tile';
 import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
 import { getPublicWidgetEndpoint } from '../../../utils';
@@ -81,7 +80,7 @@ const hostsRequests = (): void => {
     cy.interceptAPIRequest({
       alias: 'getHostResources',
       method: Method.GET,
-      path: `./api/latest${resourcesEndpoint}?page=1&limit=20**`,
+      path: `./api/latest${hostsEndpoint}?**`,
       response: data
     });
 
@@ -252,7 +251,7 @@ describe('View by host', () => {
       cy.get('[data-status="unknown"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(229, 216, 243)');
+        .should('have.css', 'background-color', 'rgb(227, 227, 227)');
 
       cy.makeSnapshot();
     });
@@ -271,14 +270,6 @@ describe('View by host', () => {
         'rgb(227, 227, 227)'
       );
 
-      cy.contains(labelServiceName).should('be.visible');
-
-      cy.get('[data-serviceName="Passive_server"]').should(
-        'have.css',
-        'color',
-        'rgb(255, 102, 102)'
-      );
-
       cy.contains('unknown (No output returned from host check)').should(
         'be.visible'
       );
@@ -288,6 +279,15 @@ describe('View by host', () => {
       cy.contains('February 1, 2021').should('be.visible');
 
       cy.makeSnapshot();
+    });
+
+    it('displays the state', () => {
+      cy.get('[data-isindowntime="true"]').should(
+        'have.css',
+        'background-color',
+        'rgb(229, 216, 243)'
+      );
+      cy.findAllByTestId('HostIcon').eq(0).should('be.visible');
     });
   });
 
@@ -452,6 +452,20 @@ describe('View by service', () => {
 
       cy.makeSnapshot();
     });
+
+    it('displays the state', () => {
+      cy.get('[data-isindowntime="true"]').should(
+        'have.css',
+        'background-color',
+        'rgb(229, 216, 243)'
+      );
+      cy.get('[data-isacknowledged="true"]').should(
+        'have.css',
+        'background-color',
+        'rgb(223, 210, 185)'
+      );
+      cy.findAllByTestId('ServiceIcon').eq(0).should('be.visible');
+    });
   });
 
   describe('Without Resources', () => {
@@ -593,7 +607,7 @@ describe('Condensed view', () => {
       cy.get('[data-label="pending"]').trigger('mouseover');
 
       cy.contains('Status: Pending').should('be.visible');
-      cy.contains('No service found with this status.').should('be.visible');
+      cy.contains('No service found with this status').should('be.visible');
 
       cy.makeSnapshot();
     });

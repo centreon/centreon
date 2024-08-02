@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -189,22 +190,9 @@ after(() => {
 
 Given('a dashboard that includes a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
@@ -226,22 +214,9 @@ Then(
 
 Given('a dashboard configuring Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
@@ -273,16 +248,7 @@ Then(
 
 Given('a dashboard featuring two Status Grid widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoStatusGridWidgets);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
@@ -296,6 +262,12 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
+  cy.get('[class*="resourceName"]')
+    .eq(0)
+    .parent()
+    .parent()
+    .invoke('removeAttr', 'target')
+    .click({ force: true });
   cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
   cy.get('[class*="resourceName"]').contains('host3').should('exist');
@@ -305,12 +277,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -376,22 +343,9 @@ Then("the Status Grid widget is added in the dashboard's layout", () => {
 
 Given('a dashboard with a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
@@ -409,17 +363,20 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
   cy.getByTestId({
     testId: 'DvrIcon'
   }).should('be.visible');
+  cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
+    .eq(2)
+    .parent()
+    .parent()
+    .should(($a) => {
+      $a.attr('target', '_self');
+    })
+    .click({ force: true });
   cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
 });
 
 Given('a dashboard having a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
+  cy.visitDashboard(dashboards.default.name);
 });
 
 When(
@@ -433,6 +390,7 @@ When(
     }).click();
     cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.wait('@resourceRequest');
   }
 );
 
@@ -443,10 +401,38 @@ Then('a second Status Grid widget is displayed on the dashboard', () => {
 });
 
 Then('the second widget has the same properties as the first widget', () => {
+  cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
+    .eq(0)
+    .parent()
+    .parent()
+    .invoke('removeAttr', 'target')
+    .click({ force: true });
   cy.get('[class*="resourceName"]')
     .eq(3)
     .contains('Centreon-Server')
     .should('exist');
-  cy.get('[class*="resourceName"]').eq(4).contains('host2').should('exist');
-  cy.get('[class*="resourceName"]').eq(5).contains('host3').should('exist');
+  cy.get('[class*="resourceName"]').contains('host2').should('exist');
+  cy.get('[class*="resourceName"]').contains('host3').should('exist');
 });
+
+Given('a dashboard with a Status Grid widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
+    .eq(0)
+    .parent()
+    .parent()
+    .invoke('removeAttr', 'target')
+    .click({ force: true });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
+  }
+);

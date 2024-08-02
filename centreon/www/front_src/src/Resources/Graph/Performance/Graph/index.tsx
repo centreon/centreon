@@ -30,6 +30,7 @@ import { grey } from '@mui/material/colors';
 
 import {
   dateTimeFormat,
+  LineChartData,
   useLocaleDateTimeFormat,
   useMemoComponent
 } from '@centreon/ui';
@@ -45,16 +46,12 @@ import {
 } from '../../../translatedLabels';
 import { updatedGraphIntervalAtom } from '../ExportableGraphWithTimeline/atoms';
 import Lines from '../Lines';
-import { AdditionalLines, Line as LineModel, TimeValue } from '../models';
+import { Line as LineModel, LinesProps, TimeValue } from '../models';
 import {
   getDates,
   getLeftScale,
   getRightScale,
-  getSortedStackedLines,
-  getTime,
-  getUnits,
-  getXScale,
-  getYScale
+  getXScale
 } from '../timeSeries';
 
 import AddCommentForm from './AddCommentForm';
@@ -201,7 +198,8 @@ interface GraphContentProps {
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
+  performanceGraphData?: LineChartData;
+  renderAdditionalLines?: (additionalLinesProps: LinesProps) => ReactNode;
   resource: Resource | ResourceDetails;
   showAddCommentTooltip: (args) => void;
   start: string;
@@ -238,7 +236,8 @@ const GraphContent = ({
   displayTimeValues,
   renderAdditionalLines,
   end,
-  start
+  start,
+  performanceGraphData
 }: GraphContentProps): JSX.Element => {
   const { classes } = useStyles({ onAddComment });
   const { t } = useTranslation();
@@ -466,16 +465,13 @@ const GraphContent = ({
   const commentTitle = isCommentPermitted ? '' : t(labelActionNotPermitted);
 
   const additionalLinesProps = {
-    getSortedStackedLines,
-    getTime,
-    getUnits,
-    getYScale,
+    data: performanceGraphData,
+    end,
     graphHeight,
-    graphWidth,
     leftScale,
     lines,
     rightScale,
-    timeSeries,
+    start,
     xScale
   };
 
@@ -519,10 +515,9 @@ const GraphContent = ({
               graphHeight={graphHeight}
               leftScale={leftScale}
               lines={lines}
-              renderAdditionalLines={renderAdditionalLines?.({
-                additionalLinesProps,
-                resource
-              })}
+              renderAdditionalLines={renderAdditionalLines?.(
+                additionalLinesProps
+              )}
               rightScale={rightScale}
               timeSeries={timeSeries}
               timeTick={timeTick}

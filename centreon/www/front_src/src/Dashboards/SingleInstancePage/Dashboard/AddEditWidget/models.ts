@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { SelectEntry } from '@centreon/ui';
 
 import { PanelConfiguration, WidgetOptions } from '../models';
+import { SubInput } from '../../../../federatedModules/models';
 
 export interface Widget {
   data: object | null;
@@ -19,12 +20,15 @@ export interface ShowInput {
 }
 
 export interface WidgetPropertyProps {
+  baseEndpoint: string;
   className?: string;
   defaultValue?: unknown;
   disabled?: boolean;
   disabledCondition?: (values: Widget) => boolean;
   endAdornment?: ReactNode;
   excludedResourceTypes?: Array<string>;
+  isInGroup: boolean;
+  isSingleAutocomplete: boolean;
   keepOneOptionSelected?: boolean;
   label: string;
   options?: Array<SelectEntry>;
@@ -35,8 +39,16 @@ export interface WidgetPropertyProps {
   secondaryLabel?: Array<string> | string;
   show?: ShowInput;
   singleResourceType?: boolean;
+  slider?: {
+    max: number;
+    min: number;
+    unit?: string;
+  };
+  subInputs?: Array<SubInput>;
   text?: {
     autoSize?: boolean;
+    max?: number;
+    min?: number;
     multiline?: boolean;
     size?: string;
     step?: string;

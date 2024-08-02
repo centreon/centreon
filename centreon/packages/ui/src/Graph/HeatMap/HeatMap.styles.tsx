@@ -13,8 +13,9 @@ export const useHeatMapStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   heatMapTileContent: {
-    height: `calc(100% - ${theme.spacing(1)})`,
-    width: `calc(100% - ${theme.spacing(1)})`
+    height: '100%',
+    position: 'relative',
+    width: '100%'
   },
   heatMapTooltip: {
     backgroundColor: theme.palette.background.paper,

@@ -24,7 +24,11 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
+use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
@@ -33,6 +37,19 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Option\Application\Repository\ReadOptionRepositoryInterface;
+use Core\Option\Application\Repository\WriteOptionRepositoryInterface;
+use Core\PollerMacro\Application\Repository\ReadPollerMacroRepositoryInterface;
+use Core\PollerMacro\Application\Repository\WritePollerMacroRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
@@ -50,10 +67,19 @@ beforeEach(function (): void {
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
         $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
+        $this->readOptionRepository = $this->createMock(ReadOptionRepositoryInterface::class),
+        $this->readPollerMacroRepository = $this->createMock(ReadPollerMacroRepositoryInterface::class),
+        $this->readProviderConfigurationRepository = $this->createMock(ReadConfigurationRepositoryInterface::class),
         $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class),
         $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class),
         $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class),
         $this->writeServiceMacroRepository = $this->createMock(WriteServiceMacroRepositoryInterface::class),
+        $this->writeOptionRepository = $this->createMock(WriteOptionRepositoryInterface::class),
+        $this->writePollerMacroRepository = $this->createMock(WritePollerMacroRepositoryInterface::class),
+        $this->writeOpenIdConfigurationRepository = $this->createMock(WriteOpenIdConfigurationRepositoryInterface::class),
+        $this->readBrokerInputOutputRepository = $this->createMock(ReadBrokerInputOutputRepositoryInterface::class),
+        $this->writeBrokerInputOutputRepository = $this->createMock(WriteBrokerInputOutputRepositoryInterface::class),
+        $this->flags = new FeatureFlags(false, ''),
     );
 });
 
@@ -62,7 +88,6 @@ it('should present an Error Response when no vault are configured', function ():
         ->expects($this->once())
         ->method('find')
         ->willReturn(null);
-
     $presenter = new MigrateAllCredentialsPresenterStub();
     ($this->useCase)($presenter);
 
@@ -86,6 +111,50 @@ it('should present a MigrateAllCredentialsResponse when no error occurs', functi
         ->expects($this->once())
         ->method('find')
         ->willReturn($vaultConfiguration);
+
+    $customConfiguration = new CustomConfiguration([
+        'is_active' => true,
+        'client_id' => 'MyCl1ientId',
+        'client_secret' => 'MyCl1ientSuperSecr3tKey',
+        'base_url' => 'http://127.0.0.1/auth/openid-connect',
+        'auto_import' => false,
+        'authorization_endpoint' => '/authorization',
+        'token_endpoint' => '/token',
+        'introspection_token_endpoint' => '/introspect',
+        'userinfo_endpoint' => '/userinfo',
+        'contact_template' => new ContactTemplate(1, 'contact_template'),
+        'email_bind_attribute' => null,
+        'fullname_bind_attribute' => null,
+        'endsession_endpoint' => '/logout',
+        'connection_scopes' => [],
+        'login_claim' => 'preferred_username',
+        'authentication_type' => 'client_secret_post',
+        'verify_peer' => false,
+        'claim_name' => 'groups',
+        'roles_mapping' => new ACLConditions(
+            false,
+            false,
+            '',
+            new Endpoint(Endpoint::INTROSPECTION, ''),
+            []
+        ),
+        'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
+        'groups_mapping' => new GroupsMapping(false, '', new Endpoint(), []),
+        'redirect_url' => null,
+    ]);
+    $openIdProviderConfiguration = new Configuration(1,
+        type: Provider::OPENID,
+        name: Provider::OPENID,
+        jsonCustomConfiguration: '{}',
+        isActive: true,
+        isForced: false
+    );
+    $openIdProviderConfiguration->setCustomConfiguration($customConfiguration);
+
+    $this->readProviderConfigurationRepository
+        ->expects($this->once())
+        ->method('getConfigurationByType')
+        ->willReturn($openIdProviderConfiguration);
 
     $presenter = new MigrateAllCredentialsPresenterStub();
     ($this->useCase)($presenter);

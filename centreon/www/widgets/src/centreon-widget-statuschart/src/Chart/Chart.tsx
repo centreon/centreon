@@ -90,11 +90,7 @@ const Chart = ({
   return (
     <div className={classes.container}>
       {isPieCharts ? (
-        <div
-          className={cx(classes.pieChart, {
-            [classes.singlePieChart]: isSingleChart
-          })}
-        >
+        <div className={classes.pieChart}>
           <PieChart
             Legend={Legend((status) =>
               getLinkToResourceStatusPage(status, resourceType)
@@ -104,6 +100,7 @@ const Chart = ({
             displayLegend={displayLegend}
             displayValues={displayValues}
             title={title}
+            tooltipProps={{ resources }}
             unit={unit}
             variant={displayType as 'pie' | 'donut'}
             onArcClick={({ label: status }) => {
@@ -129,6 +126,7 @@ const Chart = ({
             legendDirection={isHorizontalBar ? 'row' : 'column'}
             size={80}
             title={title}
+            tooltipProps={{ resources }}
             unit={unit}
             variant={displayType as 'horizontal' | 'vertical'}
             onSingleBarClick={({ key: status }) => {

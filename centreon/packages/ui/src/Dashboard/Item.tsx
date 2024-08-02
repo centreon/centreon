@@ -4,10 +4,12 @@ import {
   forwardRef,
   MouseEvent,
   ReactElement,
-  useEffect
+  useEffect,
+  useMemo
 } from 'react';
 
-import { isNil, prop } from 'ramda';
+import { equals, isNil, prop } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { Card, useTheme } from '@mui/material';
 
@@ -15,6 +17,7 @@ import { useMemoComponent, useViewportIntersection } from '../utils';
 import LoadingSkeleton from '../LoadingSkeleton';
 
 import { useDashboardItemStyles } from './Dashboard.styles';
+import { isResizingItemAtom } from './atoms';
 
 interface DashboardItemProps {
   additionalMemoProps?: Array<unknown>;
@@ -55,6 +58,18 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
     const { classes, cx } = useDashboardItemStyles({ hasHeader });
     const theme = useTheme();
 
+    const isResizingItem = useAtomValue(isResizingItemAtom);
+
+    const isResizing = useMemo(
+      () => equals(id, isResizingItem),
+      [isResizingItem, id]
+    );
+
+    const sanitizedReactGridLayoutClassName = useMemo(
+      () => (isResizing ? className : className?.replace(' resizing ', '')),
+      [className, isResizing]
+    );
+
     const listeners = {
       onMouseDown,
       onMouseUp,
@@ -75,7 +90,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
       Component: (
         <div
           {...cardContainerListeners}
-          className={className}
+          className={sanitizedReactGridLayoutClassName}
           ref={ref}
           style={{
             ...style,
@@ -88,11 +103,13 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
           >
             {header && (
               <div className={classes.widgetHeader} data-canMove={canMove}>
-                <div
-                  {...listeners}
-                  className={classes.widgetHeaderDraggable}
-                  data-testid={`${id}_move_panel`}
-                />
+                {canMove && (
+                  <div
+                    {...listeners}
+                    className={classes.widgetHeaderDraggable}
+                    data-testid={`${id}_move_panel`}
+                  />
+                )}
                 {header}
               </div>
             )}

@@ -31,8 +31,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
-    name: 'credentials:migrate-vault',
-    description: 'Migrate hosts and services password macros to vault',
+    name: 'vault:migrate-credentials:web',
+    description: 'Migrate passwords to vault',
 )]
 final class MigrateAllCredentialsCommand extends Command
 {

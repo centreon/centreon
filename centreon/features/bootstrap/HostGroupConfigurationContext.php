@@ -1,9 +1,9 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\HostGroupConfigurationPage;
-use Centreon\Test\Behat\Configuration\HostGroupConfigurationListingPage;
 use Centreon\Test\Behat\Configuration\HostConfigurationPage;
+use Centreon\Test\Behat\Configuration\HostGroupConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\HostGroupConfigurationPage;
 
 class HostGroupConfigurationContext extends CentreonContext
 {
@@ -12,13 +12,13 @@ class HostGroupConfigurationContext extends CentreonContext
     protected $host1 = array(
         'name' => 'host1Name',
         'alias' => 'host1Alias',
-        'address' => 'host1@localhost'
+        'address' => '1.2.3.4'
     );
 
     protected $host2 = array(
         'name' => 'host2Name',
         'alias' => 'host2Alias',
-        'address' => 'host2@localhost'
+        'address' => '2.3.4.5'
     );
 
     protected $initialProperties = array(

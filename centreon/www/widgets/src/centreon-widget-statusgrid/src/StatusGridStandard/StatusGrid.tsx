@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { equals, gt, isNil } from 'ramda';
+import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 
@@ -14,15 +14,27 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { buildResourcesEndpoint, resourcesEndpoint } from '../api/endpoints';
+import {
+  buildBAsEndpoint,
+  buildResourcesEndpoint,
+  hostsEndpoint,
+  resourcesEndpoint
+} from '../api/endpoints';
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
+  labelNoBAFound,
   labelNoHostsFound,
+  labelNoKPIFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
 import { getWidgetEndpoint } from '../../../utils';
 
-import { ResourceData, ResourceStatus, StatusGridProps } from './models';
+import {
+  IndicatorType,
+  ResourceData,
+  ResourceStatus,
+  StatusGridProps
+} from './models';
 import Tile from './Tile';
 import HeatMapSkeleton from './LoadingSkeleton';
 import { getColor } from './utils';
@@ -59,19 +71,58 @@ const StatusGrid = ({
     refreshIntervalCustom
   });
 
+  const lastSelectedResourceType = pipe(
+    pluck('resourceType'),
+    reject((type) => equals(type, '')),
+    last
+  )(panelData?.resources);
+
+  const isBVResourceType = equals(lastSelectedResourceType, 'business-view');
+  const isBAResourceType = equals(
+    lastSelectedResourceType,
+    'business-activity'
+  );
+
+  const getLabelNoResourceFound = (): string => {
+    if (isBAResourceType) {
+      return t(labelNoKPIFound);
+    }
+
+    if (isBVResourceType) {
+      return t(labelNoBAFound);
+    }
+
+    if (equals(resourceType, 'host')) {
+      return t(labelNoHostsFound);
+    }
+
+    return t(labelNoServicesFound);
+  };
+
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       getWidgetEndpoint({
         dashboardId,
-        defaultEndpoint: buildResourcesEndpoint({
-          baseEndpoint: resourcesEndpoint,
-          limit: tiles,
-          resources,
-          sortBy,
-          states: [],
-          statuses,
-          type: resourceType
-        }),
+        defaultEndpoint:
+          isBVResourceType || isBAResourceType
+            ? buildBAsEndpoint({
+                limit: tiles,
+                resources: last(panelData?.resources)?.resources,
+                sortBy,
+                statuses,
+                type: lastSelectedResourceType
+              })
+            : buildResourcesEndpoint({
+                baseEndpoint: equals(resourceType, 'host')
+                  ? hostsEndpoint
+                  : resourcesEndpoint,
+                limit: tiles,
+                resources,
+                sortBy,
+                states: [],
+                statuses,
+                type: resourceType
+              }),
         isOnPublicPage,
         playlistHash,
         widgetId
@@ -107,11 +158,12 @@ const StatusGrid = ({
           is_in_downtime,
           is_acknowledged,
           information,
-          links
+          links,
+          type,
+          resource = null,
+          business_activity = null
         }) => {
           const statusColor = getColor({
-            is_acknowledged,
-            is_in_downtime,
             severityCode: status?.severity_code,
             theme
           });
@@ -120,6 +172,7 @@ const StatusGrid = ({
             backgroundColor: statusColor,
             data: {
               acknowledgementEndpoint: links?.endpoints.acknowledgement,
+              businessActivity: business_activity?.name,
               downtimeEndpoint: links?.endpoints.downtime,
               id,
               information,
@@ -127,11 +180,13 @@ const StatusGrid = ({
               is_in_downtime,
               metricsEndpoint: links?.endpoints.metrics,
               name,
-              parentId: parent?.id,
-              parentName: parent?.name,
+              parentId: parent?.id || resource?.parent_id,
+              parentName: parent?.name || resource?.parent_name,
               parentStatus: parent?.status?.severity_code,
+              resourceId: resource?.id,
               status: status?.severity_code,
               statusName: status?.name.toLocaleLowerCase(),
+              type: isBVResourceType ? IndicatorType.BusinessActivity : type,
               uuid
             },
             id: uuid
@@ -146,15 +201,7 @@ const StatusGrid = ({
   }
 
   if (equals(data?.meta.total, 0)) {
-    return (
-      <NoResourcesFound
-        label={
-          equals(resourceType, 'host')
-            ? t(labelNoHostsFound)
-            : t(labelNoServicesFound)
-        }
-      />
-    );
+    return <NoResourcesFound label={getLabelNoResourceFound()} />;
   }
 
   const seeMoreTile = hasMoreResources
@@ -169,15 +216,16 @@ const StatusGrid = ({
     <HeatMap<ResourceData | null>
       displayTooltipCondition={(resourceData) => !isNil(resourceData)}
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
-      tooltipContent={isOnPublicPage ? undefined : Tooltip(resourceType)}
+      tooltipContent={isOnPublicPage ? undefined : Tooltip()}
     >
       {({ isSmallestSize, data: resourceData }) => (
         <Tile
           data={resourceData}
+          isBAResourceType={isBVResourceType || isBAResourceType}
           isSmallestSize={isSmallestSize}
           resources={resources}
           statuses={statuses}
-          type={resourceType}
+          type={resourceData?.type}
         />
       )}
     </HeatMap>

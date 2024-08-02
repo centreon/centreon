@@ -13,12 +13,16 @@ export const useBarStackStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1.5),
     justifyContent: 'center'
   },
+  smallTitle: {
+    fontSize: theme.typography.body1.fontSize
+  },
   svgContainer: {
     alignItems: 'center',
     backgroundColor: theme.palette.background.panelGroups,
     borderRadius: theme.spacing(1.25),
     display: 'flex',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    padding: theme.spacing(1)
   },
   svgWrapper: {
     alignItems: 'center',

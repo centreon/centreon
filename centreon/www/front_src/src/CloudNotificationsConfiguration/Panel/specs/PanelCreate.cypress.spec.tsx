@@ -1,6 +1,7 @@
 import { Provider, createStore } from 'jotai';
 
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import {
   labelDelete,
@@ -17,11 +18,12 @@ import {
   labelNotificationName,
   labelSubject,
   labelSearchBusinessViews,
-  labelSearchContacts
+  labelSearchContacts,
+  labelSelectTimePeriod
 } from '../../translatedLabels';
 import { panelWidthStorageAtom } from '../../atom';
-import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
+  availableTimePeriodsEndpoint,
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
@@ -36,7 +38,8 @@ import {
   serviceGroupsResponse,
   platformVersions,
   formData,
-  emailBodyText
+  emailBodyText,
+  timePeriodsResponse
 } from './testUtils';
 
 const store = createStore();
@@ -85,6 +88,13 @@ const initialize = (): void => {
     response: usersResponse
   });
 
+  cy.interceptAPIRequest({
+    alias: 'getAvailableTimePeriodEndpoint',
+    method: Method.GET,
+    path: `${availableTimePeriodsEndpoint}**`,
+    response: timePeriodsResponse
+  });
+
   cy.viewport('macbook-13');
 
   cy.mount({
@@ -101,6 +111,10 @@ const fillFormRequiredFields = (): void => {
   cy.findByLabelText(labelSearchServiceGroups).click();
   cy.waitForRequest('@getServiceGroupsEndpoint');
   cy.findByText('MySQL-Servers').click();
+
+  cy.findByLabelText(labelSelectTimePeriod).click();
+  cy.waitForRequest('@getAvailableTimePeriodEndpoint');
+  cy.findByText('24X7').click();
 
   cy.findByLabelText(labelSearchContacts).click();
   cy.waitForRequest('@getUsersEndpoint');

@@ -88,6 +88,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             'name' => 'contact_name',
             'email' => 'contact_email',
             'provider_name' => 'contact_auth_type',
+            'is_admin' => 'contact_admin',
         ]);
         $sqlTranslator->translateForConcatenator($concatenator);
 
@@ -165,6 +166,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             'name' => 'contact_name',
             'email' => 'contact_email',
             'provider_name' => 'contact_auth_type',
+            'is_admin' => 'contact_admin',
         ]);
         $sqlTranslator->translateForConcatenator($concatenator);
 

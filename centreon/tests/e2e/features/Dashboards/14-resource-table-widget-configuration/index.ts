@@ -192,22 +192,9 @@ after(() => {
 
 Given('a dashboard that includes a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
   cy.wait('@resourceRequest');
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(0)
@@ -217,8 +204,7 @@ Given('a dashboard that includes a configured resource table widget', () => {
 When(
   'the dashboard administrator user selects view by host as a display type',
   () => {
-    cy.get('button[data-testid="View by host"]').eq(1).realClick();
-
+    cy.get('button[data-testid="View by host"]').eq(1).click();
     cy.wait('@resourceRequestByHost');
     cy.wait('@resourceRequest');
   }
@@ -229,7 +215,7 @@ Then('only the hosts must be displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
         )
         .should('be.visible')
         .invoke('text')
@@ -257,7 +243,7 @@ Then('only the services must be displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
         )
         .should('be.visible')
         .invoke('text')
@@ -277,21 +263,8 @@ Then('only the services must be displayed', () => {
 
 Given('a dashboard containing a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
   cy.wait('@resourceRequest');
 });
 
@@ -310,7 +283,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
           )
           .should('be.visible')
           .invoke('text')
@@ -340,7 +313,7 @@ When(
 Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
-    cy.getCellContent(1, 1).then((myTableContent) => {
+    cy.getCellContent(1, 2).then((myTableContent) => {
       expect(myTableContent[6]).to.include('Pending');
       expect(myTableContent[7]).to.include('Pending');
       expect(myTableContent[8]).to.include('Up');
@@ -357,7 +330,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
           )
           .should('be.visible')
           .invoke('text')
@@ -378,16 +351,7 @@ Then(
 
 Given('a dashboard featuring two resource table widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
@@ -403,7 +367,7 @@ Then('only the contents of the other widget are displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
         )
         .should('exist')
         .invoke('text')
@@ -421,16 +385,7 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard having a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
 });
 
@@ -449,7 +404,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+            `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
           )
           .should('exist')
           .invoke('text')
@@ -472,12 +427,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -542,7 +492,7 @@ Then("the resource table widget is added to the dashboard's layout", () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
         )
         .should('be.visible')
         .invoke('text')
@@ -559,3 +509,26 @@ Then("the resource table widget is added to the dashboard's layout", () => {
     { interval: 2000, timeout: 10000 }
   );
 });
+
+Given('a dashboard with a resource table widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+  cy.editWidget(1);
+  cy.wait('@resourceRequest');
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description, { force: true });
+  cy.contains('host2').eq(0).should('be.visible');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.contains('host2').eq(0).click({ force: true });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
+  }
+);

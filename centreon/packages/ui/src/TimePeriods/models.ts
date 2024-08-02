@@ -109,4 +109,5 @@ export interface WrapperTimePeriodProps {
   getIsError?: (value: boolean) => void;
   getParameters?: ({ start, end, timelineEventsLimit }: Parameters) => void;
   renderExternalComponent?: ReactNode;
+  skeletonHeight?: number;
 }

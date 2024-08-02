@@ -16,12 +16,14 @@ import {
   last,
   filter,
   pick,
-  map
+  map,
+  flatten
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import {
   QueryParameter,
+  SearchParameter,
   SelectEntry,
   buildListingEndpoint
 } from '@centreon/ui';
@@ -74,6 +76,7 @@ interface UseResourcesState {
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
   getResourceTypeOptions: (index, resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
+  hasSelectedHostForSingleMetricwidget?: boolean;
   isLastResourceInTree: boolean;
   singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
@@ -288,30 +291,34 @@ const useResources = ({
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
-  const getCustomQueryParameters = (
+  const getQueryParameters = (
     index: number,
     resourceType
-  ): Array<QueryParameter> => {
+  ): {
+    customParameters: Array<QueryParameter>;
+    searchParameters: Array<SearchParameter>;
+  } => {
     const usesResourcesEndpoint = includes(resourceType, [
       WidgetResourceType.host,
       WidgetResourceType.metaService
     ]);
+
     const isOfTypeService = equals(resourceType, WidgetResourceType.service);
-    const isOfTypeCategory = includes(resourceType, [
-      WidgetResourceType.hostCategory,
-      WidgetResourceType.serviceCategory
-    ]);
 
     if (equals(index, 0)) {
-      return usesResourcesEndpoint
-        ? getAdditionalQueryParameters(resourceType, hasMetricInputType)
-        : [];
+      return {
+        customParameters: usesResourcesEndpoint
+          ? getAdditionalQueryParameters(resourceType, hasMetricInputType)
+          : [],
+        searchParameters: []
+      };
     }
+
     const searchParameter = value?.[index - 1].resourceType as string;
     const searchValues = pluck('name', value?.[index - 1].resources);
 
-    if (!usesResourcesEndpoint && !isOfTypeCategory) {
-      const serviceParameters = isOfTypeService
+    if (!usesResourcesEndpoint) {
+      const customParameters = isOfTypeService
         ? [
             {
               name: 'only_with_performance_data',
@@ -320,17 +327,17 @@ const useResources = ({
           ]
         : [];
 
-      return [
-        {
-          name: 'search',
-          value: {
-            [`${searchParameter.replace('-', '_')}.name`]: {
+      return {
+        customParameters,
+        searchParameters: [
+          {
+            field: `${searchParameter.replace('-', '_')}.name`,
+            values: {
               $in: searchValues
             }
           }
-        },
-        ...serviceParameters
-      ];
+        ]
+      };
     }
 
     const baseParams = getAdditionalQueryParameters(
@@ -338,15 +345,18 @@ const useResources = ({
       hasMetricInputType
     );
 
-    return [
-      ...baseParams,
-      {
-        name: includes('category', searchParameter)
-          ? `${searchParameter.replace('-', '_')}_names`
-          : `${searchParameter.replace('-', '')}_names`,
-        value: searchValues
-      }
-    ];
+    return {
+      customParameters: [
+        ...baseParams,
+        {
+          name: includes('category', searchParameter)
+            ? `${searchParameter.replace('-', '_')}_names`
+            : `${searchParameter.replace('-', '')}_names`,
+          value: searchValues
+        }
+      ],
+      searchParameters: []
+    };
   };
 
   const getResourceResourceBaseEndpoint =
@@ -362,35 +372,45 @@ const useResources = ({
         ? `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`
         : additionalResource?.baseEndpoint;
 
-      const search = !additionalResource?.defaultMonitoringParameter
-        ? parameters.search
-        : {
-            ...parameters.search,
-            lists: [
-              ...(parameters.search?.lists || []),
-              ...Object.entries(
-                additionalResource.defaultMonitoringParameter || {}
-              ).map(([propertyKey, propertyValue]) => ({
-                field: propertyKey,
-                values: [propertyValue]
-              }))
-            ]
-          };
+      const searchLists = additionalResource?.defaultMonitoringParameter
+        ? [
+            ...(parameters.search?.lists || []),
+            ...Object.entries(
+              additionalResource?.defaultMonitoringParameter || {}
+            ).map(([propertyKey, propertyValue]) => ({
+              field: propertyKey,
+              values: [propertyValue]
+            }))
+          ]
+        : parameters.search?.lists;
+
+      const { customParameters, searchParameters } = getQueryParameters(
+        index,
+        resourceType
+      );
+
+      const searchConditions = [
+        ...flatten(parameters.search?.conditions || []),
+        ...searchParameters
+      ];
 
       return buildListingEndpoint({
         baseEndpoint: endpoint,
-        customQueryParameters: getCustomQueryParameters(index, resourceType),
+        customQueryParameters: customParameters,
         parameters: {
           ...parameters,
           limit: 30,
-          search
+          search: {
+            conditions: searchConditions,
+            lists: searchLists
+          }
         }
       });
     };
 
   const getSearchField = (resourceType: string): string =>
     cond([
-      [equals('host'), always('host.name')],
+      [equals('host'), always('h.name')],
       [T, always('name')]
     ])(resourceType);
 
@@ -402,23 +422,29 @@ const useResources = ({
 
   const resourcetypesIds = pluck('resourceType', value || []);
 
+  const additionalResourceTypeOptions = useAdditionalResources
+    ? additionalResources.map(
+        ({ resourceType, label, availableResourceTypeOptions }) => ({
+          availableResourceTypeOptions,
+          id: resourceType,
+          name: label
+        })
+      )
+    : [];
+
+  const allResources = [
+    ...resourceTypeOptions,
+    ...additionalResourceTypeOptions
+  ];
+
   const getResourceTypeOptions = useCallback(
     (index, resource): Array<ResourceTypeOption> => {
-      const additionalResourceTypeOptions = useAdditionalResources
-        ? additionalResources.map(({ resourceType, label }) => ({
-            id: resourceType,
-            name: label
-          }))
-        : [];
-
-      const availableResourceTypes = [
-        ...(index < 1
-          ? resourceTypeOptions
-          : resourceTypeOptions.find(
+      const availableResourceTypes =
+        index < 1
+          ? allResources
+          : allResources.find(
               ({ id }) => id === value?.[index - 1].resourceType
-            )?.availableResourceTypeOptions || []),
-        ...additionalResourceTypeOptions
-      ];
+            )?.availableResourceTypeOptions || [];
 
       const filteredResourceTypeOptions = filter(({ id }) => {
         if (hasRestrictedTypes) {
@@ -476,7 +502,7 @@ const useResources = ({
   }, [values.moduleName]);
 
   const isLastResourceInTree = isEmpty(
-    resourceTypeOptions.find(({ id }) => equals(id, last(resourcetypesIds)))
+    allResources.find(({ id }) => equals(id, last(resourcetypesIds)))
       ?.availableResourceTypeOptions
   );
 
@@ -489,6 +515,19 @@ const useResources = ({
 
     return ({ name }) => name;
   };
+
+  const hasSelectedHostForSingleMetricwidget = useMemo(() => {
+    const hasSelectedHost = value?.some(
+      ({ resources, resourceType }) =>
+        equals(resourceType, WidgetResourceType.host) && !isEmpty(resources)
+    );
+
+    return (
+      widgetProperties?.singleMetricSelection &&
+      widgetProperties?.singleResourceSelection &&
+      hasSelectedHost
+    );
+  }, [value]);
 
   return {
     addResource,
@@ -503,6 +542,7 @@ const useResources = ({
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
+    hasSelectedHostForSingleMetricwidget,
     isLastResourceInTree,
     singleResourceSelection: widgetProperties?.singleResourceSelection,
     value: value || []
