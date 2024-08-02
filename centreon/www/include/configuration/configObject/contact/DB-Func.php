@@ -786,9 +786,9 @@ function updateContact_MC($contact_id = null)
 /**
  * @param int $contactId
  * @param array $fields
- * @return void
+ * @return bool
  */
-function updateContactHostCommands(int $contactId, array $fields = []): void
+function updateContactHostCommands(int $contactId, array $fields = []): bool
 {
     global $form, $pearDB;
 
@@ -802,7 +802,7 @@ function updateContactHostCommands(int $contactId, array $fields = []): void
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     try {
@@ -810,13 +810,13 @@ function updateContactHostCommands(int $contactId, array $fields = []): void
         $successDelete = $pearDB->executePreparedQuery($pearDB->prepare($query), ['contact_id' => $contactId]);
 
         if (!$successDelete) {
-            return;
+            return false;
         }
 
         $hostCommandIdsFromForm = $fields["contact_hostNotifCmds"] ?? $form->getSubmitValue("contact_hostNotifCmds");
 
         if (!is_array($hostCommandIdsFromForm)) {
-            return;
+            return false;
         }
 
         $query = "INSERT INTO contact_hostcommands_relation(contact_contact_id, command_command_id) VALUES(:contact_id, :command_id)";
@@ -827,20 +827,21 @@ function updateContactHostCommands(int $contactId, array $fields = []): void
                 ['contact_id' => $contactId, 'command_id' => (int)$hostCommandIdFromForm]
             );
         }
+        return true;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->insertLog(
             2,
             "Error while updating the relationship between contacts and host commands | {$e->toJson()}"
         );
-        return;
+        return false;
     }
 }
 
 /**
  * @param int $contactId
- * @return void
+ * @return bool
  */
-function updateContactHostCommands_MC(int $contactId): void
+function updateContactHostCommands_MC(int $contactId): bool
 {
     global $form, $pearDB;
 
@@ -854,13 +855,13 @@ function updateContactHostCommands_MC(int $contactId): void
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     $hostCommandIdsFromForm = $form->getSubmitValue("contact_hostNotifCmds");
 
     if (!is_array($hostCommandIdsFromForm)) {
-        return;
+        return false;
     }
 
     try {
@@ -877,21 +878,22 @@ function updateContactHostCommands_MC(int $contactId): void
                 );
             }
         }
+        return true;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->insertLog(
             2,
             "Error while updating the relationship between contacts and host commands by massive change | {$e->toJson()}"
         );
-        return;
+        return false;
     }
 }
 
 /**
  * @param int $contactId
  * @param array $fields
- * @return void
+ * @return bool
  */
-function updateContactServiceCommands(int $contactId, array $fields = []): void
+function updateContactServiceCommands(int $contactId, array $fields = []): bool
 {
     global $form, $pearDB;
 
@@ -905,7 +907,7 @@ function updateContactServiceCommands(int $contactId, array $fields = []): void
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     try {
@@ -913,13 +915,13 @@ function updateContactServiceCommands(int $contactId, array $fields = []): void
         $successDelete = $pearDB->executePreparedQuery($pearDB->prepareQuery($query), ['contact_id' => $contactId]);
 
         if ($successDelete === false) {
-            return;
+            return false;
         }
 
         $serviceCommandsFromForm = $fields["contact_svNotifCmds"] ?? $form->getSubmitValue("contact_svNotifCmds");
 
         if (!is_array($serviceCommandsFromForm)) {
-            return;
+            return false;
         }
 
         $query = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)";
@@ -930,12 +932,13 @@ function updateContactServiceCommands(int $contactId, array $fields = []): void
                 ['contact_id' => $contactId, 'command_id' => (int)$commandId]
             );
         }
+        return true;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->insertLog(
             2,
             "Error while updating the relationship between contacts and service commands | {$e->toJson()}"
         );
-        return;
+        return false;
     }
 }
 
@@ -944,9 +947,9 @@ function updateContactServiceCommands(int $contactId, array $fields = []): void
  */
 /**
  * @param int $contactId
- * @return void
+ * @return bool
  */
-function updateContactServiceCommands_MC(int $contactId): void
+function updateContactServiceCommands_MC(int $contactId): bool
 {
     global $form, $pearDB;
 
@@ -960,13 +963,13 @@ function updateContactServiceCommands_MC(int $contactId): void
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     $serviceCommandsFromForm = $form->getSubmitValue("contact_svNotifCmds");
 
     if (!is_array($serviceCommandsFromForm)) {
-        return;
+        return false;
     }
 
     try {
@@ -983,21 +986,22 @@ function updateContactServiceCommands_MC(int $contactId): void
                 );
             }
         }
+        return true;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->insertLog(
             2,
             "Error while updating the relationship between contacts and service commands | {$e->toJson()}"
         );
-        return;
+        return false;
     }
 }
 
 /**
  * @param int $contactId
  * @param array $fields
- * @return void
+ * @return bool
  */
-function updateContactContactGroup(int $contactId, array $fields = []): void
+function updateContactContactGroup(int $contactId, array $fields = []): bool
 {
     global $centreon, $form, $pearDB;
 
@@ -1011,7 +1015,7 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     try {
@@ -1024,11 +1028,11 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
             "Error while merging with initial values : [InvalidArgumentException] {$e->getMessage()}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     if (!is_array($contactGroupIdsFromForm)) {
-        return;
+        return false;
     }
 
     try {
@@ -1041,7 +1045,7 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
         $successDelete = $pearDB->executePreparedQuery($pearDB->prepareQuery($query), ['contact_id' => $contactId]);
 
         if (!$successDelete) {
-            return;
+            return false;
         }
 
         $query = "INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)";
@@ -1057,7 +1061,7 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
             2,
             "Error while updating the relationship between contacts and contact groups | {$e->toJson()}"
         );
-        return;
+        return false;
     }
 
     try {
@@ -1067,8 +1071,10 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
             2,
             "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}, exception message : {$e->getMessage()}"
         );
-        return;
+        return false;
     }
+
+    return true;
 }
 
 /*
@@ -1076,9 +1082,9 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
  */
 /**
  * @param int $contactId
- * @return void
+ * @return bool
  */
-function updateContactContactGroup_MC(int $contactId): void
+function updateContactContactGroup_MC(int $contactId): bool
 {
     global $centreon, $form, $pearDB;
 
@@ -1092,13 +1098,13 @@ function updateContactContactGroup_MC(int $contactId): void
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     $contactGroupIdsFromForm = $form->getSubmitValue("contact_cgNotif");
 
     if (!is_array($contactGroupIdsFromForm)) {
-        return;
+        return false;
     }
 
     try {
@@ -1120,7 +1126,7 @@ function updateContactContactGroup_MC(int $contactId): void
             2,
             "Error while updating the relationship between contacts and contact groups by massive change | {$e->toJson()}"
         );
-        return;
+        return false;
     }
 
     try {
@@ -1130,8 +1136,10 @@ function updateContactContactGroup_MC(int $contactId): void
             2,
             "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}, exception message : {$e->getMessage()}"
         );
-        return;
+        return false;
     }
+
+    return true;
 }
 
 /**
@@ -1248,9 +1256,9 @@ function insertLdapContactInDB($tmpContacts = array())
  * Update ACL groups links with this user
  * @param int $contactId
  * @param array $fields
- * @return void
+ * @return bool
  */
-function updateAccessGroupLinks(int $contactId, array $fields = []): void
+function updateAccessGroupLinks(int $contactId, array $fields = []): bool
 {
     global $form, $pearDB;
 
@@ -1264,7 +1272,7 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): void
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     try {
@@ -1277,11 +1285,11 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): void
             "Error while merging with initial values : [InvalidArgumentException] {$e->getMessage()}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     if (!is_array($aclGroupIds)) {
-        return;
+        return false;
     }
 
     try {
@@ -1289,7 +1297,7 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): void
         $successDelete = $pearDB->executePreparedQuery($pearDB->prepareQuery($query), ['contact_id' => $contactId]);
 
         if (!$successDelete) {
-            return;
+            return false;
         }
 
         $query = "INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id) VALUES (:contact_id, :acl_group_id)";
@@ -1302,8 +1310,10 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): void
             2,
             "Error while updating the relationship between contacts and acl groups | {$e->toJson()}"
         );
-        return;
+        return false;
     }
+
+    return true;
 }
 
 /**
@@ -1311,9 +1321,9 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): void
  * Update ACL groups links with this user during massive changes
  * @param int $contactId
  * @param $flag
- * @return void
+ * @return bool
  */
-function updateAccessGroupLinks_MC(int $contactId, $flag): void
+function updateAccessGroupLinks_MC(int $contactId, $flag): bool
 {
     global $form, $pearDB;
 
@@ -1327,13 +1337,13 @@ function updateAccessGroupLinks_MC(int $contactId, $flag): void
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
         );
-        return;
+        return false;
     }
 
     $aclGroupIds = $form->getSubmitValue("contact_acl_groups");
 
     if (!is_array($aclGroupIds)) {
-        return;
+        return false;
     }
 
     try {
@@ -1344,7 +1354,7 @@ function updateAccessGroupLinks_MC(int $contactId, $flag): void
                 ['contact_id' => $contactId]
             );
             if (!$successDelete) {
-                return;
+                return false;
             }
         }
 
@@ -1353,12 +1363,14 @@ function updateAccessGroupLinks_MC(int $contactId, $flag): void
         foreach ($aclGroupIds as $aclGroupId) {
             $pearDB->executePreparedQuery($pdoSth, ['contact_id' => $contactId, 'acl_group_id' => (int)$aclGroupId]);
         }
+
+        return true;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->insertLog(
             2,
             "Error while updating the relationship between contacts and acl groups by massive change | {$e->toJson()}"
         );
-        return;
+        return false;
     }
 }
 
