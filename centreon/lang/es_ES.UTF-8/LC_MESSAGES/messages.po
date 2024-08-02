@@ -17618,3 +17618,6 @@ msgstr "Modo avanzado"
 
 #  msgid "Error while searching for additional connector configurations"
 #  msgstr ""
+
+#  msgid "Error while searching for available pollers for type '%s'"
+#  msgstr ""
