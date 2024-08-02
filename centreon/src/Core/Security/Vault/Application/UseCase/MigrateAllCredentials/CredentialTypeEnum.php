@@ -32,4 +32,5 @@ enum CredentialTypeEnum
     case TYPE_POLLER_MACRO;
     case TYPE_OPEN_ID;
     case TYPE_BROKER_INPUT_OUTPUT;
+    case TYPE_ADDITIONAL_CONNECTOR_CONFIGURATION;
 }

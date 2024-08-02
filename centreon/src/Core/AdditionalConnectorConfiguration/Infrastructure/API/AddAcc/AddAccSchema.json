@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add an additional connector configuration (ACC)",
+    "type": "object",
+    "required": [
+        "type",
+        "name",
+        "description",
+        "pollers",
+        "parameters"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": [
+                "vmware_v6"
+            ]
+        },
+        "name": {
+            "type": "string"
+        },
+        "description": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "pollers": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "parameters": {
+            "type": "object"
+        }
+    }
+}
