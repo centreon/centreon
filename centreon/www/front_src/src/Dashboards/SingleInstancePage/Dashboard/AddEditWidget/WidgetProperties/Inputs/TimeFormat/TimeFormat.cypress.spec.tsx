@@ -5,7 +5,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
-import TimeFormat from './timeFormat';
+import TimeFormat from './TimeFormat';
 
 const initialize = ({ canEdit = true, hasValue = false }): void => {
   const store = createStore();

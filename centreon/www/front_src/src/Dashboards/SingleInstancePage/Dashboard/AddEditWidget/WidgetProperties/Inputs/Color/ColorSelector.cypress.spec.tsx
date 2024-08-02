@@ -1,5 +1,5 @@
 import { createStore, Provider } from 'jotai';
-import { Formik } from 'Formik';
+import { Formik } from 'formik';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import { labelBackgroundColor } from '../../../../translatedLabels';

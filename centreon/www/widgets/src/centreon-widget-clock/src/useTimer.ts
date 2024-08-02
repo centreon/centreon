@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import dayjs, { Dayjs } from 'dayjs';
-import { equals, inc, update } from 'ramda';
+import { equals, inc } from 'ramda';
 
 import { useGetLocaleAndTimezone } from './useGetLocaleAndTimezone';
 
