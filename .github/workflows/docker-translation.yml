@@ -13,6 +13,7 @@ on:
     paths:
       - ".github/docker/Dockerfile.translation"
   pull_request:
+  pull_request_target:
     paths:
       - ".github/docker/Dockerfile.translation"
 
