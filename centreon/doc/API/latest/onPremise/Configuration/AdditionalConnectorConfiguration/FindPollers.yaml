@@ -1,0 +1,40 @@
+get:
+  tags:
+    - Additional Connector Configuration
+  summary: "Find available pollers for an ACC type"
+  description: "Find available pollers for an ACC type"
+  parameters:
+    - in: path
+      name: type
+      required: true
+      description: |
+        Available Additional Connector Configuration types:
+          - vmware_v6
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/FindPollersResponse.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
