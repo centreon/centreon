@@ -984,7 +984,8 @@ class CentreonDB extends \PDO
      * #[\ReturnTypeWillChange] to fix the change of the method's signature and avoid a fatal error
      */
     #[\ReturnTypeWillChange]
-    public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement|bool {
+    public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement|false
+    {
         if (!is_null($parameters) && !is_array($parameters)) {
             $parameters = [$parameters];
         }
@@ -998,7 +999,7 @@ class CentreonDB extends \PDO
                 $sth = parent::query($queryString);
             } else {
                 $sth = $this->prepare($queryString);
-                $sth = $sth->execute($parameters);
+                $sth->execute($parameters);
             }
         } catch (\PDOException $e) {
             // skip if we use CentreonDBStatement::execute method
