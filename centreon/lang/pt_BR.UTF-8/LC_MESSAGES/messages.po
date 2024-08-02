@@ -17975,5 +17975,5 @@ msgstr ""
 # msgid "Error while retrieving an additional connector configuration"
 # msgstr ""
 
-# msgid "The additional connector name '%s' already exists"
+# msgid "The additional connector configuration name '%s' already exists"
 # msgstr ""
