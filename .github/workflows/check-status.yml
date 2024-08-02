@@ -5,6 +5,10 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  workflow_run:
+    workflows: ["validate"]
+    types:
+      - completed
   pull_request:
     branches:
       - develop
@@ -13,11 +17,20 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
       - hotfix-*
       - release-*
+      - MON-146261-open-pipelines-to-external-contrib-*
 
 jobs:
   check-status:
     runs-on: ubuntu-24.04
     steps:
+      - name: review state
+        run: echo "review state = ${{ github.event.review.state }}"
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       - name: Check workflow statuses and display token usage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
