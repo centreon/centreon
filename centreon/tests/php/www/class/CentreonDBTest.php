@@ -38,6 +38,7 @@ use ValueError;
 function getEnvironmentVariable(string $nameEnvVar): ?string
 {
     $envVarValue = getenv($nameEnvVar, true) ?: getenv($nameEnvVar);
+    error_log("env var '$nameEnvVar' =" . $envVarValue);
     return (is_string($envVarValue) && !empty($envVarValue)) ? $envVarValue : null;
 }
 
