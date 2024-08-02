@@ -5,13 +5,13 @@ import dayjs from 'dayjs';
 
 import { Typography } from '@mui/material';
 
+import { DateTimePickerInput } from '@centreon/ui';
+
 import { WidgetPropertyProps } from '../../../models';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
 
 import { useDatePicker } from './useDatePicker';
-
-import { DateTimePickerInput } from 'packages/ui/src';
 
 const DatePicker = ({
   propertyName,
