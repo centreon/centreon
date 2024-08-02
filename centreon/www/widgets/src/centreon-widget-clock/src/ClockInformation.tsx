@@ -39,17 +39,11 @@ const ClockInformation = ({
   const isSmall = width < (isClock ? 200 : 300);
 
   const timezoneDisplay = isSmall ? (
-    <Tooltip placement="top" title={timezone}>
-      <PublicIcon className={classes.timezone} />
-    </Tooltip>
+    <PublicIcon className={classes.timezone} />
   ) : (
-    <Tooltip placement="top" title={timezone}>
-      <div>
-        <EllipsisTypography className={classes.timezone}>
-          {timezone}
-        </EllipsisTypography>
-      </div>
-    </Tooltip>
+    <EllipsisTypography className={classes.timezone}>
+      {timezone}
+    </EllipsisTypography>
   );
 
   const dateDisplay = isClock ? (
@@ -57,17 +51,10 @@ const ClockInformation = ({
       {date.format('L')}
     </Typography>
   ) : (
-    <Tooltip
-      placement="top"
-      title={`${t(labelEndsAt)}: ${date.format('L LT')}`}
-    >
-      <div>
-        <EllipsisTypography
-          className={classes.date}
-          fontWeight="bold"
-        >{`${t(labelEndsAt)}: ${date.format('L LT')}`}</EllipsisTypography>
-      </div>
-    </Tooltip>
+    <EllipsisTypography
+      className={classes.date}
+      fontWeight="bold"
+    >{`${t(labelEndsAt)}: ${date.format('L LT')}`}</EllipsisTypography>
   );
 
   return (
@@ -77,8 +64,27 @@ const ClockInformation = ({
       data-timer={!isClock}
     >
       <Icon className={classes.icon} />
-      {showTimezone ? timezoneDisplay : <div />}
-      {showDate ? dateDisplay : <div />}
+      {showTimezone ? (
+        <Tooltip placement="top" title={timezone}>
+          <div>{timezoneDisplay}</div>
+        </Tooltip>
+      ) : (
+        <div />
+      )}
+      {showDate ? (
+        <Tooltip
+          placement="top"
+          title={
+            isClock
+              ? date.format('L')
+              : `${t(labelEndsAt)}: ${date.format('L LT')}`
+          }
+        >
+          <div>{dateDisplay}</div>
+        </Tooltip>
+      ) : (
+        <div />
+      )}
     </div>
   );
 };
