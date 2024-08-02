@@ -33,7 +33,7 @@
  */
 
 require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
-require_once _CENTREON_PATH_ . 'www/include/common/sqlCommonFunction.php';
+require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
 /**
  * Class for Access Control List management
@@ -751,6 +751,9 @@ class CentreonACL
         if ($flag !== null) {
             $flag = strtoupper($flag);
         }
+
+        // before returning access groups as string, make sure that those are up to date
+        $this->setAccessGroups();
 
         $accessGroups = "";
         foreach ($this->accessGroups as $key => $value) {

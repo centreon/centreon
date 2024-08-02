@@ -115,6 +115,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @param GroupsMappingSecurityAccess $groupsMapping
      * @param AttributePathFetcher $attributePathFetcher
      * @param ReadVaultRepositoryInterface $readVaultRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private HttpClientInterface $client,
@@ -127,6 +128,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly AttributePathFetcher $attributePathFetcher,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly bool $isCloudPlatform
     ) {
         $pearDB = $this->dependencyInjector['configuration_db'];
         $this->centreonLog = new CentreonUserLog(-1, $pearDB);
@@ -197,6 +199,11 @@ class OpenIdProvider implements OpenIdProviderInterface
         if ($user->canReachFrontend()) {
             $user->setCanReachRealtimeApi(true);
         }
+
+        if ($this->isCloudPlatform) {
+            $user->setCanReachConfigurationApi(true);
+        }
+
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
         $this->info('Auto import complete', [
@@ -279,7 +286,7 @@ class OpenIdProvider implements OpenIdProviderInterface
             throw ConfigurationException::missingInformationEndpoint();
         }
 
-        $this->sendRequestForConnectionTokenOrFail($authorizationCode);
+        $this->sendRequestForConnectionTokenOrFail($authorizationCode, $customConfiguration->getRedirectUrl());
         $this->createAuthenticationTokens();
         if (array_key_exists('id_token', $this->connectionTokenResponseContent)) {
             $this->idTokenPayload = $this->extractTokenPayload($this->connectionTokenResponseContent['id_token']);
@@ -458,19 +465,26 @@ class OpenIdProvider implements OpenIdProviderInterface
      * Get Connection Token from OpenId Provider.
      *
      * @param string $authorizationCode
+     * @param string|null $redirectUrl
      *
      * @throws SSOAuthenticationException
      */
-    private function sendRequestForConnectionTokenOrFail(string $authorizationCode): void
+    private function sendRequestForConnectionTokenOrFail(string $authorizationCode, ?string $redirectUrl): void
     {
         $this->info('Send request to external provider for connection token...');
 
         // Define parameters for the request
-        $redirectUri = $this->router->generate(
-            'centreon_security_authentication_login_openid',
-            [],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
+        $redirectUri = $redirectUrl !== null
+            ? $redirectUrl . $this->router->generate(
+                'centreon_security_authentication_login_openid',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_PATH
+            )
+            : $this->router->generate(
+                'centreon_security_authentication_login_openid',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
         $data = [
             'grant_type' => 'authorization_code',
             'code' => $authorizationCode,

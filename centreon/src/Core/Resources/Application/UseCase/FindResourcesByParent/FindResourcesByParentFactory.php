@@ -37,10 +37,11 @@ final class FindResourcesByParentFactory
     /**
      * @param list<ResourceResponseDto> $parents
      * @param list<ResourceResponseDto> $children
+     * @param array<string, array<mixed, mixed>> $extraData
      *
      * @return FindResourcesByParentResponse
      */
-    public static function createResponse(array $parents, array $children): FindResourcesByParentResponse
+    public static function createResponse(array $parents, array $children, array $extraData): FindResourcesByParentResponse
     {
         $resources = [];
         foreach ($parents as $parent) {
@@ -57,7 +58,7 @@ final class FindResourcesByParentFactory
             );
         }
 
-        return new FindResourcesByParentResponse($resources);
+        return new FindResourcesByParentResponse($resources, $extraData);
     }
 
     /**
