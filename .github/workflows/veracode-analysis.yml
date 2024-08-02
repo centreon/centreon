@@ -79,7 +79,7 @@ jobs:
 
           # skip analysis of draft PR and analysis on development branches using workflow dispatch
           SKIP_ANALYSIS="true"
-          if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.number }}" && -n "${{ github.event.pull_request.draft }}" && "${{ github.event.pull_request.draft }}" == "false" ]] || [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
+          if [[ ("${{ github.event_name }}" == "pull_request" || "${{ github.event_name }}" == "pull_request_target") && -n "${{ github.event.pull_request.number }}" && -n "${{ github.event.pull_request.draft }}" && "${{ github.event.pull_request.draft }}" == "false" ]] || [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
             SKIP_ANALYSIS="false"
           fi
 
@@ -333,7 +333,7 @@ jobs:
 
           RESULT=`find ./ -type f -name "composer.lock" -o -name "composer.json"`
           if [[ -n ${RESULT[0]} ]]; then
-          	echo "trigger_sca_scan=true" >> $GITHUB_ENV
+            echo "trigger_sca_scan=true" >> $GITHUB_ENV
           fi
 
       - name: SCA scan
