@@ -16,6 +16,7 @@ import {
 } from '../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
 import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
+import Favorite from '../../../../Favorite';
 
 import useActions from './useActions';
 import MoreActions from './MoreActions';
@@ -30,7 +31,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     openAskBeforeRevoke,
     closeMoreActions,
     moreActionsOpen,
-    openMoreActions
+    openMoreActions,
+    isFavorite
   } = useActions(row);
 
   if (isNestedRow) {
@@ -54,6 +56,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       >
         <ShareIcon className={classes.icon} />
       </IconButton>
+      <Favorite isFavorite={isFavorite} />
       <IconButton
         ariaLabel={t(labelMoreActions)}
         title={t(labelMoreActions)}

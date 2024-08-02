@@ -32,7 +32,8 @@ import {
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
   dashboardSharesEndpoint,
-  getDashboardEndpoint
+  getDashboardEndpoint,
+  userParametersEndpoint
 } from '../../api/endpoints';
 import {
   labelAddAContact,
@@ -54,13 +55,13 @@ import {
   labelViewProperties,
   labelYourRightsOnlyAllowToView,
   labelPleaseContactYourAdministrator,
-  labelRefresh,
   labelDuplicate,
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
   labelInterval,
   labelDoYouWantToSaveChanges,
-  labelIfYouClickOnDiscard
+  labelIfYouClickOnDiscard,
+  labelDashboardMarkedAsFavorite
 } from './translatedLabels';
 import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
@@ -105,6 +106,7 @@ interface InitializeAndMountProps {
   detailsWithData?: boolean;
   globalRole?: DashboardGlobalRole;
   isBlocked?: boolean;
+  isFavorite?: boolean;
   ownRole?: DashboardRole;
 }
 
@@ -147,7 +149,8 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   isBlocked = false,
-  detailsWithData = false
+  detailsWithData = false,
+  isFavorite = false
 }: InitializeAndMountProps): {
   blockNavigation;
   proceedNavigation;
@@ -167,6 +170,7 @@ const initializeAndMount = ({
     alias: 'admin',
     dashboard: {
       createDashboards: canCreateDashboard,
+      favorites: isFavorite ? [1] : [],
       globalUserRole: globalRole,
       manageAllDashboards: canAdministrateDashboard,
       viewDashboards: canViewDashboard
@@ -206,6 +210,20 @@ const initializeAndMount = ({
         own_role: ownRole
       }
     });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'patchDashboardDetails',
+    method: Method.PATCH,
+    path: getDashboardEndpoint('1'),
+    statusCode: 201
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'patchUserParameters',
+    method: Method.PATCH,
+    path: userParametersEndpoint,
+    statusCode: 201
   });
 
   cy.interceptAPIRequest({
@@ -504,6 +522,13 @@ describe('Dashboard', () => {
 
     cy.contains('Generic text').should('be.visible');
     cy.contains('Description').should('be.visible');
+
+    cy.findByTestId('BookmarkAddIcon').should(
+      'have.class',
+      'MuiSvgIcon-colorDisabled'
+    );
+
+    cy.makeSnapshot();
   });
 
   it('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
@@ -543,6 +568,32 @@ describe('Dashboard', () => {
     cy.waitForRequest('@putShares');
 
     cy.contains(labelSharesSaved).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('toggles the favorite status when the corresponding icon is clicked', () => {
+    initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains('Generic text').should('be.visible');
+    cy.contains('Description').should('be.visible');
+
+    cy.findByTestId('BookmarkAddIcon').click();
+
+    cy.findByTestId('BookmarkRemoveIcon').should(
+      'have.class',
+      'MuiSvgIcon-colorSuccess'
+    );
+
+    cy.waitForRequest('@patchUserParameters').then(({ request }) => {
+      expect(request.body).to.equal(
+        '{"dashboard":{"createDashboards":true,"favorites":[1],"globalUserRole":"creator","manageAllDashboards":false,"viewDashboards":true}}'
+      );
+    });
+
+    cy.contains(labelDashboardMarkedAsFavorite).should('be.visible');
 
     cy.makeSnapshot();
   });

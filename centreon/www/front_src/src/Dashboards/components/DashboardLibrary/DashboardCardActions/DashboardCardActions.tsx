@@ -25,6 +25,7 @@ import {
   labelEditProperties,
   labelMoreActions
 } from '../DashboardListing/translatedLabels';
+import Favorite from '../../Favorite';
 
 import { useStyles } from './DashboardCardActions.styles';
 import useDashboardCardActions from './useDashboardCardActions';
@@ -44,7 +45,8 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
     openEditAccessRightModal,
     openEditModal,
     openMoreActions,
-    closeMoreActions
+    closeMoreActions,
+    isFavorite
   } = useDashboardCardActions({ dashboard });
 
   const labels = {
@@ -64,6 +66,7 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
       >
         <ShareIcon fontSize="small" />
       </IconButton>
+      <Favorite isFavorite={isFavorite} />
       <IconButton
         ariaLabel={labels.labelMoreActions}
         title={labels.labelMoreActions}

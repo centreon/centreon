@@ -54,6 +54,12 @@ const useUser = (): (() => null | Promise<void>) => {
         setUser({
           alias,
           canManageApiTokens,
+          dashboard: dashboard
+            ? {
+                ...dashboard,
+                favorites: dashboard?.favorites ?? []
+              }
+            : null,
           dashboard,
           default_page: defaultPage || '/monitoring/resources',
           id,

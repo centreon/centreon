@@ -19110,6 +19110,21 @@ msgstr "Axe"
 msgid "Tooltip"
 msgstr "Infobulle"
 
+msgid "Mark as favorite"
+msgstr "Marquer comme favori"
+
+msgid "Unmark as favorite"
+msgstr "Demarquer comme favori"
+
+msgid "Dashboard marked as favorite"
+msgstr "Tableau de bord marqué comme favori"
+
+msgid "Marked as favorite"
+msgstr "Marqué comme favori"
+
+msgid "Not marked as favorite"
+msgstr "Non marqué comme favori"
+
 msgid "Unable to retrieve credentials ['%s'] from vault"
 msgstr "Impossible de récupérer les informations d'identification ['%s'] du coffre"
 
@@ -19255,3 +19270,4 @@ msgstr "Santé"
 
 msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
+
