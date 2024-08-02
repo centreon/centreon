@@ -105,7 +105,7 @@ function keepOneContactAtLeast($ct_id = null)
 {
     global $pearDB, $form, $centreon;
 
-    if (!isset($ct_id)) {
+    if (isset($ct_id)) {
         $contact_id = $ct_id;
     } elseif (isset($_GET["contact_id"])) {
         $contact_id = htmlentities($_GET["contact_id"], ENT_QUOTES, "UTF-8");
