@@ -17182,3 +17182,6 @@ msgstr "Erweiterter Modus"
 
 #  msgid "You don't have sufficient permissions for this action"
 #  msgstr ""
+
+#  msgid "Error while searching for additional connector configurations"
+#  msgstr ""
