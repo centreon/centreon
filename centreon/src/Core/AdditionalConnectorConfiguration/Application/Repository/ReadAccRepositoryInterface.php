@@ -75,6 +75,38 @@ interface ReadAccRepositoryInterface
     public function findPollersByType(Type $type): array;
 
     /**
+     * Find pollers NOT associated with any ACC of the specified type.
+     *
+     * @param Type $type
+     * @param null|RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return Poller[]
+     */
+    public function findAvailablePollersByType(
+        Type $type,
+        ?RequestParametersInterface $requestParameters = null
+    ): array;
+
+    /**
+     * Find pollers NOT associated with any ACC of the specified type (with ACL).
+     *
+     * @param Type $type
+     * @param AccessGroup[] $accessGroups
+     * @param null|RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return Poller[]
+     */
+    public function findAvailablePollersByTypeAndAccessGroup(
+        Type $type,
+        array $accessGroups,
+        ?RequestParametersInterface $requestParameters = null
+    ): array;
+
+    /**
      * Find all the pollers associated with an ACC ID.
      *
      * @param int $accId

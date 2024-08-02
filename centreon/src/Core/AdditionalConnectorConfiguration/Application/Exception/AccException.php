@@ -44,6 +44,14 @@ class AccException extends \Exception
         return new self(_('Error while searching for additional connector configurations'));
     }
 
+    public static function findPollers(string $type): self
+    {
+        return new self(sprintf(
+            _("Error while searching for available pollers for type '%s'"),
+            $type
+        ));
+    }
+
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access additional connector configurations'));
