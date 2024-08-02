@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Core\AdditionalConnectorConfiguration\Infrastructure\Repository\Vault;
 
 use Core\AdditionalConnectorConfiguration\Application\Repository\WriteVaultAccRepositoryInterface;
+use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\AccParametersInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6Parameters;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Security\Interfaces\EncryptionInterface;
 
 /**
@@ -36,6 +39,8 @@ use Security\Interfaces\EncryptionInterface;
  */
 class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterface
 {
+    use VaultTrait;
+
     public function __construct(
         private readonly EncryptionInterface $encryption,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
@@ -80,5 +85,30 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
         }
 
         return new VmWareV6Parameters($this->encryption, $data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteFromVault(Acc $acc): void
+    {
+        if (false === $this->writeVaultRepository->isVaultConfigured()) {
+            return;
+        }
+
+        /** @var _VmWareV6Parameters $parameters */
+        $parameters = $acc->getParameters()->getData();
+        $vaultPath = null;
+        foreach ($parameters['vcenters'] as $vcenter) {
+            if (str_starts_with($vcenter['password'], VaultConfiguration::VAULT_PATH_PATTERN) === true) {
+                $vaultPath = $vcenter['password'];
+
+                break;
+            }
+        }
+
+        if (null !== $vaultPath && null !== $uuid = $this->getUuidFromPath($vaultPath)) {
+            $this->writeVaultRepository->delete($uuid);
+        }
     }
 }

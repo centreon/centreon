@@ -20,3 +20,7 @@ services:
     Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc\AddAcc:
         arguments:
             $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories'
+
+    Core\AdditionalConnectorConfiguration\Application\UseCase\DeleteAcc\DeleteAcc:
+        arguments:
+            $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories'

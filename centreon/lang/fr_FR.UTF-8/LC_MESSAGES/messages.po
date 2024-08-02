@@ -19277,3 +19277,9 @@ msgstr "Erreur durant la récupération d'une configuration additionnelle de con
 
 msgid "The additional connector configuration name '%s' already exists"
 msgstr "Le nom de configuration additionnelle de connecteur '%s' existe déjà"
+
+msgid "Error while deleting an additional connector configuration"
+msgstr "Erreur lors de la suppression d'une configuration additionelle de connecteur"
+
+msgid "You don't have sufficient permissions for this action"
+msgstr "Vous ne disposez pas de droits suffisants pour cette action"

@@ -97,6 +97,23 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
     /**
      * @inheritDoc
      */
+    public function delete(int $id): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.`additional_connector_configuration`
+                WHERE
+                    `id` = :id
+                SQL
+        ));
+
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function linkToPollers(int $accId, array $pollers): void
     {
         $statement = $this->db->prepare($this->translateDbName(
