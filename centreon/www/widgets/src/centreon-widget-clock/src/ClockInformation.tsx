@@ -54,7 +54,7 @@ const ClockInformation = ({
     <EllipsisTypography
       className={classes.date}
       fontWeight="bold"
-    >{`${t(labelEndsAt)}: ${date.format('L LT')}`}</EllipsisTypography>
+    >{`${t(labelEndsAt)}: ${date.valueOf() > 0 ? date.format('L LT') : ''}`}</EllipsisTypography>
   );
 
   return (

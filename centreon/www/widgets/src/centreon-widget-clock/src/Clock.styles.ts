@@ -65,6 +65,7 @@ export const useClockStyles = makeStyles()((theme) => ({
     transition: `opacity ease-out ${theme.transitions.duration.short}ms`
   },
   timezone: {
-    justifySelf: 'center'
+    justifySelf: 'center',
+    verticalAlign: 'middle'
   }
 }));

@@ -20,7 +20,7 @@ export const useGetLocaleAndTimezone = ({
     [user.timezone, timezone]
   );
   const localeToUse = useMemo(
-    () => (locale?.id ?? user.locale) as string,
+    () => (locale?.id ?? user.locale.replace('_', '-')) as string,
     [user.locale, locale]
   );
 
