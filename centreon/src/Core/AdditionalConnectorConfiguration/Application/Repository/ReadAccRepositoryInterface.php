@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace Core\AdditionalConnectorConfiguration\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Poller;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadAccRepositoryInterface
 {
@@ -82,4 +84,30 @@ interface ReadAccRepositoryInterface
      * @return Poller[]
      */
     public function findPollersByAccId(int $accId): array;
+
+    /**
+     * Find all ACC with request parameters.
+     *
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return Acc[]
+     */
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Find all ACC with request parameters.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return Acc[]
+     */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array;
 }
