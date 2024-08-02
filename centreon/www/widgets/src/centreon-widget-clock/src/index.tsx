@@ -16,7 +16,7 @@ import { Module } from '@centreon/ui';
 import { CommonWidgetProps } from '../../models';
 
 import Clock from './Clock';
-import { PanelOptions } from './models';
+import { ForceDimension, PanelOptions } from './models';
 import Timer from './Timer';
 
 dayjs.extend(localizedFormat);
@@ -32,13 +32,25 @@ const Widget = ({
   store,
   queryClient,
   panelOptions,
-  hasDescription
-}: Props): JSX.Element => (
+  hasDescription,
+  forceHeight,
+  forceWidth
+}: Props & ForceDimension): JSX.Element => (
   <Module queryClient={queryClient} seedName="clock" store={store}>
     {equals(panelOptions.displayType, 'clock') ? (
-      <Clock {...panelOptions} hasDescription={hasDescription} />
+      <Clock
+        {...panelOptions}
+        forceHeight={forceHeight}
+        forceWidth={forceWidth}
+        hasDescription={hasDescription}
+      />
     ) : (
-      <Timer {...panelOptions} hasDescription={hasDescription} />
+      <Timer
+        {...panelOptions}
+        forceHeight={forceHeight}
+        forceWidth={forceWidth}
+        hasDescription={hasDescription}
+      />
     )}
   </Module>
 );

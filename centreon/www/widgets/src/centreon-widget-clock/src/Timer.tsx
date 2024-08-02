@@ -1,14 +1,15 @@
 import { memo } from 'react';
 
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
 import { Typography } from '@mui/material';
 
+import { usePluralizedTranslation } from '@centreon/ui';
+
 import { useClockStyles } from './Clock.styles';
 import ClockInformation from './ClockInformation';
-import { PanelOptions } from './models';
+import { ForceDimension, PanelOptions } from './models';
 import {
   labelDay,
   labelHour,
@@ -34,9 +35,12 @@ const Timer = ({
   timezone,
   locale,
   hasDescription,
-  backgroundColor
-}: PanelOptions & { hasDescription: boolean }): JSX.Element => {
-  const { t } = useTranslation();
+  backgroundColor,
+  forceWidth,
+  forceHeight
+}: PanelOptions &
+  ForceDimension & { hasDescription: boolean }): JSX.Element => {
+  const { pluralizedT } = usePluralizedTranslation();
   const { classes } = useClockStyles();
 
   const {
@@ -66,7 +70,7 @@ const Timer = ({
     : `${hoursRemaining}:${minutesRemaining}:${secondsRemaining}`;
 
   return (
-    <CustomFluidTypography>
+    <CustomFluidTypography forceHeight={forceHeight} forceWidth={forceWidth}>
       {({ width, fontSize, height }) => (
         <>
           <div className={classes.container}>
@@ -95,21 +99,42 @@ const Timer = ({
                 top: (30 + height) / 2 + fontSize / 2.5
               }}
             >
-              <Typography className={classes.icon} fontSize={fontSize / 2.8}>
-                {t(displayFromDays ? labelDay : labelHour)}
+              <Typography
+                className={classes.icon}
+                fontSize={fontSize / 3.2}
+                style={{ marginRight: displayFromDays ? fontSize / 4.2 : 0 }}
+              >
+                {displayFromDays
+                  ? pluralizedT({ count: duration.days(), label: labelDay })
+                  : pluralizedT({ count: duration.hours(), label: labelHour })}
               </Typography>
               <Typography
                 className={classes.timezone}
-                fontSize={fontSize / 2.8}
+                fontSize={fontSize / 3.2}
               >
-                {t(displayFromDays ? labelHour : labelMinute)}
+                {displayFromDays
+                  ? pluralizedT({ count: duration.hours(), label: labelHour })
+                  : pluralizedT({
+                      count: duration.minutes(),
+                      label: labelMinute
+                    })}
               </Typography>
               <Typography
                 className={classes.date}
-                fontSize={fontSize / 2.8}
-                style={{ marginLeft: displayFromDays ? 0 : -(fontSize / 4.2) }}
+                fontSize={fontSize / 3.2}
+                style={{
+                  marginLeft: displayFromDays ? 0 : -(fontSize / 4.2)
+                }}
               >
-                {t(displayFromDays ? labelMinute : labelSecond)}
+                {displayFromDays
+                  ? pluralizedT({
+                      count: duration.minutes(),
+                      label: labelMinute
+                    })
+                  : pluralizedT({
+                      count: duration.seconds(),
+                      label: labelSecond
+                    })}
               </Typography>
             </div>
           </div>

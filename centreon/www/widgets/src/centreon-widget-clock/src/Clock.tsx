@@ -5,7 +5,7 @@ import { equals } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { PanelOptions } from './models';
+import { ForceDimension, PanelOptions } from './models';
 import { useClockStyles } from './Clock.styles';
 import CustomFluidTypography from './CustomFluidTypography';
 import ClockInformation from './ClockInformation';
@@ -19,8 +19,11 @@ const Clock = ({
   showDate,
   backgroundColor,
   timeFormat,
-  hasDescription
-}: PanelOptions & { hasDescription: boolean }): JSX.Element => {
+  hasDescription,
+  forceWidth,
+  forceHeight
+}: PanelOptions &
+  ForceDimension & { hasDescription: boolean }): JSX.Element => {
   const { classes } = useClockStyles();
 
   const [date, setDate] = useState(dayjs());
@@ -61,7 +64,7 @@ const Clock = ({
   }, []);
 
   return (
-    <CustomFluidTypography>
+    <CustomFluidTypography forceHeight={forceHeight} forceWidth={forceWidth}>
       {({ width, fontSize }) => (
         <>
           <div className={classes.container}>

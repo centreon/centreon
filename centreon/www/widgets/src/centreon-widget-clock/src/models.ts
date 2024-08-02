@@ -7,6 +7,11 @@ export interface PanelOptions {
   locale?: SelectEntry;
   showDate: boolean;
   showTimezone: boolean;
-  timeFormat: '12' | '24';
+  timeFormat?: '12' | '24';
   timezone?: SelectEntry;
+}
+
+export interface ForceDimension {
+  forceHeight?: number;
+  forceWidth?: number;
 }
