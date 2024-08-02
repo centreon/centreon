@@ -17936,7 +17936,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Critical KPIs"
 # msgstr ""
 
-# msgid "Additional connector configuration"
+# msgid "Additional connector configurations"
 # msgstr ""
 
 # msgid "Types"

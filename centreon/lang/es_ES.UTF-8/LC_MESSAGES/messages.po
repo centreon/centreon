@@ -17488,7 +17488,7 @@ msgstr "Modo avanzado"
 # msgid "Critical KPIs"
 # msgstr ""
 
-# msgid "Additional connector configuration"
+# msgid "Additional connector configurations"
 # msgstr ""
 
 # msgid "Types"

@@ -19256,7 +19256,7 @@ msgstr "Santé"
 msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
 
-msgid "Additional connector configuration"
+msgid "Additional connector configurations"
 msgstr "Configuration supplémentaire de connecteurs"
 
 msgid "Types"
