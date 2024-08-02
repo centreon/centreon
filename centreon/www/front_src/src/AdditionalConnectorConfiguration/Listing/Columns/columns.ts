@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { ColumnType, Column, useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -33,7 +34,8 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ type }) => type,
+      getFormattedString: ({ type }) =>
+        equals(type, 'vmware_v6') ? 'VMWare 6/7' : type,
       id: 'type',
       label: t(labelType),
       sortField: 'type',
