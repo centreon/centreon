@@ -518,12 +518,12 @@ Given('a dashboard with a resource table widget', () => {
   cy.wait('@resourceRequest');
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(0)
-    .type(genericTextWidgets.default.description, { force: true })
-  cy.contains('host2').should('be.visible');
+    .type(genericTextWidgets.default.description, { force: true });
+  cy.contains('host2').eq(0).should('be.visible');
 });
 
 When('the dashboard administrator clicks on a random resource', () => {
-  cy.contains('host2').click();
+  cy.contains('host2').eq(0).click({ force: true });
 });
 
 Then(

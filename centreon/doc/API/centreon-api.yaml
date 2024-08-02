@@ -10,6 +10,8 @@ info:
     + Added new filters for the /monitoring/services/categories endpoint
     + Remove snmp_community property from the hosts and host templates listing endpoints
     + Added new filters to the /monitoring/servicegroups endpoint
+    + Added new filters for /monitoring/resources /monitoring/resources/hosts related to Open Tickets
+    + Added new key 'extra' that contains extra data from modules installed for resources endpoints
     +
     # Information
     All dates are in **ISO 8601** format
@@ -1393,57 +1395,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/timeperiods:
-    get:
-      tags:
-      - Time period
-      summary: "Get all time periods"
-      description: |
-        Get list of all time periods
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * name
-        * alias
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.TimePeriod'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    post:
-      tags:
-      - Time period
-      summary: "Create a new time period"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Configuration.NewTimePeriod'
-      responses:
-        '201':
-          description: "Time period created"
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './latest/onPremise/Configuration/TimePeriod/AddOneAndFindTimePeriods.yaml'
   /configuration/timeperiods/{id}:
     delete:
       tags:
@@ -7272,6 +7224,10 @@ components:
                   type: string
                   description: "URL for the icon"
                   example: "/centreon/img/media/ppm/applications-monitoring-centreon-central-centreon-128-2.png"
+        extra:
+          type: array
+          items:
+            type: object
     Monitoring.ResourceLinks:
       type: object
       properties:

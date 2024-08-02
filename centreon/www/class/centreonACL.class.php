@@ -33,6 +33,7 @@
  */
 
 require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
+require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
 /**
  * Class for Access Control List management
@@ -45,7 +46,7 @@ class CentreonACL
     const ACL_ACCESS_READ_ONLY = 2;
 
     private $userID; /* ID of the user */
-    private $parentTemplates = null;
+    private ?array $parentTemplates = null;
     public $admin; /* Flag that tells us if the user is admin or not */
     private $accessGroups = array(); /* Access groups the user belongs to */
     private $resourceGroups = array(); /* Resource groups the user belongs to */
@@ -115,9 +116,7 @@ class CentreonACL
     private function resetACL()
     {
         $this->parentTemplates = null;
-        $this->accessGroups = array();
         $this->resourceGroups = array();
-        $this->hostGroups = array();
         $this->serviceGroups = array();
         $this->serviceCategories = array();
         $this->actions = array();
@@ -159,6 +158,7 @@ class CentreonACL
                     "UPDATE session SET update_acl = '0' " .
                     "WHERE user_id IN (" . join(', ', $this->parentTemplates) . ")"
                 );
+
                 $this->resetACL();
             }
         }
@@ -171,55 +171,44 @@ class CentreonACL
     /**
      * Access groups Setter
      */
-    private function setAccessGroups()
+    private function setAccessGroups(): void
     {
         if (is_null($this->parentTemplates)) {
             $this->loadParentTemplates();
         }
+        if ($this->parentTemplates !== []) {
+            [$binValues, $subQuery] = createMultipleBindQuery($this->parentTemplates, ':id_');
 
-        if (count($this->parentTemplates) != 0) {
-            $query = "SELECT acl.acl_group_id, acl.acl_group_name "
-                . "FROM acl_groups acl, acl_group_contacts_relations agcr "
-                . "WHERE acl.acl_group_id = agcr.acl_group_id "
-                . "AND acl.acl_group_activate = '1' "
-                . "AND agcr.contact_contact_id IN (" . join(', ', $this->parentTemplates) . ") "
-                . "ORDER BY acl.acl_group_name ASC";
-            $DBRESULT = \CentreonDBInstance::getConfInstance()->query($query);
-            while ($row = $DBRESULT->fetchRow()) {
-                $this->accessGroups[$row['acl_group_id']] = $row['acl_group_name'];
+            $this->accessGroups = [];
+            $query = <<<SQL
+                SELECT acl.acl_group_id, acl.acl_group_name
+                FROM acl_groups acl
+                INNER JOIN acl_group_contacts_relations agcr
+                    ON acl.acl_group_id = agcr.acl_group_id
+                WHERE acl.acl_group_activate = '1'
+                    AND agcr.contact_contact_id IN ({$subQuery})
+                UNION
+                SELECT acl.acl_group_id, acl.acl_group_name
+                FROM acl_groups acl
+                INNER JOIN acl_group_contactgroups_relations agcgr
+                    ON acl.acl_group_id = agcgr.acl_group_id
+                INNER JOIN contactgroup_contact_relation cgcr
+                    ON cgcr.contactgroup_cg_id = agcgr.cg_cg_id
+                WHERE acl.acl_group_activate = '1'
+                    AND cgcr.contact_contact_id IN ({$subQuery})
+                SQL;
+
+            $statement = \CentreonDBInstance::getConfInstance()->prepare($query);
+            foreach ($binValues as $key => $value) {
+                $statement->bindValue($key, $value, \PDO::PARAM_INT);
             }
-            $DBRESULT->closeCursor();
+            $statement->execute();
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
 
-            $query = "SELECT acl.acl_group_id, acl.acl_group_name "
-                . "FROM acl_groups acl, acl_group_contactgroups_relations agcgr, contactgroup_contact_relation cgcr "
-                . "WHERE acl.acl_group_id = agcgr.acl_group_id "
-                . "AND cgcr.contactgroup_cg_id = agcgr.cg_cg_id "
-                . "AND acl.acl_group_activate = '1' "
-                . "AND cgcr.contact_contact_id IN (" . join(', ', $this->parentTemplates) . ") "
-                . "ORDER BY acl.acl_group_name ASC";
-
-            $DBRESULT = \CentreonDBInstance::getConfInstance()->query($query);
-            while ($row = $DBRESULT->fetchRow()) {
-                $this->accessGroups[$row['acl_group_id']] = $row['acl_group_name'];
+            foreach($statement as $result) {
+                $this->accessGroups[$result['acl_group_id']] = $result['acl_group_name'];
             }
-            $DBRESULT->closeCursor();
         }
-    }
-
-    /**
-     * @param array<int|string, int|string> $list
-     * @param string $prefix
-     *
-     * @return array{0: array<string, mixed>, 1: string}
-     */
-    private function createMultipleBindQuery(array $list, string $prefix): array
-    {
-        $bindValues = [];
-        foreach ($list as $index => $id) {
-            $bindValues[$prefix . $index] = trim($id, '"\'');
-        }
-
-        return [$bindValues, implode(', ', array_keys($bindValues))];
     }
 
     /**
@@ -228,7 +217,7 @@ class CentreonACL
      */
     private function hasAccessToAllHostGroups(): bool
     {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+        [$bindValues, $bindQuery] = createMultipleBindQuery(
             list: explode(',', $this->getAccessGroupsString()),
             prefix: ':access_group_id_'
         );
@@ -266,7 +255,7 @@ class CentreonACL
      */
     private function hasAccessToAllServiceGroups(): bool
     {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+        [$bindValues, $bindQuery] = createMultipleBindQuery(
             list: explode(',', $this->getAccessGroupsString()),
             prefix: ':access_group_id_'
         );
@@ -321,16 +310,24 @@ class CentreonACL
      */
     private function setHostGroups()
     {
+        $this->hostGroups = [];
+        $this->hostGroupsAlias = [];
+        $this->hostGroupsFilter = [];
         $aclSubRequest = '';
         $bindValues = [];
 
         if ($this->hasAccessToAllHostGroups === false) {
-            [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
-                list: explode(',', $this->getAccessGroupsString()),
+            $accessGroups = $this->getAccessGroups();
+            if ($accessGroups === []) {
+                return;
+            }
+
+            [$bindValues, $bindQuery] = createMultipleBindQuery(
+                list: array_keys($accessGroups),
                 prefix: ':access_group_id_'
             );
 
-            $aclSubRequest .= ' AND arhr.acl_res_id IN (' . $bindQuery . ')';
+            $aclSubRequest .= ' AND argr.acl_group_id IN (' . $bindQuery . ')';
         }
 
         $request = <<<SQL
@@ -341,8 +338,13 @@ class CentreonACL
             FROM hostgroup hg
             INNER JOIN acl_resources_hg_relations arhr
                 ON hg.hg_id = arhr.hg_hg_id
+            INNER JOIN acl_resources res
+                ON res.acl_res_id = arhr.acl_res_id
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = res.acl_res_id
             WHERE hg.hg_activate = '1'
             $aclSubRequest
+            GROUP BY hg.hg_id, hg.hg_name
             ORDER BY hg.hg_name ASC
         SQL;
 
@@ -404,7 +406,7 @@ class CentreonACL
         $bindValues = [];
 
         if ($this->hasAccessToAllServiceGroups === false) {
-            [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+            [$bindValues, $bindQuery] = createMultipleBindQuery(
                 list: explode(',', $this->getAccessGroupsString()),
                 prefix: ':access_group_id_'
             );
@@ -733,6 +735,7 @@ class CentreonACL
      */
     public function getAccessGroups()
     {
+        $this->setAccessGroups();
         return ($this->accessGroups);
     }
 
@@ -748,6 +751,9 @@ class CentreonACL
         if ($flag !== null) {
             $flag = strtoupper($flag);
         }
+
+        // before returning access groups as string, make sure that those are up to date
+        $this->setAccessGroups();
 
         $accessGroups = "";
         foreach ($this->accessGroups as $key => $value) {
@@ -2072,7 +2078,7 @@ class CentreonACL
                         $clause = ' WHERE (';
                     }
                     if (is_array($opvalue) && count($opvalue) == 2) {
-                        list($op, $value) = $opvalue;
+                        [$op, $value] = $opvalue;
                     } else {
                         $op = " = ";
                         $value = $opvalue;
@@ -2080,10 +2086,10 @@ class CentreonACL
                     $first = false;
                 } else {
                     if (is_array($opvalue) && count($opvalue) == 3) {
-                        list($clause, $op, $value) = $opvalue;
+                        [$clause, $op, $value] = $opvalue;
                     } elseif (is_array($opvalue) && count($opvalue) == 2) {
                         $clause = ' AND ';
-                        list($op, $value) = $opvalue;
+                        [$op, $value] = $opvalue;
                     } else {
                         $clause = ' AND ';
                         $op = " = ";
@@ -2526,7 +2532,7 @@ class CentreonACL
                 . $empty_exists;
         } else {
             // Cant manage empty hostgroup with ACLs. We'll have a problem with acl for conf...
-            $groupIds = array_keys($this->accessGroups);
+            $groupIds = array_keys($this->getAccessGroups());
             $query = $request['select'] . $request['fields'] . " "
                 . "FROM hostgroup, acl_res_group_relations, acl_resources_hg_relations "
                 . "WHERE hg_activate = '1' "

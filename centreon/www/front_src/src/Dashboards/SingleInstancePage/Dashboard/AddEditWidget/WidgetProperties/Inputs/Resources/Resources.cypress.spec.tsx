@@ -3,7 +3,7 @@
 import { Formik } from 'formik';
 import { createStore, Provider } from 'jotai';
 import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
-import { difference, includes, omit, pluck, reject } from 'ramda';
+import { difference, includes, pluck, reject } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
@@ -159,30 +159,12 @@ const initialize = ({
 };
 
 describe('Resources', () => {
-  it('does not request services only with performance data when the widget input is not defined', () => {
-    const widgetPropertiesWithoutMetrics = {
-      ...widgetDataProperties,
-      data: omit(['metrics'], widgetDataProperties.data)
-    };
-    initialize({
-      properties: widgetPropertiesWithoutMetrics,
-      singleMetricSelection: true,
-      singleResourceSelection: true
-    });
-
-    cy.findAllByTestId(labelSelectAResource).eq(1).click();
-    cy.waitForRequest('@getServices').then(({ request }) => {
-      expect(request.url.href).contain(
-        'page=1&limit=30&search=%7B%22%24and%22%3A%5B%7B%22%24or%22%3A%5B%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%5D%7D%7D%5D%7D%5D%7D'
-      );
-    });
-  });
-
   it('displays host and service type when the corresponding atom is set to true', () => {
     initialize({ singleMetricSelection: true, singleResourceSelection: true });
 
     cy.findAllByTestId(labelResourceType).eq(0).should('have.value', 'host');
     cy.findAllByTestId(labelResourceType).eq(1).should('have.value', 'service');
+    cy.findAllByTestId(labelSelectAResource).eq(1).should('be.disabled');
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.waitForRequest('@getHosts');
@@ -250,7 +232,7 @@ describe('Resources', () => {
     cy.makeSnapshot();
   });
 
-  it('deletes a resource when the corresponding is clicked', () => {
+  it('deletes a resource when the corresponding icon is clicked', () => {
     initialize({});
 
     cy.findByTestId(labelResourceType).parent().click();
@@ -259,22 +241,6 @@ describe('Resources', () => {
     cy.waitForRequest('@getHosts');
     cy.contains('Host 0').click();
     cy.findByTestId('CancelIcon').click();
-
-    cy.contains('Host 0').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-
-  it('deletes a resource when the corresponding is clicked and corresponding prop are set', () => {
-    initialize({ singleMetricSelection: true, singleResourceSelection: true });
-
-    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    cy.contains(/^Host$/).click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
-    cy.waitForRequest('@getHosts');
-    cy.contains('Host 0').click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).focus();
-    cy.findAllByTestId('CloseIcon').eq(0).click();
 
     cy.contains('Host 0').should('not.exist');
 

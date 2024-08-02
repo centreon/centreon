@@ -1,4 +1,15 @@
-import { always, cond, equals, F, head, lensPath, pluck, set, T } from 'ramda';
+import {
+  always,
+  cond,
+  equals,
+  F,
+  head,
+  identity,
+  lensPath,
+  pluck,
+  set,
+  T
+} from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import {
@@ -158,6 +169,12 @@ const WidgetLineChart = ({
     );
   }
 
+  const barChartOrientation = cond([
+    [equals('horizontal'), always('vertical')],
+    [equals('vertical'), always('horizontal')],
+    [T, identity]
+  ])(panelOptions.orientation) as 'auto' | 'horizontal' | 'vertical';
+
   return (
     <BarChart
       {...commonProperties}
@@ -165,7 +182,7 @@ const WidgetLineChart = ({
         opacity: panelOptions.barOpacity / 100,
         radius: panelOptions.barRadius / 200
       }}
-      orientation={panelOptions.orientation}
+      orientation={barChartOrientation}
     />
   );
 };

@@ -12,4 +12,6 @@ export { PieChart } from './PieChart';
 export * from './Tree';
 export type { LineChartData } from './common/models';
 export * from './common/timeSeries';
+export type { Metric } from './common/timeSeries/models';
 export * from './LineChart/models';
+export * from './PieChart/models';

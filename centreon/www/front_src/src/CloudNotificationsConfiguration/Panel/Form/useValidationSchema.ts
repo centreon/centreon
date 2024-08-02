@@ -1,21 +1,31 @@
 import { and, isEmpty, isNil, or } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { ObjectSchema, ObjectShape, array, object, string } from 'yup';
+import Yup, {
+  ObjectSchema,
+  ObjectShape,
+  array,
+  object,
+  string,
+  number
+} from 'yup';
 
 import {
   labelRequired,
   labelChooseAtLeastOneResource,
   labelChooseAtleastOneContact,
   labelMessageFieldShouldNotBeEmpty,
-  labelThisNameAlreadyExists
+  labelThisNameAlreadyExists,
+  labelTimePeriodFieldShouldNotBeEmpty
 } from '../../translatedLabels';
 import { notificationsNamesAtom } from '../../atom';
 import { emptyEmail } from '../utils';
 import { editedNotificationIdAtom } from '../atom';
+import { NotificationType } from '../models';
+import { TimeperiodType } from '../../models';
 
 interface UseValidationSchemaState {
-  validationSchema: ObjectSchema<ObjectShape>;
+  validationSchema: Yup.Schema<NotificationType>;
 }
 
 const useValidationSchema = ({
@@ -42,6 +52,13 @@ const useValidationSchema = ({
     ),
     subject: string().required(t(labelRequired) as string)
   });
+
+  const timeperiodSchema: Yup.Schema<TimeperiodType> = object({
+    id: number().required(t(labelRequired)),
+    name: string().required(t(labelRequired))
+  })
+    .nullable()
+    .required(t(labelTimePeriodFieldShouldNotBeEmpty));
 
   const resourceSchema = (
     dependency1: string,
@@ -70,6 +87,7 @@ const useValidationSchema = ({
       messages: messagesSchema,
       name: validateName,
       serviceGroups: resourceSchema('hostGroups.ids', 'businessviews.ids'),
+      timeperiod: timeperiodSchema,
       users: array().min(1, t(labelChooseAtleastOneContact) as string),
       ...(isBamModuleInstalled
         ? {

@@ -24,7 +24,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
-import { WidgetPropertyProps } from '../../../models';
+import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 
 import useResources from './useResources';
 
@@ -55,7 +55,8 @@ const Resources = ({
     changeResource,
     singleResourceSelection,
     isLastResourceInTree,
-    changeIdValue
+    changeIdValue,
+    hasSelectedHostForSingleMetricwidget
   } = useResources({
     excludedResourceTypes,
     propertyName,
@@ -123,8 +124,16 @@ const Resources = ({
                     color: 'primary'
                   }}
                   className={classes.resources}
-                  disableClearable={false}
-                  disabled={!canEditField || !resource.resourceType}
+                  disableClearable={singleResourceSelection}
+                  disabled={
+                    !canEditField ||
+                    (equals(
+                      resource.resourceType,
+                      WidgetResourceType.service
+                    ) &&
+                      !hasSelectedHostForSingleMetricwidget) ||
+                    !resource.resourceType
+                  }
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint({
                     index,

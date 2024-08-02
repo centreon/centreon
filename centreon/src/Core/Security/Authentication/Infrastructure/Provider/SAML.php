@@ -449,13 +449,11 @@ class SAML implements ProviderAuthenticationInterface
             $requestID = null;
         }
 
-        $auth->processSLO(true, $requestID);
+        $auth->processSLO(true, $requestID, false, null, true);
 
         // Avoid 'Open Redirect' attacks
         if (isset($_GET['RelayState']) && Utils::getSelfURL() !== $_GET['RelayState']) {
             $auth->redirectTo($_GET['RelayState']);
-
-            exit;
         }
     }
 

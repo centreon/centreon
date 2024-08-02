@@ -37,4 +37,4 @@ CRONTAB_EXEC_USER=""
 
 ##########################
 # Cron for Outdated Token removal
-0 * * * * root @INSTALL_DIR_CENTREON@/cron/outdated-token-removal.php >> @CENTREON_LOG@/centreon-tokens.log 2>&1
+* * * * * centreon @INSTALL_DIR_CENTREON@/cron/outdated-token-removal.php >> @CENTREON_LOG@/centreon-tokens.log 2>&1
