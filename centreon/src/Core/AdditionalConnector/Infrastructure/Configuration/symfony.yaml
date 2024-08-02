@@ -1,0 +1,37 @@
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    Core\AdditionalConnector\:
+        resource: '../../../../Core/AdditionalConnector/*'
+
+    _instanceof:
+        Core\AdditionalConnector\Application\UseCase\AddAdditionalConnector\Validation\TypeDataValidatorInterface:
+            tags: ['additional_connector.validators']
+        Core\AdditionalConnector\Application\Repository\WriteVaultAdditionalConnectorRepositoryInterface:
+            tags: ['additional_connector.vault.repositories']
+        Core\AdditionalConnector\Infrastructure\API\Formatter\ParametersFormatterInterface:
+            tags: ['additional_connector.formatters']
+
+
+    Core\AdditionalConnector\Application\UseCase\AddAdditionalConnector\Validation\Validator:
+        arguments:
+            $parametersValidators: !tagged_iterator 'additional_connector.validators'
+
+    Core\AdditionalConnector\Application\UseCase\AddAdditionalConnector\AddAdditionalConnector:
+        arguments:
+            $writeVaultAccRepositories: !tagged_iterator 'additional_connector.vault.repositories'
+
+    Core\AdditionalConnector\Infrastructure\API\AddAdditionalConnector\AddAdditionalConnectorPresenter:
+        arguments:
+            $parametersFormatters: !tagged_iterator 'additional_connector.formatters'
+
+    Core\AdditionalConnector\Infrastructure\API\FindAdditionalConnector\FindAdditionalConnectorPresenter:
+        arguments:
+            $parametersFormatters: !tagged_iterator 'additional_connector.formatters'
+
+    Core\AdditionalConnector\Application\UseCase\DeleteAdditionalConnector\DeleteAdditionalConnector:
+        arguments:
+            $writeVaultAccRepositories: !tagged_iterator 'additional_connector.vault.repositories'

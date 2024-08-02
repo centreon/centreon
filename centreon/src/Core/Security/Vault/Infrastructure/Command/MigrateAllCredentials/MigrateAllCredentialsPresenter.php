@@ -76,6 +76,7 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
             CredentialTypeEnum::TYPE_POLLER_MACRO => 'poller_macro',
             CredentialTypeEnum::TYPE_OPEN_ID => 'open_id',
             CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT => 'broker_input_output',
+            CredentialTypeEnum::TYPE_ADDITIONAL_CONNECTOR_CONFIGURATION => 'additional_connector_configuration',
         };
     }
 

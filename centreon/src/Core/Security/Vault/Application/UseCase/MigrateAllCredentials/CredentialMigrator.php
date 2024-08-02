@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\AdditionalConnector\Application\Repository\WriteAdditionalConnectorRepositoryInterface;
+use Core\AdditionalConnector\Domain\Model\AdditionalConnector;
 use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerInputOutput;
@@ -44,6 +46,7 @@ use Core\PollerMacro\Domain\Model\PollerMacro;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\Migrator\AccCredentialMigratorInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
@@ -55,6 +58,7 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
  *      pollerMacro:?string,
  *      openId:?string,
  *      brokerConfigs:string[],
+ *      acc: string[]
  * }
  */
 class CredentialMigrator implements \IteratorAggregate, \Countable
@@ -72,6 +76,8 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository
      * @param ReadBrokerInputOutputRepositoryInterface $readBrokerInputOutputRepository
      * @param WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository
+     * @param WriteAdditionalConnectorRepositoryInterface $writeAccRepository
+     * @param AccCredentialMigratorInterface[] $accCredentialMigrators
      * @param Host[] $hosts
      * @param HostTemplate[] $hostTemplates
      * @param Macro[] $hostMacros
@@ -80,6 +86,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @param WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository
      * @param Configuration $openIdProviderConfiguration
      * @param array<int,BrokerInputOutput[]> $brokerInputOutputs
+     * @param AdditionalConnector[] $additionalConnectors
      */
     public function __construct(
         private readonly \Traversable&\Countable $credentials,
@@ -93,6 +100,8 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
         private readonly ReadBrokerInputOutputRepositoryInterface $readBrokerInputOutputRepository,
         private readonly WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository,
+        private readonly WriteAdditionalConnectorRepositoryInterface $writeAccRepository,
+        private readonly array $accCredentialMigrators,
         private readonly array $hosts,
         private readonly array $hostTemplates,
         private readonly array $hostMacros,
@@ -100,6 +109,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         private readonly array $pollerMacros,
         private readonly Configuration $openIdProviderConfiguration,
         private readonly array $brokerInputOutputs,
+        private array $additionalConnectors,
     ) {
     }
 
@@ -111,6 +121,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             'pollerMacro' => null,
             'openId' => null,
             'brokerConfigs' => [],
+            'acc' => [],
         ];
         /**
          * @var CredentialDto $credential
@@ -139,6 +150,10 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                         $existingUuids
                     ),
                     CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT => $this->migrateBrokerInputOutputPasswords(
+                        $credential,
+                        $existingUuids
+                    ),
+                    CredentialTypeEnum::TYPE_ADDITIONAL_CONNECTOR_CONFIGURATION => $this->migrateAccPasswords(
                         $credential,
                         $existingUuids
                     ),
@@ -456,6 +471,45 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
         return [
             'uuid' => $existingUuids['brokerConfigs'][$credential->resourceId],
+            'path' => $vaultPath,
+        ];
+    }
+
+/**
+ * @param CredentialDto $credential
+ * @param _ExistingUuids $existingUuids
+ *
+ * @throws \Throwable
+ *
+ * @return array{uuid: string, path: string}
+ */
+private function migrateAccPasswords(CredentialDto $credential, array &$existingUuids): array
+    {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::ACC_VAULT_PATH);
+        $vaultPaths = $this->writeVaultRepository->upsert(
+            $existingUuids['acc'][$credential->resourceId] ?? null,
+            [$credential->name => $credential->value]
+        );
+        $vaultPath = $vaultPaths[$credential->name];
+        $uuid = $this->getUuidFromPath($vaultPath);
+        if ($uuid === null) {
+            throw new \Exception('UUID not found in the vault path');
+        }
+        $existingUuids['acc'][$credential->resourceId] ??= $uuid;
+
+        foreach ($this->additionalConnectors as $index => $acc) {
+            if ($acc->getId() === $credential->resourceId) {
+                $updatedAcc = $acc;
+                foreach ($this->accCredentialMigrators as $migrator) {
+                    $updatedAcc = $migrator->updateMigratedCredential($acc, $credential, $vaultPath);
+                }
+                $this->additionalConnectors[$index] = $updatedAcc;
+                $this->writeAccRepository->update($updatedAcc);
+            }
+        }
+
+        return [
+            'uuid' => $existingUuids['acc'][$credential->resourceId],
             'path' => $vaultPath,
         ];
     }
