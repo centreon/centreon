@@ -5,7 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
@@ -13,11 +13,30 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
       - hotfix-*
       - release-*
+      - MON-146261-open-pipelines-to-external-contrib-*
 
 jobs:
+  authorize:
+    environment:
+      ${{ github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository &&
+      'external' || 'internal' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
+
   check-status:
+    needs: [authorize]
     runs-on: ubuntu-24.04
     steps:
+      - name: review state
+        run: echo "review state = ${{ github.event.review.state }}"
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       - name: Check workflow statuses and display token usage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
