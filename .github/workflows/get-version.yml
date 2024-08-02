@@ -44,6 +44,14 @@ jobs:
       release_cloud: ${{ steps.get_version.outputs.release_cloud}}
 
     steps:
+      - name: review state
+        run: echo "review state = ${{ github.event.review.state }}"
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
@@ -113,6 +121,16 @@ jobs:
 
           echo "BRANCHNAME is: $BRANCHNAME"
 
+          # Check if pull_request is internal or contribution
+          IS_EXTERNAL_CONTRIBUTION=""
+          if [ "${{ github.repository }}" != "${{ github.event.pull_request.head.repo.full_name }}" ]; then
+            echo "Detected external contribution, setting IS_CONTRIBUTION value to yes."
+            IS_EXTERNAL_CONTRIBUTION="yes"
+          else
+            echo "Detected internal contribution, setting IS_CONTRIBUTION value to no."
+            IS_EXTERNAL_CONTRIBUTION="no"
+          fi
+
           # Set default release values
           GITHUB_RELEASE_CLOUD=0
           GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
@@ -178,19 +196,29 @@ jobs:
               ;;
             *)
               # Any branch name
-              GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
-              GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+              echo "Github repository context var: $GITHUB_REPOSITORY"
+              if [[ "$IS_EXTERNAL_CONTRIBUTION" == "no" ]]; then
+                echo "Internal contribution."
+                GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+                GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+              elif [[ "$IS_EXTERNAL_CONTRIBUTION" == "yes" ]]; then
+                echo "External contribution."
+                CONTRIB_PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head ${{ github.head_ref }} -q .[].number --json number)
+                GITHUB_BRANCH_PR_STATE="$(gh pr view $CONTRIB_PR_NUMBER -q .state --json headRefName,baseRefName,state)"
+              else
+                echo "Invalid value for IS_EXTERNAL_CONTRIBUTION : $IS_EXTERNAL_CONTRIBUTION ."
+              fi
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
 
               # Check if pull request branch targeting develop
-              if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
-                echo "release_cloud=1" >> $GITHUB_OUTPUT
-                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-              else
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
-                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-              fi
-              ;;
+              # if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
+              #   echo "release_cloud=1" >> $GITHUB_OUTPUT
+              #   echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              # else
+              #   echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+              #   echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              # fi
+              # ;;
           esac
 
           case "$BRANCHNAME" in
