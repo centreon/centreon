@@ -34,8 +34,9 @@ const Clock = ({
 
   const isMeridiem = useMemo(
     () =>
-      equals(timeFormat, '12') ||
-      dayjs().locale(localeToUse).format('LT').length > 5,
+      timeFormat
+        ? equals(timeFormat, '12')
+        : dayjs().locale(localeToUse).format('LT').length > 5,
     [localeToUse, timeFormat]
   );
 
