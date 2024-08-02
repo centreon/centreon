@@ -21,16 +21,27 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
+namespace Core\AdditionalConnectorConfiguration\Domain\Model;
 
-enum CredentialTypeEnum
+interface AccParametersInterface
 {
-    case TYPE_HOST;
-    case TYPE_HOST_TEMPLATE;
-    case TYPE_SERVICE;
-    case TYPE_KNOWLEDGE_BASE_PASSWORD;
-    case TYPE_POLLER_MACRO;
-    case TYPE_OPEN_ID;
-    case TYPE_BROKER_INPUT_OUTPUT;
-    case TYPE_ADDITIONAL_CONNECTOR_CONFIGURATION;
+    /**
+     * @return array<string,mixed>
+     */
+    public function getEncryptedData(): array;
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getDecryptedData(): array;
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getData(): array;
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getDataWithoutCredentials(): array;
 }

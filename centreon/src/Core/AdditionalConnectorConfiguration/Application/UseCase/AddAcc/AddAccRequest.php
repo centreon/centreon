@@ -21,16 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
+namespace Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc;
 
-enum CredentialTypeEnum
+final class AddAccRequest
 {
-    case TYPE_HOST;
-    case TYPE_HOST_TEMPLATE;
-    case TYPE_SERVICE;
-    case TYPE_KNOWLEDGE_BASE_PASSWORD;
-    case TYPE_POLLER_MACRO;
-    case TYPE_OPEN_ID;
-    case TYPE_BROKER_INPUT_OUTPUT;
-    case TYPE_ADDITIONAL_CONNECTOR_CONFIGURATION;
+    public string $name = '';
+
+    public string $type = '';
+
+    public ?string $description = null;
+
+    /** @var int[] */
+    public array $pollers = [];
+
+    /** @var array<string,mixed> */
+    public array $parameters = [];
 }
