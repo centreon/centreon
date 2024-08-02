@@ -1,0 +1,6 @@
+FindTickets:
+  methods: GET
+  path: /open-tickets/tickets
+  controller: 'Core\Ticket\Infrastructure\API\FindTickets\FindTicketsController'
+  condition: "request.attributes.get('version') >= 23.10"
+
