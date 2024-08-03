@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { complement, isEmpty, pluck } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -11,20 +11,27 @@ const useUpdateSearchBarBasedOnFilters = (): void => {
 
   const { name, pollers, types } = filters;
 
-  const pollersNames = pluck('name', pollers);
-  const typesNames = pluck('name', types);
+  const pollersNames = useMemo(() => pluck('name', pollers), [pollers]);
+  const typesNames = useMemo(() => pluck('name', types), [types]);
 
-  const namePart = name ? `name:${name}` : '';
-  const typesPart = typesNames.length ? `types:${typesNames.join(',')}` : '';
-  const pollersPart = pollersNames.length
-    ? `pollers:${pollersNames.join(',')}`
-    : '';
+  const namePart = useMemo(() => (name ? `name:${name}` : ''), [name]);
+  const typesPart = useMemo(
+    () => (typesNames.length ? `types:${typesNames.join(',')}` : ''),
+    [typesNames]
+  );
+  const pollersPart = useMemo(
+    () => (pollersNames.length ? `pollers:${pollersNames.join(',')}` : ''),
+    [pollersNames]
+  );
 
-  const parts = [namePart, typesPart, pollersPart].filter(complement(isEmpty));
+  const parts = useMemo(
+    () => [namePart, typesPart, pollersPart].filter(complement(isEmpty)),
+    [namePart, typesPart, pollersPart]
+  );
 
   useEffect(() => {
     setSearch(parts.join(' '));
-  }, [filters.name, filters.pollers, filters.types]);
+  }, [parts, setSearch]);
 };
 
 export default useUpdateSearchBarBasedOnFilters;

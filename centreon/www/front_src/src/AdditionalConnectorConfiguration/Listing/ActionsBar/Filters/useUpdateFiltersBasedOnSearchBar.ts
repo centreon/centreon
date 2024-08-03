@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 
 import { find, includes, isEmpty, last, pipe, replace, trim } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -11,32 +11,60 @@ const useUpdateFiltersBasedOnSearchBar = (): void => {
   const search = useAtomValue(searchAtom);
   const setFilters = useSetAtom(filtersAtom);
 
-  const searchValues = search.split(' ');
+  const searchValues = useMemo(() => search.split(' '), [search]);
 
-  const connectorsTypeSearchValue =
-    find((searchItem) => includes('type', searchItem), searchValues) || '';
-  const connectorsType = isEmpty(connectorsTypeSearchValue)
-    ? ''
-    : last(connectorsTypeSearchValue.split(':'));
+  const connectorsTypeSearchValue = useMemo(
+    () =>
+      find((searchItem) => includes('type', searchItem), searchValues) || '',
+    [searchValues]
+  );
 
-  const pollersSearchValue =
-    find((searchItem) => includes('pollers', searchItem), searchValues) || '';
-  const pollers = isEmpty(pollersSearchValue)
-    ? ''
-    : last(pollersSearchValue.split(':'));
+  const connectorsType = useMemo(
+    () =>
+      isEmpty(connectorsTypeSearchValue)
+        ? ''
+        : last(connectorsTypeSearchValue.split(':')),
+    [connectorsTypeSearchValue]
+  );
 
-  const nameSearchValue = pipe(
-    excludeSubstring(connectorsTypeSearchValue),
-    excludeSubstring(pollersSearchValue),
-    trim
-  )(search);
-  const name = last(nameSearchValue.split(':'));
+  const pollersSearchValue = useMemo(
+    () =>
+      find((searchItem) => includes('pollers', searchItem), searchValues) || '',
+    [searchValues]
+  );
 
-  const getName = (): string | undefined => name;
-  const getPollers = (): Array<string> | undefined =>
-    isEmpty(pollers) ? [] : pollers?.split(',');
-  const getConnectorsType = (): Array<string> | undefined =>
-    isEmpty(connectorsType) ? [] : connectorsType?.split(',');
+  const pollers = useMemo(
+    () =>
+      isEmpty(pollersSearchValue) ? '' : last(pollersSearchValue.split(':')),
+    [pollersSearchValue]
+  );
+
+  const nameSearchValue = useMemo(
+    () =>
+      pipe(
+        excludeSubstring(connectorsTypeSearchValue),
+        excludeSubstring(pollersSearchValue),
+        trim
+      )(search),
+    [connectorsTypeSearchValue, pollersSearchValue, search]
+  );
+
+  const name = useMemo(
+    () => last(nameSearchValue.split(':')),
+    [nameSearchValue]
+  );
+
+  const getName = useCallback((): string | undefined => name, [name]);
+  const getPollers = useCallback(
+    (): Array<string> | undefined =>
+      isEmpty(pollers) ? [] : pollers?.split(','),
+    [pollers]
+  );
+  const getConnectorsType = useCallback(
+    (): Array<string> | undefined =>
+      isEmpty(connectorsType) ? [] : connectorsType?.split(','),
+    [connectorsType]
+  );
 
   useEffect(() => {
     setFilters({
@@ -52,7 +80,7 @@ const useUpdateFiltersBasedOnSearchBar = (): void => {
           name: type
         })) || []
     });
-  }, [search]);
+  }, [search, setFilters, getName, getPollers, getConnectorsType]);
 };
 
 export default useUpdateFiltersBasedOnSearchBar;
