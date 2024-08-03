@@ -11,34 +11,34 @@ const useUpdateFiltersBasedOnSearchBar = (): void => {
   const search = useAtomValue(searchAtom);
   const setFilters = useSetAtom(filtersAtom);
 
-  const setFiltersFromSearchValue = (): void => {
-    const searchValues = search.split(' ');
+  const searchValues = search.split(' ');
 
-    const connectorsTypeSearchValue =
-      find((searchItem) => includes('type', searchItem), searchValues) || '';
-    const connectorsType = isEmpty(connectorsTypeSearchValue)
-      ? ''
-      : last(connectorsTypeSearchValue.split(':'));
+  const connectorsTypeSearchValue =
+    find((searchItem) => includes('type', searchItem), searchValues) || '';
+  const connectorsType = isEmpty(connectorsTypeSearchValue)
+    ? ''
+    : last(connectorsTypeSearchValue.split(':'));
 
-    const pollersSearchValue =
-      find((searchItem) => includes('pollers', searchItem), searchValues) || '';
-    const pollers = isEmpty(pollersSearchValue)
-      ? ''
-      : last(pollersSearchValue.split(':'));
+  const pollersSearchValue =
+    find((searchItem) => includes('pollers', searchItem), searchValues) || '';
+  const pollers = isEmpty(pollersSearchValue)
+    ? ''
+    : last(pollersSearchValue.split(':'));
 
-    const nameSearchValue = pipe(
-      excludeSubstring(connectorsTypeSearchValue),
-      excludeSubstring(pollersSearchValue),
-      trim
-    )(search);
-    const name = last(nameSearchValue.split(':'));
+  const nameSearchValue = pipe(
+    excludeSubstring(connectorsTypeSearchValue),
+    excludeSubstring(pollersSearchValue),
+    trim
+  )(search);
+  const name = last(nameSearchValue.split(':'));
 
-    const getName = (): string | undefined => name;
-    const getPollers = (): Array<string> | undefined =>
-      isEmpty(pollers) ? [] : pollers?.split(',');
-    const getConnectorsType = (): Array<string> | undefined =>
-      isEmpty(connectorsType) ? [] : connectorsType?.split(',');
+  const getName = (): string | undefined => name;
+  const getPollers = (): Array<string> | undefined =>
+    isEmpty(pollers) ? [] : pollers?.split(',');
+  const getConnectorsType = (): Array<string> | undefined =>
+    isEmpty(connectorsType) ? [] : connectorsType?.split(',');
 
+  useEffect(() => {
     setFilters({
       name: getName() || '',
       pollers:
@@ -52,10 +52,6 @@ const useUpdateFiltersBasedOnSearchBar = (): void => {
           name: type
         })) || []
     });
-  };
-
-  useEffect(() => {
-    setFiltersFromSearchValue();
   }, [search]);
 };
 
