@@ -19208,6 +19208,7 @@ msgstr "Sélectionner la règle (fournisseur de tickets)"
 
 msgid "Display resources with these status types"
 msgstr "Afficher les ressources avec ces types de statuts"
+
 msgid  "All KPIs on this Business Activity are working fine."
 msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
 
@@ -19339,3 +19340,31 @@ msgstr "Nom du vCenter"
 
 msgid "Do you want to quit without saving the changes?"
 msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
+
+
+msgid "Error while adding an additional connector configuration"
+msgstr "Erreur lors de l'ajout d'une configuration additionnelle de connecteur"
+
+msgid "You are not allowed to access additional connector configurations"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations additionnelles de connecteurs"
+
+msgid "An additional connector configuration of type %s is already associated with poller ID(s) '%s'"
+msgstr "Une configuration additionnelle de connecteur de type %s est déjà associée au(x) ID(s) de collecteur(s) '%s'"
+
+msgid "Duplicates not allowed for property '%s'"
+msgstr "Doublons non autorisés pour la propriété '%'"
+
+msgid "'%s' must contain at least one element"
+msgstr "'%s' doit contenir au moins un élément"
+
+msgid "Error while retrieving an additional connector configuration"
+msgstr "Erreur durant la récupération d'une configuration additionnelle de connecteur"
+
+msgid "The additional connector configuration name '%s' already exists"
+msgstr "Le nom de configuration additionnelle de connecteur '%s' existe déjà"
+
+msgid "Error while deleting an additional connector configuration"
+msgstr "Erreur lors de la suppression d'une configuration additionelle de connecteur"
+
+msgid "You don't have sufficient permissions for this action"
+msgstr "Vous ne disposez pas de droits suffisants pour cette action"

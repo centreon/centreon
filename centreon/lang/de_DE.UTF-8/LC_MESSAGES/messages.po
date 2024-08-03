@@ -17104,6 +17104,7 @@ msgstr "Erweiterter Modus"
 
 # msgid "Display resources with these status types"
 # msgstr ""
+
 # msgid  "All KPIs on this Business Activity are working fine."
 # msgstr ""
 
@@ -17253,3 +17254,31 @@ msgstr "Erweiterter Modus"
 
 # msgid "Your form has unsaved changes"
 # msgstr ""
+
+
+# msgid "Error while adding an additional connector configuration"
+# msgstr ""
+
+# msgid "You are not allowed to access additional connector configurations"
+# msgstr ""
+
+# msgid "An additional connector configuration configuration of type '%s' is already associated with poller ID(s) '%s'"
+# msgstr ""
+
+# msgid "Duplicates not allowed for property '%s'"
+# msgstr ""
+
+# msgid "'%s' must contain at least one element"
+# msgstr ""
+
+# msgid "Error while retrieving an additional connector configuration"
+# msgstr ""
+
+# msgid "The additional connector configuration name '%s' already exists"
+# msgstr ""
+
+# msgid "Error while deleting an additional connector configuration"
+# msgstr ""
+
+#  msgid "You don't have sufficient permissions for this action"
+#  msgstr ""

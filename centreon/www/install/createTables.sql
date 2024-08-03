@@ -2630,6 +2630,38 @@ CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6',
+  `name` varchar(255) NOT NULL,
+  `description` text,
+  `parameters` JSON NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `created_at` int(11) NOT NULL,
+  `updated_at` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`),
+  CONSTRAINT `acc_contact_created_by`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
+  CONSTRAINT `acc_contact_updated_by`
+    FOREIGN KEY (`updated_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
+  `acc_id` INT UNSIGNED NOT NULL,
+  `poller_id` INT(11) NOT NULL,
+  UNIQUE KEY `name_unique` (`acc_id`, `poller_id`),
+  CONSTRAINT `acc_id_contraint`
+    FOREIGN KEY (`acc_id`)
+    REFERENCES `additional_connector_configuration` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `poller_id_contraint`
+    FOREIGN KEY (`poller_id`)
+    REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

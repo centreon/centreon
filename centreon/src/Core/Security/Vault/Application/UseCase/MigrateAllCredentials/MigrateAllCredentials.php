@@ -24,6 +24,9 @@ declare(strict_types = 1);
 namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
+use Core\AdditionalConnectorConfiguration\Application\Repository\WriteAccRepositoryInterface;
+use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
@@ -54,6 +57,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\Migrator\AccCredentialMigratorInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class MigrateAllCredentials
@@ -62,6 +66,33 @@ final class MigrateAllCredentials
 
     private MigrateAllCredentialsResponse $response;
 
+    /** @var AccCredentialMigratorInterface[] */
+    private array $accCredentialMigrators = [];
+
+    /**
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
+     * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
+     * @param ReadHostRepositoryInterface $readHostRepository
+     * @param ReadHostMacroRepositoryInterface $readHostMacroRepository
+     * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
+     * @param ReadServiceMacroRepositoryInterface $readServiceMacroRepository
+     * @param ReadOptionRepositoryInterface $readOptionRepository
+     * @param ReadPollerMacroRepositoryInterface $readPollerMacroRepository
+     * @param ReadConfigurationRepositoryInterface $readProviderConfigurationRepository
+     * @param WriteHostRepositoryInterface $writeHostRepository
+     * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
+     * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
+     * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
+     * @param WriteOptionRepositoryInterface $writeOptionRepository
+     * @param WritePollerMacroRepositoryInterface $writePollerMacroRepository
+     * @param WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository
+     * @param ReadBrokerInputOutputRepositoryInterface $readBrokerInputOutputRepository
+     * @param WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository
+     * @param ReadAccRepositoryInterface $readAccRepository
+     * @param WriteAccRepositoryInterface $writeAccRepository
+     * @param FeatureFlags $flags
+     * @param \Traversable<AccCredentialMigratorInterface> $accCredentialMigrators
+     */
     public function __construct(
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
@@ -81,9 +112,13 @@ final class MigrateAllCredentials
         private readonly WriteOpenIdConfigurationRepositoryInterface $writeOpenIdConfigurationRepository,
         private readonly ReadBrokerInputOutputRepositoryInterface $readBrokerInputOutputRepository,
         private readonly WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository,
+        private readonly ReadAccRepositoryInterface $readAccRepository,
+        private readonly WriteAccRepositoryInterface $writeAccRepository,
         private readonly FeatureFlags $flags,
+        \Traversable $accCredentialMigrators,
     ) {
         $this->response = new MigrateAllCredentialsResponse();
+        $this->accCredentialMigrators = iterator_to_array($accCredentialMigrators);
     }
 
     public function __invoke(MigrateAllCredentialsPresenterInterface $presenter): void
@@ -107,6 +142,9 @@ final class MigrateAllCredentials
             $brokerInputOutputs = $this->flags->isEnabled('vault_broker')
                 ? $this->readBrokerInputOutputRepository->findAll()
                 : [];
+            $accs = $this->flags->isEnabled('vault_gorgone')
+                ? $this->readAccRepository->findAll()
+                : [];
 
             $credentials = $this->createCredentialDtos(
                 $hosts,
@@ -117,6 +155,7 @@ final class MigrateAllCredentials
                 $knowledgeBasePasswordOption,
                 $openIdConfiguration,
                 $brokerInputOutputs,
+                $accs,
             );
 
             $this->migrateCredentials(
@@ -129,6 +168,7 @@ final class MigrateAllCredentials
                 $pollerMacros,
                 $openIdConfiguration,
                 $brokerInputOutputs,
+                $accs,
             );
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
@@ -147,6 +187,7 @@ final class MigrateAllCredentials
      * @param PollerMacro[] $pollerMacros
      * @param Configuration $openIdConfiguration
      * @param array<int,BrokerInputOutput[]> $brokerInputOutputs
+     * @param Acc[] $accs
      */
     private function migrateCredentials(
         \Traversable&\Countable $credentials,
@@ -158,6 +199,7 @@ final class MigrateAllCredentials
         array $pollerMacros,
         Configuration $openIdConfiguration,
         array $brokerInputOutputs,
+        array $accs,
     ): void {
 
         $response->results = new CredentialMigrator(
@@ -172,6 +214,8 @@ final class MigrateAllCredentials
             $this->writeOpenIdConfigurationRepository,
             $this->readBrokerInputOutputRepository,
             $this->writeBrokerInputOutputRepository,
+            $this->writeAccRepository,
+            $this->accCredentialMigrators,
             $hosts,
             $hostTemplates,
             $hostMacros,
@@ -179,6 +223,7 @@ final class MigrateAllCredentials
             $pollerMacros,
             $openIdConfiguration,
             $brokerInputOutputs,
+            $accs,
         );
     }
 
@@ -191,6 +236,7 @@ final class MigrateAllCredentials
      * @param Option|null $knowledgeBasePasswordOption
      * @param Configuration $openIdConfiguration
      * @param array<int,BrokerInputOutput[]> $brokerInputOutputs
+     * @param Acc[] $accs
      *
      * @return \ArrayIterator<int, CredentialDto> $credentials
      */
@@ -203,6 +249,7 @@ final class MigrateAllCredentials
         ?Option $knowledgeBasePasswordOption,
         Configuration $openIdConfiguration,
         array $brokerInputOutputs,
+        array $accs,
     ): \ArrayIterator {
 
         $hostSNMPCommunityCredentialDtos = $this->createHostSNMPCommunityCredentialDtos($hosts);
@@ -214,7 +261,8 @@ final class MigrateAllCredentials
             $knowledgeBasePasswordOption
         );
         $openIdConfigurationCredentialDtos = $this->createOpenIdConfigurationCredentialDtos($openIdConfiguration);
-        $brokerConfigurationCredentialDto = $this->createBrokerInputOutputCredentialDtos($brokerInputOutputs);
+        $brokerConfigurationCredentialDtos = $this->createBrokerInputOutputCredentialDtos($brokerInputOutputs);
+        $accCredentialDtos = $this->createAccCredentialDtos($accs);
 
         return new \ArrayIterator(array_merge(
             $hostSNMPCommunityCredentialDtos,
@@ -224,7 +272,8 @@ final class MigrateAllCredentials
             $pollerMacroCredentialDtos,
             $knowledgeBasePasswordCredentialDto,
             $openIdConfigurationCredentialDtos,
-            $brokerConfigurationCredentialDto,
+            $brokerConfigurationCredentialDtos,
+            $accCredentialDtos,
         ));
     }
 
@@ -483,6 +532,27 @@ final class MigrateAllCredentials
                     }
                 }
             }
+        }
+
+        return $credentials;
+    }
+
+    /**
+     * @param Acc[] $accs
+     *
+     * @return CredentialDto[]
+     */
+    private function createAccCredentialDtos(array $accs): array
+    {
+        $credentials = [];
+        foreach ($accs as $acc) {
+            $credentialDtos = [];
+            foreach ($this->accCredentialMigrators as $factory) {
+                if ($factory->isValidFor($acc->getType())) {
+                    $credentialDtos = $factory->createCredentialDtos($acc);
+                }
+            }
+            $credentials = [...$credentials, ...$credentialDtos];
         }
 
         return $credentials;
