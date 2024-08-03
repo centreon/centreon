@@ -69,9 +69,10 @@ const AdvancedFilters = (): JSX.Element => {
     };
 
   const isOptionEqualToValue = (option, selectedValue): boolean => {
-    return isNil(option)
-      ? false
-      : equals(option.name.toString(), selectedValue.name.toString());
+    return (
+      !isNil(option) &&
+      equals(option.name.toString(), selectedValue.name.toString())
+    );
   };
 
   const isClearDisabled = equals(filters, filtersDefaultValue);

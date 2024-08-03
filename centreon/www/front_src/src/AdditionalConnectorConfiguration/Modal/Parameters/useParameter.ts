@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { AdditionalConnectorConfiguration, ParameterKeys } from '../models';
 import { dialogStateAtom } from '../../atoms';
 
-interface UsParameter {
+interface UseParameterState {
   changeParameterValue: (event) => void;
   getError: (name: string) => string | undefined;
   getFieldType: (name) => string;
@@ -13,7 +13,7 @@ interface UsParameter {
   handleBlur;
 }
 
-const useParameter = ({ index }: { index: number }): UsParameter => {
+const useParameter = ({ index }: { index: number }): UseParameterState => {
   const { variant } = useAtomValue(dialogStateAtom);
 
   const { setFieldValue, errors, touched, handleBlur } =

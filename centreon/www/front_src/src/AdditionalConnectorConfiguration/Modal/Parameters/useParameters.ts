@@ -4,13 +4,13 @@ import { remove } from 'ramda';
 import { AdditionalConnectorConfiguration, Parameter } from '../models';
 import { defaultParameters } from '../../utils';
 
-interface UsParameters {
+interface UseParameterStates {
   addParameterGroup: () => void;
   deleteParameterGroup: (index) => void;
   parameters: Array<Parameter>;
 }
 
-const useParameters = (): UsParameters => {
+const useParameters = (): UseParameterStates => {
   const { values, setFieldValue } =
     useFormikContext<AdditionalConnectorConfiguration>();
 
