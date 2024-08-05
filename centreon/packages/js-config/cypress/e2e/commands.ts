@@ -260,6 +260,7 @@ Cypress.Commands.add(
     return cy.get('.MuiAlert-message').then(($snackbar) => {
       if ($snackbar.text().includes('Login succeeded')) {
         cy.wait('@getNavigationList');
+        cy.get('.MuiAlert-message').should('not.be.visible');
       }
     });
   }
@@ -743,7 +744,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
   return cy
-    .get('header div[data-cy="clock"]', { timeout: 10000 })
+    .get('header div[data-cy="clock"]', { timeout: 20000 })
     .should('be.visible')
     .then(($time) => {
       const headerTime = $time.children()[1].textContent;

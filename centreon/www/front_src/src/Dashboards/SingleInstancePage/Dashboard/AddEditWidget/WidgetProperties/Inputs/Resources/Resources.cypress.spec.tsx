@@ -3,7 +3,7 @@
 import { Formik } from 'formik';
 import { createStore, Provider } from 'jotai';
 import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
-import { omit } from 'ramda';
+import { difference, equals, pluck, reject } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
@@ -11,13 +11,17 @@ import { widgetPropertiesAtom } from '../../../atoms';
 import { WidgetResourceType } from '../../../models';
 import {
   labelAddFilter,
+  labelHostCategory,
+  labelHostGroup,
   labelResourceType,
-  labelSelectAResource
+  labelSelectAResource,
+  labelServiceCategory,
+  labelServiceGroup
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import Resources from './Resources';
-import { resourceTypeBaseEndpoints } from './useResources';
+import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';
 
 import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
 
@@ -67,6 +71,10 @@ const initialize = ({
     alias: 'getHosts',
     method: Method.GET,
     path: `**${resourceTypeBaseEndpoints[WidgetResourceType.host]}**`,
+    query: {
+      name: 'types',
+      value: '["host"]'
+    },
     response: generateResources('Host')
   });
 
@@ -75,6 +83,34 @@ const initialize = ({
     method: Method.GET,
     path: `**${resourceTypeBaseEndpoints[WidgetResourceType.service]}**`,
     response: generateResources('Service')
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getHostGroup',
+    method: Method.GET,
+    path: `**${resourceTypeBaseEndpoints[WidgetResourceType.hostGroup]}**`,
+    response: generateResources('Host Group')
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getServiceGroup',
+    method: Method.GET,
+    path: `**${resourceTypeBaseEndpoints[WidgetResourceType.serviceGroup]}**`,
+    response: generateResources('Service Group')
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getHostCategory',
+    method: Method.GET,
+    path: `**${resourceTypeBaseEndpoints[WidgetResourceType.hostCategory]}**`,
+    response: generateResources('Host Category')
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getServiceCategory',
+    method: Method.GET,
+    path: `**${resourceTypeBaseEndpoints[WidgetResourceType.serviceCategory]}**`,
+    response: generateResources('Service Category')
   });
 
   cy.mount({
@@ -108,28 +144,12 @@ const initialize = ({
 };
 
 describe('Resources', () => {
-  it('does not request services only with performance data when the widget input is not defined', () => {
-    const widgetPropertiesWithoutMetrics = {
-      ...widgetDataProperties,
-      data: omit(['metrics'], widgetDataProperties.data)
-    };
-    initialize({
-      properties: widgetPropertiesWithoutMetrics,
-      singleHostPerMetric: true,
-      singleMetricSelection: true
-    });
-
-    cy.findAllByTestId(labelSelectAResource).eq(1).click();
-    cy.waitForRequest('@getServices').then(({ request }) => {
-      expect(request.url.href).contain('only_with_performance_data=false');
-    });
-  });
-
   it('displays host and service type when the corresponding atom is set to true', () => {
     initialize({ singleHostPerMetric: true, singleMetricSelection: true });
 
     cy.findAllByTestId(labelResourceType).eq(0).should('have.value', 'host');
     cy.findAllByTestId(labelResourceType).eq(1).should('have.value', 'service');
+    cy.findAllByTestId(labelSelectAResource).eq(1).should('be.disabled');
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.waitForRequest('@getHosts');
@@ -137,7 +157,9 @@ describe('Resources', () => {
 
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.waitForRequest('@getServices').then(({ request }) => {
-      expect(request.url.href).contain('only_with_performance_data=true');
+      expect(request.url.href).contain(
+        'page=1&limit=30&search=%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%22Host%200%22%5D%7D%7D'
+      );
     });
     cy.contains('Service 0').click();
 
@@ -194,7 +216,7 @@ describe('Resources', () => {
     cy.makeSnapshot();
   });
 
-  it('deletes a resource when the corresponding is clicked', () => {
+  it('deletes a resource when the corresponding icon is clicked', () => {
     initialize({});
 
     cy.findByTestId(labelResourceType).parent().click();
@@ -203,22 +225,6 @@ describe('Resources', () => {
     cy.waitForRequest('@getHosts');
     cy.contains('Host 0').click();
     cy.findByTestId('CancelIcon').click();
-
-    cy.contains('Host 0').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-
-  it('deletes a resource when the corresponding is clicked and corresponding prop are set', () => {
-    initialize({ singleHostPerMetric: true, singleMetricSelection: true });
-
-    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    cy.contains(/^Host$/).click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
-    cy.waitForRequest('@getHosts');
-    cy.contains('Host 0').click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).focus();
-    cy.findAllByTestId('CloseIcon').eq(0).click();
 
     cy.contains('Host 0').should('not.exist');
 
@@ -259,6 +265,98 @@ describe('Resources disabled', () => {
 
     cy.findByTestId(labelResourceType).should('be.disabled');
     cy.findByTestId(labelSelectAResource).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+});
+
+const resourceTypesNames = pluck('name', resourceTypeOptions);
+
+describe('Resources tree', () => {
+  beforeEach(() => initialize({}));
+
+  it('ensures that all resource types are available in the first line item of the dataset selection', () => {
+    cy.findByTestId(labelResourceType).parent().click();
+    resourceTypesNames.forEach((resourceType) => {
+      cy.contains(resourceType).should('be.visible');
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it("confirms that the 'Add Filter' button is disabled when the 'Service' type is selected", () => {
+    cy.findByTestId(labelResourceType).parent().click();
+
+    cy.contains('Service').click();
+
+    cy.findByTestId(labelAddFilter).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  reject(
+    ({ id }) => equals(id, WidgetResourceType.service),
+    resourceTypeOptions
+  ).forEach(({ availableResourceTypeOptions, name }) => {
+    it(`displays only the available resource types depending on the previous dataset : ${name}`, () => {
+      cy.findByTestId(labelResourceType).parent().click();
+
+      cy.contains(name).click();
+
+      cy.findAllByTestId(labelSelectAResource).eq(0).click();
+
+      cy.contains(`${name} 1`).click();
+
+      cy.findByTestId(labelAddFilter).click();
+
+      cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+
+      const availableResourceTypes = pluck(
+        'name',
+        availableResourceTypeOptions
+      );
+
+      availableResourceTypes.forEach((resourceType) => {
+        cy.findByText(resourceType).should('be.visible');
+      });
+
+      difference(resourceTypesNames, availableResourceTypes).forEach(
+        (resourceType) => {
+          cy.findByLabelText(resourceType).should('not.exist');
+        }
+      );
+
+      cy.makeSnapshot();
+    });
+  });
+
+  it('removes all subsequent resource lines, if a resource type line in the middle of the tree is updated', () => {
+    cy.findByTestId(labelResourceType).parent().click();
+
+    cy.contains(labelHostCategory).click();
+
+    cy.findByTestId(labelSelectAResource).click();
+
+    cy.contains(`${labelHostCategory} 1`).click();
+
+    cy.findByTestId(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.contains(labelHostGroup).click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains(`${labelHostGroup} 1`).click();
+
+    cy.findByTestId(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(2).parent().click();
+    cy.contains(labelServiceCategory).click();
+    cy.findAllByTestId(labelSelectAResource).eq(2).click();
+    cy.contains(`${labelServiceCategory} 1`).click();
+
+    cy.findAllByTestId(labelResourceType).should('have.length', 3);
+
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.contains(labelServiceGroup).click();
+
+    cy.findAllByTestId(labelResourceType).should('have.length', 2);
 
     cy.makeSnapshot();
   });

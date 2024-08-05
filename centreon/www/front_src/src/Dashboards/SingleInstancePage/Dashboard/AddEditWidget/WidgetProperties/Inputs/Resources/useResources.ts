@@ -11,11 +11,17 @@ import {
   reject,
   pluck,
   includes,
-  isNotNil
+  isNotNil,
+  last,
+  filter
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 
-import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
+import {
+  QueryParameter,
+  SelectEntry,
+  buildListingEndpoint
+} from '@centreon/ui';
 
 import {
   Widget,
@@ -42,6 +48,7 @@ import {
 interface UseResourcesState {
   addButtonHidden?: boolean;
   addResource: () => void;
+  changeIdValue: (resourceType) => (({ name }) => string) | undefined;
   changeResource: (index: number) => (_, resources: SelectEntry) => void;
   changeResourceType: (
     index: number
@@ -52,12 +59,18 @@ interface UseResourcesState {
   deleteResource: (index: number) => () => void;
   deleteResourceItem: ({ index, option, resources }) => void;
   error: string | null;
-  getResourceResourceBaseEndpoint: (
-    resourceType: string
-  ) => (parameters) => string;
+  getResourceResourceBaseEndpoint: ({
+    index,
+    resourceType
+  }: {
+    index: number;
+    resourceType: string;
+  }) => (parameters) => string;
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
-  getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
+  getResourceTypeOptions: (index, resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
+  hasSelectedHostForSingleMetricwidget?: boolean;
+  isLastResourceInTree: boolean;
   singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
   value: Array<WidgetDataResource>;
@@ -68,52 +81,83 @@ interface ResourceTypeOption {
   name: string;
 }
 
-const resourceTypeOptions = [
-  {
-    id: WidgetResourceType.hostGroup,
-    name: labelHostGroup
-  },
-  {
-    id: WidgetResourceType.hostCategory,
-    name: labelHostCategory
-  },
-  {
-    id: WidgetResourceType.host,
-    name: labelHost
-  },
-  {
-    id: WidgetResourceType.serviceGroup,
-    name: labelServiceGroup
-  },
-  {
-    id: WidgetResourceType.serviceCategory,
-    name: labelServiceCategory
-  },
-  {
-    id: WidgetResourceType.service,
-    name: labelService
-  }
-];
-
 export const resourceTypeBaseEndpoints = {
-  [WidgetResourceType.host]: '/hosts',
+  [WidgetResourceType.host]: '/resources',
   [WidgetResourceType.hostCategory]: '/hosts/categories',
   [WidgetResourceType.hostGroup]: '/hostgroups',
-  [WidgetResourceType.service]: '/resources',
+  [WidgetResourceType.service]: '/services/names',
   [WidgetResourceType.serviceCategory]: '/services/categories',
   [WidgetResourceType.serviceGroup]: '/servicegroups'
 };
 
-const getServiceQueryParameters = (
+export const resourceTypeOptions = [
+  {
+    availableResourceTypeOptions: [
+      { id: WidgetResourceType.serviceGroup, name: labelServiceGroup },
+      { id: WidgetResourceType.serviceCategory, name: labelServiceCategory },
+      { id: WidgetResourceType.service, name: labelService }
+    ],
+    id: WidgetResourceType.host,
+    name: labelHost
+  },
+  {
+    availableResourceTypeOptions: [
+      { id: WidgetResourceType.hostGroup, name: labelHostGroup },
+      { id: WidgetResourceType.host, name: labelHost },
+      { id: WidgetResourceType.serviceGroup, name: labelServiceGroup },
+      { id: WidgetResourceType.serviceCategory, name: labelServiceCategory },
+      { id: WidgetResourceType.service, name: labelService }
+    ],
+    id: WidgetResourceType.hostCategory,
+    name: labelHostCategory
+  },
+  {
+    availableResourceTypeOptions: [
+      { id: WidgetResourceType.hostCategory, name: labelHostCategory },
+      { id: WidgetResourceType.host, name: labelHost },
+      { id: WidgetResourceType.serviceGroup, name: labelServiceGroup },
+      { id: WidgetResourceType.serviceCategory, name: labelServiceCategory },
+      { id: WidgetResourceType.service, name: labelService }
+    ],
+    id: WidgetResourceType.hostGroup,
+    name: labelHostGroup
+  },
+  {
+    availableResourceTypeOptions: [],
+    id: WidgetResourceType.service,
+    name: labelService
+  },
+  {
+    availableResourceTypeOptions: [
+      { id: WidgetResourceType.serviceGroup, name: labelServiceGroup },
+      { id: WidgetResourceType.service, name: labelService }
+    ],
+    id: WidgetResourceType.serviceCategory,
+    name: labelServiceCategory
+  },
+  {
+    availableResourceTypeOptions: [
+      { id: WidgetResourceType.serviceCategory, name: labelServiceCategory },
+      { id: WidgetResourceType.service, name: labelService }
+    ],
+    id: WidgetResourceType.serviceGroup,
+    name: labelServiceGroup
+  }
+];
+
+const getAdditionalQueryParameters = (
+  resourceType: WidgetResourceType,
   onlyWithPerformanceData = false
 ): Array<{ name: string; value: unknown }> => [
   {
     name: 'types',
-    value: ['service']
+    value: [resourceType]
   },
   {
     name: 'only_with_performance_data',
-    value: onlyWithPerformanceData
+    value: equals(resourceType, WidgetResourceType.host)
+      ? false
+      : onlyWithPerformanceData
   },
   {
     name: 'limit',
@@ -163,6 +207,13 @@ const useResources = ({
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
+      const isNotLastResourceTypeChanged = value?.length || 0 - 1 > index;
+
+      if (isNotLastResourceTypeChanged) {
+        const newValue = value?.slice(0, index + 1);
+        setFieldValue(`data.${propertyName}`, newValue);
+      }
+
       setFieldValue(
         `data.${propertyName}.${index}.resourceType`,
         e.target.value
@@ -206,14 +257,73 @@ const useResources = ({
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
+  const getCustomQueryParameters = (
+    index: number,
+    resourceType
+  ): Array<QueryParameter> => {
+    const usesResourcesEndpoint = includes(resourceType, [
+      WidgetResourceType.host
+    ]);
+    const isOfTypeService = equals(resourceType, WidgetResourceType.service);
+    const isOfTypeCategory = includes(resourceType, [
+      WidgetResourceType.hostCategory,
+      WidgetResourceType.serviceCategory
+    ]);
+
+    if (equals(index, 0)) {
+      return usesResourcesEndpoint
+        ? getAdditionalQueryParameters(resourceType, hasMetricInputType)
+        : [];
+    }
+
+    const searchParameter = value?.[index - 1].resourceType as string;
+    const searchValues = pluck('name', value?.[index - 1].resources);
+
+    if (!usesResourcesEndpoint && !isOfTypeCategory) {
+      const serviceParameters = isOfTypeService
+        ? [
+            {
+              name: 'only_with_performance_data',
+              value: hasMetricInputType
+            }
+          ]
+        : [];
+
+      return [
+        {
+          name: 'search',
+          value: {
+            [`${searchParameter.replace('-', '_')}.name`]: {
+              $in: searchValues
+            }
+          }
+        },
+        ...serviceParameters
+      ];
+    }
+
+    const baseParams = getAdditionalQueryParameters(
+      resourceType,
+      hasMetricInputType
+    );
+
+    return [
+      ...baseParams,
+      {
+        name: includes('category', searchParameter)
+          ? `${searchParameter.replace('-', '_')}_names`
+          : `${searchParameter.replace('-', '')}_names`,
+        value: searchValues
+      }
+    ];
+  };
+
   const getResourceResourceBaseEndpoint =
-    (resourceType: string) =>
+    ({ index, resourceType }) =>
     (parameters): string => {
       return buildListingEndpoint({
         baseEndpoint: `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`,
-        customQueryParameters: equals(resourceType, WidgetResourceType.service)
-          ? getServiceQueryParameters(hasMetricInputType)
-          : undefined,
+        customQueryParameters: getCustomQueryParameters(index, resourceType),
         parameters: {
           ...parameters,
           limit: 30
@@ -223,7 +333,7 @@ const useResources = ({
 
   const getSearchField = (resourceType: string): string =>
     cond([
-      [equals('host'), always('host.name')],
+      [equals('host'), always('h.name')],
       [T, always('name')]
     ])(resourceType);
 
@@ -233,14 +343,26 @@ const useResources = ({
     [restrictedResourceTypes]
   );
 
-  const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
-    const resourcetypesIds = pluck('resourceType', value || []);
+  const resourcetypesIds = pluck('resourceType', value || []);
 
-    const newResourceTypeOptions = reject(
+  const getResourceTypeOptions = (
+    index,
+    resource
+  ): Array<ResourceTypeOption> => {
+    const availableResourceTypes =
+      index < 1
+        ? resourceTypeOptions
+        : resourceTypeOptions.find(
+            ({ id }) => id === value?.[index - 1].resourceType
+          )?.availableResourceTypeOptions;
+
+    const newResourceTypeOptions = filter(
       ({ id }) =>
-        (!equals(id, resource.resourceType) &&
-          includes(id, resourcetypesIds)) ||
-        (hasRestrictedTypes && !includes(id, restrictedResourceTypes || [])),
+        hasRestrictedTypes
+          ? includes(id, restrictedResourceTypes || [])
+          : (includes(id, pluck('id', availableResourceTypes)) &&
+              !includes(id, resourcetypesIds)) ||
+            equals(id, resource.resourceType),
       resourceTypeOptions
     );
 
@@ -278,8 +400,37 @@ const useResources = ({
     ]);
   }, [values.moduleName]);
 
+  const isLastResourceInTree = equals(
+    last(resourcetypesIds),
+    WidgetResourceType.service
+  );
+
+  const changeIdValue = (resourceType): (({ name }) => string) | undefined => {
+    const isOfTypeService = equals(resourceType, WidgetResourceType.service);
+
+    if (!isOfTypeService) {
+      return undefined;
+    }
+
+    return ({ name }) => name;
+  };
+
+  const hasSelectedHostForSingleMetricwidget = useMemo(() => {
+    const hasSelectedHost = value?.some(
+      ({ resources, resourceType }) =>
+        equals(resourceType, WidgetResourceType.host) && !isEmpty(resources)
+    );
+
+    return (
+      widgetProperties?.singleMetricSelection &&
+      widgetProperties?.singleHostPerMetric &&
+      hasSelectedHost
+    );
+  }, [value]);
+
   return {
     addResource,
+    changeIdValue,
     changeResource,
     changeResourceType,
     changeResources,
@@ -290,6 +441,8 @@ const useResources = ({
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
+    hasSelectedHostForSingleMetricwidget,
+    isLastResourceInTree,
     singleHostPerMetric: widgetProperties?.singleHostPerMetric,
     singleMetricSelection: widgetProperties?.singleMetricSelection,
     value: value || []

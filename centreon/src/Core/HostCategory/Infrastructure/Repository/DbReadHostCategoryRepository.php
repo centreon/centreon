@@ -36,6 +36,7 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostCategory\Domain\Model\HostCategoryNamesById;
+use Core\HostGroup\Infrastructure\Repository\HostGroupRepositoryTrait;
 use Utility\SqlConcatenator;
 
 /**
@@ -49,7 +50,7 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements ReadHostCategoryRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait, SqlMultipleBindTrait, HostGroupRepositoryTrait, HostCategoryRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -101,14 +102,14 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
     public function findAll(?RequestParametersInterface $requestParameters): array
     {
         $request = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.hostcategories hc
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                hc.hc_id,
+                hc.hc_name,
+                hc.hc_alias,
+                hc.hc_activate,
+                hc.hc_comment
+            FROM `:db`.hostcategories hc
             SQL;
-
-        $search = $requestParameters?->getSearchAsString();
-
-        if ($search !== null && \str_contains($search, 'hostgroup')) {
-            $request .= $this->prepareHostGroupSearchSubRequest();
-        }
 
         // Setup for search, pagination and order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
@@ -123,11 +124,22 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
+        // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
 
-        $request .= $searchRequest !== null
-            ? $searchRequest . ' AND '
-            : ' WHERE ';
+        if ($searchRequest !== null) {
+            $request .= <<<'SQL'
+
+                    INNER JOIN `:db`.hostcategories_relation hcr
+                        ON hc.hc_id = hcr.hostcategories_hc_id
+                    INNER JOIN `:db`.hostgroup_relation hgr
+                        ON hcr.host_host_id = hgr.host_host_id
+                    INNER JOIN `:db`.hostgroup hg
+                        ON hgr.hostgroup_hg_id = hg.hg_id
+                SQL;
+        }
+
+        $request .= $searchRequest !== null ? $searchRequest . ' AND ' : ' WHERE ';
 
         // avoid severities
         $request .= 'hc.level IS NULL';
@@ -145,11 +157,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        // handle total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator?->getRequestParameters()->setTotal((int) $total);
-        }
+        // Calculate the number of rows for the pagination.
+        $sqlTranslator?->calculateNumberOfRows($this->db);
 
         $hostCategories = [];
         while (is_array($result = $statement->fetch())) {
@@ -172,40 +181,21 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 
         $request = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.hostcategories hc
-            SQL;
-
-        $search = $requestParameters?->getSearchAsString();
-
-        if ($search !== null && \str_contains($search, 'hostgroup')) {
-            $request .= $this->prepareHostGroupSearchSubRequest();
-
-            if (! $this->hasAccessToAllHostGroups($accessGroupIds)) {
-                $request .= <<<SQL
-                        AND hgr.hostgroup_hg_id IN (
-                            SELECT arhgr.hg_hg_id
-                            FROM `:db`.acl_resources_hg_relations arhgr
-                            INNER JOIN `:db`.acl_resources res
-                                ON arhgr.acl_res_id = res.acl_res_id
-                            INNER JOIN `:db`.acl_res_group_relations argr
-                                ON res.acl_res_id = argr.acl_res_id
-                            INNER JOIN `:db`.acl_groups ag
-                                ON argr.acl_group_id = ag.acl_group_id
-                            WHERE ag.acl_group_id IN ({$bindQuery})
-                        )
-                    SQL;
-            }
-        }
-
-        $request .= <<<'SQL'
-                INNER JOIN `:db`.acl_resources_hc_relations arhr
-                    ON hc.hc_id = arhr.hc_id
-                INNER JOIN `:db`.acl_resources res
-                    ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON argr.acl_group_id = ag.acl_group_id
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                hc.hc_id,
+                hc.hc_name,
+                hc.hc_alias,
+                hc.hc_activate,
+                hc.hc_comment
+            FROM `:db`.hostcategories hc
+            INNER JOIN `:db`.acl_resources_hc_relations arhr
+                ON hc.hc_id = arhr.hc_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id
             SQL;
 
         // Setup for search, pagination and order
@@ -221,7 +211,26 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
+        // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
+
+        if ($searchRequest !== null) {
+            $request .= <<<'SQL'
+                    INNER JOIN `:db`.hostcategories_relation hcr
+                        ON hc.hc_id = hcr.hostcategories_hc_id
+                    INNER JOIN `:db`.hostgroup_relation hgr
+                        ON hcr.host_host_id = hgr.host_host_id
+                    INNER JOIN `:db`.hostgroup hg
+                        ON hgr.hostgroup_hg_id = hg.hg_id
+                SQL;
+
+            if (! $this->hasAccessToAllHostGroups($accessGroupIds)) {
+                $hostGroupAcl = $this->generateHostGroupAclSubRequest($accessGroupIds);
+                $request .= <<<SQL
+                        AND hgr.hostgroup_hg_id IN ({$hostGroupAcl})
+                    SQL;
+            }
+        }
 
         $request .= $searchRequest !== null
             ? $searchRequest . ' AND '
@@ -247,11 +256,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        // handle total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator?->getRequestParameters()->setTotal((int) $total);
-        }
+        // Calculate the number of rows for the pagination.
+        $sqlTranslator?->calculateNumberOfRows($this->db);
 
         $hostCategories = [];
         while (is_array($result = $statement->fetch())) {
@@ -303,7 +309,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         );
 
         // if host categories are not filtered in ACLs, then user has access to ALL host categories
-        if (! $this->hasAclFilterOnHostCategories($accessGroupIds)) {
+        if (! $this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
             $this->info('Host categories access not filtered');
 
             return $this->exists($hostCategoryId);
@@ -393,7 +399,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         );
 
         // if host categories are not filtered in ACLs, then user has access to ALL host categories
-        if (! $this->hasAclFilterOnHostCategories($accessGroupIds)) {
+        if (! $this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
             $this->info('Host categories access not filtered');
 
             return $this->exist($hostCategoryIds);
@@ -561,7 +567,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         );
 
         // if host categories are not filtered in ACLs, then user has access to ALL host categories
-        if (! $this->hasAclFilterOnHostCategories($accessGroupIds)) {
+        if (! $this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
             $this->info('Host categories access not filtered');
 
             return $this->findByHost($hostId);
@@ -594,85 +600,10 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * @inheritDoc
-     */
-    public function hasAclFilterOnHostCategories(array $accessGroupIds): bool
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-            SELECT 1
-            FROM `:db`.acl_resources_hc_relations arhr
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
-            WHERE ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @return bool
-     */
-    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-                SELECT res.all_hostgroups
-                FROM `:db`.acl_resources res
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON argr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON ag.acl_group_id = argr.acl_group_id
-                WHERE ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @return string
-     */
-    private function prepareHostGroupSearchSubRequest(): string
-    {
-        return <<<'SQL'
-             INNER JOIN `:db`.hostcategories_relation hcr
-                ON hc.hc_id = hcr.hostcategories_hc_id
-            INNER JOIN `:db`.hostgroup_relation hgr
-                ON hcr.host_host_id = hgr.host_host_id
-            INNER JOIN `:db`.hostgroup hg
-                ON hgr.hostgroup_hg_id = hg.hg_id
-            SQL;
-    }
-
-    /**
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
+     *
+     * @throws AssertionFailedException
      *
      * @return HostCategory[]
      */
@@ -714,6 +645,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
 
     /**
      * @param _Category $result
+     *
+     * @throws AssertionFailedException
      *
      * @return HostCategory
      */

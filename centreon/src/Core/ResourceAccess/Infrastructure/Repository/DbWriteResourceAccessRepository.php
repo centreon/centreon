@@ -420,7 +420,9 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
                         acl_group_changed = '1',
                         cloud_description = :description,
                         acl_group_activate = :status,
-                        cloud_specific = 1
+                        cloud_specific = 1,
+                        all_contacts = :applyToAllContacts,
+                        all_contact_groups = :applyToAllContactGroups
                     WHERE
                         acl_group_id = :ruleId
                 SQL
@@ -436,6 +438,8 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         );
         $statement->bindValue(':status', $rule->isEnabled() ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':ruleId', $rule->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':applyToAllContacts', $rule->doesApplyToAllContacts() ? 1 : 0, \PDO::PARAM_INT);
+        $statement->bindValue(':applyToAllContactGroups', $rule->doesApplyToAllContactGroups() ? 1 : 0, \PDO::PARAM_INT);
 
         $statement->execute();
     }
@@ -453,8 +457,26 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         $request = $this->translateDbName(
             <<<'SQL'
                     INSERT INTO `:db`.acl_groups
-                    (acl_group_name, acl_group_alias, acl_group_changed, cloud_description, acl_group_activate, cloud_specific) VALUES
-                    (:name, :alias, '1', :description, :status, 1)
+                        (
+                            acl_group_name,
+                            acl_group_alias,
+                            acl_group_changed,
+                            cloud_description,
+                            acl_group_activate,
+                            cloud_specific,
+                            all_contacts,
+                            all_contact_groups
+                        ) VALUES
+                        (
+                            :name,
+                            :alias,
+                            '1',
+                            :description,
+                            :status,
+                            1,
+                            :applyToAllContacts,
+                            :applyToAllContactGroups
+                        )
                 SQL
         );
 
@@ -468,6 +490,8 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
             \PDO::PARAM_STR
         );
         $statement->bindValue(':status', $rule->isEnabled() ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':applyToAllContacts', $rule->doesApplyToAllContacts() ? 1 : 0, \PDO::PARAM_INT);
+        $statement->bindValue(':applyToAllContactGroups', $rule->doesApplyToAllContactGroups() ? 1 : 0, \PDO::PARAM_INT);
 
         $statement->execute();
 

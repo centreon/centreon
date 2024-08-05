@@ -274,32 +274,48 @@ function testServiceExistence($name = null, $hPars = array(), $hgPars = array(),
 
     $escapeName = CentreonDB::escape($centreon->checkIllegalChar($name));
 
-    foreach ($hPars as $host) {
-        $query = "SELECT service_id FROM service, host_service_relation hsr " .
-            "WHERE hsr.host_host_id = '" . $host . "' AND hsr.service_service_id = service_id " .
-            "AND service.service_description = '" . $escapeName . "'";
-        $dbResult = $pearDB->query($query);
-        $service = $dbResult->fetch();
-        #Duplicate entry
-        if ($dbResult->rowCount() >= 1 && $service["service_id"] != $id) {
-            return (false == $returnId) ? false : $service['service_id'];
-        }
-        $dbResult->closeCursor();
-    }
-    $query = "SELECT service_id FROM service, host_service_relation hsr " .
-             "WHERE hsr.hostgroup_hg_id = :hostgroup_hg_id AND hsr.service_service_id = service_id " .
-             "AND service.service_description = :service_description";
-    $statement = $pearDB->prepare($query);
-    foreach ($hgPars as $hostgroup) {
-        $statement->bindValue(':hostgroup_hg_id', (int) $hostgroup, \PDO::PARAM_INT);
-        $statement->bindValue(':service_description', $centreon->checkIllegalChar($name), \PDO::PARAM_STR);
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+                SELECT service.service_id
+                FROM service
+                INNER JOIN host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                WHERE hsr.host_host_id = :host_id
+                    AND service.service_description = :service_description
+                SQL
+    );
+    foreach ($hPars as $hostId) {
+        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':service_description', $escapeName);
+        $statement->execute();
         $service = $statement->fetch(\PDO::FETCH_ASSOC);
         #Duplicate entry
         if ($statement->rowCount() >= 1 && $service["service_id"] != $id) {
             return (false == $returnId) ? false : $service['service_id'];
         }
-        $statement->closeCursor();
     }
+
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            SELECT service_id
+            FROM service
+            INNER JOIN host_service_relation hsr
+                ON hsr.service_service_id = service_id
+            WHERE hsr.hostgroup_hg_id = :hostgroup_hg_id
+                AND service.service_description = :service_description
+            SQL
+    );
+    foreach ($hgPars as $hostGroupId) {
+        $statement->bindValue(':hostgroup_hg_id', (int) $hostGroupId, \PDO::PARAM_INT);
+        $statement->bindValue(':service_description', $escapeName);
+        $statement->execute();
+        $service = $statement->fetch(\PDO::FETCH_ASSOC);
+        #Duplicate entry
+        if ($statement->rowCount() >= 1 && $service["service_id"] != $id) {
+            return (false == $returnId) ? false : $service['service_id'];
+        }
+    }
+
     return (false == $returnId) ? true : 0;
 }
 

@@ -106,11 +106,28 @@ final class AddRule
                 // At least one ID must be provided for contact or contactgroup
                 $this->validator->assertContactsAndContactGroupsAreNotEmpty(
                     $request->contactIds,
-                    $request->contactGroupIds
+                    $request->contactGroupIds,
+                    $request->applyToAllContacts,
+                    $request->applyToAllContactGroups
                 );
 
-                $this->validator->assertContactIdsAreValid($request->contactIds);
-                $this->validator->assertContactGroupIdsAreValid($request->contactGroupIds);
+                /**
+                 * Contact and ContactGroup IDs need validation only if IDs are provided and that all property is not
+                 * set to true.
+                 */
+                if (
+                    ! $request->applyToAllContacts
+                    && $request->contactIds !== []
+                ) {
+                    $this->validator->assertContactIdsAreValid($request->contactIds);
+                }
+
+                if (
+                    ! $request->applyToAllContactGroups
+                    && $request->contactGroupIds !== []
+                ) {
+                    $this->validator->assertContactGroupIdsAreValid($request->contactGroupIds);
+                }
 
                 $datasetFilters = $this->validateAndCreateDatasetFiltersFromRequest($request);
 
@@ -492,7 +509,9 @@ final class AddRule
         return new NewRule(
             name: $request->name,
             description: $request->description,
+            applyToAllContacts: $request->applyToAllContacts,
             linkedContactIds: $request->contactIds,
+            applyToAllContactGroups: $request->applyToAllContactGroups,
             linkedContactGroupIds: $request->contactGroupIds,
             datasetFilters: $datasets,
             isEnabled: $request->isEnabled
@@ -535,6 +554,8 @@ final class AddRule
         $response->isEnabled = $rule->isEnabled();
         $response->contactIds = $rule->getLinkedContactIds();
         $response->contactGroupIds = $rule->getLinkedContactGroupIds();
+        $response->applyToAllContacts = $rule->doesApplyToAllContacts();
+        $response->applyToAllContactGroups = $rule->doesApplyToAllContactGroups();
 
         foreach ($rule->getDatasetFilters() as $datasetFilter) {
             $response->datasetFilters[] = $datasetFilterToArray($datasetFilter);
