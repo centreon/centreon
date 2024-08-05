@@ -5,9 +5,9 @@ import { useAtom } from 'jotai';
 
 import { Skeleton } from '@mui/material';
 
-import { Data, LineChartProps } from '../LineChart/models';
+import { Data, LineChartProps } from '../Chart/models';
 import { Thresholds as ThresholdsModel } from '../common/models';
-import { useIntersection } from '../LineChart/useLineChartIntersection';
+import { useIntersection } from '../Chart/useChartIntersection';
 import { Line } from '../common/timeSeries/models';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import {
@@ -19,7 +19,7 @@ import {
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useTooltipStyles } from '../common/useTooltipStyles';
-import { margin } from '../LineChart/common';
+import { margin } from '../Chart/common';
 import { Tooltip } from '../../components';
 import Thresholds from '../common/Thresholds/Thresholds';
 import { useDeepCompare } from '../../utils';

@@ -33,9 +33,9 @@ import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import { margin } from './common';
 import { Data, GlobalAreaLines, GraphInterval, LineChartProps } from './models';
-import { useIntersection } from './useLineChartIntersection';
+import { useIntersection } from './useChartIntersection';
 import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
-import { useLineChartStyles } from './LineChart.styles';
+import { useChartStyles } from './Chart.styles';
 
 interface Props extends LineChartProps {
   graphData: Data;
@@ -69,7 +69,7 @@ const filterLines = (lines: Array<Line>, displayThreshold): Array<Line> => {
   return [...lineOriginMetric, ...linesUpperLower] as Array<Line>;
 };
 
-const LineChart = ({
+const Chart = ({
   graphData,
   height = 500,
   width,
@@ -89,7 +89,7 @@ const LineChart = ({
   thresholdUnit,
   limitLegend
 }: Props): JSX.Element => {
-  const { classes } = useLineChartStyles();
+  const { classes } = useChartStyles();
   const { classes: tooltipClasses, cx } = useTooltipStyles();
 
   const theme = useTheme();
@@ -350,4 +350,4 @@ const LineChart = ({
   );
 };
 
-export default LineChart;
+export default Chart;

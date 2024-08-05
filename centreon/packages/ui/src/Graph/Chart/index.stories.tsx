@@ -36,14 +36,14 @@ import {
 import { dateTimeFormat } from './common';
 import { Interval, ThresholdType, TooltipData } from './models';
 
-import WrapperLineChart from './index';
+import WrapperChart from './index';
 
-const meta: Meta<typeof WrapperLineChart> = {
-  component: WrapperLineChart
+const meta: Meta<typeof WrapperChart> = {
+  component: WrapperChart
 };
 export default meta;
 
-type Story = StoryObj<typeof WrapperLineChart>;
+type Story = StoryObj<typeof WrapperChart>;
 
 interface Random {
   max: number;
@@ -73,7 +73,7 @@ const Threshold = (args): JSX.Element => {
         <Button onClick={handleClick}>change envelope size randomly</Button>
       </Tooltip>
 
-      <WrapperLineChart
+      <WrapperChart
         {...args}
         data={dataLastDayThreshold}
         shapeLines={{
@@ -128,7 +128,7 @@ const LineChartAndCLS = (args): JSX.Element => {
   }, []);
 
   return (
-    <WrapperLineChart
+    <WrapperChart
       {...args}
       data={data}
       loading={loading}
@@ -227,7 +227,7 @@ const LineChartAndTimePeriod = (args): JSX.Element => {
           <TimePeriodSwitch getDataSwitch={getDataSwitch} />
         }
       />
-      <WrapperLineChart
+      <WrapperChart
         data={currentData}
         {...args}
         annotationEvent={annotationEventData}
@@ -279,7 +279,7 @@ const LineChartAndExclusionPeriod = (args): JSX.Element => {
           second
         </Button>
       </ButtonGroup>
-      <WrapperLineChart
+      <WrapperChart
         {...args}
         data={dataLastDayThreshold as unknown as LineChartData}
         shapeLines={{
@@ -301,7 +301,7 @@ const LineChartAndExclusionPeriod = (args): JSX.Element => {
 
 const Template: Story = {
   render: (args) => (
-    <WrapperLineChart
+    <WrapperChart
       {...args}
       data={dataLastDayThreshold as unknown as LineChartData}
       shapeLines={{
@@ -408,10 +408,7 @@ export const withThresholds: Story = {
     }
   },
   render: (args) => (
-    <WrapperLineChart
-      {...args}
-      data={dataLastDay as unknown as LineChartData}
-    />
+    <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
@@ -437,10 +434,7 @@ export const withThresholdsAndUnit: Story = {
     }
   },
   render: (args) => (
-    <WrapperLineChart
-      {...args}
-      data={dataLastDay as unknown as LineChartData}
-    />
+    <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
@@ -474,10 +468,7 @@ export const thresholdsRange: Story = {
     }
   },
   render: (args) => (
-    <WrapperLineChart
-      {...args}
-      data={dataLastDay as unknown as LineChartData}
-    />
+    <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
@@ -496,7 +487,7 @@ export const LineChartWithSameColorCurves: Story = {
     }
   },
   render: (args) => (
-    <WrapperLineChart
+    <WrapperChart
       {...args}
       data={dataCurvesSameColor as unknown as LineChartData}
     />

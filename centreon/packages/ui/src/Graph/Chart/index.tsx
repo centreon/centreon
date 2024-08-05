@@ -13,10 +13,10 @@ import { ParentSize } from '../..';
 import { LineChartData, Thresholds } from '../common/models';
 import Loading from '../../LoadingSkeleton';
 
-import LineChart from './LineChart';
+import Chart from './Chart';
 import LoadingSkeleton from './LoadingSkeleton';
 import { GlobalAreaLines, LineChartProps } from './models';
-import useLineChartData from './useLineChartData';
+import useChartData from './useChartData';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -33,7 +33,7 @@ interface Props extends Partial<LineChartProps> {
   thresholds?: Thresholds;
 }
 
-const WrapperLineChart = ({
+const WrapperChart = ({
   end,
   start,
   height = 500,
@@ -61,7 +61,7 @@ const WrapperLineChart = ({
   thresholdUnit,
   limitLegend
 }: Props): JSX.Element | null => {
-  const { adjustedData } = useLineChartData({ data, end, start });
+  const { adjustedData } = useChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
 
   if (loading && !adjustedData) {
@@ -88,7 +88,7 @@ const WrapperLineChart = ({
           width: responsiveWidth
         }): JSX.Element => {
           return (
-            <LineChart
+            <Chart
               annotationEvent={annotationEvent}
               axis={axis}
               displayAnchor={displayAnchor}
@@ -115,4 +115,4 @@ const WrapperLineChart = ({
   );
 };
 
-export default WrapperLineChart;
+export default WrapperChart;

@@ -11,7 +11,7 @@ import dataCurvesWithSameColor from '../mockedData/curvesWithSameColor.json';
 import { args as argumentsData } from './helpers/doc';
 import { LineChartProps } from './models';
 
-import WrapperLineChart from '.';
+import WrapperChart from '.';
 
 interface Props
   extends Pick<LineChartProps, 'legend' | 'tooltip' | 'axis' | 'lineStyle'> {
@@ -52,7 +52,7 @@ const initialize = ({
   cy.mount({
     Component: (
       <Provider store={store}>
-        <WrapperLineChart
+        <WrapperChart
           {...argumentsData}
           axis={axis}
           data={data as unknown as LineChartData}
