@@ -852,7 +852,6 @@ function multipleServiceInDB(
                          */
                         $mTpRq1 = "SELECT * FROM `on_demand_macro_service` WHERE `svc_svc_id` ='" . $key . "'";
                         $dbResult3 = $pearDB->query($mTpRq1);
-                        $macroPasswords = [];
                         while ($sv = $dbResult3->fetch()) {
                             $macName = str_replace("\$", "", $sv["svc_macro_name"]);
                             $macVal = $sv['svc_macro_value'];
@@ -945,7 +944,6 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
-
     $rq = "UPDATE service SET ";
     $rq .= "service_template_model_stm_id = ";
     isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null
@@ -2316,7 +2314,7 @@ function updateService_MC($service_id = null, $params = array())
     } else {
         $ret = $form->getSubmitValues();
     }
-
+    $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
     if (isset($ret["sg_name"])) {
         $ret["sg_name"] = $centreon->checkIllegalChar($ret["sg_name"]);
     }
