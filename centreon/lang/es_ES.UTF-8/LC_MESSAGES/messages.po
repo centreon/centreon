@@ -17621,3 +17621,9 @@ msgstr "Modo avanzado"
 
 #  msgid "Error while searching for available pollers for type '%s'"
 #  msgstr ""
+
+#  msgid "Error while updating an additional connector configuration"
+#  msgstr ""
+
+#  msgid "Changing type of an existing additional connector configuration is not allowed"
+#  msgstr ""

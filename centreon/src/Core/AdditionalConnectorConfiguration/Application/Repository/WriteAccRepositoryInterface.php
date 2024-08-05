@@ -66,4 +66,13 @@ interface WriteAccRepositoryInterface
      * @throws \Throwable
      */
     public function linkToPollers(int $accId, array $pollers): void;
+
+    /**
+     * Unlink all pollers from the additional connector (ACC).
+     *
+     * @param int $accId
+     *
+     * @throws \Throwable
+     */
+    public function removePollers(int $accId): void;
 }
