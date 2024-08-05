@@ -13,7 +13,6 @@ import { DisplayAnchor, GlobalAreaLines } from '../../models';
 import {
   getDates,
   getStackedYScale,
-  getUnits,
   getYScale
 } from '../../../common/timeSeries';
 import { Line, TimeValue } from '../../../common/timeSeries/models';
@@ -39,14 +38,13 @@ interface Props extends GlobalAreaLines {
   dotOffset?: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   height: number;
-  leftScale: ScaleLinear<number, number>;
   lineWidth?: number;
-  rightScale: ScaleLinear<number, number>;
   showArea?: boolean;
   showPoints?: boolean;
   timeSeries: Array<TimeValue>;
   width: number;
   xScale: ScaleLinear<number, number>;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 const Lines = ({
@@ -55,9 +53,8 @@ const Lines = ({
   graphSvgRef,
   width,
   displayAnchor,
-  leftScale,
-  rightScale,
   curve,
+  yScalesPerUnit,
   xScale,
   timeSeries,
   displayedLines,
@@ -85,10 +82,7 @@ const Lines = ({
   const displayAreaRegularLines =
     (areaRegularLines?.display ?? true) && displayArea(regularLines);
 
-  const stackedYScale = getStackedYScale({
-    leftScale,
-    rightScale
-  });
+  const stackedYScale = getStackedYScale(yScalesPerUnit);
 
   const displayGuidingLines = displayAnchor?.displayGuidingLines ?? true;
   const commonStackedLinesProps = {
@@ -143,11 +137,10 @@ const Lines = ({
         <WrapperThresholdLines
           areaThresholdLines={areaThresholdLines}
           graphHeight={height}
-          leftScale={leftScale}
           lines={displayedLines}
-          rightScale={rightScale}
           timeSeries={timeSeries}
           xScale={xScale}
+          yScalesPerUnit={yScalesPerUnit}
         />
       )}
 
@@ -163,16 +156,10 @@ const Lines = ({
               invert,
               metric_id
             }) => {
-              const [, secondUnit, thirdUnit] = getUnits(
-                regularLines as Array<Line>
-              );
               const yScale = getYScale({
-                hasMoreThanTwoUnits: !isNil(thirdUnit),
                 invert,
-                leftScale,
-                rightScale,
-                secondUnit,
-                unit
+                unit,
+                yScalesPerUnit
               });
 
               return (

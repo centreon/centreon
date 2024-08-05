@@ -2,15 +2,12 @@ import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Tooltip } from '@visx/visx';
 import { equals, flatten, isNil, pluck, reject } from 'ramda';
-import clsx from 'clsx';
 
 import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
 import { getUnits, getXScale, getYScalePerUnit } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
 import { Thresholds as ThresholdsModel } from '../common/models';
-import { Tooltip as MuiTooltip } from '../../components/Tooltip';
-import { useTooltipStyles } from '../common/useTooltipStyles';
 import BaseChart from '../common/BaseChart/BaseChart';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
@@ -30,8 +27,8 @@ import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import { margin } from './common';
 import { Data, GlobalAreaLines, GraphInterval, LineChartProps } from './models';
 import { useIntersection } from './useChartIntersection';
-import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 import { useChartStyles } from './Chart.styles';
+import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 
 interface Props extends LineChartProps {
   graphData: Data;
@@ -86,7 +83,6 @@ const Chart = ({
   limitLegend
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
-  const { classes: tooltipClasses, cx } = useTooltipStyles();
 
   const theme = useTheme();
 
@@ -117,7 +113,10 @@ const Chart = ({
     () => linesGraph.filter(({ display }) => display),
     [linesGraph]
   );
-  const [firstUnit, secondUnit] = useMemo(() => getUnits(displayedLines), []);
+  const [firstUnit, secondUnit] = useMemo(
+    () => getUnits(displayedLines),
+    [displayedLines]
+  );
 
   const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
     hasSecondUnit: Boolean(secondUnit),
@@ -154,20 +153,15 @@ const Chart = ({
       timeSeries,
       graphHeight,
       thresholdValues,
+      thresholds?.enabled,
       axis?.isCenteredZero,
       axis?.scale,
       axis?.scaleLogarithmicBase
     ]
   );
 
-  const leftScale = useMemo(
-    () => yScalesPerUnit[firstUnit],
-    [displayedLines, firstUnit]
-  );
-  const rightScale = useMemo(
-    () => yScalesPerUnit[secondUnit],
-    [displayedLines, secondUnit]
-  );
+  const leftScale = yScalesPerUnit[firstUnit];
+  const rightScale = yScalesPerUnit[secondUnit];
 
   useEffect(
     () => {
@@ -223,26 +217,7 @@ const Chart = ({
           setLines={setLinesGraph}
           title={title}
         >
-          <div />
-
-          <MuiTooltip
-            classes={{
-              tooltip: cx(
-                tooltipClasses.tooltip,
-                tooltipClasses.tooltipDisablePadding
-              )
-            }}
-            placement="top-start"
-            title={
-              equals('hidden', tooltip?.mode) ? null : (
-                <GraphValueTooltip
-                  base={baseAxis}
-                  isSingleMode={equals('single', tooltip?.mode)}
-                  sortOrder={tooltip?.sortOrder}
-                />
-              )
-            }
-          >
+          <GraphValueTooltip baseAxis={baseAxis} tooltip={tooltip}>
             <div className={classes.tooltipChildren}>
               <ChartSvgWrapper
                 axis={axis}
@@ -258,8 +233,8 @@ const Chart = ({
                 timeSeries={timeSeries}
                 xScale={xScale}
               >
-                <rect />
-                {/* <Lines
+                <>
+                  <Lines
                     areaTransparency={lineStyle?.areaTransparency}
                     curve={lineStyle?.curve || 'linear'}
                     dashLength={lineStyle?.dashLength}
@@ -269,14 +244,13 @@ const Chart = ({
                     dotOffset={lineStyle?.dotOffset}
                     graphSvgRef={graphSvgRef}
                     height={graphHeight - margin.top}
-                    leftScale={leftScale}
                     lineWidth={lineStyle?.lineWidth}
-                    rightScale={rightScale}
                     showArea={lineStyle?.showArea}
                     showPoints={lineStyle?.showPoints}
                     timeSeries={timeSeries}
                     width={graphWidth}
                     xScale={xScale}
+                    yScalesPerUnit={yScalesPerUnit}
                     {...shapeLines}
                   />
                   <InteractionWithGraph
@@ -285,11 +259,10 @@ const Chart = ({
                       graphHeight,
                       graphSvgRef,
                       graphWidth,
-                      leftScale,
                       lines: linesGraph,
-                      rightScale,
                       timeSeries,
-                      xScale
+                      xScale,
+                      yScalesPerUnit
                     }}
                     timeShiftZonesData={{
                       ...timeShiftZones,
@@ -301,18 +274,17 @@ const Chart = ({
                     <Thresholds
                       displayedLines={displayedLines}
                       hideTooltip={hideThresholdTooltip}
-                      leftScale={leftScale}
-                      rightScale={rightScale}
                       showTooltip={showThresholdTooltip}
                       thresholdUnit={thresholdUnit}
                       thresholds={thresholds as ThresholdsModel}
                       width={graphWidth}
+                      yScalesPerUnit={yScalesPerUnit}
                     />
                   )}
-                */}
+                </>
               </ChartSvgWrapper>
             </div>
-          </MuiTooltip>
+          </GraphValueTooltip>
         </BaseChart>
         {displayTooltip && <GraphTooltip {...tooltip} {...graphTooltipData} />}
         <Fade in={thresholdTooltipOpen}>

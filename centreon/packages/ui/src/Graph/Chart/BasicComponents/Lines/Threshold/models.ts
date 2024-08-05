@@ -59,10 +59,9 @@ export interface LinesThreshold {
 
 export interface WrapperThresholdLinesModel {
   areaThresholdLines?: GlobalAreaLines['areaThresholdLines'];
-  leftScale: ScaleLinear<number, number>;
   lines: Array<Line>;
-  rightScale: ScaleLinear<number, number>;
   xScale: ScaleLinear<number, number>;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 export interface ScaleVariationThreshold {

@@ -1,4 +1,4 @@
-import { MutableRefObject, useRef } from 'react';
+import { memo, MutableRefObject, useRef } from 'react';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
@@ -8,6 +8,7 @@ import 'dayjs/locale/pt';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
+import { equals } from 'ramda';
 
 import { ParentSize } from '../..';
 import { LineChartData, Thresholds } from '../common/models';
@@ -115,4 +116,4 @@ const WrapperChart = ({
   );
 };
 
-export default WrapperChart;
+export default memo(WrapperChart, equals);

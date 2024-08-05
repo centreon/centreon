@@ -24,19 +24,17 @@ interface Props extends WrapperThresholdLinesModel {
 const WrapperThresholdLines = ({
   areaThresholdLines,
   graphHeight,
-  leftScale,
   lines,
-  rightScale,
   timeSeries,
   xScale,
-  curve
+  curve,
+  yScalesPerUnit
 }: Props): JSX.Element | null => {
   const data = useScaleThreshold({
     areaThresholdLines,
-    leftScale,
     lines,
-    rightScale,
-    xScale
+    xScale,
+    yScalesPerUnit
   });
 
   if (!data) {
@@ -110,10 +108,9 @@ const WrapperThresholdLines = ({
           data: element,
           graphHeight,
           key: ind,
-          leftScale,
           orientation: dataPattern?.orientation,
-          rightScale,
-          xScale
+          xScale,
+          yScalesPerUnit
         }
       }));
     }

@@ -23,8 +23,6 @@ import {
   isEmpty,
   any,
   not,
-  min,
-  max,
   lt,
   identity,
   head,
@@ -46,7 +44,6 @@ import {
   AxeScale,
   Xscale,
   FormatMetricValueProps,
-  YScales,
   TimeValueProps
 } from './models';
 
@@ -314,24 +311,17 @@ const getTimeSeriesForLines = ({
 };
 
 interface GetYScaleProps {
-  hasMoreThanTwoUnits: boolean;
   invert: string | null;
-  leftScale: ScaleLinear<number, number>;
-  rightScale: ScaleLinear<number, number>;
-  secondUnit: string;
   unit: string;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 const getYScale = ({
-  hasMoreThanTwoUnits,
   unit,
-  secondUnit,
-  leftScale,
-  rightScale,
-  invert
+  invert,
+  yScalesPerUnit
 }: GetYScaleProps): ScaleLinear<number, number> => {
-  const isLeftScale = hasMoreThanTwoUnits || unit !== secondUnit;
-  const scale = isLeftScale ? leftScale : rightScale;
+  const scale = yScalesPerUnit[unit];
 
   return invert
     ? Scale.scaleLinear<number>({
@@ -525,7 +515,9 @@ const getYScaleUnit = ({
   isHorizontal = true,
   unit
 }: AxeScale & { unit: string }): ScaleLinear<number, number> => {
-  const shouldApplyThresholds = equals(unit, thresholdUnit);
+  const [firstUnit] = getUnits(dataLines);
+  const shouldApplyThresholds =
+    equals(unit, thresholdUnit) || (!thresholdUnit && equals(firstUnit, unit));
 
   const graphValues = getMetricValuesForUnit({
     lines: dataLines,
@@ -696,21 +688,14 @@ const formatMetricValueWithUnit = ({
     : `${formattedMetricValue} ${unit}`;
 };
 
-const getStackedYScale = ({
-  leftScale,
-  rightScale
-}: YScales): ScaleLinear<number, number> => {
-  const minDomain = min(
-    getMin(leftScale.domain()),
-    getMin(rightScale.domain())
-  );
-  const maxDomain = max(
-    getMax(leftScale.domain()),
-    getMax(rightScale.domain())
-  );
-
-  const minRange = min(getMin(leftScale.range()), getMin(rightScale.range()));
-  const maxRange = max(getMax(leftScale.range()), getMax(rightScale.range()));
+const getStackedYScale = (
+  yScalesPerUnit: Record<string, ScaleLinear<string, string>>
+): ScaleLinear<number, number> => {
+  const scales = Object.values(yScalesPerUnit);
+  const minDomain = Math.min(map((scale) => getMin(scale.domain()), scales));
+  const maxDomain = Math.max(map((scale) => getMax(scale.domain()), scales));
+  const minRange = Math.min(map((scale) => getMin(scale.range()), scales));
+  const maxRange = Math.max(map((scale) => getMax(scale.range()), scales));
 
   return Scale.scaleLinear<number>({
     domain: [minDomain, maxDomain],

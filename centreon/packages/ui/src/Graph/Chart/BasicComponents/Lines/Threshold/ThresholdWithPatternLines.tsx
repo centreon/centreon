@@ -15,20 +15,18 @@ interface Props {
   data: LineChartData;
   graphHeight: number;
   id: string;
-  leftScale: ScaleLinear<number, number>;
   orientation?: Array<PatternOrientation>;
-  rightScale: ScaleLinear<number, number>;
   xScale: ScaleLinear<number, number>;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 const ThresholdWithPatternLines = ({
   graphHeight,
   data,
   orientation = ['diagonal'],
-  leftScale,
-  rightScale,
   xScale,
   id,
+  yScalesPerUnit,
   curve
 }: Props): JSX.Element | null => {
   const theme = useTheme();
@@ -36,10 +34,9 @@ const ThresholdWithPatternLines = ({
   const { lines, timeSeries } = adjustGraphData(data);
 
   const result = useScaleThreshold({
-    leftScale,
     lines,
-    rightScale,
-    xScale
+    xScale,
+    yScalesPerUnit
   });
   if (!result) {
     return null;

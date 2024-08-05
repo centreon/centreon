@@ -1,7 +1,7 @@
 import { MutableRefObject } from 'react';
 
 import { Event } from '@visx/visx';
-import { ScaleTime } from 'd3-scale';
+import { ScaleTime, ScaleLinear } from 'd3-scale';
 import { useSetAtom } from 'jotai';
 import {
   all,
@@ -31,7 +31,6 @@ import {
   getLineForMetric,
   getLinesForMetrics,
   getTimeValue,
-  getUnits,
   getYScale
 } from '../../common/timeSeries';
 import { Line, TimeValue } from '../../common/timeSeries/models';
@@ -61,11 +60,10 @@ interface CommonData {
   graphHeight: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
-  leftScale;
   lines;
-  rightScale;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
+  yScalesPerUnit: Record<string, ScaleLinear<string, string>>;
 }
 
 interface TimeShiftZonesData extends InteractedZone {
@@ -99,9 +97,8 @@ const InteractionWithGraph = ({
     graphSvgRef,
     xScale,
     timeSeries,
-    leftScale,
-    rightScale,
-    lines
+    lines,
+    yScalesPerUnit
   } = commonData;
 
   const displayZoomPreview = zoomData?.enable ?? true;
@@ -164,7 +161,6 @@ const InteractionWithGraph = ({
     const date = timeValue.timeTick;
     const displayedMetricIds = pluck('metric_id', lines);
     const filteredMetricsValue = pick(displayedMetricIds, timeValue);
-    const [, secondUnit, thirdUnit] = getUnits(lines as Array<Line>);
     const areAllValuesEmpty = pipe(values, all(isNil))(filteredMetricsValue);
 
     const linesData = getLinesForMetrics({
@@ -190,12 +186,9 @@ const InteractionWithGraph = ({
           metric_id: Number(metricId)
         });
         const yScale = getYScale({
-          hasMoreThanTwoUnits: Boolean(thirdUnit),
           invert: (lineData as Line).invert,
-          leftScale,
-          rightScale,
-          secondUnit,
-          unit: (lineData as Line).unit
+          unit: (lineData as Line).unit,
+          yScalesPerUnit
         });
 
         const y0 = yScale(value);

@@ -2,7 +2,7 @@ import { equals, isNil, prop } from 'ramda';
 
 import { ThresholdType, VariationThreshold } from '../../../models';
 import { TimeValue } from '../../../../common/timeSeries/models';
-import { getTime, getUnits, getYScale } from '../../../../common/timeSeries';
+import { getTime, getYScale } from '../../../../common/timeSeries';
 import { displayArea } from '../../../helpers/index';
 
 import { envelopeVariationFormula } from './helpers';
@@ -26,8 +26,7 @@ interface Result extends Partial<ScaleVariationThreshold> {
 const useScaleThreshold = ({
   lines,
   areaThresholdLines,
-  leftScale,
-  rightScale,
+  yScalesPerUnit,
   xScale
 }: WrapperThresholdLinesModel): Result | null => {
   const getLinesThreshold = (): LinesThreshold | null => {
@@ -50,8 +49,6 @@ const useScaleThreshold = ({
 
   const { lineUpper, lineLower, lineOrigin } = linesThreshold;
 
-  const [, secondUnit, thirdUnit] = getUnits(lines);
-
   const {
     metric_id: metricY1,
     unit: unitY1,
@@ -73,30 +70,21 @@ const useScaleThreshold = ({
   } = lineOrigin;
 
   const y1Scale = getYScale({
-    hasMoreThanTwoUnits: !isNil(thirdUnit),
     invert: invertY1,
-    leftScale,
-    rightScale,
-    secondUnit,
-    unit: unitY1
+    unit: unitY1,
+    yScalesPerUnit
   });
 
   const y0Scale = getYScale({
-    hasMoreThanTwoUnits: !isNil(thirdUnit),
     invert: invertY0,
-    leftScale,
-    rightScale,
-    secondUnit,
-    unit: unitY0
+    unit: unitY0,
+    yScalesPerUnit
   });
 
   const yScale = getYScale({
-    hasMoreThanTwoUnits: !isNil(thirdUnit),
     invert: invertYOrigin,
-    leftScale,
-    rightScale,
-    secondUnit,
-    unit: unitYOrigin
+    unit: unitYOrigin,
+    yScalesPerUnit
   });
 
   const getX = (timeValue: TimeValue): number => {

@@ -1,5 +1,5 @@
 import { Line, TimeValue } from '../timeSeries/models';
-import { ChartAxis } from '../../LineChart/models';
+import { ChartAxis } from '../../Chart/models';
 
 export interface LabelProps {
   [x: string]: unknown;

@@ -1,6 +1,6 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { ChartAxis } from '../../LineChart/models';
+import { ChartAxis } from '../../Chart/models';
 
 interface DsData {
   ds_color_area: string;
@@ -70,10 +70,7 @@ export interface Xscale {
   valueWidth: number;
 }
 export interface AxeScale
-  extends Pick<
-    ChartAxis,
-    'isCenteredZero' | 'scale' | 'scaleLogarithmicBase'
-  > {
+  extends Pick<ChartAxis, 'isCenteredZero' | 'scale' | 'scaleLogarithmicBase'> {
   dataLines: Array<Line>;
   dataTimeSeries: Array<TimeValue>;
   isHorizontal?: boolean;
