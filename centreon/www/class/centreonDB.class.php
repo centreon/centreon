@@ -141,11 +141,13 @@ class CentreonDB extends \PDO
      *
      * @throws Exception
      */
-    public function __construct($db = self::LABEL_DB_CONFIGURATION, $retry = self::RETRY, CentreonDbConfig $dbConfig = null)
-    {
+    public function __construct(
+        $db = self::LABEL_DB_CONFIGURATION,
+        $retry = self::RETRY,
+        CentreonDbConfig $dbConfig = null
+    ) {
         try {
-
-            if (!is_null($dbConfig)) {
+            if (! is_null($dbConfig)) {
                 $conf_centreon['hostCentreon'] = $dbConfig->getDbHostCentreon();
                 $conf_centreon['hostCentstorage'] = $dbConfig->getDbHostCentreonStorage();
                 $conf_centreon['user'] = $dbConfig->getDbUser();
@@ -182,7 +184,7 @@ class CentreonDB extends \PDO
             /*
              * Add possibility to change SGDB port
              */
-            if (!empty($conf_centreon["port"])) {
+            if (! empty($conf_centreon["port"])) {
                 $this->db_port = $conf_centreon["port"];
             } else {
                 $this->db_port = '3306';
@@ -234,7 +236,7 @@ class CentreonDB extends \PDO
      * @return CentreonDB
      * @throws Exception
      */
-    public static function connectToCentreonDb(CentreonDbConfig $dbConfig) : CentreonDB
+    public static function connectToCentreonDb(CentreonDbConfig $dbConfig): CentreonDB
     {
         return new self(self::LABEL_DB_CONFIGURATION, self::RETRY, $dbConfig);
     }
@@ -245,7 +247,7 @@ class CentreonDB extends \PDO
      * @return CentreonDB
      * @throws Exception
      */
-    public static function connectToCentreonStorageDb(CentreonDbConfig $dbConfig) : CentreonDB
+    public static function connectToCentreonStorageDb(CentreonDbConfig $dbConfig): CentreonDB
     {
         return new self(self::LABEL_DB_REALTIME, self::RETRY, $dbConfig);
     }
@@ -301,8 +303,11 @@ class CentreonDB extends \PDO
      * @return bool
      * @throws CentreonDbException
      */
-    public function executePreparedQuery(PDOStatement $pdoStatement, array $bindParams, bool $withParamType = false): bool
-    {
+    public function executePreparedQuery(
+        PDOStatement $pdoStatement,
+        array $bindParams,
+        bool $withParamType = false
+    ): bool {
         try {
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
@@ -316,16 +321,16 @@ class CentreonDB extends \PDO
 
             if ($withParamType) {
                 foreach ($bindParams as $paramName => $bindParam) {
-                    if (is_array($bindParam) && !empty($bindParam) && count($bindParam) === 2) {
+                    if (is_array($bindParam) && ! empty($bindParam) && count($bindParam) === 2) {
                         $paramValue = $bindParam[0];
                         $paramType = $bindParam[1];
                         if (
-                            !in_array(
+                            ! in_array(
                                 $paramType,
                                 [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
                                 true
                             )
-                        ){
+                        ) {
                             throw new CentreonDbException(
                                 "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
                                 ['bind_param' => $bindParam]
@@ -343,7 +348,6 @@ class CentreonDB extends \PDO
             }
 
             return $pdoStatement->execute($bindParams);
-
         } catch (PDOException $e) {
             $message = "Error while executing the prepared query: {$e->getMessage()}";
             $this->logSqlError($pdoStatement->queryString, $message);
@@ -372,8 +376,11 @@ class CentreonDB extends \PDO
      * @return PDOStatement|bool
      * @throws CentreonDbException
      */
-    public function executeQuery($query, int $fetchMode = PDO::FETCH_ASSOC, array $fetchModeArgs = []): PDOStatement|bool
-    {
+    public function executeQuery(
+        $query,
+        int $fetchMode = PDO::FETCH_ASSOC,
+        array $fetchModeArgs = []
+    ): PDOStatement|bool {
         if (empty($query)) {
             throw new CentreonDbException(
                 'Error while executing query, query must not be empty',
@@ -562,7 +569,7 @@ class CentreonDB extends \PDO
             );
         }
         if (
-            !in_array(
+            ! in_array(
                 $type,
                 [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
                 true
@@ -604,11 +611,11 @@ class CentreonDB extends \PDO
      */
     public function makeBindParam(
         PDOStatement $pdoStatement,
-        int|string $paramName, mixed &$var,
+        int|string $paramName,
+        mixed &$var,
         int $type = PDO::PARAM_STR,
         int $maxLength = 0
-    ): bool
-    {
+    ): bool {
         if (empty($paramName)) {
             throw new CentreonDbException(
                 "paramName must to be filled, empty given",
@@ -616,7 +623,7 @@ class CentreonDB extends \PDO
             );
         }
         if (
-            !in_array(
+            ! in_array(
                 $type,
                 [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
                 true
@@ -694,7 +701,7 @@ class CentreonDB extends \PDO
      */
     protected function displayConnectionErrorPage($msg = null): void
     {
-        if (!$msg) {
+        if (! $msg) {
             $msg = _("Connection failed, please contact your administrator");
         }
         echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -733,10 +740,10 @@ class CentreonDB extends \PDO
      */
     public static function factory($name = self::LABEL_DB_CONFIGURATION)
     {
-        if (!in_array($name, [self::LABEL_DB_CONFIGURATION, self::LABEL_DB_REALTIME])) {
+        if (! in_array($name, [self::LABEL_DB_CONFIGURATION, self::LABEL_DB_REALTIME])) {
             throw new Exception("The datasource isn't defined in configuration file.");
         }
-        if (!isset(self::$instance[$name])) {
+        if (! isset(self::$instance[$name])) {
             self::$instance[$name] = new CentreonDB($name);
         }
         return self::$instance[$name];
@@ -801,7 +808,7 @@ class CentreonDB extends \PDO
      */
     public function isColumnExist(string $table = null, string $column = null): int
     {
-        if (!$table || !$column) {
+        if (! $table || ! $column) {
             return -1;
         }
 
@@ -857,7 +864,7 @@ class CentreonDB extends \PDO
         $statement->bindValue(':index_name', $indexName);
 
         $statement->execute();
-        return !empty($statement->fetch(\PDO::FETCH_ASSOC));
+        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
     }
 
     /**
@@ -884,7 +891,7 @@ class CentreonDB extends \PDO
         $statement->bindValue(':constraint_name', $constraintName);
 
         $statement->execute();
-        return !empty($statement->fetch(\PDO::FETCH_ASSOC));
+        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
     }
 
     /**
@@ -913,7 +920,7 @@ class CentreonDB extends \PDO
             $stmt->bindValue(':columnName', $columnName, \PDO::PARAM_STR);
             $stmt->execute();
             $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-            if (!empty($result)) {
+            if (! empty($result)) {
                 return $result['COLUMN_TYPE'];
             }
             throw new \PDOException("Unable to get column type");
@@ -986,7 +993,7 @@ class CentreonDB extends \PDO
     #[\ReturnTypeWillChange]
     public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement|false
     {
-        if (!is_null($parameters) && !is_array($parameters)) {
+        if (! is_null($parameters) && ! is_array($parameters)) {
             $parameters = [$parameters];
         }
 
@@ -1063,7 +1070,7 @@ class CentreonDB extends \PDO
         if (isset($data["number"])) {
             $number = $data["number"];
         }
-        return (int)$number;
+        return (int) $number;
     }
 
     /**
