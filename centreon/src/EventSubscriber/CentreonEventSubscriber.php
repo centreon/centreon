@@ -387,7 +387,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             }
             $this->logException($event->getThrowable());
             $event->setResponse(
-                new Response($errorMessage, $httpCode)
+                new Response($errorMessage, (int) $httpCode)
             );
         }
     }
