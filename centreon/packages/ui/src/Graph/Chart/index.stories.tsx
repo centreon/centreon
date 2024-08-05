@@ -493,3 +493,16 @@ export const LineChartWithSameColorCurves: Story = {
     />
   )
 };
+
+export const zeroCentered: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    axis: {
+      isCenteredZero: true
+    }
+  },
+  render: (args) => (
+    <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
+  )
+};

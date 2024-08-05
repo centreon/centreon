@@ -50,7 +50,7 @@ export interface ChartAxis {
   axisYRight?: AxisYRight;
   gridLinesType?: 'horizontal' | 'vertical' | 'all';
   isCenteredZero?: boolean;
-  scale?: 'linear' | 'logarithimc';
+  scale?: 'linear' | 'logarithmic';
   scaleLogarithmicBase?: number;
   showBorder?: boolean;
   showGridLines?: boolean;
