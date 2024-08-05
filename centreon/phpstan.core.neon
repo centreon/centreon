@@ -34,7 +34,11 @@ parameters:
     paths:
         - src/Core
     ignoreErrors:
-
+        - # Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.
+            reportUnmatched: false
+            message: "#Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.#"
+            paths:
+                - src/Core/AdditionalConnectorConfiguration/Application/UseCase/UpdateAcc/Validator.php
         - # [CENTREON-RULE] Our try catch block logging rule cannot handle nested try catch.
             reportUnmatched: false
             message: '#Exception thrown in UseCase should be in a try catch block, and must be caught.#'
