@@ -19368,3 +19368,6 @@ msgstr "Erreur lors de la suppression d'une configuration additionelle de connec
 
 msgid "You don't have sufficient permissions for this action"
 msgstr "Vous ne disposez pas de droits suffisants pour cette action"
+
+msgid "Error while searching for additional connector configurations"
+msgstr "Erreur lors de la recherche de configurations additionnelles de connecteurs"
