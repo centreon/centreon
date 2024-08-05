@@ -101,7 +101,7 @@ export interface LineStyle {
 
 export interface LineChartProps {
   annotationEvent?: AnnotationEvent;
-  axis?: ChartAxis;
+  axis?: LineChartAxis;
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;

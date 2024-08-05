@@ -6,7 +6,7 @@ import { includes } from 'ramda';
 
 import { ChartAxis } from '../../LineChart/models';
 
-interface Props extends Pick<ChartAxis, 'gridLinesType'> {
+interface Props extends Pick<LineChartAxis, 'gridLinesType'> {
   height: number;
   leftScale: ScaleLinear<number, number>;
   width: number;

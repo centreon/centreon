@@ -36,7 +36,7 @@ import {
   split
 } from 'ramda';
 
-import { margin } from '../../LineChart/common';
+import { margin } from '../../Chart/common';
 import { LineChartData } from '../models';
 
 import {
@@ -513,6 +513,86 @@ const getRightScale = ({
   });
 };
 
+const getYScaleUnit = ({
+  dataLines,
+  dataTimeSeries,
+  valueGraphHeight,
+  thresholds,
+  thresholdUnit,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase,
+  isHorizontal = true,
+  unit
+}: AxeScale & { unit: string }): ScaleLinear<number, number> => {
+  const shouldApplyThresholds = equals(unit, thresholdUnit);
+
+  const graphValues = getMetricValuesForUnit({
+    lines: dataLines,
+    timeSeries: dataTimeSeries,
+    unit
+  });
+
+  const hasStackedLines = hasUnitStackedLines({
+    lines: dataLines,
+    unit
+  });
+
+  const stackedValues = hasStackedLines
+    ? getStackedMetricValues({
+        lines: getSortedStackedLines(dataLines).filter(
+          ({ unit: stackedUnit }) => equals(unit, stackedUnit)
+        ),
+        timeSeries: dataTimeSeries
+      })
+    : [0];
+
+  return getScale({
+    graphValues,
+    height: valueGraphHeight,
+    isCenteredZero,
+    isHorizontal,
+    scale,
+    scaleLogarithmicBase,
+    stackedValues,
+    thresholds: shouldApplyThresholds ? thresholds : []
+  });
+};
+
+const getYScalePerUnit = ({
+  dataLines,
+  dataTimeSeries,
+  valueGraphHeight,
+  thresholds,
+  thresholdUnit,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase,
+  isHorizontal = true
+}: AxeScale): Record<string, ScaleLinear<number, number>> => {
+  const units = getUnits(dataLines);
+
+  const scalePerUnit = units.reduce((acc, unit) => {
+    return {
+      ...acc,
+      [unit]: getYScaleUnit({
+        dataLines,
+        dataTimeSeries,
+        isCenteredZero,
+        isHorizontal,
+        scale,
+        scaleLogarithmicBase,
+        thresholdUnit,
+        thresholds,
+        unit,
+        valueGraphHeight
+      })
+    };
+  }, {});
+
+  return scalePerUnit;
+};
+
 const formatTime = (value: number): string => {
   if (value < 1000) {
     return `${numeral(value).format('0.[00]a')} ms`;
@@ -715,5 +795,7 @@ export {
   getTimeValue,
   bisectDate,
   getMetricWithLatestData,
-  formatMetricValueWithUnit
+  formatMetricValueWithUnit,
+  getYScaleUnit,
+  getYScalePerUnit
 };

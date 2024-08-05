@@ -12,7 +12,7 @@ import { Line, TimeValue } from '../timeSeries/models';
 import { extraMargin } from './useComputeBaseChartDimensions';
 
 interface Props {
-  axis?: ChartAxis;
+  axis?: LineChartAxis;
   base?: number;
   children: JSX.Element;
   displayedLines: Array<Line>;
@@ -70,7 +70,7 @@ const ChartSvgWrapper = ({
             timeSeries,
             ...axis
           }}
-          height={graphHeight}
+          height={graphHeight - margin.top}
           leftScale={leftScale}
           orientation={orientation}
           rightScale={rightScale}

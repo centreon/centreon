@@ -4,8 +4,9 @@ import { equals, isNil } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { getXAxisTickFormat } from '../../LineChart/helpers';
+import { getXAxisTickFormat } from '../../Chart/helpers';
 import { getUnits } from '../timeSeries';
+import { margin } from '../../Chart/common';
 
 import UnitLabel from './UnitLabel';
 import { Data } from './models';
@@ -71,7 +72,7 @@ const Axes = ({
           ...axisLeft.tickLabelProps(),
           dx: isHorizontal ? 16 : -4
         })}
-        top={isHorizontal ? height - 5 : 0}
+        top={isHorizontal ? height - margin.bottom : 0}
       />
 
       {axisLeft.displayUnit && (

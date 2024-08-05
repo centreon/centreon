@@ -2,7 +2,7 @@ import { MutableRefObject, useRef } from 'react';
 
 import { equals, isNil } from 'ramda';
 
-import { margin } from '../../LineChart/common';
+import { margin } from '../../Chart/common';
 
 export const extraMargin = 10;
 

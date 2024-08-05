@@ -71,7 +71,7 @@ export interface Xscale {
 }
 export interface AxeScale
   extends Pick<
-    ChartAxis,
+    LineChartAxis,
     'isCenteredZero' | 'scale' | 'scaleLogarithmicBase'
   > {
   dataLines: Array<Line>;

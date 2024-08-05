@@ -12,11 +12,11 @@ import { Provider } from 'jotai';
 
 import { Box } from '@mui/material';
 
-import { LineChartProps } from '../LineChart/models';
+import { LineChartProps } from '../Chart/models';
 import { LineChartData, Thresholds } from '../common/models';
 import { ParentSize } from '../../ParentSize';
-import useLineChartData from '../LineChart/useLineChartData';
-import LoadingSkeleton from '../LineChart/LoadingSkeleton';
+import useChartData from '../Chart/useChartData';
+import LoadingSkeleton from '../Chart/LoadingSkeleton';
 
 import ResponsiveBarChart from './ResponsiveBarChart';
 import { BarStyle } from './models';
@@ -59,7 +59,7 @@ const BarChart = ({
     radius: 0.2
   }
 }: BarChartProps): JSX.Element => {
-  const { adjustedData } = useLineChartData({ data, end, start });
+  const { adjustedData } = useChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
 
   if (loading && !adjustedData) {

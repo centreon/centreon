@@ -2,15 +2,11 @@ import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Tooltip } from '@visx/visx';
 import { equals, flatten, isNil, pluck, reject } from 'ramda';
+import clsx from 'clsx';
 
 import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
-import {
-  getLeftScale,
-  getRightScale,
-  getUnits,
-  getXScale
-} from '../common/timeSeries';
+import { getUnits, getXScale, getYScalePerUnit } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
 import { Thresholds as ThresholdsModel } from '../common/models';
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
@@ -117,7 +113,11 @@ const Chart = ({
     pluck('value', thresholds?.critical || [])
   ]);
 
-  const [, secondUnit] = getUnits(linesGraph);
+  const displayedLines = useMemo(
+    () => linesGraph.filter(({ display }) => display),
+    [linesGraph]
+  );
+  const [firstUnit, secondUnit] = useMemo(() => getUnits(displayedLines), []);
 
   const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
     hasSecondUnit: Boolean(secondUnit),
@@ -137,14 +137,9 @@ const Chart = ({
     [timeSeries, graphWidth]
   );
 
-  const displayedLines = useMemo(
-    () => linesGraph.filter(({ display }) => display),
-    [linesGraph]
-  );
-
-  const leftScale = useMemo(
+  const yScalesPerUnit = useMemo(
     () =>
-      getLeftScale({
+      getYScalePerUnit({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
         isCenteredZero: axis?.isCenteredZero,
@@ -152,7 +147,7 @@ const Chart = ({
         scaleLogarithmicBase: axis?.scaleLogarithmicBase,
         thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
-        valueGraphHeight: graphHeight - 35
+        valueGraphHeight: graphHeight - margin.bottom
       }),
     [
       displayedLines,
@@ -165,26 +160,13 @@ const Chart = ({
     ]
   );
 
+  const leftScale = useMemo(
+    () => yScalesPerUnit[firstUnit],
+    [displayedLines, firstUnit]
+  );
   const rightScale = useMemo(
-    () =>
-      getRightScale({
-        dataLines: displayedLines,
-        dataTimeSeries: timeSeries,
-        isCenteredZero: axis?.isCenteredZero,
-        scale: axis?.scale,
-        scaleLogarithmicBase: axis?.scaleLogarithmicBase,
-        thresholdUnit,
-        thresholds: (thresholds?.enabled && thresholdValues) || [],
-        valueGraphHeight: graphHeight - 35
-      }),
-    [
-      timeSeries,
-      displayedLines,
-      graphHeight,
-      axis?.isCenteredZero,
-      axis?.scale,
-      axis?.scaleLogarithmicBase
-    ]
+    () => yScalesPerUnit[secondUnit],
+    [displayedLines, secondUnit]
   );
 
   useEffect(
@@ -241,6 +223,8 @@ const Chart = ({
           setLines={setLinesGraph}
           title={title}
         >
+          <div />
+
           <MuiTooltip
             classes={{
               tooltip: cx(
@@ -274,8 +258,8 @@ const Chart = ({
                 timeSeries={timeSeries}
                 xScale={xScale}
               >
-                <>
-                  <Lines
+                <rect />
+                {/* <Lines
                     areaTransparency={lineStyle?.areaTransparency}
                     curve={lineStyle?.curve || 'linear'}
                     dashLength={lineStyle?.dashLength}
@@ -325,7 +309,7 @@ const Chart = ({
                       width={graphWidth}
                     />
                   )}
-                </>
+                */}
               </ChartSvgWrapper>
             </div>
           </MuiTooltip>
