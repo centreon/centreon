@@ -141,7 +141,7 @@ class AccException extends \Exception
     public static function typeChangeNotAllowed(): self
     {
         return new self(
-            _('Changing type of an existing additional connector is not allowed'),
+            _('Changing type of an existing additional connector configuration is not allowed'),
             self::CODE_CONFLICT
         );
     }
