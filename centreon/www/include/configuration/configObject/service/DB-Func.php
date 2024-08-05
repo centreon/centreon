@@ -1621,7 +1621,7 @@ function updateService_MC($service_id = null, $params = array())
     } else {
         $ret = $form->getSubmitValues();
     }
-
+    $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
     if (isset($ret["sg_name"])) {
         $ret["sg_name"] = $centreon->checkIllegalChar($ret["sg_name"]);
     }
