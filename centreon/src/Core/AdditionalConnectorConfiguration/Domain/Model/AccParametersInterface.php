@@ -23,8 +23,23 @@ declare(strict_types=1);
 
 namespace Core\AdditionalConnectorConfiguration\Domain\Model;
 
+use Security\Interfaces\EncryptionInterface;
+
 interface AccParametersInterface
 {
+    /**
+     * @param EncryptionInterface $encryption
+     * @param AccParametersInterface $currentObj
+     * @param array<string,mixed> $newDatas
+     *
+     * @return AccParametersInterface
+     */
+    public static function update(
+        EncryptionInterface $encryption,
+        self $currentObj,
+        array $newDatas
+    ): self;
+
     /**
      * @return array<string,mixed>
      */

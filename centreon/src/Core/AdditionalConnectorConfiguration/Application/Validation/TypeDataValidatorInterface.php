@@ -26,6 +26,7 @@ namespace Core\AdditionalConnectorConfiguration\Application\Validation;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AdditionalConnectorConfiguration\Application\Exception\AccException;
 use Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc\AddAccRequest;
+use Core\AdditionalConnectorConfiguration\Application\UseCase\UpdateAcc\UpdateAccRequest;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 
 interface TypeDataValidatorInterface
@@ -38,9 +39,9 @@ interface TypeDataValidatorInterface
     public function isValidFor(Type $type): bool;
 
     /**
-     * @param AddAccRequest $request
+     * @param AddAccRequest|UpdateAccRequest $request
      *
      * @throws AccException|AssertionException
      */
-    public function validateParametersOrFail(AddAccRequest $request): void;
+    public function validateParametersOrFail(AddAccRequest|UpdateAccRequest $request): void;
 }

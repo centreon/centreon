@@ -130,4 +130,20 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
             $statement->execute();
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function removePollers(int $accId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.`acc_poller_relation`
+                WHERE acc_id = :acc_id
+                SQL
+        ));
+
+        $statement->bindValue(':acc_id', $accId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
 }
