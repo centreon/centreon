@@ -110,6 +110,7 @@ if (!empty($_GET['service'])) {
 }
 
 $pearDBO = new CentreonDB("centstorage");
+
 if (!empty($hostName) && !empty($serviceDescription)) {
     $statement = $pearDBO->prepare(
         "SELECT `id`
@@ -186,10 +187,8 @@ if (!$isAdmin) {
     $aclGroups = implode(',', array_keys($acl->getAccessGroups()));
 
     try {
-        $dbstorage = new CentreonDB('centstorage');
-
         $sql = "SELECT host_id, service_id FROM index_data WHERE id = :index_data_id";
-        $statement = $dbstorage->prepare($sql);
+        $statement = $pearDBO->prepare($sql);
         $statement->bindValue(':index_data_id', (int) $index, \PDO::PARAM_INT);
         $statement->execute();
         if (!$statement->rowCount()) {
