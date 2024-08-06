@@ -602,7 +602,7 @@ Then('the dashboard administrator clicks on the acknowledge filter', () => {
 Then('the resources set to acknowledge should be displayed', () => {
   cy.waitUntil(() =>
     cy.get('body').then($body => {
-      const element = $body.find('[aria-label="service3 Acknowledged"]');
+      const element = $body.find('[aria-label="service2 Acknowledged"]');
       return element.length > 0 && element.is(':visible');
     })
   , {
