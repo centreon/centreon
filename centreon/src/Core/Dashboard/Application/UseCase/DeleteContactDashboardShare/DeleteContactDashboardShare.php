@@ -33,12 +33,15 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class DeleteContactDashboardShare
 {
@@ -50,7 +53,9 @@ final class DeleteContactDashboardShare
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
     ) {
     }
 
@@ -143,6 +148,15 @@ final class DeleteContactDashboardShare
             return new ForbiddenResponse(
                 DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboard->getId())
             );
+        }
+
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $this->accessGroupRepository->findByContact($this->contact)
+        );
+
+        if (! $this->readContactRepository->existInAccessGroups($contactId, $accessGroupIds)) {
+            return new NotFoundResponse('Contact');
         }
 
         if (! $this->writeDashboardShareRepository->deleteContactShare($contact->getId(), $dashboard->getId())) {

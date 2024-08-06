@@ -39,6 +39,8 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
     $this->presenter = new FindContactDashboardSharesPresenterStub();
@@ -48,6 +50,7 @@ beforeEach(function (): void {
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class)
     );
 
     $this->testedDashboard = new Dashboard(
@@ -144,8 +147,12 @@ it(
         $this->rights->expects($this->once())->method('canAccessShare')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'name', 'alias')]);
         $this->readDashboardShareRepository->expects($this->once())
-            ->method('findDashboardContactSharesByRequestParameter')->willReturn([
+            ->method('findDashboardContactSharesByRequestParameterAndAccessGroups')->willReturn([
                 new DashboardContactShare(
                     $this->testedDashboard,
                     $this->testedContact->getId(),
