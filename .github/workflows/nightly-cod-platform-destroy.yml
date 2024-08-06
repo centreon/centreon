@@ -2,12 +2,17 @@ name: nightly-cod-platform-destroy
 
 on:
   schedule:
-    - cron: "15 19 * * 1-5"
+    - cron: "15 17 * * 1-5"
 
 jobs:
   nightly-cod-platform-destroy:
     runs-on: "ubuntu-latest"
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Checkout sources
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
       - name: Check the status of the latest nightly build
         id: check-latest-nightly-status
         uses: ./.github/actions/check-latest-nightly-status

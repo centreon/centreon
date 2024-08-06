@@ -36,5 +36,9 @@
       "email": "contact2@localhost",
       "password": "myPassword@2"
     }
+  },
+  "timeperiod": {
+    "id": 1,
+    "name": "24x7"
   }
 }

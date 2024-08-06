@@ -1,0 +1,52 @@
+{
+    "result": [
+      {
+        "id": 1,
+        "name": "poller1"
+      },
+      {
+        "id": 2,
+        "name": "poller2"
+      },
+      {
+        "id": 3,
+        "name": "poller3"
+      },
+      {
+        "id": 4,
+        "name": "poller4"
+      },
+      {
+        "id": 5,
+        "name": "poller5"
+      },
+      {
+        "id": 6,
+        "name": "poller6"
+      },
+      {
+        "id": 7,
+        "name": "poller7"
+      },
+      {
+        "id": 8,
+        "name": "poller8"
+      },
+      {
+        "id": 9,
+        "name": "poller9"
+      },
+      {
+        "id": 10,
+        "name": "poller10"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "limit": 10,
+      "search": {},
+      "sort_by": {},
+      "total": 10
+    }
+  }
+  

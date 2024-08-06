@@ -5,6 +5,10 @@ allOf:
         type: string
         description: "Parent Resource name"
         example: "Central"
+      extra:
+        type: array
+        items:
+          type: object
       children:
         type: object
         properties:
@@ -51,6 +55,10 @@ allOf:
                       format: int32
                       description: "ID of the service behind the resource"
                       example: 12
+                    extra:
+                      type: array
+                      items:
+                        type: object
                     parent:
                       type: object
                       properties:
@@ -59,4 +67,8 @@ allOf:
                           format: int32
                           description: "ID of the parent"
                           example: 12
+                        extra:
+                          type: array
+                          items:
+                            type: object
 

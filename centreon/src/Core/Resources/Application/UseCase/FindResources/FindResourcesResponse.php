@@ -29,9 +29,11 @@ final class FindResourcesResponse
 {
     /**
      * @param ResourceResponseDto[] $resources
+     * @param array<string, array<mixed, mixed>> $extraData
      */
     public function __construct(
         public array $resources = [],
+        public array $extraData = []
     ) {
     }
 }

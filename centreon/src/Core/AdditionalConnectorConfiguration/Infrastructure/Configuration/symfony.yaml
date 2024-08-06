@@ -1,0 +1,26 @@
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    Core\AdditionalConnectorConfiguration\:
+        resource: '../../../../Core/AdditionalConnectorConfiguration/*'
+
+    _instanceof:
+        Core\AdditionalConnectorConfiguration\Application\Validation\TypeDataValidatorInterface:
+            tags: ['acc.validators']
+        Core\AdditionalConnectorConfiguration\Application\Repository\WriteVaultAccRepositoryInterface:
+            tags: ['acc.vault.repositories']
+
+    Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc\Validator:
+        arguments:
+            $parametersValidators: !tagged_iterator 'acc.validators'
+
+    Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc\AddAcc:
+        arguments:
+            $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories'
+
+    Core\AdditionalConnectorConfiguration\Application\UseCase\DeleteAcc\DeleteAcc:
+        arguments:
+            $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories'

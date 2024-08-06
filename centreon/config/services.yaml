@@ -7,7 +7,7 @@
 parameters:
     locale: en
     api.header: "Api-Version"
-    api.version.latest: "24.04"
+    api.version.latest: "24.07"
     database_host: "%env(hostCentreon)%"
     database_port: "%env(port)%"
     database_db: "%env(db)%"
@@ -105,6 +105,23 @@ services:
             $resourceTypes: !tagged_iterator 'monitoring.resource.type'
             $sqlRequestTranslator: '@sqlRequestTranslator'
             $resourceACLProviders: !tagged_iterator 'monitoring.resource.acl'
+            $extraDataProviders: !tagged_iterator 'monitoring.resource.extra.providers'
+
+    Core\Resources\Application\UseCase\FindResources\FindResources:
+        arguments:
+          $extraDataProviders: !tagged_iterator 'monitoring.resource.extra.providers'
+
+    Core\Resources\Application\UseCase\FindResourcesByParent\FindResourcesByParent:
+        arguments:
+          $extraDataProviders: !tagged_iterator 'monitoring.resource.extra.providers'
+
+    Core\Resources\Infrastructure\API\FindResources\FindResourcesPresenter:
+        arguments:
+          $extraDataNormalizers: !tagged_iterator 'monitoring.resource.extra.normalizers'
+
+    Core\Resources\Infrastructure\API\FindResourcesByParent\FindResourcesByParentPresenter:
+        arguments:
+          $extraDataNormalizers: !tagged_iterator 'monitoring.resource.extra.normalizers'
 
     Centreon\Application\Controller\MonitoringResourceController:
         arguments:
