@@ -30,7 +30,8 @@ const Thresholds = ({
 }: Props): JSX.Element => {
   const [firstUnit, secondUnit] = getUnits(displayedLines as Array<Line>);
 
-  const shouldUseRightScale = equals(thresholdUnit, secondUnit);
+  const shouldUseRightScale =
+    thresholdUnit && equals(thresholdUnit, secondUnit);
 
   const yScale = shouldUseRightScale
     ? yScalesPerUnit[secondUnit]

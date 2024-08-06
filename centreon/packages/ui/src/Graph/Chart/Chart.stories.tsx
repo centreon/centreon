@@ -36,7 +36,7 @@ import {
 import { dateTimeFormat } from './common';
 import { Interval, ThresholdType, TooltipData } from './models';
 
-import WrapperChart from './index';
+import WrapperChart from '.';
 
 const meta: Meta<typeof WrapperChart> = {
   component: WrapperChart
@@ -475,17 +475,7 @@ export const thresholdsRange: Story = {
 export const LineChartWithSameColorCurves: Story = {
   ...Template,
   argTypes,
-  args: {
-    ...argumentsData,
-    lineStyle: {
-      areaTransparency: 10,
-      dashLength: 10,
-      dashOffset: 10,
-      lineWidth: 9,
-      showArea: true,
-      showPoints: true
-    }
-  },
+  args: argumentsData,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -493,6 +483,14 @@ export const LineChartWithSameColorCurves: Story = {
     />
   )
 };
+// lineStyle: {
+//       areaTransparency: 10,
+//       dashLength: 10,
+//       dashOffset: 10,
+//       lineWidth: 9,
+//       showArea: true,
+//       showPoints: true
+//     }
 
 export const zeroCentered: Story = {
   argTypes,
@@ -500,6 +498,24 @@ export const zeroCentered: Story = {
     ...argumentsData,
     axis: {
       isCenteredZero: true
+    }
+  },
+  render: (args) => (
+    <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
+  )
+};
+
+export const customLines: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      areaTransparency: 10,
+      dashLength: 10,
+      dashOffset: 10,
+      lineWidth: 3,
+      showArea: true,
+      showPoints: true
     }
   },
   render: (args) => (
