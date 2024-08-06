@@ -1,7 +1,9 @@
 import { equals } from 'ramda';
 
+import { Typography } from '@mui/material';
+
 import { Tooltip as MuiTooltip } from '../../../../components/Tooltip';
-import { Tooltip } from '../../models';
+import { ThresholdTooltip, Tooltip } from '../../models';
 import { useTooltipStyles } from '../../../common/useTooltipStyles';
 
 import GraphValueTooltipContent from './GraphValueTooltipContent';
@@ -9,15 +11,31 @@ import GraphValueTooltipContent from './GraphValueTooltipContent';
 interface Props {
   baseAxis: number;
   children: JSX.Element;
+  thresholdTooltip: ThresholdTooltip | null;
   tooltip?: Tooltip;
 }
 
 const GraphValueTooltip = ({
   children,
   tooltip,
-  baseAxis
+  baseAxis,
+  thresholdTooltip
 }: Props): JSX.Element => {
   const { classes, cx } = useTooltipStyles();
+
+  if (thresholdTooltip) {
+    return (
+      <MuiTooltip
+        classes={{
+          tooltip: classes.tooltip
+        }}
+        placement="top-start"
+        title={<Typography>{thresholdTooltip?.thresholdLabel}</Typography>}
+      >
+        {children}
+      </MuiTooltip>
+    );
+  }
 
   return (
     <MuiTooltip

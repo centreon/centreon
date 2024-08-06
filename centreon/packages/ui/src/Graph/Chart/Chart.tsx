@@ -1,9 +1,9 @@
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Tooltip } from '@visx/visx';
 import { equals, flatten, isNil, pluck, reject } from 'ramda';
+import { useAtom } from 'jotai';
 
-import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
+import { ClickAwayListener, Skeleton } from '@mui/material';
 
 import { getUnits, getXScale, getYScalePerUnit } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
@@ -29,6 +29,7 @@ import { Data, GlobalAreaLines, GraphInterval, LineChartProps } from './models';
 import { useIntersection } from './useChartIntersection';
 import { useChartStyles } from './Chart.styles';
 import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
+import { thresholdTooltipAtom } from './graphAtoms';
 
 interface Props extends LineChartProps {
   graphData: Data;
@@ -39,11 +40,6 @@ interface Props extends LineChartProps {
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
 }
-
-const baseStyles = {
-  ...Tooltip.defaultStyles,
-  textAlign: 'center'
-};
 
 const filterLines = (lines: Array<Line>, displayThreshold): Array<Line> => {
   if (!displayThreshold) {
@@ -84,8 +80,6 @@ const Chart = ({
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
-  const theme = useTheme();
-
   const { title, timeSeries, baseAxis, lines } = graphData;
 
   const [linesGraph, setLinesGraph] = useState<Array<Line>>(
@@ -93,16 +87,9 @@ const Chart = ({
   );
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
-  const { isInViewport } = useIntersection({ element: graphRef?.current });
+  const [thresholdTooltip, setThresholdTooltip] = useAtom(thresholdTooltipAtom);
 
-  const {
-    tooltipOpen: thresholdTooltipOpen,
-    tooltipLeft: thresholdTooltipLeft,
-    tooltipTop: thresholdTooltipTop,
-    tooltipData: thresholdTooltipData,
-    hideTooltip: hideThresholdTooltip,
-    showTooltip: showThresholdTooltip
-  } = Tooltip.useTooltip();
+  const { isInViewport } = useIntersection({ element: graphRef?.current });
 
   const thresholdValues = flatten([
     pluck('value', thresholds?.warning || []),
@@ -217,7 +204,11 @@ const Chart = ({
           setLines={setLinesGraph}
           title={title}
         >
-          <GraphValueTooltip baseAxis={baseAxis} tooltip={tooltip}>
+          <GraphValueTooltip
+            baseAxis={baseAxis}
+            thresholdTooltip={thresholdTooltip}
+            tooltip={tooltip}
+          >
             <div className={classes.tooltipChildren}>
               <ChartSvgWrapper
                 axis={axis}
@@ -273,8 +264,12 @@ const Chart = ({
                   {thresholds?.enabled && (
                     <Thresholds
                       displayedLines={displayedLines}
-                      hideTooltip={hideThresholdTooltip}
-                      showTooltip={showThresholdTooltip}
+                      hideTooltip={() => setThresholdTooltip(null)}
+                      showTooltip={({ tooltipData: thresholdLabel }) =>
+                        setThresholdTooltip({
+                          thresholdLabel
+                        })
+                      }
                       thresholdUnit={thresholdUnit}
                       thresholds={thresholds as ThresholdsModel}
                       width={graphWidth}
@@ -287,20 +282,6 @@ const Chart = ({
           </GraphValueTooltip>
         </BaseChart>
         {displayTooltip && <GraphTooltip {...tooltip} {...graphTooltipData} />}
-        <Fade in={thresholdTooltipOpen}>
-          <Tooltip.Tooltip
-            left={thresholdTooltipLeft}
-            style={{
-              ...baseStyles,
-              backgroundColor: theme.palette.background.paper,
-              color: theme.palette.text.primary,
-              transform: `translate(${graphWidth / 2}px, -10px)`
-            }}
-            top={thresholdTooltipTop}
-          >
-            {thresholdTooltipData}
-          </Tooltip.Tooltip>
-        </Fade>
       </>
     </ClickAwayListener>
   );

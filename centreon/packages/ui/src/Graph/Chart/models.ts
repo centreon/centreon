@@ -67,6 +67,9 @@ export interface TooltipData {
   hideTooltip: () => void;
   tooltipOpen: boolean;
 }
+export interface ThresholdTooltip {
+  thresholdLabel?: string;
+}
 export interface Tooltip {
   mode: 'all' | 'single' | 'hidden';
   renderComponent?: (args: TooltipData) => ReactNode;

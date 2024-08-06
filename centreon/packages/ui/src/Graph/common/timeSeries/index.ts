@@ -22,7 +22,6 @@ import {
   add,
   isEmpty,
   any,
-  not,
   lt,
   identity,
   head,
