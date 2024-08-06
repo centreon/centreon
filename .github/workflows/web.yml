@@ -23,13 +23,13 @@ on:
       - ready_for_review
     paths:
       - "centreon/**"
-      - "!centreon/cypress/**"
-      - "!centreon/features/**"
-      - "!centreon/lighthouse/**"
-      - "!centreon/tests/**"
-      - "!centreon/.veracode-exclusions"
-      - "!centreon/veracode.json"
-      - "!centreon/packages/**"
+      # - "!centreon/cypress/**"
+      # - "!centreon/features/**"
+      # - "!centreon/lighthouse/**"
+      # - "!centreon/tests/**"
+      # - "!centreon/.veracode-exclusions"
+      # - "!centreon/veracode.json"
+      # - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -38,8 +38,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
-      - "centreon/cypress/**"
-      - "centreon/features/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
       - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
