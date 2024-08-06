@@ -73,14 +73,12 @@ const BarStack = ({
                 {...barRoundedProps}
                 data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}`}
                 fill={bar.color}
-                height={Math.ceil(
-                  isHorizontal ? Math.abs(bar.height) : barWidth
-                )}
+                height={isHorizontal ? Math.abs(bar.height) : barWidth}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
                 opacity={barStyle.opacity}
                 radius={barWidth * barStyle.radius}
-                width={Math.ceil(isHorizontal ? barWidth : Math.abs(bar.width))}
-                x={Math.ceil(
+                width={isHorizontal ? barWidth : Math.abs(bar.width)}
+                x={
                   isHorizontal
                     ? barPadding
                     : getPadding({
@@ -88,8 +86,8 @@ const BarStack = ({
                         padding: bar.x,
                         size: bar.width
                       })
-                )}
-                y={Math.ceil(
+                }
+                y={
                   isHorizontal
                     ? getPadding({
                         isNegativeValue,
@@ -97,7 +95,7 @@ const BarStack = ({
                         size: bar.height
                       })
                     : barPadding
-                )}
+                }
                 onMouseEnter={
                   isTooltipHidden
                     ? undefined
