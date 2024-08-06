@@ -38,13 +38,13 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
-      # - "!centreon/cypress/**"
-      # - "!centreon/features/**"
-      # - "!centreon/lighthouse/**"
-      # - "!centreon/tests/**"
-      # - "!centreon/.veracode-exclusions"
-      # - "!centreon/veracode.json"
-      # - "!centreon/packages/**"
+      - "centreon/cypress/**"
+      - "centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
 
 env:
   base_directory: centreon
