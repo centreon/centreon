@@ -381,61 +381,6 @@ const getScale = ({
   });
 };
 
-const getLeftScale = ({
-  dataLines,
-  dataTimeSeries,
-  valueGraphHeight,
-  thresholds,
-  thresholdUnit,
-  isCenteredZero,
-  scale,
-  scaleLogarithmicBase,
-  isHorizontal = true
-}: AxeScale): ScaleLinear<number, number> => {
-  const [firstUnit, secondUnit, thirdUnit] = getUnits(dataLines);
-
-  const shouldApplyThresholds =
-    equals(thresholdUnit, firstUnit) ||
-    equals(thresholdUnit, thirdUnit) ||
-    !thresholdUnit;
-
-  const graphValues = isNil(thirdUnit)
-    ? getMetricValuesForUnit({
-        lines: dataLines,
-        timeSeries: dataTimeSeries,
-        unit: firstUnit
-      })
-    : getMetricValuesForLines({
-        lines: dataLines,
-        timeSeries: dataTimeSeries
-      });
-
-  const firstUnitHasStackedLines =
-    isNil(thirdUnit) && not(isNil(firstUnit))
-      ? hasUnitStackedLines({ lines: dataLines, unit: firstUnit })
-      : false;
-
-  const stackedValues = firstUnitHasStackedLines
-    ? getStackedMetricValues({
-        lines: getSortedStackedLines(dataLines).filter(
-          ({ unit }) => !equals(unit, secondUnit)
-        ),
-        timeSeries: dataTimeSeries
-      })
-    : [0];
-
-  return getScale({
-    graphValues,
-    height: valueGraphHeight,
-    isCenteredZero,
-    isHorizontal,
-    scale,
-    scaleLogarithmicBase,
-    stackedValues,
-    thresholds: shouldApplyThresholds ? thresholds : []
-  });
-};
-
 const getXScale = ({
   dataTime,
   valueWidth
@@ -454,52 +399,6 @@ export const getXScaleBand = ({
     domain: dataTime.map(getTime),
     padding: 0.2,
     range: [0, valueWidth]
-  });
-};
-
-const getRightScale = ({
-  dataLines,
-  dataTimeSeries,
-  valueGraphHeight,
-  thresholds,
-  thresholdUnit,
-  isCenteredZero,
-  scale,
-  scaleLogarithmicBase,
-  isHorizontal = true
-}: AxeScale): ScaleLinear<number, number> => {
-  const [, secondUnit] = getUnits(dataLines);
-
-  const graphValues = getMetricValuesForUnit({
-    lines: dataLines,
-    timeSeries: dataTimeSeries,
-    unit: secondUnit
-  });
-
-  const shouldApplyThresholds = equals(thresholdUnit, secondUnit);
-
-  const secondUnitHasStackedLines = isNil(secondUnit)
-    ? false
-    : hasUnitStackedLines({ lines: dataLines, unit: secondUnit });
-
-  const stackedValues = secondUnitHasStackedLines
-    ? getStackedMetricValues({
-        lines: getSortedStackedLines(dataLines).filter(({ unit }) =>
-          equals(unit, secondUnit)
-        ),
-        timeSeries: dataTimeSeries
-      })
-    : [0];
-
-  return getScale({
-    graphValues,
-    height: valueGraphHeight,
-    isCenteredZero,
-    isHorizontal,
-    scale,
-    scaleLogarithmicBase,
-    stackedValues,
-    thresholds: shouldApplyThresholds ? thresholds : []
   });
 };
 
@@ -678,7 +577,7 @@ const formatMetricValueWithUnit = ({
   }
 
   if (equals('%', unit)) {
-    return `${numeral(Math.abs(value)).format('0.[00]')}%`;
+    return `${numeral(value).format('0.[00]')}%`;
   }
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });
@@ -772,9 +671,7 @@ export {
   hasUnitStackedLines,
   getYScale,
   getScale,
-  getLeftScale,
   getXScale,
-  getRightScale,
   formatMetricValue,
   getStackedYScale,
   getTimeValue,
