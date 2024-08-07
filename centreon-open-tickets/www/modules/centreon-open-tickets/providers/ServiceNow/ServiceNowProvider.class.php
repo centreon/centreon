@@ -921,7 +921,7 @@ class ServiceNowProvider extends AbstractProvider
             // $id structure is "select_opt_field_name" we keep "field_name"
             // $value structure is 0___value_test_A___placeholder_test_A we keep "value_test_A" 
             if (preg_match('/^select_opt_(.*)$/', $id, $match)) {
-                preg_match('/^[0-9]___(.*)___.*/', $value, $customFieldValue);
+                preg_match('/^[0-9]+___(.*)___.*/', $value, $customFieldValue);
                 $data[$match[1]] = $customFieldValue[1];
             }
         }
