@@ -40,37 +40,39 @@
  */
 class CentreonUserLog
 {
-    private static $instance;
-    private $errorType;
-    private $uid;
-    private $path;
-
     public const TYPE_LOGIN = 1;
     public const TYPE_SQL = 2;
     public const TYPE_LDAP = 3;
     public const TYPE_UPGRADE = 4;
 
-    /*
-     * Constructor
+    /** @var CentreonUserLog */
+    private static $instance;
+    /** @var array */
+    private $errorType;
+    /** @var int */
+    private $uid;
+    /** @var string */
+    private $path;
+
+    /**
+     * CentreonUserLog constructor
+     *
+     * @param int $uid
+     * @param CentreonDB $pearDB
      */
     public function __construct($uid, $pearDB)
     {
-
         $this->uid = $uid;
         $this->errorType = array();
 
-        /*
-         * Get Log directory path
-         */
+        // Get Log directory path
         $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'debug_path'");
         while ($res = $DBRESULT->fetchRow()) {
             $optGen[$res["key"]] = $res["value"];
         }
         $DBRESULT->closeCursor();
 
-        /*
-         * Init log Directory
-         */
+        // Init log Directory
         if (isset($optGen["debug_path"]) && $optGen["debug_path"] != "") {
             $this->path = $optGen["debug_path"];
         } else {
@@ -83,10 +85,14 @@ class CentreonUserLog
         $this->errorType[self::TYPE_UPGRADE] = $this->path . "/upgrade.log";
     }
 
-    /*
-     * Function for writing logs
+    /**
+     * @param int $id
+     * @param string $str
+     * @param int $print
+     * @param int $page
+     * @param int $option
+     * @return void
      */
-
     public function insertLog($id, $str, $print = 0, $page = 0, $option = 0)
     {
         /*
@@ -114,6 +120,10 @@ class CentreonUserLog
         file_put_contents($this->errorType[$id], $string . "\n", FILE_APPEND);
     }
 
+    /**
+     * @param int $uid
+     * @return void
+     */
     public function setUID($uid)
     {
         $this->uid = $uid;
@@ -124,6 +134,7 @@ class CentreonUserLog
      *
      * @param int $uid The user id
      * @return CentreonUserLog
+     * @throws Exception
      */
     public static function singleton($uid = 0)
     {
@@ -154,7 +165,7 @@ class CentreonLog
     public const LEVEL_EMERGENCY = "emergency";
 
     /**
-     * Log file
+     * Log files
      */
     public const TYPE_LOGIN = 1;
     public const TYPE_SQL = 2;
@@ -173,9 +184,9 @@ class CentreonLog
      *
      * @param array $customLogs
      */
-    public function __construct($customLogs = [])
+    public function __construct(array $customLogs = [])
     {
-        $this->errorType = array();
+        $this->errorType = [];
 
         $this->path = _CENTREON_LOG_;
 
@@ -186,7 +197,7 @@ class CentreonLog
         $this->errorType[5] = $this->path . '/plugin-pack-manager.log';
 
         foreach ($customLogs as $key => $value) {
-            if (!preg_match('@' . $this->path . '@', $value)) {
+            if (! preg_match('@' . $this->path . '@', $value)) {
                 $value = $this->path . '/' . $value;
             }
             $this->errorType[$key] = $value;
@@ -204,114 +215,126 @@ class CentreonLog
     }
 
     /**
-     * @param int $type
-     * @param string $level
+     * @param int $type TYPE_* constants
+     * @param string $level LEVEL_* constants
      * @param string $message
      * @param array $customContext
+     * @param Throwable|null $exception
      * @return void
      */
-    public function log(int $type, string $level, string $message, array $customContext): void
-    {
+    public function log(
+        int $type,
+        string $level,
+        string $message,
+        array $customContext = [],
+        ?Throwable $exception = null
+    ): void {
         if (! empty($message)) {
-            $jsonContext = $this->prepareContext($customContext, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1));
+            $jsonContext = $this->serializeContext($customContext, $exception);
             $level = (empty($level)) ? strtoupper(self::LEVEL_ERROR) : strtoupper($level);
             $date = (new DateTime())->format(DateTimeInterface::RFC3339);
-            $log = "[$date] $level : $message | $jsonContext";
+            $log = sprintf("[%s] %s : %s | %s", $date, $level, $message, $jsonContext);
             file_put_contents($this->errorType[$type], $log . "\n", FILE_APPEND);
         }
     }
 
     /**
-     * @param int $type
+     * @param int $type TYPE_* constants
      * @param string $message
      * @param array $customContext
+     * @param Throwable|null $exception
      * @return void
      */
-    public function debug(int $type, string $message, array $customContext): void
+    public function debug(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_DEBUG, $message, $customContext);
+        $this->log($type, self::LEVEL_DEBUG, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type
+     * @param int $type TYPE_ * constants
      * @param string $message
      * @param array $customContext
+     * @param Throwable|null $exception
      * @return void
      */
-    public function info(int $type, string $message, array $customContext): void
+    public function info(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_INFOS, $message, $customContext);
+        $this->log($type, self::LEVEL_INFOS, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type
+     * @param int $type TYPE_* constants
      * @param string $message
      * @param array $customContext
+     * @param Throwable|null $exception
      * @return void
      */
-    public function warning(int $type, string $message, array $customContext): void
+    public function warning(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_WARNING, $message, $customContext);
+        $this->log($type, self::LEVEL_WARNING, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type
+     * @param int $type TYPE_* constants
      * @param string $message
      * @param array $customContext
+     * @param Throwable|null $exception
      * @return void
      */
-    public function error(int $type, string $message, array $customContext): void
+    public function error(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_ERROR, $message, $customContext);
+        $this->log($type, self::LEVEL_ERROR, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type
+     * @param int $type TYPE_* constants
      * @param string $message
      * @param array $customContext
+     * @param Throwable|null $exception
      * @return void
      */
-    public function critical(int $type, string $message, array $customContext): void
+    public function critical(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_CRITICAL, $message, $customContext);
+        $this->log($type, self::LEVEL_CRITICAL, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type
+     * @param int $type TYPE_* constants
      * @param string $message
      * @param array $customContext
+     * @param Throwable|null $exception
      * @return void
      */
-    public function alert(int $type, string $message, array $customContext): void
+    public function alert(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_ALERT, $message, $customContext);
+        $this->log($type, self::LEVEL_ALERT, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type
+     * @param int $type TYPE_* constants
      * @param string $message
      * @param array $customContext
+     * @param Throwable|null $exception
      * @return void
      */
-    public function emergency(int $type, string $message, array $customContext): void
+    public function emergency(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_EMERGENCY, $message, $customContext);
+        $this->log($type, self::LEVEL_EMERGENCY, $message, $customContext, $exception);
     }
 
     /**
      * @param array $customContext
-     * @param array $trace
+     * @param Throwable|null $exception
      * @return string
      */
-    private function prepareContext(array $customContext, array $trace): string
+    private function serializeContext(array $customContext, ?Throwable $exception = null): string
     {
         try {
-            $excludeFunctions = ['log', 'prepareContext', 'insertLog'];
+            $exceptionContext = [];
+
+            // Add default context with back trace and request infos
             $defaultContext = [
-                'file' => null,
-                'line' => null,
-                'class' => null,
-                'function' => null,
+                'back_trace' => $this->getBackTrace(),
                 'request_infos' => [
                     'url' => $_SERVER['REQUEST_URI'] ?? null,
                     'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
@@ -319,29 +342,102 @@ class CentreonLog
                     'referrer' => $_SERVER['HTTP_REFERER'] ?? null
                 ]
             ];
-            if (! empty($trace)) {
-                $defaultContext['file'] = $trace[0]['file'] ?? null;
-                $defaultContext['line'] = $trace[0]['line'] ?? null;
-                $defaultContext['class'] = (isset($trace[0]['class']) && $trace[0]['class'] !== 'CentreonLog') ? $trace[0]['class'] : null;
-                $defaultContext['function'] = (isset($trace[0]['function']) && ! in_array(
-                        $trace[0]['function'],
-                        $excludeFunctions,
-                        true
-                    )) ? $trace[0]['function'] : null;
+
+            // Add exception context and if possible the previous
+            if (! is_null($exception)) {
+                $exceptionContext = $this->getExceptionInfos($exception);
+                $exceptionContext['previous'] = ! is_null($exception->getPrevious()) ?
+                    $this->getExceptionInfos($exception) : null;
             }
+
             $context = [
                 'context' => [
                     'default' => $defaultContext,
+                    'exception' => ! empty($exceptionContext) ? $exceptionContext : null,
                     'custom' => $customContext
                 ]
             ];
+
             return json_encode(
                 $context,
                 JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
             );
         } catch (JsonException $e) {
-            return "context: error while json encoding (JsonException: {$e->getMessage()})";
+            return sprintf(
+                "context: error while json encoding (JsonException: %s)",
+                $e->getMessage()
+            );
         }
+    }
+
+    /**
+     * @param Throwable $exception
+     * @return array
+     */
+    private function getExceptionInfos(Throwable $exception): array
+    {
+        $exceptionInfos = [
+            'exception_type' => get_class($exception),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+            'code' => $exception->getCode(),
+            'message' => $exception->getMessage()
+        ];
+        $additonalOptions = $this->getExceptionOptions($exception);
+        if (! empty($additonalOptions)) {
+            $exceptionInfos['options'] = $additonalOptions;
+        }
+        return $exceptionInfos;
+    }
+
+    /**
+     * @param Throwable $exception
+     * @return array
+     */
+    private function getExceptionOptions(Throwable $exception): array
+    {
+        $options = [];
+        $publicMethods = get_class_methods($exception);
+        foreach ($publicMethods as $method) {
+            if (strtolower($method) === 'getoptions') {
+                if (is_array($exception->$method())) {
+                    $options = $exception->$method();
+                }
+                break;
+            }
+        }
+        return $options;
+    }
+
+    /**
+     * @return array|null
+     */
+    private function getBackTrace(): ?array
+    {
+        $excludeFunctions = ['log', 'debug', 'info', 'warning', 'error', 'critical', 'alert', 'emergency', 'insertLog'];
+
+        // get the last trace excluding the centreonlog trace
+        $lastTraceCleaned = array_values(
+            array_filter(
+                debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5),
+                fn(array $trace): bool => ! str_contains($trace['file'], 'centreonLog.class.php')
+            )
+        );
+
+        if (empty($lastTraceCleaned)) {
+            return null;
+        }
+
+        return [
+            'file' => $lastTraceCleaned[0]['file'] ?? null,
+            'line' => $lastTraceCleaned[0]['line'] ?? null,
+            'class' => (isset($lastTraceCleaned[0]['class']) && $lastTraceCleaned[0]['class'] !== 'CentreonLog') ? $lastTraceCleaned[0]['class'] : null,
+            'function' => (isset($trace[0]['function']) && ! in_array(
+                    $lastTraceCleaned[0]['function'],
+                    $excludeFunctions,
+                    true
+                )) ? $lastTraceCleaned[0]['function'] : null
+        ];
     }
 
     //*********************************************** DEPRECATED *****************************************************//
@@ -352,12 +448,10 @@ class CentreonLog
      * @param int $print
      * @param int $page
      * @param int $option
-     * @param string $level
-     * @param array $customContext
      * @return void
      * @deprecated Instead used {@see CentreonLog::log()}
      */
-    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0, string $level = '', array $customContext = [])
+    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0)
     {
         $message = "$page|$option|$str";
 
@@ -365,6 +459,6 @@ class CentreonLog
             print $str;
         }
 
-        $this->log(type: $id, level: $level, message: $message, customContext: $customContext);
+        $this->log(type: $id, level: self::LEVEL_ERROR, message: $message);
     }
 }
