@@ -185,7 +185,6 @@ const InteractionWithGraph = ({
           lines,
           metric_id: Number(metricId)
         });
-        console.log(lineData);
         const yScale = getYScale({
           invert: (lineData as Line).invert,
           unit: (lineData as Line).unit,

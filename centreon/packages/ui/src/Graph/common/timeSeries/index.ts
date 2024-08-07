@@ -322,8 +322,6 @@ const getYScale = ({
 }: GetYScaleProps): ScaleLinear<number, number> => {
   const scale = yScalesPerUnit[unit];
 
-  console.log(invert, scale, unit, yScalesPerUnit);
-
   return invert
     ? Scale.scaleLinear<number>({
         domain: scale.domain().reverse(),
@@ -588,22 +586,6 @@ const formatMetricValueWithUnit = ({
     : `${formattedMetricValue} ${unit}`;
 };
 
-const getStackedYScale = (
-  yScalesPerUnit: Record<string, ScaleLinear<string, string>>
-): ScaleLinear<number, number> => {
-  const scales = Object.values(yScalesPerUnit);
-  const minDomain = Math.min(map((scale) => getMin(scale.domain()), scales));
-  const maxDomain = Math.max(map((scale) => getMax(scale.domain()), scales));
-  const minRange = Math.min(map((scale) => getMin(scale.range()), scales));
-  const maxRange = Math.max(map((scale) => getMax(scale.range()), scales));
-
-  return Scale.scaleLinear<number>({
-    domain: [minDomain, maxDomain],
-    nice: true,
-    range: [maxRange, minRange]
-  });
-};
-
 const bisectDate = bisector(identity).center;
 
 const getTimeValue = ({
@@ -674,7 +656,6 @@ export {
   getScale,
   getXScale,
   formatMetricValue,
-  getStackedYScale,
   getTimeValue,
   bisectDate,
   getMetricWithLatestData,

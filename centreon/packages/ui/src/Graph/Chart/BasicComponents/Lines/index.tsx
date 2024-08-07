@@ -10,11 +10,7 @@ import RegularAnchorPoint, {
 } from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
 import { displayArea } from '../../helpers/index';
 import { DisplayAnchor, GlobalAreaLines } from '../../models';
-import {
-  getDates,
-  getStackedYScale,
-  getYScale
-} from '../../../common/timeSeries';
+import { getDates, getYScale } from '../../../common/timeSeries';
 import { Line, TimeValue } from '../../../common/timeSeries/models';
 
 import RegularLine from './RegularLines';
@@ -82,8 +78,6 @@ const Lines = ({
   const displayAreaRegularLines =
     (areaRegularLines?.display ?? true) && displayArea(regularLines);
 
-  const stackedYScale = getStackedYScale(yScalesPerUnit);
-
   const displayGuidingLines = displayAnchor?.displayGuidingLines ?? true;
   const commonStackedLinesProps = {
     areaTransparency,
@@ -98,8 +92,7 @@ const Lines = ({
     lineWidth,
     showArea,
     showPoints,
-    xScale,
-    yScale: stackedYScale
+    xScale
   };
 
   return (
@@ -119,6 +112,7 @@ const Lines = ({
             <StackedLines
               lines={stackedLinesData.lines}
               timeSeries={stackedLinesData.timeSeries}
+              yScale={yScalesPerUnit[stackedLinesData.lines[0].unit]}
               {...commonStackedLinesProps}
             />
           )}
@@ -127,6 +121,7 @@ const Lines = ({
             <StackedLines
               lines={invertedStackedLinesData.lines}
               timeSeries={invertedStackedLinesData.timeSeries}
+              yScale={yScalesPerUnit[invertedStackedLinesData.lines[0].unit]}
               {...commonStackedLinesProps}
             />
           )}
