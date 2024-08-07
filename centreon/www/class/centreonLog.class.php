@@ -33,6 +33,11 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonUserLog
+ */
 class CentreonUserLog
 {
     private static $instance;
@@ -136,6 +141,21 @@ class CentreonUserLog
  */
 class CentreonLog
 {
+    /**
+     * Level type
+     */
+    public const LEVEL_INFOS = "info";
+    public const LEVEL_NOTICE = "notice";
+    public const LEVEL_DEBUG = "debug";
+    public const LEVEL_WARNING = "warning";
+    public const LEVEL_ERROR = "error";
+    public const LEVEL_CRITICAL = "critical";
+    public const LEVEL_ALERT = "alert";
+    public const LEVEL_EMERGENCY = "emergency";
+
+    /**
+     * Log file
+     */
     public const TYPE_LOGIN = 1;
     public const TYPE_SQL = 2;
     public const TYPE_LDAP = 3;
@@ -184,38 +204,167 @@ class CentreonLog
     }
 
     /**
-     * @param int $id TYPE_* constants
-     * @param string $str
+     * @param int $type
+     * @param string $level
+     * @param string $message
+     * @param array $customContext
+     * @return void
+     */
+    public function log(int $type, string $level, string $message, array $customContext): void
+    {
+        if (! empty($message)) {
+            $jsonContext = $this->prepareContext($customContext, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1));
+            $level = (empty($level)) ? strtoupper(self::LEVEL_ERROR) : strtoupper($level);
+            $date = (new DateTime())->format(DateTimeInterface::RFC3339);
+            $log = "[$date] $level : $message | $jsonContext";
+            file_put_contents($this->errorType[$type], $log . "\n", FILE_APPEND);
+        }
+    }
+
+    /**
+     * @param int $type
+     * @param string $message
+     * @param array $customContext
+     * @return void
+     */
+    public function debug(int $type, string $message, array $customContext): void
+    {
+        $this->log($type, self::LEVEL_DEBUG, $message, $customContext);
+    }
+
+    /**
+     * @param int $type
+     * @param string $message
+     * @param array $customContext
+     * @return void
+     */
+    public function info(int $type, string $message, array $customContext): void
+    {
+        $this->log($type, self::LEVEL_INFOS, $message, $customContext);
+    }
+
+    /**
+     * @param int $type
+     * @param string $message
+     * @param array $customContext
+     * @return void
+     */
+    public function warning(int $type, string $message, array $customContext): void
+    {
+        $this->log($type, self::LEVEL_WARNING, $message, $customContext);
+    }
+
+    /**
+     * @param int $type
+     * @param string $message
+     * @param array $customContext
+     * @return void
+     */
+    public function error(int $type, string $message, array $customContext): void
+    {
+        $this->log($type, self::LEVEL_ERROR, $message, $customContext);
+    }
+
+    /**
+     * @param int $type
+     * @param string $message
+     * @param array $customContext
+     * @return void
+     */
+    public function critical(int $type, string $message, array $customContext): void
+    {
+        $this->log($type, self::LEVEL_CRITICAL, $message, $customContext);
+    }
+
+    /**
+     * @param int $type
+     * @param string $message
+     * @param array $customContext
+     * @return void
+     */
+    public function alert(int $type, string $message, array $customContext): void
+    {
+        $this->log($type, self::LEVEL_ALERT, $message, $customContext);
+    }
+
+    /**
+     * @param int $type
+     * @param string $message
+     * @param array $customContext
+     * @return void
+     */
+    public function emergency(int $type, string $message, array $customContext): void
+    {
+        $this->log($type, self::LEVEL_EMERGENCY, $message, $customContext);
+    }
+
+    /**
+     * @param array $customContext
+     * @param array $trace
+     * @return string
+     */
+    private function prepareContext(array $customContext, array $trace): string
+    {
+        try {
+            $excludeFunctions = ['log', 'prepareContext', 'insertLog'];
+            $defaultContext = [
+                'file' => null,
+                'line' => null,
+                'class' => null,
+                'function' => null,
+                'request_infos' => [
+                    'url' => $_SERVER['REQUEST_URI'] ?? null,
+                    'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
+                    'server' => $_SERVER['SERVER_NAME'] ?? null,
+                    'referrer' => $_SERVER['HTTP_REFERER'] ?? null
+                ]
+            ];
+            if (! empty($trace)) {
+                $defaultContext['file'] = $trace[0]['file'] ?? null;
+                $defaultContext['line'] = $trace[0]['line'] ?? null;
+                $defaultContext['class'] = (isset($trace[0]['class']) && $trace[0]['class'] !== 'CentreonLog') ? $trace[0]['class'] : null;
+                $defaultContext['function'] = (isset($trace[0]['function']) && ! in_array(
+                        $trace[0]['function'],
+                        $excludeFunctions,
+                        true
+                    )) ? $trace[0]['function'] : null;
+            }
+            $context = [
+                'context' => [
+                    'default' => $defaultContext,
+                    'custom' => $customContext
+                ]
+            ];
+            return json_encode(
+                $context,
+                JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            );
+        } catch (JsonException $e) {
+            return "context: error while json encoding (JsonException: {$e->getMessage()})";
+        }
+    }
+
+    //*********************************************** DEPRECATED *****************************************************//
+
+    /**
+     * @param int $id
+     * @param $str
      * @param int $print
      * @param int $page
      * @param int $option
+     * @param string $level
+     * @param array $customContext
      * @return void
+     * @deprecated Instead used {@see CentreonLog::log()}
      */
-    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0)
+    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0, string $level = '', array $customContext = [])
     {
-        /*
-         * Construct alerte message
-         */
-        $string = date("Y-m-d H:i") . "|$page|$option|$str";
+        $message = "$page|$option|$str";
 
-        /*
-         * Display error on Standard exit
-         */
         if ($print) {
             print $str;
         }
 
-
-        /*
-         * Replace special char
-         */
-        $string = str_replace("`", "", $string);
-        $string = str_replace("*", "\*", $string);
-
-
-        /*
-         * Write Error in log file.
-         */
-        file_put_contents($this->errorType[$id], $string . "\n", FILE_APPEND);
+        $this->log(type: $id, level: $level, message: $message, customContext: $customContext);
     }
 }
