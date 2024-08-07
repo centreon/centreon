@@ -155,7 +155,7 @@ class CentreonLog
     /**
      * Level type
      */
-    public const LEVEL_INFOS = "info";
+    public const LEVEL_INFO = "info";
     public const LEVEL_NOTICE = "notice";
     public const LEVEL_DEBUG = "debug";
     public const LEVEL_WARNING = "warning";
@@ -184,23 +184,19 @@ class CentreonLog
      *
      * @param array $customLogs
      */
-    public function __construct(array $customLogs = [])
-    {
-        $this->errorType = [];
-
+    public function __construct(
+        private readonly array $customLogs = []
+    ) {
         $this->path = _CENTREON_LOG_;
 
-        $this->errorType[1] = $this->path . "/login.log";
-        $this->errorType[2] = $this->path . "/sql-error.log";
-        $this->errorType[3] = $this->path . "/ldap.log";
-        $this->errorType[4] = $this->path . "/upgrade.log";
-        $this->errorType[5] = $this->path . '/plugin-pack-manager.log';
+        $this->errorType[self::TYPE_LOGIN] = $this->path . "/login.log";
+        $this->errorType[self::TYPE_SQL] = $this->path . "/sql-error.log";
+        $this->errorType[self::TYPE_LDAP] = $this->path . "/ldap.log";
+        $this->errorType[self::TYPE_UPGRADE] = $this->path . "/upgrade.log";
+        $this->errorType[self::TYPE_PLUGIN_PACK_MANAGER] = $this->path . '/plugin-pack-manager.log';
 
         foreach ($customLogs as $key => $value) {
-            if (! preg_match('@' . $this->path . '@', $value)) {
-                $value = $this->path . '/' . $value;
-            }
-            $this->errorType[$key] = $value;
+            $this->addCustomLog($key, $value);
         }
     }
 
@@ -259,7 +255,7 @@ class CentreonLog
      */
     public function info(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_INFOS, $message, $customContext, $exception);
+        $this->log($type, self::LEVEL_INFO, $message, $customContext, $exception);
     }
 
     /**
@@ -320,6 +316,35 @@ class CentreonLog
     public function emergency(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
         $this->log($type, self::LEVEL_EMERGENCY, $message, $customContext, $exception);
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomLogs(): array
+    {
+        return $this->customLogs;
+    }
+
+    /**
+     * @param int $idLogType
+     * @param string $logFileName
+     * @return bool
+     */
+    public function addCustomLog(int $idLogType, string $logFileName): bool
+    {
+        if (isset($this->errorType[$idLogType])) {
+            return false;
+        }
+        $value = '';
+        if (! preg_match('@' . $this->path . '@', $logFileName)) {
+            $value = $this->path . '/' . $logFileName;
+        }
+        if (empty($value)) {
+            return false;
+        }
+        $this->errorType[$idLogType] = $value;
+        return true;
     }
 
     /**
