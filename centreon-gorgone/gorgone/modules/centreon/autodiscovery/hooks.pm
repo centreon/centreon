@@ -52,6 +52,9 @@ sub register {
     $config_core           = $options{config_core};
     $config_db_centreon    = $options{config_db_centreon};
     $config_db_centstorage = $options{config_db_centstorage};
+
+    $config->{vault_file} = defined($config->{vault_file}) ? $config->{vault_file} : '/var/lib/centreon/vault/vault.json';
+
     return (1, NAMESPACE, NAME, EVENTS);
 }
 

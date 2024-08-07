@@ -99,20 +99,6 @@ sub get_audit_user_id {
     return (0, '', $user_id);
 }
 
-sub get_vault_configured {
-    my (%options) = @_;
-
-    my ($status, $datas) = $options{class_object_centreon}->custom_execute(
-        request => "SELECT count(id) FROM vault_configuration",
-        mode    => 2
-    );
-    if ($status == -1 || !defined($datas->[0])) {
-        return (-1, 'cannot get number of vault configured');
-    }
-
-    return (0, '', $datas->[0]->[0]);
-}
-
 sub get_rules {
     my (%options) = @_;
 

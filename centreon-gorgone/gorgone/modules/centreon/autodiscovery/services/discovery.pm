@@ -31,6 +31,7 @@ use Net::SMTP;
 use XML::Simple;
 use POSIX qw(strftime);
 use Safe;
+use JSON::XS;
 
 sub new {
     my ($class, %options) = @_;
@@ -336,11 +337,8 @@ sub update_service {
                 value => $options{macros}->{$macro_name}
             };
             if ($self->{discovery}->{is_manual} == 1) {
-                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$macro_name} = { value =>
-                                                                                                                                                                                           $options{macros}
-                                                                                                                                                                                               ->{$macro_name},
-                                                                                                                                                                                           type  =>
-                                                                                                                                                                                           1 };
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$macro_name} =
+                    { value => $options{macros} ->{$macro_name}, type => 1 };
             }
         } elsif ($options{service}->{macros}->{'$_SERVICE' . $macro_name . '$'} ne $options{macros}->{$macro_name}) {
             push @update_macros, {
@@ -348,11 +346,8 @@ sub update_service {
                 value => $options{macros}->{$macro_name}
             };
             if ($self->{discovery}->{is_manual} == 1) {
-                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$macro_name} = { value =>
-                                                                                                                                                                                           $options{macros}
-                                                                                                                                                                                               ->{$macro_name},
-                                                                                                                                                                                           type  =>
-                                                                                                                                                                                           0 };
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{macros}->{$macro_name} =
+                    { value => $options{macros}->{$macro_name}, type => 0 };
             }
         }
     }
@@ -890,9 +885,8 @@ sub launchdiscovery {
     ##################
     # get vault config
     ##################
-    ($status, $message, my $vault_count) = gorgone::modules::centreon::autodiscovery::services::resources::get_vault_configured(
-        class_object_centreon => $self->{class_object_centreon}
-    );
+
+    ($status, $message, my $vault_count) = get_vault_count();
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
         return -1;
@@ -984,6 +978,33 @@ sub event {
     my ($self, %options) = @_;
 
     $self->{class_autodiscovery}->event();
+}
+
+sub get_vault_count() {
+    my (%options) = @_;
+
+    # Check if vault config file exists
+    if (-e $self->{config}->{vault_file}) {
+        my ($fh, $size);
+        # Read config file
+        if (!open($fh, '<', $self->{config}->{vault_file})) {
+            return (-1, "Could not open $self->{config}->{vault_file}: $!");
+        }
+        my $content = do {
+            local $/;
+            <$fh>
+        };
+        close $fh;
+        # Check JSON validity
+        my $vault_config;
+        eval {
+            $vault_config = JSON::XS->new->decode($content);
+        };
+        if ($@) {
+            return (-1, "Cannot decode json $self->{config}->{vault_file}: $!");
+        }
+        return (0, '', 1);
+    }
 }
 
 1;
