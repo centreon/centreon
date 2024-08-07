@@ -54,7 +54,7 @@ Feature: Configuring resource table widget
     When the dashboard administrator clicks on a random resource
     Then the user should be redirected to the resource status screen and all the resources must be displayed
 
-  @TEST_MON-130766
+  @TEST_MON-146675
   Scenario: Set a resource status to downtime
     Given a dashboard containing a resource table widget
     When the dashboard administrator clicks on a random resource from the resource table
@@ -62,7 +62,7 @@ Feature: Configuring resource table widget
     And the dashboard administrator clicks on the downtime filter
     Then the resources set to downtime should be displayed
 
-  @TEST_MON-130766
+  @TEST_MON-146676
   Scenario: Set a resource status to acknowledged
     Given a dashboard containing a resource table widget
     When the dashboard administrator clicks on a random resource from the resource table
