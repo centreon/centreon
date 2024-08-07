@@ -95,9 +95,10 @@ try {
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
 } catch (Exception $e) {
-    CentreonLog::create()->insertLog(
-        CentreonLog::TYPE_SQL,
-        'Error while getting widget preferences for the host monitoring custom view : ' . $e->getMessage(),
+    CentreonLog::create()->error(
+        2,
+        'Error while getting widget preferences for the host monitoring custom view',
+        ['exception_message' => $e->getMessage(), 'widget_id' => $widgetId]
     );
     throw $e;
 }
@@ -286,9 +287,10 @@ try {
     }
     $res->execute();
 } catch (PDOException $e) {
-    CentreonLog::create()->insertLog(
-        CentreonLog::TYPE_SQL,
-        'Error while getting hosts for the host monitoring custom view : ' . $e->getMessage(),
+    CentreonLog::create()->error(
+        2,
+        'Error while getting hosts for the host monitoring custom view',
+        ['pdo_info' => $e->errorInfo, 'query_parameters' => $mainQueryParameters]
     );
     throw $e;
 }
@@ -299,9 +301,10 @@ unset($mainQueryParameters);
 try {
     $nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 } catch (PDOException $e) {
-    CentreonLog::create()->insertLog(
-        CentreonLog::TYPE_SQL,
-        'Error while counting hosts for the host monitoring custom view : ' . $e->getMessage(),
+    CentreonLog::create()->error(
+        2,
+        'Error while counting hosts for the host monitoring custom view',
+        ['pdo_info' => $e->errorInfo]
     );
     throw $e;
 }
@@ -313,11 +316,10 @@ $commentLength = $preferences['comment_length'] ?: 50;
 try {
     $hostObj = new CentreonHost($db);
 } catch (PDOException $e) {
-    CentreonLog::create()->insertLog(
-        CentreonLog::TYPE_SQL,
-        'Error when CentreonHost called for the host monitoring custom view : ' . $e->getMessage(),
-        ['pdo_info' => $e->errorInfo],
-        $e
+    CentreonLog::create()->error(
+        2,
+        'Error when CentreonHost called for the host monitoring custom view',
+        ['pdo_info' => $e->errorInfo]
     );
     throw $e;
 }
@@ -439,9 +441,10 @@ while ($row = $res->fetch()) {
             }
             $res2->closeCursor();
         } catch (PDOException $e) {
-            CentreonLog::create()->insertLog(
-                CentreonLog::TYPE_SQL,
-                'Error while getting data from comments for the host monitoring custom view : ' . $e->getMessage(),
+            CentreonLog::create()->error(
+                2,
+                'Error while getting data from comments for the host monitoring custom view',
+                ['pdo_info' => $e->errorInfo, 'host_id' => $row['host_id'] ?? null],
             );
             throw $e;
         }
