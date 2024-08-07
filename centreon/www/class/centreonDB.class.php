@@ -106,18 +106,14 @@ class CentreonDB extends PDO
         private ?CentreonDbConfig $dbConfig = null
     ) {
         try {
-            $conf_centreon = [
-                'db_user' => $dbConfig?->dbUser ?? user,
-                'db_password' => $dbConfig?->dbPassword ?? password,
-                'db_port' => $dbConfig?->dbPort ?? port ?? 3306
-            ];
-
-            if (strtolower($dbLabel) === self::LABEL_DB_REALTIME) {
-                $conf_centreon['db_host'] = $dbConfig?->dbHost ?? hostCentstorage;
-                $conf_centreon['db_name'] = $dbConfig?->dbName ?? dbcstg;
-            } else {
-                $conf_centreon['db_host'] = $dbConfig?->dbHost ?? hostCentreon;
-                $conf_centreon['db_name'] = $dbConfig?->dbName ?? db;
+            if (is_null($this->dbConfig)) {
+                $this->dbConfig = new CentreonDbConfig(
+                    $dbLabel === self::LABEL_DB_CONFIGURATION ? hostCentreon : hostCentstorage,
+                    user,
+                    password,
+                    $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg,
+                    port ?? 3306
+                );
             }
 
             $this->logger = CentreonLog::create();
@@ -144,15 +140,9 @@ class CentreonDB extends PDO
             $this->lineRead = 0;
 
             parent::__construct(
-                sprintf(
-                    "%s:dbname=%s;host=%s;port=%s",
-                    self::DRIVER_PDO_MYSQL,
-                    $conf_centreon['db_name'],
-                    $conf_centreon['db_host'],
-                    $conf_centreon['db_port']
-                ),
-                $conf_centreon['db_user'],
-                $conf_centreon['db_password'],
+                $this->dbConfig->getPdoDsn(),
+                $this->dbConfig->dbUser,
+                $this->dbConfig->dbPassword,
                 $this->options
             );
         } catch (Exception $e) {
