@@ -38,48 +38,42 @@ use ValueError;
 function getEnvironmentVariable(string $nameEnvVar): ?string
 {
     $envVarValue = getenv($nameEnvVar, true) ?: getenv($nameEnvVar);
-    return (is_string($envVarValue) && !empty($envVarValue)) ? $envVarValue : null;
+    return (is_string($envVarValue) && ! empty($envVarValue)) ? $envVarValue : null;
 }
 
 $dbHost = getEnvironmentVariable('MYSQL_HOST');
 $dbUser = getEnvironmentVariable('MYSQL_USER');
 $dbPassword = getEnvironmentVariable('MYSQL_PASSWORD');
 
-$dbConfig = null;
+$dbConfigCentreon = null;
+$dbConfigCentreonStorage = null;
 
-if (!is_null($dbHost) && !is_null($dbUser) && !is_null($dbPassword)) {
-    $dbConfig = new CentreonDbConfig(
-        dbHostCentreon: $dbHost,
-        dbHostCentreonStorage: $dbHost,
+if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
+    $dbConfigCentreon = new CentreonDbConfig(
+        dbHost: $dbHost,
         dbUser: $dbUser,
         dbPassword: $dbPassword,
-        dbNameCentreon: 'centreon',
-        dbNameCentreonStorage: 'centreon_storage',
-        dbPort: 3306
+        dbName: 'centreon'
+    );
+    $dbConfigCentreonStorage = new CentreonDbConfig(
+        dbHost: $dbHost,
+        dbUser: $dbUser,
+        dbPassword: $dbPassword,
+        dbName: 'centreon_storage'
     );
 }
 
 /**
  * @param CentreonDbConfig $dbConfig
- * @param string $dbName
  * @return bool
  */
-function hasConnectionDb(CentreonDbConfig $dbConfig, string $dbName): bool
+function hasConnectionDb(CentreonDbConfig $dbConfig): bool
 {
     try {
-        if ($dbName === $dbConfig->getDbNameCentreon()) {
-            new PDO (
-                "mysql:dbname={$dbConfig->getDbNameCentreon()};host={$dbConfig->getDbHostCentreon()};port={$dbConfig->getDbPort()}",
-                $dbConfig->getDbUser(), $dbConfig->getDbPassword(), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-            );
-        } elseif ($dbName === $dbConfig->getDbNameCentreonStorage()) {
-            new PDO (
-                "mysql:dbname={$dbConfig->getDbNameCentreonStorage()};host={$dbConfig->getDbHostCentreonStorage()};port={$dbConfig->getDbPort()}",
-                $dbConfig->getDbUser(), $dbConfig->getDbPassword(), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-            );
-        } else {
-            return false;
-        }
+        new PDO (
+            $dbConfig->getPdoDsn(),
+            $dbConfig->dbUser, $dbConfig->dbPassword, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
         return true;
     } catch (\PDOException $e) {
         return false;
@@ -88,11 +82,11 @@ function hasConnectionDb(CentreonDbConfig $dbConfig, string $dbName): bool
 
 // ************************************** With centreon database connection *******************************************
 
-if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentreon())) {
+if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'connect to centreon database with CentreonDB constructor',
-        function () use ($dbConfig) {
-            $db = new CentreonDB(db: CentreonDB::LABEL_DB_CONFIGURATION, dbConfig: $dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = new CentreonDB(dbLabel: CentreonDB::LABEL_DB_CONFIGURATION, dbConfig: $dbConfigCentreon);
             expect($db)->toBeInstanceOf(CentreonDB::class);
             $dbName = $db->executeQuery("select database()")->fetchColumn();
             expect($dbName)->toBe('centreon')
@@ -102,8 +96,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'connect to centreon database with CentreonDB::connectToCentreonDb factory',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             expect($db)->toBeInstanceOf(CentreonDB::class);
             $dbName = $db->executeQuery("select database()")->fetchColumn();
             expect($dbName)->toBe('centreon')
@@ -113,8 +107,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute query with a correct query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->executeQuery("select database()");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $dbName = $pdoSth->fetchColumn();
@@ -125,8 +119,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute query with an incorrect query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $db->executeQuery("foo");
             expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
@@ -134,8 +128,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute query with an empty query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $db->executeQuery("");
             expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
@@ -143,8 +137,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'prepare query with a correct prepared query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class)
                 ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
@@ -153,8 +147,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'prepare query with an empty prepared query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $db->prepareQuery("");
             expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
@@ -162,8 +156,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute prepared query with a correct prepared query ',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $result = $db->executePreparedQuery($pdoSth, ['contact_id' => 1]);
@@ -174,8 +168,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute prepared query with an empty array for $bindParams',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $db->executePreparedQuery($pdoSth, []);
@@ -185,8 +179,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute prepared query with an incorrect prepared query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("foo");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $db->executePreparedQuery($pdoSth, ['contact_id' => 1]);
@@ -196,8 +190,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute prepared query with typing binding params with a correct prepared query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $result = $db->executePreparedQuery($pdoSth, ['contact_id' => [1, PDO::PARAM_INT]], true);
@@ -208,8 +202,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute prepared query with typing binding params with an unexpected type of param',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $db->executePreparedQuery($pdoSth, ['contact_id' => [1, 'foo']], true);
@@ -219,8 +213,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute prepared query with typing binding params with no array for the value of $bindParams',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $db->executePreparedQuery($pdoSth, ['contact_id' => 1], true);
@@ -230,8 +224,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute prepared query with typing binding params with no type for the value of $bindParams',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $db->executePreparedQuery($pdoSth, ['contact_id' => [1]], true);
@@ -241,8 +235,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute executeQueryFetchAll query with a correct query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $contacts = $db->executeQueryFetchAll("select * from contact");
             expect($contacts)->toBeArray()
                 ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
@@ -251,8 +245,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute executeQueryFetchAll query with an empty query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $db->executeQueryFetchAll("");
             expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
@@ -260,8 +254,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute executeQueryFetchColumn query with a correct query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $contactsIds = $db->executeQueryFetchColumn("select * from contact");
             expect($contactsIds)->toBeArray()
                 ->and($contactsIds[0])->toBeInt()
@@ -272,8 +266,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute executeQueryFetchColumn query with a column option with a correct query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $alias = $db->executeQueryFetchColumn("select * from contact", 4);
             expect($alias)->toBeArray()
                 ->and($alias[0])->toBeString()
@@ -284,8 +278,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute executeQueryFetchColumn query with an empty query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $db->executeQueryFetchColumn("");
             expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
@@ -293,8 +287,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute fetch with a correct query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->executeQuery("select * from contact");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $contact = $db->fetch($pdoSth);
@@ -306,8 +300,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute fetchAll a correct query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->executeQuery("select * from contact");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $contact = $db->fetchAll($pdoSth);
@@ -319,8 +313,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute fetchColumn a correct query',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->executeQuery("select * from contact");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $contactId = $db->fetchColumn($pdoSth);
@@ -332,8 +326,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute fetchColumn a column that doesnt exist',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->executeQuery("select * from contact");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $db->fetchColumn($pdoSth, 99999999);
@@ -343,8 +337,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute execute with success',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $successExecute = $db->execute($pdoSth, ['contact_id' => 1]);
@@ -355,8 +349,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute execute with an empty array for params',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $db->execute($pdoSth, []);
@@ -366,8 +360,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute makeBindValue with success',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $successBind = $db->makeBindValue($pdoSth, 'contact_id', 1, PDO::PARAM_INT);
@@ -380,8 +374,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute makeBindValue with an empty param name',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $db->makeBindValue($pdoSth, '', 1, PDO::PARAM_INT);
@@ -391,8 +385,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute makeBindValue with a type that doesnt exist',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $db->makeBindValue($pdoSth, 'contact_id', 1, 999999);
@@ -402,8 +396,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute makeBindParam with success',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $contactID = 1;
@@ -417,8 +411,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute makeBindParam with an empty param name',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $contactID = 1;
@@ -429,8 +423,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute makeBindParam with a type that doesnt exist',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
             $contactID = 1;
@@ -441,8 +435,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute closeQuery with success',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
             $pdoSth->execute(['contact_id' => 1]);
             $successClose = $db->closeQuery($pdoSth);
@@ -452,8 +446,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'execute escapeString with success',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonDb($dbConfig);
+        function () use ($dbConfigCentreon) {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $escapedString = $db->escapeString('foo');
             expect($escapedString)->toBeString()->toBe('\'foo\'');
             $escapedString = $db->escapeString('1');
@@ -466,11 +460,11 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
 // ********************************** With centreon_storage database connection ***************************************
 
-if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentreonStorage())) {
+if (! is_null($dbConfigCentreonStorage) && hasConnectionDb($dbConfigCentreonStorage)) {
     it(
         'connect to centreon_storage database with CentreonDB constructor',
-        function () use ($dbConfig) {
-            $db = new CentreonDB(db: CentreonDB::LABEL_DB_REALTIME, dbConfig: $dbConfig);
+        function () use ($dbConfigCentreonStorage) {
+            $db = new CentreonDB(dbLabel: CentreonDB::LABEL_DB_REALTIME, dbConfig: $dbConfigCentreonStorage);
             expect($db)->toBeInstanceOf(CentreonDB::class);
             $dbName = $db->executeQuery("select database()")->fetchColumn();
             expect($dbName)->toBe('centreon_storage')
@@ -480,8 +474,8 @@ if (!is_null($dbConfig) && hasConnectionDb($dbConfig, $dbConfig->getDbNameCentre
 
     it(
         'connect to centreon_storage database with CentreonDB::connectToCentreonStorageDb factory',
-        function () use ($dbConfig) {
-            $db = CentreonDB::connectToCentreonStorageDb($dbConfig);
+        function () use ($dbConfigCentreonStorage) {
+            $db = CentreonDB::connectToCentreonStorageDb($dbConfigCentreonStorage);
             expect($db)->toBeInstanceOf(CentreonDB::class);
             $dbName = $db->executeQuery("select database()")->fetchColumn();
             expect($dbName)->toBe('centreon_storage')

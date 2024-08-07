@@ -26,151 +26,38 @@ declare(strict_types=1);
  *
  * @class CentreonDbConfig
  */
-class CentreonDbConfig
+final class CentreonDbConfig
 {
 
     /**
-     * @param string $dbHostCentreon
-     * @param string $dbHostCentreonStorage
+     * @param string $dbHost
      * @param string $dbUser
      * @param string $dbPassword
-     * @param string $dbNameCentreon
-     * @param string $dbNameCentreonStorage
+     * @param string $dbName
      * @param int $dbPort
+     * @param string $dbDriver
      */
     public function __construct(
-        private string $dbHostCentreon,
-        private string $dbHostCentreonStorage,
-        private string $dbUser,
-        private string $dbPassword,
-        private string $dbNameCentreon,
-        private string $dbNameCentreonStorage,
-        private int $dbPort,
-    ) {}
-
-    /**
-     * @return string
-     */
-    public function getDbHostCentreon(): string
-    {
-        return $this->dbHostCentreon;
-    }
-
-    /**
-     * @param string $dbHostCentreon
-     * @return $this
-     */
-    public function setDbHostCentreon(string $dbHostCentreon): CentreonDbConfig
-    {
-        $this->dbHostCentreon = $dbHostCentreon;
-        return $this;
+        public readonly string $dbHost,
+        public readonly string $dbUser,
+        public readonly string $dbPassword,
+        public readonly string $dbName,
+        public readonly int $dbPort = 3306,
+        public readonly string $dbDriver = 'mysql'
+    ) {
     }
 
     /**
      * @return string
      */
-    public function getDbHostCentreonStorage(): string
+    public function getPdoDsn(): string
     {
-        return $this->dbHostCentreonStorage;
-    }
-
-    /**
-     * @param string $dbHostCentreonStorage
-     * @return $this
-     */
-    public function setDbHostCentreonStorage(string $dbHostCentreonStorage): CentreonDbConfig
-    {
-        $this->dbHostCentreonStorage = $dbHostCentreonStorage;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDbUser(): string
-    {
-        return $this->dbUser;
-    }
-
-    /**
-     * @param string $dbUser
-     * @return $this
-     */
-    public function setDbUser(string $dbUser): CentreonDbConfig
-    {
-        $this->dbUser = $dbUser;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDbPassword(): string
-    {
-        return $this->dbPassword;
-    }
-
-    /**
-     * @param string $dbPassword
-     * @return $this
-     */
-    public function setDbPassword(string $dbPassword): CentreonDbConfig
-    {
-        $this->dbPassword = $dbPassword;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDbNameCentreon(): string
-    {
-        return $this->dbNameCentreon;
-    }
-
-    /**
-     * @param string $dbNameCentreon
-     * @return $this
-     */
-    public function setDbNameCentreon(string $dbNameCentreon): CentreonDbConfig
-    {
-        $this->dbNameCentreon = $dbNameCentreon;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDbNameCentreonStorage(): string
-    {
-        return $this->dbNameCentreonStorage;
-    }
-
-    /**
-     * @param string $dbNameCentreonStorage
-     * @return $this
-     */
-    public function setDbNameCentreonStorage(string $dbNameCentreonStorage): CentreonDbConfig
-    {
-        $this->dbNameCentreonStorage = $dbNameCentreonStorage;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getDbPort(): int
-    {
-        return $this->dbPort;
-    }
-
-    /**
-     * @param int $dbPort
-     * @return $this
-     */
-    public function setDbPort(int $dbPort): CentreonDbConfig
-    {
-        $this->dbPort = $dbPort;
-        return $this;
+        return sprintf(
+            "%s:dbname=%s;host=%s;port=%s",
+            $this->dbDriver,
+            $this->dbName,
+            $this->dbHost,
+            $this->dbPort
+        );
     }
 }
