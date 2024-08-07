@@ -19,6 +19,7 @@ interface Props {
   isListMode: boolean;
   line: Line;
   minMaxAvg?;
+  unit: string;
   value?: string | null;
 }
 
@@ -29,7 +30,8 @@ const LegendHeader = ({
   value,
   minMaxAvg,
   isListMode,
-  isDisplayedOnSide
+  isDisplayedOnSide,
+  unit
 }: Props): JSX.Element => {
   const { classes, cx } = useLegendHeaderStyles({ color });
 
@@ -74,12 +76,11 @@ const LegendHeader = ({
             className={cx(classes.icon, { [classes.disabled]: disabled })}
           />
           <EllipsisTypography
-            className={cx(
-              classes.text,
+            className={classes.text}
+            containerClassname={cx(
               !isListMode && classes.legendName,
-              !isListMode && isDisplayedOnSide && classes.legendNameSide,
               isListMode && !isDisplayedOnSide && classes.textListBottom,
-              isListMode && isDisplayedOnSide && classes.textListSide
+              isListMode && isDisplayedOnSide && classes.legendName
             )}
             data-mode={
               value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
@@ -87,6 +88,9 @@ const LegendHeader = ({
           >
             {metricName}
           </EllipsisTypography>
+          <Typography sx={{ lineHeight: 1.25 }} variant="caption">
+            {unit}
+          </Typography>
         </div>
       </Tooltip>
     </div>

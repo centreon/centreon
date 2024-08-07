@@ -93,10 +93,7 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       width: theme.spacing(1.5)
     },
     legendName: {
-      maxWidth: '95%'
-    },
-    legendNameSide: {
-      maxWidth: '95%'
+      width: '91%'
     },
     markerAndLegendName: {
       alignItems: 'center',
@@ -122,9 +119,6 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
     },
     textListBottom: {
       width: 'auto'
-    },
-    textListSide: {
-      width: '95%'
     }
   })
 );

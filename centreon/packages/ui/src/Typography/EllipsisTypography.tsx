@@ -1,8 +1,11 @@
 import { Box, Typography, TypographyProps } from '@mui/material';
 
-const EllipsisTypography = (props: TypographyProps): JSX.Element => {
+const EllipsisTypography = ({
+  containerClassname,
+  ...props
+}: TypographyProps & { containerClassname?: string }): JSX.Element => {
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box className={containerClassname} sx={{ width: '100%' }}>
       <Typography
         sx={{
           overflow: 'hidden',

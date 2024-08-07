@@ -40,19 +40,16 @@ const useAxisY = ({
   const theme = useTheme();
 
   const { lines } = data;
-  const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
+  const [firstUnit, secondUnit] = getUnits(lines);
 
   const numTicks = isHorizontal
     ? graphHeight && Math.ceil(graphHeight / 30)
     : graphWidth && Math.ceil(graphWidth / 60);
 
-  const hasMoreThanTwoUnits = !isNil(thirdUnit);
-  const hasTwoUnits = !isNil(secondUnit) && !hasMoreThanTwoUnits;
-
-  const displayAxisRight = data?.axisYRight?.display ?? hasTwoUnits;
-  const displayUnitAxisRight = data?.axisYRight?.displayUnit ?? hasTwoUnits;
-  const displayUnitAxisLeft =
-    data?.axisYLeft?.displayUnit ?? !hasMoreThanTwoUnits;
+  const displayAxisRight = data?.axisYRight?.display || Boolean(secondUnit);
+  const displayUnitAxisRight =
+    data?.axisYRight?.displayUnit || Boolean(secondUnit);
+  const displayUnitAxisLeft = data?.axisYLeft?.displayUnit || true;
 
   const formatTick =
     ({ unit }) =>
@@ -92,7 +89,7 @@ const useAxisY = ({
       displayUnit: displayUnitAxisLeft,
       numTicks,
       tickFormat: formatTick({
-        unit: hasMoreThanTwoUnits ? '' : firstUnit
+        unit: firstUnit
       }),
       tickLabelProps: tickLabelPropsAxisLeft
     },

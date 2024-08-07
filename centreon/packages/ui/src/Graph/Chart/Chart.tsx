@@ -250,7 +250,7 @@ const Chart = ({
                       graphHeight,
                       graphSvgRef,
                       graphWidth,
-                      lines: linesGraph,
+                      lines: displayedLines,
                       timeSeries,
                       xScale,
                       yScalesPerUnit

@@ -113,7 +113,7 @@ const MainLegend = ({
         data-mode={itemMode}
       >
         {displayedLines.map((line) => {
-          const { color, display, highlight, metric_id } = line;
+          const { color, display, highlight, metric_id, unit } = line;
 
           const markerColor = display
             ? color
@@ -155,6 +155,7 @@ const MainLegend = ({
                 minMaxAvg={
                   shouldDisplayLegendInCompactMode ? minMaxAvg : undefined
                 }
+                unit={unit}
               />
               {!shouldDisplayLegendInCompactMode && !isListMode && (
                 <div>

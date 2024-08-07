@@ -22,6 +22,7 @@ import dataLastWeek from '../mockedData/lastWeek.json';
 import dataZoomPreview from '../mockedData/zoomPreview.json';
 import dataLastDay from '../mockedData/lastDay.json';
 import dataCurvesSameColor from '../mockedData/curvesWithSameColor.json';
+import dataLastDayWithLotOfUnits from '../mockedData/lastDayWithLotOfUnits.json';
 
 import {
   argTypes,
@@ -483,14 +484,6 @@ export const LineChartWithSameColorCurves: Story = {
     />
   )
 };
-// lineStyle: {
-//       areaTransparency: 10,
-//       dashLength: 10,
-//       dashOffset: 10,
-//       lineWidth: 9,
-//       showArea: true,
-//       showPoints: true
-//     }
 
 export const zeroCentered: Story = {
   argTypes,
@@ -520,5 +513,16 @@ export const customLines: Story = {
   },
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
+  )
+};
+
+export const multipleUnits: Story = {
+  argTypes,
+  args: argumentsData,
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataLastDayWithLotOfUnits as unknown as LineChartData}
+    />
   )
 };

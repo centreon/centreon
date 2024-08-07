@@ -42,7 +42,7 @@ const Axes = ({
     isHorizontal
   });
 
-  const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
+  const [firstUnit, secondUnit] = getUnits(lines);
 
   const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
@@ -54,8 +54,7 @@ const Axes = ({
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });
 
-  const hasMoreThanTwoUnits = !isNil(thirdUnit);
-  const displayAxisRight = !isNil(secondUnit) && !hasMoreThanTwoUnits;
+  const displayAxisRight = !isNil(secondUnit);
 
   const AxisBottom = isHorizontal ? Axis.AxisBottom : Axis.AxisLeft;
   const AxisLeft = isHorizontal ? Axis.AxisLeft : Axis.AxisTop;

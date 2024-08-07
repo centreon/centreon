@@ -322,6 +322,8 @@ const getYScale = ({
 }: GetYScaleProps): ScaleLinear<number, number> => {
   const scale = yScalesPerUnit[unit];
 
+  console.log(invert, scale, unit, yScalesPerUnit);
+
   return invert
     ? Scale.scaleLinear<number>({
         domain: scale.domain().reverse(),
