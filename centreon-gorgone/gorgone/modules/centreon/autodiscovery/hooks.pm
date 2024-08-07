@@ -43,14 +43,14 @@ my $config_core;
 my $config;
 my ($config_db_centreon, $config_db_centstorage);
 my $autodiscovery = {};
-my $stop = 0;
+my $stop          = 0;
 
 sub register {
     my (%options) = @_;
-    
-    $config = $options{config};
-    $config_core = $options{config_core};
-    $config_db_centreon = $options{config_db_centreon};
+
+    $config                = $options{config};
+    $config_core           = $options{config_core};
+    $config_db_centreon    = $options{config_db_centreon};
     $config_db_centstorage = $options{config_db_centstorage};
     return (1, NAMESPACE, NAME, EVENTS);
 }
@@ -71,20 +71,20 @@ sub routing {
 
     if (gorgone::class::core::waiting_ready(ready => \$autodiscovery->{ready}) == 0) {
         gorgone::standard::library::add_history({
-            dbh => $options{dbh},
-            code => GORGONE_ACTION_FINISH_KO,
-            token => $options{token},
-            data => { msg => 'gorgoneautodiscovery: still no ready' },
+            dbh         => $options{dbh},
+            code        => GORGONE_ACTION_FINISH_KO,
+            token       => $options{token},
+            data        => { msg => 'gorgoneautodiscovery: still no ready' },
             json_encode => 1
         });
         return undef;
     }
 
     $options{gorgone}->send_internal_message(
-        identity => 'gorgone-autodiscovery',
-        action => $options{action},
+        identity     => 'gorgone-autodiscovery',
+        action       => $options{action},
         raw_data_ref => $options{frame}->getRawData(),
-        token => $options{token}
+        token        => $options{token}
     );
 }
 
@@ -119,16 +119,16 @@ sub check {
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($autodiscovery->{pid}) || $autodiscovery->{pid} != $pid);
-        
+
         $autodiscovery = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger});
         }
     }
-    
-    $count++  if (defined($autodiscovery->{running}) && $autodiscovery->{running} == 1);
-    
+
+    $count++ if (defined($autodiscovery->{running}) && $autodiscovery->{running} == 1);
+
     return $count;
 }
 
@@ -141,17 +141,17 @@ sub broadcast {
 # Specific functions
 sub create_child {
     my (%options) = @_;
-    
+
     $options{logger}->writeLogInfo("[autodiscovery] Create module 'autodiscovery' process");
     my $child_pid = fork();
     if ($child_pid == 0) {
-        $0 = 'gorgone-autodiscovery';
+        $0         = 'gorgone-autodiscovery';
         my $module = gorgone::modules::centreon::autodiscovery::class->new(
-            module_id => NAME,
-            logger => $options{logger},
-            config_core => $config_core,
-            config => $config,
-            config_db_centreon => $config_db_centreon,
+            module_id             => NAME,
+            logger                => $options{logger},
+            config_core           => $config_core,
+            config                => $config,
+            config_db_centreon    => $config_db_centreon,
             config_db_centstorage => $config_db_centstorage
         );
         $module->run();
