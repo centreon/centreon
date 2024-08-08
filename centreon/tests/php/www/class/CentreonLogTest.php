@@ -307,7 +307,7 @@ function testContentLogWithoutContext(
     expect($contentLog)->toBeString()->toContain(
         "[{$date}",
         '] ' . strtoupper($level) . ' : ' . $message . ' | {"context":{"default":{"back_trace":{"file":' .
-        '"/usr/share/centreon/tests/php/www/class/CentreonLogTest.php","line":' . $line . ',"class":null,"function":null},' .
+        '"' . __FILE__ . '","line":' . $line . ',"class":null,"function":null},' .
         '"request_infos":{"url":null,"http_method":null,"server":null,"referrer":null}},"exception":null,"custom":' .
         'null}}'
     );
