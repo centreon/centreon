@@ -1,7 +1,7 @@
 import dashboards from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-before(()=>{
+before(() => {
     cy.startContainers();
     cy.enableDashboardFeature();
     cy.executeCommandsViaClapi(
@@ -9,21 +9,21 @@ before(()=>{
     );
 });
 
-after(()=>{
+after(() => {
     cy.stopContainers();
 });
 
-beforeEach(()=>{
+beforeEach(() => {
     cy.intercept({
         method: 'GET',
         url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-      }).as('getNavigationList');
-    
+    }).as('getNavigationList');
+
     cy.intercept({
         method: 'GET',
         url: '/centreon/api/latest/configuration/dashboards?page=*'
-    }).as('getAllDashboardsList');
-    
+    }).as('getDashboardsList');
+
     cy.loginByTypeOfUser({
         jsonName: 'user-dashboard-creator',
         loginViaApi: false
@@ -33,29 +33,50 @@ beforeEach(()=>{
 
 afterEach(() => {
     cy.requestOnDatabase({
-      database: 'centreon',
-      query: 'DELETE FROM dashboard'
+        database: 'centreon',
+        query: 'DELETE FROM dashboard'
     });
 });
 
 Given('a Centreon User with dashboard edition rights on dashboard listing page',
-    ()=> {
+    () => {
         cy.visitDashboards();
     }
 );
 
-When('the user sets the right value in the search filter',
-    ()=> {
-        cy.getByTestId({tag: '.MuiInputBase-root > ',testId: 'Search'}).type(`${dashboards[0].name}{enter}`);
-        cy.wait('@getAllDashboardsList');
+When('the user sets a right value in the search filter',
+    () => {
+        cy.getByTestId({ tag: '.MuiInputBase-root > ', testId: 'Search' }).type(`${dashboards[0].name}{enter}`);
+        cy.wait('@getDashboardsList');
     }
 );
 
 Then('the dashboards that respect the filter are displayed',
-    ()=> {
-        cy.get('.css-1lulwh1-intersectionRow > .MuiTableRow-root')
-        .each(($row) => {
-            cy.wrap($row).contains(dashboards[0].name); 
-        });
+    () => {
+        cy.wait('@getDashboardsList');
+        cy.get('.css-1lulwh1-intersectionRow')
+            .each(($row) => {
+                cy.wrap($row)
+                    .find('p:first-of-type')
+                    .should('contain.text', dashboards[0].name);
+            });
+    }
+);
+
+Given('Given a Centreon User with dashboard edition rights on dashboard listing page',
+    ()=>{
+
+    }
+)
+
+When('the user sets the wrong value in the search filter',
+    ()=>{
+
+    }
+);
+
+Then('no dashboards records are returned',
+    ()=>{
+
     }
 )
