@@ -92,6 +92,9 @@ class CentreonDB extends PDO
     /** @var int */
     private $successQueryNumber;
 
+    /** @var CentreonDbConfig */
+    private CentreonDbConfig $dbConfig;
+
     /**
      * Constructor
      *
@@ -103,10 +106,10 @@ class CentreonDB extends PDO
     public function __construct(
         $dbLabel = self::LABEL_DB_CONFIGURATION,
         $retry = self::RETRY,
-        private ?CentreonDbConfig $dbConfig = null
+        ?CentreonDbConfig $dbConfig = null
     ) {
         try {
-            if (is_null($this->dbConfig)) {
+            if (is_null($dbConfig)) {
                 $this->dbConfig = new CentreonDbConfig(
                     $dbLabel === self::LABEL_DB_CONFIGURATION ? hostCentreon : hostCentstorage,
                     user,
@@ -114,6 +117,8 @@ class CentreonDB extends PDO
                     $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg,
                     port ?? 3306
                 );
+            } else {
+                $this->dbConfig = $dbConfig;
             }
 
             $this->logger = CentreonLog::create();
