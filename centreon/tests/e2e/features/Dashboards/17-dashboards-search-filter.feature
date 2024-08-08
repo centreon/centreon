@@ -1,12 +1,12 @@
 @REQ_MON-146685
 Feature: Dashboards Search Filter
   As a Centreon User with dashboard edition rights,
-  I need to search for some dashboards that are already exists using a filter
+  I need to search for some existed dashboards using a filter
 
   @TEST_MON-146685
-  Scenario: Filtering dashboards list with the right filter
+  Scenario: Filtering dashboards with the right search word
     Given a Centreon User with dashboard edition rights on dashboard listing page
-    When the user sets the right value in the search filter
+    When the user sets a right value in the search filter
     Then the dashboards that respect the filter are displayed
 
   @TEST_MON-146685
