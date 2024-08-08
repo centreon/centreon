@@ -33,6 +33,8 @@
  *
  */
 
+use Psr\Log\LogLevel;
+
 /**
  * Class
  *
@@ -152,17 +154,15 @@ class CentreonUserLog
  */
 class CentreonLog
 {
-    /**
-     * Level type
-     */
-    public const LEVEL_INFO = "info";
-    public const LEVEL_NOTICE = "notice";
-    public const LEVEL_DEBUG = "debug";
-    public const LEVEL_WARNING = "warning";
-    public const LEVEL_ERROR = "error";
-    public const LEVEL_CRITICAL = "critical";
-    public const LEVEL_ALERT = "alert";
-    public const LEVEL_EMERGENCY = "emergency";
+    // Level Types from \Psr\Log\LogLevel
+    public const LEVEL_DEBUG = LogLevel::DEBUG;
+    public const LEVEL_NOTICE = LogLevel::NOTICE;
+    public const LEVEL_INFO = LogLevel::INFO;
+    public const LEVEL_WARNING = LogLevel::WARNING;
+    public const LEVEL_ERROR = LogLevel::ERROR;
+    public const LEVEL_CRITICAL = LogLevel::CRITICAL;
+    public const LEVEL_ALERT = LogLevel::ALERT;
+    public const LEVEL_EMERGENCY = LogLevel::EMERGENCY;
 
     /**
      * Log files
@@ -173,30 +173,35 @@ class CentreonLog
     public const TYPE_UPGRADE = 4;
     public const TYPE_PLUGIN_PACK_MANAGER = 5;
 
-    /** @var array */
-    private $errorType;
+    private const DEFAULT_LOG_FILES = [
+        self::TYPE_LOGIN => 'login.log',
+        self::TYPE_SQL => 'sql-error.log',
+        self::TYPE_LDAP => 'ldap.log',
+        self::TYPE_UPGRADE => 'upgrade.log',
+        self::TYPE_PLUGIN_PACK_MANAGER => 'plugin-pack-manager.log',
+    ];
+
+    /** @var array<int,string> */
+    private array $logFileHandler;
 
     /** @var string */
-    private $path;
+    private string $pathLogFile;
 
     /**
      * CentreonLog constructor
      *
-     * @param array $customLogs
+     * @param array $customLogFiles
      */
-    public function __construct(
-        private readonly array $customLogs = []
-    ) {
-        $this->path = _CENTREON_LOG_;
-
-        $this->errorType[self::TYPE_LOGIN] = $this->path . "/login.log";
-        $this->errorType[self::TYPE_SQL] = $this->path . "/sql-error.log";
-        $this->errorType[self::TYPE_LDAP] = $this->path . "/ldap.log";
-        $this->errorType[self::TYPE_UPGRADE] = $this->path . "/upgrade.log";
-        $this->errorType[self::TYPE_PLUGIN_PACK_MANAGER] = $this->path . '/plugin-pack-manager.log';
-
-        foreach ($customLogs as $key => $value) {
-            $this->addCustomLog($key, $value);
+    public function __construct(array $customLogFiles = [])
+    {
+        $this->setPathLogFile(_CENTREON_LOG_);
+        // push default logs in log file handler
+        foreach (self::DEFAULT_LOG_FILES as $idLogType => $logFileName) {
+            $this->pushLogFileHandler($idLogType, $logFileName);
+        }
+        // push custom logs in log file handler
+        foreach ($customLogFiles as $idLogType => $logFileName) {
+            $this->pushLogFileHandler($idLogType, $logFileName);
         }
     }
 
@@ -211,7 +216,7 @@ class CentreonLog
     }
 
     /**
-     * @param int $type TYPE_* constants
+     * @param int $idLogType TYPE_* constants
      * @param string $level LEVEL_* constants
      * @param string $message
      * @param array $customContext
@@ -219,7 +224,7 @@ class CentreonLog
      * @return void
      */
     public function log(
-        int $type,
+        int $idLogType,
         string $level,
         string $message,
         array $customContext = [],
@@ -230,7 +235,7 @@ class CentreonLog
             $level = (empty($level)) ? strtoupper(self::LEVEL_ERROR) : strtoupper($level);
             $date = (new DateTime())->format(DateTimeInterface::RFC3339);
             $log = sprintf("[%s] %s : %s | %s", $date, $level, $message, $jsonContext);
-            file_put_contents($this->errorType[$type], $log . "\n", FILE_APPEND);
+            file_put_contents($this->logFileHandler[$idLogType], $log . "\n", FILE_APPEND);
         }
     }
 
@@ -244,6 +249,18 @@ class CentreonLog
     public function debug(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
         $this->log($type, self::LEVEL_DEBUG, $message, $customContext, $exception);
+    }
+
+    /**
+     * @param int $type TYPE_* constants
+     * @param string $message
+     * @param array $customContext
+     * @param Throwable|null $exception
+     * @return void
+     */
+    public function notice(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
+    {
+        $this->log($type, self::LEVEL_NOTICE, $message, $customContext, $exception);
     }
 
     /**
@@ -321,30 +338,31 @@ class CentreonLog
     /**
      * @return array
      */
-    public function getCustomLogs(): array
+    public function getLogFileHandler(): array
     {
-        return $this->customLogs;
+        return $this->logFileHandler;
     }
 
     /**
      * @param int $idLogType
      * @param string $logFileName
-     * @return bool
+     * @return CentreonLog
      */
-    public function addCustomLog(int $idLogType, string $logFileName): bool
+    public function pushLogFileHandler(int $idLogType, string $logFileName): CentreonLog
     {
-        if (isset($this->errorType[$idLogType])) {
-            return false;
-        }
-        $value = '';
-        if (! preg_match('@' . $this->path . '@', $logFileName)) {
-            $value = $this->path . '/' . $logFileName;
-        }
-        if (empty($value)) {
-            return false;
-        }
-        $this->errorType[$idLogType] = $value;
-        return true;
+        $this->logFileHandler[$idLogType] = (! preg_match('@' . $this->pathLogFile . '@', $logFileName)) ?
+            $this->pathLogFile . '/' . $logFileName : $logFileName;
+        return $this;
+    }
+
+    /**
+     * @param string $pathLogFile
+     * @return CentreonLog
+     */
+    public function setPathLogFile(string $pathLogFile): CentreonLog
+    {
+        $this->pathLogFile = $pathLogFile;
+        return $this;
     }
 
     /**
@@ -484,6 +502,8 @@ class CentreonLog
             print $str;
         }
 
-        $this->log(type: $id, level: self::LEVEL_ERROR, message: $message);
+        $this->log(idLogType: $id, level: self::LEVEL_ERROR, message: $message);
     }
+
+
 }

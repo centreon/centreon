@@ -19,11 +19,97 @@
  *
  */
 
-it('test a log of CentreonLog', function () {
-    $loggerTest = new CentreonLog();
-    $loggerTest->log(
-        CentreonLog::TYPE_SQL,
-        CentreonLog::LEVEL_ERROR,
-        'message'
+function testSerializeContext(array $customContext, Throwable $exception = null)
+{
+    $context = [
+        'context' => [
+            'default' => [
+                'back_trace' => [
+                    'file' => __FILE__,
+                    'line' => __LINE__,
+                    'class' => null,
+                    'function' => null
+                ],
+                'request_infos' => [
+                    'url' => null,
+                    'http_method' => null,
+                    'server' => null,
+                    'referrer' => null
+                ]
+            ],
+            'exception' => null,
+            'custom' => [
+                'custom_value1' => 'foo',
+                'custom_value2' => 'bar'
+            ]
+        ]
+    ];
+    return json_encode($context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+}
+
+beforeAll(function () {
+    $pathToLogTest = __DIR__ . '/log';
+    $loggerTest = new CentreonLog([99 => 'custom.log']);
+    $loggerTest->setPathLogFile($pathToLogTest);
+    $loggerTest
+        ->pushLogFileHandler(CentreonLog::TYPE_LOGIN, 'error-login.log')
+        ->pushLogFileHandler(CentreonLog::TYPE_SQL, 'error-sql.log')
+        ->pushLogFileHandler(CentreonLog::TYPE_LDAP, 'error-ldap.log')
+        ->pushLogFileHandler(CentreonLog::TYPE_UPGRADE, 'error-upgrade.log')
+        ->pushLogFileHandler(CentreonLog::TYPE_PLUGIN_PACK_MANAGER, 'error-plugin.log');
+});
+
+it('test log file handler is correct', function () {
+    expect($this->loggerTest->getLogFileHandler())->toEqual(
+        [
+            CentreonLog::TYPE_LOGIN => 'error-login.log',
+            CentreonLog::TYPE_SQL => 'error-sql.log',
+            CentreonLog::TYPE_LDAP => 'error-ldap.log',
+            CentreonLog::TYPE_UPGRADE => 'error-upgrade.log',
+            CentreonLog::TYPE_PLUGIN_PACK_MANAGER => 'error-plugin.log',
+            99 => 'custom.log',
+        ]
     );
+});
+
+it('test writing the log to the login file', function () {
+    $this->loggerTest->log(CentreonLog::TYPE_LOGIN, CentreonLog::LEVEL_ERROR, 'login_message');
+    expect(file_exists($this->pathToLogTest . 'error-login.log'))->toBeTrue();
+    $contentLog = file_get_contents($this->pathToLogTest . 'error-login.log');
+    expect($contentLog)->toBeString()->toEqual();
+});
+
+it('test writing the log to the sql file', function () {
+    $this->loggerTest->log(CentreonLog::TYPE_SQL, CentreonLog::LEVEL_ERROR, 'sql_message');
+});
+
+it('test writing the log to the ldap file', function () {
+    $this->loggerTest->log(CentreonLog::TYPE_LDAP, CentreonLog::LEVEL_ERROR, 'ldap_message');
+});
+
+it('test writing the log to the upgrade file', function () {
+    $this->loggerTest->log(CentreonLog::TYPE_UPGRADE, CentreonLog::LEVEL_ERROR, 'upgrade_message');
+});
+
+it('test writing the log to the plugin pack manager file', function () {
+    $this->loggerTest->log(
+        CentreonLog::TYPE_PLUGIN_PACK_MANAGER,
+        CentreonLog::LEVEL_ERROR,
+        'plugin_pack_manager_message'
+    );
+});
+
+it('test writing the log to the custom log file', function () {
+    $this->loggerTest->log(99, CentreonLog::LEVEL_ERROR, 'custom_message');
+});
+
+it('test writing logs with all levels', function () {
+    $this->loggerTest->debug(CentreonLog::TYPE_LOGIN, 'login_message');
+    $this->loggerTest->notice(CentreonLog::TYPE_LOGIN, 'login_message');
+    $this->loggerTest->info(CentreonLog::TYPE_LOGIN, 'login_message');
+    $this->loggerTest->warning(CentreonLog::TYPE_LOGIN, 'login_message');
+    $this->loggerTest->error(CentreonLog::TYPE_LOGIN, 'login_message');
+    $this->loggerTest->critical(CentreonLog::TYPE_LOGIN, 'login_message');
+    $this->loggerTest->alert(CentreonLog::TYPE_LOGIN, 'login_message');
+    $this->loggerTest->emergency(CentreonLog::TYPE_LOGIN, 'login_message');
 });
