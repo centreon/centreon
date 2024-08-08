@@ -53,13 +53,15 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
         dbHost: $dbHost,
         dbUser: $dbUser,
         dbPassword: $dbPassword,
-        dbName: 'centreon'
+        dbName: 'centreon',
+        dbPort: 3306
     );
     $dbConfigCentreonStorage = new CentreonDbConfig(
         dbHost: $dbHost,
         dbUser: $dbUser,
         dbPassword: $dbPassword,
-        dbName: 'centreon_storage'
+        dbName: 'centreon_storage',
+        dbPort: 3306
     );
 }
 
@@ -71,7 +73,7 @@ function hasConnectionDb(CentreonDbConfig $dbConfig): bool
 {
     try {
         new PDO (
-            $dbConfig->getPdoDsn(),
+            $dbConfig->getMysqlDsn(),
             $dbConfig->dbUser, $dbConfig->dbPassword, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
         );
         return true;

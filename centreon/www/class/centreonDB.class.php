@@ -140,7 +140,7 @@ class CentreonDB extends PDO
             $this->lineRead = 0;
 
             parent::__construct(
-                $this->dbConfig->getPdoDsn(),
+                $this->dbConfig->getMysqlDsn(),
                 $this->dbConfig->dbUser,
                 $this->dbConfig->dbPassword,
                 $this->options
