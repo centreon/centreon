@@ -209,11 +209,12 @@ class CentreonLog
     /**
      * Factory
      * @param array $customLogs
+     * @param string $pathLogFile
      * @return CentreonLog
      */
-    public static function create(array $customLogs = []): CentreonLog
+    public static function create(array $customLogs = [], string $pathLogFile = ''): CentreonLog
     {
-        return new CentreonLog($customLogs);
+        return new CentreonLog($customLogs, $pathLogFile);
     }
 
     /**
