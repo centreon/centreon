@@ -191,10 +191,11 @@ class CentreonLog
      * CentreonLog constructor
      *
      * @param array $customLogFiles
+     * @param string $pathLogFile
      */
-    public function __construct(array $customLogFiles = [])
+    public function __construct(array $customLogFiles = [], string $pathLogFile = '')
     {
-        $this->setPathLogFile(_CENTREON_LOG_);
+        $this->setPathLogFile(empty($pathLogFile) ? _CENTREON_LOG_ : $pathLogFile);
         // push default logs in log file handler
         foreach (self::DEFAULT_LOG_FILES as $idLogType => $logFileName) {
             $this->pushLogFileHandler($idLogType, $logFileName);
@@ -235,7 +236,7 @@ class CentreonLog
             $level = (empty($level)) ? strtoupper(self::LEVEL_ERROR) : strtoupper($level);
             $date = (new DateTime())->format(DateTimeInterface::RFC3339);
             $log = sprintf("[%s] %s : %s | %s", $date, $level, $message, $jsonContext);
-            file_put_contents($this->logFileHandler[$idLogType], $log . "\n", FILE_APPEND);
+            $response = file_put_contents($this->logFileHandler[$idLogType], $log . "\n", FILE_APPEND);
         }
     }
 
@@ -350,8 +351,16 @@ class CentreonLog
      */
     public function pushLogFileHandler(int $idLogType, string $logFileName): CentreonLog
     {
-        $this->logFileHandler[$idLogType] = (! preg_match('@' . $this->pathLogFile . '@', $logFileName)) ?
-            $this->pathLogFile . '/' . $logFileName : $logFileName;
+        $pathLogFileName = '';
+        $logFile = '';
+        $explodeFineName = explode(DIRECTORY_SEPARATOR, $logFileName);
+        if (! empty($explodeFineName)) {
+            $logFile = $explodeFineName[count($explodeFineName) - 1];
+            unset($explodeFineName[count($explodeFineName) - 1]);
+            $pathLogFileName = implode(DIRECTORY_SEPARATOR, $explodeFineName);
+        }
+        $this->logFileHandler[$idLogType] = ($pathLogFileName !== $this->pathLogFile) ?
+            $this->pathLogFile . '/' . $logFile : $logFileName;
         return $this;
     }
 
@@ -397,7 +406,7 @@ class CentreonLog
                 'context' => [
                     'default' => $defaultContext,
                     'exception' => ! empty($exceptionContext) ? $exceptionContext : null,
-                    'custom' => $customContext
+                    'custom' => ! empty($customContext) ? $customContext : null,
                 ]
             ];
 
@@ -458,12 +467,18 @@ class CentreonLog
     private function getBackTrace(): ?array
     {
         $excludeFunctions = ['log', 'debug', 'info', 'warning', 'error', 'critical', 'alert', 'emergency', 'insertLog'];
-
+        $backTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+        if (empty($backTrace)) {
+            return null;
+        }
         // get the last trace excluding the centreonlog trace
         $lastTraceCleaned = array_values(
             array_filter(
-                debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5),
-                fn(array $trace): bool => ! str_contains($trace['file'], 'centreonLog.class.php')
+                $backTrace,
+                fn(array $trace): bool => isset($trace['file']) && ! str_contains(
+                        $trace['file'],
+                        'centreonLog.class.php'
+                    )
             )
         );
 
