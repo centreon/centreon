@@ -14,5 +14,3 @@ Feature: Dashboards Search Filter
     Given a Centreon User with dashboard edition rights on dashboard listing page
     When the user sets the wrong value in the search filter
     Then no dashboards records are returned
-
-  
