@@ -53,6 +53,7 @@ class ServiceNowProvider extends AbstractProvider
     public const ARG_ASSIGNED_TO = 7;
     public const ARG_ASSIGNMENT_GROUP = 8;
     public const ARG_SEVERITY = 9;
+    public const ARG_CUSTOM_SNOW = 10;
 
     /** @var array<int, string> */
     protected $internal_arg_name = array(
@@ -65,6 +66,7 @@ class ServiceNowProvider extends AbstractProvider
         self::ARG_SUBCATEGORY => 'Subcategory',
         self::ARG_ASSIGNED_TO => 'AssignedTo',
         self::ARG_ASSIGNMENT_GROUP => 'AssignmentGroup',
+        self::ARG_CUSTOM_SNOW => 'CustomFieldServiceNow'
     );
 
     /**
@@ -72,6 +74,8 @@ class ServiceNowProvider extends AbstractProvider
     */
     protected function setDefaultValueExtra()
     {
+        $this->default_data['server_address'] = 'service-now.com';
+
         $this->default_data['clones']['mappingTicket'] = array(
             array(
                 'Arg' => self::ARG_SHORT_DESCRIPTION,
@@ -86,6 +90,7 @@ class ServiceNowProvider extends AbstractProvider
             array('Arg' => self::ARG_SEVERITY, 'Value' => '{$select.servicenow_severity.value}'),
             array('Arg' => self::ARG_CATEGORY, 'Value' => '{$select.servicenow_category.value}'),
             array('Arg' => self::ARG_SUBCATEGORY, 'Value' => '{$select.servicenow_subcategory.value}'),
+            array('Arg' => self::ARG_CUSTOM_SNOW, 'Value' => '{$select.opt_xxxxxxx.value}')
         );
     }
 
@@ -96,8 +101,8 @@ class ServiceNowProvider extends AbstractProvider
     {
         parent::setDefaultValueMain($body_html);
 
-        $this->default_data['url'] = 'https://{$instance_name}.service-now.com/' .
-            'nav_to.do?uri=incident.do?sys_id={$ticket_id}';
+        $this->default_data['url'] = 'https://{$instance_name}.{$server_address}/' .
+            'nav_to.do?uri=incident.do?sys_id={$ticket_id|regex_replace:"/.*_/":""}';
 
         $this->default_data['clones']['groupList'] = array(
             array(
@@ -148,8 +153,44 @@ class ServiceNowProvider extends AbstractProvider
                 'Type' => self::SERVICENOW_LIST_ASSIGNED_TO,
                 'Filter' => '',
                 'Mandatory' => ''
+            ),
+            array(
+                'Id' => 'opt_xxxxxxx',
+                'Label' => _('Custom Field Service Now'),
+                'Type' => self::CUSTOM_TYPE,
+                'Filter' => '',
+                'Mandatory' => ''
             )
         );
+
+        $this->default_data['message_confirm'] = '
+            <table class="table">
+            <tr>
+                <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</h3></td>
+            </tr>
+            {if $ticket_is_ok == 1}
+                <tr><td class="FormRowField" style="padding-left:15px;">New ticket opened: <span id="ticket_id">{$ticket_id|regex_replace:"/_.*/":""}</span>.<img id="copy_ticket_id" data-clipboard-target="#ticket_id" src="./img/icons/clipboard.png" style="vertical-align: middle;" class="ico-14" alt="Copy to clipboard"></td></tr>
+            {else}
+                <tr><td class="FormRowField" style="padding-left:15px;">Error to open the ticket: {$ticket_error_message}.</td></tr>
+            {/if}
+            </table>
+            {literal}
+            <script>
+                new Clipboard("#copy_ticket_id")
+            </script>
+            <style>
+                #copy_ticket_id {
+                    padding-left: 10px;
+                    transition: all 0.3s linear;
+                }
+
+                #copy_ticket_id:hover {
+                    transform: scale(1.5);
+                    cursor: pointer;
+                }
+            </style>
+            {/literal}
+        ';
     }
 
     /**
@@ -160,6 +201,7 @@ class ServiceNowProvider extends AbstractProvider
         $this->check_error_message = '';
         $this->check_error_message_append = '';
         $this->checkFormValue('instance_name', 'Please set a instance.');
+        $this->checkFormValue('server_address', 'Please set a server address. (usually service-now.com)');
         $this->checkFormValue('client_id', 'Please set a OAuth2 client id.');
         $this->checkFormValue('client_secret', 'Please set a OAuth2 client secret.');
         $this->checkFormValue('username', 'Please set a OAuth2 username.');
@@ -187,6 +229,8 @@ class ServiceNowProvider extends AbstractProvider
         // Form
         $instance_name_html = '<input size="50" name="instance_name" type="text" value="' .
             $this->getFormValue('instance_name') . '" />';
+        $server_address_html = '<input size="50" name="server_address" type="text" value="' .
+            $this->getFormValue('server_address') . '" />';
         $client_id_html = '<input size="50" name="client_id" type="text" value="' .
             $this->getFormValue('client_id') . '" />';
         $client_secret_html = '<input size="50" name="client_secret" type="password" value="' .
@@ -199,6 +243,8 @@ class ServiceNowProvider extends AbstractProvider
         $array_form = array(
             'instance_name' => array('label' => _("Instance name") .
                 $this->required_field, 'html' => $instance_name_html),
+            'server_address' => array('label' => _("Server address") .
+                $this->required_field, 'html' => $server_address_html),
             'client_id' => array('label' => _("OAuth Client ID") .
                 $this->required_field, 'html' => $client_id_html),
             'client_secret' => array('label' => _("OAuth client secret") .
@@ -224,6 +270,7 @@ class ServiceNowProvider extends AbstractProvider
         '<option value="' . self::ARG_SUBCATEGORY . '">' . _('Subcategory') . '</options>' .
         '<option value="' . self::ARG_ASSIGNED_TO . '">' . _('Assigned To') . '</options>' .
         '<option value="' . self::ARG_ASSIGNMENT_GROUP . '">' . _('Assignment Group') . '</options>' .
+        '<option value="' . self::ARG_CUSTOM_SNOW . '">' . _('Custom Service Now') . '</options>' .
         '</select>';
         $array_form['mappingTicket'] = array(
             array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
@@ -245,6 +292,7 @@ class ServiceNowProvider extends AbstractProvider
     protected function saveConfigExtra()
     {
         $this->save_config['simple']['instance_name'] = $this->submitted_config['instance_name'];
+        $this->save_config['simple']['server_address'] = $this->submitted_config['server_address'];
         $this->save_config['simple']['client_id'] = $this->submitted_config['client_id'];
         $this->save_config['simple']['client_secret'] = $this->submitted_config['client_secret'];
         $this->save_config['simple']['username'] = $this->submitted_config['username'];
@@ -269,6 +317,7 @@ class ServiceNowProvider extends AbstractProvider
           '<option value="' . self::SERVICENOW_LIST_URGENCY . '">ServiceNow urgency</options>' .
           '<option value="' . self::SERVICENOW_LIST_SEVERITY . '">ServiceNow severity</options>' .
           '<option value="' . self::SERVICENOW_LIST_ASSIGNMENT_GROUP . '">ServiceNow assignment group</options>' .
+        //   '<option value="' . self::SERVICENOW_LIST_ASSIGNMENT_GROUP . '">ServiceNow Custom Field</options>' .
           '<option value="' . self::SERVICENOW_LIST_ASSIGNED_TO . '">ServiceNow assigned to</options>';
 
         return $str;
@@ -378,7 +427,7 @@ class ServiceNowProvider extends AbstractProvider
                 'contact' => $contact,
                 'host_problems' => $host_problems,
                 'service_problems' => $service_problems,
-                'ticket_value' => $resultInfo['sysTicketId'] ?? null,
+                'ticket_value' => $resultInfo['ticketId'] . '_' . $resultInfo['sysTicketId'] ?? null,
                 'subject' => $ticket_arguments[
                     $this->internal_arg_name[self::ARG_SHORT_DESCRIPTION]
                 ],
@@ -409,7 +458,7 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected static function getAccessToken($info)
     {
-        $url = 'https://' . $info['instance'] . '.service-now.com/oauth_token.do';
+        $url = 'https://' . $info['instance'] . '.' . $info['server_address'] . '/oauth_token.do';
         $postfields = 'grant_type=password';
         $postfields .= '&client_id=' . urlencode($info['client_id']);
         $postfields .= '&client_secret=' . urlencode($info['client_secret']);
@@ -489,7 +538,8 @@ class ServiceNowProvider extends AbstractProvider
     protected function refreshToken($refreshToken)
     {
         $instance = $this->getFormValue('instance_name', false);
-        $url = 'https://' . $instance . '.service-now.com/oauth_token.do';
+        $serverAddress = ($this->getFormValue('server_address', false)) ? $this->getFormValue('server_address', false) : "service-now.com";
+        $url = 'https://' . $instance . '.' . $serverAddress . '/oauth_token.do';
         $postfields = 'grant_type=refresh_token';
         $postfields .= '&client_id=' . urlencode(
             $this->getFormValue('client_id', false)
@@ -578,7 +628,9 @@ class ServiceNowProvider extends AbstractProvider
     protected function runHttpRequest($uri, $accessToken, $method = 'GET', $data = null)
     {
         $instance = $this->getFormValue('instance_name', false);
-        $url = 'https://' . $instance . '.service-now.com' . $uri;
+        $serverAddress = ($this->getFormValue('server_address', false)) ? $this->getFormValue('server_address', false) : "service-now.com";
+
+        $url = 'https://' . $instance . '.' . $serverAddress . $uri;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt(
@@ -864,6 +916,16 @@ class ServiceNowProvider extends AbstractProvider
         if (isset($params['ticket_arguments'][$this->internal_arg_name[self::ARG_COMMENTS]])) {
             $data['comments'] = $params['ticket_arguments'][$this->internal_arg_name[self::ARG_COMMENTS]];
         }
+
+        foreach ($params as $id => $value) {
+            // $id structure is "select_opt_field_name" we keep "field_name"
+            // $value structure is 0___value_test_A___placeholder_test_A we keep "value_test_A" 
+            if (preg_match('/^select_opt_(.*)$/', $id, $match)) {
+                preg_match('/^[0-9]+___(.*)___.*/', $value, $customFieldValue);
+                $data[$match[1]] = $customFieldValue[1];
+            }
+        }
+
         $result = $this->runHttpRequest($uri, $accessToken, 'POST', $data);
         return array(
             'sysTicketId' => $result['result']['sys_id'],
