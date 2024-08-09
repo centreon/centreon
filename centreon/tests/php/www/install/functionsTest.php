@@ -23,14 +23,22 @@ declare(strict_types=1);
 
 namespace Tests\Www\Install\Steps;
 
-require_once __DIR__ . '/../../../../www/install/functions.php';
+$fileInstallFunctions = __DIR__ . '/../../../../www/install/functions.php';
 
-it('generates random password with lowercase, uppercase, number and special character', function () {
-    $password = generatePassword();
+// patch to fix an error when we run pest tests because install folder is deleted after installation in container
+if (file_exists($fileInstallFunctions)) {
 
-    expect($password)->toHaveLength(12);
-    expect($password)->toMatch('/[0-9]+/');
-    expect($password)->toMatch('/[a-z]+/');
-    expect($password)->toMatch('/[A-Z]+/');
-    expect($password)->toMatch('/[@$!%*?&]+/');
-});
+    require_once __DIR__ . '/../../../../www/install/functions.php';
+
+    it('generates random password with lowercase, uppercase, number and special character', function () {
+        $password = generatePassword();
+        expect($password)->toHaveLength(12)
+            ->and($password)->toMatch('/[0-9]+/')
+            ->and($password)->toMatch('/[a-z]+/')
+            ->and($password)->toMatch('/[A-Z]+/')
+            ->and($password)->toMatch('/[@$!%*?&]+/');
+    });
+
+} else {
+    it("tests of /www/install/functions.php skiped because install folder doesn't exist");
+}

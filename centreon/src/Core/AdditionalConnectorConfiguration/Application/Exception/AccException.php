@@ -39,6 +39,11 @@ class AccException extends \Exception
         return new self(_('Error while deleting an additional connector configuration'));
     }
 
+    public static function findAccs(): self
+    {
+        return new self(_('Error while searching for additional connector configurations'));
+    }
+
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access additional connector configurations'));
