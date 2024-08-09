@@ -13,6 +13,7 @@ import { Data } from './models';
 import useAxisY from './useAxisY';
 
 interface Props {
+  allUnits: Array<string>;
   data: Data;
   height: number;
   leftScale: ScaleLinear<number, number>;
@@ -29,7 +30,8 @@ const Axes = ({
   rightScale,
   leftScale,
   xScale,
-  orientation
+  orientation,
+  allUnits
 }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const { lines, showBorder, yAxisTickLabelRotation } = data;
@@ -42,7 +44,7 @@ const Axes = ({
     isHorizontal
   });
 
-  const [firstUnit, secondUnit] = getUnits(lines);
+  const [, secondUnit] = getUnits(lines);
 
   const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
@@ -76,9 +78,11 @@ const Axes = ({
 
       {axisLeft.displayUnit && (
         <UnitLabel
-          unit={firstUnit}
+          unit={axisLeft.unit}
+          units={allUnits}
           x={isHorizontal ? -8 : width + 8}
           y={isHorizontal ? 16 : -2}
+          onUnitChange={data.axisYLeft?.onUnitChange}
         />
       )}
 
@@ -115,9 +119,11 @@ const Axes = ({
       )}
       {axisRight.displayUnit && (
         <UnitLabel
-          unit={secondUnit}
-          x={width + 8}
+          unit={axisRight.unit}
+          units={allUnits}
+          x={width}
           y={isHorizontal ? 16 : -(height + 8)}
+          onUnitChange={data.axisYRight?.onUnitChange}
         />
       )}
     </g>

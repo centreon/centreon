@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { isNil } from 'ramda';
 import { Axis } from '@visx/visx';
 
@@ -13,6 +15,7 @@ interface AxisYData {
   numTicks?: number;
   tickFormat: (value: unknown) => string;
   tickLabelProps: Axis.TickLabelProps<unknown>;
+  unit: string;
 }
 
 interface AxisRightData extends AxisYData {
@@ -50,6 +53,14 @@ const useAxisY = ({
   const displayUnitAxisRight =
     data?.axisYRight?.displayUnit || Boolean(secondUnit);
   const displayUnitAxisLeft = data?.axisYLeft?.displayUnit || true;
+  const leftUnit = useMemo(
+    () => data.axisYLeft?.unit ?? firstUnit,
+    [data.axisYLeft?.unit, firstUnit]
+  );
+  const rightUnit = useMemo(
+    () => data.axisYRight?.unit ?? secondUnit,
+    [data.axisYRight?.unit, secondUnit]
+  );
 
   const formatTick =
     ({ unit }) =>
@@ -89,16 +100,18 @@ const useAxisY = ({
       displayUnit: displayUnitAxisLeft,
       numTicks,
       tickFormat: formatTick({
-        unit: firstUnit
+        unit: leftUnit
       }),
-      tickLabelProps: tickLabelPropsAxisLeft
+      tickLabelProps: tickLabelPropsAxisLeft,
+      unit: leftUnit
     },
     axisRight: {
       display: displayAxisRight,
       displayUnit: displayUnitAxisRight,
       numTicks,
-      tickFormat: formatTick({ unit: secondUnit }),
-      tickLabelProps: tickLabelPropsAxisRight
+      tickFormat: formatTick({ unit: rightUnit }),
+      tickLabelProps: tickLabelPropsAxisRight,
+      unit: rightUnit
     }
   };
 };

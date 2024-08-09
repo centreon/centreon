@@ -668,3 +668,30 @@ export const linesAndBarsMixedCenteredZero: Story = {
     />
   )
 };
+const CustomYUnits = (props): JSX.Element => {
+  const [leftUnit, setLeftUnit] = useState('b');
+  const [rightUnit, setRightUnit] = useState('ms');
+
+  return (
+    <WrapperChart
+      {...props}
+      axis={{
+        axisYLeft: {
+          onUnitChange: setLeftUnit,
+          unit: leftUnit
+        },
+        axisYRight: {
+          onUnitChange: setRightUnit,
+          unit: rightUnit
+        }
+      }}
+      data={dataPingServiceLinesBars}
+    />
+  );
+};
+
+export const customYUnits: Story = {
+  argTypes,
+  args: argumentsData,
+  render: (args) => <CustomYUnits {...args} />
+};

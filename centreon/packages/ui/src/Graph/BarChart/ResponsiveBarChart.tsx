@@ -73,6 +73,7 @@ const ResponsiveBarChart = ({
   );
 
   const [firstUnit, secondUnit] = getUnits(displayedLines);
+  const allUnits = getUnits(lines);
 
   const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
     hasSecondUnit: Boolean(secondUnit),
@@ -199,6 +200,7 @@ const ResponsiveBarChart = ({
       >
         <div className={classes.tooltipChildren}>
           <ChartSvgWrapper
+            allUnits={allUnits}
             axis={axis}
             base={baseAxis}
             displayedLines={displayedLines}

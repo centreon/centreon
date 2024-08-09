@@ -145,7 +145,7 @@ const Chart = ({
   const yScalesPerUnit = useMemo(
     () =>
       getYScalePerUnit({
-        dataLines: displayedLines,
+        dataLines: linesGraph,
         dataTimeSeries: timeSeries,
         isCenteredZero: axis?.isCenteredZero,
         scale: axis?.scale,
@@ -155,7 +155,7 @@ const Chart = ({
         valueGraphHeight: graphHeight - margin.bottom
       }),
     [
-      displayedLines,
+      linesGraph,
       timeSeries,
       graphHeight,
       thresholdValues,
@@ -166,8 +166,8 @@ const Chart = ({
     ]
   );
 
-  const leftScale = yScalesPerUnit[firstUnit];
-  const rightScale = yScalesPerUnit[secondUnit];
+  const leftScale = yScalesPerUnit[axis?.axisYLeft?.unit ?? firstUnit];
+  const rightScale = yScalesPerUnit[axis?.axisYRight?.unit ?? secondUnit];
 
   const linesDisplayedAsLine = useMemo(
     () =>
@@ -181,6 +181,8 @@ const Chart = ({
     () => displayedLines.filter(({ displayAs }) => equals(displayAs, 'bar')),
     [displayedLines]
   );
+
+  const allUnits = getUnits(linesGraph);
 
   useEffect(
     () => {
@@ -243,6 +245,7 @@ const Chart = ({
           >
             <div className={classes.tooltipChildren}>
               <ChartSvgWrapper
+                allUnits={allUnits}
                 axis={axis}
                 base={baseAxis}
                 displayedLines={displayedLines}

@@ -8,6 +8,8 @@ export interface LabelProps {
 
 export interface Axis {
   displayUnit?: boolean;
+  onUnitChange?: (newUnit: string) => void;
+  unit?: string;
 }
 
 export interface AxisYRight extends Axis {

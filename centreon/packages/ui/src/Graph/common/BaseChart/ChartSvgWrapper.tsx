@@ -12,6 +12,7 @@ import { Line, TimeValue } from '../timeSeries/models';
 import { extraMargin } from './useComputeBaseChartDimensions';
 
 interface Props {
+  allUnits: Array<string>;
   axis?: ChartAxis;
   base?: number;
   children: JSX.Element;
@@ -21,11 +22,11 @@ interface Props {
   gridLinesType?: string;
   leftScale;
   orientation?: 'horizontal' | 'vertical';
-  rightScale;
   showGridLines: boolean;
   svgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
   xScale;
+  rightScale;
 }
 
 const ChartSvgWrapper = ({
@@ -42,7 +43,8 @@ const ChartSvgWrapper = ({
   timeSeries,
   axis,
   children,
-  orientation = 'horizontal'
+  orientation = 'horizontal',
+  allUnits
 }: Props): JSX.Element => {
   const isHorizontal = equals(orientation, 'horizontal');
 
@@ -64,6 +66,7 @@ const ChartSvgWrapper = ({
           />
         )}
         <Axes
+          allUnits={allUnits}
           data={{
             baseAxis: base,
             lines: displayedLines,
