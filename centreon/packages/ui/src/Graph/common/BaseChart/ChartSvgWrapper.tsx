@@ -22,11 +22,11 @@ interface Props {
   gridLinesType?: string;
   leftScale;
   orientation?: 'horizontal' | 'vertical';
+  rightScale;
   showGridLines: boolean;
   svgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
   xScale;
-  rightScale;
 }
 
 const ChartSvgWrapper = ({
