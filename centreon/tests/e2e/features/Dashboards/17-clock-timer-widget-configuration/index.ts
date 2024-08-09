@@ -155,7 +155,7 @@ Then(
 });
 
 When(
-  'the dashboard administrator update the time zone by selectning a new one',
+  'the dashboard administrator updates the time zone by selecting a new one',
   () => {
     cy.getByTestId({ testId: 'Select time zone' }).click();
     cy.contains('Europe/Monaco').click();
@@ -191,7 +191,7 @@ Then(
 });
 
 When(
-  'the dashboard administrator updates the coutdown input',
+  'the dashboard administrator updates the countdown input',
   () => {
     cy.getByLabel({ label: 'Timer' }).click()
     cy.getByTestId({ testId: 'CalendarIcon' }).click();
