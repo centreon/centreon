@@ -16,7 +16,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: "24.07"
+  version: "latest"
 externalDocs:
   description: You can contact us on our community Slack
   url: 'https://centreon.slack.com/messages/CCRGLQSE5'
