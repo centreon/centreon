@@ -64,19 +64,20 @@ Then('the dashboards that respect the filter are displayed',
 );
 
 Given('Given a Centreon User with dashboard edition rights on dashboard listing page',
-    ()=>{
-
+    () => {
+        cy.visitDashboards();
     }
-)
+);
 
 When('the user sets the wrong value in the search filter',
-    ()=>{
-
+    () => {
+        cy.getByTestId({ tag: '.MuiInputBase-root > ', testId: 'Search' }).type(`xxx{enter}`);
+        cy.wait('@getDashboardsList');
     }
 );
 
 Then('no dashboards records are returned',
-    ()=>{
-
+    () => {
+        cy.contains('No result found').should('be.visible');
     }
-)
+);
