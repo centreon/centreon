@@ -144,14 +144,23 @@ Then(
   'the time format in the widget should be updated to reflect the new format',
   () => {
     cy.get('div[class$="clockLabel"] p').eq(2)
-      .invoke('text').then((clockText) => {
-        cy.log(clockText)
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const currentTime = `${hours}:${minutes}`;
-        expect(clockText.trim()).to.equal(currentTime);
-     });
+    .invoke('text')
+    .then((clockText) => {
+      cy.log(clockText);
+
+      const now = new Date();
+
+      // Add 2 hours to the current time
+      now.setHours(now.getHours() + 2);
+
+      // Format the hours and minutes with leading zeros if needed
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      const currentTime = `${hours}:${minutes}`;
+
+      expect(clockText.trim()).to.equal(currentTime);
+    });
 });
 
 When(
