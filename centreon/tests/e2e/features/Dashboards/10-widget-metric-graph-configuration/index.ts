@@ -485,7 +485,7 @@ Then(
     );
     cy.contains(
       'span',
-      'Thresholds are automatically hidden as soon as you select 2 metric units.'
+      'Thresholds are automatically hidden when you select several metrics with different units.'
     ).should('exist');
   }
 );
