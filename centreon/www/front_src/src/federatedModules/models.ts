@@ -35,8 +35,11 @@ export enum FederatedWidgetOptionType {
   autocomplete = 'autocomplete',
   buttonGroup = 'button-group',
   checkbox = 'checkbox',
+  color = 'color',
   connectedAutocomplete = 'connected-autocomplete',
+  datePicker = 'date-picker',
   displayType = 'displayType',
+  locale = 'locale',
   metrics = 'metrics',
   radio = 'radio',
   refreshInterval = 'refresh-interval',
@@ -50,7 +53,9 @@ export enum FederatedWidgetOptionType {
   textfield = 'textfield',
   threshold = 'threshold',
   tiles = 'tiles',
+  timeFormat = 'time-format',
   timePeriod = 'time-period',
+  timezone = 'timezone',
   topBottomSettings = 'top-bottom-settings',
   valueFormat = 'value-format'
 }

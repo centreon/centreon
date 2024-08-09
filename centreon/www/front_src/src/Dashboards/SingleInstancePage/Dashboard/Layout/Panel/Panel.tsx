@@ -138,6 +138,7 @@ const Panel = ({
               changeViewMode={changeViewMode}
               dashboardId={dashboardId}
               globalRefreshInterval={refreshInterval}
+              hasDescription={displayDescription}
               id={id}
               isEditingDashboard={isEditing}
               panelData={panelOptionsAndData?.data}

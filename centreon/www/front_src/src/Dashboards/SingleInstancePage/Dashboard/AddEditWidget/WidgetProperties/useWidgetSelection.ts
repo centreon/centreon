@@ -52,24 +52,27 @@ export const getDefaultValues = (
     return {};
   }
 
-  return Object.entries(options).reduce((acc, [key, value]) => {
-    if (!has('when', value.defaultValue)) {
+  return Object.entries(options?.elements ?? options).reduce(
+    (acc, [key, value]) => {
+      if (!has('when', value.defaultValue)) {
+        return {
+          ...acc,
+          [key]: value.defaultValue
+        };
+      }
+
       return {
         ...acc,
-        [key]: value.defaultValue
+        [key]: equals(
+          options[value.defaultValue.when].defaultValue,
+          value.defaultValue.is
+        )
+          ? value.defaultValue.then
+          : value.defaultValue.otherwise
       };
-    }
-
-    return {
-      ...acc,
-      [key]: equals(
-        options[value.defaultValue.when].defaultValue,
-        value.defaultValue.is
-      )
-        ? value.defaultValue.then
-        : value.defaultValue.otherwise
-    };
-  }, {});
+    },
+    {}
+  );
 };
 
 const useWidgetSelection = (): UseWidgetSelectionState => {

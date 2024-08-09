@@ -25,10 +25,12 @@ interface Props {
   date: Date | null;
   desktopMediaQuery?: string;
   disabled?: boolean;
+  locale?: string;
   maxDate?: Date;
   minDate?: Date;
   minDateTime?: Date;
   property: CustomTimePeriodProperty | string;
+  timezone?: string;
 }
 
 const DateTimePickerInput = ({
@@ -40,14 +42,16 @@ const DateTimePickerInput = ({
   changeDate,
   disabled = false,
   desktopMediaQuery,
+  locale,
+  timezone,
   ...rest
 }: Props & DateTimePickerProps<dayjs.Dayjs>): JSX.Element => {
   const desktopPickerMediaQuery =
     '@media (min-width: 1024px) or (pointer: fine)';
 
-  const { timezone, locale } = useAtomValue(userAtom);
+  const user = useAtomValue(userAtom);
 
-  const isUTC = equals(timezone, 'UTC');
+  const isUTC = equals(timezone ?? user.timezone, 'UTC');
 
   const changeTime = (newValue: dayjs.Dayjs | null): void => {
     changeDate({ date: dayjs(newValue).toDate(), property });
@@ -55,14 +59,20 @@ const DateTimePickerInput = ({
 
   const formatDate = useCallback(
     (currentDate: Date | null): Dayjs => {
-      return isUTC ? dayjs.utc(currentDate) : dayjs.tz(currentDate, timezone);
+      if (timezone) {
+        return dayjs(currentDate).tz(timezone);
+      }
+
+      return isUTC
+        ? dayjs.utc(currentDate)
+        : dayjs.tz(currentDate, user.timezone);
     },
-    [isUTC, timezone]
+    [isUTC, timezone, user.timezone]
   );
 
   return (
     <LocalizationProvider
-      adapterLocale={locale.substring(0, 2)}
+      adapterLocale={(locale ?? user.locale).substring(0, 2)}
       dateAdapter={AdapterDayjs}
       dateLibInstance={dayjs}
     >

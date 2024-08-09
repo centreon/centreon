@@ -80,6 +80,7 @@ export enum SeverityStatus {
 export interface CommonWidgetProps<T extends object> {
   dashboardId: number | string;
   globalRefreshInterval: GlobalRefreshInterval;
+  hasDescription: boolean;
   id: string;
   isFromPreview?: boolean;
   playlistHash?: string;

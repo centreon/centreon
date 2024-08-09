@@ -4,6 +4,7 @@ import 'dayjs/locale/en';
 import 'dayjs/locale/pt';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/es';
+import 'dayjs/locale/de';
 import dayjs from 'dayjs';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';

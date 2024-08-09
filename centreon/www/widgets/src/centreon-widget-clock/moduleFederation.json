@@ -1,0 +1,12 @@
+{
+	"federatedComponentsConfiguration": [
+		{
+			"path": "/widgets/clock",
+			"federatedComponents": [
+				"./clock"
+			]
+		}
+	],
+	"moduleFederationName": "widgetclock",
+	"moduleName": "centreon-widget-clock"
+}
