@@ -67,6 +67,7 @@ const BarStack = ({
               [isHorizontal ? 'top' : 'right']: shouldApplyRadiusOnTop,
               [isHorizontal ? 'bottom' : 'left']: shouldApplyRadiusOnBottom
             };
+            console.log(barPadding);
 
             return (
               <BarRounded

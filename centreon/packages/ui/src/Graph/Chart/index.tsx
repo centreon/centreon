@@ -58,6 +58,7 @@ const WrapperChart = ({
   },
   header,
   lineStyle,
+  barStyle,
   thresholds,
   thresholdUnit,
   limitLegend
@@ -92,6 +93,7 @@ const WrapperChart = ({
             <Chart
               annotationEvent={annotationEvent}
               axis={axis}
+              barStyle={barStyle}
               displayAnchor={displayAnchor}
               graphData={adjustedData}
               graphInterval={{ end, start }}

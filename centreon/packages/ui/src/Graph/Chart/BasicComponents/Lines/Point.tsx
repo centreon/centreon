@@ -5,7 +5,7 @@ interface Props {
   radius: number;
   timeTick: Date;
   xScale;
-  yPoint: number;
+  yPoint: number | null;
 }
 
 const Point = ({

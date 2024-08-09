@@ -11,6 +11,7 @@ import {
   isNil,
   keys,
   map,
+  negate,
   pick,
   pipe,
   pluck,
@@ -218,12 +219,14 @@ const InteractionWithGraph = ({
       date,
       highlightedMetricId: Number(nearestLine[0]),
       metrics: map(
-        ({ metric_id, color, unit, legend, name }) => ({
+        ({ metric_id, color, unit, legend, name, invert }) => ({
           color,
           id: metric_id,
           name: formatMetricName({ legend, name }),
           unit,
-          value: timeValue?.[metric_id]
+          value: invert
+            ? negate(timeValue?.[metric_id])
+            : timeValue?.[metric_id]
         }),
         linesData
       ).filter(({ value }) => !isNil(value))

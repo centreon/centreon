@@ -5,7 +5,12 @@ import { useAtom } from 'jotai';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
-import { getUnits, getXScale, getYScalePerUnit } from '../common/timeSeries';
+import {
+  getUnits,
+  getXScale,
+  getXScaleBand,
+  getYScalePerUnit
+} from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
 import { Thresholds as ThresholdsModel } from '../common/models';
 import BaseChart from '../common/BaseChart/BaseChart';
@@ -13,6 +18,7 @@ import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBas
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import Thresholds from '../common/Thresholds/Thresholds';
 import { useDeepCompare } from '../../utils';
+import BarGroup from '../BarChart/BarGroup';
 
 import Lines from './BasicComponents/Lines';
 import {
@@ -74,6 +80,10 @@ const Chart = ({
   graphRef,
   header,
   lineStyle,
+  barStyle = {
+    opacity: 1,
+    radius: 0.2
+  },
   thresholds,
   thresholdUnit,
   limitLegend
@@ -123,6 +133,15 @@ const Chart = ({
     [timeSeries, graphWidth]
   );
 
+  const xScaleBand = useMemo(
+    () =>
+      getXScaleBand({
+        dataTime: timeSeries,
+        valueWidth: graphWidth
+      }),
+    [timeSeries, graphWidth, graphHeight]
+  );
+
   const yScalesPerUnit = useMemo(
     () =>
       getYScalePerUnit({
@@ -149,6 +168,19 @@ const Chart = ({
 
   const leftScale = yScalesPerUnit[firstUnit];
   const rightScale = yScalesPerUnit[secondUnit];
+
+  const linesDisplayedAsLine = useMemo(
+    () =>
+      displayedLines.filter(
+        ({ displayAs }) => isNil(displayAs) || equals(displayAs, 'line')
+      ),
+    [displayedLines]
+  );
+
+  const linesDisplayedAsBar = useMemo(
+    () => displayedLines.filter(({ displayAs }) => equals(displayAs, 'bar')),
+    [displayedLines]
+  );
 
   useEffect(
     () => {
@@ -225,17 +257,29 @@ const Chart = ({
                 xScale={xScale}
               >
                 <>
+                  <BarGroup
+                    barStyle={barStyle}
+                    isTooltipHidden={false}
+                    lines={linesDisplayedAsBar}
+                    orientation="horizontal"
+                    size={graphHeight - margin.top - 5}
+                    timeSeries={timeSeries}
+                    xScale={xScaleBand}
+                    yScalesPerUnit={yScalesPerUnit}
+                  />
                   <Lines
                     areaTransparency={lineStyle?.areaTransparency}
                     curve={lineStyle?.curve || 'linear'}
                     dashLength={lineStyle?.dashLength}
                     dashOffset={lineStyle?.dashOffset}
                     displayAnchor={displayAnchor}
-                    displayedLines={displayedLines}
+                    displayedLines={linesDisplayedAsLine}
                     dotOffset={lineStyle?.dotOffset}
                     graphSvgRef={graphSvgRef}
                     height={graphHeight - margin.top}
                     lineWidth={lineStyle?.lineWidth}
+                    scale={axis?.scale}
+                    scaleLogarithmicBase={axis?.scaleLogarithmicBase}
                     showArea={lineStyle?.showArea}
                     showPoints={lineStyle?.showPoints}
                     timeSeries={timeSeries}

@@ -22,9 +22,13 @@ export const getYAnchorPoint = ({
   timeSeries,
   yScale,
   metric_id
-}: GetYAnchorPoint): number => {
+}: GetYAnchorPoint): number | null => {
   const index = bisectDate(getDates(timeSeries), timeTick);
   const timeValue = timeSeries[index];
+
+  if (isNil(timeValue)) {
+    return null;
+  }
 
   return yScale(prop(metric_id, timeValue) as number);
 };

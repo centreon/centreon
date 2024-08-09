@@ -1,3 +1,5 @@
+import { equals, pluck, uniq } from 'ramda';
+
 import {
   getInvertedStackedLines,
   getNotInvertedStackedLines,
@@ -5,34 +7,60 @@ import {
 } from '../../../../common/timeSeries';
 import { LinesData } from '../models';
 
-interface StackedLines {
-  invertedStackedLinesData: LinesData;
-  stackedLinesData: LinesData;
+interface StackedLinesState {
+  invertedStackedLinesData: Record<string, LinesData>;
+  stackedLinesData: Record<string, LinesData>;
 }
 
-const useStackedLines = ({ lines, timeSeries }): StackedLines => {
+const useStackedLines = ({ lines, timeSeries }): StackedLinesState => {
   const regularStackedLines = getNotInvertedStackedLines(lines);
+  const regularStackedUnits = uniq(pluck('unit', regularStackedLines));
+  const regularStackedLinesTimeSeriesPerUnit = regularStackedUnits.reduce(
+    (acc, stackedUnit) => {
+      const relatedLines = regularStackedLines.filter(({ unit }) =>
+        equals(unit, stackedUnit)
+      );
 
-  const regularStackedTimeSeries = getTimeSeriesForLines({
-    lines: regularStackedLines,
-    timeSeries
-  });
+      return {
+        ...acc,
+        [stackedUnit]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            lines: relatedLines,
+            timeSeries
+          })
+        }
+      };
+    },
+    {}
+  );
 
   const invertedStackedLines = getInvertedStackedLines(lines);
-  const invertedStackedTimeSeries = getTimeSeriesForLines({
-    lines: invertedStackedLines,
-    timeSeries
-  });
+  const invertedStackedUnits = uniq(pluck('unit', invertedStackedLines));
+  const invertedStackedLinesTimeSeriesPerUnit = invertedStackedUnits.reduce(
+    (acc, stackedUnit) => {
+      const relatedLines = invertedStackedLines.filter(({ unit }) =>
+        equals(unit, stackedUnit)
+      );
+
+      return {
+        ...acc,
+        [stackedUnit]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            invert: true,
+            lines: relatedLines,
+            timeSeries
+          })
+        }
+      };
+    },
+    {}
+  );
 
   return {
-    invertedStackedLinesData: {
-      lines: invertedStackedLines,
-      timeSeries: invertedStackedTimeSeries
-    },
-    stackedLinesData: {
-      lines: regularStackedLines,
-      timeSeries: regularStackedTimeSeries
-    }
+    invertedStackedLinesData: invertedStackedLinesTimeSeriesPerUnit,
+    stackedLinesData: regularStackedLinesTimeSeriesPerUnit
   };
 };
 

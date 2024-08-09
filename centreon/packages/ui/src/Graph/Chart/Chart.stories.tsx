@@ -23,6 +23,9 @@ import dataZoomPreview from '../mockedData/zoomPreview.json';
 import dataLastDay from '../mockedData/lastDay.json';
 import dataCurvesSameColor from '../mockedData/curvesWithSameColor.json';
 import dataLastDayWithLotOfUnits from '../mockedData/lastDayWithLotOfUnits.json';
+import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
+import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
+import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 
 import {
   argTypes,
@@ -516,6 +519,28 @@ export const customLines: Story = {
   )
 };
 
+export const customLinesAndBars: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    barStyle: {
+      opacity: 0.5,
+      radius: 0.5
+    },
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: true
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBars as unknown as LineChartData}
+    />
+  )
+};
+
 export const multipleUnits: Story = {
   argTypes,
   args: argumentsData,
@@ -523,6 +548,123 @@ export const multipleUnits: Story = {
     <WrapperChart
       {...args}
       data={dataLastDayWithLotOfUnits as unknown as LineChartData}
+    />
+  )
+};
+
+export const linesAndBars: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: true
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBars as unknown as LineChartData}
+    />
+  )
+};
+
+export const linesAndBarsStacked: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: false
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBarsStacked as unknown as LineChartData}
+    />
+  )
+};
+
+export const linesAndBarsMixed: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: false
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
+    />
+  )
+};
+
+export const linesAndBarsCenteredZero: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    axis: {
+      isCenteredZero: true
+    },
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: true
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBars as unknown as LineChartData}
+    />
+  )
+};
+
+export const linesAndBarsStackedCenteredZero: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    axis: {
+      isCenteredZero: true
+    },
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: false
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBarsStacked as unknown as LineChartData}
+    />
+  )
+};
+
+export const linesAndBarsMixedCenteredZero: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    axis: {
+      isCenteredZero: true
+    },
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: false
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
     />
   )
 };

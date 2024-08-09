@@ -10,7 +10,11 @@ import RegularAnchorPoint, {
 } from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
 import { displayArea } from '../../helpers/index';
 import { DisplayAnchor, GlobalAreaLines } from '../../models';
-import { getDates, getYScale } from '../../../common/timeSeries';
+import {
+  getDates,
+  getTimeSeriesForLines,
+  getYScale
+} from '../../../common/timeSeries';
 import { Line, TimeValue } from '../../../common/timeSeries/models';
 
 import RegularLine from './RegularLines';
@@ -35,6 +39,8 @@ interface Props extends GlobalAreaLines {
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   height: number;
   lineWidth?: number;
+  scale?: 'linear' | 'logarithmic';
+  scaleLogarithmicBase?: number;
   showArea?: boolean;
   showPoints?: boolean;
   timeSeries: Array<TimeValue>;
@@ -62,7 +68,9 @@ const Lines = ({
   lineWidth,
   dotOffset,
   dashLength,
-  dashOffset
+  dashOffset,
+  scale,
+  scaleLogarithmicBase
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -108,22 +116,33 @@ const Lines = ({
 
       {(areaStackedLines?.display ?? true) && (
         <>
-          {displayArea(stackedLinesData.lines) && (
-            <StackedLines
-              lines={stackedLinesData.lines}
-              timeSeries={stackedLinesData.timeSeries}
-              yScale={yScalesPerUnit[stackedLinesData.lines[0].unit]}
-              {...commonStackedLinesProps}
-            />
+          {Object.entries(stackedLinesData).map(
+            ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
+              <StackedLines
+                key={`stacked-${unit}`}
+                lines={lines}
+                timeSeries={stackedTimeSeries}
+                yScale={yScalesPerUnit[unit]}
+                {...commonStackedLinesProps}
+              />
+            )
           )}
-
-          {displayArea(invertedStackedLinesData.lines) && (
-            <StackedLines
-              lines={invertedStackedLinesData.lines}
-              timeSeries={invertedStackedLinesData.timeSeries}
-              yScale={yScalesPerUnit[invertedStackedLinesData.lines[0].unit]}
-              {...commonStackedLinesProps}
-            />
+          {Object.entries(invertedStackedLinesData).map(
+            ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
+              <StackedLines
+                key={`invert-stacked-${unit}`}
+                lines={lines}
+                timeSeries={stackedTimeSeries}
+                yScale={getYScale({
+                  invert: '1',
+                  scale,
+                  scaleLogarithmicBase,
+                  unit,
+                  yScalesPerUnit
+                })}
+                {...commonStackedLinesProps}
+              />
+            )
           )}
         </>
       )}
@@ -149,12 +168,32 @@ const Lines = ({
               unit,
               highlight,
               invert,
-              metric_id
+              metric_id,
+              ...rest
             }) => {
               const yScale = getYScale({
                 invert,
+                scale,
+                scaleLogarithmicBase,
                 unit,
                 yScalesPerUnit
+              });
+              const relatedTimeSeries = getTimeSeriesForLines({
+                invert,
+                lines: [
+                  {
+                    areaColor,
+                    filled,
+                    highlight,
+                    invert,
+                    lineColor,
+                    metric_id,
+                    transparency,
+                    unit,
+                    ...rest
+                  }
+                ],
+                timeSeries
               });
 
               return (
@@ -164,25 +203,25 @@ const Lines = ({
                       areaColor={areaColor || lineColor}
                       lineColor={lineColor}
                       metric_id={metric_id}
-                      timeSeries={timeSeries}
+                      timeSeries={relatedTimeSeries}
                       transparency={transparency}
                       xScale={xScale}
                       yScale={yScale}
                     />
                   )}
                   {showPoints &&
-                    getDates(timeSeries).map((timeTick) => (
+                    getDates(relatedTimeSeries).map((timeTick) => (
                       <Point
                         key={timeTick.toString()}
                         lineColor={lineColor}
                         metric_id={metric_id}
                         radius={getPointRadius(lineWidth)}
-                        timeSeries={timeSeries}
+                        timeSeries={relatedTimeSeries}
                         timeTick={timeTick}
                         xScale={xScale}
                         yPoint={getYAnchorPoint({
                           metric_id,
-                          timeSeries,
+                          timeSeries: relatedTimeSeries,
                           timeTick,
                           yScale
                         })}
@@ -201,7 +240,7 @@ const Lines = ({
                     lineColor={lineColor}
                     lineWidth={lineWidth}
                     metric_id={metric_id}
-                    timeSeries={timeSeries}
+                    timeSeries={relatedTimeSeries}
                     transparency={
                       isNil(areaTransparency)
                         ? transparency || 80

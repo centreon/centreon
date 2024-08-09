@@ -173,71 +173,30 @@ const BarGroup = ({
                     [bar.key]: timeSerie[Number(bar.key)]
                   }));
 
-              return (
-                <>
-                  {isStackedBar ? (
-                    <BarStack
-                      barIndex={barGroup.index}
-                      barPadding={isHorizontal ? bar.x : bar.y}
-                      barStyle={barStyle}
-                      barWidth={isHorizontal ? bar.width : bar.height}
-                      isHorizontal={isHorizontal}
-                      isTooltipHidden={isTooltipHidden}
-                      lines={linesBar}
-                      timeSeries={timeSeriesBar}
-                      yScale={yScalesPerUnit[bar.key.replace('stacked-', '')]}
-                    />
-                  ) : (
-                    <BarStack
-                      barIndex={barGroup.index}
-                      barPadding={isHorizontal ? bar.x : bar.y}
-                      barStyle={barStyle}
-                      barWidth={isHorizontal ? bar.width : bar.height}
-                      isHorizontal={isHorizontal}
-                      isTooltipHidden={isTooltipHidden}
-                      lines={[linesBar]}
-                      timeSeries={timeSeriesBar}
-                      yScale={yScalesPerUnit[linesBar.unit]}
-                    />
-                  )}
-                  {/* <SingleBar
-                  bar={bar}
+              return isStackedBar ? (
+                <BarStack
+                  barIndex={barGroup.index}
+                  barPadding={isHorizontal ? bar.x : bar.y}
                   barStyle={barStyle}
-                  isCenteredZero={isCenteredZero}
+                  barWidth={isHorizontal ? bar.width : bar.height}
                   isHorizontal={isHorizontal}
                   isTooltipHidden={isTooltipHidden}
-                  key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
-                  lines={lines}
-                  size={size}
-                  yScalesPerUnit={yScalesPerUnit}
-                /> */}
-                  {/* {equals(bar.key, 'stackedRight') && (
-                  <BarStack
-                    barIndex={barGroup.index}
-                    barPadding={isHorizontal ? bar.x : bar.y}
-                    barStyle={barStyle}
-                    barWidth={isHorizontal ? bar.width : bar.height}
-                    isHorizontal={isHorizontal}
-                    isTooltipHidden={isTooltipHidden}
-                    lines={stackLinesRight}
-                    timeSeries={stackedTimeSeriesRight}
-                    yScale={rightScale}
-                  />
-                )}
-                {equals(bar.key, 'stackedLeft') && (
-                  <BarStack
-                    barIndex={barGroup.index}
-                    barPadding={isHorizontal ? bar.x : bar.y}
-                    barStyle={barStyle}
-                    barWidth={isHorizontal ? bar.width : bar.height}
-                    isHorizontal={isHorizontal}
-                    isTooltipHidden={isTooltipHidden}
-                    lines={stackLinesLeft}
-                    timeSeries={stackedTimeSeriesLeft}
-                    yScale={leftScale}
-                  />
-                )} */}
-                </>
+                  lines={linesBar}
+                  timeSeries={timeSeriesBar}
+                  yScale={yScalesPerUnit[bar.key.replace('stacked-', '')]}
+                />
+              ) : (
+                <BarStack
+                  barIndex={barGroup.index}
+                  barPadding={isHorizontal ? bar.x : bar.y}
+                  barStyle={barStyle}
+                  barWidth={isHorizontal ? bar.width : bar.height}
+                  isHorizontal={isHorizontal}
+                  isTooltipHidden={isTooltipHidden}
+                  lines={[linesBar]}
+                  timeSeries={timeSeriesBar}
+                  yScale={yScalesPerUnit[linesBar.unit]}
+                />
               );
             })}
           </Group>

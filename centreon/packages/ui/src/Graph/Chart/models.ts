@@ -5,6 +5,7 @@ import { ScaleLinear } from 'd3-scale';
 import { Line, TimeValue } from '../common/timeSeries/models';
 import { LineChartData } from '../common/models';
 import { AxisX, Axis as AxisYLeft, AxisYRight } from '../common/Axes/models';
+import { BarStyle } from '../BarChart/models';
 
 import {
   AreaRegularLines,
@@ -105,6 +106,7 @@ export interface LineStyle {
 export interface LineChartProps {
   annotationEvent?: AnnotationEvent;
   axis?: ChartAxis;
+  barStyle?: BarStyle;
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;
