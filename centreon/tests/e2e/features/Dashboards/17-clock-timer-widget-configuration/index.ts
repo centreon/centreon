@@ -145,7 +145,7 @@ Then(
   () => {
     cy.get('div[class$="clockLabel"] p').eq(2)
       .invoke('text').then((clockText) => {
-        console.log(clockText)
+        cy.log(clockText)
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -164,7 +164,7 @@ When(
 Then(
   'timezone should be updating in the widget',
   () => {
-    cy.get('p[class$="timezone"]')
+    cy.get('p[class$="timezone"]').eq(1)
       .invoke('text')
       .then((timezoneText) => {
         cy.log('Text inside timezone element:', timezoneText);
@@ -223,6 +223,14 @@ When(
     cy.editDashboard(dashboards.default.name);
     cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
+  }
+);
+
+Then(
+  'a second Clock timer widget is displayed on the dashboard',
+  () => {
+    cy.get('p[class$="date"]').eq(1).should('be.visible')
+    cy.get('div[class$="clockLabel"] p').eq(1).should('be.visible')
   }
 );
 
