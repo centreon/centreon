@@ -61,6 +61,7 @@ export const useTimer = ({ locale, timezone, countdown }): UseTimerState => {
   };
 
   useEffect(() => {
+    setCountdownHasEnded(0);
     if (!isCountdownValid) {
       clearInterval(timer1SecondRef.current);
       clearInterval(timer5SecondsRef.current);
