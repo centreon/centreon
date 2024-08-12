@@ -121,7 +121,7 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-   $this->readAccRepository
+    $this->readAccRepository
         ->expects($this->once())
         ->method('find')
         ->willReturn($this->testedAcc);

@@ -1,0 +1,43 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 4
+  name:
+    type: string
+    description: "ACC name"
+    example: "my-acc-name"
+  description:
+    type: string
+    description: "A short ACC description"
+    example: "some description"
+  type:
+    type: string
+    description: |
+      Type of ACC
+
+      Supported ACC types:
+        * vmware_v6
+    example: vmware_v6
+  created_by:
+    type: object
+    nullable: true
+    properties:
+      id: { type: integer, description: "Creation contact ID", example: 1 }
+      name: { type: string,  description: "Creation contact name", example: "admin" }
+  created_at:
+    type: string
+    format: date-time
+    nullable: true
+    description: "Creation date (ISO8601)"
+  updated_by:
+    type: object
+    nullable: true
+    properties:
+      id: { type: integer, description: "Update contact ID", example: 1 }
+      name: { type: string,  description: "Update contact name", example: "admin" }
+  updated_at:
+    type: string
+    format: date-time
+    nullable: true
+    description: "Update date (ISO8601)"
