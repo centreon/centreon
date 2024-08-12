@@ -18067,6 +18067,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Error while searching for additional connector configurations"
 #  msgstr ""
 
+#  msgid "Error while searching for available pollers for type '%s'"
+#  msgstr ""
+
 # msgid "Select time zone"
 # msgstr ""
 

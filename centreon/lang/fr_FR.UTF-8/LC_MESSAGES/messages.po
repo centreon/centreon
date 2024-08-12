@@ -19371,39 +19371,3 @@ msgstr "Vous ne disposez pas de droits suffisants pour cette action"
 
 msgid "Error while searching for additional connector configurations"
 msgstr "Erreur lors de la recherche de configurations additionnelles de connecteurs"
-
-msgid "Select time zone"
-msgstr "Sélectionner un fuseau horaire"
-
-msgid "Select time format"
-msgstr "Sélectionner un format de temps"
-
-msgid "12 hours"
-msgstr "12 heures"
-
-msgid "24 hours"
-msgstr "24 heures"
-
-msgid "Ends at"
-msgstr "Fini à"
-
-msgid "Time zone"
-msgstr "Fuseau horaire"
-
-msgid "Date format"
-msgstr "Format de date"
-
-msgid "Time format"
-msgstr "Format de temps"
-
-msgid "Countdown"
-msgstr "Compte à rebours"
-
-msgid "Timer"
-msgstr "Minuteur"
-
-msgid "Show time zone"
-msgstr "Afficher le fuseau horaire"
-
-msgid "Show date"
-msgstr "Afficher la date"
