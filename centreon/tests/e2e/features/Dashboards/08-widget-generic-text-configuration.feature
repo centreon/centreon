@@ -15,13 +15,13 @@ Feature: Configuring a single text widget
     When the user saves the widget containing the Generic text
     Then the Generic text widget is added in the dashboard's layout
     And its title and description are displayed
-  
+
   @TEST_MON-22661
   Scenario: Duplicating a Generic text widget
     Given a dashboard featuring a single Generic text widget
     When the dashboard administrator user duplicates the widget
     Then a second widget with identical content is displayed on the dashboard
-  
+
   @TEST_MON-22664
   Scenario: Editing a Generic text widget
     Given a dashboard featuring two Generic text widgets
@@ -33,13 +33,13 @@ Feature: Configuring a single text widget
     Given a dashboard featuring two Generic text widgets
     When the dashboard administrator user deletes one of the widgets
     Then only the contents of the other widget are displayed
-  
+
   @TEST_MON-22663
   Scenario: Hiding the description of a Generic text widget
     Given a dashboard featuring a single Generic text widget
     When the dashboard administrator user hides the description of the widget
     Then the description is hidden and only the title is displayed
-  
+
   @TEST_MON-22660
   Scenario: Adding a clickable link in the description of a Generic text widget
     Given a dashboard featuring a single Generic text widget
