@@ -344,7 +344,7 @@ describe('Line chart', () => {
       cy.get('[data-display-side="false"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -357,7 +357,7 @@ describe('Line chart', () => {
       cy.get('[data-display-side="true"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -368,7 +368,7 @@ describe('Line chart', () => {
       cy.get('[data-display-side="true"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -380,7 +380,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('line[class*="visx-axis-line"]')
         .eq(0)
@@ -403,7 +403,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('g[class="visx-group visx-rows"]').should('not.exist');
       cy.get('g[class="visx-group visx-columns"]').should('not.exist');
@@ -416,7 +416,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('g[class="visx-group visx-rows"]').should('be.visible');
       cy.get('g[class="visx-group visx-columns"]').should('not.exist');
@@ -429,7 +429,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('g[class="visx-group visx-rows"]').should('not.exist');
       cy.get('g[class="visx-group visx-columns"]').should('be.visible');
@@ -442,7 +442,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.get('text[transform="rotate(-35, -2, 312.508173777963)"]').should(
         'be.visible'
@@ -456,7 +456,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
 
       cy.contains('0.9').should('be.visible');
       cy.contains('-0.9').should('be.visible');
@@ -471,7 +471,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('[data-metric="13536"]').should('be.visible');
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
@@ -484,7 +484,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('[data-metric="13536"]').should('be.visible');
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
@@ -498,7 +498,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[fill="rgba(102, 153, 204, 0.19999999999999996)"]').should(
         'be.visible'
       );
@@ -517,7 +517,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[fill="rgba(102, 153, 204, 0.8)"]').should('be.visible');
     });
 
@@ -525,7 +525,7 @@ describe('Line chart', () => {
       initialize({ lineStyle: { showPoints: true } });
 
       checkGraphWidth();
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('circle[cx="4.0625"]').should('be.visible');
       cy.get('circle[cy="105.21757370835121"]').should('be.visible');
 
@@ -537,7 +537,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[stroke-width="6"]').should('have.length', 3);
 
       cy.makeSnapshot();
@@ -548,7 +548,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[stroke-width="4"]')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '4 10');
@@ -559,7 +559,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
 
-      cy.contains('12:00 AM').should('be.visible');
+      cy.contains(':00 AM').should('be.visible');
       cy.get('path[stroke-width="2"]')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 8');
