@@ -478,11 +478,8 @@ When('the dashboard administrator selects more than two metric units', () => {
 });
 
 Then(
-  'a message should be displayed indicating that the user can only select a maximum of two metric units',
+  'a message should be displayed indicating that thresholds are disabled',
   () => {
-    cy.contains('span', 'You can select a maximum of 2 metric units.').should(
-      'exist'
-    );
     cy.contains(
       'span',
       'Thresholds are automatically hidden as soon as you select 2 metric units.'
