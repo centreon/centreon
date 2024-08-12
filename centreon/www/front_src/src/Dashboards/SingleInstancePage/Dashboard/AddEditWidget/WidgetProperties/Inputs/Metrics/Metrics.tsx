@@ -14,7 +14,6 @@ import {
   labelMetrics,
   labelSelectMetric,
   labelThresholdsAreAutomaticallyHidden,
-  labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';

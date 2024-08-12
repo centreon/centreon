@@ -100,8 +100,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     isLoadingMetrics,
     metrics,
     metricCount,
-    servicesMetrics,
-    unitsFromSelectedMetrics
+    servicesMetrics
   } = useListMetrics({ resources, selectedMetrics: value });
 
   const getResourcesByMetricName = (

@@ -38,7 +38,7 @@ const BarStack = ({
   barPadding,
   barIndex,
   isTooltipHidden,
-  barStyle
+  barStyle = { opacity: 1, radius: 0.2 }
 }: Props): JSX.Element => {
   const {
     BarStackComponent,
@@ -75,7 +75,7 @@ const BarStack = ({
                 fill={bar.color}
                 height={isHorizontal ? Math.abs(bar.height) : barWidth}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
-                opacity={barStyle.opacity}
+                opacity={barStyle.opacity ?? 1}
                 radius={barWidth * barStyle.radius}
                 width={isHorizontal ? barWidth : Math.abs(bar.width)}
                 x={

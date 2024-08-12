@@ -34,7 +34,6 @@ interface UseListMetricsState {
   metricCount?: number;
   metrics: Array<Metric>;
   servicesMetrics?: ListingModel<ServiceMetric>;
-  unitsFromSelectedMetrics: Array<unknown>;
 }
 
 export const useListMetrics = ({
@@ -93,7 +92,6 @@ export const useListMetrics = ({
     isLoadingMetrics,
     metricCount,
     metrics,
-    servicesMetrics,
-    unitsFromSelectedMetrics
+    servicesMetrics
   };
 };
