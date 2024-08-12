@@ -353,8 +353,7 @@
 						"method": "includes",
 						"when": "options.displayType",
 						"matches": [
-							"line",
-							"bar-stacked"
+							"line"
 						]
 					}
 				},

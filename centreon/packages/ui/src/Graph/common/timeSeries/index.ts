@@ -345,6 +345,9 @@ const getScaleType = (
 ): typeof Scale.scaleLinear | typeof Scale.scaleLog =>
   equals(scale, 'logarithmic') ? Scale.scaleLog : Scale.scaleLinear;
 
+const hasOnlyZeroesHasValue = (graphValues: Array<number>): boolean =>
+  graphValues.every((value) => equals(value, 0) || equals(value, null));
+
 const getScale = ({
   graphValues,
   height,
@@ -367,6 +370,7 @@ const getScale = ({
   const maxValue = Math.max(
     getMax(graphValues),
     getMax(stackedValues),
+    hasOnlyZeroesHasValue(graphValues) ? 1 : 0,
     Math.max(...thresholds)
   );
 

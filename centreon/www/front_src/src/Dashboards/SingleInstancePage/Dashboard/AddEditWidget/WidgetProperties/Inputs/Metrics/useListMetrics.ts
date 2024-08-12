@@ -28,7 +28,7 @@ interface Props {
 }
 
 interface UseListMetricsState {
-  hasReachedTheLimitOfUnits: boolean;
+  hasMultipleUnitsSelected: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   metricCount?: number;
@@ -79,7 +79,7 @@ export const useListMetrics = ({
     uniq
   )(selectedMetrics || []);
 
-  const hasReachedTheLimitOfUnits = equals(length(unitsFromSelectedMetrics), 2);
+  const hasMultipleUnitsSelected = gt(length(unitsFromSelectedMetrics), 1);
 
   const metrics: Array<Metric> = pipe(
     pluck('metrics'),
@@ -88,7 +88,7 @@ export const useListMetrics = ({
   )(servicesMetrics?.result || []);
 
   return {
-    hasReachedTheLimitOfUnits,
+    hasMultipleUnitsSelected,
     hasTooManyMetrics,
     isLoadingMetrics,
     metricCount,

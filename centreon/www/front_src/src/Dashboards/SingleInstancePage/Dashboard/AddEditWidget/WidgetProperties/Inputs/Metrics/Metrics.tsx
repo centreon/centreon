@@ -49,11 +49,10 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
     deleteMetricItem,
     error,
     isTouched,
-    hasReachedTheLimitOfUnits,
+    hasMultipleUnitsSelected,
     metricWithSeveralResources,
     renderOptionsForSingleMetric,
     renderOptionsForMultipleMetricsAndResources,
-    getMetricOptionDisabled,
     hasMetaService
   } = useMetrics(propertyName);
 
@@ -127,7 +126,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
             }
-            getOptionDisabled={getMetricOptionDisabled}
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}
             getTagLabel={getTagLabel}
@@ -161,12 +159,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
             {content}
           </Typography>
         ))}
-        {hasReachedTheLimitOfUnits && (
-          <div>
-            <span>{t(labelYouCanSelectUpToTwoMetricUnits)}</span>
-            <br />
-            <span>{t(labelThresholdsAreAutomaticallyHidden)}</span>
-          </div>
+        {hasMultipleUnitsSelected && (
+          <Typography>{t(labelThresholdsAreAutomaticallyHidden)}</Typography>
         )}
       </div>
     </div>
