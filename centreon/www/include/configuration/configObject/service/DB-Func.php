@@ -944,7 +944,6 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
-
     $rq = "UPDATE service SET ";
     $rq .= "service_template_model_stm_id = ";
     isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null
@@ -2315,7 +2314,7 @@ function updateService_MC($service_id = null, $params = array())
     } else {
         $ret = $form->getSubmitValues();
     }
-
+    $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
     if (isset($ret["sg_name"])) {
         $ret["sg_name"] = $centreon->checkIllegalChar($ret["sg_name"]);
     }
@@ -2450,9 +2449,13 @@ function updateService_MC($service_id = null, $params = array())
         $rq .= "geo_coords = '" . $ret["geo_coords"] . "', ";
     }
 
-    $rq .= (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null)
-        ? "service_activate = '" . $ret["service_activate"]["service_activate"] . "', "
-        : "service_activate = '1', ";
+    if (!$isServiceTemplate) {
+        if (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null) {
+            $rq .= "service_activate = '" . $ret["service_activate"]["service_activate"] . "', ";
+        }
+    } else {
+        $rq .= "service_activate = '1', ";
+    }
 
     if (strcmp("UPDATE service SET ", $rq)) {
         // Delete last ',' in request
