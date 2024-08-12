@@ -333,7 +333,7 @@ jobs:
 
           RESULT=`find ./ -type f -name "composer.lock" -o -name "composer.json"`
           if [[ -n ${RESULT[0]} ]]; then
-          	echo "trigger_sca_scan=true" >> $GITHUB_ENV
+            echo "trigger_sca_scan=true" >> $GITHUB_ENV
           fi
 
       - name: SCA scan
