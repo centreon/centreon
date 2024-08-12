@@ -197,12 +197,12 @@ class CentreonLog
     {
         $this->setPathLogFile(empty($pathLogFile) ? _CENTREON_LOG_ : $pathLogFile);
         // push default logs in log file handler
-        foreach (self::DEFAULT_LOG_FILES as $idLogType => $logFileName) {
-            $this->pushLogFileHandler($idLogType, $logFileName);
+        foreach (self::DEFAULT_LOG_FILES as $logTypeId => $logFileName) {
+            $this->pushLogFileHandler($logTypeId, $logFileName);
         }
         // push custom logs in log file handler
-        foreach ($customLogFiles as $idLogType => $logFileName) {
-            $this->pushLogFileHandler($idLogType, $logFileName);
+        foreach ($customLogFiles as $logTypeId => $logFileName) {
+            $this->pushLogFileHandler($logTypeId, $logFileName);
         }
     }
 
@@ -218,7 +218,7 @@ class CentreonLog
     }
 
     /**
-     * @param int $idLogType TYPE_* constants
+     * @param int $logTypeId TYPE_* constants
      * @param string $level LEVEL_* constants
      * @param string $message
      * @param array $customContext
@@ -226,7 +226,7 @@ class CentreonLog
      * @return void
      */
     public function log(
-        int $idLogType,
+        int $logTypeId,
         string $level,
         string $message,
         array $customContext = [],
@@ -237,7 +237,7 @@ class CentreonLog
             $level = (empty($level)) ? strtoupper(self::LEVEL_ERROR) : strtoupper($level);
             $date = (new DateTime())->format(DateTimeInterface::RFC3339);
             $log = sprintf("[%s] %s : %s | %s", $date, $level, $message, $jsonContext);
-            $response = file_put_contents($this->logFileHandler[$idLogType], $log . "\n", FILE_APPEND);
+            $response = file_put_contents($this->logFileHandler[$logTypeId], $log . "\n", FILE_APPEND);
         }
     }
 
@@ -346,11 +346,11 @@ class CentreonLog
     }
 
     /**
-     * @param int $idLogType
+     * @param int $logTypeId
      * @param string $logFileName
      * @return CentreonLog
      */
-    public function pushLogFileHandler(int $idLogType, string $logFileName): CentreonLog
+    public function pushLogFileHandler(int $logTypeId, string $logFileName): CentreonLog
     {
         $pathLogFileName = '';
         $logFile = '';
@@ -360,7 +360,7 @@ class CentreonLog
             unset($explodeFineName[count($explodeFineName) - 1]);
             $pathLogFileName = implode(DIRECTORY_SEPARATOR, $explodeFineName);
         }
-        $this->logFileHandler[$idLogType] = ($pathLogFileName !== $this->pathLogFile) ?
+        $this->logFileHandler[$logTypeId] = ($pathLogFileName !== $this->pathLogFile) ?
             $this->pathLogFile . '/' . $logFile : $logFileName;
         return $this;
     }
@@ -503,7 +503,7 @@ class CentreonLog
 
     /**
      * @param int $id
-     * @param $str
+     * @param string $str
      * @param int $print
      * @param int $page
      * @param int $option
@@ -518,7 +518,7 @@ class CentreonLog
             print $str;
         }
 
-        $this->log(idLogType: $id, level: self::LEVEL_ERROR, message: $message);
+        $this->log(logTypeId: $id, level: self::LEVEL_ERROR, message: $message);
     }
 
 
