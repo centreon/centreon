@@ -206,8 +206,6 @@ Given(
 );
 
 When('the dashboard administrator user starts to edit the dashboard', () => {
-  //view button does'nt existe any more
-  //cy.getByLabel({ label: 'view', tag: 'button' }).click();
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
   cy.location('search').should('include', 'edit=true');
