@@ -1,4 +1,4 @@
-@REQ_MON-24518
+@REQ_MON-34256
 Feature: Configuring resource table widget
   As a Centreon User with dashboard update rights,
   I need to configure a widget containing a resource table on a dashboard
