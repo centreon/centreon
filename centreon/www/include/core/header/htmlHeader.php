@@ -149,13 +149,13 @@ if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
         if (!isset($_REQUEST['iframe']) || (isset($_REQUEST['iframe']) && $_REQUEST['iframe'] != 1)) {
             ?>
     <script type="text/javascript" src="./include/common/javascript/jquery/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-migrate-3.5.2.js"></script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/toggleClick/jquery.toggleClick.js">
     </script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/select2/js/select2.full.min.js">
     </script>
     <script type="text/javascript" src="./include/common/javascript/centreon/centreon-select2.js"></script>
     <script type="text/javascript" src="./include/common/javascript/jquery/jquery-ui.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/jquery-ui-tabs-rotate.js"></script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js">
     </script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/jeditable/jquery.jeditable-min.js">
