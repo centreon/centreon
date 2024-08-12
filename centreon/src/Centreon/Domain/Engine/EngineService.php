@@ -572,9 +572,9 @@ class EngineService extends AbstractCentreonService implements
             $result->getOutput(),
             $result->getPerformanceData()
         );
-
-        $commandFull = $this->createCommandHeader($service->getHost()->getPollerId()) . $command;
-        $this->engineRepository->sendExternalCommandBypassGorgone($commandFull); // workaround
+        //workaround
+        //$commandFull = $this->createCommandHeader($service->getHost()->getPollerId()) . $command;
+        $this->engineRepository->sendExternalCommandBypassGorgone($command); // workaround
     }
 
     /**

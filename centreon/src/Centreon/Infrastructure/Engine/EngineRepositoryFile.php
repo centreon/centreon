@@ -127,10 +127,7 @@ final class EngineRepositoryFile implements EngineRepositoryInterface
         $commandsToSend = '';
         foreach ($commandsAwaiting as $command) {
             $commandsToSend .= !empty($commandsToSend) ? "\n" : '';
-            // Format gorgone cmd for centengine, 
-            $gorgone_prefix = '/EXTERNALCMD:.*[0-9]:/i';
-            $command_for_engine = preg_replace($gorgone_prefix, '', $command);
-            $commandsToSend .= $command_for_engine;
+            $commandsToSend .= $command;
         }
 
         if (!is_dir($centengine_cmd_dir)) {
