@@ -132,6 +132,10 @@ const checkGraphWidth = (): void => {
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'width')
     .and('equal', '1170');
+
+  cy.findByTestId('graph-interaction-zone')
+    .should('have.attr', 'height')
+    .and('equal', '393');
 };
 
 describe('Line chart', () => {
