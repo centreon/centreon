@@ -46,7 +46,7 @@ Given('a Centreon User with dashboard edition rights on dashboard listing page',
 
 When('the user sets a right value in the search filter',
     () => {
-        cy.getByTestId({ tag: '.MuiInputBase-root > ', testId: 'Search' }).type(`${dashboards[0].name}{enter}`);
+        cy.getByTestId({ tag: 'input', testId: 'Search' }).type(`${dashboards[0].name}{enter}`);
         cy.wait('@getDashboardsList');
     }
 );
@@ -54,7 +54,7 @@ When('the user sets a right value in the search filter',
 Then('the dashboards that respect the filter are displayed',
     () => {
         cy.wait('@getDashboardsList');
-        cy.get('.css-1lulwh1-intersectionRow')
+        cy.get('[class$="-intersectionRow"]')
             .each(($row) => {
                 cy.wrap($row)
                     .find('p:first-of-type')
@@ -71,7 +71,7 @@ Given('Given a Centreon User with dashboard edition rights on dashboard listing 
 
 When('the user sets the wrong value in the search filter',
     () => {
-        cy.getByTestId({ tag: '.MuiInputBase-root > ', testId: 'Search' }).type(`xxx{enter}`);
+        cy.getByTestId({ tag: 'input', testId: 'Search' }).type(`xxx{enter}`);
         cy.wait('@getDashboardsList');
     }
 );
