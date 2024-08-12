@@ -481,7 +481,6 @@ Then(
   'a message should be displayed indicating that thresholds are disabled',
   () => {
     cy.contains(
-      'span',
       'Thresholds are automatically hidden as soon as you select 2 metric units.'
     ).should('exist');
   }
