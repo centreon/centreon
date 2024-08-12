@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { createStore, Provider } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
@@ -7,6 +9,9 @@ import dataLastDay from '../mockedData/lastDay.json';
 import dataLastDayWithNullValues from '../mockedData/lastDayWithNullValues.json';
 import dataLastDayWithIncompleteValues from '../mockedData/lastDayWithIncompleteValues.json';
 import dataCurvesWithSameColor from '../mockedData/curvesWithSameColor.json';
+import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
+import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
+import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 
 import { args as argumentsData } from './helpers/doc';
 import { LineChartProps } from './models';
@@ -30,6 +35,27 @@ const checkLegendInformation = (): void => {
   cy.contains('Avg: 78.07').should('be.visible');
   cy.contains('Avg: 0.5').should('be.visible');
   cy.contains('Avg: 0.51').should('be.visible');
+};
+
+const CustomUnitComponent = (props): JSX.Element => {
+  const [leftUnit, setLeftUnit] = useState('%');
+  const [rightUnit, setRightUnit] = useState('ms');
+
+  return (
+    <WrapperChart
+      {...props}
+      axis={{
+        axisYLeft: {
+          onUnitChange: setLeftUnit,
+          unit: leftUnit
+        },
+        axisYRight: {
+          onUnitChange: setRightUnit,
+          unit: rightUnit
+        }
+      }}
+    />
+  );
 };
 
 const initialize = ({
@@ -67,10 +93,53 @@ const initialize = ({
   cy.viewport('macbook-13');
 };
 
+const initializeCustomUnits = ({
+  data = dataLastDay,
+  tooltip,
+  legend,
+  axis,
+  lineStyle
+}: Props): void => {
+  cy.adjustViewport();
+
+  const store = createStore();
+  store.set(userAtom, {
+    alias: 'admin',
+    locale: 'en',
+    name: 'admin',
+    timezone: 'Europe/Paris'
+  });
+
+  cy.mount({
+    Component: (
+      <Provider store={store}>
+        <CustomUnitComponent
+          {...argumentsData}
+          axis={axis}
+          data={data as unknown as LineChartData}
+          legend={legend}
+          lineStyle={lineStyle}
+          tooltip={tooltip}
+        />
+      </Provider>
+    )
+  });
+
+  cy.viewport('macbook-13');
+};
+
+const checkGraphWidth = (): void => {
+  cy.findByTestId('graph-interaction-zone')
+    .should('have.attr', 'width')
+    .and('equal', '1170');
+};
+
 describe('Line chart', () => {
   describe('Tooltip', () => {
     it('displays a tooltip when the graph is hovered', () => {
       initialize({});
+
+      checkGraphWidth();
 
       cy.contains('oracle-buffer-hit-ratio graph on srv-oracle-users').should(
         'be.visible'
@@ -94,6 +163,8 @@ describe('Line chart', () => {
     it('displays a metric highlighted when the graph is hovered and the metric is the nearest point', () => {
       initialize({});
 
+      checkGraphWidth();
+
       cy.contains('Min: 70.31').should('be.visible');
 
       cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
@@ -115,6 +186,8 @@ describe('Line chart', () => {
     it('does not display the tooltip when null values are hovered', () => {
       initialize({ data: dataLastDayWithNullValues });
 
+      checkGraphWidth();
+
       cy.contains('Min: 70.31').should('be.visible');
 
       cy.findByTestId('graph-interaction-zone').realMouseMove(1185, 100);
@@ -124,12 +197,14 @@ describe('Line chart', () => {
       cy.makeSnapshot();
     });
 
-    it('displays the tooltip with defined values whent the graph is hovered', () => {
+    it('displays the tooltip with defined values when the graph is hovered', () => {
       initialize({ data: dataLastDayWithIncompleteValues });
+
+      checkGraphWidth();
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1162, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(1152, 100);
 
       cy.get('[data-metric="querytime"]').should('be.visible');
       cy.get('[data-metric="hitratio"]').should('not.exist');
@@ -139,6 +214,8 @@ describe('Line chart', () => {
 
     it('displays the tooltip a single metric when the corresponding prop is set', () => {
       initialize({ tooltip: { mode: 'single', sortOrder: 'name' } });
+
+      checkGraphWidth();
 
       cy.contains('Min: 70.31').should('be.visible');
 
@@ -157,6 +234,8 @@ describe('Line chart', () => {
     it('does not display the tooltip when the corresponding prop is set', () => {
       initialize({ tooltip: { mode: 'hidden', sortOrder: 'name' } });
 
+      checkGraphWidth();
+
       cy.contains('Min: 70.31').should('be.visible');
 
       cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
@@ -169,6 +248,8 @@ describe('Line chart', () => {
 
     it('sorts metrics by their value is ascending when the corresponding prop is set', () => {
       initialize({ tooltip: { mode: 'all', sortOrder: 'ascending' } });
+
+      checkGraphWidth();
 
       cy.contains('Min: 70.31').should('be.visible');
 
@@ -183,6 +264,8 @@ describe('Line chart', () => {
     it('sorts metrics by their value is descending when the corresponding prop is set', () => {
       initialize({ tooltip: { mode: 'all', sortOrder: 'descending' } });
 
+      checkGraphWidth();
+
       cy.contains('Min: 70.31').should('be.visible');
 
       cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
@@ -196,6 +279,10 @@ describe('Line chart', () => {
 
   it('displays the curves with different shades when curves have same color', () => {
     initialize({ data: dataCurvesWithSameColor });
+
+    cy.findByTestId('graph-interaction-zone')
+      .should('have.attr', 'width')
+      .and('equal', '1212');
 
     cy.findByLabelText('Centreon-Server: Round-Trip Average Time')
       .find('[data-icon="true"]')
@@ -257,7 +344,7 @@ describe('Line chart', () => {
       cy.get('[data-display-side="false"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains('12:00 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -270,7 +357,7 @@ describe('Line chart', () => {
       cy.get('[data-display-side="true"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains('12:00 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -281,7 +368,7 @@ describe('Line chart', () => {
       cy.get('[data-display-side="true"]').should('exist');
       cy.get('[data-as-list="true"]').should('exist');
 
-      cy.contains('8:00 AM').should('be.visible');
+      cy.contains('12:00 AM').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -291,7 +378,9 @@ describe('Line chart', () => {
     it('does not display axis borders when the prop is set', () => {
       initialize({ axis: { showBorder: false } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
 
       cy.get('line[class*="visx-axis-line"]')
         .eq(0)
@@ -312,7 +401,9 @@ describe('Line chart', () => {
     it('does not display grids when the prop is set', () => {
       initialize({ axis: { showGridLines: false } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
 
       cy.get('g[class="visx-group visx-rows"]').should('not.exist');
       cy.get('g[class="visx-group visx-columns"]').should('not.exist');
@@ -323,7 +414,9 @@ describe('Line chart', () => {
     it('displays only horizontal lines when the prop is set', () => {
       initialize({ axis: { gridLinesType: 'horizontal' } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
 
       cy.get('g[class="visx-group visx-rows"]').should('be.visible');
       cy.get('g[class="visx-group visx-columns"]').should('not.exist');
@@ -334,7 +427,9 @@ describe('Line chart', () => {
     it('displays only vertical lines when the prop is set', () => {
       initialize({ axis: { gridLinesType: 'vertical' } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
 
       cy.get('g[class="visx-group visx-rows"]').should('not.exist');
       cy.get('g[class="visx-group visx-columns"]').should('be.visible');
@@ -345,9 +440,13 @@ describe('Line chart', () => {
     it('rotates the tick label when the props is set', () => {
       initialize({ axis: { yAxisTickLabelRotation: -35 } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
 
-      cy.get('text[transform="rotate(-35, -2, 388)"]').should('be.visible');
+      cy.contains('12:00 AM').should('be.visible');
+
+      cy.get('text[transform="rotate(-35, -2, 312.508173777963)"]').should(
+        'be.visible'
+      );
 
       cy.makeSnapshot();
     });
@@ -355,7 +454,9 @@ describe('Line chart', () => {
     it('displays as centered to zero when the prop is set', () => {
       initialize({ axis: { isCenteredZero: true } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
 
       cy.contains('0.9').should('be.visible');
       cy.contains('-0.9').should('be.visible');
@@ -368,7 +469,9 @@ describe('Line chart', () => {
     it('displays the curve in a natural style when the prop is set', () => {
       initialize({ lineStyle: { curve: 'natural' } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
       cy.get('[data-metric="13536"]').should('be.visible');
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
@@ -379,7 +482,9 @@ describe('Line chart', () => {
     it('displays the curve in a step style when the prop is set', () => {
       initialize({ lineStyle: { curve: 'step' } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
       cy.get('[data-metric="13536"]').should('be.visible');
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
@@ -391,7 +496,9 @@ describe('Line chart', () => {
     it('shows the area when the prop is set', () => {
       initialize({ lineStyle: { showArea: true } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
       cy.get('path[fill="rgba(102, 153, 204, 0.19999999999999996)"]').should(
         'be.visible'
       );
@@ -408,16 +515,19 @@ describe('Line chart', () => {
     it('shows the area with a custom transparency when props are set', () => {
       initialize({ lineStyle: { areaTransparency: 20, showArea: true } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
       cy.get('path[fill="rgba(102, 153, 204, 0.8)"]').should('be.visible');
     });
 
     it('shows points when the prop is set', () => {
       initialize({ lineStyle: { showPoints: true } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+      cy.contains('12:00 AM').should('be.visible');
       cy.get('circle[cx="4.0625"]').should('be.visible');
-      cy.get('circle[cy="163.69430856642046"]').should('be.visible');
+      cy.get('circle[cy="105.21757370835121"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -425,7 +535,9 @@ describe('Line chart', () => {
     it('displays lines with a custom line width when the prop is set', () => {
       initialize({ lineStyle: { lineWidth: 6 } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
       cy.get('path[stroke-width="6"]').should('have.length', 3);
 
       cy.makeSnapshot();
@@ -434,7 +546,9 @@ describe('Line chart', () => {
     it('displays lines with dots width when the prop is set', () => {
       initialize({ lineStyle: { dotOffset: 10, lineWidth: 4 } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
       cy.get('path[stroke-width="4"]')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '4 10');
@@ -443,10 +557,141 @@ describe('Line chart', () => {
     it('displays lines with dots width when the prop is set', () => {
       initialize({ lineStyle: { dashLength: 5, dashOffset: 8 } });
 
-      cy.contains('8:00 AM').should('be.visible');
+      checkGraphWidth();
+
+      cy.contains('12:00 AM').should('be.visible');
       cy.get('path[stroke-width="2"]')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 8');
     });
+  });
+});
+
+describe('Lines and bars', () => {
+  it('displays lines and bars in the same chart', () => {
+    initialize({
+      data: dataPingServiceLinesBars
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
+    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays stacked lines and bars in the same chart', () => {
+    initialize({
+      data: dataPingServiceLinesBarsStacked
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.findByTestId('stacked-bar-2-0-6835').should('be.visible');
+    cy.findByTestId('stacked-bar-10-0-14920.328518673756').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays mixed lines and bars in the same chart', () => {
+    initialize({
+      data: dataPingServiceLinesBarsMixed
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
+    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays lines and bars in the same chart centered in zero', () => {
+    initialize({
+      axis: {
+        isCenteredZero: true
+      },
+      data: dataPingServiceLinesBars
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
+    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays stacked lines and bars in the same chart centered in zero', () => {
+    initialize({
+      axis: {
+        isCenteredZero: true
+      },
+      data: dataPingServiceLinesBarsStacked
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.findByTestId('stacked-bar-2-0-6835').should('be.visible');
+    cy.findByTestId('stacked-bar-10-0-14920.328518673756').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays mixed lines and bars in the same chart centered in zero', () => {
+    initialize({
+      axis: {
+        isCenteredZero: true
+      },
+      data: dataPingServiceLinesBarsMixed
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
+    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('changes the unit on the left or right scales when a new unit is selected', () => {
+    initializeCustomUnits({
+      data: dataPingServiceLinesBarsMixed
+    });
+
+    checkGraphWidth();
+
+    cy.findAllByTestId('unit-selector').eq(0).parent().click();
+    cy.findByLabelText('B').click();
+
+    cy.findAllByTestId('unit-selector').eq(0).should('have.value', 'B');
+    cy.contains('8.79 KB').should('be.visible');
+
+    cy.findAllByTestId('unit-selector').eq(1).parent().click();
+    cy.findByLabelText('%').click();
+
+    cy.findAllByTestId('unit-selector').eq(1).should('have.value', '%');
+    cy.contains('20').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
