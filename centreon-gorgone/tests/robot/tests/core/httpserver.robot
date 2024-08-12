@@ -23,6 +23,7 @@ check http api get status code ${tc}
             ...      forbidden     403    /bad/endpoint     {"error":"http_error_403","message":"forbidden"}
             ...      constatus Ok     200    /api/internal/constatus    {"data":{},"action":"constatus","message":"ok"}
             ...      method not found     404    /api/internal/wrongendpoint    {"error":"method_unknown","message":"Method not implemented"}
+            ...      get log    200     /api/nodes/1/log/wrongtoken    {"error":"no_log","message":"No log found for token","data":[],"token":"wrongtoken"}
         
 check http api post api ${tc}
     ${expected_code}=    Convert To Integer    ${http_status_code}
