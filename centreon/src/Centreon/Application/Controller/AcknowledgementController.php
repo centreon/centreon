@@ -30,6 +30,8 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
+use Centreon\Domain\Option\Option;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use FOS\RestBundle\Context\Context;
@@ -49,9 +51,17 @@ class AcknowledgementController extends AbstractController
     private const DISACKNOWLEDGE_RESOURCES_PAYLOAD_VALIDATION_FILE
         = __DIR__ . '/../../../../config/json_validator/latest/Centreon/Acknowledgement/DisacknowledgeResources.json';
 
+    private const
+        DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky',
+        DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent',
+        DEFAULT_ACKNOWLEDGEMENT_NOTIFY = 'monitoring_ack_notify',
+        DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES = 'monitoring_ack_svc',
+        DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS = 'monitoring_ack_active_checks';
+
     public function __construct(
         private AcknowledgementServiceInterface $acknowledgementService,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private OptionServiceInterface $optionService,
     ) {
     }
 
@@ -812,25 +822,61 @@ class AcknowledgementController extends AbstractController
             $acknowledgement->setComment($payload['acknowledgement']['comment']);
         }
 
-        if (isset($payload['acknowledgement']['with_services'])) {
-            $acknowledgement->setWithServices($payload['acknowledgement']['with_services']);
+        $options = $this->optionService->findSelectedOptions([
+            self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT,
+            self::DEFAULT_ACKNOWLEDGEMENT_STICKY,
+            self::DEFAULT_ACKNOWLEDGEMENT_NOTIFY,
+            self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES,
+            self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS
+        ]);
+
+        $isAcknowledgementPersistent = $acknowledgement->isPersistentComment();
+        $isAcknowledgementSticky = $acknowledgement->isSticky();
+        $isAcknowledgementNotify = $acknowledgement->isNotifyContacts();
+        $isAcknowledgementWithServices = $acknowledgement->isWithServices();
+        $isAcknowledgementForceActiveChecks = $acknowledgement->doesForceActiveChecks();
+        foreach ($options as $option) {
+            switch ($option->getName()) {
+                case self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT:
+                    $isAcknowledgementPersistent = (int) $option->getValue() === 1;
+                    break;
+                case self::DEFAULT_ACKNOWLEDGEMENT_STICKY:
+                    $isAcknowledgementSticky = (int) $option->getValue() === 1;
+                    break;
+                case self::DEFAULT_ACKNOWLEDGEMENT_NOTIFY:
+                    $isAcknowledgementNotify = (int) $option->getValue() === 1;
+                    break;
+                case self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES:
+                    $isAcknowledgementWithServices = (int) $option->getValue() === 1;
+                    break;
+                case self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS:
+                    $isAcknowledgementForceActiveChecks = (int) $option->getValue() === 1;
+                    break;
+                default:
+                    break;
+            }
         }
 
-        if (isset($payload['acknowledgement']['force_active_checks'])) {
-            $acknowledgement->setForceActiveChecks($payload['acknowledgement']['force_active_checks']);
-        }
+        isset($payload['acknowledgement']['with_services'])
+            ? $acknowledgement->setWithServices($payload['acknowledgement']['with_services'])
+            : $acknowledgement->setWithServices($isAcknowledgementWithServices);
 
-        if (isset($payload['acknowledgement']['is_notify_contacts'])) {
-            $acknowledgement->setNotifyContacts($payload['acknowledgement']['is_notify_contacts']);
-        }
 
-        if (isset($payload['acknowledgement']['is_persistent_comment'])) {
-            $acknowledgement->setPersistentComment($payload['acknowledgement']['is_persistent_comment']);
-        }
+        isset($payload['acknowledgement']['force_active_checks'])
+            ? $acknowledgement->setForceActiveChecks($payload['acknowledgement']['force_active_checks'])
+            : $acknowledgement->setForceActiveChecks($isAcknowledgementForceActiveChecks);
 
-        if (isset($payload['acknowledgement']['is_sticky'])) {
-            $acknowledgement->setSticky($payload['acknowledgement']['is_sticky']);
-        }
+        isset($payload['acknowledgement']['is_notify_contacts'])
+            ? $acknowledgement->setNotifyContacts($payload['acknowledgement']['is_notify_contacts'])
+            : $acknowledgement->setNotifyContacts($isAcknowledgementNotify);
+
+        isset($payload['acknowledgement']['is_persistent_comment'])
+            ? $acknowledgement->setPersistentComment($payload['acknowledgement']['is_persistent_comment'])
+            : $acknowledgement->setPersistentComment($isAcknowledgementPersistent);
+
+        isset($payload['acknowledgement']['is_sticky'])
+            ? $acknowledgement->setSticky($payload['acknowledgement']['is_sticky'])
+            : $acknowledgement->setSticky($isAcknowledgementSticky);
 
         return $acknowledgement;
     }

@@ -27,22 +27,28 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
+    ForbiddenResponse,
+    InvalidArgumentResponse
+};
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
-use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
-use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
-use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
-use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardPanel;
-use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Domain\Model\NewDashboard;
-use Core\Dashboard\Domain\Model\NewDashboardPanel;
-use Core\Dashboard\Domain\Model\Refresh;
-use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Application\Repository\{
+    ReadDashboardPanelRepositoryInterface,
+    ReadDashboardRepositoryInterface,
+    WriteDashboardPanelRepositoryInterface,
+    WriteDashboardRepositoryInterface,
+    WriteDashboardShareRepositoryInterface
+};
+use Core\Dashboard\Domain\Model\{
+    Dashboard,
+    DashboardPanel,
+    DashboardRights,
+    NewDashboard,
+    NewDashboardPanel,
+    Refresh,
+    Role\DashboardSharingRole
+};
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
