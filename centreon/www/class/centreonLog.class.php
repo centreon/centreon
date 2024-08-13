@@ -354,11 +354,11 @@ class CentreonLog
     {
         $pathLogFileName = '';
         $logFile = '';
-        $explodeFineName = explode(DIRECTORY_SEPARATOR, $logFileName);
-        if (! empty($explodeFineName)) {
-            $logFile = $explodeFineName[count($explodeFineName) - 1];
-            unset($explodeFineName[count($explodeFineName) - 1]);
-            $pathLogFileName = implode(DIRECTORY_SEPARATOR, $explodeFineName);
+        $explodeFileName = explode(DIRECTORY_SEPARATOR, $logFileName);
+        if (! empty($explodeFileName)) {
+            $logFile = $explodeFileName[count($explodeFileName) - 1];
+            unset($explodeFileName[count($explodeFileName) - 1]);
+            $pathLogFileName = implode(DIRECTORY_SEPARATOR, $explodeFileName);
         }
         $this->logFileHandler[$logTypeId] = ($pathLogFileName !== $this->pathLogFile) ?
             $this->pathLogFile . '/' . $logFile : $logFileName;
