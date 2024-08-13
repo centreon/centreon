@@ -86,7 +86,7 @@ const run = async () => {
 
 		await deleteOldComments({ octokit, context, title })
 
-		core.info(`Pass the gate keep? ${passGateKeep} (INFO: lines: ${codeCoverageLines}, base percentage: ${baseCodeCoveragePercentage})`)
+		core.info(`Does it pass the gate keep? ${passGateKeep} (INFO: lines: ${codeCoverageLines}, base percentage: ${baseCodeCoveragePercentage})`)
 
 		if (!passGateKeep) {
 			const pull_request_number = context.payload.pull_request.number;
