@@ -32,6 +32,9 @@ jobs:
 
   cypress-component-testing:
     uses: ./.github/workflows/cypress-component-parallelization.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
     with:
       name: component
       module_name: centreon/packages/ui
