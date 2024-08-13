@@ -152,6 +152,7 @@ jobs:
           module_path: ${{ inputs.module_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ steps.title.outputs.replaced }}
+          dynamicCodeCoveragesFilePath: /tmp/baseCodeCoverages.json
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
