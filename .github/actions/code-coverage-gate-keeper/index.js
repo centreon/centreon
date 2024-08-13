@@ -62,9 +62,16 @@ const run = async () => {
 		const coverage = JSON.parse(coverageFile);
 		const module = modulePath.replaceAll('/', '-');
 		const codeCoverageLines = coverage.total.lines.pct;
+		const codeCoverages = JSON.parse(fs.readFileSync(dynamicCodeCoveragesFilePath));
+		const baseCodeCoveragePercentage = codeCoverages[module]
+
+		const passGateKeep = codeCoverageLines >= baseCodeCoveragePercentage;
 
 		if (generateNewCodeCoverages) {
-			const codeCoverages = JSON.parse(fs.readFileSync(dynamicCodeCoveragesFilePath));
+			if (!passGateKeep) {
+				core.info(`Cannot update base percentage for ${module}. Requirement: ${baseCodeCoveragePercentage}%. Current: ${codeCoverageLines}%`);
+				return;
+			}
 			const newCodeCoverages = {
 				...codeCoverages,
 				[module]: codeCoverageLines
@@ -72,11 +79,6 @@ const run = async () => {
 			fs.writeFileSync('/tmp/newBaseCodeCoverages.json', JSON.stringify(newCodeCoverages));
 			return;
 		}
-
-		const codeCoverages = fs.readFileSync(dynamicCodeCoveragesFilePath);
-		const baseCodeCoveragePercentage = JSON.parse(codeCoverages)[module]
-
-		const passGateKeep = codeCoverageLines >= baseCodeCoveragePercentage;
 
 		const octokit = getOctokit(githubToken);
 
