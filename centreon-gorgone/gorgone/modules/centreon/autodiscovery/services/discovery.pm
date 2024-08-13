@@ -886,7 +886,7 @@ sub launchdiscovery {
     # get vault config
     ##################
 
-    ($status, $message, my $vault_count) = get_vault_count();
+    ($status, $message, my $vault_count) = $self->get_vault_count();
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
         return -1;
@@ -981,7 +981,7 @@ sub event {
 }
 
 sub get_vault_count() {
-    my (%options) = @_;
+    my ($self, %options) = @_;
 
     # Check if vault config file exists
     if (-e $self->{config}->{vault_file}) {
@@ -1005,6 +1005,7 @@ sub get_vault_count() {
         }
         return (0, '', 1);
     }
+    return (0, '', 0);
 }
 
 1;

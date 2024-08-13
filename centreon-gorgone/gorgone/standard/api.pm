@@ -222,8 +222,8 @@ sub get_log {
     }
 
     $options{module}->{break_token} = undef;
-
-    my $response = '{"error":"no_log","message":"No log found for token","data":[],"token":"' . $options{token} . '"}';
+    # Return http code 200 even if no log found to avoid error in web application, an evol may be done to return 404 and process it in web application
+    my $response = '{"error":"no_log","message":"No log found for token","data":[],"token":"' . $options{token} . '","http_response_code":"200"}';
     if (defined($options{module}->{tokens}->{$token_log}) && defined($options{module}->{tokens}->{ $token_log }->{data})) {
         my $content;
         eval {
