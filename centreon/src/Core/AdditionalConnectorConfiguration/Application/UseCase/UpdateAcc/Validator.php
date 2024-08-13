@@ -122,6 +122,7 @@ class Validator
             throw AccException::arrayCanNotBeEmpty('pollers');
         }
 
+        // Check pollers have valid IDs according to user permissions.
         $invalidPollers = [];
         foreach ($request->pollers as $pollerId) {
             $isPollerIdValid = false;
@@ -141,6 +142,7 @@ class Validator
             throw AccException::idsDoNotExist('pollers', $invalidPollers);
         }
 
+        // Check pollers are not already associated to an ACC of same type.
         $actualPollers = $this->readAccRepository->findPollersByAccId($acc->getId());
         $actualPollerIds = array_map(fn(Poller $poller) => $poller->id, $actualPollers);
 

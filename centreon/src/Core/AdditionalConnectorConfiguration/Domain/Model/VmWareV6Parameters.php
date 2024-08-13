@@ -84,10 +84,6 @@ class VmWareV6Parameters implements AccParametersInterface
     /**
      * @inheritDoc
      *
-     * @param EncryptionInterface $encryption
-     * @param AccParametersInterface $currentObj
-     * @param array<string,mixed> $newDatas
-     *
      * @return VmWareV6Parameters
      */
     public static function update(
@@ -107,11 +103,14 @@ class VmWareV6Parameters implements AccParametersInterface
 
         $parameters['port'] = $newDatas['port'];
         foreach ($parameters['vcenters'] as $index => $vcenter) {
+            // Remove vcenter
             if (! array_key_exists($vcenter['name'], $newDatas['vcenters'])) {
                 unset($parameters['vcenters'][$index]);
 
                 continue;
             }
+
+            // Update vcenter
             $updatedVcenter = $newDatas['vcenters'][$vcenter['name']];
             $updatedVcenter['username'] ??= $vcenter['username'];
             $updatedVcenter['password'] ??= $vcenter['password'];
@@ -119,6 +118,7 @@ class VmWareV6Parameters implements AccParametersInterface
             $parameters['vcenters'][$index] = $updatedVcenter;
             unset($newDatas['vcenters'][$vcenter['name']]);
         }
+        // Add new vcenter
         if ([] !== $newDatas['vcenters']) {
             foreach ($newDatas['vcenters'] as $newVcenter) {
                 $parameters['vcenters'][] = $newVcenter;
