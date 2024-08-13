@@ -33,7 +33,6 @@ Feature: Creating a new dashboard
     When the user opens the form to create a new dashboard for the second time
     Then the form fields are empty
 
-  # uncomment once MON-37265 is fixed
   @TEST_MON-23634
   Scenario: Creating a new dashboard while editing an existing one
     Given a dashboard with existing widgets in the dashboard administrator user's dashboard library
