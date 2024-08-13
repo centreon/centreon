@@ -21,13 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\AdditionalConnectorConfiguration\Domain\Model;
+namespace Core\AdditionalConnectorConfiguration\Application\Repository;
 
-enum Type: string {
-    /*
-     * TODO: when enum will contain more than one case:
-     *  - remove corresponding ignoreErrors in phpstan.core.neon and phpstan.neon,
-     *  - update skipped tests in UpdateAdditionalConnector/ValidatorTests
+use Core\AdditionalConnectorConfiguration\Domain\Model\AccParametersInterface;
+use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
+
+interface ReadVaultAccRepositoryInterface
+{
+    public function isValidFor(Type $type): bool;
+
+    /**
+     * Retrieve credentials values in vault and return the parameters updated with values.
+     *
+     * @param AccParametersInterface $parameters
+     *
+     * @throws \Throwable
+     *
+     * @return AccParametersInterface
      */
-    case VMWARE_V6 = 'vmware_v6';
+    public function getCredentialsFromVault(AccParametersInterface $parameters): AccParametersInterface;
 }
