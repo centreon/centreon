@@ -50,6 +50,7 @@ const run = async () => {
 		const githubToken = core.getInput('github_token');
 		const name = core.getInput('name');
 		const dynamicCodeCoveragesFilePath = core.getInput('dynamicCodeCoveragesFilePath');
+		const generateNewCodeCoverages = core.getBooleanInput('generateNewCodeCoverages');
 
 		if (context.payload.pull_request === null) {
 			return;
@@ -59,11 +60,21 @@ const run = async () => {
 
 		const coverageFile = fs.readFileSync('/tmp/coverage-summary.json');
 		const coverage = JSON.parse(coverageFile);
+		const module = modulePath.replaceAll('/', '-');
+		const codeCoverageLines = coverage.total.lines.pct;
+
+		if (generateNewCodeCoverages) {
+			const codeCoverages = JSON.parse(fs.readFileSync(dynamicCodeCoveragesFilePath));
+			const newCodeCoverages = {
+				...codeCoverages,
+				[module]: codeCoverageLines
+			}
+			fs.writeFileSync('/tmp/newBaseCodeCoverages.json', JSON.stringify(newCodeCoverages));
+			return;
+		}
 
 		const codeCoverages = fs.readFileSync(dynamicCodeCoveragesFilePath);
-		const baseCodeCoveragePercentage = JSON.parse(codeCoverages)[modulePath.replaceAll('/', '-')]
-
-		const codeCoverageLines = coverage.total.lines.pct;
+		const baseCodeCoveragePercentage = JSON.parse(codeCoverages)[module]
 
 		const passGateKeep = codeCoverageLines >= baseCodeCoveragePercentage;
 
