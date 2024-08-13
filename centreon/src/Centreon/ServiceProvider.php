@@ -21,6 +21,7 @@
 
 namespace Centreon;
 
+
 use Pimple\Container;
 use Pimple\Psr11\ServiceLocator;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
