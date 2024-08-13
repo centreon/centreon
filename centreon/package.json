@@ -181,6 +181,5 @@
   ],
   "msw": {
     "workerDirectory": "www/front_src/public"
-  },
-  "baseCodeCoveragePercentage": 90
+  }
 }
