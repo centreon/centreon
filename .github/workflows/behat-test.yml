@@ -128,8 +128,17 @@ jobs:
         if: ${{ !cancelled() }}
         run: find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | xargs -r rm
 
-      - if: failure()
-        name: Display logs
+      - name: Replace / with - in the feature path
+        id: feature-path
+        if: always()
+        run: |
+          feature_name="${{ matrix.feature }}"
+          feature_name_with_dash="${feature_name//\//-}"
+          echo "Modified Feature Name: $feature_name_with_dash"
+          echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
+
+      - name: Display logs
+        if: failure()
         run: find ./acceptance-logs -type f | grep '.txt' | xargs -r more | cat
         shell: bash
 
@@ -137,7 +146,7 @@ jobs:
         if: failure()
         name: Upload acceptance test logs
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs-${{ matrix.feature }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: acceptance-logs
           retention-days: 1
 
@@ -145,7 +154,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ matrix.feature }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: xunit-reports
           retention-days: 1
 
