@@ -449,17 +449,8 @@ class CentreonLog
      */
     private function getExceptionOptions(Throwable $exception): array
     {
-        $options = [];
-        $publicMethods = get_class_methods($exception);
-        foreach ($publicMethods as $method) {
-            if (strtolower($method) === 'getoptions') {
-                if (is_array($exception->$method())) {
-                    $options = $exception->$method();
-                }
-                break;
-            }
-        }
-        return $options;
+        return (method_exists($exception, 'getOptions') && is_array($exception->getOptions())) ?
+            $exception->getOptions() : [];
     }
 
     /**
@@ -510,7 +501,7 @@ class CentreonLog
      * @return void
      * @deprecated Instead used {@see CentreonLog::log()}
      */
-    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0)
+    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
     {
         $message = "$page|$option|$str";
 
