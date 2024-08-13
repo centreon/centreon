@@ -21,13 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\AdditionalConnectorConfiguration\Domain\Model;
+namespace Core\AdditionalConnectorConfiguration\Application\UseCase\FindPollers;
 
-enum Type: string {
-    /*
-     * TODO: when enum will contain more than one case:
-     *  - remove corresponding ignoreErrors in phpstan.core.neon and phpstan.neon,
-     *  - update skipped tests in UpdateAdditionalConnector/ValidatorTests
+use Core\AdditionalConnectorConfiguration\Domain\Model\Poller;
+
+final class FindPollersResponse
+{
+    /**
+     * @param Poller[] $pollers
      */
-    case VMWARE_V6 = 'vmware_v6';
+    public function __construct(
+        public array $pollers
+    ) {
+    }
 }
