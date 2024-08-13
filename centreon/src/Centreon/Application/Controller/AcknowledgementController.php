@@ -861,7 +861,6 @@ class AcknowledgementController extends AbstractController
             ? $acknowledgement->setWithServices($payload['acknowledgement']['with_services'])
             : $acknowledgement->setWithServices($isAcknowledgementWithServices);
 
-
         isset($payload['acknowledgement']['force_active_checks'])
             ? $acknowledgement->setForceActiveChecks($payload['acknowledgement']['force_active_checks'])
             : $acknowledgement->setForceActiveChecks($isAcknowledgementForceActiveChecks);
