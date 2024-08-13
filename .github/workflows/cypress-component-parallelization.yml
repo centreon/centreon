@@ -15,6 +15,10 @@ on:
         type: string
         description: 'The frontend dependencies lock file path'
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   cypress-component-test-list:
     runs-on: ubuntu-22.04
@@ -93,6 +97,7 @@ jobs:
           aws-region: eu-west-1
           aws-access-key-id: ${{ secrets.LIGHTHOUSE_ID }}
           aws-secret-access-key: ${{ secrets.LIGHTHOUSE_SECRET }}
+          
 
       - name: Add code coverage files
         shell: bash
