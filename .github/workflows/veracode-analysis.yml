@@ -69,7 +69,7 @@ jobs:
           elif [[ $CHECK_BRANCH == "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]; then
             # e.g release-23.04-next
             FAIL_BUILD="false"
-            DEVELOPMENT_STAGE="Development"
+            DEVELOPMENT_STAGE="Testing"
             DISPLAY_SUMMARY="false"
           else
             FAIL_BUILD="$ENABLE_QG"
@@ -244,7 +244,7 @@ jobs:
         # only baseline files not generated from a development branch are saved
         if: success() && needs.build.outputs.development_stage != 'Development'
         run: |
-          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
+          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x release-${{ inputs.major_version }}-next)
           for BRANCH in "${BRANCHES[@]}"; do
             if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
               mv *results.json /tmp
