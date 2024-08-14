@@ -6,6 +6,22 @@ import { ThemeMode } from '@centreon/ui-context';
 
 import * as BaseTokens from '../base/tokens/themes/base.tokens';
 
+import {
+  black,
+  blue,
+  blueGrey,
+  green,
+  grey,
+  lightBlue,
+  orange,
+  pink,
+  purple,
+  red,
+  sand,
+  turquoise,
+  white
+} from './colors';
+
 declare module '@mui/material/styles/createPalette' {
   interface TypeAction {
     acknowledged: string;
@@ -142,279 +158,281 @@ declare module '@mui/material/Badge' {
 
 export const lightPalette: PaletteOptions = {
   action: {
-    acknowledged: '#67532C',
-    acknowledgedBackground: '#DFD2B9',
+    acknowledged: sand[700],
+    acknowledgedBackground: sand[200],
     activatedOpacity: 0.12,
-    active: '#666666',
-    disabled: '#999999',
+    active: grey[800],
+    disabled: grey[700],
     disabledBackground: 'rgba(0, 0, 0, 0.12)',
     focus: 'rgba(0, 0, 0, 0.12)',
     focusOpacity: 0.12,
     hover: 'rgba(0, 0, 0, 0.06)',
     hoverOpacity: 0.06,
-    inDowntime: '#4B2352',
-    inDowntimeBackground: '#E5D8F3',
+    inDowntime: purple[700],
+    inDowntimeBackground: purple[200],
     selected: 'rgba(102, 102, 102, 0.3)',
     selectedOpacity: 0.3
   },
   background: {
-    default: '#F4F4F4',
-    listingHeader: '#666666',
-    panel: '#EDEDED',
-    panelGroups: '#F5F5F5',
-    paper: '#FFFFFF',
-    tooltip: '#434E5B',
-    widget: '#F8F8F8'
+    default: grey[200],
+    listingHeader: grey[800],
+    panel: grey[300],
+    panelGroups: grey[200],
+    paper: white[50],
+    tooltip: blueGrey[700],
+    widget: grey[200]
   },
   chip: {
     color: {
-      error: '#FF6666',
-      info: '#1588D1',
-      neutral: BaseTokens.colorGrey300,
-      success: '#88B922',
-      warning: '#FD9B27'
+      error: red[500],
+      info: lightBlue[500],
+      neutral: grey[300],
+      success: green[500],
+      warning: orange[500]
     }
   },
-  divider: '#E3E3E3',
+  divider: grey[500],
   error: {
-    contrastText: '#000',
-    main: '#FF4A4A'
+    contrastText: black[950],
+    main: red[500]
   },
   header: {
     page: {
       action: {
         background: {
-          active: '#1975D10F',
-          default: '#FFFFFF00'
+          active: alpha(lightBlue[500], 0.5),
+          default: alpha(white[50], 0)
         },
         color: {
-          active: '#1976D2',
-          default: '#696969'
+          active: lightBlue[500],
+          default: grey[800]
         }
       },
-      border: '#4A4A4A',
-      description: '#4A4A4A',
-      title: '#000000'
+      border: grey[800],
+      description: grey[800],
+      title: black[950]
     }
   },
   info: {
-    contrastText: '#000',
-    main: '#1588D1'
+    contrastText: black[950],
+    main: lightBlue[500]
   },
   layout: {
     body: {
-      background: '#F6F6F6'
+      background: grey[200]
     },
     header: {
-      background: '#FFFFFF',
-      border: '#E3E3E3'
+      background: white[50],
+      border: grey[500]
     }
   },
   menu: {
-    background: '#FFFFFF',
+    background: white[50],
     button: {
       background: {
-        active: BaseTokens.colorBlue50,
+        active: blue[100],
         default: 'transparent',
-        hover: BaseTokens.colorGrey100
+        hover: grey[200]
       },
       color: {
-        active: BaseTokens.colorBlue400,
-        default: BaseTokens.colorGrey400,
-        hover: BaseTokens.colorGrey500
+        active: blue[500],
+        default: grey[500],
+        hover: grey[600]
       }
     },
     divider: {
-      border: BaseTokens.colorGrey200
+      border: grey[300]
     },
     item: {
       background: {
-        active: BaseTokens.colorBlue50,
+        active: blue[100],
         default: 'transparent',
-        hover: BaseTokens.colorGrey100
+        hover: grey[200]
       },
       color: {
-        active: BaseTokens.colorBlue400,
-        default: BaseTokens.colorGrey900,
-        hover: BaseTokens.colorGrey950
+        active: blue[500],
+        default: grey[900],
+        hover: grey[950]
       }
     }
   },
   mode: ThemeMode.light,
   pending: {
-    contrastText: '#000',
-    main: '#1EBEB3'
+    contrastText: black[950],
+    main: turquoise[500]
   },
   primary: {
-    contrastText: '#fff',
-    dark: '#255891',
-    light: '#cde7fc',
-    main: '#2E68AA'
+    contrastText: white[50],
+    dark: blue[800],
+    light: blue[200],
+    main: blue[500]
   },
   secondary: {
-    contrastText: '#fff',
-    dark: '#ac28c1',
-    light: '#e5a5f0',
-    main: '#C772D6'
+    contrastText: white[50],
+    dark: pink[900],
+    light: pink[400],
+    main: pink[500]
   },
   statusBackground: {
-    error: '#FF6666',
-    none: alpha('#2E68AA', 0.1),
-    pending: '#1EBEB3',
-    success: '#88B922',
-    unknown: '#E3E3E3',
-    warning: '#FD9B27'
+    error: red[500],
+    none: grey[500],
+    pending: turquoise[500],
+    success: green[500],
+    unknown: grey[500],
+    warning: orange[500]
   },
   success: {
-    contrastText: '#000',
-    main: '#88B922'
+    contrastText: black[950],
+    main: green[500]
   },
   text: {
-    disabled: '#999999',
-    primary: '#000000',
-    secondary: '#666666'
+    disabled: grey[700],
+    primary: black[950],
+    secondary: grey[800]
   },
   warning: {
-    contrastText: '#000',
-    main: '#FD9B27'
+    contrastText: black[950],
+    main: orange[500]
   }
 };
 
 export const darkPalette: PaletteOptions = {
   action: {
-    acknowledged: '#67532C',
-    acknowledgedBackground: '#745F35',
+    acknowledged: sand[500],
+    acknowledgedBackground: sand[900],
     activatedOpacity: 0.3,
-    active: '#B5B5B5',
-    disabled: '#999999',
-    disabledBackground: '#555555',
+    active: grey[600],
+    disabled: grey[700],
+    disabledBackground: grey[800],
     focus: 'rgba(255, 255, 255, 0.30)',
     focusOpacity: 0.3,
     hover: 'rgba(255, 255, 255, 0.16)',
     hoverOpacity: 0.16,
-    inDowntime: '#4B2352',
-    inDowntimeBackground: '#512980',
+    inDowntime: purple[500],
+    inDowntimeBackground: purple[900],
     selected: 'rgba(255, 255, 255, 0.5)',
     selectedOpacity: 0.5
   },
   background: {
-    default: '#4a4a4a',
-    listingHeader: '#666666',
-    panel: '#4a4a4a',
-    panelGroups: '#252525',
-    paper: '#212121',
+    default: black[900],
+    listingHeader: black[800],
+    panel: black[800],
+    panelGroups: grey[900],
+    paper: grey[900],
     tooltip: '#AAB4C0',
-    widget: '#2E2E2E'
+    widget: black[800]
   },
   chip: {
     color: {
-      error: '#D60101',
-      info: '#1CA9F4',
-      neutral: BaseTokens.colorGrey700,
-      success: '#5F8118',
-      warning: '#C55400'
+      error: red[800],
+      info: lightBlue[600],
+      neutral: grey[800],
+      success: green[700],
+      warning: orange[800]
     }
   },
-  divider: '#666666',
+  divider: black[800],
   error: {
-    contrastText: '#fff',
-    main: '#D60101'
+    contrastText: white[50],
+    main: red[800]
   },
   header: {
     page: {
       action: {
         background: {
-          active: '#1975D10F',
-          default: '#FFFFFF00'
+          active: alpha(lightBlue[600], 0.5),
+          default: white[50]
         },
         color: {
-          active: '#1976D2',
-          default: '#696969'
+          active: lightBlue[600],
+          default: grey[800]
         }
       },
-      border: '#bdbdbd',
-      description: '#bdbdbd',
-      title: '#fff'
+      border: grey[600],
+      description: grey[600],
+      title: white[50]
     }
   },
   info: {
-    contrastText: '#fff',
-    main: '#1CA9F4'
+    contrastText: white[50],
+    main: lightBlue[600]
   },
   layout: {
     body: {
-      background: '#F6F6F6'
+      background: grey[200]
     },
     header: {
-      background: '#FFFFFF',
-      border: '#E3E3E3'
+      background: white[50],
+      border: grey[500]
     }
   },
   menu: {
-    background: BaseTokens.colorGrey950,
+    background: grey[950],
     button: {
       background: {
-        active: BaseTokens.colorBlue900,
+        active: grey[900],
         default: 'transparent',
-        hover: BaseTokens.colorGrey900
+        hover: grey[950]
       },
       color: {
-        active: BaseTokens.colorBlue600,
-        default: BaseTokens.colorGrey600,
-        hover: BaseTokens.colorGrey500
+        active: blue[700],
+        default: grey[700],
+        hover: grey[600]
       }
     },
     divider: {
-      border: BaseTokens.colorGrey800
+      border: grey[900]
     },
     item: {
       background: {
-        active: BaseTokens.colorBlue900,
+        active: blue[900],
         default: 'transparent',
-        hover: BaseTokens.colorGrey900
+        hover: grey[900]
       },
       color: {
-        active: BaseTokens.colorBlue400,
-        default: BaseTokens.colorGrey50,
-        hover: '#fff'
+        active: blue[400],
+        default: grey[50],
+        hover: white[50]
       }
     }
   },
   mode: ThemeMode.dark,
   pending: {
-    contrastText: '#fff',
-    main: '#118077'
+    contrastText: white[50],
+    main: turquoise[800]
   },
   primary: {
-    contrastText: '#000',
-    dark: '#4974A5',
-    light: '#8bbff9',
-    main: '#6eaff8'
+    contrastText: black[950],
+    dark: blue[600],
+    light: blue[200],
+    main: blue[400]
   },
   secondary: {
-    contrastText: '#fff',
-    main: '#7C1FA2'
+    contrastText: white[50],
+    dark: pink[950],
+    light: pink[600],
+    main: pink[800]
   },
   statusBackground: {
-    error: '#D60101',
-    none: alpha('#2E68AA', 0.1),
-    pending: '#118077',
-    success: '#5F8118',
-    unknown: '#666666',
-    warning: '#C55400'
+    error: red[800],
+    none: grey[800],
+    pending: turquoise[800],
+    success: green[700],
+    unknown: grey[800],
+    warning: orange[800]
   },
   success: {
-    contrastText: '#fff',
-    main: '#5F8118'
+    contrastText: white[50],
+    main: green[700]
   },
   text: {
-    disabled: '#666666',
-    primary: '#FFFFFF',
-    secondary: '#CCCCCC'
+    disabled: grey[800],
+    primary: white[50],
+    secondary: grey[600]
   },
   warning: {
-    contrastText: '#fff',
-    main: '#C55400'
+    contrastText: white[50],
+    main: orange[800]
   }
 };
 

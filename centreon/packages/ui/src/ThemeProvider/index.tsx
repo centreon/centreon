@@ -167,7 +167,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
         * {
           scrollbar-color: ${
             equals(mode, 'dark')
-              ? theme.palette.divider
+              ? theme.palette.action.disabled
               : theme.palette.text.disabled
           } ${theme.palette.background.default};
           scrollbar-width: thin;
