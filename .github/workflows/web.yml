@@ -289,6 +289,9 @@ jobs:
     needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
     with:
       name: component
       module_name: centreon

@@ -59,6 +59,12 @@ data.forEach((item) =>
     });
 
     it(`displays correctly the dates design when screen resolution is ${width}px`, () => {
+      cy.contains('1 day').should('be.visible');
+      cy.contains('7 days').should('be.visible');
+      cy.contains('31 days').should('be.visible');
+      cy.contains('From').should('be.visible');
+      cy.contains('To').should('be.visible');
+
       cy.makeSnapshotWithCustomResolution({
         resolution: { height, width },
         title: `${width}px`

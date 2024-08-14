@@ -29,7 +29,6 @@
   "author": {
     "name": "centreon@centreon.com"
   },
-  "baseCodeCoveragePercentage": 60,
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/centreon/centreon/issues"

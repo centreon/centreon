@@ -82,6 +82,56 @@ class VmWareV6Parameters implements AccParametersInterface
     }
 
     /**
+     * @inheritDoc
+     *
+     * @return VmWareV6Parameters
+     */
+    public static function update(
+        EncryptionInterface $encryption,
+        AccParametersInterface $currentObj,
+        array $newDatas
+    ): self
+    {
+        /** @var _VmWareV6Parameters|_VmWareV6ParametersWithoutCredentials $newDatas */
+        /** @var _VmWareV6Parameters $parameters */
+        $parameters = $currentObj->getDecryptedData();
+
+        foreach ($newDatas['vcenters'] as $index => $vcenter) {
+            $newDatas['vcenters'][$vcenter['name']] = $vcenter;
+            unset($newDatas['vcenters'][$index]);
+        }
+
+        $parameters['port'] = $newDatas['port'];
+        foreach ($parameters['vcenters'] as $index => $vcenter) {
+            // Remove vcenter
+            if (! array_key_exists($vcenter['name'], $newDatas['vcenters'])) {
+                unset($parameters['vcenters'][$index]);
+
+                continue;
+            }
+
+            // Update vcenter
+            $updatedVcenter = $newDatas['vcenters'][$vcenter['name']];
+            $updatedVcenter['username'] ??= $vcenter['username'];
+            $updatedVcenter['password'] ??= $vcenter['password'];
+
+            $parameters['vcenters'][$index] = $updatedVcenter;
+            unset($newDatas['vcenters'][$vcenter['name']]);
+        }
+        // Add new vcenter
+        if ([] !== $newDatas['vcenters']) {
+            foreach ($newDatas['vcenters'] as $newVcenter) {
+                $parameters['vcenters'][] = $newVcenter;
+            }
+        }
+        $parameters['vcenters'] = array_values($parameters['vcenters']);
+
+        return new self($encryption, $parameters);
+    }
+
+    /**
+     * @inheritDoc
+     *
      * @return _VmWareV6Parameters
      */
     public function getData(): array
@@ -95,6 +145,8 @@ class VmWareV6Parameters implements AccParametersInterface
     }
 
     /**
+     * @inheritDoc
+     *
      * @return _VmWareV6Parameters
      */
     public function getEncryptedData(): array
@@ -118,6 +170,8 @@ class VmWareV6Parameters implements AccParametersInterface
     }
 
     /**
+     * @inheritDoc
+     *
      * @return _VmWareV6Parameters
      */
     public function getDecryptedData(): array
@@ -141,6 +195,8 @@ class VmWareV6Parameters implements AccParametersInterface
     }
 
     /**
+     * @inheritDoc
+     *
      * @return _VmWareV6ParametersWithoutCredentials
      */
     public function getDataWithoutCredentials(): array
