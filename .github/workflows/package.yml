@@ -78,16 +78,6 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - name: Manually install node 16 with nvm
-        if: ${{ inputs.package_extension == 'rpm' }}
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
-          source ~/.nvm/nvm.sh
-          nvm install 16
-          nvm use 16
-          node --version
-          echo $PATH
-
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
       - uses: ./.github/actions/package
