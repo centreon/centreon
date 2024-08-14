@@ -78,14 +78,12 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - name: Check node.js version
-        run: node --version
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
         with:
           node-version: 16
-
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+          check-latest: true
 
       - uses: ./.github/actions/package
         with:
