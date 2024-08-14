@@ -19380,3 +19380,40 @@ msgstr "Erreur lors de la mise à jour d'une configuration additionnelle de conn
 
 msgid "Changing type of an existing additional connector configuration is not allowed"
 msgstr "Changer le type d'une configuration additionnelle de connecteur existante n'est pas autorisé"
+
+msgid "Select time zone"
+msgstr "Sélectionner un fuseau horaire"
+
+msgid "Select time format"
+msgstr "Sélectionner un format d'heure"
+
+msgid "12 hours"
+msgstr "12 heures"
+
+msgid "24 hours"
+msgstr "24 heures"
+
+msgid "Ends at"
+msgstr "Se termine à"
+
+msgid "Time zone"
+msgstr "Fuseau horaire"
+
+msgid "Date format"
+msgstr "Format de date"
+
+msgid "Time format"
+msgstr "Format d'heure"
+
+msgid "Countdown"
+msgstr "Compte à rebours"
+
+msgid "Timer"
+msgstr "Minuteur"
+
+msgid "Show time zone"
+msgstr "Afficher le fuseau horaire"
+
+msgid "Show date"
+msgstr "Afficher la date"
+
