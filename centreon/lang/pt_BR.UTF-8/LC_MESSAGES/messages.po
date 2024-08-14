@@ -18125,3 +18125,9 @@ msgstr ""
 
 # msgid "Show date"
 # msgstr ""
+
+#  msgid "Error while updating an additional connector configuration"
+#  msgstr ""
+
+#  msgid "Changing type of an existing additional connector configuration is not allowed"
+#  msgstr ""

@@ -25,6 +25,7 @@ namespace Core\AdditionalConnectorConfiguration\Application\Validation;
 
 use Core\AdditionalConnectorConfiguration\Application\Exception\AccException;
 use Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc\AddAccRequest;
+use Core\AdditionalConnectorConfiguration\Application\UseCase\UpdateAcc\UpdateAccRequest;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6Parameters;
 
@@ -44,7 +45,7 @@ class VmWareV6DataValidator implements TypeDataValidatorInterface
     /**
      * @inheritDoc
      */
-    public function validateParametersOrFail(AddAccRequest $request): void
+    public function validateParametersOrFail(AddAccRequest|UpdateAccRequest $request): void
     {
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $request->parameters;
