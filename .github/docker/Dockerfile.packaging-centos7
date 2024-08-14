@@ -6,6 +6,12 @@ yum install -y rpm-build rpm-sign epel-release perl-devel
 yum install -y zstd
 yum clean all
 
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+source ~/.nvm/nvm.sh
+nvm install 16
+nvm use 16
+node --version
+
 EOF
 
 WORKDIR /src
