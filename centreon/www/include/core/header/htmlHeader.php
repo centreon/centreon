@@ -155,6 +155,7 @@ if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
     </script>
     <script type="text/javascript" src="./include/common/javascript/centreon/centreon-select2.js"></script>
     <script type="text/javascript" src="./include/common/javascript/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="./include/common/javascript/jquery/jquery-ui-tabs-rotate.js"></script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js">
     </script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/jeditable/jquery.jeditable-min.js">
