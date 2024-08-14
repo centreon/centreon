@@ -78,17 +78,15 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - name: Install nvm
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
-          source ~/.nvm/nvm.sh
-
       - name: Manually install node 16 with nvm
         run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
           source ~/.nvm/nvm.sh
           nvm install 16
           nvm use 16
           node --version
+          which node
+          echo $PATH
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
