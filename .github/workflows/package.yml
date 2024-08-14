@@ -78,15 +78,17 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - name: Remove nodejs leftovers
+      - name: Install nvm
         run: |
-          rm -rf /usr/local/bin/node /usr/local/bin/npm
-          rm -rf /__e/node20/bin/node /__e/node20/bin/npm
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+          source ~/.nvm/nvm.sh
 
-      - uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
-        with:
-          node-version: 16
-          check-latest: true
+      - name: Manually install node 16 with nvm
+        run: |
+          source ~/.nvm/nvm.sh
+          nvm install 16
+          nvm use 16
+          node --version
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
