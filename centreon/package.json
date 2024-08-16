@@ -42,7 +42,7 @@
     "@rspack/plugin-react-refresh": "^1.0.0",
     "@simonsmith/cypress-image-snapshot": "9.1.0",
     "@svgr/webpack": "^8.1.0",
-    "@swc/core": "^1.7.11",
+    "@swc/core": "^1.6.6",
     "@swc/core-linux-x64-gnu": "^1.7.11",
     "@swc/jest": "^0.2.36",
     "@testing-library/cypress": "^10.0.2",
