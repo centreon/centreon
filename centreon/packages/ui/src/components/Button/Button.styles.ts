@@ -20,7 +20,8 @@ const useStyles = makeStyles()((theme) => ({
 
     '&[data-variant="primary"]:not(:disabled)': {
       '&[data-is-danger="true"]': {
-        backgroundColor: theme.palette.error.main
+        backgroundColor: theme.palette.error.main,
+        color: theme.palette.error.contrastText
       },
 
       backgroundColor: theme.palette.primary.main
