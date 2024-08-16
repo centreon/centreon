@@ -19371,3 +19371,12 @@ msgstr "Vous ne disposez pas de droits suffisants pour cette action"
 
 msgid "Error while searching for additional connector configurations"
 msgstr "Erreur lors de la recherche de configurations additionnelles de connecteurs"
+
+msgid "Error while searching for available pollers for type '%s'"
+msgstr "Erreur lors de la recherche de collecteurs disponibles pour le type '%s'"
+
+msgid "Error while updating an additional connector configuration"
+msgstr "Erreur lors de la mise à jour d'une configuration additionnelle de connecteur"
+
+msgid "Changing type of an existing additional connector configuration is not allowed"
+msgstr "Changer le type d'une configuration additionnelle de connecteur existante n'est pas autorisé"
