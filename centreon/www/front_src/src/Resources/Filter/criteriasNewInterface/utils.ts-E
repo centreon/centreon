@@ -23,7 +23,7 @@ const statusBySectionType = (
   sectionType: SectionType | ResourceType
 ): Array<string> => {
   return sectionType === ResourceType.service
-    ? Object.keys(CategoryServiceStatus)
+    ? Object.keys(categoryServiceStatus)
     : Object.keys(CategoryHostStatus);
 };
 

@@ -237,8 +237,8 @@ export default (): void =>
             .as('items')
             .should('have.length', expectedOrderAndContent.length);
 
-          cy.get('@items').each(($el, index) => {
-            cy.wrap($el)
+          cy.get('@items').each((el, index) => {
+            cy.wrap(el)
               .should('contain.text', expectedOrderAndContent[index].label)
               .should('contain.text', expectedOrderAndContent[index].count)
               .should('have.attr', 'href', expectedOrderAndContent[index].href);

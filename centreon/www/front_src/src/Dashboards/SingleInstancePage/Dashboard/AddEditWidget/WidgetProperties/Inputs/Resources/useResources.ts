@@ -82,11 +82,6 @@ interface UseResourcesState {
   value: Array<WidgetDataResource>;
 }
 
-interface ResourceTypeOption {
-  id: WidgetResourceType;
-  name: string;
-}
-
 export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.host]: '/resources',
   [WidgetResourceType.hostCategory]: '/hosts/categories',

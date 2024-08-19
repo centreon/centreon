@@ -337,8 +337,8 @@ export default (): void =>
           .as('items')
           .should('have.length', expectedItems.length);
 
-        cy.get('@items').each(($el, index) => {
-          cy.wrap($el)
+        cy.get('@items').each((el, index) => {
+          cy.wrap(el)
             .should('contain.text', expectedItems[index].text)
             .should('contain.text', expectedItems[index].qty);
         });
@@ -347,7 +347,7 @@ export default (): void =>
       });
 
       describe('configuration', () => {
-        let userData;
+        let userData: object;
 
         beforeEach(() => {
           const { result } = renderHook(() => useNavigation());

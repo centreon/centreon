@@ -130,7 +130,7 @@ const ExtensionsHolder = ({
   const { toDate } = useLocaleDateTimeFormat();
 
   const parseDescription = (description): string => {
-    return description.replace(/^centreon\s+(\w+)/i, (_, $1) => $1);
+    return description.replace(/^centreon\s+(\w+)/i, (_, v) => v);
   };
 
   const getPropsFromLicense = (licenseInfo): LicenseProps | undefined => {

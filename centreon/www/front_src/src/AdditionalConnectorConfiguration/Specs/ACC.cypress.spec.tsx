@@ -1,7 +1,7 @@
-import Filters from './ACC.Filters';
-import Listing from './ACC.Listing';
-import Modal from './ACC.Modal';
-import Page from './ACC.Page';
+import Filters from './Acc.filters';
+import Listing from './Acc.listing';
+import Modal from './Acc.modal';
+import Page from './Acc.page';
 
 describe('Additional Connctor Configuration', () => {
   Page();

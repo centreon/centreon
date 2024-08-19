@@ -38,7 +38,6 @@ const useDeleteAccessRightsContactGroup =
 
     const {
       mutateAsync,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       mutate: omittedMutate,
       ...mutationData
     } = useMutationQuery<object, { dashboardId; id }>({
@@ -68,14 +67,11 @@ const useDeleteAccessRightsContactGroup =
         error: ResponseError | null,
         vars: DeleteAccessRightDto
       ): void => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        invalidateQueries(vars as any);
+        invalidateQueries(vars as unknown);
         onSettled?.(data, error, vars, undefined);
       };
 
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      const { id, dashboardId } = variables as any;
-      /* eslint-enable @typescript-eslint/no-explicit-any */
+      const { id, dashboardId } = variables as unknown;
 
       return mutateAsync(
         {

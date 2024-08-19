@@ -5,7 +5,6 @@ import { useAtom, useSetAtom } from 'jotai';
 import { all, any, equals, findIndex, omit, reject, update } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-import * as Yup from 'yup';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -18,6 +17,7 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { object, string } from 'yup';
 import {
   labelAskDelete,
   labelCancel,
@@ -84,8 +84,8 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
 
   const { name, id } = filter;
 
-  const validationSchema = Yup.object().shape({
-    name: Yup.string().required(t(labelNameCannotBeEmpty))
+  const validationSchema = object().shape({
+    name: string().required(t(labelNameCannotBeEmpty))
   });
 
   const form = useFormik({

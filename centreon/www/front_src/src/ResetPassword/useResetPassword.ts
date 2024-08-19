@@ -3,7 +3,6 @@ import { useAtomValue } from 'jotai';
 import { equals, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
 
 import { putData, useRequest, useSnackbar } from '@centreon/ui';
 
@@ -11,6 +10,7 @@ import { labelLoginSucceeded } from '../Login/translatedLabels';
 import usePostLogin from '../Login/usePostLogin';
 import useUser from '../Main/useUser';
 
+import { object, string } from 'yup';
 import { getResetPasswordEndpoint } from './api/endpoint';
 import { ResetPasswordValues } from './models';
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
@@ -85,18 +85,18 @@ const useResetPassword = (): UseResetPasswordState => {
       });
   };
 
-  const validationSchema = Yup.object().shape({
-    newPassword: Yup.string()
+  const validationSchema = object().shape({
+    newPassword: string()
       .test(
         'match',
         t(labelTheNewPasswordIstheSameAsTheOldPassword),
         differentPasswords
       )
       .required(t(labelRequired)),
-    newPasswordConfirmation: Yup.string()
+    newPasswordConfirmation: string()
       .test('match', t(labelNewPasswordsMustMatch), matchNewPasswords)
       .required(t(labelRequired)),
-    oldPassword: Yup.string().required(t(labelRequired))
+    oldPassword: string().required(t(labelRequired))
   });
 
   return {

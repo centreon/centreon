@@ -21,7 +21,7 @@ import EditFilterPanel from '.';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-let filterState;
+let filterState: object;
 
 const EditFilterPanelTest = (): JSX.Element => {
   filterState = useFilter();

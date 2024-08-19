@@ -77,7 +77,7 @@ const usePendo = (): void => {
       }
 
       initPendo(centreonPlatformData);
-    } catch (e) {
+    } catch (_error) {
       setIsCeipEnabled(true);
     }
   };

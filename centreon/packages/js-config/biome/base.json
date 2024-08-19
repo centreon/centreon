@@ -45,6 +45,7 @@
         "noAccumulatingSpread": "off"
       },
       "style": {
+        "useLiteralEnumMembers": "off",
         "useImportType": "off",
         "noNamespace": "error",
         "noNamespaceImport": "error",
@@ -108,10 +109,12 @@
                 ]
               },
               {
+                "match": "_(.*)|([a-zA-Z].*)",
                 "formats": [
                   "snake_case",
                   "camelCase",
-                  "PascalCase"
+                  "PascalCase",
+                  "CONSTANT_CASE"
                 ]
               }
             ]

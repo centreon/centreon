@@ -246,10 +246,7 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
             {cond([
               [always(isNil(entities)), always(loadingSkeleton)],
               [isEmpty, always(<NoResultsMessage />)],
-              [
-                T,
-                always(<>{children({ entities, infiniteScrollTriggerRef })}</>)
-              ]
+              [T, always(children({ entities, infiniteScrollTriggerRef }))]
             ])(entities)}
           </div>
           <div className={classes.fab}>

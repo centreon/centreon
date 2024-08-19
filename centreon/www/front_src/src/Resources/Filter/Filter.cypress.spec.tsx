@@ -34,7 +34,7 @@ import {
 } from '../translatedLabels';
 
 import getDefaultCriterias from './Criterias/default';
-import { categoryHostStatus } from './criteriasNewInterface/model';
+import { CategoryHostStatus } from './criteriasNewInterface/model';
 import {
   informationLabel,
   labelShowMoreFilters
@@ -69,7 +69,7 @@ enum Type {
   text = 'text'
 }
 
-interface Filter {
+interface FilterComponent {
   store: ReturnType<typeof createStore>;
 }
 
@@ -420,7 +420,7 @@ const initialize = (): void => {
   cy.findByPlaceholderText(labelSearch).clear();
 };
 
-const FilterWrapper = ({ store }: Filter): JSX.Element => {
+const FilterWrapper = ({ store }: FilterComponent): JSX.Element => {
   return (
     <TestQueryProvider>
       <Provider store={store}>
@@ -430,7 +430,7 @@ const FilterWrapper = ({ store }: Filter): JSX.Element => {
   );
 };
 
-const mount = ({ store }: Filter): void => {
+const mount = ({ store }: FilterComponent): void => {
   initializeRequests();
 
   cy.mount({
@@ -489,9 +489,9 @@ views.forEach(({ name, initSearch, ids }) => {
 
       if (equals(name, Visualization.Host)) {
         [
-          categoryHostStatus.UP,
-          categoryHostStatus.DOWN,
-          categoryHostStatus.UNREACHABLE
+          CategoryHostStatus.UP,
+          CategoryHostStatus.DOWN,
+          CategoryHostStatus.UNREACHABLE
         ].forEach((status) => {
           cy.get(`#${status}`).should('not.exist');
         });

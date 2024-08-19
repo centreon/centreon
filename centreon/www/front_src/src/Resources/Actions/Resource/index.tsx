@@ -54,7 +54,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const ResourceActions = ({
+const ResourceActionsButtons = ({
   resources,
   success,
   mainActions,
@@ -390,4 +390,4 @@ const ResourceActions = ({
   );
 };
 
-export default ResourceActions;
+export default ResourceActionsButtons;

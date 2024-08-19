@@ -3,10 +3,10 @@ import { ChangeEvent, KeyboardEvent } from 'react';
 import { useFormik } from 'formik';
 import { path, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import * as Yup from 'yup';
 
 import { Dialog, TextField, useRequest } from '@centreon/ui';
 
+import { object, string } from 'yup';
 import {
   labelCancel,
   labelName,
@@ -56,8 +56,8 @@ const CreateFilterDialog = ({
         });
     },
     validateOnMount: true,
-    validationSchema: Yup.object().shape({
-      name: Yup.string().required(labelRequired)
+    validationSchema: object().shape({
+      name: string().required(labelRequired)
     })
   });
 

@@ -20,7 +20,10 @@ const Parameters = (): ReactElement => {
   return (
     <div>
       {parameters?.map((parameter, index) => (
-        <div className={classes.parametersContainer} key={`${index}-parameter`}>
+        <div
+          className={classes.parametersContainer}
+          key={`${JSON.stringify(parameter)}-parameter`}
+        >
           <div className={classes.parametersComposition}>
             <Parameter index={index} parameter={parameter} />
             {parameters.length > 1 && (

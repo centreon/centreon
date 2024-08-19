@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { string, object } from 'yup';
+import { object, string } from 'yup';
 import type { Schema } from 'yup';
 
 import { LoginFormValues } from './models';

@@ -47,7 +47,7 @@ export enum CategoryHostStatus {
   UNREACHABLE = labelUnreachable
 }
 
-export enum CategoryServiceStatus {
+export enum categoryServiceStatus {
   OK = labelOk,
   WARNING = labelWarning,
   CRITICAL = labelCritical,

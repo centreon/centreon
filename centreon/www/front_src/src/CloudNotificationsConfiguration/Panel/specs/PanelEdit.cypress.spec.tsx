@@ -289,8 +289,8 @@ describe('Edit Panel', () => {
     cy.findByTestId('include Services').click();
 
     cy.findByTestId('Extra events services').within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('not.be.checked').and('be.disabled');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('not.be.checked').and('be.disabled');
       });
     });
 
@@ -312,8 +312,8 @@ describe('Edit Panel', () => {
       });
 
     cy.findByTestId('Host groups events').within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('not.be.checked');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('not.be.checked');
       });
     });
 
@@ -352,8 +352,8 @@ describe('Edit Panel', () => {
     cy.findAllByLabelText('Clear').eq(1).click({ force: true });
 
     cy.findByTestId('Service groups events').within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('not.be.checked').and('be.disabled');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('not.be.checked').and('be.disabled');
       });
     });
 
@@ -703,8 +703,8 @@ describe('Edit Panel: Business Views', () => {
     cy.findAllByLabelText('Clear').eq(2).click({ force: true });
 
     cy.findByTestId(labelBusinessViewsEvents).within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('be.disabled').and('not.be.checked');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('be.disabled').and('not.be.checked');
       });
     });
 

@@ -7,14 +7,14 @@ import { TextField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
 
 import { labelName, labelValue } from '../../translatedLabels';
-import { Parameter } from '../models';
+import { Parameter as ParameterModel } from '../models';
 
 import useParameter from './useParameter';
 import { useParameterStyles } from './useParametersStyles';
 
 interface Props {
   index: number;
-  parameter: Parameter;
+  parameter: ParameterModel;
 }
 
 const Parameter = ({ parameter, index }: Props): ReactElement => {

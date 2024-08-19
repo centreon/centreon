@@ -127,7 +127,7 @@ interface Props {
   event: TimelineEvent;
 }
 
-const Date = ({ event }: Props): JSX.Element => {
+const DateDisplay = ({ event }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
 
   const parsedDate = format({ date: event.date, formatString: 'LLLL' });
@@ -158,7 +158,7 @@ const EventTimelineEvent = ({ event }: Props): JSX.Element => {
     <div className={classes.event}>
       <div className={classes.eventTimeLineContainer}>
         <div>
-          <Date event={event} />
+          <DateDisplay event={event} />
         </div>
         <div className={classes.chip}>
           <CompactStatusChip
@@ -185,7 +185,7 @@ const CommentTimelineEvent = ({ event }: Props): JSX.Element => {
   return (
     <div className={classes.event}>
       <div className={classes.infoHeader}>
-        <Date event={event} />
+        <DateDisplay event={event} />
         <div className={classes.title}>
           <Author event={event} />
         </div>
@@ -201,7 +201,7 @@ const AcknowledgeTimelineEvent = ({ event }: Props): JSX.Element => {
   return (
     <div className={classes.event}>
       <div className={classes.infoHeader}>
-        <Date event={event} />
+        <DateDisplay event={event} />
         <div className={classes.title}>
           <Author event={event} />
         </div>
@@ -255,7 +255,7 @@ const NotificationTimelineEvent = ({ event }: Props): JSX.Element => {
   return (
     <div className={classes.event}>
       <div className={classes.infoHeader}>
-        <Date event={event} />
+        <DateDisplay event={event} />
         <div className={classes.title}>
           <Author event={event} />
         </div>

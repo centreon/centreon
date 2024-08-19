@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import * as Yup from 'yup';
+import { type Schema, array, boolean, string } from 'yup';
 
 import { WebSSOConfiguration } from './models';
 import {
@@ -8,30 +8,30 @@ import {
   labelRequired
 } from './translatedLabels';
 
-const IPAddressRegexp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,3})?$/;
-const matchARegexp = /^\^?[^(^|$);]+\$?$/;
+const IpAddressRegexp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,3})?$/;
+const matchaRegexp = /^\^?[^(^|$);]+\$?$/;
 
-const useValidationSchema = (): Yup.SchemaOf<WebSSOConfiguration> => {
+const useValidationSchema = (): Schema<WebSSOConfiguration> => {
   const { t } = useTranslation();
 
-  return Yup.object().shape({
-    blacklistClientAddresses: Yup.array().of(
-      Yup.string()
-        .matches(IPAddressRegexp, t(labelInvalidIPAddress))
+  return object().shape({
+    blacklistClientAddresses: array().of(
+      string()
+        .matches(IpAddressRegexp, t(labelInvalidIPAddress))
         .required(t(labelRequired))
     ),
-    isActive: Yup.boolean().required(t(labelRequired)),
-    isForced: Yup.boolean().required(t(labelRequired)),
-    loginHeaderAttribute: Yup.string().nullable().required(t(labelRequired)),
-    patternMatchingLogin: Yup.string()
-      .matches(matchARegexp, t(labelInvalidRegex))
+    isActive: boolean().required(t(labelRequired)),
+    isForced: boolean().required(t(labelRequired)),
+    loginHeaderAttribute: string().nullable().required(t(labelRequired)),
+    patternMatchingLogin: string()
+      .matches(matchaRegexp, t(labelInvalidRegex))
       .nullable(),
-    patternReplaceLogin: Yup.string()
-      .matches(matchARegexp, t(labelInvalidRegex))
+    patternReplaceLogin: string()
+      .matches(matchaRegexp, t(labelInvalidRegex))
       .nullable(),
-    trustedClientAddresses: Yup.array().of(
-      Yup.string()
-        .matches(IPAddressRegexp, t(labelInvalidIPAddress))
+    trustedClientAddresses: array().of(
+      string()
+        .matches(IpAddressRegexp, t(labelInvalidIPAddress))
         .required(t(labelRequired))
     )
   });

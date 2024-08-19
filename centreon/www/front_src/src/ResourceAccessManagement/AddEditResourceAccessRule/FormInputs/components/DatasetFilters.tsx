@@ -28,7 +28,7 @@ const DatasetFilters = (): ReactElement => {
       {datasetFilters.map((datasetFilter, index) => (
         <div
           className={classes.datasetFiltersContainer}
-          key={`${index}-datasetFilter`}
+          key={`${JSON.stringify(datasetFilter)}-datasetFilter`}
         >
           <div className={classes.datasetFiltersComposition}>
             <DatasetFilter

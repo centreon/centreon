@@ -14,7 +14,7 @@ import { Filter } from '../../models';
 
 import EditFilter from '.';
 
-let context;
+let context: object;
 
 const EditFilterTest = (): JSX.Element => {
   const listingState = useListing();
@@ -28,7 +28,6 @@ const EditFilterTest = (): JSX.Element => {
   return (
     <Context.Provider
       value={
-        // eslint-disable-next-line react/jsx-no-constructed-context-values
         {
           ...context
         } as ResourceContext
