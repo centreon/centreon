@@ -1,10 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
+import { toBlob } from 'html-to-image';
+import { useTheme } from '@mui/material';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import { getDashboardEndpoint } from '../../../api/endpoints';
+import { getDashboardEndpoint, mediasEndpoint } from '../../../api/endpoints';
 import { resource } from '../../../api/models';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
@@ -54,6 +57,7 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   const { dashboardId } = routerParams.useParams();
 
   const queryClient = useQueryClient();
+  const theme = useTheme();
 
   const dashboard = useAtomValue(dashboardAtom);
   const switchPanelsEditionMode = useSetAtom(
@@ -66,10 +70,33 @@ const useSaveDashboard = (): UseSaveDashboardState => {
     getEndpoint: () => getDashboardEndpoint(dashboardId),
     method: Method.PATCH
   });
+  const { mutateAsync: mutateMedias } = useMutationQuery({
+    getEndpoint: () => mediasEndpoint,
+    method: Method.POST
+  });
 
   const saveDashboard = (): void => {
+    const node = document.querySelector('.react-grid-layout') as HTMLElement;
+    toBlob(node, {
+      backgroundColor: theme.palette.background.default,
+      height: 360
+    }).then((blob) => {
+      if (!blob) {
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('directory', 'dashboards');
+      formData.append('data', blob, `dashboard-${dashboardId}.png`);
+
+      mutateMedias({
+        payload: formData
+      });
+    });
     mutateAsync({
-      payload: { panels: formatPanelsToAPI(dashboard.layout) }
+      payload: {
+        panels: formatPanelsToAPI(dashboard.layout)
+      }
     }).then(() => {
       showSuccessMessage(t(labelYourDashboardHasBeenSaved));
       switchPanelsEditionMode(false);

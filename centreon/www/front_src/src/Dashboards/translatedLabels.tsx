@@ -68,3 +68,5 @@ export const labelYouAreGoingToDeleteUser =
   'You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard.';
 export const labelUserDeleted = 'User deleted';
 export const labelShareWithContacts = 'Share with contacts';
+export const labelSaveYourDashboardForThumbnail =
+  'Save your dashboard to generate a thumbnail';

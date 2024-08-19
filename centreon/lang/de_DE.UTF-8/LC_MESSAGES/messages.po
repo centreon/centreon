@@ -17286,7 +17286,6 @@ msgstr "Erweiterter Modus"
 #  msgid "Changing type of an existing additional connector configuration is not allowed"
 #  msgstr ""
 
-
 #  msgid "Web page"
 #  msgstr ""
 
@@ -17298,3 +17297,6 @@ msgstr "Erweiterter Modus"
 
 #  msgid "Web page preview"
 #  msgstr ""
+
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""

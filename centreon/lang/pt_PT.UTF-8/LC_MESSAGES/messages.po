@@ -18087,3 +18087,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Web page preview"
 #  msgstr ""
+
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
