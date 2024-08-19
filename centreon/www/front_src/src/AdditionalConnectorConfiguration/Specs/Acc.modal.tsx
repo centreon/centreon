@@ -323,9 +323,9 @@ export default (): void => {
 
       cy.findByTestId(labelSelectPollers).click();
 
-      cy.get(`input[data-testid="URL_value"`).type(
-        '{selectAll}{backspace}http://10.10.10.10/sdk'
-      );
+      cy.get(`input[data-testid="URL_value"`)
+        .clear()
+        .type('http://10.10.10.10/sdk');
 
       cy.get(`input[data-testid="Username_value"`).type('username');
       cy.get(`input[data-testid="Password_value"`).type('password');

@@ -1,7 +1,6 @@
-/* eslint-disable react/no-array-index-key */
 import { ReactElement } from 'react';
 
-import { equals } from 'ramda';
+import { equals, keys } from 'ramda';
 
 import { Divider } from '@mui/material';
 
@@ -22,7 +21,7 @@ const Parameters = (): ReactElement => {
       {parameters?.map((parameter, index) => (
         <div
           className={classes.parametersContainer}
-          key={`${JSON.stringify(parameter)}-parameter`}
+          key={`${keys(parameter)}-parameter`}
         >
           <div className={classes.parametersComposition}>
             <Parameter index={index} parameter={parameter} />
