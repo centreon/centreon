@@ -18,6 +18,7 @@
 		"build:analyze": "pnpm widgets:build:analyze && pnpm centreon:build:analyze",
 		"lint": "biome check ./www/front_src --error-on-warnings",
 		"lint:fix": "pnpm lint --fix",
+		"lint:ci": "biome ci ./www/front_src --error-on-warnings",
 		"test": "jest",
 		"test:watch": "pnpm test --watch",
 		"test:coverage": "jest --coverage",

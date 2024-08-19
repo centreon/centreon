@@ -39,14 +39,12 @@ runs:
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-    - name: Run ESLint
-      run: pnpm eslint -f json -o eslint-report.json --max-warnings 0
+    - name: Setup Biome CLI
+      uses: biomejs/setup-biome@v2
+      with:
+        working-dir: ${{ inputs.frontend_directory }}
+
+    - name: Run Biome
+      run: pnpom lint:ci --reporter=github
       working-directory: ${{ inputs.frontend_directory }}
       shell: bash
-
-    - if: failure()
-      uses: ./.github/actions/publish-report
-      with:
-        path: ${{ inputs.frontend_directory }}/eslint-report.json
-        format: eslint
-        check_name: ${{ inputs.module_name }}-eslint-report
