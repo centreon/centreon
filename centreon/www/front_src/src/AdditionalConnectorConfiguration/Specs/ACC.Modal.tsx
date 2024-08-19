@@ -409,7 +409,7 @@ export default (): void => {
         cy.contains(labelAteastOnePollerIsRequired).should('be.visible');
       });
 
-      it(`validates that vCenter name field is required`, () => {
+      it('validates that vCenter name field is required', () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="vCenter name_value"`).clear();
@@ -421,7 +421,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vCenter name must be unique for its own ACC`, () => {
+      it('validates that vCenter name must be unique for its own ACC', () => {
         initializeModal({ variant: 'create' });
 
         cy.findByText(labelAddvCenterESX).click();
@@ -443,7 +443,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vCenter URL field is required`, () => {
+      it('validates that vCenter URL field is required', () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="URL_value"`).clear();
@@ -455,7 +455,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vCenter username is required in Creation Mode`, () => {
+      it('validates that vCenter username is required in Creation Mode', () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="Username_value"`).clear();
@@ -467,7 +467,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vCenter username is not required Edition Mode`, () => {
+      it('validates that vCenter username is not required Edition Mode', () => {
         initializeModal({ variant: 'update' });
 
         cy.get(`input[data-testid="Username_value"`).clear();
@@ -479,7 +479,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vCenter password field is required in Creation Mode`, () => {
+      it('validates that vCenter password field is required in Creation Mode', () => {
         initializeModal({ variant: 'create' });
 
         cy.get(`input[data-testid="Password_value"`).clear();
@@ -491,7 +491,7 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
 
-      it(`validates that vCenter password field is not required in Edition Mode`, () => {
+      it('validates that vCenter password field is not required in Edition Mode', () => {
         initializeModal({ variant: 'update' });
 
         cy.get(`input[data-testid="Password_value"`).clear();

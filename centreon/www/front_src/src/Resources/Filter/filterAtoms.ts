@@ -153,11 +153,14 @@ export const setCriteriaDerivedAtom = atom(
   }
 );
 
-export const applyFilterDerivedAtom = atom(null, (get, set, filter: Filter) => {
-  set(currentFilterAtom, filter);
-  set(appliedFilterAtom, filter);
-  set(searchAtom, build(filter.criterias));
-});
+export const applyFilterDerivedAtom = atom(
+  null,
+  (_get, set, filter: Filter) => {
+    set(currentFilterAtom, filter);
+    set(appliedFilterAtom, filter);
+    set(searchAtom, build(filter.criterias));
+  }
+);
 
 export const setCriteriaAndNewFilterDerivedAtom = atom(
   null,

@@ -225,7 +225,7 @@ export default (): void =>
         initialize({ servicesStatus: serviceStubs });
         openSubMenu(labelServices);
 
-        cy.get(`#Services-menu`).within(() => {
+        cy.get('#Services-menu').within(() => {
           cy.findAllByRole('menuitem').as('items').should('have.length', 6);
 
           const expectedOrderAndContent = [

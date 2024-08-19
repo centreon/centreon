@@ -39,7 +39,7 @@ const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
     boxShadow: disablePaper ? 'unset' : 'undefined',
     columnGap: theme.spacing(2),
     display: 'grid',
-    gridTemplateColumns: `repeat(4, auto)`,
+    gridTemplateColumns: 'repeat(4, auto)',
     gridTemplateRows: '1fr',
     justifyContent: 'center',
     padding: theme.spacing(1, 0.5)

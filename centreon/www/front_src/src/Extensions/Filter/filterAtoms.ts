@@ -41,7 +41,7 @@ export const getUpToDateFilterCriteriaDerivedAtom = atom(
 
 export const applyFilterDerivedAtom = atom(
   null,
-  (get, set, criterias: Array<Criteria>) => {
+  (_get, set, criterias: Array<Criteria>) => {
     set(currentFilterCriteriasAtom, criterias);
     set(appliedFilterCriteriasAtom, criterias);
     set(searchAtom, build(criterias));

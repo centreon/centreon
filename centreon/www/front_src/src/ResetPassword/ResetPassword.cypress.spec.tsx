@@ -72,7 +72,7 @@ describe('Reset Password', () => {
     cy.interceptAPIRequest({
       alias: 'resetPassword',
       method: Method.PUT,
-      path: `**/authentication/users/admin/password`,
+      path: '**/authentication/users/admin/password',
       response: {},
       statusCode: 201
     });

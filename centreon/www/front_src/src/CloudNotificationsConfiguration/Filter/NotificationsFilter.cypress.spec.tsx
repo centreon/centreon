@@ -66,7 +66,7 @@ describe('Filter', () => {
 
     cy.findByPlaceholderText(labelSearch).clear().type('foobar');
 
-    cy.waitForRequest(`@requestWithSearchQuery`);
+    cy.waitForRequest('@requestWithSearchQuery');
 
     cy.waitForRequestAndVerifyQueries({
       queries: [

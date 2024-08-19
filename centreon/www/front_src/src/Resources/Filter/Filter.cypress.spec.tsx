@@ -342,31 +342,31 @@ const initializeRequests = (): void => {
   setupIntercept({
     alias: 'pollersRequest',
     fixtureFile: 'resources/filter/pollers.json',
-    path: `**/monitoring/servers?*`
+    path: '**/monitoring/servers?*'
   });
 
   setupIntercept({
     alias: 'hostGroupsRequest',
     fixtureFile: 'resources/filter/hostGroups.json',
-    path: `**/hostgroups?*`
+    path: '**/hostgroups?*'
   });
 
   setupIntercept({
     alias: 'serviceGroupsRequest',
     fixtureFile: 'resources/filter/webAccessServiceGroup.json',
-    path: `**/servicegroups?*`
+    path: '**/servicegroups?*'
   });
 
   setupIntercept({
     alias: 'hostCategoryRequest',
     fixtureFile: 'resources/filter/hostCategory.json',
-    path: `**/monitoring/hosts/categories?*`
+    path: '**/monitoring/hosts/categories?*'
   });
 
   setupIntercept({
     alias: 'hostSeverityRequest',
     fixtureFile: 'resources/filter/hostSeverity.json',
-    path: `**/monitoring/severities/host?*`
+    path: '**/monitoring/severities/host?*'
   });
 };
 
@@ -476,7 +476,7 @@ views.forEach(({ name, initSearch, ids }) => {
       mount({ store: updatedStore });
     });
 
-    it(`displays the criterias interface `, () => {
+    it('displays the criterias interface ', () => {
       cy.findByLabelText(labelSearchOptions).click();
       cy.findByText(labelShowMoreFilters).click();
 
@@ -555,7 +555,7 @@ views.forEach(({ name, initSearch, ids }) => {
       });
     });
 
-    it(`syncs the information fields with the search bar`, () => {
+    it('syncs the information fields with the search bar', () => {
       const matchedValue = getSearchValue({
         value: 'information:Information',
         viewName: name

@@ -223,7 +223,7 @@ const initializeAndMount = ({
     });
   });
 
-  cy.fixture(`Dashboards/contacts.json`).then((response) => {
+  cy.fixture('Dashboards/contacts.json').then((response) => {
     cy.interceptAPIRequest({
       alias: 'getContacts',
       method: Method.GET,

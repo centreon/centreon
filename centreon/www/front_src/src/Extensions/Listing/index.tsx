@@ -114,7 +114,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
       getAppliedFilterCriteriasAtom
     );
 
-    if (types && types.value) {
+    if (types?.value) {
       const typesValues = types.value as Array<SelectEntry>;
       setModulesActive(!!find(propEq('MODULE', 'id'), typesValues));
       setWidgetsActive(!!find(propEq('WIDGET', 'id'), typesValues));

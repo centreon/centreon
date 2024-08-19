@@ -188,13 +188,13 @@ const mountResourcePage = (): void => {
   interceptRequest({
     alias: 'listingRequest',
     dataPath: 'resources/resourceListing.json',
-    path: `./api/latest/monitoring/resources?*`
+    path: './api/latest/monitoring/resources?*'
   });
 
   interceptRequest({
     alias: 'detailsRequest',
     dataPath: 'resources/anomalyDetectionDetails.json',
-    path: `./api/latest/monitoring/resources/anomaly-detection/1`
+    path: './api/latest/monitoring/resources/anomaly-detection/1'
   });
 
   cy.mount({
@@ -541,7 +541,7 @@ describe('column sorting', () => {
     cy.adjustViewport();
     columnToSort.forEach(() => {
       cy.interceptAPIRequest({
-        alias: `dataToListingTable`,
+        alias: 'dataToListingTable',
         method: Method.GET,
         path: './api/latest/monitoring**',
         response: retrievedListing
@@ -570,11 +570,11 @@ describe('column sorting', () => {
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTable`);
+      cy.waitForRequest('@dataToListingTable');
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTable`);
+      cy.waitForRequest('@dataToListingTable');
 
       cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
 
@@ -591,7 +591,7 @@ describe('Listing request', () => {
   it('executes a listing request with an updated page param when a change page action is clicked', () => {
     cy.waitFiltersAndListingRequests();
 
-    cy.findByLabelText(`Next page`)
+    cy.findByLabelText('Next page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -599,7 +599,7 @@ describe('Listing request', () => {
 
     cy.waitForRequest('@dataToListingTable');
 
-    cy.findByLabelText(`Previous page`)
+    cy.findByLabelText('Previous page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -607,7 +607,7 @@ describe('Listing request', () => {
 
     cy.waitForRequest('@dataToListingTable');
 
-    cy.findByLabelText(`Last page`)
+    cy.findByLabelText('Last page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -615,7 +615,7 @@ describe('Listing request', () => {
 
     cy.waitForRequest('@dataToListingTable');
 
-    cy.findByLabelText(`First page`)
+    cy.findByLabelText('First page')
       .should((label) => {
         expect(label).to.be.enabled;
       })

@@ -130,7 +130,7 @@ const initialFormDataAdd = {
 
 const initialFormDataEdit = {
   data: {},
-  id: `centreon-widget-text_1`,
+  id: 'centreon-widget-text_1',
   moduleName: widgetTextConfiguration.moduleName,
   options: {
     description: {
@@ -177,7 +177,7 @@ const initialFormData = {
       }
     ]
   },
-  id: `centreon-widget-data_1`,
+  id: 'centreon-widget-data_1',
   moduleName: widgetDataConfiguration.moduleName,
   options: {
     description: {

@@ -34,7 +34,7 @@ export const defaultSelectedCustomTimePeriodAtom = atom<
 
 export const selectResourceDerivedAtom = atom(
   null,
-  (get, set, resource: ResourceDetails | Resource) => {
+  (_get, set, resource: ResourceDetails | Resource) => {
     set(openDetailsTabIdAtom, detailsTabId);
     set(selectedResourceUuidAtom, resource?.uuid);
     set(selectedResourcesDetailsAtom, {

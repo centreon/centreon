@@ -249,7 +249,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
   };
 
   const onCopy = (): void => {
-    if (autologinNode && autologinNode.current) {
+    if (autologinNode?.current) {
       autologinNode.current.select();
       window.document.execCommand('copy');
       setCopied(true);
