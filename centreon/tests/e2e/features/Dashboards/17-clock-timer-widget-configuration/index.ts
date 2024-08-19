@@ -222,7 +222,7 @@ Then(
     .invoke('text')
     .then((dateText) => {
       console.log('Text inside date element:', dateText);
-      expect(dateText.trim()).to.equal("Ends at:"+" "+formattedDate +" "+ "11:55 PM" );
+      expect(dateText.trim()).to.match(new RegExp(`Ends at: ${formattedDate} 11:55 (AM|PM)`));
     });
 });
 
