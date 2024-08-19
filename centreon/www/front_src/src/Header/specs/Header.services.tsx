@@ -17,7 +17,7 @@ import {
   openSubMenu,
   submenuShouldBeClosed,
   submenuShouldBeOpened
-} from './Header.testUtils';
+} from './Header.utils';
 
 const getElements = (): void => {
   cy.findByRole('button', { name: labelServices, timeout: 5000 }).as(
