@@ -122,8 +122,6 @@ describe('Bar chart', () => {
       cy.contains(':40 AM').should('be.visible');
 
       cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it(`displays the stacked bar chart ${orientation}ly centered in zero`, () => {
