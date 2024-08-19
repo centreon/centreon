@@ -49,6 +49,6 @@ runs:
         token: ${{ inputs.pat }}
 
     - name: Run Biome
-      run: pnpm lint:ci --reporter=github
+      run: pnpm lint:ci
       working-directory: ${{ inputs.frontend_directory }}
       shell: bash
