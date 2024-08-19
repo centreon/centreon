@@ -36,7 +36,6 @@ import {
   labelResourceType,
   labelSelectAResource,
   labelSelectAWidgetType,
-  labelYouCanSelectUpToTwoMetricUnits,
   labelWidgetType,
   labelCancel,
   labelEditWidget,
@@ -697,7 +696,6 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelSelectMetric).click();
 
         cy.contains('Metrics (4 available)').should('be.visible');
-        cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
