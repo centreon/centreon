@@ -48,6 +48,7 @@ const resultsToSubmit = [
     status: 'ok'
   }
 ];
+
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -173,6 +174,14 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/monitoring/resources/hosts?page=1&limit=10&sort_by=**'
   }).as('resourceRequestByHost');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/monitoring/resources/downtime'
+  }).as('setDowntime');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/monitoring/resources/acknowledge'
+  }).as('setAcknowledge');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
@@ -532,3 +541,77 @@ Then(
     cy.contains('host2').should('exist');
   }
 );
+
+Given('a dashboard containing a resource table widget', () => {
+  cy.logoutViaAPI()
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    loginViaApi: false
+  });
+  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+  cy.editWidget(1);
+  cy.wait('@resourceRequest');
+});
+
+When('the dashboard administrator clicks on a random resource from the resource table', () => {
+  cy.get('[aria-label^="Select row"]').eq(0).click()
+});
+
+Then('the dashboard administrator clicks on the downtime button and submits', () => {
+  cy.getByLabel({ label: 'Set downtime' }).eq(1).click()
+  cy.contains('Set downtime').realClick()
+  cy.wait('@setDowntime')
+});
+
+Then('the dashboard administrator clicks on the downtime filter', () => {
+  cy.get('input[name="unhandled_problems"]').click();
+  cy.get('input[name="in_downtime"]').click();
+});
+
+Then('the resources set to downtime should be displayed', () => {
+  cy.waitUntil(() =>
+    cy.get('body').then($body => {
+      const element = $body.find('svg[data-icon="Downtime"]');
+      return element.length > 0 && element.is(':visible');
+    })
+  , {
+    errorMsg: 'The element is not visible',
+    timeout: 50000,
+    interval: 2000
+  }).then((isVisible) => {
+    if (!isVisible) {
+      throw new Error('The element is not visible');
+    }
+  });
+});
+
+Then('the dashboard administrator clicks on the acknowledge button and submits', () => {
+  cy.getByTestId({ testId: 'mainAcknowledge' }).eq(1).click({force:true});
+  cy.getByTestId({ testId: 'Confirm' }).eq(1).click();
+  cy.wait('@setAcknowledge')
+});
+
+Then('the dashboard administrator clicks on the acknowledge filter', () => {
+  cy.get('input[name="undefined"]').click();
+  cy.get('input[name="warning"]').click();
+  cy.get('input[name="acknowledged"]').click();
+});
+
+Then('the resources set to acknowledge should be displayed', () => {
+  cy.waitUntil(() =>
+    cy.get('body').then($body => {
+      const element = $body.find('[aria-label="service2 Acknowledged"]');
+      return element.length > 0 && element.is(':visible');
+    })
+  , {
+    errorMsg: 'The element with label "service3 Acknowledged" is not visible',
+    timeout: 50000,
+    interval: 2000
+  }).then((isVisible) => {
+    if (!isVisible) {
+      throw new Error('The element with label "service3 Acknowledged" is not visible');
+    }
+  });
+});

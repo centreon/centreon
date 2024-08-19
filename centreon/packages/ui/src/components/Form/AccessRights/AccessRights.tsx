@@ -23,7 +23,7 @@ interface Props {
   submit: (values: Array<AccessRightInitialValues>) => Promise<void>;
 }
 
-export const AccessRights = ({
+export const AccessRightsContent = ({
   initialValues,
   roles,
   endpoints,
@@ -54,8 +54,8 @@ export const AccessRights = ({
   );
 };
 
-export default (props: Props): JSX.Element => (
+export const AccessRights = (props: Props): JSX.Element => (
   <Provider>
-    <AccessRights {...props} />
+    <AccessRightsContent {...props} />
   </Provider>
 );

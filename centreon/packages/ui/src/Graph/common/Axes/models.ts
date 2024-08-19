@@ -1,5 +1,5 @@
 import { Line, TimeValue } from '../timeSeries/models';
-import { LineChartAxis } from '../../LineChart/models';
+import { ChartAxis } from '../../Chart/models';
 
 export interface LabelProps {
   [x: string]: unknown;
@@ -8,6 +8,8 @@ export interface LabelProps {
 
 export interface Axis {
   displayUnit?: boolean;
+  onUnitChange?: (newUnit: string) => void;
+  unit?: string;
 }
 
 export interface AxisYRight extends Axis {
@@ -18,7 +20,7 @@ export interface AxisX {
   xAxisTickFormat?: string;
 }
 export interface Data
-  extends Omit<LineChartAxis, 'axisX' | 'axisYLeft' | 'axisYRight'> {
+  extends Omit<ChartAxis, 'axisX' | 'axisYLeft' | 'axisYRight'> {
   axisX?: AxisX;
   axisYLeft?: Axis;
   axisYRight?: AxisYRight;
