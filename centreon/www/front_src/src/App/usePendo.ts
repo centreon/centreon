@@ -7,7 +7,7 @@ import { useAtom } from 'jotai';
 import { getData, useRequest } from '@centreon/ui';
 
 import initPendo from './initPendo';
-import { CeipData } from './models';
+import type { CeipData } from './models';
 
 const oneDayInMs = 24 * 60 * 60 * 1000;
 

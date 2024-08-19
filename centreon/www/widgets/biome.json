@@ -1,0 +1,3 @@
+{
+	"extends": ["../../packages/js-config/biome/base.json"]
+}
