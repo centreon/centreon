@@ -14,6 +14,9 @@ inputs:
     description: The eslint command
     required: false
     default: eslint
+  pat:
+    description: "The personal access token"
+    required: true
 
 runs:
   using: "composite"
@@ -43,6 +46,7 @@ runs:
       uses: biomejs/setup-biome@v2
       with:
         working-dir: ${{ inputs.frontend_directory }}
+        token: ${{ inputs.pat }}
 
     - name: Run Biome
       run: pnpm lint:ci --reporter=github
