@@ -43,7 +43,7 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Setup Biome CLI
-      uses: biomejs/setup-biome@0de019f # v2.2.1
+      uses: biomejs/setup-biome@0de019f8c69e70cd3dc5535e7943afa3b05f94b7 # v2.2.1
       with:
         working-dir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
