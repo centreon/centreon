@@ -12,7 +12,8 @@
     "rules": {
       "recommended": true,
       "complexity": {
-        "noBannedTypes": "off"
+        "noBannedTypes": "off",
+        "noForEach": "off"
       },
       "correctness": {
         "noUnusedImports": "error",
@@ -37,7 +38,11 @@
       "suspicious": {
         "useAwait": "error"
       },
+      "performance": {
+        "noAccumulatingSpread": "off"
+      },
       "style": {
+        "useImportType": "off",
         "noNamespace": "error",
         "noNamespaceImport": "error",
         "useFragmentSyntax": "error",
@@ -45,21 +50,66 @@
           "level": "error",
           "options": {
             "strictCase": false,
-            "filenameCases": ["camelCase", "PascalCase", "kebab-case"]
+            "filenameCases": [
+              "camelCase",
+              "PascalCase",
+              "kebab-case"
+            ]
           }
         },
         "useNamingConvention": {
           "level": "error",
           "options": {
+            "strictCase": false,
             "conventions": [
               {
-                "formats": ["camelCase", "PascalCase"],
+                "formats": [
+                  "camelCase",
+                  "PascalCase"
+                ],
                 "selector": {
                   "kind": "variable"
                 }
               },
               {
-                "formats": ["snake_case", "camelCase", "PascalCase"]
+                "selector": {
+                  "kind": "interface"
+                },
+                "formats": [
+                  "PascalCase"
+                ]
+              },
+              {
+                "selector": {
+                  "kind": "enum"
+                },
+                "formats": [
+                  "PascalCase"
+                ]
+              },
+              {
+                "selector": {
+                  "kind": "objectLiteralProperty"
+                },
+                "match": ".*"
+              },
+              {
+                "match": "_(.*)|([a-zA-Z].*)",
+                "selector": {
+                  "kind": "functionParameter"
+                },
+                "formats": [
+                  "snake_case",
+                  "PascalCase",
+                  "camelCase"
+                ]
+              },
+              {
+                "formats": [
+                  "snake_case",
+                  "camelCase",
+                  "PascalCase"
+                ]
               }
             ]
           }

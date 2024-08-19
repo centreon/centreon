@@ -1,4 +1,4 @@
-import { memo, NamedExoticComponent } from 'react';
+import { NamedExoticComponent, memo } from 'react';
 
 import { equals, pick } from 'ramda';
 

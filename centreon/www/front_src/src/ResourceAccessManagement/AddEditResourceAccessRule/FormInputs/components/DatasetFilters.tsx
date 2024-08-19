@@ -5,13 +5,13 @@ import { equals, flatten, isEmpty, last } from 'ramda';
 
 import { Divider } from '@mui/material';
 
-import useDatasetFilters from '../hooks/useDatasetFilters';
 import { Dataset } from '../../../models';
+import useDatasetFilters from '../hooks/useDatasetFilters';
 import { useDatasetFiltersStyles } from '../styles/DatasetFilters.styles';
 
+import AddDatasetButton from './AddDatasetButton';
 import DatasetFilter from './DatasetFilter';
 import DeleteDatasetButton from './DeleteDatasetButton';
-import AddDatasetButton from './AddDatasetButton';
 
 const DatasetFilters = (): ReactElement => {
   const { classes } = useDatasetFiltersStyles();

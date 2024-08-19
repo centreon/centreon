@@ -17,7 +17,7 @@
 		"build:watch": "pnpm centreon:watch & pnpm widgets:watch",
 		"build:analyze": "pnpm widgets:build:analyze && pnpm centreon:build:analyze",
 		"lint": "biome check ./www/front_src --error-on-warnings",
-		"lint:fix": "pnpm eslint --fix",
+		"lint:fix": "pnpm lint --fix",
 		"test": "jest",
 		"test:watch": "pnpm test --watch",
 		"test:coverage": "jest --coverage",
@@ -176,7 +176,10 @@
 		"suiteName": "jest tests",
 		"output": "./jest-test-results.xml"
 	},
-	"workspaces": ["packages/*", "www/widgets"],
+	"workspaces": [
+		"packages/*",
+		"www/widgets"
+	],
 	"msw": {
 		"workerDirectory": "www/front_src/public"
 	}

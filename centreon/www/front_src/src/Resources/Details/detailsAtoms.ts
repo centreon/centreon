@@ -9,9 +9,9 @@ import { Resource } from '../models';
 import {
   GraphTabParameters,
   ResourceDetails,
+  ResourceDetailsAtom,
   ServicesTabParameters,
-  TabParameters,
-  ResourceDetailsAtom
+  TabParameters
 } from './models';
 import { detailsTabId } from './tabs';
 import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';

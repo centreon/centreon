@@ -1,20 +1,20 @@
 import {
-  labelDownStatusHosts,
-  labelUnreachableStatusHosts,
-  labelUpStatusHosts,
-  labelHosts,
-  labelDown,
   labelAll,
-  labelUnreachable,
+  labelDown,
+  labelDownStatusHosts,
+  labelHosts,
   labelPending,
-  labelUp
+  labelUnreachable,
+  labelUnreachableStatusHosts,
+  labelUp,
+  labelUpStatusHosts
 } from '../Resources/Host/translatedLabels';
 
 import {
   initialize,
+  openSubMenu,
   submenuShouldBeClosed,
-  submenuShouldBeOpened,
-  openSubMenu
+  submenuShouldBeOpened
 } from './Header.testUtils';
 
 const getElements = (): void => {
@@ -204,7 +204,7 @@ export default (): void =>
         initialize({ hosts_status: hoststubs });
         openSubMenu(labelHosts);
 
-        cy.get(`#Hosts-menu`).within(() => {
+        cy.get('#Hosts-menu').within(() => {
           const expectedOrderAndContent = [
             {
               count: '1/2',

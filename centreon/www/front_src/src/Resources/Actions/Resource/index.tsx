@@ -12,6 +12,7 @@ import IconAcknowledge from '@mui/icons-material/Person';
 import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
+import Downtime from '../../icons/Downtime';
 import { Resource } from '../../models';
 import {
   labelAcknowledge,
@@ -33,16 +34,15 @@ import {
   MoreSecondaryActions,
   ResourceActions
 } from '../model';
-import Downtime from '../../icons/Downtime';
 
 import AcknowledgeForm from './Acknowledge';
-import useAclQuery from './aclQuery';
 import ActionMenuItem from './ActionMenuItem';
 import CheckActionButton from './Check';
 import DisacknowledgeForm from './Disacknowledge';
 import DowntimeForm from './Downtime';
 import ResourceActionButton from './ResourceActionButton';
 import SubmitStatusForm from './SubmitStatus';
+import useAclQuery from './aclQuery';
 
 const useStyles = makeStyles()((theme) => ({
   action: {

@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import mockDate from 'mockdate';
 import { equals, last, map, pick } from 'ramda';
 
@@ -13,12 +13,12 @@ import {
   userAtom
 } from '@centreon/ui-context';
 import {
+  RenderResult,
   act,
   fireEvent,
   getFetchCall,
   mockResponse,
   render,
-  RenderResult,
   resetMocks,
   screen,
   waitFor
@@ -34,8 +34,8 @@ import useFilter from '../testUtils/useFilter';
 import useLoadDetails from '../testUtils/useLoadDetails';
 import {
   labelAcknowledge,
-  labelAcknowledgedBy,
   labelAcknowledgeServices,
+  labelAcknowledgedBy,
   labelAddComment,
   labelCheck,
   labelDisableAutorefresh,
@@ -55,8 +55,8 @@ import {
   labelSubmitStatus
 } from '../translatedLabels';
 
-import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
+import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 
 import Actions from '.';
 

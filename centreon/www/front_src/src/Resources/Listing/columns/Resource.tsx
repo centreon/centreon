@@ -3,8 +3,8 @@ import { equals } from 'ramda';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import ShortTypeChip from '../../ShortTypeChip';
 import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
+import ShortTypeChip from '../../ShortTypeChip';
 import { Visualization } from '../../models';
 
 import StatusChip from './ServiceSubItemColumn/StatusChip';

@@ -3,10 +3,10 @@ import * as Ramda from 'ramda';
 import type { Column } from '@centreon/ui';
 import { PlatformFeatures } from '@centreon/ui-context';
 
-import { Resource, ResourceType } from '../models';
 import { resourcesToAcknowledgeAtom } from '../Actions/actionsAtoms';
+import { Resource, ResourceType } from '../models';
 
-import { getColumns, defaultSelectedColumnIds } from './columns';
+import { defaultSelectedColumnIds, getColumns } from './columns';
 
 export const columns = getColumns({
   actions: {

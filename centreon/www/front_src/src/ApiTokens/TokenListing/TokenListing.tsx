@@ -1,6 +1,6 @@
 import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
 import pluralize from 'pluralize';
+import { useTranslation } from 'react-i18next';
 
 import Divider from '@mui/material/Divider';
 

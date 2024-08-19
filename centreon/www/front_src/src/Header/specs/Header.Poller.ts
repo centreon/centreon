@@ -1,33 +1,33 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
+import useNavigation from '../../Navigation/useNavigation';
+import { pollerConfigurationPageNumber } from '../Poller/getPollerPropsAdapter';
 import {
-  labelPollers,
-  labelNoLatencyDetected,
-  labelLatencyDetected,
   labelAllPollers,
+  labelCancel,
+  labelConfigurationExportedAndReloaded,
+  labelConfigurePollers,
+  labelDatabaseNotActive,
   labelDatabaseUpdateAndActive,
   labelDatabaseUpdatesNotActive,
-  labelPollerNotRunning,
-  labelDatabaseNotActive,
-  labelConfigurePollers,
-  labelExportConfiguration,
-  labelExportAndReloadTheConfiguration,
-  labelCancel,
   labelExportAndReload,
+  labelExportAndReloadTheConfiguration,
+  labelExportConfiguration,
   labelExportingAndReloadingTheConfiguration,
-  labelConfigurationExportedAndReloaded
+  labelLatencyDetected,
+  labelNoLatencyDetected,
+  labelPollerNotRunning,
+  labelPollers
 } from '../Poller/translatedLabels';
-import { pollerConfigurationPageNumber } from '../Poller/getPollerPropsAdapter';
-import useNavigation from '../../Navigation/useNavigation';
 
 import {
   initialize,
+  openSubMenu,
   submenuShouldBeClosed,
-  submenuShouldBeOpened,
-  openSubMenu
+  submenuShouldBeOpened
 } from './Header.testUtils';
 
 const getElements = (): void => {

@@ -1,8 +1,6 @@
-import React from 'react';
-
-import { BrowserRouter as Router } from 'react-router-dom';
-import { renderHook, act } from '@testing-library/react-hooks/dom';
+import { act, renderHook } from '@testing-library/react-hooks/dom';
 import { Provider, createStore, useAtom, useAtomValue } from 'jotai';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
@@ -121,7 +119,7 @@ modes.forEach((mode) => {
   });
 });
 
-describe.only('Navigation with additional label', () => {
+describe('Navigation with additional label', () => {
   beforeEach(() => {
     cy.fixture('menuDataWithAdditionalLabel').then((data) => {
       const store = createStore();

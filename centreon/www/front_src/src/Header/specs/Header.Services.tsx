@@ -1,22 +1,22 @@
 import {
-  labelCriticalStatusServices,
-  labelWarningStatusServices,
-  labelUnknownStatusServices,
-  labelOkStatusServices,
-  labelCritical,
   labelAll,
+  labelCritical,
+  labelCriticalStatusServices,
   labelOk,
+  labelOkStatusServices,
   labelPending,
+  labelServices,
   labelUnknown,
+  labelUnknownStatusServices,
   labelWarning,
-  labelServices
+  labelWarningStatusServices
 } from '../Resources/Service/translatedLabels';
 
 import {
   initialize,
+  openSubMenu,
   submenuShouldBeClosed,
-  submenuShouldBeOpened,
-  openSubMenu
+  submenuShouldBeOpened
 } from './Header.testUtils';
 
 const getElements = (): void => {
@@ -261,8 +261,8 @@ export default (): void =>
             }
           ];
 
-          cy.get('@items').each(($el, index) => {
-            cy.wrap($el)
+          cy.get('@items').each((el, index) => {
+            cy.wrap(el)
               .should('contain.text', expectedOrderAndContent[index].label)
               .should('contain.text', expectedOrderAndContent[index].count)
               .should('have.attr', 'href', expectedOrderAndContent[index].href);

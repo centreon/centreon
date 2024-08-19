@@ -364,7 +364,7 @@ const getAutocompleteSuggestions = ({
 
 export {
   build,
-  DynamicCriteriaParametersAndValues,
+  type DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
   parse,

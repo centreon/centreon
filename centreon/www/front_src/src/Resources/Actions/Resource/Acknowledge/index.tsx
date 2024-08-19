@@ -1,19 +1,19 @@
 import { useEffect } from 'react';
 
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import * as Yup from 'yup';
 
-import { useSnackbar, useRequest } from '@centreon/ui';
+import { useRequest, useSnackbar } from '@centreon/ui';
 import { acknowledgementAtom, userAtom } from '@centreon/ui-context';
 
-import {
-  labelRequired,
-  labelAcknowledgeCommandSent,
-  labelAcknowledgedBy
-} from '../../../translatedLabels';
 import { Resource } from '../../../models';
+import {
+  labelAcknowledgeCommandSent,
+  labelAcknowledgedBy,
+  labelRequired
+} from '../../../translatedLabels';
 import { acknowledgeResources } from '../../api';
 
 import DialogAcknowledge from './Dialog';

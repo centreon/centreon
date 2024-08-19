@@ -9,9 +9,9 @@ export enum ResourceType {
 
 export enum ResourceCategory {
   'anomaly-detection' = ResourceType.service,
-  'service' = ResourceType.service,
-  'host' = ResourceType.host,
-  'metaservice' = ResourceType.metaservice
+  service = ResourceType.service,
+  host = ResourceType.host,
+  metaservice = ResourceType.metaservice
 }
 
 export type ResourceShortType = 'h' | 's' | 'm' | 'a';
