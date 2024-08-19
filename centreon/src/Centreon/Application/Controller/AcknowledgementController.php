@@ -814,7 +814,8 @@ class AcknowledgementController extends AbstractController
                 self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES =>
                     $isAcknowledgementWithServices = (int) $option->getValue() === 1,
                 self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS =>
-                    $isAcknowledgementForceActiveChecks = (int) $option->getValue() === 1
+                    $isAcknowledgementForceActiveChecks = (int) $option->getValue() === 1,
+                default => null
             };
         }
 
