@@ -17,7 +17,6 @@ import {
   labelMetrics,
   labelSelectMetric,
   labelThresholdsAreAutomaticallyHidden,
-  labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
@@ -421,15 +420,7 @@ describe('Metrics', () => {
       cy.findByTestId('rtmax').click();
       cy.findByTestId('pl').click();
 
-      cy.findByTestId('rtmin').should('have.attr', 'data-checked', 'false');
-      cy.findByTestId('rtmin').find('input').should('be.disabled');
-      cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('exist');
       cy.contains(labelThresholdsAreAutomaticallyHidden).should('exist');
-
-      cy.findByTestId('rtmin-summary').click();
-      cy.findByTestId('rtmin_Centreon-1:Ping')
-        .find('input')
-        .should('be.disabled');
 
       cy.makeSnapshot();
     });

@@ -4,7 +4,6 @@ import { useFormikContext } from 'formik';
 import {
   equals,
   identity,
-  includes,
   innerJoin,
   isEmpty,
   isNil,
@@ -41,12 +40,11 @@ interface UseMetricsOnlyState {
   changeMetrics: (_, newMetrics: Array<SelectEntry> | null) => void;
   deleteMetricItem: (index) => void;
   error?: string;
-  getMetricOptionDisabled: (metricOption) => boolean;
   getOptionLabel: (metric: FormMetric) => string;
   getTagLabel: (metric: FormMetric) => string;
   hasMetaService: boolean;
+  hasMultipleUnitsSelected: boolean;
   hasNoResources: () => boolean;
-  hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   isTouched?: boolean;
@@ -97,13 +95,12 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   );
 
   const {
-    hasReachedTheLimitOfUnits,
+    hasMultipleUnitsSelected,
     hasTooManyMetrics,
     isLoadingMetrics,
     metrics,
     metricCount,
-    servicesMetrics,
-    unitsFromSelectedMetrics
+    servicesMetrics
   } = useListMetrics({ resources, selectedMetrics: value });
 
   const getResourcesByMetricName = (
@@ -233,14 +230,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     useDeepCompare([servicesMetrics])
   );
 
-  const getMetricOptionDisabled = (metricOption): boolean => {
-    if (!hasReachedTheLimitOfUnits) {
-      return false;
-    }
-
-    return !includes(metricOption.unit, unitsFromSelectedMetrics);
-  };
-
   const metricWithSeveralResources = useMemo(
     () =>
       widgetProperties?.singleResourceSelection &&
@@ -329,12 +318,11 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     changeMetrics,
     deleteMetricItem,
     error,
-    getMetricOptionDisabled,
     getOptionLabel,
     getTagLabel,
     hasMetaService,
+    hasMultipleUnitsSelected,
     hasNoResources,
-    hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
     isLoadingMetrics,
     isTouched,

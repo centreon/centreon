@@ -10,8 +10,8 @@ import { equals, gt, isNil, lte, reduce } from 'ramda';
 
 import { Stack } from '@mui/material';
 
-import Legend from '../../LineChart/Legend';
-import { legendWidth } from '../../LineChart/Legend/Legend.styles';
+import Legend from '../../Chart/Legend';
+import { legendWidth } from '../../Chart/Legend/Legend.styles';
 import { Line } from '../timeSeries/models';
 
 import { useBaseChartStyles } from './useBaseChartStyles';

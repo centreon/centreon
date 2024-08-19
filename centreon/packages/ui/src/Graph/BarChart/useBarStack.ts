@@ -35,8 +35,8 @@ interface UseBarStackState {
 export const useBarStack = ({
   timeSeries,
   isHorizontal,
-  yScale,
   lines,
+  yScale,
   xScale
 }: UseBarStackProps): UseBarStackState => {
   const setTooltipData = useSetAtom(tooltipDataAtom);

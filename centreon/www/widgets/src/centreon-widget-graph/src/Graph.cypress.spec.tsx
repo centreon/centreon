@@ -329,7 +329,7 @@ describe('Graph Widget', () => {
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
 
-    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
   });
@@ -346,7 +346,7 @@ describe('Graph Widget', () => {
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
 
-    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
   });
@@ -361,7 +361,7 @@ describe('Graph Widget', () => {
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
 
-    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
   });
@@ -377,7 +377,7 @@ describe('Graph Widget', () => {
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
 
-    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
   });
