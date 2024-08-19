@@ -20,7 +20,7 @@ import { TimeValue } from '../../common/timeSeries/models';
 import { useLocaleDateTimeFormat } from '../../../utils';
 import { formatMetricValueWithUnit } from '../../common/timeSeries';
 import { tooltipDataAtom } from '../atoms';
-import { Tooltip } from '../../LineChart/models';
+import { Tooltip } from '../../Chart/models';
 
 import { useBarChartTooltipStyles } from './useBarChartTooltipStyles';
 
