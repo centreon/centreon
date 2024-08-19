@@ -1,25 +1,25 @@
 import { FormikHelpers, FormikValues } from 'formik';
+import { useAtomValue } from 'jotai';
 import { equals, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import * as Yup from 'yup';
-import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 
 import { putData, useRequest, useSnackbar } from '@centreon/ui';
 
-import useUser from '../Main/useUser';
 import { labelLoginSucceeded } from '../Login/translatedLabels';
 import usePostLogin from '../Login/usePostLogin';
+import useUser from '../Main/useUser';
 
+import { getResetPasswordEndpoint } from './api/endpoint';
 import { ResetPasswordValues } from './models';
+import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
 import {
   labelNewPasswordsMustMatch,
   labelPasswordRenewed,
   labelRequired,
   labelTheNewPasswordIstheSameAsTheOldPassword
 } from './translatedLabels';
-import { getResetPasswordEndpoint } from './api/endpoint';
-import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
 
 interface UseResetPasswordState {
   submitResetPassword: (

@@ -1,21 +1,21 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 import axios from 'axios';
-import { omit, head, prop } from 'ramda';
 import { Provider } from 'jotai';
+import { head, omit, prop } from 'ramda';
 
 import {
   RenderResult,
-  render,
-  waitFor,
+  act,
   fireEvent,
-  act
+  render,
+  waitFor
 } from '@centreon/ui/test/testRenderer';
 
 import Context, { ResourceContext } from '../../testUtils/Context';
 import useFilter from '../../testUtils/useFilter';
-import { labelFilter, labelName, labelDelete } from '../../translatedLabels';
-import { filterEndpoint } from '../api';
+import { labelDelete, labelFilter, labelName } from '../../translatedLabels';
 import { defaultSortField, defaultSortOrder } from '../Criterias/default';
+import { filterEndpoint } from '../api';
 
 import EditFilterPanel from '.';
 

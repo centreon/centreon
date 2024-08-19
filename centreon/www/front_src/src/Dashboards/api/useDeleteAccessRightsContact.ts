@@ -14,8 +14,8 @@ import {
 
 import { labelUserDeleted } from '../translatedLabels';
 
-import { DeleteAccessRightDto, resource } from './models';
 import { getDashboardAccessRightsContactEndpoint } from './endpoints';
+import { DeleteAccessRightDto, resource } from './models';
 
 type UseDeleteAccessRightsContact<
   TData extends null = null,

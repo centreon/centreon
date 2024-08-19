@@ -1,50 +1,50 @@
 import { Provider, createStore } from 'jotai';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import {
-  labelDelete,
-  labelSave,
-  labelDuplicate,
-  labelActiveOrInactive,
-  labelClosePanel,
-  labelReduceInformationPanel,
-  labelExpandInformationPanel,
-  labelChangeName,
-  labelNotificationName,
-  labelRequired,
-  labelSearchHostGroups,
-  labelSearchServiceGroups,
-  labelChooseAtLeastOneResource,
-  labelChooseAtleastOneContact,
-  labelTimePeriod,
-  labelSubject,
-  labelMessageFieldShouldNotBeEmpty,
-  labelSuccessfulEditNotification,
-  labelThisNameAlreadyExists,
-  labelDeleteNotification,
-  labelDeleteNotificationWarning,
-  labelNotificationSuccessfullyDeleted,
-  labelCancel,
-  labelPleaseEnterNameForDuplicatedNotification,
-  labelDiscard,
-  labelNotificationDuplicated,
-  labelSearchBusinessViews,
-  labelBusinessViewsEvents,
-  labelSearchContacts,
-  labelTimePeriodFieldShouldNotBeEmpty
-} from '../../translatedLabels';
-import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
+import Form from '..';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
+import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
+import {
+  labelActiveOrInactive,
+  labelBusinessViewsEvents,
+  labelCancel,
+  labelChangeName,
+  labelChooseAtLeastOneResource,
+  labelChooseAtleastOneContact,
+  labelClosePanel,
+  labelDelete,
+  labelDeleteNotification,
+  labelDeleteNotificationWarning,
+  labelDiscard,
+  labelDuplicate,
+  labelExpandInformationPanel,
+  labelMessageFieldShouldNotBeEmpty,
+  labelNotificationDuplicated,
+  labelNotificationName,
+  labelNotificationSuccessfullyDeleted,
+  labelPleaseEnterNameForDuplicatedNotification,
+  labelReduceInformationPanel,
+  labelRequired,
+  labelSave,
+  labelSearchBusinessViews,
+  labelSearchContacts,
+  labelSearchHostGroups,
+  labelSearchServiceGroups,
+  labelSubject,
+  labelSuccessfulEditNotification,
+  labelThisNameAlreadyExists,
+  labelTimePeriod,
+  labelTimePeriodFieldShouldNotBeEmpty
+} from '../../translatedLabels';
 import {
   availableTimePeriodsEndpoint,
   notificationEndpoint
 } from '../api/endpoints';
-import { PanelMode } from '../models';
 import { editedNotificationIdAtom, panelModeAtom } from '../atom';
-import Form from '..';
+import { PanelMode } from '../models';
 
 import {
   getNotificationResponse,

@@ -4,13 +4,13 @@ import * as Yup from 'yup';
 import { PasswordSecurityPolicy } from './models';
 import { oneHour, sevenDays, twelveMonths } from './timestamps';
 import {
-  labelChooseAValueBetween1and10,
-  labelChooseADurationBetween7DaysAnd12Months,
+  labelBlockingDurationMustBeLessThanOrEqualTo7Days,
   labelChooseADurationBetween1HourAnd1Week,
+  labelChooseADurationBetween7DaysAnd12Months,
+  labelChooseAValueBetween1and10,
   labelMaximum128Characters,
   labelMinimum8Characters,
-  labelRequired,
-  labelBlockingDurationMustBeLessThanOrEqualTo7Days
+  labelRequired
 } from './translatedLabels';
 
 const useValidationSchema = (): Yup.SchemaOf<PasswordSecurityPolicy> => {

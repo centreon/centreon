@@ -1,16 +1,16 @@
+import { FormikValues } from 'formik';
+import { TFunction } from 'i18next';
 import {
+  path,
   always,
   cond,
   equals,
   includes,
   isEmpty,
-  path,
   pluck,
   split
 } from 'ramda';
 import * as Yup from 'yup';
-import { TFunction } from 'i18next';
-import { FormikValues } from 'formik';
 
 import {
   FederatedWidgetOption,

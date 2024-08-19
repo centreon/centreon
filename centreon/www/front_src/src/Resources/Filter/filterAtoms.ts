@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { atomWithStorage, atomWithDefault } from 'jotai/utils';
+import { atomWithDefault, atomWithStorage } from 'jotai/utils';
 import {
   find,
   findIndex,
@@ -24,15 +24,15 @@ import { baseKey } from '../storage';
 import { labelNewFilter } from '../translatedLabels';
 
 import { Criteria, CriteriaValue } from './Criterias/models';
+import { build, parse } from './Criterias/searchQueryLanguage';
 import {
-  allFilter,
   Filter,
+  allFilter,
   isCustom,
   newFilter,
   resourceProblemsFilter,
   unhandledProblemsFilter
 } from './models';
-import { build, parse } from './Criterias/searchQueryLanguage';
 import { getStoredOrDefaultFilter } from './storedFilter';
 
 export const filterKey = `${baseKey}filter`;

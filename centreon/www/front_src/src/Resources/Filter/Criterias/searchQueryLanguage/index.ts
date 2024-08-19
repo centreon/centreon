@@ -44,9 +44,9 @@ import {
 import {
   AutocompleteSuggestionProps,
   CriteriaId,
+  CriteriaValueSuggestionsProps,
   criteriaNameSortOrder,
   criteriaNameToQueryLanguageName,
-  CriteriaValueSuggestionsProps,
   dynamicCriteriaValuesByName,
   getSelectableCriteriasByName,
   searchableFields,

@@ -3,8 +3,8 @@ import { Suspense } from 'react';
 import { FallbackPage } from '@centreon/ui';
 
 import NotFoundPage from '../FallbackPages/NotFoundPage';
-import ErrorBoundary from '../federatedModules/Load/ErrorBoundary';
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
+import ErrorBoundary from '../federatedModules/Load/ErrorBoundary';
 
 import {
   labelPageCannotBeLoaded,

@@ -1,11 +1,11 @@
-import { BrowserRouter } from 'react-router-dom';
 import { Provider, createStore } from 'jotai';
 import { replace } from 'ramda';
+import { BrowserRouter } from 'react-router-dom';
 
-import { SnackbarProvider, Method, TestQueryProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import { labelCentreonLogo } from '../Login/translatedLabels';
 import { loginEndpoint } from '../Login/api/endpoint';
+import { labelCentreonLogo } from '../Login/translatedLabels';
 import { userEndpoint } from '../api/endpoint';
 
 import {

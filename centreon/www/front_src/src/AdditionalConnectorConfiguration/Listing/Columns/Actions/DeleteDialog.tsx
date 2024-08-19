@@ -1,22 +1,22 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { Typography } from '@mui/material';
 
-import { Modal } from '@centreon/ui/components';
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
+import { Modal } from '@centreon/ui/components';
 
-import { connectorsToDeleteAtom } from '../../atom';
+import { getAdditionalConnectorEndpoint } from '../../../api/endpoints';
 import {
+  labelAdditionalConnectorDeleted,
   labelCancel,
   labelDelete,
   labelDeleteAdditionalConnectorConfiguration,
-  labelAdditionalConnectorDeleted,
   labelDeleteAdditionalConnectorDescription,
   labelSomeConnectorsMayNotWorkAnymore
 } from '../../../translatedLabels';
-import { getAdditionalConnectorEndpoint } from '../../../api/endpoints';
+import { connectorsToDeleteAtom } from '../../atom';
 
 const DeleteConnectorDialog = (): JSX.Element => {
   const { t } = useTranslation();

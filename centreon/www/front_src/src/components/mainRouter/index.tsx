@@ -1,6 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import { PageSkeleton } from '@centreon/ui';
 

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { generatePath, useNavigate, useParams } from 'react-router';
 import { isNil } from 'ramda';
+import { generatePath, useNavigate, useParams } from 'react-router';
 
 import { PageSkeleton } from '@centreon/ui';
 

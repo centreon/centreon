@@ -1,6 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 

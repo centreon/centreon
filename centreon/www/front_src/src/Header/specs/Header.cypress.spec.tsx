@@ -1,8 +1,8 @@
 import HeaderHostsSpecs from './Header.hosts';
 import HeaderPollers from './Header.poller';
 import HeaderServicesSpecs from './Header.services';
-import HeaderUserMenu from './Header.usermenu';
 import { initialize } from './Header.testutils';
+import HeaderUserMenu from './Header.usermenu';
 
 describe('Header', () => {
   it('renders all top menus items', () => {

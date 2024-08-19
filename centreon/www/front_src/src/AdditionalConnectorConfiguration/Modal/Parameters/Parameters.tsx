@@ -5,8 +5,8 @@ import { equals } from 'ramda';
 
 import { Divider } from '@mui/material';
 
-import DeleteParameterGroupButton from './DeleteButton';
 import AddParameterGroupButton from './AddButton';
+import DeleteParameterGroupButton from './DeleteButton';
 import Parameter from './Parameter';
 import useParameters from './useParameters';
 import { useParametersStyles } from './useParametersStyles';

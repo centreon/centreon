@@ -1,23 +1,23 @@
 import { useEffect } from 'react';
 
-import { useTranslation } from 'react-i18next';
+import { Formik } from 'formik';
 import { useAtomValue } from 'jotai';
 import { isNil, not } from 'ramda';
-import { Formik } from 'formik';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Typography } from '@mui/material';
 
 import { CentreonLogo } from '@centreon/ui';
 
-import routeMap from '../reactRoutes/routeMap';
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
+import routeMap from '../reactRoutes/routeMap';
 
+import Form from './Form';
+import { ResetPasswordValues } from './models';
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
 import { labelResetYourPassword } from './translatedLabels';
-import { ResetPasswordValues } from './models';
 import useResetPassword, { router } from './useResetPassword';
-import Form from './Form';
 
 const useStyles = makeStyles()((theme) => ({
   container: {

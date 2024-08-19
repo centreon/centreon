@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 
-import { labelCancel, labelSave } from '../translatedLabels';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
+import { labelCancel, labelSave } from '../translatedLabels';
 
 interface Props {
   closeModal: (shouldAskForClosingConfirmation: boolean) => void;

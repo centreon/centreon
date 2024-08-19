@@ -3,9 +3,9 @@ import * as Yup from 'yup';
 
 import { WebSSOConfiguration } from './models';
 import {
-  labelRequired,
   labelInvalidIPAddress,
-  labelInvalidRegex
+  labelInvalidRegex,
+  labelRequired
 } from './translatedLabels';
 
 const IPAddressRegexp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,3})?$/;

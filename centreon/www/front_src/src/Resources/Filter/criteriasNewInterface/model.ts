@@ -2,14 +2,14 @@ import { SelectEntry } from '@centreon/ui';
 
 import { ResourceType } from '../../models';
 import {
-  labelPending,
-  labelUp,
-  labelDown,
-  labelUnreachable,
-  labelOk,
-  labelWarning,
   labelCritical,
-  labelUnknown
+  labelDown,
+  labelOk,
+  labelPending,
+  labelUnknown,
+  labelUnreachable,
+  labelUp,
+  labelWarning
 } from '../../translatedLabels';
 import {
   Criteria,

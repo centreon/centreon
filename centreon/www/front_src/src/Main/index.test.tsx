@@ -1,29 +1,28 @@
 import axios from 'axios';
 
 import {
-  render,
   RenderResult,
-  waitFor,
-  screen
+  render,
+  screen,
+  waitFor
 } from '@centreon/ui/test/testRenderer';
 
+import {
+  aclEndpoint,
+  externalTranslationEndpoint,
+  internalTranslationEndpoint,
+  parametersEndpoint
+} from '../App/endpoint';
+import { labelAuthenticationDenied } from '../FallbackPages/AuthenticationDenied/translatedLabels';
+import { labelConnect } from '../Login/translatedLabels';
+import { retrievedNavigation } from '../Navigation/mocks';
+import { navigationEndpoint } from '../Navigation/useNavigation';
 import {
   platformInstallationStatusEndpoint,
   userEndpoint
 } from '../api/endpoint';
-import { labelConnect } from '../Login/translatedLabels';
-import {
-  aclEndpoint,
-  parametersEndpoint,
-  externalTranslationEndpoint,
-  internalTranslationEndpoint
-} from '../App/endpoint';
-import { retrievedNavigation } from '../Navigation/mocks';
 import { retrievedFederatedModule } from '../federatedModules/mocks';
-import { navigationEndpoint } from '../Navigation/useNavigation';
-import { labelAuthenticationDenied } from '../FallbackPages/AuthenticationDenied/translatedLabels';
 
-import { labelCentreonIsLoading } from './translatedLabels';
 import Provider from './Provider';
 import {
   retrievedActionsAcl,
@@ -34,6 +33,7 @@ import {
   retrievedUser,
   retrievedWeb
 } from './testUtils';
+import { labelCentreonIsLoading } from './translatedLabels';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

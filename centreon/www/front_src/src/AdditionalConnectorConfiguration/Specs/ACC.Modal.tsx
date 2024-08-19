@@ -1,13 +1,17 @@
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { keys } from 'ramda';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
+import { DialogState } from '../Listing/models';
+import AdditionalConnectorModal from '../Modal/Modal';
+import { ParameterKeys } from '../Modal/models';
 import {
   additionalConnectorsEndpoint,
   getAdditionalConnectorEndpoint,
   getPollersForConnectorTypeEndpoint
 } from '../api/endpoints';
+import { dialogStateAtom } from '../atoms';
 import {
   labelAdditionalConnectorCreated,
   labelAdditionalConnectorUpdated,
@@ -31,11 +35,7 @@ import {
   labelUpdateConnectorConfiguration,
   labelVcenterNameMustBeUnique
 } from '../translatedLabels';
-import AdditionalConnectorModal from '../Modal/Modal';
-import { dialogStateAtom } from '../atoms';
 import { defaultParameters } from '../utils';
-import { ParameterKeys } from '../Modal/models';
-import { DialogState } from '../Listing/models';
 
 const mockPageRequests = (): void => {
   cy.fixture('ACC/additionalConnectors.json').then((connectors) => {

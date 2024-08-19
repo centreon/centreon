@@ -1,40 +1,40 @@
 import { KeyboardEvent, useState } from 'react';
 
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { all, equals, any, reject, update, findIndex, omit } from 'ramda';
+import { useAtom, useSetAtom } from 'jotai';
+import { all, any, equals, findIndex, omit, reject, update } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useSetAtom, useAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
+import * as Yup from 'yup';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import {
-  ContentWithCircularLoading,
-  TextField,
-  IconButton,
-  useRequest,
   ConfirmDialog,
+  ContentWithCircularLoading,
+  IconButton,
+  TextField,
+  useRequest,
   useSnackbar
 } from '@centreon/ui';
 
 import {
-  labelDelete,
   labelAskDelete,
   labelCancel,
+  labelDelete,
+  labelFilter,
   labelFilterDeleted,
   labelFilterUpdated,
   labelName,
-  labelFilter,
   labelNameCannotBeEmpty
 } from '../../translatedLabels';
-import { updateFilter, deleteFilter } from '../api';
-import { Filter, newFilter } from '../models';
+import { deleteFilter, updateFilter } from '../api';
 import {
   appliedFilterAtom,
   currentFilterAtom,
   customFiltersAtom
 } from '../filterAtoms';
+import { Filter, newFilter } from '../models';
 
 const useStyles = makeStyles()((theme) => ({
   filterCard: {

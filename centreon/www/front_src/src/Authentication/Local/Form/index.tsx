@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Form, useRequest, useSnackbar } from '@centreon/ui';
 import type { Group } from '@centreon/ui';
 
+import FormButtons from '../../FormButtons';
+import { putPasswordPasswordSecurityPolicy } from '../../api';
 import { PasswordSecurityPolicy } from '../models';
-import useValidationSchema from '../useValidationSchema';
 import {
   labelFailedToSavePasswordPasswordSecurityPolicy,
   labelPasswordBlockingPolicy,
@@ -12,8 +13,7 @@ import {
   labelPasswordExpirationPolicy,
   labelPasswordPasswordSecurityPolicySaved
 } from '../translatedLabels';
-import { putPasswordPasswordSecurityPolicy } from '../../api';
-import FormButtons from '../../FormButtons';
+import useValidationSchema from '../useValidationSchema';
 
 import inputs from './inputs';
 

@@ -1,25 +1,25 @@
 import { ChangeEvent, useCallback, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import {
   T,
   always,
   cond,
   equals,
-  isEmpty,
-  propEq,
-  reject,
-  pluck,
-  includes,
-  isNotNil,
-  find,
-  last,
   filter,
-  pick,
+  find,
+  flatten,
+  includes,
+  isEmpty,
+  isNotNil,
+  last,
   map,
-  flatten
+  pick,
+  pluck,
+  propEq,
+  reject
 } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import {
   QueryParameter,
@@ -29,12 +29,7 @@ import {
 } from '@centreon/ui';
 import { additionalResourcesAtom } from '@centreon/ui-context';
 
-import {
-  Widget,
-  WidgetDataResource,
-  WidgetPropertyProps,
-  WidgetResourceType
-} from '../../../models';
+import { baseEndpoint } from '../../../../../../../api/endpoint';
 import {
   labelHost,
   labelHostCategory,
@@ -45,12 +40,17 @@ import {
   labelServiceCategory,
   labelServiceGroup
 } from '../../../../translatedLabels';
-import { baseEndpoint } from '../../../../../../../api/endpoint';
-import { getDataProperty } from '../utils';
 import {
   hasMetricInputTypeDerivedAtom,
   widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
+import {
+  Widget,
+  WidgetDataResource,
+  WidgetPropertyProps,
+  WidgetResourceType
+} from '../../../models';
+import { getDataProperty } from '../utils';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;

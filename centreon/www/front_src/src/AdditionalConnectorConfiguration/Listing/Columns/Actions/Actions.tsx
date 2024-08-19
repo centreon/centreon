@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next';
 
 import {
-  SettingsOutlined as SettingsIcon,
-  DeleteOutlined as DeleteIcon
+  DeleteOutlined as DeleteIcon,
+  SettingsOutlined as SettingsIcon
 } from '@mui/icons-material';
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
 import {
-  labelEditConnectorConfiguration,
-  labelDelete
+  labelDelete,
+  labelEditConnectorConfiguration
 } from '../../../translatedLabels';
 import { useColumnStyles } from '../useColumnsStyles';
 
