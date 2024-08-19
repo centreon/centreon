@@ -19449,3 +19449,6 @@ msgstr "Attention, les domaines en dehors de votre organisation doivent être au
 
 msgid "Web page preview"
 msgstr "Aperçu de la page web"
+
+msgid "Save your dashboard to generate a thumbnail"
+msgstr "Sauvegardez votre tableau de bord pour générer une vignette"

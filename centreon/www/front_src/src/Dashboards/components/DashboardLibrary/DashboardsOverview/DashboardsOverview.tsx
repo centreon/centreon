@@ -5,13 +5,18 @@ import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
 
-import { DataTable } from '@centreon/ui/components';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Box } from '@mui/material';
+
+import { DataTable, Tooltip } from '@centreon/ui/components';
+import { userAtom } from '@centreon/ui-context';
 
 import routeMap from '../../../../reactRoutes/routeMap';
 import { Dashboard } from '../../../api/models';
 import { DashboardLayout } from '../../../models';
 import {
   labelCreateADashboard,
+  labelSaveYourDashboardForThumbnail,
   labelWelcomeToDashboardInterface
 } from '../../../translatedLabels';
 import DashboardCardActions from '../DashboardCardActions/DashboardCardActions';
@@ -20,6 +25,8 @@ import { DashboardListing } from '../DashboardListing';
 import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
+import thumbnailFallbackLight from '../../../../assets/thumbnail-fallback-light.svg';
+import thumbnailFallbackDark from '../../../../assets/thumbnail-fallback-dark.svg';
 
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
@@ -31,6 +38,7 @@ const DashboardsOverview = (): ReactElement => {
 
   const viewMode = useAtomValue(viewModeAtom);
   const search = useAtomValue(searchAtom);
+  const user = useAtomValue(userAtom);
 
   const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
   const { createDashboard } = useDashboardConfig();
@@ -50,6 +58,14 @@ const DashboardsOverview = (): ReactElement => {
   const isCardsView = useMemo(
     () => equals(viewMode, ViewMode.Cards),
     [viewMode]
+  );
+
+  const fallbackThumbnail = useMemo(
+    () =>
+      equals(user.themeMode, 'light')
+        ? thumbnailFallbackLight
+        : thumbnailFallbackDark,
+    [user.themeMode]
   );
 
   const emptyStateLabels = {
@@ -80,15 +96,35 @@ const DashboardsOverview = (): ReactElement => {
   const GridTable = (
     <DataTable isEmpty={isEmptyList} variant="grid">
       {dashboards.map((dashboard) => (
-        <DataTable.Item
-          hasCardAction
-          Actions={<DashboardCardActions dashboard={dashboard} />}
-          description={dashboard.description ?? undefined}
-          hasActions={hasEditPermission(dashboard)}
-          key={dashboard.id}
-          title={dashboard.name}
-          onClick={navigateToDashboard(dashboard)}
-        />
+        <div className={classes.dashboardItemContainer} key={dashboard.id}>
+          <DataTable.Item
+            hasCardAction
+            Actions={<DashboardCardActions dashboard={dashboard} />}
+            description={dashboard.description ?? undefined}
+            hasActions={hasEditPermission(dashboard)}
+            thumbnail={
+              dashboard.thumbnail
+                ? `${dashboard.thumbnail}?${new Date().getTime()}`
+                : fallbackThumbnail
+            }
+            title={dashboard.name}
+            onClick={navigateToDashboard(dashboard)}
+          />
+          {!dashboard.thumbnail && (
+            <Box className={classes.thumbnailFallbackIcon}>
+              <Tooltip
+                followCursor={false}
+                label={t(labelSaveYourDashboardForThumbnail)}
+                placement="top"
+              >
+                <InfoOutlinedIcon
+                  color="primary"
+                  data-testid="thumbnail-fallback"
+                />
+              </Tooltip>
+            </Box>
+          )}
+        </div>
       ))}
     </DataTable>
   );

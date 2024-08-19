@@ -15,6 +15,7 @@
         "name": "Arnaud"
       },
       "own_role": "editor",
+      "thumbnail": "img/media/dashboards/dashboard-1.png",
       "shares": {
         "contacts": [
           {
@@ -47,6 +48,7 @@
         "name": "Tom"
       },
       "own_role": "viewer",
+      "thumbnail": null,
       "shares": {
         "contacts": [],
         "contact_groups": []

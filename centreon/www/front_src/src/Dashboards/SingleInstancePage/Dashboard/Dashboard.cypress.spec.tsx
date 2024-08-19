@@ -35,7 +35,13 @@ import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
+<<<<<<< HEAD
   getDashboardEndpoint
+=======
+  dashboardSharesEndpoint,
+  getDashboardEndpoint,
+  mediasEndpoint
+>>>>>>> f0968ae4c8 (enh(UI): Save and display dashboard thumbnails (#4762))
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
 import {
@@ -220,6 +226,13 @@ const initializeAndMount = ({
     alias: 'patchDashboardDetails',
     method: Method.PATCH,
     path: getDashboardEndpoint('1'),
+    statusCode: 201
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'postMedia',
+    method: Method.POST,
+    path: `./api/latest${mediasEndpoint}`,
     statusCode: 201
   });
 
@@ -678,6 +691,7 @@ describe('Dashboard', () => {
       cy.waitForRequest('@patchDashboardDetails').then(() => {
         expect(proceedNavigation).to.have.been.calledWith();
       });
+      cy.waitForRequest('@postMedia');
 
       cy.makeSnapshot();
     });

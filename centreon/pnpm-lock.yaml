@@ -113,9 +113,6 @@ importers:
       dom-serializer:
         specifier: ^2.0.0
         version: 2.0.0
-      dom-to-image:
-        specifier: ^2.6.0
-        version: 2.6.0
       dompurify:
         specifier: ^3.1.6
         version: 3.1.6
@@ -128,6 +125,9 @@ importers:
       html-react-parser:
         specifier: ^5.1.12
         version: 5.1.12(@types/react@18.3.3)(react@18.3.1)
+      html-to-image:
+        specifier: ^1.11.11
+        version: 1.11.11
       i18next:
         specifier: ^23.13.0
         version: 23.13.0
@@ -16235,10 +16235,6 @@ packages:
       domhandler: 5.0.3
       entities: 4.5.0
 
-  /dom-to-image@2.6.0:
-    resolution: {integrity: sha512-Dt0QdaHmLpjURjU7Tnu3AgYSF2LuOmksSGsUcE6ItvJoCWTBEmiMXcqBdNSAm9+QbbwD7JMoVsuuKX6ZVQv1qA==}
-    dev: false
-
   /domelementtype@1.3.1:
     resolution: {integrity: sha512-BSKB+TSpMpFI/HOxCNr1O8aMOTZ8hT3pM3GQ0w/mWRmkhEDSFJkkyzz4XQsBV44BChwGkrDfMyjVD0eA2aFV3w==}
 
@@ -18834,6 +18830,10 @@ packages:
     resolution: {integrity: sha512-ztqyC3kLto0e9WbNp0aeP+M3kTt+nbaIveGmUxAtZa+8iFgKLUOD4YKM5j+f3QD89bra7UeumolZHKuOXnTmeQ==}
     engines: {node: '>=8'}
     dev: true
+
+  /html-to-image@1.11.11:
+    resolution: {integrity: sha512-9gux8QhvjRO/erSnDPv28noDZcPZmYE7e1vFsBLKLlRlKDSqNJYebj6Qz1TGd5lsRV+X+xYyjCKjuZdABinWjA==}
+    dev: false
 
   /html-void-elements@1.0.5:
     resolution: {integrity: sha512-uE/TxKuyNIcx44cIWnjr/rfIATDH7ZaOMmstu0CwhFG1Dunhlp4OC6/NMbhiwoq5BpW0ubi303qnEk/PZj614w==}

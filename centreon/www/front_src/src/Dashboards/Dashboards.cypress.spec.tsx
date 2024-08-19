@@ -52,7 +52,8 @@ import {
   labelSharesSaved,
   labelUpdate,
   labelUserDeleted,
-  labelWelcomeToDashboardInterface
+  labelWelcomeToDashboardInterface,
+  labelSaveYourDashboardForThumbnail
 } from './translatedLabels';
 
 interface InitializeAndMountProps {
@@ -327,7 +328,19 @@ describe('Dashboards', () => {
       );
 
       cy.contains('My Dashboard').should('be.visible');
+      cy.findByTestId('thumbnail-My Dashboard-my description').should(
+        'be.visible'
+      );
       cy.contains('My Dashboard 2').should('be.visible');
+      cy.findByTestId('thumbnail-My Dashboard 2-undefined').should(
+        'be.visible'
+      );
+
+      cy.findByTestId('thumbnail-fallback').trigger('mouseover', {
+        force: true
+      });
+
+      cy.contains(labelSaveYourDashboardForThumbnail).should('be.visible');
 
       cy.makeSnapshot();
     });

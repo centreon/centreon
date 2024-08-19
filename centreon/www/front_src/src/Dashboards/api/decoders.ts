@@ -98,6 +98,7 @@ export const dashboardEntityDecoder = {
       contactGroups: 'contact_groups'
     }
   ),
+  thumbnail: JsonDecoder.optional(JsonDecoder.string),
   updatedAt: JsonDecoder.string,
   updatedBy: JsonDecoder.nullable(
     JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')

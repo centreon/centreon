@@ -17700,3 +17700,6 @@ msgstr "Modo avanzado"
 
 #  msgid "Web page preview"
 #  msgstr ""
+
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
