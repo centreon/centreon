@@ -75,11 +75,8 @@ class CentreonUserLog
         $DBRESULT->closeCursor();
 
         // Init log Directory
-        if (isset($optGen["debug_path"]) && $optGen["debug_path"] != "") {
-            $this->path = $optGen["debug_path"];
-        } else {
-            $this->path = _CENTREON_LOG_;
-        }
+        $this->path = (isset($optGen["debug_path"]) && !empty($optGen["debug_path"])) ?
+            $optGen["debug_path"] : _CENTREON_LOG_;
 
         $this->errorType[self::TYPE_LOGIN] = $this->path . "/login.log";
         $this->errorType[self::TYPE_SQL] = $this->path . "/sql-error.log";
@@ -95,7 +92,7 @@ class CentreonUserLog
      * @param int $option
      * @return void
      */
-    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0)
+    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
     {
         /*
          * Construct alert message
@@ -126,7 +123,7 @@ class CentreonUserLog
      * @param int $uid
      * @return void
      */
-    public function setUID($uid)
+    public function setUID($uid): void
     {
         $this->uid = $uid;
     }
@@ -154,7 +151,9 @@ class CentreonUserLog
  */
 class CentreonLog
 {
-    // Level Types from \Psr\Log\LogLevel
+    /**
+     * Level Types from \Psr\Log\LogLevel
+     */
     public const LEVEL_DEBUG = LogLevel::DEBUG;
     public const LEVEL_NOTICE = LogLevel::NOTICE;
     public const LEVEL_INFO = LogLevel::INFO;
@@ -242,99 +241,99 @@ class CentreonLog
     }
 
     /**
-     * @param int $type TYPE_* constants
+     * @param int $logTypeId TYPE_* constants
      * @param string $message
      * @param array $customContext
      * @param Throwable|null $exception
      * @return void
      */
-    public function debug(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
+    public function debug(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_DEBUG, $message, $customContext, $exception);
+        $this->log($logTypeId, self::LEVEL_DEBUG, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type TYPE_* constants
+     * @param int $logTypeId TYPE_* constants
      * @param string $message
      * @param array $customContext
      * @param Throwable|null $exception
      * @return void
      */
-    public function notice(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
+    public function notice(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_NOTICE, $message, $customContext, $exception);
+        $this->log($logTypeId, self::LEVEL_NOTICE, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type TYPE_ * constants
+     * @param int $logTypeId TYPE_ * constants
      * @param string $message
      * @param array $customContext
      * @param Throwable|null $exception
      * @return void
      */
-    public function info(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
+    public function info(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_INFO, $message, $customContext, $exception);
+        $this->log($logTypeId, self::LEVEL_INFO, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type TYPE_* constants
+     * @param int $logTypeId TYPE_* constants
      * @param string $message
      * @param array $customContext
      * @param Throwable|null $exception
      * @return void
      */
-    public function warning(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
+    public function warning(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_WARNING, $message, $customContext, $exception);
+        $this->log($logTypeId, self::LEVEL_WARNING, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type TYPE_* constants
+     * @param int $logTypeId TYPE_* constants
      * @param string $message
      * @param array $customContext
      * @param Throwable|null $exception
      * @return void
      */
-    public function error(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
+    public function error(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_ERROR, $message, $customContext, $exception);
+        $this->log($logTypeId, self::LEVEL_ERROR, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type TYPE_* constants
+     * @param int $logTypeId TYPE_* constants
      * @param string $message
      * @param array $customContext
      * @param Throwable|null $exception
      * @return void
      */
-    public function critical(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
+    public function critical(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_CRITICAL, $message, $customContext, $exception);
+        $this->log($logTypeId, self::LEVEL_CRITICAL, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type TYPE_* constants
+     * @param int $logTypeId TYPE_* constants
      * @param string $message
      * @param array $customContext
      * @param Throwable|null $exception
      * @return void
      */
-    public function alert(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
+    public function alert(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_ALERT, $message, $customContext, $exception);
+        $this->log($logTypeId, self::LEVEL_ALERT, $message, $customContext, $exception);
     }
 
     /**
-     * @param int $type TYPE_* constants
+     * @param int $logTypeId TYPE_* constants
      * @param string $message
      * @param array $customContext
      * @param Throwable|null $exception
      * @return void
      */
-    public function emergency(int $type, string $message, array $customContext = [], ?Throwable $exception = null): void
+    public function emergency(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
-        $this->log($type, self::LEVEL_EMERGENCY, $message, $customContext, $exception);
+        $this->log($logTypeId, self::LEVEL_EMERGENCY, $message, $customContext, $exception);
     }
 
     /**
