@@ -45,6 +45,6 @@ runs:
         working-dir: ${{ inputs.frontend_directory }}
 
     - name: Run Biome
-      run: pnpom lint:ci --reporter=github
+      run: pnpm lint:ci --reporter=github
       working-directory: ${{ inputs.frontend_directory }}
       shell: bash
