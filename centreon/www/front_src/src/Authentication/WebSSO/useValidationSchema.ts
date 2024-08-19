@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { type Schema, array, boolean, string } from 'yup';
+import { type Schema, array, boolean, object, string } from 'yup';
 
 import { WebSSOConfiguration } from './models';
 import {

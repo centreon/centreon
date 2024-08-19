@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { array, boolean, number, object } from 'yup';
+import { array, boolean, number, object, string, type Schema } from 'yup';
 import { PasswordSecurityPolicy } from './models';
 import { oneHour, sevenDays, twelveMonths } from './timestamps';
 import {
@@ -13,7 +13,7 @@ import {
   labelRequired
 } from './translatedLabels';
 
-const useValidationSchema = (): Yup.SchemaOf<PasswordSecurityPolicy> => {
+const useValidationSchema = (): Schema<PasswordSecurityPolicy> => {
   const { t } = useTranslation();
 
   return object().shape({

@@ -1,7 +1,7 @@
 import HeaderHostsSpecs from './Header.hosts';
 import HeaderPollers from './Header.poller';
 import HeaderServicesSpecs from './Header.services';
-import { initialize } from './Header.testutils';
+import { initialize } from './Header.utils';
 import HeaderUserMenu from './Header.usermenu';
 
 describe('Header', () => {
