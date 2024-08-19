@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "VmWare (V6) parameters schema",
+    "type": "object",
+    "required": [
+        "parameters"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "port",
+                "vcenters"
+            ],
+            "properties": {
+                "port": {
+                    "type": "integer"
+                },
+                "vcenters": {
+                    "type": "array",
+                    "required": [
+                        "name",
+                        "url",
+                        "username",
+                        "password"
+                    ],
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "url": {
+                                "type": "string"
+                            },
+                            "username": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "password": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

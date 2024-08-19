@@ -46,6 +46,7 @@ export interface InputProps {
   };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
+    chipColor?: string;
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;

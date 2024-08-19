@@ -936,7 +936,7 @@ class GlpiRestApiProvider extends AbstractProvider
             'host_problems' => $host_problems,
             'service_problems' => $service_problems,
             'ticket_value' => $ticketId,
-            'subject' => $ticketArguments[self::ARG_TITLE],
+            'subject' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]],
             'data_type' => self::DATA_TYPE_JSON,
             'data' => json_encode($ticketArguments)
         ));

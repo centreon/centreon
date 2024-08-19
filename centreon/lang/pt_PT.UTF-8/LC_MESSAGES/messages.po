@@ -17885,6 +17885,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Display resources with these status types"
 # msgstr ""
+
 # msgid  "All KPIs on this Business Activity are working fine."
 # msgstr ""
 
@@ -17935,3 +17936,142 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Critical KPIs"
 # msgstr ""
+
+# msgid "Additional connector configurations"
+# msgstr ""
+
+# msgid "Types"
+# msgstr ""
+
+# msgid "Updated by"
+# msgstr ""
+
+# msgid "Edit connector configuration"
+# msgstr ""
+
+# msgid "More filters"
+# msgstr ""
+
+# msgid "Pollers"
+# msgstr ""
+
+# msgid "Delete additional connector configuration"
+# msgstr ""
+
+# msgid "The {{name}} additional connector configuration will be permanently deleted."
+# msgstr ""
+
+# msgid "The corresponding connectors will not work anymore."
+# msgstr ""
+
+# msgid "Additional connector configuration deleted"
+# msgstr ""
+
+# msgid "Additional connector configuration duplicated"
+# msgstr ""
+
+# msgid "Additional connector configuration created"
+# msgstr ""
+
+# msgid "Additional connector configuration updated"
+# msgstr ""
+
+# msgid "Duplicate connector configuration"
+# msgstr ""
+
+# msgid "The name can be at most 50 characters long"
+# msgstr ""
+
+# msgid "The name should be at least 3 characters long"
+# msgstr ""
+
+# msgid "Create additional connector configuration"
+# msgstr ""
+
+# msgid "Update additional connector configuration"
+# msgstr ""
+
+# msgid "Select poller(s)"
+# msgstr ""
+
+# msgid "Password"
+# msgstr ""
+
+# msgid "Add parameter"
+# msgstr ""
+
+# msgid "Url"
+# msgstr ""
+
+# msgid "Username"
+# msgstr ""
+
+# msgid "Add vCenter/ESX"
+# msgstr ""
+
+# msgid "Remove vCenter/ESX"
+# msgstr ""
+
+# msgid "At least one poller is required"
+# msgstr ""
+
+# msgid "At least one vCenter is required"
+# msgstr ""
+
+# msgid "Please enter a valid URL or IP address"
+# msgstr ""
+
+# msgid "Invalid port number"
+# msgstr ""
+
+# msgid "The name of the vCenter should be unique"
+# msgstr ""
+
+# msgid "vCenter name"
+# msgstr ""
+
+# msgid "Do you want to quit without saving the changes?"
+# msgstr ""
+
+# msgid "Your form has unsaved changes"
+# msgstr ""
+
+
+# msgid "Error while adding an additional connector configuration"
+# msgstr ""
+
+# msgid "You are not allowed to access additional connector configurations"
+# msgstr ""
+
+# msgid "An additional connector configuration configuration of type '%s' is already associated with poller ID(s) '%s'"
+# msgstr ""
+
+# msgid "Duplicates not allowed for property '%s'"
+# msgstr ""
+
+# msgid "'%s' must contain at least one element"
+# msgstr ""
+
+# msgid "Error while retrieving an additional connector configuration"
+# msgstr ""
+
+# msgid "The additional connector configuration name '%s' already exists"
+# msgstr ""
+
+# msgid "Error while deleting an additional connector configuration"
+# msgstr ""
+
+#  msgid "You don't have sufficient permissions for this action"
+#  msgstr ""
+
+#  msgid "Error while searching for additional connector configurations"
+#  msgstr ""
+
+#  msgid "Error while searching for available pollers for type '%s'"
+#  msgstr ""
+
+#  msgid "Error while updating an additional connector configuration"
+#  msgstr ""
+
+#  msgid "Changing type of an existing additional connector configuration is not allowed"
+#  msgstr ""

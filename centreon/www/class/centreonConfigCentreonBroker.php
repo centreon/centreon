@@ -1756,7 +1756,7 @@ class CentreonConfigCentreonBroker
         $client = new Symfony\Component\HttpClient\CurlHttpClient();
         $headers = [
             'Content-Type' => 'application/json',
-            'X-AUTH-TOKEN' => $_COOKIE['PHPSESSID'],
+            'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
         ];
         $parameters = ['brokerId' => $configId];
         $basePath ? $parameters['base_uri'] = $basePath : null;

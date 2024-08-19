@@ -68,7 +68,7 @@ export const buildResourcesEndpoint = ({
 
     return [
       {
-        name: 'with_ticket_opened',
+        name: 'only_with_opened_tickets',
         value: !!equals(displayResources, 'withTicket')
       }
     ];

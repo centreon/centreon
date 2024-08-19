@@ -478,11 +478,8 @@ When('the dashboard administrator selects more than two metric units', () => {
 });
 
 Then(
-  'a message should be displayed indicating that the user can only select a maximum of two metric units',
+  'a message should be displayed indicating that thresholds are disabled',
   () => {
-    cy.contains('span', 'You can select a maximum of 2 metric units.').should(
-      'exist'
-    );
     cy.contains(
       'span',
       'Thresholds are automatically hidden when you select several metrics with different units.'
@@ -636,20 +633,17 @@ Then(
   }
 );
 
-When('the dashboard administrator clicks the "Display as Bar Chart" button', () => {
-  cy.getByTestId({ testId: '-summary' }).eq(2).click();
-  cy.getByLabel({
-    label: 'Bar',
-    tag: 'div'
-  }).click();
-});
+When(
+  'the dashboard administrator clicks the "Display as Bar Chart" button',
+  () => {
+    cy.getByTestId({ testId: '-summary' }).eq(2).click();
+    cy.getByLabel({
+      label: 'Bar',
+      tag: 'div'
+    }).click();
+  }
+);
 
 Then('the graph should be displayed as a bar chart', () => {
-  cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
-    const dataTestId = $el.attr("data-testid");
-    const height = $el.attr("height");
-    if (!dataTestId.endsWith("null") && height !== "0") {
-      cy.wrap($el).should("exist").and("be.visible");
-    }
-  });
+  cy.get('path[data-testid*="stacked-bar-"]').should('exist');
 });

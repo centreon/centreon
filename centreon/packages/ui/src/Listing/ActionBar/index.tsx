@@ -107,8 +107,7 @@ const MemoListingActionBar = ({
   widthToMoveTablePagination = 550,
   actionsBarMemoProps = [],
   viewerModeConfiguration,
-  listingVariant,
-  visualizationActions
+  listingVariant
 }: Props): JSX.Element => {
   const marginWidthTableListing = 30;
   const { classes, cx } = useStyles({
@@ -137,7 +136,6 @@ const MemoListingActionBar = ({
         <div className={classes.actions}>
           <div>{actions}</div>
         </div>
-        {visualizationActions && <div>{visualizationActions}</div>}
         <div className={classes.subContainer}>
           {!isEmpty(viewerModeConfiguration) &&
             !isNil(viewerModeConfiguration) && (
@@ -225,7 +223,6 @@ const MemoListingActionBar = ({
       ),
       columnConfiguration,
       customPaginationClassName,
-      visualizationActions,
       ...actionsBarMemoProps
     ]
   });
@@ -248,8 +245,7 @@ const ListingActionBar = ({
   widthToMoveTablePagination,
   customPaginationClassName,
   listingVariant,
-  viewerModeConfiguration,
-  visualizationActions
+  viewerModeConfiguration
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -273,7 +269,6 @@ const ListingActionBar = ({
       paginated={paginated}
       totalRows={totalRows}
       viewerModeConfiguration={viewerModeConfiguration}
-      visualizationActions={visualizationActions}
       widthToMoveTablePagination={widthToMoveTablePagination}
       onLimitChange={onLimitChange}
       onPaginate={onPaginate}

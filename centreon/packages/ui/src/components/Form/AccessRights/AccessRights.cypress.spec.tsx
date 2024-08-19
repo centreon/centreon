@@ -134,15 +134,6 @@ describe('Access rights', () => {
     cy.findByTestId(`remove-Kathy Schmitt`).should(
       'have.attr',
       'data-removed',
-      'true'
-    );
-    cy.contains(labels.list.removed).should('be.visible');
-
-    cy.findByTestId(`remove-Kathy Schmitt`).click();
-
-    cy.findByTestId(`remove-Kathy Schmitt`).should(
-      'have.attr',
-      'data-removed',
       'false'
     );
     cy.contains(labels.list.removed).should('not.exist');
@@ -175,6 +166,7 @@ describe('Access rights', () => {
   it('submits the new acces rights list with the updated contact', () => {
     const { save } = initialize({});
 
+    cy.findByTestId(`remove-Kathy Schmitt`).click();
     cy.findByTestId(`role-Kathy Schmitt`).parent().click();
 
     cy.get('li[data-value="editor"]').click();
@@ -263,7 +255,7 @@ describe('Access rights', () => {
 
     cy.findByTestId('role-Entity Group 10').should('have.value', 'editor');
     cy.contains(labels.list.added).should('be.visible');
-    cy.contains('1 added').should('be.visible');
+    cy.contains('2 added').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -276,7 +268,7 @@ describe('Access rights', () => {
 
     cy.waitForRequest('@getContactGroups');
 
-    cy.contains('Entity Group 10').click();
+    cy.contains('Entity Group 11').click();
     cy.findByTestId('add_role').parent().click();
     cy.get('li[data-value="editor"]').click();
     cy.findByTestId('add').click();
@@ -288,7 +280,7 @@ describe('Access rights', () => {
 
     cy.findByTestId('remove-Linda Schultz').click();
 
-    cy.contains('1 added | 1 updated | 1 removed').should('be.visible');
+    cy.contains('3 added | 1 updated | 1 removed').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -301,10 +293,10 @@ describe('Access rights', () => {
 
     cy.waitForRequest('@getContacts');
 
-    cy.contains('Entity 10').click();
+    cy.contains('Entity 11').click();
     cy.findByLabelText(labels.add.autocompleteContact).should(
       'have.value',
-      'Entity  10'
+      'Entity  11'
     );
 
     cy.contains(labels.add.contactGroup).click();
@@ -324,18 +316,18 @@ describe('Access rights', () => {
 
     cy.waitForRequest('@getContacts');
 
-    cy.contains('Entity 10').click();
+    cy.contains('Entity 11').click();
 
     cy.findByTestId('add').click();
 
-    cy.contains('Entity 10').should('be.visible');
+    cy.contains('Entity 11').should('be.visible');
 
     cy.contains(labels.list.added).should('be.visible');
 
-    cy.findByTestId('remove-Entity 10').click();
+    cy.findByTestId('remove-Entity 11').click();
 
-    cy.contains('Entity 10').should('not.exist');
-    cy.contains(labels.list.added).should('not.exist');
+    cy.contains('Entity 11').should('not.exist');
+    cy.contains('3 Added').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -347,7 +339,7 @@ describe('Access rights', () => {
 
     cy.waitForRequest('@getContacts');
 
-    cy.contains('Entity 10').click();
+    cy.contains('Entity 11').click();
 
     cy.findByTestId('add_role').parent().click();
     cy.get('li[data-value="editor"]').click();
@@ -356,7 +348,7 @@ describe('Access rights', () => {
 
     cy.waitForRequest('@getContacts');
 
-    cy.contains('Entity 11').click();
+    cy.contains('Entity 12').click();
 
     cy.findByTestId('add_role').should('have.value', 'viewer');
 
@@ -371,13 +363,13 @@ describe('Access rights', () => {
 
     cy.waitForRequest('@getContacts');
 
-    cy.contains('Entity 10').click();
+    cy.contains('Entity 11').click();
 
     cy.findByTestId('add').click();
 
-    cy.contains('Entity 10').should('be.visible');
+    cy.contains('Entity 11').should('be.visible');
 
-    cy.findByTestId('role-Entity 10').should('have.value', 'viewer');
+    cy.findByTestId('role-Entity 11').should('have.value', 'viewer');
     cy.contains(labels.list.added)
       .should('be.visible')
       .then(() => {

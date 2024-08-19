@@ -7,7 +7,7 @@ import { mergeConfig } from 'vite';
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
   addons: [
-    '@storybook/addon-themes',
+    getAbsolutePath("@storybook/addon-themes"),
     getAbsolutePath("@storybook/addon-essentials"),
     {
       name: "@storybook/addon-docs",
@@ -21,7 +21,6 @@ const config: StorybookConfig = {
       },
     },
     getAbsolutePath("@storybook/addon-a11y"),
-    getAbsolutePath("@storybook/addon-interactions"),
     getAbsolutePath("storybook-addon-mock"),
     getAbsolutePath("storybook-dark-mode")
   ],
