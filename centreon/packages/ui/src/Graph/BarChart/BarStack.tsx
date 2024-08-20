@@ -64,8 +64,8 @@ const BarStack = ({
             const isNegativeValue = gt(0, bar.bar[1]);
 
             const barRoundedProps = {
-              [isHorizontal ? 'top' : 'right']: shouldApplyRadiusOnTop,
-              [isHorizontal ? 'bottom' : 'left']: shouldApplyRadiusOnBottom
+              [isHorizontal ? 'bottom' : 'left']: shouldApplyRadiusOnBottom,
+              [isHorizontal ? 'top' : 'right']: shouldApplyRadiusOnTop
             };
 
             return (
