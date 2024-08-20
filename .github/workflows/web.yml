@@ -324,8 +324,8 @@ jobs:
       matrix:
         include:
           - project: centreon-web
-            distrib: centos7
-            distrib_rpm: el7
+            distrib: alma8
+            distrib_rpm: el8
             module_name: web
 
     steps:
