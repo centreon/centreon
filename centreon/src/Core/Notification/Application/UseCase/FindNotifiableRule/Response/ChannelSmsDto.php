@@ -21,11 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Domain\Model;
+namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
 
-enum NotificationChannel: string
+final class ChannelSmsDto
 {
-    case Email = 'Email';
-    case Sms = 'Sms';
-    case Slack = 'Slack';
+    public function __construct(
+        public string $phoneNumber = '',
+        public string $message = '',
+    ) {
+    }
 }

@@ -23,17 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\AddNotification;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
@@ -44,19 +39,20 @@ use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\AddNotification\AddNotification;
 use Core\Notification\Application\UseCase\AddNotification\AddNotificationRequest;
+use Core\Notification\Application\UseCase\AddNotification\Factory\NewNotificationFactory;
+use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationResourceFactory;
 use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationValidator;
+use Core\Notification\Domain\Model\NewNotification;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationHostEvent;
-use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\HostEvent;
+use Core\Notification\Domain\Model\Message;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\ConfigurationResource;
-use Core\Notification\Domain\Model\ConfigurationTimePeriod;
-use Core\Notification\Domain\Model\ConfigurationUser;
+use Core\Notification\Domain\Model\TimePeriod;
+use Core\Notification\Domain\Model\Contact;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\TimePeriod\Domain\Model\TimePeriod;
-use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
@@ -84,27 +80,25 @@ beforeEach(function (): void {
         $this->readNotificationRepository = $this->createMock(ReadNotificationRepositoryInterface::class),
         $this->writeNotificationRepository = $this->createMock(WriteNotificationRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->contactRepository = $this->createMock(ContactRepositoryInterface::class),
-        $this->contactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
         $this->resourceRepositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
+        $this->newNotificationFactory = $this->createMock(NewNotificationFactory::class),
+        $this->notificationResourceFactory = $this->createMock(NotificationResourceFactory::class),
+        $this->notificationValidator = $this->createMock(NotificationValidator::class),
         $this->user = $this->createMock(ContactInterface::class),
-        $this->readTimeperiodRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class),
-        $this->validator = $this->createMock(NotificationValidator::class)
     );
 
     $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
 
-    $this->timeperiod = new TimePeriod($this->request->timeperiodId, 'timeperiod-name', 'timeperiod-alias');
     $this->notification = new Notification(
         1,
         $this->request->name,
-        $this->timeperiodLight = new ConfigurationTimePeriod($this->request->timeperiodId, 'timeperiod-name'),
+        $this->timeperiodLight = new TimePeriod($this->request->timeperiodId, 'timeperiod-name'),
         $this->request->isActivated
     );
     $this->messages = [
-        new NotificationMessage(
-            NotificationChannel::from($this->request->messages[0]['channel']),
+        new Message(
+            Channel::from($this->request->messages[0]['channel']),
             $this->request->messages[0]['subject'],
             $this->request->messages[0]['message'],
             $this->request->messages[0]['formatted_message'],
@@ -113,7 +107,7 @@ beforeEach(function (): void {
     $this->resources = [
         $this->hostgroupResource = new NotificationResource(
             'hostgroup',
-            NotificationHostEvent::class,
+            HostEvent::class,
             array_map(
                 (fn($resourceId) => new ConfigurationResource($resourceId, "resource-name-{$resourceId}")),
                 $this->request->resources[0]['ids']
@@ -123,12 +117,12 @@ beforeEach(function (): void {
         ),
     ];
     $this->users = array_map(
-        (fn($userId) => new ConfigurationUser($userId, "user_name_{$userId}", "email_{$userId}@centreon.com")),
+        (fn($userId) => new Contact($userId, "user_name_{$userId}", "email_{$userId}@centreon.com")),
         $this->request->users
     );
 
     $this->contactGroups = array_map(
-        (fn($contactGroupIds) => new ContactGroup($contactGroupIds, "user_name_{$contactGroupIds}")),
+        (fn($contactGroupIds) => new ContactGroup($contactGroupIds, "user_name_{$contactGroupIds}", "alias_{$contactGroupIds}")),
         $this->request->contactGroups
     );
 });
@@ -138,15 +132,15 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->readNotificationRepository
+    $this->newNotificationFactory
         ->expects($this->once())
-        ->method('existsByName')
+        ->method('create')
         ->willThrowException(new \Exception());
     $this->readTimeperiodRepository
         ->expects($this->exactly(0))
         ->method('exists');
 
-    $this->validator
+    $this->notificationValidator
         ->expects($this->once())
         ->method('validateUsersAndContactGroups');
 
@@ -177,10 +171,10 @@ it('should present an InvalidArgumentResponse when name is already used', functi
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->readNotificationRepository
+    $this->newNotificationFactory
         ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(true);
+        ->method('create')
+        ->willThrowException(NotificationException::nameAlreadyExists());
 
     ($this->useCase)($this->request, $this->presenter);
 
@@ -190,46 +184,28 @@ it('should present an InvalidArgumentResponse when name is already used', functi
         ->toBe(NotificationException::nameAlreadyExists()->getMessage());
 });
 
-it('should present an InvalidArgumentResponse when a field assert failed', function (): void {
+it('should present an InvalidArgumentResponse if an error is generated when creating a notification resource.', function
+():
+void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->readNotificationRepository
+
+    $newNotification = new NewNotification(
+        $this->request->name,
+        new TimePeriod(1, ''),
+        $this->request->isActivated
+    );
+
+    $this->newNotificationFactory
+        ->method('create')
+        ->willReturn($newNotification);
+
+    $this->notificationResourceFactory
         ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(false);
-
-    $this->request->name = '';
-    $expectedException = AssertionException::notEmptyString('NewNotification::name');
-
-    ($this->useCase)($this->request, $this->presenter);
-
-    expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe($expectedException->getMessage());
-});
-
-it('should throw an InvalidArgumentResponse if at least one of the resource IDs does not exist', function (): void {
-    $this->user
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->resourceRepositoryProvider
-        ->method('getRepository')
-        ->willReturn($this->resourceRepository);
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-    $this->readNotificationRepository
-        ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(false);
-    $this->resourceRepository
-        ->expects($this->atMost(2))
-        ->method('exist')
-        ->willReturn([$this->request->resources[0]['ids'][0]]);
+        ->method('createNotificationResources')
+        ->willThrowException(NotificationException::invalidId('resource.ids'));
 
     ($this->useCase)($this->request, $this->presenter);
 
@@ -238,6 +214,7 @@ it('should throw an InvalidArgumentResponse if at least one of the resource IDs 
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(NotificationException::invalidId('resource.ids')->getMessage());
 });
+
 
 it('should throw an InvalidArgumentResponse if at least one resource ID is not provided', function (): void {
     $this->request->resources[0]['ids'] = [];
@@ -271,7 +248,7 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
 
     $this->request->users = [10,12];
 
-    $this->validator
+    $this->notificationValidator
         ->expects($this->once())
         ->method('validateUsersAndContactGroups')
         ->willThrowException(NotificationException::invalidId('users'));
@@ -379,65 +356,40 @@ it('should present an ErrorResponse if the newly created service severity cannot
     
     $this->user
         ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->resourceRepositoryProvider
-        ->expects($this->atLeast(1))
-        ->method('getRepository')
-        ->willReturn($this->resourceRepository);
-    $this->resourceRepository
-        ->expects($this->atLeast(1))
-        ->method('eventEnum')
-        ->willReturn(NotificationHostEvent::class);
-    $this->resourceRepository
-        ->expects($this->atLeast(1))
-        ->method('eventEnumConverter')
-        ->willReturn(NotificationHostEventConverter::class);
-    $this->resourceRepository
-        ->expects($this->atLeast(1))
-        ->method('resourceType')
-        ->willReturn('hostgroup');
-
-    $this->user
-        ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
 
-    $this->readNotificationRepository
+    $this->newNotificationFactory
         ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(false);
+        ->method('create');
 
-    $this->resourceRepository
+    $this->notificationResourceFactory
         ->expects($this->once())
-        ->method('exist')
-        ->willReturn($this->request->resources[0]['ids']);
-    $this->contactRepository
-        ->expects($this->never())
-        ->method('exist')
-        ->willReturn($this->request->users);
-    $this->contactGroupRepository
-        ->expects($this->never())
-        ->method('findByIds')
-        ->willReturn(
-            [
-                new ContactGroup($this->request->contactGroups[0], 'contactgroup'),
-                new ContactGroup($this->request->contactGroups[1], 'contactgroup_1')
-            ]
-        );
+        ->method('createNotificationResources');
+
+    $this->dataStorageEngine
+        ->expects($this->once())
+        ->method('startTransaction');
+
     $this->writeNotificationRepository
         ->expects($this->once())
-        ->method('add')
-        ->willReturn(1);
+        ->method('addNewNotification');
+
     $this->writeNotificationRepository
         ->expects($this->once())
-        ->method('addMessages');
+        ->method('addMessagesToNotification');
+
     $this->writeNotificationRepository
         ->expects($this->once())
-        ->method('addUsers');
-    $this->resourceRepository
+        ->method('addUsersToNotification');
+
+    $this->writeNotificationRepository
         ->expects($this->once())
-        ->method('add');
+        ->method('addContactGroupsToNotification');
+
+    $this->dataStorageEngine
+        ->expects($this->once())
+        ->method('commitTransaction');
 
     $this->readNotificationRepository
         ->expects($this->once())
@@ -459,67 +411,9 @@ it('should return created object on success', function (): void {
         ->method('validateUsersAndContactGroups');
 
     $this->user
-        ->expects($this->atLeast(2))
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->resourceRepositoryProvider
-        ->expects($this->atLeast(2))
-        ->method('getRepository')
-        ->willReturn($this->resourceRepository);
-    $this->resourceRepository
-        ->expects($this->atLeast(1))
-        ->method('eventEnum')
-        ->willReturn(NotificationHostEvent::class);
-    $this->resourceRepository
-        ->expects($this->atLeast(1))
-        ->method('eventEnumConverter')
-        ->willReturn(NotificationHostEventConverter::class);
-    $this->resourceRepository
-        ->expects($this->atLeast(1))
-        ->method('resourceType')
-        ->willReturn('hostgroup');
-
-    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->readNotificationRepository
-        ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(false);
-    $this->resourceRepository
-        ->expects($this->once())
-        ->method('exist')
-        ->willReturn($this->request->resources[0]['ids']);
-    $this->contactRepository
-        ->expects($this->never())
-        ->method('exist')
-        ->willReturn($this->request->users);
-    $this->contactGroupRepository
-        ->expects($this->never())
-        ->method('findByIds')
-        ->willReturn(
-            [
-                new ContactGroup($this->request->contactGroups[0], 'contactgroup'),
-                new ContactGroup($this->request->contactGroups[1], 'contactgroup_1')
-            ]
-        );
-    $this->writeNotificationRepository
-        ->expects($this->once())
-        ->method('add')
-        ->willReturn(1);
-    $this->writeNotificationRepository
-        ->expects($this->once())
-        ->method('addMessages');
-    $this->writeNotificationRepository
-        ->expects($this->once())
-        ->method('addUsers');
-    $this->writeNotificationRepository
-        ->expects($this->once())
-        ->method('addContactGroups');
-    $this->resourceRepository
-        ->expects($this->once())
-        ->method('add');
     $this->readNotificationRepository
         ->expects($this->once())
         ->method('findById')
@@ -536,6 +430,10 @@ it('should return created object on success', function (): void {
         ->expects($this->once())
         ->method('findContactGroupsByNotificationId')
         ->willReturn($this->contactGroups);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->resourceRepositoryProvider
         ->expects($this->once())
         ->method('getRepositories')

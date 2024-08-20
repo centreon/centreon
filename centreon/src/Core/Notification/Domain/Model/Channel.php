@@ -23,10 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Notification\Domain\Model;
 
-enum NotificationServiceEvent
+enum Channel: string
 {
-    case Ok;
-    case Warning;
-    case Critical;
-    case Unknown;
+    case Email = 'Email';
+    case Sms = 'Sms';
+    case Slack = 'Slack';
 }

@@ -23,11 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
 
-final class ChannelSmsResponseDto
+final class ChannelsDto
 {
     public function __construct(
-        public string $phoneNumber = '',
-        public string $message = '',
+        public null|EmailDto $email = null,
+        public null|ChannelSlackDto $slack = null,
+        public null|ChannelSmsDto $sms = null,
     ) {
     }
 }

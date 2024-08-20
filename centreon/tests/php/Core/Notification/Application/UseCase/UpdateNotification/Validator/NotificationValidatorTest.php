@@ -19,15 +19,10 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
+namespace Tests\Core\Notification\Application\UseCase\UpdateNotification\Validator;
 
-final class ChannelSlackResponseDto
-{
-    public function __construct(
-        public string $slackChannel = '',
-        public string $message = '',
-    ) {
-    }
-}
+beforeEach(function(): void {
+});
+

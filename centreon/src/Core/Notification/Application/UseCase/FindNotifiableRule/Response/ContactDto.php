@@ -21,17 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response;
+namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
 
-final class NotifiableContactGroupDto
+final class ContactDto
 {
-    /**
-     * @param int $id
-     * @param string $name
-     */
     public function __construct(
-        public int $id = 0,
-        public string $name = '',
+        public string $fullName = '',
+        public string $emailAddress = '',
     ) {
     }
 }

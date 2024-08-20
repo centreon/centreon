@@ -25,6 +25,8 @@ namespace Core\Contact\Application\Repository;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Contact\Domain\Model\BasicContact;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadContactRepositoryInterface
 {
@@ -109,4 +111,34 @@ interface ReadContactRepositoryInterface
      * @return Contact[]
      */
     public function findAdminsByIds(array $contactIds): array;
+
+    /**
+     * Retrieve contacts based on given IDs.
+     *
+     * @param int[] $contactIds
+     *
+     * @throws \Throwable
+     *
+     * @return BasicContact[]
+     */
+    public function findByIds(array $contactIds): array;
+
+    /**
+     * Check existence of provided contacts
+     * Return an array of the existing user IDs out of the provided ones.
+     *
+     * @param int[] $contactIds
+     *
+     * @return int[]
+     */
+    public function retrieveExistingContactIds(array $contactIds): array;
+
+    /**
+     * Find contact ids by access groups.
+     *
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return BasicContact[]
+     */
+    public function findByAccessGroup(array $accessGroups): array;
 }

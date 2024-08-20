@@ -28,21 +28,25 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRule;
 use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRuleResponse;
-use Core\Notification\Domain\Model\ConfigurationTimePeriod;
-use Core\Notification\Domain\Model\ConfigurationUser;
+use Core\Notification\Domain\Model\Contact as NotificationContact;
+use Core\Notification\Domain\Model\TimePeriod;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\Message;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new FindNotifiableRulePresenterStub();
     $this->useCase = new FindNotifiableRule(
         $this->notificationRepository = $this->createMock(ReadNotificationRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
         $this->contact = $this->createMock(ContactInterface::class),
     );
 });
@@ -115,8 +119,6 @@ it(
     'should get the rule with ACL calculation when the user is not admin',
     function (): void {
         $this->contact->expects($this->atLeastOnce())
-            ->method('getId')->willReturn(1);
-        $this->contact->expects($this->atLeastOnce())
             ->method('hasTopologyRole')
             ->willReturnMap(
                 [[Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE, true]]
@@ -125,16 +127,16 @@ it(
         $notification = new Notification(
             1,
             'notification',
-            new ConfigurationTimePeriod(1, '24x7'),
+            new TimePeriod(1, '24x7'),
             false
         );
-        $notificationMessage = new NotificationMessage(
-            NotificationChannel::from('Slack'),
+        $notificationMessage = new Message(
+            Channel::from('Slack'),
             'Message subject',
             'Message content',
             '<p>Message content</p>'
         );
-        $notificationUser = new ConfigurationUser(3, 'test-user', 'test-email');
+        $notificationUser = new NotificationContact(3, 'test-user', 'test-email');
 
         $this->notificationRepository
             ->expects($this->once())
@@ -146,14 +148,18 @@ it(
             ->method('findMessagesByNotificationId')
             ->willReturn([$notificationMessage]);
 
+        $this->contact
+            ->expects($this->atLeastOnce())
+            ->method('isAdmin')
+            ->willReturn(false);
         $this->notificationRepository
             ->expects($this->once())
-            ->method('findUsersByNotificationId')
+            ->method('findUsersByNotificationIdAndAccessGroups')
             ->willReturn([$notificationUser]);
 
         $this->notificationRepository
             ->expects($this->once())
-            ->method('findContactGroupsByNotificationIdAndUserId')
+            ->method('findContactGroupsByNotificationIdAndAccessGroups')
             ->willReturn([]);
 
         ($this->useCase)(1, $this->presenter);
@@ -175,18 +181,18 @@ it(
             );
 
         $contactGroups = [
-            new ContactGroup(1, 'contactgroup_1'),
-            new ContactGroup(2, 'contactgroup_2'),
+            new ContactGroup(1, 'contactgroup_1', 'contactgroup_1'),
+            new ContactGroup(2, 'contactgroup_2', 'contactgroup_2'),
         ];
 
-        $notification = new Notification(1, 'notification', new ConfigurationTimePeriod(1, '24x7'), false);
-        $notificationMessage = new NotificationMessage(
-            NotificationChannel::from('Email'),
+        $notification = new Notification(1, 'notification', new TimePeriod(1, '24x7'), false);
+        $notificationMessage = new Message(
+            Channel::from('Email'),
             'Message subject',
             'Message content',
             '<p>Message content</p>'
         );
-        $notificationUser = new ConfigurationUser(3, 'test-user', 'test-email');
+        $notificationUser = new NotificationContact(3, 'test-user', 'test-email');
 
         $this->notificationRepository
             ->expects($this->once())
