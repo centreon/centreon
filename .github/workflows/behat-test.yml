@@ -52,7 +52,7 @@ jobs:
 
     env:
       IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
-      SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-centos7
+      SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-alma8s
 
     steps:
       - name: Checkout sources
@@ -110,7 +110,7 @@ jobs:
           rm -rf xunit-reports && mkdir xunit-reports
           sed \
             -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
-            -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-centos7:${{ env.IMAGE_TAG }}#g" \
+            -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-alma8:${{ env.IMAGE_TAG }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}

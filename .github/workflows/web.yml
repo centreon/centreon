@@ -491,7 +491,7 @@ jobs:
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-centos7
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma8
           image_version: ${{ github.head_ref || github.ref_name }}
           image_cypress_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
@@ -515,7 +515,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-centos7
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma8
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
