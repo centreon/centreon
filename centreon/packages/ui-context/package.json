@@ -9,6 +9,6 @@
   "scripts": {
     "lint": "biome check ./src/ --error-on-warnings",
     "lint:fix": "pnpm lint --fix",
-    "lint:ci": "biomne ci ./src/ --error-on-warnings"
+    "lint:ci": "biome ci ./src/ --error-on-warnings"
   }
 }
