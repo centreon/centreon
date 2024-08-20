@@ -556,7 +556,7 @@ Given('a dashboard containing a resource table widget', () => {
 });
 
 When('the dashboard administrator clicks on a random resource from the resource table', () => {
-  cy.get('[aria-label^="Select row"]').eq(0).click()
+  cy.get('[aria-label^="Select row"]').eq(0).click({force:true})
 });
 
 Then('the dashboard administrator clicks on the downtime button and submits', () => {
