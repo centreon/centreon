@@ -150,7 +150,7 @@ if ($preferences['host_group']) {
     $query3 = "SELECT DISTINCT 1 AS REALTIME, T1.service_id, T1.description, T1.state, T1.host_id, T2.name, T2.host_id
         FROM services T1, hosts T2" . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
         WHERE T1.enabled = 1 AND T1.host_id = T2.host_id
-            AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' " .
+            AND T1.description NOT LIKE 'ba\_%' AND T1.description NOT LIKE 'meta\_%' " .
         ($centreon->user->admin == 0
             ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
             ($grouplistStr != "" ? $grouplistStr : 0) . ")"
