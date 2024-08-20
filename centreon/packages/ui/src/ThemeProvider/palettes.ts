@@ -19,7 +19,7 @@ import {
   colorGrey800,
   colorGrey900,
   colorGrey950
-} from 'src/base/tokens/themes/base.tokens';
+} from '../base/tokens/themes/base.tokens';
 
 declare module '@mui/material/styles/createPalette' {
   interface TypeAction {
