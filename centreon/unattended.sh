@@ -574,7 +574,7 @@ function set_required_prerequisite() {
 				fi
 				;;
 			*)
-				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9), Debian 11/12 and Ubuntu Jammy. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 				;;
 			esac
 			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
