@@ -3,31 +3,66 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
-use Rector\Set\ValueObject\LevelSetList;
+use Rector\DeadCode\Rector\ClassMethod\RemoveNullTagValueNodeRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
+use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
+use Rector\EarlyReturn\Rector\If_\ChangeAndIfToEarlyReturnRector;
+use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
+use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
+use Rector\Php73\Rector\String_\SensitiveHereNowDocRector;
+use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
+use Rector\Php80\Rector\Property\NestedAnnotationToAttributeRector;
+use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
+use Rector\Php82\Rector\Class_\ReadOnlyClassRector;
+use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
+use Rector\TypeDeclaration\Rector\Class_\MergeDateTimePropertyTypeDeclarationRector;
+use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
+use Rector\TypeDeclaration\Rector\Closure\AddClosureVoidReturnTypeWhereNoReturnRector;
+use Rector\TypeDeclaration\Rector\FunctionLike\AddParamTypeSplFixedArrayRector;
+use Rector\Visibility\Rector\ClassMethod\ExplicitPublicClassMethodRector;
 
-return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->paths([
-        __DIR__ . '/api',
-//        __DIR__ . '/config',
-//        __DIR__ . '/src',
-//        __DIR__ . '/www',
-    ]);
-    $rectorConfig->sets([LevelSetList::UP_TO_PHP_82]);
-};
-
-//return RectorConfig::configure()
-//    ->withPaths([
+return RectorConfig::configure()
+    ->withPaths([
 //        __DIR__ . '/api',
 //        __DIR__ . '/config',
 //        __DIR__ . '/src',
-//    ])
-//    // uncomment to reach your current PHP version
-//    //->withPhpSets(php81: true)
-//    ->withRules([
-//        AddVoidReturnTypeWhereNoReturnRector::class,
-//    ])
+//        __DIR__ . '/www',
+
+    ])
+    ->withPhpSets(php82: true)
+    ->withPreparedSets(earlyReturn: true)
+    ->withSkip([
+        RemoveNullTagValueNodeRector::class,
+        RemoveUselessVarTagRector::class,
+        RemoveUselessParamTagRector::class,
+        RemoveUselessReturnTagRector::class,
+        MixedTypeRector::class,
+        MergeDateTimePropertyTypeDeclarationRector::class,
+        SensitiveHereNowDocRector::class,
+        ReadOnlyClassRector::class,
+        ReadOnlyPropertyRector::class,
+        ChangeOrIfContinueToMultiContinueRector::class,
+        ChangeAndIfToEarlyReturnRector::class,
+    ])
+    ->withRules([
+        AddVoidReturnTypeWhereNoReturnRector::class,
+        AddClosureVoidReturnTypeWhereNoReturnRector::class,
+        AddParamTypeSplFixedArrayRector::class,
+        NestedAnnotationToAttributeRector::class,
+        AttributeKeyToClassConstFetchRector::class,
+        ExplicitPublicClassMethodRector::class,
+        RemoveAlwaysElseRector::class,
+    ]);
 //    ->withSets([
 //        SymfonySetList::SYMFONY_64,
 //        SymfonySetList::SYMFONY_CODE_QUALITY,
 //        SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
 //    ]);
+
+// @see : https://github.com/rectorphp/rector/blob/main/docs/rector_rules_overview.md
+// @see : https://getrector.com/find-rule
+
+// to see
+// ClassPropertyAssignToConstructorPromotionRector
+// ClassOnObjectRector
