@@ -327,6 +327,9 @@ function get_os_information() {
 			detected_os_release="rocky-release-${OS_VERSIONID}"
 			mysql_service_name="mysqld"
 			;;
+		Ubuntu*)
+			detected_os_release="ubuntu-release-${OS_VERSIONID}"
+			mysql_service_name="mysqld"
 		*)
 			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
 			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distributions (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
