@@ -17923,12 +17923,6 @@ msgstr "Seuil"
 msgid "Show thresholds"
 msgstr "Afficher les seuils"
 
-msgid "Warning threshold"
-msgstr "Seuil Alerte"
-
-msgid "Critical threshold"
-msgstr "Seuil Critique"
-
 msgid "Custom"
 msgstr "Personnalisée"
 
@@ -18998,9 +18992,6 @@ msgstr "Tri des valeurs"
 
 msgid "By name"
 msgstr "Par nom"
-
-msgid "Display"
-msgstr "Affichage"
 
 msgid "All"
 msgstr "Toutes"
