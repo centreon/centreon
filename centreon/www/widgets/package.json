@@ -7,8 +7,9 @@
     "build:dev": "node build.js development",
     "watch": "node build.js watch",
     "build:analyze": "node build.js analyze",
-    "eslint": "eslint ./src --ext .ts,.tsx",
-    "eslint:fix": "pnpm eslint --fix",
+    "lint": "biome check ./src/ --error-on-warnings",
+    "lint:fix": "pnpm lint --fix",
+    "lint:ci": "biome ci ./src/ --error-on-warnings",
     "cypress:cli": "../../cypress/scripts/cypress-cli.sh",
     "cypress:cli:updateSnapshot": "../../cypress/scripts/cypress-cli.sh --env updateSnapshots=true",
     "cypress:ui": "cypress open --component --browser=chrome"

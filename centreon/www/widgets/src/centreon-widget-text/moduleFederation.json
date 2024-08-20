@@ -8,9 +8,7 @@
   "federatedComponentsConfiguration": [
     {
       "path": "/widgets/text",
-      "federatedComponents": [
-        "./text"
-      ]
+      "federatedComponents": ["./text"]
     }
   ],
   "moduleFederationName": "widgettext",

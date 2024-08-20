@@ -2,8 +2,8 @@ import { Module } from '@centreon/ui';
 
 import { CommonWidgetProps, Data, FormThreshold } from '../../models';
 
-import { ValueFormat, TopBottomSettings } from './models';
 import TopBottom from './TopBottom';
+import { TopBottomSettings, ValueFormat } from './models';
 
 interface Props extends CommonWidgetProps<object> {
   panelData: Data;
