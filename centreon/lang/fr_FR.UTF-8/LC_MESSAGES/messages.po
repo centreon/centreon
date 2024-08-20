@@ -17926,7 +17926,7 @@ msgstr "Afficher les seuils"
 msgid "Custom"
 msgstr "Personnalisée"
 
-msgid "Thresholds are automatically hidden if you select several metrics with different units."
+msgid "Thresholds are automatically hidden when you select several metrics with different units."
 msgstr "Les seuils sont automatiquement masqués lorsque vous sélectionnez des métriques aux unités différentes."
 
 msgid "Show description"
