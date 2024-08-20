@@ -19208,6 +19208,7 @@ msgstr "Sélectionner la règle (fournisseur de tickets)"
 
 msgid "Display resources with these status types"
 msgstr "Afficher les ressources avec ces types de statuts"
+
 msgid  "All KPIs on this Business Activity are working fine."
 msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
 
@@ -19255,3 +19256,127 @@ msgstr "Santé"
 
 msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
+
+msgid "Additional connector configurations"
+msgstr "Configuration supplémentaire de connecteurs"
+
+msgid "Types"
+msgstr "Types"
+
+msgid "Updated by"
+msgstr "Mis à jour par"
+
+msgid "Edit connector configuration"
+msgstr "Modifier la configuration de connecteur"
+
+msgid "More filters"
+msgstr "Plus de filtres"
+
+msgid "Delete additional connector configuration"
+msgstr "Supprimer la configuration supplémentaire de connecteur"
+
+msgid "The {{name}} additional connector configuration will be permanently deleted."
+msgstr "La configuration supplémentaire de connecteur {{name}} sera définitivement supprimée."
+
+msgid "The corresponding connectors will not work anymore."
+msgstr "Les connecteurs correspondants ne fonctionneront plus."
+
+msgid "Additional connector configuration deleted"
+msgstr "Configuration supplémentaire de connecteur supprimée"
+
+msgid "Additional connector configuration duplicated"
+msgstr "Configuration supplémentaire de connecteur dupliquée"
+
+msgid "Additional connector configuration created"
+msgstr "Configuration supplémentaire de connecteur créée"
+
+msgid "Additional connector configuration updated"
+msgstr "Configuration supplémentaire de connecteur mise à jour"
+
+msgid "Duplicate connector configuration"
+msgstr "Dupliquer la configuration de connecteur"
+
+msgid "The name can be at most 50 characters long"
+msgstr "Le nom peut comporter au maximum 50 caractères"
+
+msgid "The name should be at least 3 characters long"
+msgstr "Le nom doit comporter au moins 3 caractères"
+
+msgid "Create additional connector configuration"
+msgstr "Créer une configuration supplémentaire de connecteur"
+
+msgid "Update additional connector configuration"
+msgstr "Mettre à jour la configuration supplémentaire de connecteur"
+
+msgid "Select poller(s)"
+msgstr "Sélectionner le(s) collecteur(s)"
+
+msgid "Add parameter"
+msgstr "Ajouter un paramètre"
+
+msgid "Add vCenter/ESX"
+msgstr "Ajouter vCenter/ESX"
+
+msgid "Remove vCenter/ESX"
+msgstr "Supprimer vCenter/ESX"
+
+msgid "At least one poller is required"
+msgstr "Au moins un collecteur est requis"
+
+msgid "At least one vCenter is required"
+msgstr "Au moins un vCenter est requis"
+
+msgid "Please enter a valid URL or IP address"
+msgstr "Entrez une URL ou une adresse IP valide"
+
+msgid "Invalid port number"
+msgstr "Numéro de port invalide"
+
+msgid "The name of the vCenter should be unique"
+msgstr "Le nom du vCenter doit être unique"
+
+msgid "vCenter name"
+msgstr "Nom du vCenter"
+
+msgid "Do you want to quit without saving the changes?"
+msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
+
+
+msgid "Error while adding an additional connector configuration"
+msgstr "Erreur lors de l'ajout d'une configuration additionnelle de connecteur"
+
+msgid "You are not allowed to access additional connector configurations"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations additionnelles de connecteurs"
+
+msgid "An additional connector configuration of type %s is already associated with poller ID(s) '%s'"
+msgstr "Une configuration additionnelle de connecteur de type %s est déjà associée au(x) ID(s) de collecteur(s) '%s'"
+
+msgid "Duplicates not allowed for property '%s'"
+msgstr "Doublons non autorisés pour la propriété '%'"
+
+msgid "'%s' must contain at least one element"
+msgstr "'%s' doit contenir au moins un élément"
+
+msgid "Error while retrieving an additional connector configuration"
+msgstr "Erreur durant la récupération d'une configuration additionnelle de connecteur"
+
+msgid "The additional connector configuration name '%s' already exists"
+msgstr "Le nom de configuration additionnelle de connecteur '%s' existe déjà"
+
+msgid "Error while deleting an additional connector configuration"
+msgstr "Erreur lors de la suppression d'une configuration additionelle de connecteur"
+
+msgid "You don't have sufficient permissions for this action"
+msgstr "Vous ne disposez pas de droits suffisants pour cette action"
+
+msgid "Error while searching for additional connector configurations"
+msgstr "Erreur lors de la recherche de configurations additionnelles de connecteurs"
+
+msgid "Error while searching for available pollers for type '%s'"
+msgstr "Erreur lors de la recherche de collecteurs disponibles pour le type '%s'"
+
+msgid "Error while updating an additional connector configuration"
+msgstr "Erreur lors de la mise à jour d'une configuration additionnelle de connecteur"
+
+msgid "Changing type of an existing additional connector configuration is not allowed"
+msgstr "Changer le type d'une configuration additionnelle de connecteur existante n'est pas autorisé"

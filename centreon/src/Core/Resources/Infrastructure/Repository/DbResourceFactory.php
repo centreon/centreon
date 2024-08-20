@@ -70,6 +70,7 @@ class DbResourceFactory
             $fqdn = $record['parent_fqdn'];
 
             $parent = (new ResourceEntity())
+                ->setResourceId((int) $record['parent_resource_id'])
                 ->setId((int) $record['parent_id'])
                 ->setName($name)
                 ->setAlias($alias)
@@ -124,6 +125,7 @@ class DbResourceFactory
         $information = $record['output'];
 
         $resource = (new ResourceEntity())
+            ->setResourceId((int) $record['resource_id'])
             ->setType($resourceType)
             ->setParent($parent)
             ->setStatus($status)

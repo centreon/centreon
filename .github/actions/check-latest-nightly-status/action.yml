@@ -24,5 +24,5 @@ runs:
         echo "Last nightly run details:"
         echo "$lastNightlyRunDetails"
 
-        echo "last_nightly_result=$(echo "$lastNightlyRunDetails" | jq .r '.[0].conclusion')" >> $GITHUB_OUTPUT
+        echo "last_nightly_result=$(echo "$lastNightlyRunDetails" | jq -r '.[0].conclusion')" >> $GITHUB_OUTPUT
       shell: bash

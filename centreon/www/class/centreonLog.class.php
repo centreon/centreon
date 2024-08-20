@@ -129,22 +129,34 @@ class CentreonUserLog
     }
 }
 
+/**
+ * Class
+ *
+ * @class CentreonLog
+ */
 class CentreonLog
 {
+    public const TYPE_LOGIN = 1;
+    public const TYPE_SQL = 2;
+    public const TYPE_LDAP = 3;
+    public const TYPE_UPGRADE = 4;
+    public const TYPE_PLUGIN_PACK_MANAGER = 5;
+
+    /** @var array */
     private $errorType;
+
+    /** @var string */
     private $path;
 
-    /*
-     * Constructor
+    /**
+     * CentreonLog constructor
+     *
+     * @param array $customLogs
      */
-
-    public function __construct($customLogs = array())
+    public function __construct($customLogs = [])
     {
         $this->errorType = array();
 
-        /*
-         * Init log Directory
-         */
         $this->path = _CENTREON_LOG_;
 
         $this->errorType[1] = $this->path . "/login.log";
@@ -161,10 +173,24 @@ class CentreonLog
         }
     }
 
-    /*
-     * Function for writing logs
+    /**
+     * Factory
+     * @param array $customLogs
+     * @return CentreonLog
      */
+    public static function create(array $customLogs = []): CentreonLog
+    {
+        return new CentreonLog($customLogs);
+    }
 
+    /**
+     * @param int $id TYPE_* constants
+     * @param string $str
+     * @param int $print
+     * @param int $page
+     * @param int $option
+     * @return void
+     */
     public function insertLog($id, $str, $print = 0, $page = 0, $option = 0)
     {
         /*

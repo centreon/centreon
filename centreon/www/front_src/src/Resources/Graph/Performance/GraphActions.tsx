@@ -1,5 +1,6 @@
 import { MouseEvent, MutableRefObject, useState } from 'react';
 
+import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +17,7 @@ import {
 } from '@centreon/ui';
 
 import FederatedComponent from '../../../components/FederatedComponents';
+import { selectedResourceDetailsEndpointDerivedAtom } from '../../Details/detailsAtoms';
 import { ResourceDetails } from '../../Details/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
@@ -65,6 +67,10 @@ const GraphActions = ({
 
   const { format } = useLocaleDateTimeFormat();
   const navigate = useNavigate();
+
+  const resourceDetailsEndPoint = useAtomValue(
+    selectedResourceDetailsEndpointDerivedAtom
+  );
 
   const openSizeExportMenu = (event: MouseEvent<HTMLButtonElement>): void => {
     setMenuAnchor(event.currentTarget);
@@ -161,9 +167,10 @@ const GraphActions = ({
           <FederatedComponent
             end={end}
             path="/anomaly-detection/modal"
-            resource={resource}
+            resourceEndpoint={resourceDetailsEndPoint}
             start={start}
             styleMenuSkeleton={{ height: 0, width: 0 }}
+            type={resource?.type}
           />
           <Menu
             keepMounted

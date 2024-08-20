@@ -14,6 +14,11 @@ on:
         required: true
         type: string
         description: 'The frontend dependencies lock file path'
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
 
 jobs:
   cypress-component-test-list:
@@ -23,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: List of specs
         id: list-specs
@@ -42,7 +47,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
@@ -75,7 +80,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
@@ -87,6 +92,19 @@ jobs:
           pattern: ${{ inputs.name }}-test-coverage-*
           path: .nyc_output/
           merge-multiple: true
+
+      - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        if: ${{ github.event_name == 'pull_request' || github.ref_name == 'develop' }}
+        with:
+          aws-region: eu-west-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Retrieve dynamic code coverages file
+        shell: bash
+        if: ${{ github.event_name == 'pull_request' || github.ref_name == 'develop'}}
+        run: |
+          aws s3 cp s3://centreon-lighthouse-report/baseCodeCoverages.json /tmp/
 
       - name: Merge coverage reports
         run: |
@@ -128,11 +146,19 @@ jobs:
 
       - name: Check Code coverage
         uses: ./.github/actions/code-coverage-gate-keeper
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' || github.ref_name == 'develop' }}
         with:
           module_path: ${{ inputs.module_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ steps.title.outputs.replaced }}
+          dynamicCodeCoveragesFilePath: /tmp/baseCodeCoverages.json
+          generateNewCodeCoverages: ${{ github.ref_name == 'develop' }}
+
+      - name: Send new dynamic code coverages
+        shell: bash
+        if: ${{ github.ref_name == 'develop' }}
+        run: |
+          aws s3 cp /tmp/newBaseCodeCoverages.json s3://centreon-lighthouse-report/baseCodeCoverages.json
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
@@ -140,7 +166,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:

@@ -752,6 +752,9 @@ class CentreonACL
             $flag = strtoupper($flag);
         }
 
+        // before returning access groups as string, make sure that those are up to date
+        $this->setAccessGroups();
+
         $accessGroups = "";
         foreach ($this->accessGroups as $key => $value) {
             switch ($flag) {

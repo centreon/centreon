@@ -12,6 +12,13 @@ inputs:
   name:
     description: 'The name for display purpose'
     required: true
+  dynamicCodeCoveragesFilePath:
+    required: true
+    description: 'The path to the dynamic code coverages file'
+  generateNewCodeCoverages:
+    required: false
+    default: 'false'
+    description: 'Generates new code coverages bas stats or not'
 
 runs:
   using: 'node20'

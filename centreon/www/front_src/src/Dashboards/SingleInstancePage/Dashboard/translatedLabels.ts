@@ -50,8 +50,6 @@ export const labelServiceName = 'Service name';
 export const labelMetric = 'Metric';
 export const labelSelectMetric = 'Select metric';
 export const labelPleaseSelectAMetric = 'Please select a metric';
-export const labelYouCanSelectUpToTwoMetricUnits =
-  'You can select a maximum of 2 metric units.';
 export const labelShowDescription = 'Show description';
 export const labelAddFilter = 'Add filter';
 export const labelAddMetric = 'Add metric';

@@ -10,6 +10,8 @@ info:
     + Added new filters for the /monitoring/services/categories endpoint
     + Remove snmp_community property from the hosts and host templates listing endpoints
     + Added new filters to the /monitoring/servicegroups endpoint
+    + Added new filters for /monitoring/resources /monitoring/resources/hosts related to Open Tickets
+    + Added new key 'extra' that contains extra data from modules installed for resources endpoints
     +
     # Information
     All dates are in **ISO 8601** format
@@ -246,6 +248,12 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/additional-connector-configurations:
+    $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/AddAndFindAccs.yaml"
+  /configuration/additional-connector-configurations/{acc_id}:
+    $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/DeleteUpdateAndFindAcc.yaml"
+  /configuration/additional-connectors/pollers/{type}:
+    $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/FindPollers.yaml"
   /configuration/broker/{brokerId}/{tag}:
     $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:
@@ -7222,6 +7230,10 @@ components:
                   type: string
                   description: "URL for the icon"
                   example: "/centreon/img/media/ppm/applications-monitoring-centreon-central-centreon-128-2.png"
+        extra:
+          type: array
+          items:
+            type: object
     Monitoring.ResourceLinks:
       type: object
       properties:

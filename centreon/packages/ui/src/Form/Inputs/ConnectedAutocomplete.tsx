@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, isEmpty, path, split } from 'ramda';
+import { equals, isEmpty, path, propEq, reject, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -102,9 +102,21 @@ const ConnectedAutocomplete = ({
     [isMultiple]
   );
 
+  const deleteItem = (_, option): void => {
+    const newValue = reject(propEq(option.id, 'id'), value);
+
+    setFieldValue(fieldName, newValue);
+  };
+
+  const chipProps = connectedAutocomplete && {
+    color: connectedAutocomplete?.chipColor || 'default',
+    onDelete: deleteItem
+  };
+
   return useMemoComponent({
     Component: (
       <AutocompleteField
+        chipProps={chipProps}
         dataTestId={dataTestId}
         disableClearable={false}
         disableSortedOptions={disableSortedOptions}

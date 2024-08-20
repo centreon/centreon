@@ -2,12 +2,17 @@ name: nightly-cod-platform-deploy
 
 on:
   schedule:
-    - cron: "15 7 * * 1-5"
+    - cron: "15 6 * * 1-5"
 
 jobs:
   nightly-cod-platform-deploy:
     runs-on: "ubuntu-latest"
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Checkout sources
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
       - name: Check the status of the last nightly
         id: check-latest-nightly-status
         uses: ./.github/actions/check-latest-nightly-status

@@ -179,8 +179,8 @@ const WidgetLineChart = ({
     <BarChart
       {...commonProperties}
       barStyle={{
-        opacity: panelOptions.barOpacity / 100,
-        radius: panelOptions.barRadius / 200
+        opacity: (panelOptions.barOpacity ?? 100) / 100,
+        radius: (panelOptions.barRadius ?? 20) / 200
       }}
       orientation={barChartOrientation}
     />
