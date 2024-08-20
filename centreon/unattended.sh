@@ -394,6 +394,9 @@ function set_mariadb_repos() {
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version"
+	elif [[ "${detected_os_release}" =~ ubuntu-release-.* ]]; then
+		. /etc/lsb-release
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$DISTRIB_CODENAME" --mariadb-server-version="$detected_mariadb_version"
 	else
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version"
 	fi
@@ -414,7 +417,7 @@ function set_mariadb_repos() {
 #
 function setup_mysql() {
 	log "INFO" "Install MySQL repository"
-	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ debian-release-.* ]] || [[ "${detected_os_release}" =~ ubuntu-release-.* ]] ; then
 		curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
 		export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
 		$PKG_MGR -y update
@@ -1428,7 +1431,7 @@ is_systemd_present
 ## Start to execute
 case $operation in
 install)
-	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+	if ! [[ "${detected_os_release}" =~ debian-release-.* || "${detected_os_release}" =~ ubuntu-release-.* ]]; then
 		setup_before_installation
 	fi
 
@@ -1488,7 +1491,7 @@ update)
 		;;
 	esac
 
-	log "INFO" "Centreon [$topology] successfully updated !"
+	log "INFO" "Centreon [$topology] successfully updated!"
 	;;
 
 esac
