@@ -28,7 +28,10 @@ const DatasetFilters = (): ReactElement => {
       {datasetFilters.map((datasetFilter, index) => (
         <div
           className={classes.datasetFiltersContainer}
-          key={`${JSON.stringify(datasetFilter)}-datasetFilter`}
+          key={`${
+            // biome-ignore lint/suspicious/noArrayIndexKey:
+            index
+          }-datasetFilter`}
         >
           <div className={classes.datasetFiltersComposition}>
             <DatasetFilter
