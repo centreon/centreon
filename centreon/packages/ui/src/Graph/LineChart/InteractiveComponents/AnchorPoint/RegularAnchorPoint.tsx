@@ -17,7 +17,7 @@ interface Props {
   yScale: ScaleLinear<number, number>;
 }
 
-const getYAnchorPoint = ({
+export const getYAnchorPoint = ({
   timeTick,
   timeSeries,
   yScale,

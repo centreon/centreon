@@ -20,7 +20,7 @@
     },
     "resourceType": {
       "type": "radio",
-      "label": "Display with this resource type",
+      "label": "Display resources with this type",
       "options": [
         {
           "id": "host",
@@ -100,7 +100,10 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required": false
+      "required": false,
+      "excludedResourceTypes": [
+        "meta-service"
+      ]
     }
   },
   "moduleName": "centreon-widget-statusgrid"

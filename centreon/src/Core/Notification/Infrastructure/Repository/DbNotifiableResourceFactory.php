@@ -119,7 +119,9 @@ class DbNotifiableResourceFactory
             }
 
             if ($currentRecords[$index - 1] !== self::NO_HOST_EVENTS) {
-                $currentHostEvents = NotificationHostEventConverter::fromBitFlags((int) $currentRecords[$index - 1]);
+                $currentHostEvents = NotificationHostEventConverter::fromBitFlags(
+                    (int) $currentRecords[$index - 1]['host_events']
+                );
             }
 
             $notificationHosts[] = self::createNotificationHostFromRecord(

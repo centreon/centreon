@@ -1,0 +1,78 @@
+---
+name: release-trigger-builds
+
+on:
+  workflow_dispatch:
+    inputs:
+      dispatch_target_release_branch:
+        description: "Cloud release branch to trigger"
+        required: true
+      dispatch_content:
+        description: "Regular (only centreon named components) or Full (every component, including php and extra libs)"
+        required: true
+        type: choice
+        options:
+          - REGULAR
+          - FULL
+
+jobs:
+  release-trigger-builds:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Install Github CLI
+        run: |
+          set -eux
+
+          if ! command -v gh &> /dev/null; then
+            echo "Installing GH CLI."
+            type -p curl >/dev/null || (sudo apt-get update && sudo apt-get install curl -y)
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install gh -y
+          else
+            echo "GH CLI is already installed."
+          fi
+        shell: bash
+
+      - name: Trigger selected branches
+        run: |
+          set -eux
+
+          # VARS
+          # names defined in workflow files per components
+          COMPONENTS_OSS=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
+          COMPONENTS_OSS_FULL=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
+          #COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
+          #COMPONENTS_MODULES_FULL=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm" "php-pecl-gnupg" "sourceguardian-loader")
+          #COMPONENTS_COLLECT=("Centreon collect")
+          RUNS_URL=""
+
+          # Accept release prefixed or develop branches, nothing else
+          if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]] || [[ ${{ inputs.dispatch_target_release_branch }} == "develop" ]];then
+            echo "Using ${{ inputs.dispatch_target_release_branch }} as branch to build testing packages."
+            RUNS_URL="https://github.com/centreon/centreon/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
+          else
+            echo "::error::Invalid release branch name, please check the release branch name."
+            exit 1
+          fi
+
+          if [[ "${{ inputs.dispatch_content }}" == "FULL" ]]; then
+            echo "Requested ${{ inputs.dispatch_content }} content, triggering all component workflows."
+            for COMPONENT in ${COMPONENTS_OSS_FULL[@]}; do
+              gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
+            done
+          else
+            echo "Requested ${{ inputs.dispatch_content }} content, triggering centreon named components only."
+            for COMPONENT in ${COMPONENTS_OSS[@]}; do
+              gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
+            done
+          fi
+
+          echo "Dispatch was successfully triggered. Runs can be found at ${RUNS_URL}"
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

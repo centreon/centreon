@@ -27,6 +27,18 @@ export const resources: Array<Resource> = [
   }
 ];
 
+export const metaServiceResources: Array<Resource> = [
+  {
+    resourceType: 'meta-service',
+    resources: [
+      {
+        id: 1,
+        name: 'Meta service'
+      }
+    ]
+  }
+];
+
 export const selectedColumnIds = [
   'status',
   'resource',

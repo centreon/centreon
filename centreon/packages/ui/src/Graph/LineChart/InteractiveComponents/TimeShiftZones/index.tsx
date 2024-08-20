@@ -36,7 +36,7 @@ const TimeShiftZones = ({
 
   const xIcon = isBackward
     ? negate(marginLeft)
-    : graphWidth + timeShiftIconSize;
+    : graphWidth + timeShiftIconSize / 2;
 
   const yIcon = graphHeight / 2 - timeShiftIconSize / 2;
 
@@ -56,16 +56,6 @@ const TimeShiftZones = ({
 
   return (
     <>
-      {displayIcon && (
-        <TimeShiftIcon
-          Icon={Icon}
-          ariaLabel={ariaLabelIcon}
-          directionHovered={directionHovered}
-          xIcon={xIcon}
-          yIcon={yIcon}
-        />
-      )}
-
       <TimeShiftZone
         direction={TimeShiftDirection.backward}
         directionHovered={directionHovered}
@@ -78,6 +68,15 @@ const TimeShiftZones = ({
         onDirectionHover={setDirectionHovered}
         {...commonData}
       />
+      {displayIcon && (
+        <TimeShiftIcon
+          Icon={Icon}
+          ariaLabel={ariaLabelIcon}
+          directionHovered={directionHovered}
+          xIcon={xIcon}
+          yIcon={yIcon}
+        />
+      )}
     </>
   );
 };

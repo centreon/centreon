@@ -18,7 +18,9 @@ const lineMargins = {
 };
 
 interface Props {
+  barHeight: number;
   hideTooltip: () => void;
+  isSmall: boolean;
   label: string;
   showTooltip: (args) => void;
   size: 'small' | 'medium';
@@ -34,7 +36,9 @@ export const ThresholdLine = ({
   thresholdType,
   showTooltip,
   hideTooltip,
-  size
+  size,
+  barHeight,
+  isSmall
 }: Props): JSX.Element => {
   const theme = useTheme();
 
@@ -42,17 +46,9 @@ export const ThresholdLine = ({
 
   const lineMargin = lineMargins[size];
 
-  const thresholdLineHeight = barHeights[size] + 2 * lineMargin;
-
-  const isSmall = equals(size, 'small');
-
-  const bottom = barHeights[size] + margin * 2;
-
-  const onMouseEnter = (left) => (): void =>
+  const onMouseEnter = (): void =>
     showTooltip({
-      tooltipData: label,
-      tooltipLeft: left,
-      tooltipTop: bottom
+      tooltipData: label
     });
 
   const lineColor = equals(thresholdType, 'warning')
@@ -70,13 +66,13 @@ export const ThresholdLine = ({
         x2={scaledValue}
         y1={
           isSmall
-            ? groupMargin - lineMargin
+            ? groupMargin - lineMargin + 6
             : groupMargin + lineMargin + margins.top
         }
         y2={
           isSmall
-            ? thresholdLineHeight + groupMargin - lineMargin
-            : thresholdLineHeight + groupMargin + lineMargin + margins.top
+            ? barHeight + groupMargin - lineMargin + margins.top - 2
+            : barHeight + groupMargin + lineMargin + 2 * margins.top
         }
       />
       <line
@@ -87,15 +83,15 @@ export const ThresholdLine = ({
         x2={scaledValue}
         y1={
           isSmall
-            ? groupMargin - lineMargin
+            ? groupMargin - lineMargin + 5
             : groupMargin + lineMargin + margins.top
         }
         y2={
           isSmall
-            ? thresholdLineHeight + groupMargin - lineMargin
-            : thresholdLineHeight + groupMargin + lineMargin + margins.top
+            ? barHeight + groupMargin - lineMargin + margins.top + 5
+            : barHeight + groupMargin + lineMargin + 2 * margins.top
         }
-        onMouseEnter={onMouseEnter(scaledValue)}
+        onMouseEnter={onMouseEnter}
         onMouseLeave={hideTooltip}
       />
     </>

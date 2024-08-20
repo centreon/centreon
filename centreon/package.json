@@ -22,12 +22,12 @@
     "test:watch": "pnpm test --watch",
     "test:coverage": "jest --coverage",
     "cypress:cli": "./cypress/scripts/cypress-cli.sh",
-    "cypress:cli:updateSnapshot": "./cypress/scripts/cypress-cli.sh --env updateSnapshots=true",
+    "cypress:cli:updateSnapshot": "cypress run --component --browser=chrome --env updateSnapshots=true",
     "cypress:ui": "cypress open --component --browser=chrome",
     "cypress:run": "cypress run --component --browser=chrome",
     "cypress:run:coverage": "cypress run --component --browser=chrome --env codeCoverageTasksRegistered=true",
     "generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json",
-    "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api-v24.04.yaml"
+    "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api.yaml"
   },
   "devDependencies": {
     "@4tw/cypress-drag-drop": "^2.2.5",
@@ -60,7 +60,7 @@
     "@typescript-eslint/parser": "^6.18.1",
     "chromatic": "^7.4.0",
     "css-loader": "^6.9.0",
-    "cypress": "^13.8.1",
+    "cypress": "^13.12.0",
     "cypress-msw-interceptor": "2.2.0",
     "cypress-plugin-tab": "^1.0.5",
     "cypress-real-events": "^1.12.0",

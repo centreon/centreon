@@ -86,6 +86,9 @@ const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
 
 export const panelsLengthAtom = atom(0);
 
+const strictMinWidgetSize = 2;
+const preferredWidgetSize = 3;
+
 export const addPanelDerivedAtom = atom(
   null,
   (
@@ -113,21 +116,23 @@ export const addPanelDerivedAtom = atom(
       )}_${increasedPanelsLength}`;
 
     const columnsFromScreenSize = getColumnsFromScreenSize();
-    const maxColumns = equals(columnsFromScreenSize, 1)
-      ? 3
+    const maxPanelWidth = equals(columnsFromScreenSize, 1)
+      ? preferredWidgetSize
       : columnsFromScreenSize;
 
-    const panelWidth = width || panelConfiguration?.panelMinWidth || maxColumns;
+    const panelWidth =
+      width || panelConfiguration?.panelMinWidth || maxPanelWidth;
 
     const widgetHeight =
-      height || Math.max(panelConfiguration?.panelMinHeight || 1, 3);
+      height ||
+      Math.max(panelConfiguration?.panelMinHeight || 1, preferredWidgetSize);
 
     const basePanelLayout = {
       data,
       h: widgetHeight,
       i: id,
-      minH: panelConfiguration?.panelMinHeight || 3,
-      minW: panelConfiguration?.panelMinWidth || 3,
+      minH: panelConfiguration?.panelMinHeight || strictMinWidgetSize,
+      minW: panelConfiguration?.panelMinWidth || strictMinWidgetSize,
       name: moduleName,
       options,
       panelConfiguration,
@@ -144,7 +149,7 @@ export const addPanelDerivedAtom = atom(
           panels
         );
 
-        return lte(widthsCumulated + panelWidth, maxColumns);
+        return lte(widthsCumulated + panelWidth, maxPanelWidth);
       }
     );
 

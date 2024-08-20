@@ -47,8 +47,9 @@ export const useGroupMonitoring = ({
   refreshCount,
   dashboardId,
   id,
-  playlistHash
-}: Omit<WidgetProps, 'store'>): UseGroupMonitoringState => {
+  playlistHash,
+  widgetPrefixQuery
+}: Omit<WidgetProps, 'store' | 'queryClient'>): UseGroupMonitoringState => {
   const isFirstMountRef = useRef(true);
   const limitRef = useRef(10);
 
@@ -71,6 +72,7 @@ export const useGroupMonitoring = ({
   const sortOrderToUse = sortOrder || SortOrder.Asc;
 
   const key = [
+    widgetPrefixQuery,
     'groupmonitoring',
     resource?.resourceType,
     JSON.stringify(resource?.resources),
@@ -82,7 +84,7 @@ export const useGroupMonitoring = ({
     refreshCount
   ];
 
-  const { data, isLoading } = useFetchQuery<ListingModel<Group>>({
+  const { data } = useFetchQuery<ListingModel<Group>>({
     decoder: groupsDecoder,
     getEndpoint: () =>
       getWidgetEndpoint({
@@ -126,7 +128,8 @@ export const useGroupMonitoring = ({
       enabled: hasResourceTypeDefined,
       refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const changeLimit = (newLimit: number): void => {
@@ -173,7 +176,6 @@ export const useGroupMonitoring = ({
     groupType: resource?.resourceType || '',
     groupTypeName: getResourceTypeName(resource?.resourceType),
     hasResourceTypeDefined,
-    isLoading,
     limit: limitToUse,
     listing: formattedListing,
     page: pageToUse,

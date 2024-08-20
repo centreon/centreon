@@ -255,3 +255,8 @@ export const dashboardAccessRightsContactGroupListDecoder = buildListingDecoder(
     listingDecoderName: 'Dashboard AccessRights ContactGroup List'
   }
 );
+
+export const playlistsByDashboardDecoder = JsonDecoder.array<NamedEntity>(
+  JsonDecoder.object(namedEntityDecoder, 'playlist'),
+  'playlists by dashboard'
+);

@@ -1,0 +1,35 @@
+gorgone:
+  gorgonecore:
+    id: 1
+  modules:
+    - name: proxy
+      package: "gorgone::modules::core::proxy::hooks"
+      enable: true
+
+    - name: nodes
+      package: "gorgone::modules::centreon::nodes::hooks"
+      enable: true
+
+    - name: httpserver
+      package: "gorgone::modules::core::httpserver::hooks"
+      enable: true
+      address: "0.0.0.0"
+      port: "8085"
+      ssl: false
+      auth:
+        enabled: false
+      allowed_hosts:
+        enabled: true
+        subnets:
+          - 127.0.0.1/32
+
+centreon:
+  database:
+    db_configuration:
+      dsn: "mysql:host=@DBHOST@:port=3306;dbname=@DBNAME@"
+      username: "@DBUSER@"
+      password: "@DBPASSWORD@"
+    db_realtime:
+      dsn: "mysql:host=@DBHOST@:port=3306;dbname=centreon_storage"
+      username: "@DBUSER@"
+      password: "@DBPASSWORD@"

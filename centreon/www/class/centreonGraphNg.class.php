@@ -997,9 +997,13 @@ class CentreonGraphNg
         }
 
         if ($this->indexData["host_name"] != "_Module_Meta") {
+            $this->extraDatas['host_name'] = $this->indexData['host_name'];
+            $this->extraDatas['service_description'] = $this->indexData['service_description'];
             $this->extraDatas['title'] = $this->indexData['service_description'] . " " . _("graph on") . " "
                 . $this->indexData['host_name'];
         } else {
+            $this->extraDatas['service_description'] = $this->indexData['service_description'];
+            $this->extraDatas['host_name'] = '';
             $this->extraDatas['title'] = _("Graph") . " " . $this->indexData["service_description"];
         }
     }

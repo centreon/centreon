@@ -25,6 +25,7 @@ namespace Core\Application\Configuration\Notification\Repository;
 
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostNotificationRepositoryInterface
 {
@@ -37,8 +38,24 @@ interface ReadHostNotificationRepositoryInterface
 
     /**
      * @param int $hostId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return NotifiedContact[]
+     */
+    public function findNotifiedContactsByIdAndAccessGroups(int $hostId, array $accessGroups): array;
+
+    /**
+     * @param int $hostId
      *
      * @return NotifiedContactGroup[]
      */
     public function findNotifiedContactGroupsById(int $hostId): array;
+
+    /**
+     * @param int $hostId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return NotifiedContactGroup[]
+     */
+    public function findNotifiedContactGroupsByIdAndAccessGroups(int $hostId, array $accessGroups): array;
 }

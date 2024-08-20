@@ -83,17 +83,17 @@ const initialize = ({ page = '/' }): void => {
 };
 
 describe('Main', () => {
-  // it('displays the public page when a public url is entered', () => {
-  //   initialize({ page: '/public/dashboards/playlists/hash' });
+  it('displays the public page when a public url is entered', () => {
+    initialize({ page: '/public/dashboards/playlists/hash' });
 
-  //   cy.waitForRequest('@platformVersions');
-  //   cy.waitForRequest('@translations');
+    cy.waitForRequest('@platformVersions');
+    cy.waitForRequest('@translations');
 
-  //   cy.contains(labelLogin).should('not.exist');
-  //   cy.contains('Cannot load module').should('be.visible');
+    cy.contains(labelLogin).should('not.exist');
+    cy.contains('Cannot load module').should('be.visible');
 
-  //   cy.makeSnapshot();
-  // });
+    cy.makeSnapshot();
+  });
 
   it('displays the login page by default', () => {
     initialize({});

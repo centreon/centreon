@@ -50,7 +50,7 @@ class Macro
     public function __construct(
         private readonly int $ownerId,
         private string $name,
-        private readonly string $value,
+        private string $value,
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 
@@ -74,6 +74,13 @@ class Macro
     public function getValue(): string
     {
         return $this->value;
+    }
+
+    public function setValue(string $value): self
+    {
+        $this->value = $value;
+
+        return $this;
     }
 
     public function isPassword(): bool

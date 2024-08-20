@@ -20,6 +20,7 @@ export interface DashboardRolesAndPermissions {
 
 export interface User {
   alias: string;
+  canManageApiTokens: boolean;
   dashboard?: DashboardRolesAndPermissions | null;
   default_page?: string | null;
   id?: number;

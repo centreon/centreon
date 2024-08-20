@@ -1,12 +1,13 @@
 {
-  "federatedComponentsConfiguration": [{
-    "path": "/widgets/statuschart",
-    "federatedComponents": [
-      "./statuschart"
-    ],
-    "panelMinHeight": 5,
-    "panelMinWidth": 6
-  }],
+  "federatedComponentsConfiguration": [
+    {
+      "path": "/widgets/statuschart",
+      "federatedComponents": [
+        "./statuschart"
+      ],
+      "panelMinHeight": 3
+    }
+  ],
   "moduleFederationName": "widgetstatuschart",
   "moduleName": "centreon-widget-statuschart"
 }

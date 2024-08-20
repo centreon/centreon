@@ -3,8 +3,17 @@ import { makeStyles } from 'tss-react/mui';
 import { alpha } from '@mui/system';
 
 export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
-  previewDescription: {
-    marginTop: theme.spacing(1)
+  groupContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),
+    marginLeft: theme.spacing(0.5)
+  },
+  groupDivider: {
+    marginBottom: theme.spacing(1)
+  },
+  groupTitle: {
+    fontWeight: theme.typography.fontWeightBold
   },
   previewHeading: {
     display: 'block'

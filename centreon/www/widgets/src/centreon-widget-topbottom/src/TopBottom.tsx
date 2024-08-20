@@ -20,7 +20,7 @@ import { useTopBottomStyles } from './TopBottom.styles';
 interface TopBottomProps
   extends Pick<
     CommonWidgetProps<object>,
-    'playlistHash' | 'dashboardId' | 'id'
+    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery'
   > {
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview?: boolean;
@@ -47,7 +47,8 @@ const TopBottom = ({
   isFromPreview,
   id,
   dashboardId,
-  playlistHash
+  playlistHash,
+  widgetPrefixQuery
 }: TopBottomProps): JSX.Element => {
   const { classes } = useTopBottomStyles();
 
@@ -63,7 +64,8 @@ const TopBottom = ({
     refreshInterval,
     refreshIntervalCustom,
     resources,
-    topBottomSettings
+    topBottomSettings,
+    widgetPrefixQuery
   });
 
   if (!areResourcesOk || isMetricEmpty) {

@@ -33,7 +33,7 @@ export const useColumns = ({
       sortField: 'name',
       sortable: true,
       type: ColumnType.component,
-      width: 'minmax(120px, 400px)'
+      width: 'minmax(120px, auto)'
     },
     {
       Component: ({ row }: Pick<RowProps, 'row'>) => (
@@ -49,7 +49,7 @@ export const useColumns = ({
       id: 'host',
       label: t(labelHosts),
       type: ColumnType.component,
-      width: 'minmax(220px, 1fr)'
+      width: 'minmax(120px, 1fr)'
     },
     {
       Component: ({ row }: Pick<RowProps, 'row'>) => (
@@ -64,7 +64,7 @@ export const useColumns = ({
       id: 'service',
       label: t(labelServices),
       type: ColumnType.component,
-      width: 'minmax(320px, 1fr)'
+      width: 'minmax(230px, 1fr)'
     }
   ];
 };

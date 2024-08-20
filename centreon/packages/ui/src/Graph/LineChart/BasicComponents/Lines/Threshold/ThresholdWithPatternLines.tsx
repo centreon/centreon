@@ -5,14 +5,13 @@ import { useTheme } from '@mui/material/styles';
 
 import { adjustGraphData } from '../../../helpers/index';
 import { PatternOrientation } from '../../../models';
-import { CurveType } from '../models';
 import { LineChartData } from '../../../../common/models';
 
 import BasicThreshold from './BasicThreshold';
 import useScaleThreshold from './useScaleThreshold';
 
 interface Props {
-  curve: CurveType;
+  curve: 'linear' | 'natural' | 'step';
   data: LineChartData;
   graphHeight: number;
   id: string;

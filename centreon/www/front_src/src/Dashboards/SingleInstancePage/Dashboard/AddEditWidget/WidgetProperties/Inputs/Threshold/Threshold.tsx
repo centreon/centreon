@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -24,7 +26,10 @@ import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useThreshold from './useThreshold';
 
-const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
+const Threshold = ({
+  propertyName,
+  isInGroup
+}: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useThresholdStyles();
 
@@ -34,9 +39,11 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const { canEditField } = useCanEditProperties();
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <Box>
-      <Subtitle>{t(labelThresholds)}</Subtitle>
+      <Label>{t(labelThresholds)}</Label>
       <div className={classes.showThreshold}>
         <WidgetSwitch
           endAdornment={

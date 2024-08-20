@@ -24,7 +24,7 @@ import { metricsTopDecoder } from './api/decoder';
 interface UseTopBottomProps
   extends Pick<
     CommonWidgetProps<object>,
-    'playlistHash' | 'dashboardId' | 'id'
+    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery'
   > {
   globalRefreshInterval: GlobalRefreshInterval;
   metrics: Array<Metric>;
@@ -51,7 +51,8 @@ const useTopBottom = ({
   refreshCount,
   dashboardId,
   id,
-  playlistHash
+  playlistHash,
+  widgetPrefixQuery
 }: UseTopBottomProps): UseTopBottomState => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
@@ -92,6 +93,7 @@ const useTopBottom = ({
         widgetId: id
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'topbottom',
       metricName,
       JSON.stringify(resources),

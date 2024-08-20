@@ -45,7 +45,7 @@ runs:
         php-version: 8.1
         extensions: yaml, xml, mysql, dom, mbstring, intl, pdo, zip
         coverage: none
-        tools: composer:v2.6
+        tools: composer:v2
 
     - name: Start Centreon Web and database containers
       env:
@@ -66,7 +66,7 @@ runs:
         MYSQL_IMAGE: ${{ inputs.database_image }}
       run: |
         cd centreon-injector
-        composer install
+        composer install --no-plugins --no-scripts
         cd ..
         docker compose -f .github/docker/docker-compose.yml cp centreon-injector web:/usr/share
         docker compose -f .github/docker/docker-compose.yml exec web sed -i 's/127.0.0.1/db/g' /usr/share/centreon-injector/.env

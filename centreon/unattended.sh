@@ -67,7 +67,8 @@ centreon_admin_password=
 BASE_PACKAGES=
 CENTREON_SELINUX_PACKAGES=
 RELEASE_REPO_FILE=
-OS_SPEC_SERVICES=
+PHP_SERVICE_UNIT=
+HTTP_SERVICE_UNIT=
 PKG_MGR=
 has_systemd=
 CENTREON_REPO=
@@ -427,22 +428,24 @@ function set_required_prerequisite() {
 
 	get_os_information
 
-    case "$detected_os_release" in
-	redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+  case "$detected_os_release" in
+	oraclelinux-release* | redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
 			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
-			OS_SPEC_SERVICES="php-fpm httpd"
+			PHP_SERVICE_UNIT="php-fpm"
+			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
 
 			case "$detected_os_release" in
 			redhat-release*)
-				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				BASE_PACKAGES=(dnf-plugins-core)
 				subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
 				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-8-rhui-rpms
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 				;;
 
 			centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
@@ -485,14 +488,16 @@ function set_required_prerequisite() {
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
 
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
-			OS_SPEC_SERVICES="php-fpm httpd"
+			PHP_SERVICE_UNIT="php-fpm"
+			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
 
 			case "$detected_os_release" in
 			redhat-release*)
-				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				BASE_PACKAGES=(dnf-plugins-core)
 				subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
 				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-9-rhui-rpms
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 				;;
 
 			centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
@@ -552,7 +557,8 @@ function set_required_prerequisite() {
 			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
-		OS_SPEC_SERVICES="php8.1-fpm apache2"
+		PHP_SERVICE_UNIT="php8.1-fpm"
+		HTTP_SERVICE_UNIT="apache2"
 		log "INFO" "Setting specific part for Debian"
 		PKG_MGR="apt -qq"
 		${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
@@ -806,8 +812,8 @@ function enable_new_services() {
 				;;
 			esac
 			log "DEBUG" "On central..."
-			systemctl enable "$DBMS_SERVICE_NAME" "$OS_SPEC_SERVICES" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
-			systemctl restart "$DBMS_SERVICE_NAME" "$OS_SPEC_SERVICES" snmpd snmptrapd
+			systemctl enable "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
+			systemctl restart "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd
 			systemctl start centreontrapd
 			;;
 
@@ -1169,10 +1175,14 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	if [[ $dbms == "MariaDB" ]]; then
-		CENTREON_DBMS_PKG="centreon-mariadb"
+	if [[ "$version" =~ ^24\.0[1-9]$ || "$version" =~ ^24\.1[0-2]$ ]]; then
+		if [[ $dbms == "MariaDB" ]]; then
+			CENTREON_DBMS_PKG="centreon-mariadb"
+		else
+			CENTREON_DBMS_PKG="centreon-mysql"
+		fi
 	else
-		CENTREON_DBMS_PKG="centreon-mysql"
+		CENTREON_DBMS_PKG="centreon-database"
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
@@ -1391,15 +1401,24 @@ install)
 		setup_before_installation
 	fi
 
+	case $version in
+		"22.10"|"23.04"|"23.10")
+			gorgone_selinux_package_name="centreon-gorgoned-selinux"
+			;;
+		*)
+			gorgone_selinux_package_name="centreon-gorgone-selinux"
+			;;
+	esac
+
 	case $topology in
 	central)
-		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
+		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
 		install_central
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/installation/web-and-post-installation/#web-installation"
 		;;
 
 	poller)
-		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
+		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
 		install_poller
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/monitoring/monitoring-servers/add-a-poller-to-configuration/"
 		;;

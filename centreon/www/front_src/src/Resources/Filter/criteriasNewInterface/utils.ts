@@ -1,4 +1,4 @@
-import { sortBy, prop, compose, toLower, uniqBy, pick } from 'ramda';
+import { compose, equals, pick, prop, sortBy, toLower, uniqBy } from 'ramda';
 
 import { ResourceType } from '../../models';
 import {
@@ -8,10 +8,6 @@ import {
 } from '../Criterias/models';
 
 import {
-  BasicCriteriaResourceType,
-  CallbackCheck,
-  CategoryFilter,
-  ExtendedCriteriaResourceType,
   FieldInformationFromSearchInput,
   FindData,
   HandleDataByCategoryFilter,
@@ -31,37 +27,22 @@ const statusBySectionType = (
     : Object.keys(categoryHostStatus);
 };
 
-const resourceTypesBySection = (categoryFilter): Array<string> => {
-  return categoryFilter === CategoryFilter.BasicFilter
-    ? Object.values(BasicCriteriaResourceType)
-    : Object.values(ExtendedCriteriaResourceType);
-};
-
-const callBackCheck = ({ id, dataToCheck }: CallbackCheck): boolean =>
-  dataToCheck.some((status) => status === id);
-
 export const handleDataByCategoryFilter = ({
   data,
   fieldToUpdate,
   filter
 }: HandleDataByCategoryFilter): Array<Criteria & CriteriaDisplayProps> => {
-  const target =
-    filter in CategoryFilter
-      ? CriteriaNames.resourceTypes
-      : CriteriaNames.statuses;
+  const target = CriteriaNames.statuses;
 
-  const dataToCheck =
-    filter in CategoryFilter
-      ? resourceTypesBySection(filter)
-      : statusBySectionType(filter as SectionType);
+  const dataToCheck = statusBySectionType(filter as SectionType);
 
   return data.map((item) => {
     if (item.name !== target) {
       return item;
     }
 
-    const filteredData = item[fieldToUpdate]?.filter((currentItem) =>
-      callBackCheck({ dataToCheck, id: currentItem.id })
+    const filteredData = item[fieldToUpdate]?.filter(({ id }) =>
+      dataToCheck.some(equals(id))
     );
 
     return { ...item, [fieldToUpdate]: filteredData };
@@ -86,8 +67,11 @@ export const findData = ({
   filterName,
   data,
   findBy = 'name'
-}: FindData): (Criteria & CriteriaDisplayProps) | undefined =>
-  data?.find((item) => item[findBy] === filterName);
+}: FindData): Array<Criteria & CriteriaDisplayProps> => {
+  const element = data?.find((item) => item[findBy] === filterName);
+
+  return element ? [element] : [];
+};
 
 export const findFieldInformationFromSearchInput = ({
   search,

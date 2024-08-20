@@ -31,27 +31,16 @@ use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
 use Core\Security\Vault\Domain\Model\{NewVaultConfiguration, Vault};
 use Security\Encryption;
 
-beforeEach(function (): void {
-    $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
-});
-
 it(
     'should return an instance of NewVaultConfiguration when a valid request is passed to create method',
     function (): void {
         $encryption = new Encryption();
-        $vault = new Vault(1, 'myVaultProvider');
-        $this->readVaultRepository
-            ->expects($this->once())
-            ->method('findById')
-            ->willReturn($vault);
 
         $factory = new NewVaultConfigurationFactory(
             $encryption->setFirstKey('myFirstKey'),
-            $this->readVaultRepository
         );
         $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
         $createVaultConfigurationRequest->name = 'myVault';
-        $createVaultConfigurationRequest->typeId = 1;
         $createVaultConfigurationRequest->address = '127.0.0.1';
         $createVaultConfigurationRequest->port = 8200;
         $createVaultConfigurationRequest->rootPath = 'myStorage';
@@ -68,16 +57,9 @@ it('should encrypt roleId and secretId correctly', function (): void {
     $encryption = new Encryption();
     $encryption = $encryption->setFirstKey('myFirstKey');
 
-    $vault = new Vault(1, 'myVaultProvider');
-    $this->readVaultRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
-
-    $factory = new NewVaultConfigurationFactory($encryption, $this->readVaultRepository);
+    $factory = new NewVaultConfigurationFactory($encryption);
     $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
     $createVaultConfigurationRequest->name = 'myVault';
-    $createVaultConfigurationRequest->typeId = 1;
     $createVaultConfigurationRequest->address = '127.0.0.1';
     $createVaultConfigurationRequest->port = 8200;
     $createVaultConfigurationRequest->rootPath = 'myStorage';

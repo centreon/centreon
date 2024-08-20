@@ -33,12 +33,7 @@ Given('I am logged in as an administrator', () => {
 });
 
 Given('I am on the API tokens page', () => {
-  cy.navigateTo({
-    page: 'API Tokens',
-    rootItemNumber: 4
-  });
-
-  cy.wait('@getTokens');
+  cy.visitApiTokens();
 });
 
 When('I click on the "Create new token" button', () => {
@@ -56,8 +51,8 @@ When('I fill in the following required fields', (dataTable: any) => {
 
     if (field === 'User') {
       cy.addContact({
-        name: value,
         email: 'email@centreon.com',
+        name: value,
         password: 'myPassword@1'
       });
 

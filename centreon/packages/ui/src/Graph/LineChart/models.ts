@@ -4,12 +4,8 @@ import { ScaleLinear } from 'd3-scale';
 
 import { Line, TimeValue } from '../common/timeSeries/models';
 import { LineChartData } from '../common/models';
+import { AxisX, Axis as AxisYLeft, AxisYRight } from '../common/Axes/models';
 
-import {
-  AxisX,
-  Axis as AxisYLeft,
-  AxisYRight
-} from './BasicComponents/Axes/models';
 import {
   AreaRegularLines,
   AreaStackedLines
@@ -48,10 +44,17 @@ export interface ShapeLines {
   areaStackedLines?: AreaStackedLines;
 }
 
-export interface Axis {
+export interface LineChartAxis {
   axisX?: AxisX;
   axisYLeft?: AxisYLeft;
   axisYRight?: AxisYRight;
+  gridLinesType?: 'horizontal' | 'vertical' | 'all';
+  isCenteredZero?: boolean;
+  scale?: 'linear' | 'logarithimc';
+  scaleLogarithmicBase?: number;
+  showBorder?: boolean;
+  showGridLines?: boolean;
+  yAxisTickLabelRotation?: number;
 }
 
 export interface InteractedZone {
@@ -65,7 +68,9 @@ export interface TooltipData {
   tooltipOpen: boolean;
 }
 export interface Tooltip {
+  mode: 'all' | 'single' | 'hidden';
   renderComponent?: (args: TooltipData) => ReactNode;
+  sortOrder: 'name' | 'ascending' | 'descending';
 }
 
 export interface AnnotationEvent {
@@ -82,12 +87,26 @@ export interface DisplayAnchor {
   displayTooltipsGuidingLines?: boolean;
 }
 
+export interface LineStyle {
+  areaTransparency?: number;
+  curve?: 'linear' | 'step' | 'natural';
+  dashLength?: number;
+  dashOffset?: number;
+  dotOffset?: number;
+  lineWidth?: number;
+  pathStyle?: 'solid' | 'dash' | 'dotted';
+  showArea?: boolean;
+  showPoints?: boolean;
+}
+
 export interface LineChartProps {
   annotationEvent?: AnnotationEvent;
-  axis?: Axis;
+  axis?: LineChartAxis;
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;
+  legend?: LegendModel;
+  lineStyle?: LineStyle;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;
@@ -135,6 +154,9 @@ export interface GlobalAreaLines {
 }
 export interface LegendModel {
   display?: boolean;
+  height?: number;
+  mode: 'grid' | 'list';
+  placement: 'bottom' | 'left' | 'right';
   renderExtraComponent?: ReactNode;
 }
 

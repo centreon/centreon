@@ -6,8 +6,10 @@ import { makeStyles } from 'tss-react/mui';
 import { Resource } from '../../../models';
 import ExportableGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
 import { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
+import { GraphTimeParameters } from '../Graph/models';
 
 interface Props {
+  graphTimeParameters: GraphTimeParameters;
   infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
   services: Array<Resource>;
 }
@@ -30,7 +32,8 @@ const useStyles = makeStyles()((theme) => ({
 
 const ServiceGraphs = ({
   services,
-  infiniteScrollTriggerRef
+  infiniteScrollTriggerRef,
+  graphTimeParameters
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -50,6 +53,7 @@ const ServiceGraphs = ({
               interactWithGraph
               limitLegendRows
               graphHeight={120}
+              graphTimeParameters={graphTimeParameters}
               resource={service}
             />
             {isLastService && <div ref={infiniteScrollTriggerRef} />}

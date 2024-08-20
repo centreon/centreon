@@ -42,7 +42,7 @@ const useFormSubmit = (): UseFormState => {
       ? Method.POST
       : Method.PUT,
     onSettled: () => {
-      setModalState({ ...modalState, isOpen: false });
+      setModalState({ isOpen: false, mode: modalState.mode });
       queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
     },
     onSuccess: () => showSuccessMessage(t(labelMessage))

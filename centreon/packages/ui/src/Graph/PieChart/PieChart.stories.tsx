@@ -1,8 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import { ArcType } from './models';
-
-import { PieChart } from '.';
+import ResponsivePie from './ResponsivePie';
 
 const data = [
   { color: '#88B922', label: 'Ok', value: 148 },
@@ -18,19 +17,20 @@ const dataWithBigNumbers = [
   { color: '#FF6666', label: 'Down', value: 122222 }
 ];
 
-const meta: Meta<typeof PieChart> = {
-  component: PieChart
+const meta: Meta<typeof ResponsivePie> = {
+  component: ResponsivePie,
+  parameters: {
+    chromatic: {
+      delay: 1000
+    }
+  }
 };
 
 export default meta;
-type Story = StoryObj<typeof PieChart>;
+type Story = StoryObj<typeof ResponsivePie>;
 
 const Template = (args): JSX.Element => {
-  return (
-    <div style={{ height: '350px', width: '350px' }}>
-      <PieChart {...args} />
-    </div>
-  );
+  return <ResponsivePie height={350} width={350} {...args} />;
 };
 
 export const Pie: Story = {
@@ -141,11 +141,11 @@ export const DonutWithTooltip: Story = {
 };
 
 const TemplateForSmallDimensions = (args): JSX.Element => {
-  return (
-    <div style={{ height: '130px', width: '130px' }}>
-      <PieChart {...args} />
-    </div>
-  );
+  return <ResponsivePie height={130} width={130} {...args} />;
+};
+
+const SmallTemplate = (args): JSX.Element => {
+  return <ResponsivePie height={100} width={100} {...args} />;
 };
 
 export const PieWithSmallDimensions: Story = {
@@ -191,4 +191,14 @@ export const donutWithOneNoZeroValue: Story = {
     variant: 'donut'
   },
   render: Template
+};
+
+export const smallDisplay: Story = {
+  args: {
+    data,
+    displayLegend: false,
+    title: 'hosts',
+    variant: 'donut'
+  },
+  render: SmallTemplate
 };

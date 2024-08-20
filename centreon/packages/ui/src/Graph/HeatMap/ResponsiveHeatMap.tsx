@@ -21,8 +21,12 @@ const ResponsiveHeatMap = <TData,>({
   arrowClassName,
   tooltipContent,
   tileSizeFixed,
-  displayTooltipCondition = T
-}: HeatMapProps<TData> & { width: number }): JSX.Element | null => {
+  displayTooltipCondition = T,
+  height
+}: HeatMapProps<TData> & {
+  height: number;
+  width: number;
+}): JSX.Element | null => {
   const { classes, cx } = useHeatMapStyles();
 
   const tileSize = useMemo(() => {
@@ -40,7 +44,11 @@ const ResponsiveHeatMap = <TData,>({
     const theoricalTotalTilesWidth =
       tilesLength * tileWidth + (tilesLength - 1) * gap;
 
-    if (lt(width, 680) && gt(maxTotalTilesWidth, width) && !tileSizeFixed) {
+    if (
+      (lt(height, maxTileSize) ||
+        (lt(width, 680) && gt(maxTotalTilesWidth, width))) &&
+      !tileSizeFixed
+    ) {
       return smallestTileSize;
     }
 
@@ -49,7 +57,7 @@ const ResponsiveHeatMap = <TData,>({
     }
 
     return tileSizeFixed ? maxTileSize : tileWidth;
-  }, [width, tiles]);
+  }, [width, tiles, height]);
 
   const isSmallestSize = equals(tileSize, smallestTileSize);
 

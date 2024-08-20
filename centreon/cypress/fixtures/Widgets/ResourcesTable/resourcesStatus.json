@@ -335,6 +335,118 @@
                     }
                 }
             }
+        },
+        {
+            "uuid": "m2",
+            "duration": "1M 1w",
+            "last_check": "14m 55s",
+            "short_type": "m",
+            "id": 2,
+            "type": "metaservice",
+            "name": "AS_Total_FW_Connexion",
+            "alias": null,
+            "fqdn": null,
+            "host_id": 1972,
+            "service_id": null,
+            "icon": null,
+            "monitoring_server_name": "Central",
+            "parent": null,
+            "status": {
+                "code": 0,
+                "name": "OK",
+                "severity_code": 5
+            },
+            "is_in_downtime": false,
+            "is_acknowledged": false,
+            "has_active_checks_enabled": true,
+            "has_passive_checks_enabled": false,
+            "last_status_change": "2024-04-21T13:43:05+02:00",
+            "tries": "1\/2 (H)",
+            "information": "OK: AS FW Connect number: 200",
+            "performance_data": null,
+            "is_notification_enabled": false,
+            "severity": null,
+            "links": {
+                "endpoints": {
+                    "details": "\/centreon\/api\/latest\/monitoring\/resources\/metaservices\/2",
+                    "timeline": "\/centreon\/api\/latest\/monitoring\/metaservice\/2\/timeline",
+                    "status_graph": "\/centreon\/api\/latest\/monitoring\/metaservices\/2\/metrics\/status",
+                    "performance_graph": "\/centreon\/api\/latest\/monitoring\/metaservices\/2\/metrics\/performance",
+                    "acknowledgement": "\/centreon\/api\/latest\/monitoring\/metaservices\/2\/acknowledgements?limit=1",
+                    "downtime": "\/centreon\/api\/latest\/monitoring\/metaservices\/2\/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1716969848%7D,%22end_time%22:%7B%22%24gt%22:1716969848%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1716969848%7D%7D%7D%7D%5D%7D",
+                    "check": null,
+                    "forced_check": null,
+                    "metrics": "\/centreon\/api\/latest\/monitoring\/metaservices\/2\/metrics"
+                },
+                "uris": {
+                    "configuration": null,
+                    "logs": null,
+                    "reporting": null
+                },
+                "externals": {
+                    "action_url": "",
+                    "notes": {
+                        "label": "",
+                        "url": ""
+                    }
+                }
+            }
+        },
+        {
+            "uuid": "m6",
+            "duration": "3M 3d",
+            "last_check": "14m 49s",
+            "short_type": "m",
+            "id": 6,
+            "type": "metaservice",
+            "name": "SA_Total_FW_Connexion",
+            "alias": null,
+            "fqdn": null,
+            "host_id": 1976,
+            "service_id": null,
+            "icon": null,
+            "monitoring_server_name": "Central",
+            "parent": null,
+            "status": {
+                "code": 0,
+                "name": "OK",
+                "severity_code": 5
+            },
+            "is_in_downtime": false,
+            "is_acknowledged": false,
+            "has_active_checks_enabled": true,
+            "has_passive_checks_enabled": false,
+            "last_status_change": "2024-02-24T14:35:17+01:00",
+            "tries": "1\/2 (H)",
+            "information": "OK: SA FW Connect number: 100",
+            "performance_data": null,
+            "is_notification_enabled": false,
+            "severity": null,
+            "links": {
+                "endpoints": {
+                    "details": "\/centreon\/api\/latest\/monitoring\/resources\/metaservices\/6",
+                    "timeline": "\/centreon\/api\/latest\/monitoring\/metaservice\/6\/timeline",
+                    "status_graph": "\/centreon\/api\/latest\/monitoring\/metaservices\/6\/metrics\/status",
+                    "performance_graph": "\/centreon\/api\/latest\/monitoring\/metaservices\/6\/metrics\/performance",
+                    "acknowledgement": "\/centreon\/api\/latest\/monitoring\/metaservices\/6\/acknowledgements?limit=1",
+                    "downtime": "\/centreon\/api\/latest\/monitoring\/metaservices\/6\/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1716969848%7D,%22end_time%22:%7B%22%24gt%22:1716969848%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1716969848%7D%7D%7D%7D%5D%7D",
+                    "check": null,
+                    "forced_check": null,
+                    "metrics": "\/centreon\/api\/latest\/monitoring\/metaservices\/6\/metrics"
+                },
+                "uris": {
+                    "configuration": null,
+                    "logs": null,
+                    "reporting": null
+                },
+                "externals": {
+                    "action_url": "",
+                    "notes": {
+                        "label": "",
+                        "url": ""
+                    }
+                }
+            }
         }
     ],
     "meta": {

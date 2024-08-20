@@ -1,4 +1,4 @@
-import { MouseEvent, MutableRefObject, ReactNode, useState } from 'react';
+import { MouseEvent, MutableRefObject, useState } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
@@ -17,11 +17,11 @@ import {
 } from '@centreon/ui';
 
 import FederatedComponent from '../../../components/FederatedComponents';
+import { selectedResourceDetailsEndpointDerivedAtom } from '../../Details/detailsAtoms';
 import { ResourceDetails } from '../../Details/models';
-import { CustomTimePeriod } from '../../Details/tabs/Graph/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
-import { Resource } from '../../models';
+import { Resource, ResourceType } from '../../models';
 import {
   labelAsDisplayed,
   labelCSV,
@@ -32,17 +32,13 @@ import {
 } from '../../translatedLabels';
 
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
-import {
-  getDatesDerivedAtom,
-  selectedTimePeriodAtom
-} from './TimePeriods/timePeriodAtoms';
 
 interface Props {
-  customTimePeriod?: CustomTimePeriod;
+  end: string;
   open: boolean;
   performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
-  renderAdditionalGraphActions?: ReactNode;
   resource?: Resource | ResourceDetails;
+  start: string;
   timeline?: Array<TimelineEvent>;
 }
 
@@ -56,12 +52,12 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const GraphActions = ({
-  customTimePeriod,
   resource,
   timeline,
   performanceGraphRef,
   open,
-  renderAdditionalGraphActions
+  end,
+  start
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -69,6 +65,9 @@ const GraphActions = ({
   const [menuAnchor, setMenuAnchor] = useState<Element | null>(null);
   const [exporting, setExporting] = useState<boolean>(false);
 
+  const selectedResourceDetailsEndpoint = useAtomValue(
+    selectedResourceDetailsEndpointDerivedAtom
+  );
   const { format } = useLocaleDateTimeFormat();
   const navigate = useNavigate();
 
@@ -78,9 +77,6 @@ const GraphActions = ({
   const closeSizeExportMenu = (): void => {
     setMenuAnchor(null);
   };
-  const getIntervalDates = useAtomValue(getDatesDerivedAtom);
-  const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const [start, end] = getIntervalDates(selectedTimePeriod);
 
   const graphToCsvEndpoint = `${resource?.links?.endpoints.performance_graph}/download?start_date=${start}&end_date=${end}`;
 
@@ -90,20 +86,24 @@ const GraphActions = ({
 
   const goToPerformancePage = (): void => {
     const startTimestamp = format({
-      date: customTimePeriod?.start as Date,
+      date: start,
       formatString: 'X'
     });
     const endTimestamp = format({
-      date: customTimePeriod?.end as Date,
+      date: end,
       formatString: 'X'
     });
+    const svcId =
+      resource?.type === ResourceType.metaservice
+        ? `_Module_Meta;meta_${resource?.id}`
+        : `${resource?.parent?.name};${resource?.name}`;
 
     const urlParameters = (): string => {
       const params = new URLSearchParams({
         end: endTimestamp,
         mode: '0',
         start: startTimestamp,
-        svc_id: `${resource?.parent?.name};${resource?.name}`
+        svc_id: svcId
       });
 
       return params.toString();
@@ -159,15 +159,18 @@ const GraphActions = ({
           >
             <SaveAsImageIcon fontSize="inherit" />
           </IconButton>
-          <>
-            <FederatedComponent
-              displayButtonConfiguration
-              buttonConfigurationData={{ resource }}
-              path="/anomaly-detection"
-              styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
-            />
-            {renderAdditionalGraphActions}
-          </>
+          <FederatedComponent
+            path="/anomaly-detection/configuration-button"
+            styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
+          />
+          <FederatedComponent
+            end={end}
+            path="/anomaly-detection/modal"
+            resourceEndpoint={selectedResourceDetailsEndpoint}
+            start={start}
+            styleMenuSkeleton={{ height: 0, width: 0 }}
+            type={resource?.type}
+          />
           <Menu
             keepMounted
             anchorEl={menuAnchor}
@@ -211,12 +214,13 @@ const GraphActions = ({
 const MemoizedGraphActions = memoizeComponent<Props>({
   Component: GraphActions,
   memoProps: [
-    'customTimePeriod',
     'resourceParentName',
     'resourceName',
     'timeline',
     'performanceGraphRef',
-    'renderAdditionalGraphActions'
+    'renderAdditionalGraphActions',
+    'end',
+    'start'
   ]
 });
 

@@ -1,13 +1,21 @@
+import { useMemo } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNotNil } from 'ramda';
 
-import { FormControlLabel, FormGroup, Checkbox } from '@mui/material';
+import {
+  FormControlLabel,
+  FormGroup,
+  Checkbox,
+  Typography
+} from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
 
 import { WidgetPropertyProps } from '../../../models';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
+import { useResourceStyles } from '../Inputs.styles';
 
 import { useCheckboxes } from './useCheckboxes';
 import { labelSelectAll, labelUnselectAll } from './translatedLabels';
@@ -18,9 +26,11 @@ const WidgetCheckboxes = ({
   label,
   defaultValue,
   secondaryLabel,
-  keepOneOptionSelected
+  keepOneOptionSelected,
+  isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
+  const { classes } = useResourceStyles();
 
   const { canEditField } = useCanEditProperties();
 
@@ -38,9 +48,13 @@ const WidgetCheckboxes = ({
     propertyName
   });
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div>
-      <Subtitle secondaryLabel={secondaryLabel}>{t(label)}</Subtitle>
+      <Label className={classes.subtitle} secondaryLabel={secondaryLabel}>
+        {t(label)}
+      </Label>
       {!keepOneOptionSelected && (isNotNil(options) || isEmpty(options)) && (
         <Button
           disabled={!canEditField}

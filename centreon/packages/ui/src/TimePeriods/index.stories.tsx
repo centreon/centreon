@@ -10,6 +10,9 @@ import TimePeriod from '.';
 
 const meta: Meta<typeof TimePeriod> = {
   component: TimePeriod,
+  parameters: {
+    chromatic: { disableSnapshot: true }
+  },
   tags: ['autodocs']
 };
 
@@ -88,27 +91,20 @@ const args = {
   ]
 };
 
-const parameters = {
-  chromatic: { diffThreshold: 0.1 }
-};
-
 export const BasicTimePeriod: Story = {
   ...Template,
-  argTypes,
-  parameters
+  argTypes
 };
 
 export const WithExtraTimePeriods: Story = {
   ...Template,
   argTypes,
-  args,
-  parameters
+  args
 };
 
 export const WithExternalComponent: Story = {
   ...TemplateWithExternalComponent,
-  argTypes,
-  parameters
+  argTypes
 };
 
 export const SimpleTimePeriod: StorySimpleTimePeriod = {
@@ -116,6 +112,5 @@ export const SimpleTimePeriod: StorySimpleTimePeriod = {
   args: {
     endDate: dayjs(Date.now()).toDate(),
     startDate: dayjs(Date.now()).subtract(29, 'day').toDate()
-  },
-  parameters
+  }
 };

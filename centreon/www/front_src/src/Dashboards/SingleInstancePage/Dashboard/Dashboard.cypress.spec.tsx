@@ -313,7 +313,9 @@ describe('Dashboard', () => {
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelTitle).type('Generic input');
-      cy.findByLabelText('Generic text').type('Text for the new widget');
+      cy.findAllByLabelText('Generic text')
+        .eq(1)
+        .type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
       cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
@@ -333,30 +335,53 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelEditWidget).click();
 
-      cy.findByLabelText(labelWidgetType).click({ force: true });
-      cy.contains('Generic input (example)').click({ force: true });
-
-      cy.findByLabelText(labelTitle).type('Generic input', { force: true });
-      cy.findByLabelText('Generic text').type('Text for the new widget');
+      cy.findByLabelText(labelTitle).type(' updated', { force: true });
+      cy.get('[data-testid="RichTextEditor"]').eq(1).type('Description');
 
       cy.url().should('include', 'edit=true');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
 
       cy.contains(labelEditWidget).should('not.exist');
-      cy.contains('Text for the new widget')
+      cy.contains('Widget text updated')
         .should('be.visible')
         .then(() => {
           const dashboard = store.get(dashboardAtom);
 
           assert.equal(dashboard.layout.length, 3);
-          assert.exists(dashboard.layout[2].data);
           assert.equal(
-            dashboard.layout[2].options?.text,
-            'Text for the new widget'
+            dashboard.layout[0].options?.description?.content,
+            '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
           );
-          assert.equal(dashboard.layout[2].name, 'centreon-widget-input');
+          assert.equal(dashboard.layout[0].name, 'centreon-widget-text');
         });
+
+      cy.makeSnapshot();
+    });
+
+    it('resizes the widget to its minimum size when the handle is dragged', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'height')
+        .and('equal', '232px');
+
+      cy.get('[class*="react-resizable-handle-se"]')
+        .eq(0)
+        .realMouseDown()
+        .realMouseMove(-70, -70)
+        .realMouseMove(-70, -70)
+        .realMouseUp();
+
+      cy.get('[data-canmove="true"]')
+        .eq(0)
+        .parent()
+        .should('have.css', 'height')
+        .and('equal', '148px');
 
       cy.makeSnapshot();
     });
@@ -429,16 +454,6 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelSave).should('not.exist');
       cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
       cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
-
-      cy.makeSnapshot();
-    });
-
-    it('displays the refresh button when the more actions button is clicked', () => {
-      initializeAndMount(viewerRoles);
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-
-      cy.contains(labelRefresh).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -597,7 +612,7 @@ describe('Dashboard', () => {
         .should(
           'have.attr',
           'href',
-          '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbMy%20host%5C%5Cb%22%2C%22name%22%3A%22My%20host%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+          '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22statuses%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22states%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22parent_name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbMy%20host%5C%5Cb%22%2C%22name%22%3A%22My%20host%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
         );
     });
 

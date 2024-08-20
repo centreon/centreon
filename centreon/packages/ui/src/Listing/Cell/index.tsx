@@ -95,9 +95,6 @@ const useStyles = makeStyles<StylesProps>()(
     caretMore: {
       transform: 'rotate3d(0,0,1,180deg)'
     },
-    fakeCaret: {
-      marginLeft: theme.spacing(3)
-    },
     root: {
       alignItems: 'center',
       backgroundColor: getBackgroundColor({
@@ -198,26 +195,23 @@ const Cell = ({
         props
       )}
     >
-      {displaySubItemsCaret &&
-        (hasSubItems ? (
-          <IconButton
-            ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
-              props.row.id
-            }`}
-            size="small"
-            onClick={click}
-          >
-            <ExpandMoreIcon
-              className={cx(
-                classes.caret,
-                isSubItemsExpanded ? classes.caretMore : classes.caretLess
-              )}
-              fontSize="small"
-            />
-          </IconButton>
-        ) : (
-          <div className={classes.fakeCaret} />
-        ))}
+      {displaySubItemsCaret && hasSubItems && (
+        <IconButton
+          ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
+            props.row.id
+          }`}
+          size="small"
+          onClick={click}
+        >
+          <ExpandMoreIcon
+            className={cx(
+              classes.caret,
+              isSubItemsExpanded ? classes.caretMore : classes.caretLess
+            )}
+            fontSize="small"
+          />
+        </IconButton>
+      )}
       {children}
     </TableCell>
   );

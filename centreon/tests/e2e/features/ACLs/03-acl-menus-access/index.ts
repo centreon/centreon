@@ -1,9 +1,9 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import data from '../../../fixtures/acls/acl-data.json';
-import '../commands';
 
 const duplicatedACLMenu = {
-  name: data.ACLMenu.name + '_1'
+  name: `${data.ACLMenu.name}_1`
 };
 
 beforeEach(() => {
@@ -44,11 +44,9 @@ When('I add a new menu access linked with two groups', () => {
   cy.wait('@getTimeZone');
   cy.getIframeBody()
     .find('input[name="acl_topo_name"]')
-    .click()
     .type(data.ACLMenu.name);
   cy.getIframeBody()
     .find('input[name="acl_topo_alias"]')
-    .click()
     .type(data.ACLMenu.alias);
   cy.getIframeBody()
     .find('select[name="acl_groups-f[]"]')
@@ -63,7 +61,6 @@ When('I add a new menu access linked with two groups', () => {
   cy.getIframeBody().find('input[name="acl_r_topos[1]"]').parent().click();
   cy.getIframeBody()
     .find('textarea[name="acl_comments"]')
-    .click()
     .type(data.ACLMenu.comment);
 
   cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
@@ -86,23 +83,20 @@ Then(
       cy.wait('@getTimeZone');
 
       cy.getIframeBody()
-        .contains('tr', ACLGroup[1].name)
-        .within(() => {
-          cy.get('td.ListColLeft').click();
-        });
+        .contains('td.ListColLeft > a', ACLGroup[1].name)
+        .click();
 
       cy.wait('@getTimeZone');
       cy.getIframeBody().contains('a', 'Authorizations information').click();
 
-      ACLGroup[1].name != data.ACLGroups.ACLGroup3.name
-        ? cy
-            .getIframeBody()
-            .find('select[name="menuAccess-t[]"]')
-            .should('contain', data.ACLMenu.name)
-        : cy
-            .getIframeBody()
-            .find('select[name="menuAccess-t[]"]')
-            .should('not.contain', data.ACLMenu.name);
+      cy.getIframeBody()
+        .find('select[name="menuAccess-t[]"]')
+        .should(
+          ACLGroup[1].name !== data.ACLGroups.ACLGroup3.name
+            ? 'contain'
+            : 'not.contain',
+          data.ACLMenu.name
+        );
     });
   }
 );
@@ -127,11 +121,7 @@ When('I remove one access group', () => {
   });
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody()
-    .contains('tr', data.ACLMenu.name)
-    .within(() => {
-      cy.get('td.ListColLeft > a').eq(0).click();
-    });
+  cy.getIframeBody().contains('td.ListColLeft > a', data.ACLMenu.name).click();
 
   cy.wait('@getTimeZone');
   cy.getIframeBody()
@@ -154,10 +144,8 @@ Then('link between access group and Menu access must be broken', () => {
       data.ACLGroups.ACLGroup2.name,
       ($body) => {
         cy.wrap($body)
-          .contains('tr', data.ACLGroups.ACLGroup2.name)
-          .within(() => {
-            cy.get('td.ListColLeft > a').click();
-          });
+          .contains('td.ListColLeft > a', data.ACLGroups.ACLGroup2.name)
+          .click();
       },
       3,
       3000
@@ -206,7 +194,11 @@ When('I duplicate the Menu access', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      cy.stub<any>(win, 'confirm').returns(true);
+      if (!win) {
+        throw new Error('Cannot get iframe');
+      }
+
+      cy.stub(win, 'confirm').returns(true);
     }
   );
 
@@ -218,29 +210,29 @@ Then(
   () => {
     cy.wait('@getTimeZone');
 
-    const originalACLMenuValues: string[] = [];
+    const originalACLMenuValues: Array<string> = [];
     cy.getIframeBody()
       .contains('tr', data.ACLMenu.name)
       .within(() => {
         cy.get('td').each((td, index) => {
-          if (1 <= index && index <= 5)
+          if (index >= 1 && index <= 5)
             originalACLMenuValues.push(td.text().trim());
         });
       });
 
-    const duplicatedACLMenuValues: string[] = [];
+    const duplicatedACLMenuValues: Array<string> = [];
     cy.getIframeBody()
       .contains('tr', duplicatedACLMenu.name)
       .within(() => {
         cy.get('td').each((td, index) => {
-          if (1 <= index && index <= 5)
+          if (index >= 1 && index <= 5)
             duplicatedACLMenuValues.push(td.text().trim());
         });
       });
 
     cy.wrap(duplicatedACLMenuValues).then((duplicatedValues) => {
       expect(duplicatedValues[0]).to.not.equal(originalACLMenuValues[0]);
-      for (let i = 1; i < originalACLMenuValues.length; i++) {
+      for (let i = 1; i < originalACLMenuValues.length; i += 1) {
         expect(duplicatedValues[i]).to.equal(originalACLMenuValues[i]);
       }
     });
@@ -301,7 +293,11 @@ When('I delete the Menu access', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      cy.stub<any>(win, 'confirm').returns(true);
+      if (!win) {
+        throw new Error('Cannot get iframe');
+      }
+
+      cy.stub(win, 'confirm').returns(true);
     }
   );
 
@@ -326,10 +322,8 @@ Then('the link with access groups is broken', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', data.ACLGroups.ACLGroup1.name)
-    .within(() => {
-      cy.get('td.ListColLeft').click();
-    });
+    .contains('td.ListColLeft > a', data.ACLGroups.ACLGroup1.name)
+    .click();
 
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Authorizations information').click();

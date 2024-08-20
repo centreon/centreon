@@ -1,11 +1,11 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\ServiceConfigurationPage;
 use Centreon\Test\Behat\Configuration\DowntimeConfigurationListingPage;
 use Centreon\Test\Behat\Configuration\HostConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostGroupConfigurationPage;
 use Centreon\Test\Behat\Configuration\RecurrentDowntimeConfigurationPage;
+use Centreon\Test\Behat\Configuration\ServiceConfigurationPage;
 
 /**
  * Defines application features from the specific context.
@@ -19,7 +19,7 @@ class DowntimeRecurrentContext extends CentreonContext
     protected $host = array(
         'name' => 'host',
         'alias' => 'host',
-        'address' => 'host2@localhost',
+        'address' => '1.2.3.4',
         'check_command' => 'check_centreon_dummy',
         'location' => 'Europe/Paris'
     );

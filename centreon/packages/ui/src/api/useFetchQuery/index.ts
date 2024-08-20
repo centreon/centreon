@@ -8,7 +8,7 @@ import {
   UseQueryOptions
 } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
-import { has, includes, isNil, not, omit } from 'ramda';
+import { equals, has, includes, isNil, not, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
@@ -32,6 +32,7 @@ export interface UseFetchQueryProps<T> {
     UseQueryOptions<T | ResponseError, Error, T | ResponseError, QueryKey>,
     'queryKey' | 'queryFn'
   >;
+  useLongCache?: boolean;
 }
 
 export type UseFetchQueryState<T> = {
@@ -58,11 +59,17 @@ const useFetchQuery = <T extends object>({
   queryOptions,
   httpCodesBypassErrorSnackbar = [],
   baseEndpoint,
-  doNotCancelCallsOnUnmount = false
+  doNotCancelCallsOnUnmount = false,
+  useLongCache
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
   const dataRef = useRef<T | undefined>(undefined);
 
   const { showErrorMessage } = useSnackbar();
+
+  const isCypressTest = equals(window.Cypress?.testingType, 'component');
+
+  const cacheOptions =
+    !isCypressTest && useLongCache ? { gcTime: 60 * 1000 } : {};
 
   const queryData = useQuery<T | ResponseError, Error>({
     queryFn: ({ signal }): Promise<T | ResponseError> =>
@@ -76,6 +83,7 @@ const useFetchQuery = <T extends object>({
         signal
       }),
     queryKey: getQueryKey(),
+    ...cacheOptions,
     ...queryOptions
   });
 

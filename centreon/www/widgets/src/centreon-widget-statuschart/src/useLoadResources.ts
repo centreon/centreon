@@ -14,7 +14,10 @@ import { StatusChartProps, StatusType } from './models';
 import { FormattedResponse, formatResponse } from './utils';
 
 interface LoadResourcesProps
-  extends Pick<StatusChartProps, 'dashboardId' | 'id' | 'playlistHash'> {
+  extends Pick<
+    StatusChartProps,
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
+  > {
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resourceType: 'host' | 'service';
@@ -33,7 +36,8 @@ const useLoadResources = ({
   resourceType,
   id,
   dashboardId,
-  playlistHash
+  playlistHash,
+  widgetPrefixQuery
 }: LoadResourcesProps): LoadResources => {
   const theme = useTheme();
 
@@ -53,6 +57,7 @@ const useLoadResources = ({
         widgetId: id
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'statusChart',
       JSON.stringify(resources),
       refreshCount,
@@ -61,7 +66,8 @@ const useLoadResources = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   return {

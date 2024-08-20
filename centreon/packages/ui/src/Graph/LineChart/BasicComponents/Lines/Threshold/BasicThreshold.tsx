@@ -1,10 +1,9 @@
 import { Threshold } from '@visx/threshold';
 
 import { TimeValue } from '../../../../common/timeSeries/models';
-import { CurveType } from '../models';
 
 interface Props {
-  curve: CurveType;
+  curve: 'linear' | 'natural' | 'step';
   fillAboveArea: string;
   fillBelowArea: string;
   fillOpacity?: number;

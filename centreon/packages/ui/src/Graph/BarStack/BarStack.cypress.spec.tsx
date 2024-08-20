@@ -55,7 +55,7 @@ describe('Bar stack', () => {
   it('adjusts size based on the provided width and height', () => {
     initialize({ displayLegend: false, height: '300px', width: '300px' });
 
-    cy.findByTestId('barStack').should('have.css', 'height', '300px');
+    cy.findByTestId('barStack').should('have.css', 'height', '270px');
 
     cy.makeSnapshot();
   });

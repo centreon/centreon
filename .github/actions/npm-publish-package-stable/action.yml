@@ -72,7 +72,7 @@ runs:
       shell: bash
 
     - name: Publish package to NPM (${{ env.TAG }})
-      uses: JS-DevTools/npm-publish@v2
+      uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
       with:
         access: public
         package: ${{ env.directory }}/package.json

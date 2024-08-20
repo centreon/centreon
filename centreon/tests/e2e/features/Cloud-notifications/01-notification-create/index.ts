@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
@@ -7,12 +9,12 @@ import {
 import {
   enableNotificationFeature,
   notificationSentCheck,
+  notificationSentCount,
   setBrokerNotificationsOutput,
   waitUntilLogFileChange,
   initializeDataFiles
 } from '../common';
 import data from '../../../fixtures/notifications/data-for-notification.json';
-import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
 
 let globalResourceType = '';
 let globalContactSettings = '';
@@ -292,12 +294,13 @@ When('the hard state has been reached', () => {
       ]);
       break;
     default:
-      const servicesToBeChecked = Array.from({ length: 1000 }, (_, i) => ({
-        name: `service_${i + 1}`,
-        status: 'ok',
-        statusType: 'hard'
-      }));
-      checkServicesAreMonitored(servicesToBeChecked);
+      checkServicesAreMonitored(
+        Array.from({ length: 1000 }, (_, i) => ({
+          name: `service_${i + 1}`,
+          status: 'ok',
+          statusType: 'hard'
+        }))
+      );
   }
 });
 
@@ -313,11 +316,7 @@ Then(
         if (globalResourceType) {
           notificationSentCheck({ logs: `<<${data.hosts.host2.name}>>` });
         } else {
-          const logsToCheck = Array.from(
-            { length: 1000 },
-            (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
-          );
-          notificationSentCheck({ logs: logsToCheck });
+          notificationSentCount(1000);
         }
         notificationSentCheck({
           logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
@@ -329,11 +328,7 @@ Then(
             logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`
           });
         } else {
-          const logsToCheck = Array.from(
-            { length: 1000 },
-            (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
-          );
-          notificationSentCheck({ logs: logsToCheck });
+          notificationSentCount(1000);
         }
         notificationSentCheck({
           logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
@@ -393,18 +388,17 @@ Given(
     initializeDataFiles();
 
     cy.copyToContainer({
-      destination:
-        '/bitnami/mariadb/data/centreon_storage/centreon_storage_services.txt',
-      source: './fixtures/notifications/centreon_storage_services.txt',
+      destination: '/tmp/centreon_storage_services.txt',
       name: 'db',
+      source: './fixtures/notifications/centreon_storage_services.txt',
       type: CopyToContainerContentType.File
     });
 
-    const query_centreon_storage_service = `LOAD DATA INFILE 'centreon_storage_services.txt' 
+    const query_centreon_storage_service = `LOAD DATA INFILE '/tmp/centreon_storage_services.txt'
     INTO TABLE services
-    FIELDS TERMINATED BY '\t' 
+    FIELDS TERMINATED BY '\t'
     LINES TERMINATED BY '\n'
-    (host_id, description, service_id, acknowledged, acknowledgement_type, action_url, active_checks, check_attempt, check_command, check_freshness, check_interval, check_period, check_type, checked, default_active_checks, default_event_handler_enabled, default_flap_detection, default_notify, default_passive_checks, display_name, enabled, event_handler, event_handler_enabled, execution_time, first_notification_delay, flap_detection, flap_detection_on_critical, flap_detection_on_ok, flap_detection_on_unknown, flap_detection_on_warning, flapping, freshness_threshold, high_flap_threshold, icon_image, icon_image_alt, last_hard_state, last_update, latency, low_flap_threshold, max_check_attempts, next_check, no_more_notifications, notification_interval, notification_number, notification_period, notify, notify_on_critical, notify_on_downtime, notify_on_flapping, notify_on_recovery, notify_on_unknown, notify_on_warning, obsess_over_service, output, passive_checks, percent_state_change, perfdata, retain_nonstatus_information, retain_status_information, retry_interval, scheduled_downtime_depth, should_be_scheduled, stalk_on_critical, stalk_on_ok, stalk_on_unknown, stalk_on_warning, state, state_type, volatile);    
+    (host_id, description, service_id, acknowledged, acknowledgement_type, action_url, active_checks, check_attempt, check_command, check_freshness, check_interval, check_period, check_type, checked, default_active_checks, default_event_handler_enabled, default_flap_detection, default_notify, default_passive_checks, display_name, enabled, event_handler, event_handler_enabled, execution_time, first_notification_delay, flap_detection, flap_detection_on_critical, flap_detection_on_ok, flap_detection_on_unknown, flap_detection_on_warning, flapping, freshness_threshold, high_flap_threshold, icon_image, icon_image_alt, last_hard_state, last_update, latency, low_flap_threshold, max_check_attempts, next_check, no_more_notifications, notification_interval, notification_number, notification_period, notify, notify_on_critical, notify_on_downtime, notify_on_flapping, notify_on_recovery, notify_on_unknown, notify_on_warning, obsess_over_service, output, passive_checks, percent_state_change, perfdata, retain_nonstatus_information, retain_status_information, retry_interval, scheduled_downtime_depth, should_be_scheduled, stalk_on_critical, stalk_on_ok, stalk_on_unknown, stalk_on_warning, state, state_type, volatile);
     `;
     cy.requestOnDatabase({
       database: 'centreon_storage',
@@ -412,13 +406,13 @@ Given(
     });
 
     cy.copyToContainer({
-      destination: '/bitnami/mariadb/data/centreon/centreon_services.txt',
-      source: './fixtures/notifications/centreon_services.txt',
+      destination: '/tmp/centreon_services.txt',
       name: 'db',
+      source: './fixtures/notifications/centreon_services.txt',
       type: CopyToContainerContentType.File
     });
 
-    const query_centreon_service = `LOAD DATA INFILE 'centreon_services.txt'
+    const query_centreon_service = `LOAD DATA INFILE '/tmp/centreon_services.txt'
     INTO TABLE service
     FIELDS TERMINATED BY '\t'
     LINES TERMINATED BY '\n'
@@ -429,13 +423,13 @@ Given(
     });
 
     cy.copyToContainer({
-      destination: '/bitnami/mariadb/data/centreon/host_service_relation.txt',
-      source: './fixtures/notifications/host_service_relation.txt',
+      destination: '/tmp/host_service_relation.txt',
       name: 'db',
+      source: './fixtures/notifications/host_service_relation.txt',
       type: CopyToContainerContentType.File
     });
 
-    const query_host_service_relation = `LOAD DATA INFILE 'host_service_relation.txt'
+    const query_host_service_relation = `LOAD DATA INFILE '/tmp/host_service_relation.txt'
     INTO TABLE host_service_relation
     FIELDS TERMINATED BY '\t'
     LINES TERMINATED BY '\n'
@@ -481,9 +475,10 @@ When(
 
     cy.fixture('notifications/payload-check.json').then((payloadCheck) => {
       cy.request({
+        body: payloadCheck,
         method: 'POST',
-        url: '/centreon/api/latest/monitoring/resources/check',
-        body: payloadCheck
+        timeout: 120000,
+        url: '/centreon/api/latest/monitoring/resources/check'
       }).then((response) => {
         expect(response.status).to.eq(204);
       });

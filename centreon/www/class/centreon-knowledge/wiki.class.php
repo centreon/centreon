@@ -33,8 +33,10 @@
  *
  */
 
+require_once  _CENTREON_PATH_ . '/bootstrap.php';
 require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
+require_once __DIR__ . '/../../include/common/vault-functions.php';
 
 class Wiki
 {
@@ -75,6 +77,23 @@ class Wiki
 
         if (!preg_match('#^http://|https://#', $options['kb_wiki_url'])) {
             $options['kb_wiki_url'] = 'http://' . $options['kb_wiki_url'];
+        }
+
+        if (isset($options['kb_wiki_password']) && str_starts_with($options['kb_wiki_password'], 'secret::')) {
+            $kernel = \App\Kernel::createForWeb();
+            $readVaultConfigurationRepository = $kernel->getContainer()->get(
+                Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+            );
+            $vaultConfiguration = $readVaultConfigurationRepository->find();
+            if ($vaultConfiguration !== null) {
+                /**
+                 * @var \Centreon\Domain\Log\Logger $logger
+                 */
+                $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+                $vaultPathPart = explode('::', $options['kb_wiki_password']);
+                $knowledgeBasePasswordPath = end($vaultPathPart);
+                $options['kb_wiki_password'] = findKnowledgeBasePasswordFromVault($logger, $knowledgeBasePasswordPath, $vaultConfiguration);
+            }
         }
 
         return $options;

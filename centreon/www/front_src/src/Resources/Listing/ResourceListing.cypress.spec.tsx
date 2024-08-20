@@ -109,7 +109,7 @@ const interceptRequestsAndMountBeforeEach = (
     )
   });
 
-  cy.viewport(1200, 1000);
+  cy.adjustViewport();
 };
 
 describe('Resource Listing', () => {
@@ -388,6 +388,7 @@ describe('Resource Listing: Visualization by all resources', () => {
 
 describe('column sorting', () => {
   beforeEach(() => {
+    cy.adjustViewport();
     columnToSort.forEach(() => {
       cy.interceptAPIRequest({
         alias: `dataToListingTable`,
@@ -411,8 +412,6 @@ describe('column sorting', () => {
         </Router>
       )
     });
-
-    cy.viewport(1200, 1000);
   });
 
   columnToSort.forEach(({ label }) => {

@@ -32,10 +32,15 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -44,7 +49,7 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteHost
 {
-    use LoggerTrait;
+    use LoggerTrait,VaultTrait;
 
     public function __construct(
         private readonly ReadHostRepositoryInterface $readHostRepository,
@@ -55,6 +60,9 @@ final class DeleteHost
         private readonly DataStorageEngineInterface $storageEngine,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
+        private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
+        private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
     ) {
     }
 
@@ -107,11 +115,27 @@ final class DeleteHost
             $serviceIds = $this->readServiceRepository->findServiceIdsLinkedToHostId($host->getId());
             if ($serviceIds !== []) {
                 $this->info('Services to delete', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
+                if ($this->writeVaultRepository->isVaultConfigured()) {
+                    $serviceUuids = $this->retrieveServiceUuidsFromVault($serviceIds);
+                    $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+                    foreach ($serviceUuids as $serviceUuid) {
+                        $this->writeVaultRepository->delete($serviceUuid);
+                    }
+                }
+
                 $this->writeServiceRepository->deleteByIds(...$serviceIds);
             } else {
                 $this->info('No services to delete', ['user_id' => $this->contact->getId()]);
             }
             $this->info('Host to delete', ['user_id' => $this->contact->getId(), 'host_id' => $host->getId()]);
+
+            if ($this->writeVaultRepository->isVaultConfigured()) {
+                $this->retrieveHostUuidFromVault($host);
+                if ($this->uuid !== null) {
+                    $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
+                    $this->writeVaultRepository->delete($this->uuid);
+                }
+            }
             $this->writeHostRepository->deleteById($host->getId());
             $this->writeMonitoringServerRepository->notifyConfigurationChange($host->getMonitoringServerId());
             $this->debug('Commit transaction');
@@ -149,5 +173,50 @@ final class DeleteHost
         );
 
         return $this->readHostRepository->existsByAccessGroups($hostId, $accessGroups);
+    }
+
+    /**
+     * @param Host $host
+     *
+     * @throws \Throwable
+     */
+    private function retrieveHostUuidFromVault(Host $host): void
+    {
+        $this->uuid = $this->getUuidFromPath($host->getSnmpCommunity());
+        if (null === $this->uuid) {
+            $macros = $this->readHostMacroRepository->findByHostId($host->getId());
+            foreach ($macros as $macro) {
+                if (
+                    $macro->isPassword() === true
+                    && null !== ($this->uuid = $this->getUuidFromPath($macro->getValue()))
+                ) {
+
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * @param int[] $serviceIds
+     *
+     * @throws \Throwable
+     *
+     * @return string[]
+     */
+    private function retrieveServiceUuidsFromVault(array $serviceIds): array
+    {
+        $uuids = [];
+        $macros = $this->readServiceMacroRepository->findByServiceIds(...$serviceIds);
+        foreach ($macros as $macro) {
+            if (
+                $macro->isPassword() === true
+                && null !== ($uuid = $this->getUuidFromPath($macro->getValue()))
+            ) {
+                $uuids[] = $uuid;
+            }
+        }
+
+        return array_unique($uuids);
     }
 }

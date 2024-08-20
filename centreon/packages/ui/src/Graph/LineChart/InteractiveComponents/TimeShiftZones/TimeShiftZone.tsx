@@ -9,9 +9,9 @@ import { alpha, useTheme } from '@mui/material';
 import { GraphInterval, Interval } from '../../models';
 
 import { TimeShiftDirection } from './models';
-import useTimeShiftZones from './useTimeShiftZones';
+import { useTimeShiftZones } from './useTimeShiftZones';
 
-export const timeShiftZoneWidth = 50;
+export const timeShiftZoneWidth = 30;
 
 const useStyles = makeStyles()({
   translationZone: {
@@ -53,7 +53,7 @@ const TimeShiftZone = ({
       className={classes.translationZone}
       fill={
         equals(directionHovered, direction)
-          ? alpha(theme.palette.background.paper, 0.2)
+          ? alpha(theme.palette.background.paper, 0.5)
           : 'transparent'
       }
       height={graphHeight}

@@ -7,6 +7,11 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     paths:
       - "centreon-gorgone/**"
       - "!centreon-gorgone/veracode.json"
@@ -134,11 +139,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8]
+        distrib: [el8, bullseye]
         include:
           - package_extension: rpm
             image: gorgone-testing-alma8
             distrib: el8
+          - package_extension: deb
+            image: gorgone-testing-bullseye
+            distrib: bullseye
     runs-on: ubuntu-22.04
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -152,7 +160,7 @@ jobs:
         ports:
           - 3306
         env:
-          MYSQL_USER: user
+          MYSQL_USER: centreon
           MYSQL_PASSWORD: password
           MYSQL_ROOT_PASSWORD: password
 
@@ -161,13 +169,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: get cached gorgone package
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ matrix.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           fail-on-cache-miss: true
 
-      - name: Install gorgogne
+      - name: Install gorgogne from just built package
+        shell: bash
         run: |
           if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
             apt install -y ./centreon-gorgone*${{ matrix.distrib }}*
@@ -177,15 +186,29 @@ jobs:
             # this is not the case for debian, and for now I don't know why it was made any different between the 2 Os.
           fi
 
-      - name: Create database
+      - name: Create databases
         run: |
           mysql -h mariadb -u root -ppassword -e "CREATE DATABASE \`centreon\`"
           mysql -h mariadb -u root -ppassword -e "CREATE DATABASE \`centreon-storage\`"
+          mysql -h mariadb -u root -ppassword -e "GRANT ALL PRIVILEGES ON centreon.* TO 'centreon'@'%'"
+          mysql -h mariadb -u root -ppassword -e "GRANT ALL PRIVILEGES ON  \`centreon-storage\`.* TO 'centreon'@'%'"
           mysql -h mariadb -u root -ppassword 'centreon' < centreon/www/install/createTables.sql
           mysql -h mariadb -u root -ppassword 'centreon-storage' < centreon/www/install/createTablesCentstorage.sql
 
       - name: Run tests
-        run: robot centreon-gorgone/tests
+        run: robot -v 'DBHOST:mariadb' -v 'DBNAME:centreon' -v 'DBUSER:centreon' centreon-gorgone/tests
+
+
+      - name: Upload gorgone and robot debug artifacts
+        if: failure()
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: gorgone-debug-${{ matrix.distrib }}
+          path: |
+            log.html
+            /var/log/centreon-gorgone
+            /etc/centreon-gorgone
+          retention-days: 1
 
   deliver-sources:
     runs-on: [self-hosted, common]

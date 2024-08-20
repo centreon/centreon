@@ -230,7 +230,8 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
             [
                 'global' => [
                     'base' => 1000,
-                    'title' => 'Ping graph on myHost'
+                    'title' => 'Ping graph on myHost',
+                    'host_name' => 'myHost'
                 ],
                 'metrics' => [
                     [

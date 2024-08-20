@@ -13,7 +13,7 @@ const enableVisualTesting = (cypressFolder = 'cypress'): void => {
     capture: 'viewport',
     customDiffConfig: { threshold: 0.01 },
     customSnapshotsDir: `${cypressFolder}/visual-testing-snapshots`,
-    failureThreshold: 0.07,
+    failureThreshold: Cypress.env('updateSnapshots') === true ? 0 : 0.07,
     failureThresholdType: 'percent'
   });
 };

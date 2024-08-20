@@ -1,10 +1,11 @@
 import { Dispatch, SetStateAction, startTransition, useState } from 'react';
 
-import { useAtom, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, find, isEmpty, propEq, toPairs } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { Panel, PanelConfiguration } from '../models';
 import {
@@ -17,6 +18,7 @@ import {
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 
 import {
   customBaseColorAtom,
@@ -26,6 +28,7 @@ import {
   widgetPropertiesAtom
 } from './atoms';
 import { Widget } from './models';
+import { getDefaultValues } from './WidgetProperties/useWidgetSelection';
 
 interface useWidgetModalState {
   addWidget: (values: Widget) => void;
@@ -50,6 +53,10 @@ const useWidgetModal = (): useWidgetModalState => {
     widgetFormInitialDataAtom
   );
 
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
+  const federatedWidgetsProperties = useAtomValue(
+    federatedWidgetsPropertiesAtom
+  );
   const addPanel = useSetAtom(addPanelDerivedAtom);
   const deletePanel = useSetAtom(removePanelDerivedAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
@@ -60,16 +67,47 @@ const useWidgetModal = (): useWidgetModalState => {
 
   const { showSuccessMessage } = useSnackbar();
 
-  const openModal = (widget: Panel | null): void =>
+  const openModal = (widget: Panel | null): void => {
+    const selectedWidget = find(
+      propEq(widget?.name, 'moduleName'),
+      federatedWidgets || []
+    );
+
+    const selectedWidgetProperties = find(
+      propEq(widget?.name, 'moduleName'),
+      federatedWidgetsProperties || []
+    );
+
+    const inputCategories = selectedWidgetProperties?.categories || [];
+
+    const defaultOptions =
+      selectedWidget && selectedWidgetProperties
+        ? {
+            ...getDefaultValues(selectedWidgetProperties.options),
+            ...toPairs(inputCategories).reduce((acc, [, value]) => {
+              const hasGroups = !isEmpty(value?.groups);
+
+              return {
+                ...acc,
+                ...getDefaultValues(hasGroups ? value.elements : value)
+              };
+            }, {})
+          }
+        : {};
+
     startTransition(() =>
       setWidgetFormInitialDataAtom({
         data: widget?.data || {},
         id: widget?.i || null,
         moduleName: widget?.name || null,
-        options: widget?.options || {},
+        options: {
+          ...defaultOptions,
+          ...(widget?.options || {})
+        },
         panelConfiguration: widget?.panelConfiguration || null
       })
     );
+  };
 
   const closeModal = (): void =>
     startTransition(() => {

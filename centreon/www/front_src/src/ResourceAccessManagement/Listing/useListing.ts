@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { prop } from 'ramda';
+import { equals, prop } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { Column, useFetchQuery } from '@centreon/ui';
@@ -18,6 +18,8 @@ import {
   ModalMode
 } from '../models';
 import type { SortOrder } from '../models';
+import { resourceAccessRuleDecoder } from '../AddEditResourceAccessRule/api/decoders';
+import { resourceAccessRuleEndpoint } from '../AddEditResourceAccessRule/api/endpoints';
 
 import { listingDecoder } from './api/decoders';
 import { buildResourceAccessRulesEndpoint } from './api/endpoints';
@@ -65,9 +67,10 @@ const useListing = (): UseListingState => {
   const [sortF, setSortF] = useState<string>('name');
   const [sortO, setSortO] = useState<SortOrder>('asc');
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
+  const [editRuleId, setEditedRuleId] = useAtom(editedResourceAccessRuleIdAtom);
   const searchValue = useAtomValue(resourceAccessManagementSearchAtom);
+  const modalState = useAtomValue(modalStateAtom);
   const setResourceAccessRulesNames = useSetAtom(resourceAccessRulesNamesAtom);
-  const setEditedRuleId = useSetAtom(editedResourceAccessRuleIdAtom);
   const setModalState = useSetAtom(modalStateAtom);
 
   const sort = { [sortF]: sortO };
@@ -146,9 +149,20 @@ const useListing = (): UseListingState => {
     }
   ];
 
+  const { fetchQuery } = useFetchQuery({
+    decoder: resourceAccessRuleDecoder,
+    getEndpoint: () => resourceAccessRuleEndpoint({ id: editRuleId }),
+    getQueryKey: () => ['resource-access-rule', editRuleId],
+    queryOptions: {
+      enabled: equals(modalState.mode, ModalMode.Edit),
+      suspense: false
+    }
+  });
+
   const onRowClick = (row: ResourceAccessRuleType): void => {
     setEditedRuleId(row.id);
     setModalState({ isOpen: true, mode: ModalMode.Edit });
+    fetchQuery();
   };
 
   return {

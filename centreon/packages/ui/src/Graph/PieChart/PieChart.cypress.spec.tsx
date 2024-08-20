@@ -147,7 +147,7 @@ describe('Pie chart', () => {
       width: '120px'
     });
 
-    cy.get('[data-variant="donut"]').should('have.css', 'width', '100px');
+    cy.get('[data-variant="donut"]').should('have.css', 'width', '76px');
 
     cy.makeSnapshot();
   });

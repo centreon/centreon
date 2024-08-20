@@ -8,7 +8,9 @@ import {
   innerJoin,
   isEmpty,
   isNil,
+  map,
   omit,
+  pick,
   pluck,
   propEq,
   reject
@@ -22,7 +24,8 @@ import {
   Metric,
   ServiceMetric,
   Widget,
-  WidgetDataResource
+  WidgetDataResource,
+  WidgetResourceType
 } from '../../../models';
 import { getDataProperty } from '../utils';
 import {
@@ -41,6 +44,7 @@ interface UseMetricsOnlyState {
   getMetricOptionDisabled: (metricOption) => boolean;
   getOptionLabel: (metric: FormMetric) => string;
   getTagLabel: (metric: FormMetric) => string;
+  hasMetaService: boolean;
   hasNoResources: () => boolean;
   hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
@@ -68,6 +72,14 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   const resources = (
     resourcesInputKey ? values.data?.[resourcesInputKey] : []
   ) as Array<WidgetDataResource>;
+
+  const hasMetaService = useMemo(
+    () =>
+      resources.some(({ resourceType }) =>
+        equals(resourceType, WidgetResourceType.metaService)
+      ),
+    [resources]
+  );
 
   const value = useMemo<Array<FormMetric> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -250,7 +262,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
         return;
       }
 
-      if (isEmpty(resources)) {
+      if (isEmpty(resources) || hasMetaService) {
         setFieldValue(`data.${propertyName}`, []);
 
         return;
@@ -300,8 +312,17 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
           : intersectionFilteredExcludedMetrics
       );
     },
-    useDeepCompare([servicesMetrics, resources])
+    useDeepCompare([servicesMetrics, resources, hasMetaService])
   );
+
+  useEffect(() => {
+    const services = map(
+      pick(['uuid', 'id', 'name', 'parentName']),
+      servicesMetrics?.result || []
+    );
+
+    setFieldValue(`data.services`, services);
+  }, [values?.data?.[propertyName]]);
 
   return {
     changeMetric,
@@ -311,6 +332,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     getMetricOptionDisabled,
     getOptionLabel,
     getTagLabel,
+    hasMetaService,
     hasNoResources,
     hasReachedTheLimitOfUnits,
     hasTooManyMetrics,

@@ -36,6 +36,9 @@ export const useResourceStyles = makeStyles()((theme) => ({
     alignSelf: 'center',
     flexGrow: 1
   },
+  subtitle: {
+    marginBottom: theme.spacing(0.5)
+  },
   warningText: {
     color: theme.palette.warning.main
   }

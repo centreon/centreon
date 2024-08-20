@@ -16,8 +16,17 @@ on:
   schedule:
     - cron: "0 3 * * *"
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     paths:
       - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
@@ -29,6 +38,10 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
@@ -47,7 +60,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: dorny/paths-filter@ebc4d7e9ebcb0b1eb21480bb8f43113e996ac77a # v3.0.1
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
           filters: |
@@ -102,7 +115,7 @@ jobs:
         uses: actions/checkout@v4
 
       - run: |
-          NIGHTLY_TARGETS=("dev-23.10.x" "dev-24.04.x")
+          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x")
           for target in ${NIGHTLY_TARGETS[@]}; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run web.yml -r "$target" -f is_nightly=true
@@ -290,7 +303,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
+        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
         with:
           php-version: 8.1
           coverage: none
@@ -322,7 +335,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
+        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
         with:
           php-version: 8.1
           coverage: none
@@ -519,7 +532,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+
+    name: dockerize ${{ matrix.operating_system }}
 
     steps:
       - name: Checkout sources
@@ -528,23 +543,23 @@ jobs:
       - name: Generate information according to matrix os
         id: matrix_include
         run: |
-          if [ "${{ matrix.os }}" = "alma8" ]; then
+          if [ "${{ matrix.operating_system }}" = "alma8" ]; then
             DISTRIB=el8
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.os }}" = "alma9" ]; then
+          elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.os }}" = "bullseye" ]; then
+          elif [ "${{ matrix.operating_system }}" = "bullseye" ]; then
             DISTRIB=bullseye
             PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.os }}" = "bookworm" ]; then
+          elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.os }}" = "jammy" ]; then
+          elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
             DISTRIB=jammy
             PACKAGE_EXTENSION=deb
           else
-            echo "::error::${{ matrix.os }} is not managed"
+            echo "::error::${{ matrix.operating_system }} is not managed"
             exit 1
           fi
 
@@ -553,7 +568,7 @@ jobs:
         shell: bash
 
       - name: Login to registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -566,25 +581,26 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
-      - uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+      - uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
 
-      - name: Build web image
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
+      - name: Build and push web image
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+          file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
             "MYDUMPER_VERSION=0.16.3-5"
           pull: true
+          push: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
 
       - name: Push web image
         uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+          file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
@@ -592,7 +608,8 @@ jobs:
             "MYDUMPER_VERSION=0.16.3-5"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
         run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
@@ -600,7 +617,7 @@ jobs:
 
       - name: Build slim image
         run: |
-          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}"
+          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}"
           sed -i '/openid:/,$d' .github/docker/docker-compose.yml # remove all services after openid
           docker compose -f .github/docker/docker-compose.yml pull db
           slim build \
@@ -612,22 +629,22 @@ jobs:
             --include-shell \
             --include-new=false \
             --http-probe-off \
-            --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
-            --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
-            --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
-            --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
-            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            --exec-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/exec.txt \
+            --include-path-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-path.txt \
+            --include-bin-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-bin.txt \
+            --path-perms-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/path-perms.txt \
+            --tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Push slim image
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Store slim image in local archive
         run: |
           mkdir -p /tmp/cache/docker-image
-          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Clear previous docker image from cache
@@ -636,14 +653,34 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Store slim image in cache
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: /tmp/cache/docker-image
-          key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
+
+  create-xray-test-plan-and-test-execution:
+    needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
+
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    with:
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      os: ${{ matrix.operating_system }}
+    secrets:
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   newman-test:
     needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
@@ -651,17 +688,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).databases }}
+    name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/newman.yml
     with:
       collection_path: centreon/tests/rest_api/collections
       image_name: centreon-web
-      os: ${{ matrix.os }}
+      os: ${{ matrix.operating_system }}
       container_name: my_centreon_container
       centreon_url: http://localhost
-      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-      database_image: bitnami/mariadb:10.11
+      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+      database_image: bitnami/${{ matrix.database }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-version.outputs.major_version }}
       stability: ${{ needs.get-version.outputs.stability }}
@@ -681,16 +719,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).databases }}
+    name: api-integration-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
       module_name: centreon
-      database_image: bitnami/mariadb:10.11
+      database_image: bitnami/${{ matrix.database }}
       image_name: centreon-web
-      os: ${{ matrix.os }}
+      os: ${{ matrix.operating_system }}
       features_path: tests/api/features
+      test_tags: ${{ matrix.test_tags }}
       config_file: tests/api/behat.yml
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -703,39 +743,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+    name: legacy-e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/behat-test.yml
     with:
       name: legacy-e2e
       module_name: centreon
-      database_image: bitnami/mariadb:10.11
+      database_image: bitnami/${{ matrix.database }}
       image_name: centreon-web
-      os: ${{ matrix.os }}
+      os: ${{ matrix.operating_system }}
       features_path: features
+      test_tags: ${{ matrix.test_tags }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
-  create-xray-test-plan-and-test-execution:
-    needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
-
-    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
-    with:
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      os: ${{ matrix.os }}
-    secrets:
-      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
     needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
@@ -743,21 +766,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+    name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
       name: e2e
       module_name: centreon
       image_name: centreon-web
-      database_image: bitnami/mariadb:10.11
-      os: ${{ matrix.os }}
+      database_image: bitnami/${{ matrix.database }}
+      os: ${{ matrix.operating_system }}
       features_path: tests/e2e/features
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || matrix.os == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || matrix.operating_system == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
+      test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
     secrets:
@@ -770,12 +795,17 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).main }}
+    name: performances-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Login to registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -841,6 +871,84 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
+
+  publish-openapi-documentation:
+    runs-on: [self-hosted, infra]
+    needs: [get-version]
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          version: 9
+          run_install: false
+
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 20
+
+      - name: Install redocly cli
+        run: pnpm add -g @redocly/cli@1.16.0
+        shell: bash
+
+      - name: Build openapi documentation
+        run: |
+          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-cloud-api.yaml"
+          elif [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
+          elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-version.outputs.major_version }}.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-api-v${{ needs.get-version.outputs.major_version }}.yaml"
+          else
+            echo "::error::openapi file not found"
+            exit 1
+          fi
+
+          echo "Building API doc from $OPENAPI_FILE"
+          redocly build-docs --theme.openapi.hideDownloadButton=true $OPENAPI_FILE -o index.html
+        shell: bash
+
+      - name: Setup awscli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          sudo unzip -q awscliv2.zip
+          sudo ./aws/install
+        shell: bash
+
+      - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
+          role-session-name: InvalidDocCache
+          role-skip-session-tagging: true
+          role-duration-seconds: 900
+
+      - name: Copy to AWS S3 centreon-documentation-api
+        run: |
+          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
+            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud"
+          else
+            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}"
+          fi
+
+          aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
+          aws s3 cp "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
+        shell: bash
+
+      - name: Invalid AWS Cloudfront cache
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_ID_DOC_API }} --paths "/*"
+        shell: bash
+
+      - name: Upload built openapi doc
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        with:
+          name: openapi-doc
+          path: |
+            index.html
+            centreon-logo.png
+          retention-days: 1
 
   deliver-rpm:
     runs-on: [self-hosted, common]
@@ -957,7 +1065,7 @@ jobs:
           ref: main
           bu: RD
           poller_number: 1
-          system_name: Alma8
+          instance_features: "Alma9 - MariaDB"
           centreon_branch: develop
           configured_resources: false
           install_business_modules: false

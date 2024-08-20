@@ -27,14 +27,14 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Broker\Application\Exception\BrokerException;
-use Core\Broker\Application\Repository\ReadBrokerOutputRepositoryInterface;
-use Core\Broker\Application\Repository\WriteBrokerOutputRepositoryInterface;
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerRepositoryInterface;
 use Core\Broker\Application\UseCase\UpdateStreamConnectorFile\UpdateStreamConnectorFile;
 use Core\Broker\Application\UseCase\UpdateStreamConnectorFile\UpdateStreamConnectorFileRequest;
 use Core\Broker\Application\UseCase\UpdateStreamConnectorFile\UpdateStreamConnectorFileResponse;
-use Core\Broker\Domain\Model\BrokerOutput;
-use Core\Broker\Domain\Model\BrokerOutputField;
+use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\Type;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Tests\Core\Broker\Infrastructure\API\UpdateStreamConnectorFile\UpdateStreamConnectorFilePresenterStub;
@@ -46,9 +46,15 @@ beforeEach(function (): void {
     $this->request->fileContent = '{"test": "hello world"}';
 
     $this->type = new Type(33, 'lua');
-    $this->output = new BrokerOutput(1, $this->type, 'my-output-test', ['path' => 'some/fake/path.json']);
+    $this->output = new BrokerInputOutput(
+        id: 1,
+        tag: 'output',
+        type: $this->type,
+        name: 'my-output-test',
+        parameters: ['path' => 'some/fake/path.json'],
+    );
     $this->outputFields = [
-        $this->field = new BrokerOutputField(
+        $this->field = new BrokerInputOutputField(
             1, 'path', 'text', null, null, true, false, null, []
         ),
     ];
@@ -58,8 +64,8 @@ beforeEach(function (): void {
     );
 
     $this->useCase = new UpdateStreamConnectorFile(
-        $this->writeOutputRepository = $this->createMock(WriteBrokerOutputRepositoryInterface::class),
-        $this->readOutputRepository = $this->createMock(ReadBrokerOutputRepositoryInterface::class),
+        $this->writeOutputRepository = $this->createMock(WriteBrokerInputOutputRepositoryInterface::class),
+        $this->readOutputRepository = $this->createMock(ReadBrokerInputOutputRepositoryInterface::class),
         $this->fileRepository = $this->createMock(WriteBrokerRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
     );
@@ -95,7 +101,7 @@ it('should present an ErrorResponse when the output is invalid', function (): vo
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
-        ->toBe(BrokerException::outputNotFound($this->request->brokerId, $this->request->outputId)->getMessage());
+        ->toBe(BrokerException::inputOutputNotFound($this->request->brokerId, $this->request->outputId)->getMessage());
 });
 
 it('should present an ErrorResponse if the file content is invalid', function (): void {
@@ -148,7 +154,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
-        ->toBe(BrokerException::updateBrokerOutput()->getMessage());
+        ->toBe(BrokerException::updateBrokerInputOutput()->getMessage());
 });
 
 it('should return created file path on success', function (): void {

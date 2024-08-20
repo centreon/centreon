@@ -2,7 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
-    height: '100%',
+    maxHeight: theme.spacing(4.5),
     padding: theme.spacing(0, 0.5)
   },
   buttonContent: {
@@ -11,11 +11,11 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex'
   },
   containerDates: {
-    display: 'flex',
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'column',
-      gap: theme.spacing(0.5)
-    }
+    display: 'flex'
+  },
+  containerDatesCondensed: {
+    flexDirection: 'column',
+    gap: theme.spacing(0.5)
   },
   date: {
     minWidth: theme.spacing(12),
@@ -40,10 +40,10 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     columnGap: theme.spacing(0.5),
     display: 'flex',
-    flexDirection: 'row',
-    [theme.breakpoints.down('sm')]: {
-      alignItems: 'flex-start'
-    }
+    flexDirection: 'row'
+  },
+  timeContainerCondensed: {
+    alignItems: 'flex-start'
   }
 }));
 

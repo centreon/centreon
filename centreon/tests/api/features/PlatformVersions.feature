@@ -1,3 +1,4 @@
+@system
 Feature:
     In order to maintain easily centreon platform
     As a user

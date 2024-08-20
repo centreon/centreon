@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@mui/material';
@@ -6,16 +6,17 @@ import { Add as AddIcon } from '@mui/icons-material';
 
 import { labelAdd } from '../../translatedLabels';
 import { modalStateAtom } from '../../atom';
+import { ModalMode } from '../../models';
 
 const AddButton = (): JSX.Element => {
   const { t } = useTranslation();
-  const [modalState, setModalState] = useAtom(modalStateAtom);
+  const setModalState = useSetAtom(modalStateAtom);
   const dataTestId = 'createResourceAccessRule';
 
   const click = (): void => {
     setModalState({
-      ...modalState,
-      isOpen: true
+      isOpen: true,
+      mode: ModalMode.Create
     });
   };
 

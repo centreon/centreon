@@ -14,10 +14,10 @@ import MemoizedStatus from './MemoizedStatus';
 import Section from './Section';
 
 const SectionWrapper = ({
-  basicData,
+  data,
   changeCriteria,
   searchData
-}: MemoizedChild): JSX.Element => {
+}: Omit<MemoizedChild, 'filterName'>): JSX.Element => {
   const { classes } = useStyles();
   const selectedVisualization = useAtomValue(selectedVisualizationAtom);
   const sectionsType = Object.values(SectionType);
@@ -35,8 +35,8 @@ const SectionWrapper = ({
           <Section
             inputGroup={
               <MemoizedInputGroup
-                basicData={basicData}
                 changeCriteria={changeCriteria}
+                data={data}
                 filterName={
                   equals(sectionType, SectionType.host)
                     ? BasicCriteria.hostGroups
@@ -47,22 +47,21 @@ const SectionWrapper = ({
             }
             selectInput={
               <MemoizedSelectInput
-                basicData={basicData}
                 changeCriteria={changeCriteria}
+                data={data}
                 filterName={
                   equals(sectionType, SectionType.host)
                     ? BasicCriteria.parentNames
                     : BasicCriteria.names
                 }
-                isDeactivated={deactivateInput(sectionType)}
                 searchData={searchData}
                 sectionType={sectionType}
               />
             }
             status={
               <MemoizedStatus
-                basicData={basicData}
                 changeCriteria={changeCriteria}
+                data={data}
                 filterName={BasicCriteria.statues}
                 isDeactivated={deactivateInput(sectionType)}
                 sectionType={sectionType}

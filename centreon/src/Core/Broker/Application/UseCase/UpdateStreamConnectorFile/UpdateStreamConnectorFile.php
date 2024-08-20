@@ -32,18 +32,18 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Broker\Application\Exception\BrokerException;
-use Core\Broker\Application\Repository\ReadBrokerOutputRepositoryInterface;
-use Core\Broker\Application\Repository\WriteBrokerOutputRepositoryInterface;
+use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerRepositoryInterface;
-use Core\Broker\Domain\Model\BrokerOutput;
+use Core\Broker\Domain\Model\BrokerInputOutput;
 
 final class UpdateStreamConnectorFile
 {
     use LoggerTrait;
 
     public function __construct(
-        private readonly WriteBrokerOutputRepositoryInterface $writeOutputRepository,
-        private readonly ReadBrokerOutputRepositoryInterface $readOutputRepository,
+        private readonly WriteBrokerInputOutputRepositoryInterface $writeOutputRepository,
+        private readonly ReadBrokerInputOutputRepositoryInterface $readOutputRepository,
         private readonly WriteBrokerRepositoryInterface $fileRepository,
         private readonly ContactInterface $user,
     ) {
@@ -68,8 +68,8 @@ final class UpdateStreamConnectorFile
                 return;
             }
 
-            if (! ($output = $this->readOutputRepository->findByIdAndBrokerId($request->outputId, $request->brokerId))) {
-                throw BrokerException::outputNotFound($request->brokerId, $request->outputId);
+            if (! ($output = $this->readOutputRepository->findByIdAndBrokerId('output', $request->outputId, $request->brokerId))) {
+                throw BrokerException::inputOutputNotFound($request->brokerId, $request->outputId);
             }
 
             if ($output->getType()->name !== 'lua') {
@@ -102,7 +102,7 @@ final class UpdateStreamConnectorFile
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
-                new ErrorResponse(BrokerException::updateBrokerOutput())
+                new ErrorResponse(BrokerException::updateBrokerInputOutput())
             );
             $this->error((string) $ex);
         }
@@ -124,7 +124,7 @@ final class UpdateStreamConnectorFile
         return $filePath;
     }
 
-    private function deletePreviousFile(BrokerOutput $output): void
+    private function deletePreviousFile(BrokerInputOutput $output): void
     {
         $pathParameter = $output->getParameters()['path'] ?? null;
         if ($pathParameter && is_string($pathParameter)) {
@@ -136,7 +136,7 @@ final class UpdateStreamConnectorFile
         }
     }
 
-    private function updateOutput(int $brokerId, BrokerOutput $output, string $filePath): void
+    private function updateOutput(int $brokerId, BrokerInputOutput $output, string $filePath): void
     {
         $parameters = $output->getParameters();
         $parameters['path'] = $filePath;

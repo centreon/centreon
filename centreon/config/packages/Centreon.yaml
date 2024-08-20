@@ -87,6 +87,13 @@ services:
         calls:
             - method: setFirstKey
               arguments: ['%env(APP_SECRET)%']
+        public: true
+
+    Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface:
+        class: Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository
+        public: true
+        arguments:
+            $configurationFile: '%vault_conf_path%'
 
     # JSON Validator
     Centreon\Domain\Service\JsonValidator\Interfaces\JsonValidatorInterface:
@@ -155,8 +162,8 @@ services:
         class: Centreon\Infrastructure\MonitoringServer\Repository\MonitoringServerConfigurationRepositoryApi
         public: true
         calls:
-        - method: setTimeout
-          arguments: ['%curl.timeout%']
+            - method: setTimeout
+              arguments: ['%curl.timeout%']
 
     # Platform topology register server
     Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface:
@@ -296,6 +303,13 @@ services:
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
 
+    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
+        class: Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository
+        public: true
+        arguments:
+            $configurationFile: '%vault_conf_path%'
+
+
     # Monitoring resources
     _instanceof:
         Core\Infrastructure\RealTime\Hypermedia\HypermediaProviderInterface:
@@ -306,10 +320,8 @@ services:
             tags: ['monitoring.resource.acl']
         Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface:
             tags: ['authentication.provider.repositories']
-        Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderResponse\ProviderResponseInterface:
-            tags: ['authentication.provider.responses']
-        Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter\ProviderPresenterInterface:
-            tags: ['authentication.provider.presenters']
+        Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface:
+            tags: ['authentication.provider.response.factories']
         Core\Platform\Application\Validator\RequirementValidatorInterface:
             tags: ['platform.requirement.validators']
         Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
@@ -318,6 +330,8 @@ services:
             tags: ['configuration.notification.resource.repositories']
         Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:
             tags: ['configuration.notification.notifiable.resource.request.provider']
+        Core\Dashboard\Application\Repository\WidgetDataProviderInterface:
+            tags: ['dashboard.playlist.widget.data.providers']
         Symfony\Component\Console\Command\Command:
             tags: ['script.command']
 
@@ -325,14 +339,11 @@ services:
         class: Core\Common\Infrastructure\CommandInitializer
         public: true
         arguments:
-          - !tagged_iterator script.command
+            - !tagged_iterator script.command
 
     Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurations:
         arguments:
-          - !tagged_iterator 'authentication.provider.responses'
-
-    Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\FindProviderConfigurationsPresenter:
-        arguments: [!tagged_iterator 'authentication.provider.presenters']
+            - !tagged_iterator 'authentication.provider.response.factories'
 
     Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator:
         class: Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator
@@ -435,6 +446,8 @@ services:
 
     Security\Domain\Authentication\Interfaces\OpenIdProviderInterface:
         class: Core\Security\Authentication\Domain\Provider\OpenIdProvider
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
         tags: ['authentication.providers']
 
     Security\Domain\Authentication\Interfaces\WebSSOProviderInterface:
@@ -465,9 +478,6 @@ services:
         class: Core\Infrastructure\Common\Repository\MultiReadSessionRepository
         public: true
 
-    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
-        class: Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository
-        public: true
 
     Utility\Interfaces\UUIDGeneratorInterface:
         class: Utility\UUIDGenerator

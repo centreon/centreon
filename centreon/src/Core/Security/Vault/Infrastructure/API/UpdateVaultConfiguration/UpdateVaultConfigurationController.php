@@ -34,8 +34,6 @@ use Symfony\Component\HttpFoundation\Request;
 final class UpdateVaultConfigurationController extends AbstractController
 {
     /**
-     * @param int $vaultId
-     * @param int $vaultConfigurationId
      * @param UpdateVaultConfiguration $useCase
      * @param DefaultPresenter $presenter
      * @param Request $request
@@ -43,8 +41,6 @@ final class UpdateVaultConfigurationController extends AbstractController
      * @return object
      */
     public function __invoke(
-        int $vaultId,
-        int $vaultConfigurationId,
         UpdateVaultConfiguration $useCase,
         DefaultPresenter $presenter,
         Request $request
@@ -65,8 +61,6 @@ final class UpdateVaultConfigurationController extends AbstractController
         );
 
         $updateVaultConfigurationRequest = $this->createDtoRequest(
-            $vaultId,
-            $vaultConfigurationId,
             $decodedRequest
         );
 
@@ -76,8 +70,6 @@ final class UpdateVaultConfigurationController extends AbstractController
     }
 
     /**
-     * @param int $vaultId
-     * @param int $vaultConfigurationId
      * @param array{
      *  "address": string,
      *  "port": integer,
@@ -88,13 +80,9 @@ final class UpdateVaultConfigurationController extends AbstractController
      * @return UpdateVaultConfigurationRequest
      */
     private function createDtoRequest(
-        int $vaultId,
-        int $vaultConfigurationId,
         array $decodedRequest
     ): UpdateVaultConfigurationRequest {
         $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
-        $updateVaultConfigurationRequest->vaultConfigurationId = $vaultConfigurationId;
-        $updateVaultConfigurationRequest->typeId = $vaultId;
         $updateVaultConfigurationRequest->address = $decodedRequest['address'];
         $updateVaultConfigurationRequest->port = $decodedRequest['port'];
         $updateVaultConfigurationRequest->roleId = $decodedRequest['role_id'];

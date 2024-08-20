@@ -6,7 +6,7 @@ import { equals, flatten, isEmpty, last } from 'ramda';
 import { Divider } from '@mui/material';
 
 import useDatasetFilters from '../hooks/useDatasetFilters';
-import { Dataset, ResourceTypeEnum } from '../../../models';
+import { Dataset } from '../../../models';
 import { useDatasetFiltersStyles } from '../styles/DatasetFilters.styles';
 
 import DatasetFilter from './DatasetFilter';
@@ -53,9 +53,8 @@ const DatasetFilters = (): ReactElement => {
           !isEmpty(
             flatten(datasetFilters).filter(
               (dataset) =>
-                equals(dataset.resourceType, ResourceTypeEnum.All) ||
-                (!dataset.allOfResourceType &&
-                  (isEmpty(dataset.resourceType) || isEmpty(dataset.resources)))
+                !dataset.allOfResourceType &&
+                (isEmpty(dataset.resourceType) || isEmpty(dataset.resources))
             )
           )
         }

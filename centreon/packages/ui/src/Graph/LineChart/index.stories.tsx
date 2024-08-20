@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
-import { Curve } from '@visx/visx';
 
 import { Button } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -12,8 +11,18 @@ import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import TimePeriod from '../../TimePeriods';
 import { LineChartData } from '../common/models';
+import annotationData from '../mockedData/annotationData.json';
+import exclusionPeriodFirstPeriod from '../mockedData/exclusionPeriodFirstPeriod.json';
+import exclusionPeriodSecondPeriod from '../mockedData/exclusionPeriodSecondPeriod.json';
+import exclusionPeriodThirdPeriod from '../mockedData/exclusionPeriodThirdPeriod.json';
+import dataLastDayForword from '../mockedData/lastDayForward.json';
+import dataLastDayThreshold from '../mockedData/lastDayThreshold.json';
+import dataLastMonth from '../mockedData/lastMonth.json';
+import dataLastWeek from '../mockedData/lastWeek.json';
+import dataZoomPreview from '../mockedData/zoomPreview.json';
+import dataLastDay from '../mockedData/lastDay.json';
+import dataCurvesSameColor from '../mockedData/curvesWithSameColor.json';
 
-import { dateTimeFormat } from './common';
 import {
   argTypes,
   args as argumentsData,
@@ -24,16 +33,7 @@ import {
   lastDayForwardDate,
   zoomPreviewDate
 } from './helpers/doc';
-import annotationData from './mockedData/annotationData.json';
-import exclusionPeriodFirstPeriod from './mockedData/exclusionPeriodFirstPeriod.json';
-import exclusionPeriodSecondPeriod from './mockedData/exclusionPeriodSecondPeriod.json';
-import exclusionPeriodThirdPeriod from './mockedData/exclusionPeriodThirdPeriod.json';
-import dataLastDayForword from './mockedData/lastDayForward.json';
-import dataLastDayThreshold from './mockedData/lastDayThreshold.json';
-import dataLastMonth from './mockedData/lastMonth.json';
-import dataLastWeek from './mockedData/lastWeek.json';
-import dataZoomPreview from './mockedData/zoomPreview.json';
-import dataLastDay from './mockedData/lastDay.json';
+import { dateTimeFormat } from './common';
 import { Interval, ThresholdType, TooltipData } from './models';
 
 import WrapperLineChart from './index';
@@ -342,7 +342,9 @@ export const LineChartWithStepCurve: Story = {
   argTypes,
   args: {
     ...argumentsData,
-    curve: Curve.curveStep
+    lineStyle: {
+      curve: 'step'
+    }
   }
 };
 
@@ -354,7 +356,7 @@ export const LineChartWithTimePeriod: Story = {
     start: defaultStart
   },
   parameters: {
-    chromatic: { diffThreshold: 0.1 }
+    chromatic: { disableSnapshot: true }
   }
 };
 
@@ -475,6 +477,28 @@ export const thresholdsRange: Story = {
     <WrapperLineChart
       {...args}
       data={dataLastDay as unknown as LineChartData}
+    />
+  )
+};
+
+export const LineChartWithSameColorCurves: Story = {
+  ...Template,
+  argTypes,
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      areaTransparency: 10,
+      dashLength: 10,
+      dashOffset: 10,
+      lineWidth: 9,
+      showArea: true,
+      showPoints: true
+    }
+  },
+  render: (args) => (
+    <WrapperLineChart
+      {...args}
+      data={dataCurvesSameColor as unknown as LineChartData}
     />
   )
 };

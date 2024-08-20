@@ -19,6 +19,10 @@ on:
       features_path:
         required: true
         type: string
+      test_tags:
+        required: false
+        type: string
+        default: "not @ignore"
       config_file:
         required: false
         type: string
@@ -35,19 +39,33 @@ jobs:
   behat-test-list:
     runs-on: ubuntu-22.04
     outputs:
+      test_tags: ${{ steps.list-features.outputs.test_tags }}
       features: ${{ steps.list-features.outputs.features }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          version: 8
+          run_install: false
+          standalone: true
+
       - name: List features
         id: list-features
         run: |
+          pnpm add -g @cucumber/cucumber@10.8.0
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
+          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+          # Update test tags format for behat compatibility
+          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
   behat-test-run:
+    if: ${{ needs.behat-test-list.outputs.features != '' && toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]' }}
     needs: [behat-test-list]
     runs-on: ubuntu-22.04
     strategy:
@@ -65,14 +83,14 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Login to registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
+        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
         with:
           php-version: 8.1
           coverage: none
@@ -122,7 +140,7 @@ jobs:
           rm -rf xunit-reports && mkdir xunit-reports
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.test_tags }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
@@ -178,15 +196,16 @@ jobs:
       matrix:
         type_of_report: [test-logs, test-reports]
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Merging Artifacts
-        uses: ./.github/actions/merge-artifacts
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         if: ${{ contains(needs.behat-test-run.result, 'failure') }}
         with:
-          target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          source_paths: |
-            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.xml
-            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.txt
-          source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          retention-days: 1
+
+      - name: Delete merged artifacts
+        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          failOnError: false

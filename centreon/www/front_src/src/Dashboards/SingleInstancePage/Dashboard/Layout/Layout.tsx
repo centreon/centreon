@@ -1,4 +1,5 @@
 import { Layout } from 'react-grid-layout';
+import { lte, isNil, isEmpty } from 'ramda';
 
 import { DashboardLayout } from '@centreon/ui';
 
@@ -44,9 +45,9 @@ const PanelsLayout = ({
       layout={panels}
     >
       {panels.map(
-        ({ i, panelConfiguration, refreshCount, data, name, options }) => (
+        ({ i, panelConfiguration, refreshCount, data, name, options, w }) => (
           <DashboardLayout.Item
-            additionalMemoProps={[dashboardId]}
+            additionalMemoProps={[dashboardId, panelConfiguration.path]}
             canMove={
               canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
             }
@@ -56,10 +57,20 @@ const PanelsLayout = ({
                 <PanelHeader
                   changeViewMode={() => changeViewMode(options?.displayType)}
                   displayMoreActions={displayMoreActions}
+                  displayShrinkRefresh={
+                    lte(w, 3) &&
+                    !isNil(options?.name) &&
+                    !isEmpty(options?.name)
+                  }
+                  forceDisplayShrinkRefresh={
+                    lte(w, 2) &&
+                    !isNil(options?.name) &&
+                    !isEmpty(options?.name)
+                  }
                   id={i}
                   linkToResourceStatus={
                     data?.resources
-                      ? getLinkToResourceStatusPage(data, name)
+                      ? getLinkToResourceStatusPage(data, name, options)
                       : undefined
                   }
                   pageType={getPageType(data)}
