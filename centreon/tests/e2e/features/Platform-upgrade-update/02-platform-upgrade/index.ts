@@ -4,8 +4,17 @@ import {
   checkPlatformVersion,
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
-  installCentreon
+  installCentreon,
+  localPackageDirectory
 } from '../common';
+
+before(() => {
+  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+    cy.readFile(`${localPackageDirectory}/centreon-web.rpm`);
+  } else {
+    cy.readFile(`${localPackageDirectory}/centreon-web.deb`);
+  }
+});
 
 beforeEach(() => {
   cy.intercept({

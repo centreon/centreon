@@ -6,6 +6,9 @@ import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
 
+const localPackageDirectory = 'fixtures/packages';
+const containerPackageDirectory = '/tmp/packages-update-centreon';
+
 const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
   const match = majorVersionFrom.match(/^(\d+)\.(\d+)$/);
 
@@ -225,8 +228,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
 const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .copyToContainer({
-      destination: '/tmp/packages-update-centreon',
-      source: './fixtures/packages',
+      destination: containerPackageDirectory,
+      source: `./${localPackageDirectory}`,
       type: CopyToContainerContentType.Directory
     })
     .getWebVersion()
@@ -234,8 +237,8 @@ const updatePlatformPackages = (): Cypress.Chainable => {
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
         return cy.execInContainer({
           command: [
-            `rm -f /tmp/packages-update-centreon/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
-            'dnf install -y /tmp/packages-update-centreon/*.rpm'
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
           ],
           name: 'web'
         });
@@ -243,9 +246,9 @@ const updatePlatformPackages = (): Cypress.Chainable => {
 
       return cy.execInContainer({
         command: [
-          `rm -f /tmp/packages-update-centreon/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
+          `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
           'apt-get update',
-          'apt-get install -y /tmp/packages-update-centreon/centreon-*.deb'
+          `apt-get install -y ${containerPackageDirectory}/centreon-*.deb`
         ],
         name: 'web'
       });
@@ -459,6 +462,8 @@ Then('Poller configuration should be fully generated', () => {
 });
 
 export {
+  localPackageDirectory,
+  containerPackageDirectory,
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
   installCentreon,
