@@ -1,8 +1,7 @@
-/usr/bin/vi
-/usr/lib64/libprocps.so.4
+/usr/libexec/vi
+/usr/lib64/libprocps.so.8
 /usr/lib64/faketime/libfaketime.so.1
 /usr/lib64/libbrotlienc.so.1
 /usr/lib64/libbrotlienc.so.1.0.9
-/usr/lib64/liblua-5.1.so
+/usr/lib64/liblua-5.4.so
 /usr/lib64/libldap-2.4.so.2
-/opt/rh/httpd24/root/sbin/httpd
