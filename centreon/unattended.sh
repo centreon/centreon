@@ -655,7 +655,10 @@ function set_selinux_config() {
 # set runtime SELinux mode: $1 (permissive | enforcing)
 #
 function set_runtime_selinux_mode() {
-
+	if [[ "${detected_os_release}" =~ ubuntu-release-.* ]]; then
+		log "INFO" "Ubuntu distribution found, installing selinux-utils."
+		$PKG_MGR install -y selinux-utils
+	fi
 	log "INFO" "Set runtime SELinux mode to [$1]"
 
 	_current_mode=$(getenforce | tr '[:upper:]' '[:lower:]')
