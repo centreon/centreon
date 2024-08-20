@@ -48,7 +48,7 @@ jobs:
             image: packaging-alma8
             distrib: el8
           - package_extension: rpm
-            image: packaging-centos7
+            image: packaging-alma8
             distrib: el7
           - package_extension: deb
             image: packaging-bullseye
