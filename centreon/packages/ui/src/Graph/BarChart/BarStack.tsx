@@ -71,10 +71,10 @@ const BarStack = ({
             return (
               <BarRounded
                 {...barRoundedProps}
-                data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}`}
+                data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}-${bar.height}-${bar.width}-${index}`}
                 fill={bar.color}
                 height={isHorizontal ? Math.abs(bar.height) : barWidth}
-                key={`bar-stack-${barStack.index}-${bar.index}`}
+                key={`bar-stack-${barStack.index}-${bar.index}-${bar.height}-${bar.width}`}
                 opacity={barStyle.opacity ?? 1}
                 radius={barWidth * barStyle.radius}
                 width={isHorizontal ? barWidth : Math.abs(bar.width)}

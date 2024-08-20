@@ -175,7 +175,7 @@ const BarGroup = ({
 
               return isStackedBar ? (
                 <BarStack
-                  key={`bar-${barGroup.index}-${bar.width}-${bar.y}`}
+                  key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
                   barIndex={barGroup.index}
                   barPadding={isHorizontal ? bar.x : bar.y}
                   barStyle={barStyle}
@@ -188,7 +188,7 @@ const BarGroup = ({
                 />
               ) : (
                 <BarStack
-                  key={`bar-${barGroup.index}-${bar.width}-${bar.y}`}
+                  key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
                   barIndex={barGroup.index}
                   barPadding={isHorizontal ? bar.x : bar.y}
                   barStyle={barStyle}

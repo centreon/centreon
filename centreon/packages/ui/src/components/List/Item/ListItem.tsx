@@ -4,11 +4,11 @@ import { ListItemProps, ListItem as MuiListItem } from '@mui/material';
 
 import { useStyles } from './ListItem.styles';
 
-type Props = {
+interface Props {
   action?: ReactElement;
   children: ReactNode | Array<ReactNode>;
   className?: string;
-};
+}
 
 export const ListItem = forwardRef(
   (
