@@ -362,7 +362,7 @@ function set_centreon_repos() {
 			log "ERROR" "Unsupported repository: $_repo" &&
 			usage
 
-		if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		if [[ "${detected_os_release}" =~ debian-release-.* || "${detected_os_release}" =~ ubuntu-release-.* ]]; then
 			CENTREON_REPO+="$version-$_repo"
 		else
 			CENTREON_REPO+="centreon-$version-$_repo*"
@@ -555,27 +555,37 @@ function set_required_prerequisite() {
 			$PKG_MGR-q install -y glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de > /dev/null 2>&1
 		fi
 		;;
-	debian-release*)
-		case "$detected_os_version" in
-		11)
-			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
-				error_and_exit "For Debian, only Centreon versions >= 22.04 are compatible. You chose $version"
-			fi
-			;;
-		12)
-			if ! [[ "$version" == "24.04" ]]; then
-				error_and_exit "For Debian, only Centreon versions >= 24.04 are compatible. You chose $version"
-			fi
-			;;
-		*)
-			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
-			;;
-		esac
+	debian-release* | ubuntu-release*)
+		log "INFO" "Setting specific part for $detected_os_release"
 		PHP_SERVICE_UNIT="php8.1-fpm"
 		HTTP_SERVICE_UNIT="apache2"
-		log "INFO" "Setting specific part for Debian"
 		PKG_MGR="apt -qq"
-		${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
+		case "$detected_os_release" in
+		debian-release*)
+			case "$detected_os_version" in
+			11)
+				if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
+					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 22.04 are compatible. You chose $version"
+				fi
+				;;
+			12)
+				if ! [[ "$version" == "24.04" ]]; then
+					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
+				fi
+				;;
+			*)
+				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+				;;
+			esac
+			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
+			;;
+		ubuntu-release*)
+			if ! [[ "$version" == "24.04" ]]; then
+				error_and_exit "For Ubuntu, only Centreon versions >= 24.04 are compatible. You chose $version"
+			fi
+			${PKG_MGR} update && ${PKG_MGR} install -y apt-transport-https gnupg2
+			;;
+		esac
 
 		# Get CPU architecture type
 		VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
@@ -610,6 +620,7 @@ function set_required_prerequisite() {
 		else
 			${PKG_MGR} update
 		fi
+		;;
 	esac
 }
 #========= end of function set_required_prerequisite()
