@@ -11,8 +11,8 @@ import utcPlugin from 'dayjs/plugin/utc';
 import { ParentSize } from '..';
 import LoadingSkeleton from '../LoadingSkeleton';
 
-import { WrapperTimePeriodProps } from './models';
 import TimePeriods from './TimePeriods';
+import { WrapperTimePeriodProps } from './models';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utcPlugin);

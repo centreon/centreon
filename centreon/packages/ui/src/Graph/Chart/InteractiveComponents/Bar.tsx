@@ -1,5 +1,5 @@
-import { Shape } from '@visx/visx';
 import { AddSVGProps } from '@visx/shape/lib/types';
+import { Shape } from '@visx/visx';
 
 interface BarProps {
   className?: string;

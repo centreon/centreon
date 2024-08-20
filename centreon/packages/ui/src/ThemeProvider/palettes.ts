@@ -1,10 +1,25 @@
 import { equals } from 'ramda';
 
-import { alpha, PaletteOptions } from '@mui/material';
+import { PaletteOptions, alpha } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
-
-import * as BaseTokens from '../base/tokens/themes/base.tokens';
+import {
+  colorBlue50,
+  colorBlue400,
+  colorBlue600,
+  colorBlue900,
+  colorGrey50,
+  colorGrey100,
+  colorGrey200,
+  colorGrey300,
+  colorGrey400,
+  colorGrey500,
+  colorGrey600,
+  colorGrey700,
+  colorGrey800,
+  colorGrey900,
+  colorGrey950
+} from 'src/base/tokens/themes/base.tokens';
 
 declare module '@mui/material/styles/createPalette' {
   interface TypeAction {
@@ -170,7 +185,7 @@ export const lightPalette: PaletteOptions = {
     color: {
       error: '#FF6666',
       info: '#1588D1',
-      neutral: BaseTokens.colorGrey300,
+      neutral: colorGrey300,
       success: '#88B922',
       warning: '#FD9B27'
     }
@@ -214,29 +229,29 @@ export const lightPalette: PaletteOptions = {
     background: '#FFFFFF',
     button: {
       background: {
-        active: BaseTokens.colorBlue50,
+        active: colorBlue50,
         default: 'transparent',
-        hover: BaseTokens.colorGrey100
+        hover: colorGrey100
       },
       color: {
-        active: BaseTokens.colorBlue400,
-        default: BaseTokens.colorGrey400,
-        hover: BaseTokens.colorGrey500
+        active: colorBlue400,
+        default: colorGrey400,
+        hover: colorGrey500
       }
     },
     divider: {
-      border: BaseTokens.colorGrey200
+      border: colorGrey200
     },
     item: {
       background: {
-        active: BaseTokens.colorBlue50,
+        active: colorBlue50,
         default: 'transparent',
-        hover: BaseTokens.colorGrey100
+        hover: colorGrey100
       },
       color: {
-        active: BaseTokens.colorBlue400,
-        default: BaseTokens.colorGrey900,
-        hover: BaseTokens.colorGrey950
+        active: colorBlue400,
+        default: colorGrey900,
+        hover: colorGrey950
       }
     }
   },
@@ -310,7 +325,7 @@ export const darkPalette: PaletteOptions = {
     color: {
       error: '#D60101',
       info: '#1CA9F4',
-      neutral: BaseTokens.colorGrey700,
+      neutral: colorGrey700,
       success: '#5F8118',
       warning: '#C55400'
     }
@@ -351,31 +366,31 @@ export const darkPalette: PaletteOptions = {
     }
   },
   menu: {
-    background: BaseTokens.colorGrey950,
+    background: colorGrey950,
     button: {
       background: {
-        active: BaseTokens.colorBlue900,
+        active: colorBlue900,
         default: 'transparent',
-        hover: BaseTokens.colorGrey900
+        hover: colorGrey900
       },
       color: {
-        active: BaseTokens.colorBlue600,
-        default: BaseTokens.colorGrey600,
-        hover: BaseTokens.colorGrey500
+        active: colorBlue600,
+        default: colorGrey600,
+        hover: colorGrey500
       }
     },
     divider: {
-      border: BaseTokens.colorGrey800
+      border: colorGrey800
     },
     item: {
       background: {
-        active: BaseTokens.colorBlue900,
+        active: colorBlue900,
         default: 'transparent',
-        hover: BaseTokens.colorGrey900
+        hover: colorGrey900
       },
       color: {
-        active: BaseTokens.colorBlue400,
-        default: BaseTokens.colorGrey50,
+        active: colorBlue400,
+        default: colorGrey50,
         hover: '#fff'
       }
     }

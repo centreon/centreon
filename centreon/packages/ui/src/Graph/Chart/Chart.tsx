@@ -1,10 +1,17 @@
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
-import { equals, flatten, isNil, pluck, reject } from 'ramda';
 import { useAtom } from 'jotai';
+import { equals, flatten, isNil, pluck, reject } from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
+import { useDeepCompare } from '../../utils';
+import BarGroup from '../BarChart/BarGroup';
+import BaseChart from '../common/BaseChart/BaseChart';
+import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
+import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
+import Thresholds from '../common/Thresholds/Thresholds';
+import { Thresholds as ThresholdsModel } from '../common/models';
 import {
   getUnits,
   getXScale,
@@ -12,13 +19,6 @@ import {
   getYScalePerUnit
 } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
-import { Thresholds as ThresholdsModel } from '../common/models';
-import BaseChart from '../common/BaseChart/BaseChart';
-import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
-import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
-import Thresholds from '../common/Thresholds/Thresholds';
-import { useDeepCompare } from '../../utils';
-import BarGroup from '../BarChart/BarGroup';
 
 import Lines from './BasicComponents/Lines';
 import {
@@ -27,15 +27,15 @@ import {
   lowerLineName,
   upperLineName
 } from './BasicComponents/Lines/Threshold/models';
+import { useChartStyles } from './Chart.styles';
 import InteractionWithGraph from './InteractiveComponents';
+import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import { margin } from './common';
+import { thresholdTooltipAtom } from './graphAtoms';
 import { Data, GlobalAreaLines, GraphInterval, LineChartProps } from './models';
 import { useIntersection } from './useChartIntersection';
-import { useChartStyles } from './Chart.styles';
-import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
-import { thresholdTooltipAtom } from './graphAtoms';
 
 interface Props extends LineChartProps {
   graphData: Data;

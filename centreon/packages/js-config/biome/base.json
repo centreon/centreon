@@ -109,7 +109,7 @@
                 ]
               },
               {
-                "match": "_(.*)|([a-zA-Z].*)",
+                "match": ".*",
                 "formats": [
                   "snake_case",
                   "camelCase",

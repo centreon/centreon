@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import axios from 'axios';
-import { pathOr, defaultTo, path, includes, or } from 'ramda';
+import { path, defaultTo, includes, or, pathOr } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
-import useCancelTokenSource from '../useCancelTokenSource';
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { errorLog, warnLog } from '../logger';
+import useCancelTokenSource from '../useCancelTokenSource';
 
 export interface RequestParams<TResult> {
   decoder?: JsonDecoder.Decoder<TResult>;

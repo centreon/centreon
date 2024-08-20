@@ -3,9 +3,9 @@ import { equals, isNil } from 'ramda';
 
 import { Box, Typography } from '@mui/material';
 
-import { mousePositionAtom } from '../interactionWithGraphAtoms';
 import { formatMetricValueWithUnit } from '../../../common/timeSeries';
 import { Tooltip } from '../../models';
+import { mousePositionAtom } from '../interactionWithGraphAtoms';
 
 import { useGraphValueTooltip } from './useGraphValueTooltip';
 import { useGraphValueTooltipStyles } from './useGraphValueTooltipStyles';

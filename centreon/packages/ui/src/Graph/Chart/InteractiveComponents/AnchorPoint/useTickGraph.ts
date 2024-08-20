@@ -4,9 +4,9 @@ import { ScaleLinear } from 'd3-scale';
 import { useAtomValue } from 'jotai';
 
 import useAxisY from '../../../common/Axes/useAxisY';
-import { margin } from '../../common';
 import { getTimeValue } from '../../../common/timeSeries';
 import { Line, TimeValue } from '../../../common/timeSeries/models';
+import { margin } from '../../common';
 import { mousePositionAtom } from '../interactionWithGraphAtoms';
 
 interface AnchorPointResult {

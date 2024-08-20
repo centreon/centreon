@@ -1,20 +1,20 @@
 import { ReactElement, useCallback, useMemo } from 'react';
 
-import { string, object } from 'yup';
 import { useTranslation } from 'react-i18next';
+import { object, string } from 'yup';
 
-import { InputType } from '../../../Form/Inputs/models';
 import { Form, FormProps } from '../../../Form';
+import { InputType } from '../../../Form/Inputs/models';
 import { FormVariant } from '../Form.models';
 import { FormActions, FormActionsProps } from '../FormActions';
 
+import { DashboardResource } from './Dashboard.resource';
 import { useStyles } from './DashboardForm.styles';
 import {
   labelMustBeAtLeast,
   labelMustBeMost,
   labelRequired
 } from './translatedLabels';
-import { DashboardResource } from './Dashboard.resource';
 
 type DashboardFormProps = {
   labels: DashboardFormLabels;

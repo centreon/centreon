@@ -1,19 +1,19 @@
 import { memo, useMemo } from 'react';
 
-import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
-import { difference, equals, keys, omit, pick, pluck, uniq } from 'ramda';
-import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { Group } from '@visx/group';
+import { scaleBand, scaleOrdinal } from '@visx/scale';
+import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
 import { ScaleLinear } from 'd3-scale';
+import { difference, equals, keys, omit, pick, pluck, uniq } from 'ramda';
 
 import { useDeepMemo } from '../../utils';
-import { Line, TimeValue } from '../common/timeSeries/models';
 import {
   getSortedStackedLines,
   getTime,
   getTimeSeriesForLines,
   getUnits
 } from '../common/timeSeries';
+import { Line, TimeValue } from '../common/timeSeries/models';
 
 import BarStack from './BarStack';
 import { BarStyle } from './models';
@@ -175,6 +175,7 @@ const BarGroup = ({
 
               return isStackedBar ? (
                 <BarStack
+                  key={`bar-${barGroup.index}-${bar.width}-${bar.y}`}
                   barIndex={barGroup.index}
                   barPadding={isHorizontal ? bar.x : bar.y}
                   barStyle={barStyle}
@@ -187,6 +188,7 @@ const BarGroup = ({
                 />
               ) : (
                 <BarStack
+                  key={`bar-${barGroup.index}-${bar.width}-${bar.y}`}
                   barIndex={barGroup.index}
                   barPadding={isHorizontal ? bar.x : bar.y}
                   barStyle={barStyle}

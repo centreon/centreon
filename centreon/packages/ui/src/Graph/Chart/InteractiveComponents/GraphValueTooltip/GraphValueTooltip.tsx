@@ -3,8 +3,8 @@ import { equals } from 'ramda';
 import { Typography } from '@mui/material';
 
 import { Tooltip as MuiTooltip } from '../../../../components/Tooltip';
-import { ThresholdTooltip, Tooltip } from '../../models';
 import { useTooltipStyles } from '../../../common/useTooltipStyles';
+import { ThresholdTooltip, Tooltip } from '../../models';
 
 import GraphValueTooltipContent from './GraphValueTooltipContent';
 

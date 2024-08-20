@@ -1,11 +1,11 @@
 import { memo } from 'react';
 
 import { scaleBand } from '@visx/scale';
-import { dec, equals, gt, pick } from 'ramda';
 import { BarRounded } from '@visx/shape';
+import { dec, equals, gt, pick } from 'ramda';
 
-import { useBarStack, UseBarStackProps } from './useBarStack';
 import { BarStyle } from './models';
+import { UseBarStackProps, useBarStack } from './useBarStack';
 
 const xScale = scaleBand<number>({
   domain: [0, 0],
