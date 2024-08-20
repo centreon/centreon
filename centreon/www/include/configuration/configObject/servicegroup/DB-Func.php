@@ -320,7 +320,7 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
             preg_match('/dataset_for_rule_\d+_(\d+)/', $lastDatasetAdded['dataset_name'], $matches);
 
             // calculate the new dataset_name
-            $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . (int) $matches[1] + 1;
+            $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . ((int) $matches[1] + 1);
 
             if ($pearDB->beginTransaction()) {
                 try {

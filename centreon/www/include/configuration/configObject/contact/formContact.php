@@ -381,9 +381,9 @@ $form->addElement(
 );
 $form->addElement('header', 'furtherAddress', _("Additional Addresses"));
 for ($i=0; $i < 6; $i++) {
-    $attrsText["id"] = "contact_address" . $i + 1;
-    $attrsText["data-testid"] = "contact_address" . $i + 1;
-    $form->addElement('text', 'contact_address' . $i+1, _("Address" . $i + 1), $attrsText);
+    $attrsText["id"] = "contact_address" . ($i + 1);
+    $attrsText["data-testid"] = "contact_address" . ($i + 1);
+    $form->addElement('text', 'contact_address' . ($i + 1), _("Address" . ($i + 1)), $attrsText);
 }
 
 /**
