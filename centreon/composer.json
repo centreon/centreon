@@ -6,11 +6,12 @@
     "config": {
         "secure-http": false,
         "platform": {
-            "php": "8.1"
+            "php": "8.2"
         },
         "allow-plugins": {
             "pestphp/pest-plugin": false,
-            "symfony/flex": false
+            "symfony/flex": false,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "require-dev": {
@@ -34,7 +35,9 @@
         "php-vfs/php-vfs": "^1.4",
         "friendsofphp/php-cs-fixer": "^3.10",
         "robertfausk/mink-panther-driver": "^1.1",
-        "rector/rector": "^1.0"
+        "rector/rector": "^1.0",
+        "phpcompatibility/php-compatibility": "9.3.5",
+        "dealerdirect/phpcodesniffer-composer-installer": "0.7.1"
     },
     "require": {
         "beberlei/assert": "^3.3",
@@ -149,6 +152,7 @@
         "phpstan": "phpstan analyse -c phpstan.neon --level 6 --memory-limit=512M",
         "phpstan:ci": "@phpstan --error-format=absolute --no-interaction --no-progress",
         "phpstan:core": "phpstan analyse -c phpstan.core.neon --memory-limit=1G",
-        "codestyle:core": "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml"
+        "codestyle:core": "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml",
+        "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2"
     }
 }
