@@ -7,7 +7,8 @@
   "author": "centreon@centreon.com",
   "license": "MIT",
   "scripts": {
-    "eslint": "eslint ./src --ext .ts --max-warnings 0",
-    "eslint:fix": "pnpm eslint --fix"
+    "lint": "biome check ./src/ --error-on-warnings",
+    "lint:fix": "pnpm lint --fix",
+    "lint:ci": "biomne ci ./src/ --error-on-warnings"
   }
 }
