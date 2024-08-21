@@ -9,10 +9,20 @@ import {
 } from '../common';
 
 before(() => {
+  if (
+    Cypress.env('IS_CLOUD') === true &&
+    (!Cypress.env('INTERNAL_REPO_USERNAME') ||
+      !Cypress.env('INTERNAL_REPO_PASSWORD'))
+  ) {
+    throw new Error(
+      `Missing INTERNAL_REPO_USERNAME or INTERNAL_REPO_PASSWORD environment variables to configure cloud repository`
+    );
+  }
+
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    cy.readFile(`${localPackageDirectory}/centreon-web.rpm`);
+    cy.exec(`ls ${localPackageDirectory}/centreon-web-*.rpm`);
   } else {
-    cy.readFile(`${localPackageDirectory}/centreon-web.deb`);
+    cy.exec(`ls ${localPackageDirectory}/centreon-web-*.deb`);
   }
 });
 
@@ -75,6 +85,10 @@ beforeEach(() => {
 Given(
   'a running platform in major {string} with {string} version',
   (major_version_from_expression: string, version_from_expression: string) => {
+    cy.log(
+      `Testing ${Cypress.env('IS_CLOUD') === true ? 'cloud' : 'onprem'} upgrade`
+    );
+
     return cy.getWebVersion().then(({ major_version }) => {
       let major_version_from = '0';
       switch (major_version_from_expression) {
@@ -150,11 +164,25 @@ Given(
                       const distrib =
                         Cypress.env('WEB_IMAGE_OS') === 'alma9' ? 'el9' : 'el8';
 
+                      if (Cypress.env('IS_CLOUD') === 'true') {
+                        return cy.execInContainer(
+                          {
+                            command: [
+                              `dnf config-manager --add-repo https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal/${major_version}/${distrib}/centreon-${major_version}-internal.repo`,
+                              `sed -i "s#packages.centreon.com/rpm-standard-internal#${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${major_version}-internal.repo`,
+                              `dnf config-manager --set-enabled 'centreon*'`
+                            ],
+                            name: 'web'
+                          },
+                          { log: false }
+                        );
+                      }
+
                       return cy.execInContainer({
-                        command: `bash -e <<EOF
-                          dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/${distrib}/centreon-${major_version}.repo
-                          dnf config-manager --set-enabled 'centreon*'
-EOF`,
+                        command: [
+                          `dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/${distrib}/centreon-${major_version}.repo`,
+                          `dnf config-manager --set-enabled 'centreon*'`
+                        ],
                         name: 'web'
                       });
                     }

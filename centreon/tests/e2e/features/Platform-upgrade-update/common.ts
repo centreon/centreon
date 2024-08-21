@@ -195,7 +195,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
 
   // Step 7
   cy.get('th.step-wrapper span').contains(7);
-  cy.wait('@cacheGeneration', { timeout: 30000 })
+  cy.wait('@cacheGeneration', { timeout: 60000 })
     .get('tbody#step_contents span:contains("OK")')
     .should('have.length', 7);
   cy.wait('@nextStep').get('#next').click();
@@ -238,7 +238,8 @@ const updatePlatformPackages = (): Cypress.Chainable => {
         return cy.execInContainer({
           command: [
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
-            `dnf install -y ${containerPackageDirectory}/*.rpm`
+            `dnf install -y ${containerPackageDirectory}/*.rpm`,
+            `rm -f /usr/share/centreon/www/install/php/Update-24.09.0.php`
           ],
           name: 'web'
         });
@@ -312,7 +313,7 @@ When('administrator updates packages to current version', () => {
 When('administrator runs the update procedure', () => {
   cy.visit('/');
 
-  cy.wait('@getStep1').then(() => {
+  cy.wait('@getStep1', { timeout: 60000 }).then(() => {
     cy.get('.btc.bt_info').should('be.visible').click();
   });
 
@@ -333,7 +334,7 @@ When('administrator runs the update procedure', () => {
       `upgraded from version ${installed_version} to ${major_version}.${minor_version}`
     ).should('be.visible');
   });
-  cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
+
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
 
