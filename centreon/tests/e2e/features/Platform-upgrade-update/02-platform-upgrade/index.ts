@@ -10,7 +10,7 @@ import {
 
 before(() => {
   if (
-    Cypress.env('IS_CLOUD') === true &&
+    Cypress.env('IS_CLOUD') &&
     (!Cypress.env('INTERNAL_REPO_USERNAME') ||
       !Cypress.env('INTERNAL_REPO_PASSWORD'))
   ) {
@@ -85,9 +85,7 @@ beforeEach(() => {
 Given(
   'a running platform in major {string} with {string} version',
   (major_version_from_expression: string, version_from_expression: string) => {
-    cy.log(
-      `Testing ${Cypress.env('IS_CLOUD') === true ? 'cloud' : 'onprem'} upgrade`
-    );
+    cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
 
     return cy.getWebVersion().then(({ major_version }) => {
       let major_version_from = '0';
@@ -164,7 +162,9 @@ Given(
                       const distrib =
                         Cypress.env('WEB_IMAGE_OS') === 'alma9' ? 'el9' : 'el8';
 
-                      if (Cypress.env('IS_CLOUD') === 'true') {
+                      if (Cypress.env('IS_CLOUD')) {
+                        cy.log('Configuring cloud internal repository...');
+
                         return cy.execInContainer(
                           {
                             command: [
