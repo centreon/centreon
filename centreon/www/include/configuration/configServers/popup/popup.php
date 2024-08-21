@@ -121,8 +121,8 @@ if ($server['localhost'] === '1') {
         ],
         [
             $server['name'],
-            $server['command_file'],
             $server['id'],
+            $server['command_file'],
             _CENTREON_VARLIB_,
             _CENTREON_CACHEDIR_,
         ],
