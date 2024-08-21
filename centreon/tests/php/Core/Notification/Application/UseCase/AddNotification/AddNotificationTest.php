@@ -25,6 +25,7 @@ namespace Tests\Core\Notification\Application\UseCase\AddNotification;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
@@ -60,7 +61,7 @@ beforeEach(function (): void {
 
     $this->request = new AddNotificationRequest();
     $this->request->name = 'notification-name';
-    $this->request->timeperiodId = 2;
+    $this->request->timePeriodId = 2;
     $this->request->users = [20, 21];
     $this->request->contactGroups = [5,6];
     $this->request->resources = [
@@ -93,7 +94,7 @@ beforeEach(function (): void {
     $this->notification = new Notification(
         1,
         $this->request->name,
-        $this->timeperiodLight = new TimePeriod($this->request->timeperiodId, 'timeperiod-name'),
+        $this->timeperiodLight = new TimePeriod($this->request->timePeriodId, 'timeperiod-name'),
         $this->request->isActivated
     );
     $this->messages = [
@@ -136,10 +137,6 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->expects($this->once())
         ->method('create')
         ->willThrowException(new \Exception());
-    $this->readTimeperiodRepository
-        ->expects($this->exactly(0))
-        ->method('exists');
-
     $this->notificationValidator
         ->expects($this->once())
         ->method('validateUsersAndContactGroups');
@@ -216,34 +213,6 @@ void {
 });
 
 
-it('should throw an InvalidArgumentResponse if at least one resource ID is not provided', function (): void {
-    $this->request->resources[0]['ids'] = [];
-
-    $this->user
-        ->expects($this->exactly(0))
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->resourceRepositoryProvider
-        ->expects($this->exactly(0))
-        ->method('getRepository')
-        ->willReturn($this->resourceRepository);
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-    $this->readNotificationRepository
-        ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(false);
-
-    ($this->useCase)($this->request, $this->presenter);
-
-    expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(NotificationException::emptyArrayNotAllowed('resource.ids')->getMessage());
-});
-
 it('should throw an InvalidArgumentResponse if at least one of the user IDs does not exist', function (): void {
 
     $this->request->users = [10,12];
@@ -264,7 +233,7 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
     $this->resourceRepository
         ->expects($this->never())
         ->method('eventEnum')
-        ->willReturn(NotificationHostEvent::class);
+        ->willReturn(HostEvent::class);
     $this->resourceRepository
         ->expects($this->never())
         ->method('eventEnumConverter')
@@ -286,10 +255,6 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
         ->expects($this->never())
         ->method('exist')
         ->willReturn($this->request->resources[0]['ids']);
-    $this->contactRepository
-        ->expects($this->never())
-        ->method('exist')
-        ->willReturn([$this->request->users[0]]);
 
     ($this->useCase)($this->request, $this->presenter);
 
@@ -301,7 +266,7 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
 
-    $this->validator
+    $this->notificationValidator
         ->expects($this->once())
         ->method('validateUsersAndContactGroups')
         ->willThrowException(NotificationException::invalidId('users'));
@@ -318,7 +283,7 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs is n
     $this->resourceRepository
         ->expects($this->never())
         ->method('eventEnum')
-        ->willReturn(NotificationHostEvent::class);
+        ->willReturn(HostEvent::class);
     $this->resourceRepository
         ->expects($this->never())
         ->method('eventEnumConverter')
@@ -350,7 +315,7 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs is n
 });
 
 it('should present an ErrorResponse if the newly created service severity cannot be retrieved', function (): void {
-    $this->validator
+    $this->notificationValidator
         ->expects($this->once())
         ->method('validateUsersAndContactGroups');
     
@@ -406,7 +371,7 @@ it('should present an ErrorResponse if the newly created service severity cannot
 
 it('should return created object on success', function (): void {
 
-    $this->validator
+    $this->notificationValidator
         ->expects($this->once())
         ->method('validateUsersAndContactGroups');
 

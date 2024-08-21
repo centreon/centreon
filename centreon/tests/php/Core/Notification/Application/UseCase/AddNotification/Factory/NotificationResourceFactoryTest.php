@@ -24,7 +24,6 @@ declare(strict_types = 1);
 namespace Tests\Core\Notification\Application\UseCase\AddNotification\Factory;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;

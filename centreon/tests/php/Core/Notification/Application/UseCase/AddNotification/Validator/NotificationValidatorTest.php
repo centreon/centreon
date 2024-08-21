@@ -29,16 +29,19 @@ use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationValidator;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 
 beforeEach(function (): void {
     $this->user = $this->createMock(ContactInterface::class);
     $this->contactRepository = $this->createMock(ReadContactRepositoryInterface::class);
     $this->contactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->readTimePeriodRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->validator = new NotificationValidator(
         $this->contactRepository,
         $this->contactGroupRepository,
-        $this->accessGroupRepository
+        $this->accessGroupRepository,
+        $this->readTimePeriodRepository,
     );
 });
 

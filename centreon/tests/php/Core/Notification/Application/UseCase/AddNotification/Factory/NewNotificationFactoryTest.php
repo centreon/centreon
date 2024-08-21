@@ -39,7 +39,7 @@ it('should throws an InvalidArgumentResponse when a field assert failed', functi
         ->method('existsByName')
         ->willReturn(false);
 
-    $this->factory->create('', true);
+    $this->factory->create('', true, 1);
 })->throws(AssertionException::class)
     ->expectExceptionMessage(AssertionException::notEmptyString('NewNotification::name')->getMessage());
 
@@ -49,6 +49,6 @@ it('should present an InvalidArgumentResponse when name is already used', functi
         ->method('existsByName')
         ->willReturn(true);
 
-    $this->factory->create('name', true);
+    $this->factory->create('name', true, 1);
 })->throws(NotificationException::class)
     ->expectExceptionMessage(NotificationException::nameAlreadyExists()->getMessage());
