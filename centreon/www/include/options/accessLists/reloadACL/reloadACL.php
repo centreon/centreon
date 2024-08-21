@@ -69,6 +69,10 @@ if (isset($_GET["o"]) && $_GET["o"] === 'r') {
     );
 
     try {
+        if (! is_array($userIds)) {
+            throw new \Exception('Invalid user ids');
+        }
+
         $pearDB->beginTransaction();
         $pearDB->executeQuery(
             <<<SQL
@@ -95,6 +99,8 @@ if (isset($_GET["o"]) && $_GET["o"] === 'r') {
         passthru(_CENTREON_PATH_ . "/cron/centAcl.php");
     } catch (CentreonDbException|\PDOException $e) {
         $pearDB->rollBack();
+        $msg->error(_("An error occurred"));
+    } catch (\Exception $e) {
         $msg->error(_("An error occurred"));
     }
 }
