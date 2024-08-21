@@ -114,6 +114,7 @@ if ($server['localhost'] === '1') {
     $config = str_replace(
         [
             '__SERVERNAME__',
+            '__SERVERID__',
             '__COMMAND__',
             '__CENTREON_VARLIB__',
             '__CENTREON_CACHEDIR__',
@@ -121,6 +122,7 @@ if ($server['localhost'] === '1') {
         [
             $server['name'],
             $server['command_file'],
+            $server['id'],
             _CENTREON_VARLIB_,
             _CENTREON_CACHEDIR_,
         ],
