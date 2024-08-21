@@ -37,7 +37,8 @@
         "robertfausk/mink-panther-driver": "^1.1",
         "rector/rector": "^1.0",
         "phpcompatibility/php-compatibility": "9.3.5",
-        "dealerdirect/phpcodesniffer-composer-installer": "0.7.1"
+        "dealerdirect/phpcodesniffer-composer-installer": "0.7.1",
+        "maglnet/composer-require-checker": "^4.11.0"
     },
     "require": {
         "beberlei/assert": "^3.3",
@@ -96,7 +97,7 @@
         "symfony/uid": "6.4.*",
         "symfony/mime": "6.4.*",
         "monolog/monolog": "^3.3",
-        "symfony/security-core": "6.4.*",
+        "symfony/security-core": "6.4.*"
     },
     "autoload": {
         "psr-4": {
