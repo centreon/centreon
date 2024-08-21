@@ -43,7 +43,7 @@
 		}
 	},
 	"categories": {
-		"Display settings": {
+		"Graph settings": {
 			"groups": [
 				{
 					"id": "graphStyles",
@@ -51,7 +51,7 @@
 				},
 				{
 					"id": "axis",
-					"name": "Axis"
+					"name": "Axes"
 				},
 				{
 					"id": "legend",
@@ -59,7 +59,7 @@
 				},
 				{
 					"id": "tooltip",
-					"name": "Tooltip"
+					"name": "Tooltips"
 				}
 			],
 			"elements": {
@@ -96,7 +96,7 @@
 						},
 						{
 							"id": "natural",
-							"name": "Natural"
+							"name": "Smooth"
 						},
 						{
 							"id": "step",
@@ -133,7 +133,7 @@
 					"type": "button-group",
 					"label": "Line width",
 					"defaultValue": "auto",
-					"secondaryLabel": "The Auto value corresponds to the value defined in the Curves configuration in Centreon.",
+					"secondaryLabel": "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves).",
 					"options": [
 						{
 							"id": "auto",
@@ -172,9 +172,9 @@
 				"showArea": {
 					"group": "graphStyles",
 					"type": "button-group",
-					"label": "Show area",
+					"label": "Area",
 					"defaultValue": "auto",
-					"secondaryLabel": "The Auto value corresponds to the value defined in the Curves configuration in Centreon.",
+					"secondaryLabel": "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves).",
 					"options": [
 						{
 							"id": "auto",
@@ -236,11 +236,11 @@
 						},
 						{
 							"id": "dash",
-							"name": "Dashed"
+							"name": "Dashes"
 						},
 						{
 							"id": "dots",
-							"name": "Dotted"
+							"name": "Dots"
 						}
 					],
 					"subInputs": [
@@ -360,7 +360,7 @@
 				"barOpacity": {
 					"group": "graphStyles",
 					"type": "slider",
-					"label": "Bar background opacity",
+					"label": "Bar opacity",
 					"defaultValue": 100,
 					"slider": {
 						"min": 0,
@@ -376,14 +376,14 @@
 				},
 				"showAxisBorder": {
 					"type": "switch",
-					"label": "Show axis border",
+					"label": "Show axis borders",
 					"group": "axis",
 					"defaultValue": true
 				},
 				"yAxisTickLabelRotation": {
 					"group": "axis",
 					"type": "slider",
-					"label": "Y-axis tick label rotation",
+					"label": "Y-axis label rotation",
 					"defaultValue": 0,
 					"slider": {
 						"min": -45,
@@ -399,7 +399,7 @@
 				},
 				"showGridLines": {
 					"type": "switch",
-					"label": "Show grid lines",
+					"label": "Show gridlines",
 					"group": "axis",
 					"defaultValue": true,
 					"subInputs": [
@@ -409,7 +409,7 @@
 							"input": {
 								"group": "axis",
 								"type": "button-group",
-								"label": "Grid lines type",
+								"label": "Gridline type",
 								"defaultValue": "all",
 								"options": [
 									{
@@ -520,7 +520,7 @@
 				"tooltipMode": {
 					"group": "tooltip",
 					"type": "button-group",
-					"label": "Tooltip display",
+					"label": "Display",
 					"defaultValue": "all",
 					"options": [
 						{
@@ -529,7 +529,7 @@
 						},
 						{
 							"id": "single",
-							"name": "Single"
+							"name": "Only one"
 						},
 						{
 							"id": "hidden",
@@ -540,7 +540,7 @@
 				"tooltipSortOrder": {
 					"group": "tooltip",
 					"type": "button-group",
-					"label": "Value sorting",
+					"label": "Value sort order",
 					"defaultValue": "name",
 					"options": [
 						{
