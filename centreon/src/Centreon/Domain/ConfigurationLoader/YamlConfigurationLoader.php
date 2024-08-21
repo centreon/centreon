@@ -35,18 +35,12 @@ class YamlConfigurationLoader
     private const INCLUDE_TOKEN = 'include';
 
     /**
-     * @var string Root configuration file
-     */
-    private $configurationFile;
-
-    /**
      * YamlConfigurationLoader constructor.
      *
      * @param string $configurationFile
      */
-    public function __construct(string $configurationFile)
+    public function __construct(private string $configurationFile)
     {
-        $this->configurationFile = $configurationFile;
     }
 
     /**
@@ -92,7 +86,7 @@ class YamlConfigurationLoader
                 if (!$this->isLoopDetected($fileToLoad, $historyLoadedFile)) {
                     $configuration[$key] = $this->iterateConfiguration(
                         $dataToIterate,
-                        realpath(dirname($fileToLoad)),
+                        realpath(dirname((string) $fileToLoad)),
                         $historyLoadedFile . '::' . realpath($fileToLoad)
                     );
                 } else {

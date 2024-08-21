@@ -30,10 +30,6 @@ class ValidatorCache implements ValidatorCacheInterface
      * @var ConfigCache
      */
     private $cache;
-    /**
-     * @var string Name of the cache file used to store data
-     */
-    private $cacheFile;
 
     /**
      * ValidatorCache constructor.
@@ -41,10 +37,9 @@ class ValidatorCache implements ValidatorCacheInterface
      * @param string $cacheFile Name of the cache file
      * @param bool $isDebug State of the debug mode
      */
-    public function __construct(string $cacheFile, bool $isDebug)
+    public function __construct(private string $cacheFile, bool $isDebug)
     {
-        $this->cacheFile = $cacheFile;
-        $this->cache = new ConfigCache($cacheFile, $isDebug);
+        $this->cache = new ConfigCache($this->cacheFile, $isDebug);
     }
 
     /**

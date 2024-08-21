@@ -35,17 +35,14 @@
 
 class CentreonBroker
 {
-    private $db;
-
     /*
 	 * Constructor class
 	 *
 	 * @access public
 	 * @return 	object	object session
 	 */
-    public function __construct($db)
+    public function __construct(private $db)
     {
-        $this->db = $db;
     }
 
     /**
@@ -54,7 +51,7 @@ class CentreonBroker
      * @param string $action
      * @return void
      */
-    public function reload()
+    public function reload(): void
     {
         if ($command = $this->getReloadCommand()) {
             shell_exec("sudo $command");
@@ -77,7 +74,7 @@ class CentreonBroker
         );
 
         if ($row = $result->fetch()) {
-            $command = $row['broker_reload_command'];
+            return $row['broker_reload_command'];
         }
 
         return $command;

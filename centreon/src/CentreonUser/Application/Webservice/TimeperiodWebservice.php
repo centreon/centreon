@@ -167,7 +167,7 @@ class TimeperiodWebservice extends Webservice\WebServiceAbstract implements Webs
             $filters['search'] = $request['search'];
         }
         if (isset($request['searchByIds']) && $request['searchByIds']) {
-            $filters['ids'] = explode(',', $request['searchByIds']);
+            $filters['ids'] = explode(',', (string) $request['searchByIds']);
         }
 
         $pagination = $this->services->get(ServiceProvider::CENTREON_PAGINATION);

@@ -34,7 +34,7 @@
  */
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once dirname(__FILE__) . "/webService.class.php";
+require_once __DIR__ . "/webService.class.php";
 
 class CentreonConfigurationObjects extends CentreonWebService
 {
@@ -67,13 +67,13 @@ class CentreonConfigurationObjects extends CentreonWebService
         }
 
         // Get Object targeted
-        if (isset($this->arguments['target']) && preg_match('/^[a-zA-Z]+$/', $this->arguments['target'])) {
-            $target = ucfirst($this->arguments['target']);
+        if (isset($this->arguments['target']) && preg_match('/^[a-zA-Z]+$/', (string) $this->arguments['target'])) {
+            $target = ucfirst((string) $this->arguments['target']);
         } else {
             throw new RestBadRequestException("Bad parameters target");
         }
 
-        $defaultValuesParameters = array();
+        $defaultValuesParameters = [];
         $targetedFile = _CENTREON_PATH_ . "/www/class/centreon" . $target . ".class.php";
         if (file_exists($targetedFile)) {
             require_once $targetedFile;
@@ -87,10 +87,10 @@ class CentreonConfigurationObjects extends CentreonWebService
         if (isset($defaultValuesParameters['type']) && $defaultValuesParameters['type'] === 'simple') {
             if (isset($defaultValuesParameters['reverse']) && $defaultValuesParameters['reverse']) {
                 $selectedValues = $this->retrieveSimpleValues(
-                    array(
+                    [
                         'table' => $defaultValuesParameters['externalObject']['table'],
                         'id' => $defaultValuesParameters['currentObject']['id']
-                    ),
+                    ],
                     $id,
                     $defaultValuesParameters['externalObject']['id']
                 );
@@ -102,17 +102,14 @@ class CentreonConfigurationObjects extends CentreonWebService
         } else {
             throw new RestBadRequestException("Bad parameters");
         }
-
-        // Manage final data
-        $finalDatas = array();
         if (count($selectedValues) > 0) {
-            $finalDatas = $this->retrieveExternalObjectDatas(
+            return $this->retrieveExternalObjectDatas(
                 $defaultValuesParameters['externalObject'],
                 $selectedValues
             );
         }
 
-        return $finalDatas;
+        return [];
     }
 
     /**
@@ -123,15 +120,15 @@ class CentreonConfigurationObjects extends CentreonWebService
      */
     protected function retrieveExternalObjectDatas($externalObject, $values)
     {
-        $tmpValues = array();
+        $tmpValues = [];
 
         if (isset($externalObject['object'])) {
             $classFile = $externalObject['object'] . '.class.php';
             include_once _CENTREON_PATH_ . "/www/class/$classFile";
-            $calledClass = ucfirst($externalObject['object']);
+            $calledClass = ucfirst((string) $externalObject['object']);
             $externalObjectInstance = new $calledClass($this->pearDB);
 
-            $options = array();
+            $options = [];
             if (isset($externalObject['objectOptions'])) {
                 $options = $externalObject['objectOptions'];
             }
@@ -167,10 +164,7 @@ class CentreonConfigurationObjects extends CentreonWebService
             }
 
             while ($row = $stmt->fetch()) {
-                $tmpValues[] = array(
-                    'id' => $row[$externalObject['id']],
-                    'text' => $row[$externalObject['name']]
-                );
+                $tmpValues[] = ['id' => $row[$externalObject['id']], 'text' => $row[$externalObject['name']]];
             }
         }
         return $tmpValues;
@@ -206,8 +200,8 @@ class CentreonConfigurationObjects extends CentreonWebService
         if (!is_numeric($id)) {
             throw new \RestBadRequestException('Error, id must be numerical');
         }
-        $tmpValues = array();
-        $fields = array();
+        $tmpValues = [];
+        $fields = [];
         $fields[] = $field;
         if (isset($currentObject['additionalField'])) {
             $fields[] = $currentObject['additionalField'];
@@ -239,9 +233,9 @@ class CentreonConfigurationObjects extends CentreonWebService
      */
     protected function retrieveRelatedValues($relationObject, $id)
     {
-        $tmpValues = array();
+        $tmpValues = [];
 
-        $fields = array();
+        $fields = [];
         $fields[] = $relationObject['field'];
         if (isset($relationObject['additionalField'])) {
             $fields[] = $relationObject['additionalField'];

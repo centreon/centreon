@@ -113,8 +113,12 @@ class FindContactGroups
     {
         // The use case can be executed onPrem is user has access to the pages.
         // On Cloud context user does not have access to those pages so he can execute the use case in any case.
-        return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ)
-            || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE)
-            || $this->isCloudPlatform === true;
+        if ($this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ)) {
+            return true;
+        }
+        if ($this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE)) {
+            return true;
+        }
+        return $this->isCloudPlatform === true;
     }
 }

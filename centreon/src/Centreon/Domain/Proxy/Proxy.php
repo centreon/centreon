@@ -27,7 +27,7 @@ namespace Centreon\Domain\Proxy;
  *
  * @package Centreon\Domain\Proxy
  */
-class Proxy
+class Proxy implements \Stringable
 {
     public const PROTOCOL_HTTP = 'http://';
     public const PROTOCOL_HTTPS = 'https://';

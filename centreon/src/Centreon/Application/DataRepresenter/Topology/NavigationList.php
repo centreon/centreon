@@ -28,29 +28,20 @@ use JsonSerializable;
 
 class NavigationList implements JsonSerializable
 {
-    /** @var array<Topology> */
-    private array $entities;
-
-    /**
-     * Configurations from navigation.yml.
-     *
-     * @var array<array{name: string, color: string, icon: string}>
-     */
-    private array $navConfig;
-
-    /** @var array<string> */
-    private array $enabledFeatureFlags;
-
     /**
      * @param array<Topology> $entities
      * @param array<array{name: string, color: string, icon: string}> $navConfig
      * @param array<string> $enabledFeatureFlags
      */
-    public function __construct(array $entities, array $navConfig = [], array $enabledFeatureFlags = [])
+    public function __construct(
+        private array $entities,
+        /**
+         * Configurations from navigation.yml.
+         */
+        private array $navConfig = [],
+        private array $enabledFeatureFlags = []
+    )
     {
-        $this->navConfig = $navConfig;
-        $this->entities = $entities;
-        $this->enabledFeatureFlags = $enabledFeatureFlags;
     }
 
     /**

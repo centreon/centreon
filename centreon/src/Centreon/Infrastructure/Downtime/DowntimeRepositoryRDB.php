@@ -38,11 +38,6 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRepositoryInterface
 {
     /**
-     * @var SqlRequestParametersTranslator
-     */
-    private $sqlRequestTranslator;
-
-    /**
      * @var AccessGroup[] List of access group used to filter the requests
      */
     private $accessGroups;
@@ -53,10 +48,9 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
 
     public function __construct(
         DatabaseConnection $db,
-        SqlRequestParametersTranslator $sqlRequestTranslator
+        private SqlRequestParametersTranslator $sqlRequestTranslator
     ) {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
 
         $this->downtimeConcordanceArray = [
             // Relation for downtime
@@ -225,9 +219,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
                 Downtime::class,
                 $row
             );
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**

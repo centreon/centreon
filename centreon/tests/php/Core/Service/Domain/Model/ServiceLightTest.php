@@ -32,25 +32,23 @@ use Core\Service\Domain\Model\ServiceLight;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 beforeEach(function (): void {
-    $this->createService = static function (array $fields = []): ServiceLight {
-        return new ServiceLight(
-            ...[
-                'id' => 1,
-                'name' => new TrimmedString('service-name'),
-                'hostIds' => [3],
-                'categoryIds' => [],
-                'groups' => [new ServiceGroupRelation(2, 1, 3)],
-                'serviceTemplate' => new SimpleEntity(1, new TrimmedString('serviceTemplate-name'), 'ServiceLigth::serviceTemplate'),
-                'notificationTimePeriod' => new SimpleEntity(1, new TrimmedString('notificationTimePeriod-name'), 'ServiceLigth::notificationTimePeriod'),
-                'checkTimePeriod' => new SimpleEntity(1, new TrimmedString('checkTimePeriod-name'), 'ServiceLigth::checkTimePeriod'),
-                'severity' => new SimpleEntity(1, new TrimmedString('severity-name'), 'ServiceLigth::severity'),
-                'normalCheckInterval' => 5,
-                'retryCheckInterval' => 1,
-                'isActivated' => true,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createService = static fn(array $fields = []): ServiceLight => new ServiceLight(
+        ...[
+            'id' => 1,
+            'name' => new TrimmedString('service-name'),
+            'hostIds' => [3],
+            'categoryIds' => [],
+            'groups' => [new ServiceGroupRelation(2, 1, 3)],
+            'serviceTemplate' => new SimpleEntity(1, new TrimmedString('serviceTemplate-name'), 'ServiceLigth::serviceTemplate'),
+            'notificationTimePeriod' => new SimpleEntity(1, new TrimmedString('notificationTimePeriod-name'), 'ServiceLigth::notificationTimePeriod'),
+            'checkTimePeriod' => new SimpleEntity(1, new TrimmedString('checkTimePeriod-name'), 'ServiceLigth::checkTimePeriod'),
+            'severity' => new SimpleEntity(1, new TrimmedString('severity-name'), 'ServiceLigth::severity'),
+            'normalCheckInterval' => 5,
+            'retryCheckInterval' => 1,
+            'isActivated' => true,
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set service instance (all properties)', function (): void {

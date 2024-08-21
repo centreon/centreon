@@ -50,8 +50,6 @@ class CentreonDowntime
     private const TYPE_HOST_GROUP = 'hostgrp';
     private const TYPE_SERVICE_GROUP = 'svcgrp';
 
-    protected CentreonDB $db;
-
     //$safe is the key to be bound
     protected string $search = '';
 
@@ -67,12 +65,11 @@ class CentreonDowntime
     private const SERVICE_REGISTER_SERVICE_TEMPLATE = 0;
 
     /**
-     * @param CentreonDB $pearDB The connection to database centreon
+     * @param CentreonDB $db The connection to database centreon
      * @param string|null $varlib Centreon dynamic dir
      */
-    public function __construct(CentreonDB $pearDB, ?string $varlib = null)
+    public function __construct(protected CentreonDB $db, ?string $varlib = null)
     {
-        $this->db = $pearDB;
         if (!is_null($varlib)) {
             $this->remoteCmdDir = $varlib . '/centcore';
         }
@@ -84,7 +81,7 @@ class CentreonDowntime
             return;
         }
 
-        $this->periods = array();
+        $this->periods = [];
 
         $statement = $this->db->query(<<<'SQL'
             SELECT dt_id, dtp_start_time, dtp_end_time, dtp_day_of_week, dtp_month_cycle,
@@ -219,7 +216,7 @@ class CentreonDowntime
         } catch (Throwable) {
             return [];
         }
-        $list = array();
+        $list = [];
         $statement->setFetchMode(PDO::FETCH_ASSOC);
         foreach ($statement as $row) {
             $list[] = $row;
@@ -233,7 +230,7 @@ class CentreonDowntime
     {
         $this->initPeriods();
 
-        $periods = array();
+        $periods = [];
         if (!isset($this->periods[$id])) {
             return $periods;
         }
@@ -242,21 +239,13 @@ class CentreonDowntime
             $days = $period['dtp_day_of_week'];
             /* Make a array if the cycle is all */
             if ($period['dtp_month_cycle'] == 'all') {
-                $days = preg_split('/\,/', $days);
+                $days = preg_split('/\,/', (string) $days);
             }
             /* Convert HH:mm:ss to HH:mm */
-            $start_time = substr($period['dtp_start_time'], 0, strrpos($period['dtp_start_time'], ':'));
-            $end_time = substr($period['dtp_end_time'], 0, strrpos($period['dtp_end_time'], ':'));
+            $start_time = substr((string) $period['dtp_start_time'], 0, strrpos((string) $period['dtp_start_time'], ':'));
+            $end_time = substr((string) $period['dtp_end_time'], 0, strrpos((string) $period['dtp_end_time'], ':'));
 
-            $periods[] = array(
-                'start_time' => $start_time,
-                'end_time' => $end_time,
-                'day_of_week' => $days,
-                'month_cycle' => $period['dtp_month_cycle'],
-                'day_of_month' => preg_split('/\,/', $period['dtp_day_of_month']),
-                'fixed' => $period['dtp_fixed'],
-                'duration' => $period['dtp_duration']
-            );
+            $periods[] = ['start_time' => $start_time, 'end_time' => $end_time, 'day_of_week' => $days, 'month_cycle' => $period['dtp_month_cycle'], 'day_of_month' => preg_split('/\,/', (string) $period['dtp_day_of_month']), 'fixed' => $period['dtp_fixed'], 'duration' => $period['dtp_duration']];
         }
 
         return $periods;
@@ -287,11 +276,7 @@ class CentreonDowntime
             ];
         }
         $row = $res->fetch();
-        return array(
-            'name' => $row['dt_name'],
-            'description' => $row['dt_description'],
-            'activate' => $row['dt_activate'],
-        );
+        return ['name' => $row['dt_name'], 'description' => $row['dt_description'], 'activate' => $row['dt_activate']];
     }
 
     /**
@@ -721,7 +706,7 @@ class CentreonDowntime
     public function duplicate($ids, $nb): void
     {
         if (false === is_array($ids)) {
-            $ids = array($ids);
+            $ids = [$ids];
         } else {
             $ids = array_keys($ids);
         }
@@ -842,9 +827,9 @@ class CentreonDowntime
      */
     public function addPeriod(int $id, array $infos): void
     {
-        if (trim($infos['duration']) !== '') {
+        if (trim((string) $infos['duration']) !== '') {
 
-            $infos['duration'] = match (trim($infos['scale'])) {
+            $infos['duration'] = match (trim((string) $infos['scale'])) {
                 'm' => $infos['duration'] * 60,
                 'h' => $infos['duration'] * 60 * 60,
                 'd' => $infos['duration'] * 60 * 60 * 24,
@@ -944,7 +929,7 @@ class CentreonDowntime
         try {
             foreach ($objIds as $ids) {
                 if ($objType === self::TYPE_SERVICE) {
-                    [$hostId, $serviceId] = explode('-', $ids);
+                    [$hostId, $serviceId] = explode('-', (string) $ids);
                     $statement->bindValue(':host_id', $hostId, PDO::PARAM_INT);
                     $statement->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
                 }

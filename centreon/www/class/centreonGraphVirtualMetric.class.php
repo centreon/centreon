@@ -41,14 +41,11 @@
  */
 class CentreonGraphVirtualMetric
 {
-    protected $db;
-
     /*
      * constructor
      */
-    public function __construct($pearDB)
+    public function __construct(protected $db)
     {
-        $this->db = $pearDB;
     }
     
     /**
@@ -58,7 +55,7 @@ class CentreonGraphVirtualMetric
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'virtual_metrics';
         $parameters['currentObject']['id'] = 'vmetric_id';
         $parameters['currentObject']['name'] = 'vmetric_name';

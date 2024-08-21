@@ -91,7 +91,7 @@ class HostTemplateFactoryRdb
             ->setComment($data['host_comment']);
 
         if (!empty($data['parents'])) {
-            $hostTemplate->setParentIds(explode(',', $data['parents']));
+            $hostTemplate->setParentIds(explode(',', (string) $data['parents']));
         }
         return $hostTemplate;
     }

@@ -133,7 +133,7 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
 
         while ($record = $statement->fetch()) {
             $hostGroupList[] = [
-                'id' => htmlentities($record['hg_id']),
+                'id' => htmlentities((string) $record['hg_id']),
                 'text' => $record['hg_name'],
                 'status' => (bool) $record['hg_activate'],
             ];
@@ -173,7 +173,7 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
 
         $whereCondition = '';
         if ($hostGroupIdsString !== '') {
-            $hostGroupIds = array_values(explode(',', $hostGroupIdsString));
+            $hostGroupIds = array_values(explode(',', (string) $hostGroupIdsString));
 
             foreach ($hostGroupIds as $key => $hostGroupId) {
                 if (! is_numeric($hostGroupId)) {
@@ -241,7 +241,7 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
         $hostList = [];
         while ($record = $statement->fetch()) {
             $hostList[] = [
-                'id' => htmlentities($record['host_id']),
+                'id' => htmlentities((string) $record['host_id']),
                 'text' => $record['host_name'],
             ];
         }

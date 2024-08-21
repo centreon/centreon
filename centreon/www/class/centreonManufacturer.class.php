@@ -39,19 +39,12 @@
 class CentreonManufacturer
 {
     /**
-     *
-     * @var \CentreonDB
-     */
-    protected $db;
-
-    /**
      *  Constructor
      *
      * @param CentreonDB $db
      */
-    public function __construct($db)
+    public function __construct(protected $db)
     {
-        $this->db = $db;
     }
 
     /**
@@ -59,11 +52,11 @@ class CentreonManufacturer
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':traps' . $v . ',';
@@ -87,10 +80,7 @@ class CentreonManufacturer
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['id'],
-                'text' => $row['name']
-            );
+            $items[] = ['id' => $row['id'], 'text' => $row['name']];
         }
 
         return $items;

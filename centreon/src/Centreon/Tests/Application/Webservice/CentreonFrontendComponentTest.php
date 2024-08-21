@@ -69,7 +69,7 @@ class CentreonFrontendComponentTest extends TestCase
         $container[ServiceProvider::CENTREON_FRONTEND_COMPONENT_SERVICE] =
             $this->createMock(FrontendComponentService::class);
 
-        (function (FrontendComponentService&MockObject $service) {
+        (function (FrontendComponentService&MockObject $service): void {
             $service
                 ->method('getPages')
                 ->willReturn($this->getComponentsValues['pages']);

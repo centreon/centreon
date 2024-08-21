@@ -377,7 +377,7 @@ class CentreonLDAP extends CentreonObject
                 $contactObj = new CentreonContact($this->dependencyInjector);
                 $params[2] = $contactObj->getContactID($params[2]);
             }
-            if (mb_strtolower($params[1]) === 'ldap_default_cg' && ! empty($params[2])) {
+            if (mb_strtolower((string) $params[1]) === 'ldap_default_cg' && ! empty($params[2])) {
                 $contactGroupObj = new CentreonContactGroup($this->dependencyInjector);
                 $params[2] = $contactGroupObj->getContactGroupID($params[2]);
             }
@@ -419,7 +419,7 @@ class CentreonLDAP extends CentreonObject
         if (is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $params = explode($this->delim, $parameters);
+        $params = explode($this->delim, (string) $parameters);
         if (count($params) < 3) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }

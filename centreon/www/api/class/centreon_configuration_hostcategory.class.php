@@ -61,7 +61,7 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
     {
         global $centreon;
 
-        $queryValues = array();
+        $queryValues = [];
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
         $aclHostCategories = '';
@@ -80,8 +80,8 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
         'c' = catagory only
         's' = severity only */
         if (isset($this->arguments['t'])) {
-            $selectList = array('a', 'c', 's');
-            if (in_array(strtolower($this->arguments['t']), $selectList)) {
+            $selectList = ['a', 'c', 's'];
+            if (in_array(strtolower((string) $this->arguments['t']), $selectList)) {
                 $t = $this->arguments['t'];
             } else {
                 throw new \RestBadRequestException('Error, type must be numerical');
@@ -130,17 +130,11 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $hostCategoryList = array();
+        $hostCategoryList = [];
         while ($data = $stmt->fetch()) {
-            $hostCategoryList[] = array(
-                'id' => htmlentities($data['hc_id']),
-                'text' => $data['hc_name']
-            );
+            $hostCategoryList[] = ['id' => htmlentities((string) $data['hc_id']), 'text' => $data['hc_name']];
         }
 
-        return array(
-            'items' => $hostCategoryList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $hostCategoryList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

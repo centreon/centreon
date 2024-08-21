@@ -29,25 +29,23 @@ use Core\Domain\Common\GeoCoords;
 use Core\HostGroup\Domain\Model\HostGroup;
 
 beforeEach(function (): void {
-    $this->createHostGroup = static function (array $fields = []): HostGroup {
-        return new HostGroup(
-            ...[
-                'id' => 1,
-                'name' => 'host-name',
-                'alias' => 'host-alias',
-                'notes' => '',
-                'notesUrl' => '',
-                'actionUrl' => '',
-                'iconId' => 2,
-                'iconMapId' => null,
-                'rrdRetention' => null,
-                'geoCoords' => GeoCoords::fromString('-90.0,180.0'),
-                'comment' => '',
-                'isActivated' => true,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createHostGroup = static fn(array $fields = []): HostGroup => new HostGroup(
+        ...[
+            'id' => 1,
+            'name' => 'host-name',
+            'alias' => 'host-alias',
+            'notes' => '',
+            'notesUrl' => '',
+            'actionUrl' => '',
+            'iconId' => 2,
+            'iconMapId' => null,
+            'rrdRetention' => null,
+            'geoCoords' => GeoCoords::fromString('-90.0,180.0'),
+            'comment' => '',
+            'isActivated' => true,
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set host group instance', function (): void {

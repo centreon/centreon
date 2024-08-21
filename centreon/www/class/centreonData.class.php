@@ -57,8 +57,8 @@ class CentreonData
      *
      * @var array
      */
-    private $jsData = array();
-    
+    private $jsData = [];
+
     /**
      * Constructor
      *
@@ -75,7 +75,7 @@ class CentreonData
      * @return void
      * @throws Exception
      */
-    public function addJsData($key, $value)
+    public function addJsData($key, $value): void
     {
         if (isset($this->jsData[$key])) {
             throw new Exception(
@@ -94,7 +94,7 @@ class CentreonData
     {
         return $this->jsData;
     }
-    
+
     /**
      * Get a instance of Centreon_Template
      *

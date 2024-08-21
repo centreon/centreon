@@ -141,10 +141,10 @@ abstract class AbstractStep implements StepInterface
             $configuration = json_decode(file_get_contents($file), true);
             if (is_array($configuration)) {
                 foreach ($configuration as $key => $configurationValue) {
-                    $configuration[$key] = htmlspecialchars($configurationValue, ENT_QUOTES);
+                    $configuration[$key] = htmlspecialchars((string) $configurationValue, ENT_QUOTES);
                 }
             } else {
-                $configuration = htmlspecialchars($configuration, ENT_QUOTES);
+                $configuration = htmlspecialchars((string) $configuration, ENT_QUOTES);
             }
         }
 

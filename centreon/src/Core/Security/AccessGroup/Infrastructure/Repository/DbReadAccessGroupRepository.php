@@ -42,17 +42,13 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
     use LoggerTrait;
     use SqlMultipleBindTrait;
 
-    /** @var SqlRequestParametersTranslator */
-    private SqlRequestParametersTranslator $sqlRequestTranslator;
-
     /**
      * @param DatabaseConnection $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db, private SqlRequestParametersTranslator $sqlRequestTranslator)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
@@ -78,7 +74,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY acl_group_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY acl_group_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -175,7 +171,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY acl_group_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY acl_group_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();

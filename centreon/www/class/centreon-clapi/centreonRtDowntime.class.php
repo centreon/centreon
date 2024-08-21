@@ -60,13 +60,7 @@ class CentreonRtDowntime extends CentreonObject
     /**
      * @var array
      */
-    protected $downtimeType = array(
-        'HOST',
-        'SVC',
-        'HG',
-        'SG',
-        'INSTANCE',
-    );
+    protected $downtimeType = ['HOST', 'SVC', 'HG', 'SG', 'INSTANCE'];
 
     /**
      * @var
@@ -132,7 +126,7 @@ class CentreonRtDowntime extends CentreonObject
     private function parseParameters($parameters)
     {
         // Make safe the inputs
-        list($type, $resource, $start, $end, $fixed, $duration, $comment, $withServices) = explode(';', $parameters);
+        [$type, $resource, $start, $end, $fixed, $duration, $comment, $withServices] = explode(';', (string) $parameters);
 
         // Check if object type is supported
         if (!in_array(strtoupper($type), $this->downtimeType)) {
@@ -172,16 +166,7 @@ class CentreonRtDowntime extends CentreonObject
         // Make safe the comment
         $comment = escapeshellarg($comment);
 
-        return array(
-            'type' => $type,
-            'resource' => $resource,
-            'start' => $start,
-            'end' => $end,
-            'fixed' => $fixed,
-            'duration' => $duration,
-            'withServices' => $withServices,
-            'comment' => $comment,
-        );
+        return ['type' => $type, 'resource' => $resource, 'start' => $start, 'end' => $end, 'fixed' => $fixed, 'duration' => $duration, 'withServices' => $withServices, 'comment' => $comment];
     }
 
     /**
@@ -190,7 +175,7 @@ class CentreonRtDowntime extends CentreonObject
      */
     private function parseShowParameters($parameters)
     {
-        $parameters = explode(';', $parameters);
+        $parameters = explode(';', (string) $parameters);
         if (count($parameters) === 1) {
             $resource = '';
         } elseif (count($parameters) === 2) {
@@ -200,10 +185,7 @@ class CentreonRtDowntime extends CentreonObject
         }
         $type = $parameters[0];
 
-        return array(
-            'type' => $type,
-            'resource' => $resource,
-        );
+        return ['type' => $type, 'resource' => $resource];
     }
 
     /**
@@ -211,14 +193,14 @@ class CentreonRtDowntime extends CentreonObject
      * @param array $filter
      * @throws CentreonClapiException
      */
-    public function show($parameters = null, $filter = array())
+    public function show($parameters = null, $filter = []): void
     {
         if ($parameters !== '') {
             $parsedParameters = $this->parseShowparameters($parameters);
-            if (strtoupper($parsedParameters['type']) !== 'HOST' && strtoupper($parsedParameters['type']) !== 'SVC') {
+            if (strtoupper((string) $parsedParameters['type']) !== 'HOST' && strtoupper((string) $parsedParameters['type']) !== 'SVC') {
                 throw new CentreonClapiException(self::UNKNOWNPARAMETER . ' : ' . $parsedParameters['type']);
             }
-            $method = 'show' . ucfirst(strtolower($parsedParameters['type']));
+            $method = 'show' . ucfirst(strtolower((string) $parsedParameters['type']));
             $this->$method($parsedParameters['resource']);
         } else {
             $this->dHosts = $this->object->getHostDowntimes();
@@ -247,36 +229,22 @@ class CentreonRtDowntime extends CentreonObject
      * @param $hostList
      * @throws CentreonClapiException
      */
-    public function showHost($hostList)
+    public function showHost($hostList): void
     {
         $unknownHost = [];
 
-        $fields = array(
-            'id',
-            'host_name',
-            'author',
-            'actual_start_time',
-            'actual_end_time',
-            'start_time',
-            'end_time',
-            'comment_data',
-            'duration',
-            'fixed',
-            'url',
-        );
+        $fields = ['id', 'host_name', 'author', 'actual_start_time', 'actual_end_time', 'start_time', 'end_time', 'comment_data', 'duration', 'fixed', 'url'];
 
         if (!empty($hostList)) {
-            $hostList = array_filter(explode('|', $hostList));
+            $hostList = array_filter(explode('|', (string) $hostList));
             $db = $this->db;
             $hostList = array_map(
-                function ($element) use ($db) {
-                    return $db->escape($element);
-                },
+                fn($element) => $db->escape($element),
                 $hostList
             );
 
             // check if host exist
-            $existingHost = array();
+            $existingHost = [];
             foreach ($hostList as $host) {
                 if ($this->hostObject->getHostID($host) == 0) {
                     $unknownHost[] = $host;
@@ -340,40 +308,25 @@ class CentreonRtDowntime extends CentreonObject
      * @param $svcList
      * @throws CentreonClapiException
      */
-    public function showSvc($svcList)
+    public function showSvc($svcList): void
     {
-        $serviceDowntimesList = array();
-        $unknownService = array();
-        $existingService = array();
+        $serviceDowntimesList = [];
+        $unknownService = [];
+        $existingService = [];
 
-        $fields = array(
-            'id',
-            'host_name',
-            'service_name',
-            'author',
-            'actual_start_time',
-            'actual_end_time',
-            'start_time',
-            'end_time',
-            'comment_data',
-            'duration',
-            'fixed',
-            'url',
-        );
+        $fields = ['id', 'host_name', 'service_name', 'author', 'actual_start_time', 'actual_end_time', 'start_time', 'end_time', 'comment_data', 'duration', 'fixed', 'url'];
 
         if (!empty($svcList)) {
-            $svcList = array_filter(explode('|', $svcList));
+            $svcList = array_filter(explode('|', (string) $svcList));
             $db = $this->db;
             $svcList = array_map(
-                function ($arrayElem) use ($db) {
-                    return $db->escape($arrayElem);
-                },
+                fn($arrayElem) => $db->escape($arrayElem),
                 $svcList
             );
 
             // check if service exist
             foreach ($svcList as $service) {
-                $serviceData = explode(',', $service);
+                $serviceData = explode(',', (string) $service);
                 if ($this->serviceObject->serviceExists($serviceData[0], $serviceData[1])) {
                     $existingService[] = $serviceData;
                 } else {
@@ -448,13 +401,13 @@ class CentreonRtDowntime extends CentreonObject
     /**
      * @param null $parameters
      */
-    public function add($parameters = null)
+    public function add($parameters = null): void
     {
         $parsedParameters = $this->parseParameters($parameters);
 
         // to choose the best add (addHostDowntime, addSvcDowntime etc.)
-        $method = 'add' . ucfirst(strtolower($parsedParameters['type'])) . 'Downtime';
-        if ((strtolower($parsedParameters['type']) === 'host') || (strtolower($parsedParameters['type']) === 'hg')) {
+        $method = 'add' . ucfirst(strtolower((string) $parsedParameters['type'])) . 'Downtime';
+        if ((strtolower((string) $parsedParameters['type']) === 'host') || (strtolower((string) $parsedParameters['type']) === 'hg')) {
             $this->$method(
                 $parsedParameters['resource'],
                 $parsedParameters['start'],
@@ -494,12 +447,12 @@ class CentreonRtDowntime extends CentreonObject
         $duration,
         $comment,
         $withServices = true
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $unknownHost = array();
-        $listHost = explode('|', $resource);
+        $unknownHost = [];
+        $listHost = explode('|', (string) $resource);
 
         foreach ($listHost as $host) {
             if ($this->rtValidator->isHostNameValid($host)) {
@@ -538,12 +491,12 @@ class CentreonRtDowntime extends CentreonObject
         $fixed,
         $duration,
         $comment
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $unknownService = array();
-        $listService = explode('|', $resource);
+        $unknownService = [];
+        $listService = explode('|', (string) $resource);
         $existingService = [];
 
         // check if service exist
@@ -594,13 +547,13 @@ class CentreonRtDowntime extends CentreonObject
         $duration,
         $comment,
         $withServices = true
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $existingHg = array();
-        $unknownHg = array();
-        $listHg = explode('|', $resource);
+        $existingHg = [];
+        $unknownHg = [];
+        $listHg = explode('|', (string) $resource);
 
         // check if service exist
         foreach ($listHg as $hg) {
@@ -708,14 +661,14 @@ class CentreonRtDowntime extends CentreonObject
         $fixed,
         $duration,
         $comment
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        $existingPoller = array();
-        $unknownPoller = array();
-        $listPoller = explode('|', $resource);
+        $existingPoller = [];
+        $unknownPoller = [];
+        $listPoller = explode('|', (string) $resource);
 
         foreach ($listPoller as $poller) {
             if ($this->instanceObject->getInstanceId($poller)) {
@@ -752,13 +705,13 @@ class CentreonRtDowntime extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function cancel($parameters = null)
+    public function cancel($parameters = null): void
     {
         if (empty($parameters) || is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $listDowntime = explode('|', $parameters);
-        $unknownDowntime = array();
+        $unknownDowntime = [];
 
         foreach ($listDowntime as $downtime) {
             if (!is_numeric($downtime)) {
@@ -770,12 +723,12 @@ class CentreonRtDowntime extends CentreonObject
                     if ($infoDowntime['type'] == 2) {
                         $this->externalCmdObj->deleteDowntime(
                             'HOST',
-                            array($hostName . ';' . $infoDowntime['internal_id'] => 'on')
+                            [$hostName . ';' . $infoDowntime['internal_id'] => 'on']
                         );
                     } else {
                         $this->externalCmdObj->deleteDowntime(
                             'SVC',
-                            array($hostName . ';' . $infoDowntime['internal_id'] => 'on')
+                            [$hostName . ';' . $infoDowntime['internal_id'] => 'on']
                         );
                     }
                 } else {

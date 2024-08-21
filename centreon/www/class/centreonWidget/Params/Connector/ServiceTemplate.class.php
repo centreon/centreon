@@ -52,7 +52,7 @@ class CentreonWidgetParamsConnectorServiceTemplate extends CentreonWidgetParamsL
                 "AND service_register = '0' " .
                 "ORDER BY service_description";
             $res = $this->db->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['service_id']] = $row['service_description'];
             }

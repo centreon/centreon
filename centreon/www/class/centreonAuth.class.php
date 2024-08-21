@@ -62,21 +62,11 @@ class CentreonAuth
 
     // Declare Values
     public $userInfos;
-    protected $login;
-    protected $password;
     protected $enable;
     protected $userExists;
-    protected $cryptEngine;
-    protected $autologin;
     protected $cryptPossibilities;
 
-    /**
-     * @var CentreonDB
-     */
-    protected $pearDB;
-
     protected $debug;
-    protected $dependencyInjector;
 
     // Flags
     public $passwdOk;
@@ -85,48 +75,38 @@ class CentreonAuth
     protected $ldap_store_password;
     protected $default_page;
 
-    // keep log class
-    protected $CentreonLog;
-
     // Error Message
     protected $error;
 
     /**
      * Constructor
      *
-     * @param string $username
+     * @param string $login
      * @param string $password
      * @param int $autologin
      * @param CentreonDB $pearDB
      * @param CentreonUserLog $CentreonLog
-     * @param int $encryptType
+     * @param int $cryptEngine
      * @param string $token | for autologin
      * @return void
      */
     public function __construct(
-        $dependencyInjector,
-        $username,
-        $password,
-        $autologin,
-        $pearDB,
-        $CentreonLog,
-        $encryptType = self::ENCRYPT_MD5,
+        protected $dependencyInjector,
+        protected $login,
+        protected $password,
+        protected $autologin,
+        protected $pearDB,
+        protected $CentreonLog,
+        protected $cryptEngine = self::ENCRYPT_MD5,
         $token = ""
     ) {
-        $this->dependencyInjector = $dependencyInjector;
-        $this->cryptPossibilities = array('MD5', 'SHA1');
-        $this->CentreonLog = $CentreonLog;
-        $this->login = $username;
-        $this->password = $password;
-        $this->pearDB = $pearDB;
-        $this->autologin = $autologin;
-        $this->cryptEngine = $encryptType;
+        $this->cryptPossibilities = ['MD5', 'SHA1'];
         $this->debug = $this->getLogFlag();
-        $this->ldap_auto_import = array();
-        $this->ldap_store_password = array();
+        $this->ldap_auto_import = [];
+        $this->ldap_store_password = [];
         $this->default_page = self::DEFAULT_PAGE;
 
-        $res = $pearDB->query(
+        $res = $this->pearDB->query(
             "SELECT ar.ar_id, ari.ari_value, ari.ari_name " .
             "FROM auth_ressource_info ari, auth_ressource ar " .
             "WHERE ari_name IN ('ldap_auto_import', 'ldap_store_password') " .
@@ -140,7 +120,7 @@ class CentreonAuth
                 $this->ldap_store_password[$row['ar_id']] = $row['ari_value'];
             }
         }
-        $this->checkUser($username, $password, $token);
+        $this->checkUser($this->login, $this->password, $token);
     }
 
     /**
@@ -152,10 +132,7 @@ class CentreonAuth
     {
         $res = $this->pearDB->query("SELECT value FROM options WHERE `key` = 'debug_auth'");
         $data = $res->fetch();
-        if (isset($data["value"])) {
-            return $data["value"];
-        }
-        return 0;
+        return $data["value"] ?? 0;
     }
 
     /**
@@ -263,15 +240,15 @@ class CentreonAuth
             if ($this->passwdOk == self::PASSWORD_VALID) {
                 if (isset($this->ldap_store_password[$arId]) && $this->ldap_store_password[$arId]) {
                     if (!isset($this->userInfos["contact_passwd"])) {
-                        $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
+                        $hashedPassword = password_hash((string) $this->password, self::PASSWORD_HASH_ALGORITHM);
                         $contact = new \CentreonContact($this->pearDB);
                         $contactId = $contact->findContactIdByAlias($this->login);
                         if ($contactId !== null) {
                             $contact->addPasswordByContactId($contactId, $hashedPassword);
                         }
                     // Update password if LDAP authentication is valid but password not up to date in Centreon.
-                    } elseif (!password_verify($this->password, $this->userInfos["contact_passwd"])) {
-                        $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
+                    } elseif (!password_verify((string) $this->password, (string) $this->userInfos["contact_passwd"])) {
+                        $hashedPassword = password_hash((string) $this->password, self::PASSWORD_HASH_ALGORITHM);
                         $contact = new \CentreonContact($this->pearDB);
                         $contactId = $contact->findContactIdByAlias($this->login);
                         if ($contactId !== null) {
@@ -291,7 +268,7 @@ class CentreonAuth
             if (
                 !empty($password)
                 && !empty($this->userInfos["contact_passwd"])
-                && password_verify($password, $this->userInfos["contact_passwd"])
+                && password_verify($password, (string) $this->userInfos["contact_passwd"])
             ) {
                 $this->passwdOk = self::PASSWORD_VALID;
             } else {
@@ -305,21 +282,21 @@ class CentreonAuth
      *
      * @param string $password
      */
-    private function checkLocalPassword($password)
+    private function checkLocalPassword($password): void
     {
         if (empty($password)) {
             $this->passwdOk = self::PASSWORD_INVALID;
             return;
         }
 
-        if (password_verify($password, $this->userInfos["contact_passwd"])) {
+        if (password_verify($password, (string) $this->userInfos["contact_passwd"])) {
             $this->passwdOk = self::PASSWORD_VALID;
             return;
         }
 
         if (
             (
-                str_starts_with($this->userInfos["contact_passwd"], 'md5__')
+                str_starts_with((string) $this->userInfos["contact_passwd"], 'md5__')
                 && $this->userInfos["contact_passwd"] === $this->myCrypt($password)
             )
             || 'md5__' . $this->userInfos["contact_passwd"] === $this->myCrypt($password)
@@ -446,20 +423,13 @@ class CentreonAuth
     protected function getCryptFunction()
     {
         if (isset($this->cryptEngine)) {
-            switch ($this->cryptEngine) {
-                case self::ENCRYPT_MD5:
-                    return "MD5";
-                    break;
-                case self::ENCRYPT_SHA1:
-                    return "SHA1";
-                    break;
-                default:
-                    return "MD5";
-                    break;
-            }
-        } else {
-            return "MD5";
+            return match ($this->cryptEngine) {
+                self::ENCRYPT_MD5 => "MD5",
+                self::ENCRYPT_SHA1 => "SHA1",
+                default => "MD5",
+            };
         }
+        return "MD5";
     }
 
     /*
@@ -469,20 +439,13 @@ class CentreonAuth
     {
         $algo = $this->dependencyInjector['utils']->detectPassPattern($str);
         if (!$algo) {
-            switch ($this->cryptEngine) {
-                case 1:
-                    return $this->dependencyInjector['utils']->encodePass($str, 'md5');
-                    break;
-                case 2:
-                    return $this->dependencyInjector['utils']->encodePass($str, 'sha1');
-                    break;
-                default:
-                    return $this->dependencyInjector['utils']->encodePass($str, 'md5');
-                    break;
-            }
-        } else {
-            return $str;
+            return match ($this->cryptEngine) {
+                1 => $this->dependencyInjector['utils']->encodePass($str, 'md5'),
+                2 => $this->dependencyInjector['utils']->encodePass($str, 'sha1'),
+                default => $this->dependencyInjector['utils']->encodePass($str, 'md5'),
+            };
         }
+        return $str;
     }
 
     protected function getCryptEngine()

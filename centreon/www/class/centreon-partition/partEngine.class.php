@@ -52,7 +52,7 @@ class PartEngine
         ;
     }
 
-    private function createMaxvaluePartition($db, $tableName, $table)
+    private function createMaxvaluePartition($db, $tableName, $table): void
     {
         if ($this->hasMaxValuePartition($db, $table) === false) {
             try {
@@ -118,7 +118,7 @@ class PartEngine
         return $current_time;
     }
 
-    private function updateDailyPartitions($db, $tableName, $table, $lastTime)
+    private function updateDailyPartitions($db, $tableName, $table, $lastTime): void
     {
         $hasMaxValuePartition = $this->hasMaxValuePartition($db, $table);
 
@@ -297,7 +297,7 @@ class PartEngine
 
         $lastPart = 0;
         // dont care of MAXVALUE
-        if (preg_match_all('/PARTITION (.*?) VALUES LESS THAN \(([0-9]+?)\)/', $row['Create Table'], $matches)) {
+        if (preg_match_all('/PARTITION (.*?) VALUES LESS THAN \(([0-9]+?)\)/', (string) $row['Create Table'], $matches)) {
             for ($i = 0; isset($matches[2][$i]); $i++) {
                 if ($matches[2][$i] > $lastPart) {
                     $lastPart = $matches[2][$i];
@@ -362,7 +362,7 @@ class PartEngine
      * Load data into new table
      * Delete old table
      */
-    public function migrate($table, $db)
+    public function migrate($table, $db): void
     {
         $tableName = "`" . $table->getSchema() . "`." . $table->getName();
 
@@ -409,7 +409,7 @@ class PartEngine
     /**
      * Update a partitionned table to add new partitions
      */
-    public function updateParts($table, $db)
+    public function updateParts($table, $db): void
     {
         $tableName = "`" . $table->getSchema() . "`." . $table->getName();
 
@@ -470,9 +470,8 @@ class PartEngine
         }
         if (!count($partitions) && $throwException) {
             throw new Exception("No partition found for table " . $tableName . "\n");
-        } else {
-            return $partitions;
         }
+        return $partitions;
         $dbResult->closeCursor();
     }
 
@@ -481,7 +480,7 @@ class PartEngine
      *
      * @param MysqlTable $table
      */
-    public function backupParts($table, $db)
+    public function backupParts($table, $db): void
     {
         $tableName = "`" . $table->getSchema() . "`." . $table->getName();
         if (!$table->exists()) {
@@ -577,9 +576,9 @@ class PartEngine
 
             if (
                 (
-                    stristr($dbType, "MySQL")
-                    || stristr($dbType, "Source distribution")
-                    || stristr($dbType, "Percona Server")
+                    stristr((string) $dbType, "MySQL")
+                    || stristr((string) $dbType, "Source distribution")
+                    || stristr((string) $dbType, "Percona Server")
                 )
                 && (version_compare($dbVersion, '8.0.0', '>='))
             ) {
@@ -607,10 +606,11 @@ class PartEngine
             throw new Exception('Cannot get partition information');
         }
 
-        if ($row = $dbResult->fetch()) {
-            if (preg_match('/PARTITION BY/', $row['Create Table']) === 1) {
-                return true;
-            }
+        if (!($row = $dbResult->fetch())) {
+            return false;
+        }
+        if (preg_match('/PARTITION BY/', (string) $row['Create Table']) === 1) {
+            return true;
         }
 
         return false;
@@ -632,10 +632,11 @@ class PartEngine
             );
         }
 
-        if ($row = $dbResult->fetch()) {
-            if (preg_match('/PARTITION.*?pmax/', $row['Create Table']) === 1) {
-                return true;
-            }
+        if (!($row = $dbResult->fetch())) {
+            return false;
+        }
+        if (preg_match('/PARTITION.*?pmax/', (string) $row['Create Table']) === 1) {
+            return true;
         }
 
         return false;

@@ -6,7 +6,7 @@ namespace Centreon\Domain\Entity;
  */
 class CfgCentreonBrokerInfo
 {
-    const TABLE = 'cfg_centreonbroker_info';
+    public const TABLE = 'cfg_centreonbroker_info';
 
     /**
      * @var int the linked config id
@@ -28,20 +28,17 @@ class CfgCentreonBrokerInfo
      */
     private $configGroupLevel;
 
-    /**
-     * @var string the name of the linked field
-     */
-    private $configKey;
-
-    /**
-     * @var string the value of the linked field
-     */
-    private $configValue;
-
-    public function __construct(string $configKey, string $configValue)
+    public function __construct(
+        /**
+         * @var string the name of the linked field
+         */
+        private string $configKey,
+        /**
+         * @var string the value of the linked field
+         */
+        private string $configValue
+    )
     {
-        $this->configKey = $configKey;
-        $this->configValue = $configValue;
     }
 
     public function setConfigId(int $configId): void

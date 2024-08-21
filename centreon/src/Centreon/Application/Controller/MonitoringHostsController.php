@@ -37,17 +37,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MonitoringHostsController extends AbstractController
 {
-    /** @var MonitoringServiceInterface */
-    private $monitoring;
-
     /**
      * MonitoringController constructor.
      *
-     * @param MonitoringServiceInterface $monitoringService
+     * @param MonitoringServiceInterface $monitoring
      */
-    public function __construct(MonitoringServiceInterface $monitoringService)
+    public function __construct(private MonitoringServiceInterface $monitoring)
     {
-        $this->monitoring = $monitoringService;
     }
 
     /**

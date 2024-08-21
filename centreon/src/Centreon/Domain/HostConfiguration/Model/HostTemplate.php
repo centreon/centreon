@@ -395,9 +395,7 @@ class HostTemplate
             $this->parentIds = array_values(
                 array_filter(
                     $parentIds,
-                    function ($value) {
-                        return is_int($value);
-                    }
+                    fn($value) => is_int($value)
                 )
             );
         }

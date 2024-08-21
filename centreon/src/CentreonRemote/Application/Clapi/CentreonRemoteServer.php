@@ -31,20 +31,19 @@ use Pimple\Container;
  */
 class CentreonRemoteServer implements CentreonClapiServiceInterface
 {
-    /**
-     * @var Container
-     *                todo: extract only services we need to avoid using whole container
-     */
-    private $di;
-
-    public function __construct(Container $di)
+    public function __construct(
+        /**
+         * @var Container
+         *                todo: extract only services we need to avoid using whole container
+         */
+        private Container $di
+    )
     {
-        $this->di = $di;
     }
 
     public static function getName() : string
     {
-        return (new \ReflectionClass(__CLASS__))->getShortName();
+        return (new \ReflectionClass(self::class))->getShortName();
     }
 
     /**

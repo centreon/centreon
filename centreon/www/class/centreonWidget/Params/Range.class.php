@@ -42,7 +42,7 @@ class CentreonWidgetParamsRange extends CentreonWidgetParams
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -54,7 +54,7 @@ class CentreonWidgetParamsRange extends CentreonWidgetParams
             $min = $row['min_range'];
             $max = $row['max_range'];
             $step = $row['step'];
-            $tab = array();
+            $tab = [];
             for ($i = $min; $i <= $max; $i += $step) {
                 $tab[$i] = $i;
             }

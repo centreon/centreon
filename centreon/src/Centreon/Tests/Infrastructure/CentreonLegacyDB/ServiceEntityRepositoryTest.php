@@ -102,7 +102,7 @@ class ServiceEntityRepositoryTest extends TestCase
                     ],
                 ],
                 null,
-                function ($params) use ($id, $columnA, $checkPoint) {
+                function ($params) use ($id, $columnA, $checkPoint): void {
                     $checkPoint->mark('select');
 
                     $this->assertEquals([
@@ -114,7 +114,7 @@ class ServiceEntityRepositoryTest extends TestCase
                 "DELETE FROM `mock_table` WHERE `id_a` = :id_a AND `id_b` = :id_b",
                 [],
                 null,
-                function ($params) use ($id, $columnA, $columnB, $checkPoint) {
+                function ($params) use ($id, $columnA, $columnB, $checkPoint): void {
                     $checkPoint->mark('delete');
 
                     $this->assertEquals([
@@ -127,7 +127,7 @@ class ServiceEntityRepositoryTest extends TestCase
                 "INSERT INTO `mock_table` (`id_a`, `id_b`)  VALUES (:id_a, :id_b)",
                 [],
                 null,
-                function ($params) use ($id, $columnA, $columnB, $checkPoint) {
+                function ($params) use ($id, $columnA, $columnB, $checkPoint): void {
                     $checkPoint->mark('insert');
 
                     $this->assertContains($params, [

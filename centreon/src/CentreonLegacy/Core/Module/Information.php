@@ -92,13 +92,11 @@ class Information
         $sth->bindParam(':id', $moduleId, \PDO::PARAM_INT);
 
         $sth->execute();
-
-        $name = null;
         if ($row = $sth->fetch()) {
-            $name = $row['name'];
+            return $row['name'];
         }
 
-        return $name;
+        return null;
     }
 
     /**
@@ -210,9 +208,7 @@ class Information
     {
         $list = empty($this->cachedModulesList) ? $this->getList() : $this->cachedModulesList;
 
-        return array_filter($list, function ($widget) {
-            return $widget['upgradeable'];
-        });
+        return array_filter($list, fn($widget) => $widget['upgradeable']);
     }
 
     public function hasModulesForInstallation()
@@ -224,9 +220,7 @@ class Information
     {
         $list = empty($this->cachedModulesList) ? $this->getList() : $this->cachedModulesList;
 
-        return array_filter($list, function ($widget) {
-            return ! $widget['is_installed'];
-        });
+        return array_filter($list, fn($widget) => ! $widget['is_installed']);
     }
 
     /**
@@ -276,7 +270,7 @@ class Information
         $compare = version_compare($availableVersion, $installedVersion);
         
         if ($compare == 1) {
-            $comparisonResult = true;
+            return true;
         }
         
         return $comparisonResult;

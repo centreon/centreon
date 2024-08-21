@@ -22,7 +22,7 @@ if (!class_exists('gnupg')) {
     class gnupg
     {
 
-        const SIG_MODE_CLEAR = null;
+        public const SIG_MODE_CLEAR = null;
 
         public function import($keydata = null): array
         {

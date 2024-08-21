@@ -26,13 +26,13 @@ namespace Tests\Core\Timezone\Domain\Model;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Timezone\Domain\Model\Timezone;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->name = 'host-name';
     $this->offset = '+05:00';
     $this->dayligthSavingTimeOffset = '+06:00';
 });
 
-it('should return properly set timezone instance', function () {
+it('should return properly set timezone instance', function (): void {
     $timezone = new Timezone(1, $this->name, $this->offset, $this->dayligthSavingTimeOffset);
 
     expect($timezone->getId())->toBe(1)
@@ -41,21 +41,21 @@ it('should return properly set timezone instance', function () {
         ->and($timezone->getDaylightSavingTimeOffset())->toBe($this->dayligthSavingTimeOffset);
 });
 
-it('should throw an exception when timezone name is empty', function () {
+it('should throw an exception when timezone name is empty', function (): void {
     new Timezone(1, '', $this->offset, $this->dayligthSavingTimeOffset);
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::notEmptyString('Timezone::name')->getMessage()
 );
 
-it('should throw an exception when timezone offset format is not respected', function () {
+it('should throw an exception when timezone offset format is not respected', function (): void {
     new Timezone(1, $this->name, 'aaa', $this->dayligthSavingTimeOffset);
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::matchRegex('aaa', '/^[-+][0-9]{2}:[0-9]{2}$/', "Timezone::offset")->getMessage()
 );
 
-it('should throw an exception when timezone daylightSavingTimeOffset format is not respected', function () {
+it('should throw an exception when timezone daylightSavingTimeOffset format is not respected', function (): void {
     new Timezone(1, $this->name, $this->offset, 'aaa');
 })->throws(
     \Assert\InvalidArgumentException::class,

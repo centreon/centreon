@@ -33,18 +33,12 @@ use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
 class ProxyService implements ProxyServiceInterface
 {
     /**
-     * @var ProxyRepositoryInterface
-     */
-    private $proxyRepository;
-
-    /**
      * ProxyService constructor.
      *
      * @param ProxyRepositoryInterface $proxyRepository
      */
-    public function __construct(ProxyRepositoryInterface $proxyRepository)
+    public function __construct(private ProxyRepositoryInterface $proxyRepository)
     {
-        $this->proxyRepository = $proxyRepository;
     }
 
     /**

@@ -42,7 +42,7 @@ class CentreonWidgetParamsSelect2 extends CentreonWidgetParams
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -50,7 +50,7 @@ class CentreonWidgetParamsSelect2 extends CentreonWidgetParams
                 'select2',
                 'param_' . $params['parameter_id'],
                 $params['parameter_name'],
-                array(),
+                [],
                 $this->getParameters()
             );
         }

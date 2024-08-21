@@ -61,9 +61,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     {
         $pimple->extend(
             \Centreon\ServiceProvider::YML_CONFIG,
-            function (array $cc, Container $pimple) {
-                return $pimple[\CentreonLegacy\ServiceProvider::CONFIGURATION]->getModuleConfig(__DIR__);
-            }
+            fn(array $cc, Container $pimple) => $pimple[\CentreonLegacy\ServiceProvider::CONFIGURATION]->getModuleConfig(__DIR__)
         );
 
         $pimple[\Centreon\ServiceProvider::CENTREON_WEBSERVICE]
@@ -94,21 +92,15 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         };
 
         $pimple[static::CENTREON_REMOTE_POLLER_INTERACTION_SERVICE]
-            = function (Container $pimple): PollerInteractionService {
-                return new PollerInteractionService($pimple);
-            };
+            = fn(Container $pimple): PollerInteractionService => new PollerInteractionService($pimple);
 
         $pimple[static::CENTREON_REMOTE_INFORMATIONS_SERVICE]
-            = function (Container $pimple): InformationsService {
-                return new InformationsService($pimple);
-            };
+            = fn(Container $pimple): InformationsService => new InformationsService($pimple);
 
         $pimple[static::CENTREON_REMOTE_REMOTE_CONNECTION_SERVICE]
-            = function (Container $pimple): RemoteConnectionConfigurationService {
-                return new RemoteConnectionConfigurationService(
-                    $pimple[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]->getAdapter('configuration_db')
-                );
-            };
+            = fn(Container $pimple): RemoteConnectionConfigurationService => new RemoteConnectionConfigurationService(
+                $pimple[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]->getAdapter('configuration_db')
+            );
 
         $pimple[static::CENTREON_REMOTE_POLLER_CONNECTION_SERVICE]
             = function (Container $pimple): PollerConnectionConfigurationService {
@@ -137,9 +129,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             };
 
         $pimple[static::CENTREON_REMOTE_POLLER_CONFIG_BRIDGE]
-            = function (Container $pimple): PollerConfigurationRequestBridge {
-                return new PollerConfigurationRequestBridge($pimple);
-            };
+            = fn(Container $pimple): PollerConfigurationRequestBridge => new PollerConfigurationRequestBridge($pimple);
 
         $pimple[static::CENTREON_REMOTE_EXPORT]
             = function (Container $container): Infrastructure\Service\ExportService {
@@ -156,14 +146,10 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             };
 
         $pimple[static::CENTREON_REMOTE_EXPORTER_CACHE]
-            = function (): Infrastructure\Service\ExporterCacheService {
-                return new Infrastructure\Service\ExporterCacheService();
-            };
+            = fn(): Infrastructure\Service\ExporterCacheService => new Infrastructure\Service\ExporterCacheService();
 
         $pimple[static::CENTREON_REMOTE_EXPORTER]
-            = function (): Infrastructure\Service\ExporterService {
-                return new Infrastructure\Service\ExporterService();
-            };
+            = fn(): Infrastructure\Service\ExporterService => new Infrastructure\Service\ExporterService();
 
         // -----------//
         // Exporters

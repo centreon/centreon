@@ -53,7 +53,7 @@ class DbReadWebSSOConfigurationRepository extends AbstractRepositoryDRB implemen
         $configuration = null;
         if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $this->validateJsonRecord($result['custom_configuration'], __DIR__ . '/CustomConfigurationSchema.json');
-            $customConfiguration = json_decode($result['custom_configuration'], true);
+            $customConfiguration = json_decode((string) $result['custom_configuration'], true);
             $configuration = DbWebSSOConfigurationFactory::createFromRecord($customConfiguration, $result);
         }
 

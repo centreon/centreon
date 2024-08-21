@@ -49,12 +49,12 @@ class CentreonDatepickerI18n extends CentreonWebService
         $path = __DIR__ . "/../../include/common/javascript/datepicker/";
 
         // check if the fullLocale library exist
-        $datepickerFileToFound = "datepicker-" . substr($data, 0, 5) . ".js";
+        $datepickerFileToFound = "datepicker-" . substr((string) $data, 0, 5) . ".js";
         $valid =  file_exists($path . $datepickerFileToFound);
 
         // if not found, then check if the shortLocale library exist
         if ($valid !== true) {
-            $datepickerFileToFound = "datepicker-" . substr($data, 0, 2) . ".js";
+            $datepickerFileToFound = "datepicker-" . substr((string) $data, 0, 2) . ".js";
             $valid = file_exists($path . $datepickerFileToFound);
         }
 

@@ -129,7 +129,7 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
         $serviceGroups = [];
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $serviceGroups[] = [
-                'id' => htmlentities($record['sg_id']),
+                'id' => htmlentities((string) $record['sg_id']),
                 'text' => $record['sg_name'],
                 'status' => (bool) $record['sg_activate'],
             ];
@@ -161,7 +161,7 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
 
         // Handle the search by service groups IDs
         if ($serviceGroupIdsString !== '') {
-            $serviceGroupIds = array_values(explode(',', $serviceGroupIdsString));
+            $serviceGroupIds = array_values(explode(',', (string) $serviceGroupIdsString));
 
             foreach ($serviceGroupIds as $key => $serviceGroupId) {
                 if (! is_numeric($serviceGroupId)) {

@@ -37,25 +37,11 @@ use Centreon\Domain\Monitoring\Service;
 class TimelineService extends AbstractCentreonService implements TimelineServiceInterface
 {
     /**
-     * @var TimelineRepositoryInterface
-     */
-    private $timelineRepository;
-
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
-    private $accessGroupRepository;
-
-    /**
      * @param TimelineRepositoryInterface $timelineRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      */
-    public function __construct(
-        TimelineRepositoryInterface $timelineRepository,
-        ReadAccessGroupRepositoryInterface $accessGroupRepository
-    ) {
-        $this->timelineRepository = $timelineRepository;
-        $this->accessGroupRepository = $accessGroupRepository;
+    public function __construct(private TimelineRepositoryInterface $timelineRepository, private ReadAccessGroupRepositoryInterface $accessGroupRepository)
+    {
     }
 
     /**

@@ -32,13 +32,13 @@ use Core\Notification\Application\UseCase\FindNotifiableContactGroups\FindNotifi
 use Core\Notification\Application\UseCase\FindNotifiableContactGroups\FindNotifiableContactGroupsResponse;
 use Tests\Core\Notification\Infrastructure\API\FindNotifiableContactGroups\FindNotifiableContactGroupsPresenterStub;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new FindNotifiableContactGroupsPresenterStub($this->presenterFormatter);
     $this->readRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
 });
 
-it('should present a Not Found Response when there are no contact groups.', function () {
+it('should present a Not Found Response when there are no contact groups.', function (): void {
     $useCase = new FindNotifiableContactGroups($this->readRepository);
 
     $this->readRepository
@@ -54,7 +54,7 @@ it('should present a Not Found Response when there are no contact groups.', func
         ->toBe('Contact Groups not found');
 });
 
-it('should present an Error Response when an unhandled error occurs.', function () {
+it('should present an Error Response when an unhandled error occurs.', function (): void {
     $useCase = new FindNotifiableContactGroups($this->readRepository);
 
     $this->readRepository
@@ -70,7 +70,7 @@ it('should present an Error Response when an unhandled error occurs.', function 
         ->toBe('Error while retrieving contact groups');
 });
 
-it('should present a FindNotifiableContactGroups Response.', function () {
+it('should present a FindNotifiableContactGroups Response.', function (): void {
     $contactGroups = [
         new ContactGroup(1, 'Administrators'),
         new ContactGroup(2, 'Editors'),

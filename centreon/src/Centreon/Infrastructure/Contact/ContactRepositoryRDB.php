@@ -35,17 +35,11 @@ use Centreon\Infrastructure\DatabaseConnection;
 final class ContactRepositoryRDB implements ContactRepositoryInterface
 {
     /**
-     * @var DatabaseConnection
-     */
-    private $db;
-
-    /**
      * ContactRepositoryRDB constructor.
-     * @param DatabaseConnection $pdo
+     * @param DatabaseConnection $db
      */
-    public function __construct(DatabaseConnection $pdo)
+    public function __construct(private DatabaseConnection $db)
     {
-        $this->db = $pdo;
     }
 
     /**
@@ -71,15 +65,13 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
 
         $statement = $this->db->prepare($request);
         $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
-
-        $contact = null;
         $statement->execute();
 
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $contact = $this->createContact($result);
+            return $this->createContact($result);
         }
 
-        return $contact;
+        return null;
     }
 
     /**
@@ -106,13 +98,11 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $statement->bindValue(':username', $name, \PDO::PARAM_STR);
 
         $statement->execute();
-
-        $contact = null;
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $contact = $this->createContact($result);
+            return $this->createContact($result);
         }
 
-        return $contact;
+        return null;
     }
 
     /**
@@ -138,13 +128,11 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $statement = $this->db->prepare($request);
         $statement->bindValue(':email', $email, \PDO::PARAM_STR);
         $statement->execute();
-
-        $contact = null;
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $contact = $this->createContact($result);
+            return $this->createContact($result);
         }
 
-        return $contact;
+        return null;
     }
 
     /**
@@ -172,13 +160,11 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $statement = $this->db->prepare($request);
         $statement->bindValue(':session_id', $sessionId, \PDO::PARAM_STR);
         $statement->execute();
-
-        $contact = null;
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $contact = $this->createContact($result);
+            return $this->createContact($result);
         }
 
-        return $contact;
+        return null;
     }
 
 
@@ -216,13 +202,11 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         );
         $statement->bindValue(':token', $token, \PDO::PARAM_STR);
         $statement->execute();
-
-        $contact = null;
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $contact = $this->createContact($result);
+            return $this->createContact($result);
         }
 
-        return $contact;
+        return null;
     }
 
     /**
@@ -357,7 +341,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             foreach ($nameOfTopologiesRules as $page => $name) {
                 if ($name !== null) {
                     $name = preg_replace(['/\s/', '/\W/'], ['_', ''], $name);
-                    $name = strtoupper($name);
+                    $name = strtoupper((string) $name);
                     $contact->addTopologyRule($name);
                 }
             }
@@ -409,13 +393,11 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      */
     private function parseLocaleFromContactLang(string $lang): string
     {
-        $locale = Contact::DEFAULT_LOCALE;
-
         if (preg_match('/^(\w{2}_\w{2})/', $lang, $matches)) {
-            $locale = $matches[1];
+            return $matches[1];
         }
 
-        return $locale;
+        return Contact::DEFAULT_LOCALE;
     }
 
     /**
@@ -587,8 +569,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     protected function translateDbName(string $request): string
     {
         return str_replace(
-            array(':dbstg', ':db'),
-            array($this->db->getStorageDbName(), $this->db->getCentreonDbName()),
+            [':dbstg', ':db'],
+            [$this->db->getStorageDbName(), $this->db->getCentreonDbName()],
             $request
         );
     }

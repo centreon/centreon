@@ -173,7 +173,7 @@ class Engine extends AbstractObject
      * @param int $poller
      * @return void
      */
-    private function generate(int $pollerId)
+    private function generate(int $pollerId): void
     {
         if (is_null($this->stmtEngine)) {
             $this->stmtEngine = $this->backendInstance->db->prepare(
@@ -204,7 +204,7 @@ class Engine extends AbstractObject
      * @param array $poller
      * @return void
      */
-    public function generateFromPoller(array $poller)
+    public function generateFromPoller(array $poller): void
     {
         Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
         $this->generate($poller['id']);

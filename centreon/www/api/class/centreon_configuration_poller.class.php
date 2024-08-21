@@ -63,7 +63,7 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
 
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
-        $queryValues = array();
+        $queryValues = [];
 
         /* Get ACL if user is not admin */
         if (!$isAdmin) {
@@ -137,16 +137,10 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $pollerList = array();
+        $pollerList = [];
         while ($data = $stmt->fetch()) {
-            $pollerList[] = array(
-                'id' => $data['id'],
-                'text' => $data['name']
-            );
+            $pollerList[] = ['id' => $data['id'], 'text' => $data['name']];
         }
-        return array(
-            'items' => $pollerList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $pollerList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

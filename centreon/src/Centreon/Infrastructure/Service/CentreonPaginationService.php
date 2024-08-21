@@ -172,7 +172,8 @@ class CentreonPaginationService
             throw new RuntimeException(
                 sprintf(_('Max value of limit has to be %d instead %d'), static::LIMIT_MAX, $limit)
             );
-        } elseif ($limit !== null && $limit < 1) {
+        }
+        if ($limit !== null && $limit < 1) {
             throw new RuntimeException(sprintf(_('Minimum value of limit has to be 1 instead %d'), $limit));
         }
 
@@ -207,7 +208,7 @@ class CentreonPaginationService
      */
     public function setOrder($field, $order): self
     {
-        $order = (!empty($order) && (strtoupper($order) == "DESC")) ? $order : 'ASC';
+        $order = (!empty($order) && (strtoupper((string) $order) == "DESC")) ? $order : 'ASC';
 
         $this->ordering = ['field' => $field, 'order'=> $order];
 

@@ -40,7 +40,6 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wikiApi.class.php'
 
 class ProceduresProxy
 {
-    private $DB;
     private $wikiUrl;
     private $hostObj;
     private $serviceObj;
@@ -49,9 +48,8 @@ class ProceduresProxy
      * ProceduresProxy constructor.
      * @param $pearDB
      */
-    public function __construct($pearDB)
+    public function __construct(private $DB)
     {
-        $this->DB = $pearDB;
         $this->hostObj = new CentreonHost($this->DB);
         $this->serviceObj = new CentreonService($this->DB);
 
@@ -69,11 +67,10 @@ class ProceduresProxy
         $statement = $this->DB->prepare("SELECT host_id FROM host WHERE host_name LIKE :hostName");
         $statement->bindValue(':hostName', $hostName, \PDO::PARAM_STR);
         $statement->execute();
-        $hostId = 0;
         if ($row = $statement->fetch()) {
-            $hostId = $row["host_id"];
+            return $row["host_id"];
         }
-        return $hostId;
+        return 0;
     }
 
     /**
@@ -145,7 +142,7 @@ class ProceduresProxy
         $statement->execute();
 
         if ($row = $statement->fetch()) {
-            $notesUrl = $row['esi_notes_url'];
+            return $row['esi_notes_url'];
         }
 
         return $notesUrl;

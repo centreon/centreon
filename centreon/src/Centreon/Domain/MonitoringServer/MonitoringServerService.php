@@ -66,13 +66,11 @@ class MonitoringServerService implements MonitoringServerServiceInterface
 
             if ($this->contact->isAdmin()) {
                 return $this->monitoringServerRepository->findServersWithRequestParameters();
-            } else {
-                $accessGroups = $this->readAccessGroupsRepository->findByContact($this->contact);
-
-                return $this->monitoringServerRepository->findServersWithRequestParametersAndAccessGroups(
-                    $accessGroups
-                );
             }
+            $accessGroups = $this->readAccessGroupsRepository->findByContact($this->contact);
+            return $this->monitoringServerRepository->findServersWithRequestParametersAndAccessGroups(
+                $accessGroups
+            );
         } catch (AccessDeniedException $ex) {
             throw new AccessDeniedException('You are not allowed to access this resource');
         } catch (\Exception $ex) {

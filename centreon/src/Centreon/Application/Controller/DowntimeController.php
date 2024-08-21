@@ -51,24 +51,14 @@ class DowntimeController extends AbstractController
     private const DOWNTIME_ON_RESOURCES_PAYLOAD_VALIDATION_FILE
         = __DIR__ . '/../../../../config/json_validator/latest/Centreon/Downtime/DowntimeResources.json';
 
-    /** @var DowntimeServiceInterface */
-    private DowntimeServiceInterface $downtimeService;
-
-    /** @var MonitoringServiceInterface */
-    private MonitoringServiceInterface $monitoringService;
-
     /**
      * DowntimeController constructor.
      *
      * @param DowntimeServiceInterface $downtimeService
      * @param MonitoringServiceInterface $monitoringService
      */
-    public function __construct(
-        DowntimeServiceInterface $downtimeService,
-        MonitoringServiceInterface $monitoringService
-    ) {
-        $this->downtimeService = $downtimeService;
-        $this->monitoringService = $monitoringService;
+    public function __construct(private DowntimeServiceInterface $downtimeService, private MonitoringServiceInterface $monitoringService)
+    {
     }
 
     /**

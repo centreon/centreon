@@ -42,7 +42,7 @@ class CentreonWidgetParamsList extends CentreonWidgetParams
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {

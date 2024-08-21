@@ -29,18 +29,16 @@ use Core\Domain\Common\GeoCoords;
 use Core\ServiceGroup\Domain\Model\NewServiceGroup;
 
 beforeEach(function (): void {
-    $this->createServiceGroup = static function (array $fields = []): NewServiceGroup {
-        return new NewServiceGroup(
-            ...[
-                'name' => 'service-name',
-                'alias' => 'service-alias',
-                'geoCoords' => GeoCoords::fromString('-90.0,180.0'),
-                'comment' => '',
-                'isActivated' => true,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createServiceGroup = static fn(array $fields = []): NewServiceGroup => new NewServiceGroup(
+        ...[
+            'name' => 'service-name',
+            'alias' => 'service-alias',
+            'geoCoords' => GeoCoords::fromString('-90.0,180.0'),
+            'comment' => '',
+            'isActivated' => true,
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set service group instance', function (): void {

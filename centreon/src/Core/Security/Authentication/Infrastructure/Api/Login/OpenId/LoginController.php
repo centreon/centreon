@@ -61,33 +61,23 @@ final class LoginController extends AbstractController
 
         $response = $presenter->getResponseStatus() ?? $presenter->getPresentedData();
 
-        switch (true) {
-            case $response instanceof PasswordExpiredResponse:
-            case $response instanceof UnauthorizedResponse:
-            case $response instanceof ErrorResponse:
-                return View::createRedirect(
-                    $this->getBaseUrl() . '/login?' . http_build_query([
-                        'authenticationError' => $response->getMessage(),
-                    ]),
-                );
-
-            case $response instanceof ErrorAclConditionsResponse:
-            case $response instanceof ErrorAuthenticationConditionsResponse:
-                return View::createRedirect(
-                    $this->getBaseUrl() . '/authentication-denied',
-                );
-
-            case $response instanceof LoginResponse:
-                return View::createRedirect(
-                    $this->getBaseUrl() . $response->getRedirectUri(),
-                );
-
-            default:
-                return View::createRedirect(
-                    $this->getBaseUrl() . '/login?' . http_build_query([
-                        'authenticationError' => 'Unknown error',
-                    ]),
-                );
-        }
+        return match (true) {
+            $response instanceof PasswordExpiredResponse, $response instanceof UnauthorizedResponse, $response instanceof ErrorResponse => View::createRedirect(
+                $this->getBaseUrl() . '/login?' . http_build_query([
+                    'authenticationError' => $response->getMessage(),
+                ]),
+            ),
+            $response instanceof ErrorAclConditionsResponse, $response instanceof ErrorAuthenticationConditionsResponse => View::createRedirect(
+                $this->getBaseUrl() . '/authentication-denied',
+            ),
+            $response instanceof LoginResponse => View::createRedirect(
+                $this->getBaseUrl() . $response->getRedirectUri(),
+            ),
+            default => View::createRedirect(
+                $this->getBaseUrl() . '/login?' . http_build_query([
+                    'authenticationError' => 'Unknown error',
+                ]),
+            ),
+        };
     }
 }

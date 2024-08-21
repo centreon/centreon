@@ -89,7 +89,7 @@ class CentreonSession
     public function registerVar($registerVar): void
     {
         if (!isset($_SESSION[$registerVar])) {
-            $_SESSION[$registerVar] = $$registerVar;
+            $_SESSION[$registerVar] = ${$registerVar};
         }
     }
 
@@ -177,7 +177,7 @@ class CentreonSession
      */
     public static function getUser($sessionId, $pearDB)
     {
-        $sessionId = str_replace(array('_', '%'), array('', ''), $sessionId);
+        $sessionId = str_replace(['_', '%'], ['', ''], $sessionId);
         $DBRESULT = $pearDB->query(
             "SELECT user_id FROM session
                 WHERE `session_id` = '" . htmlentities(trim($sessionId), ENT_QUOTES, "UTF-8") . "'"

@@ -44,15 +44,6 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
 {
     use LoggerTrait;
 
-    /** @var ContactInterface */
-    private $contact;
-
-    /** @var AuthenticationTokenServiceInterface */
-    private $authenticationTokenService;
-
-    /** @var \Symfony\Contracts\HttpClient\HttpClientInterface */
-    private $httpClient;
-
     /** @var string */
     private $serverUri;
 
@@ -64,14 +55,8 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
      * @param ContactInterface $contact
      * @param HttpClientInterface $httpClient
      */
-    public function __construct(
-        AuthenticationTokenServiceInterface $authenticationTokenService,
-        ContactInterface $contact,
-        HttpClientInterface $httpClient
-    ) {
-        $this->contact = $contact;
-        $this->authenticationTokenService = $authenticationTokenService;
-        $this->httpClient = $httpClient;
+    public function __construct(private AuthenticationTokenServiceInterface $authenticationTokenService, private ContactInterface $contact, private HttpClientInterface $httpClient)
+    {
     }
 
     /**
@@ -121,7 +106,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             $serverScheme = $_SERVER['REQUEST_SCHEME'] ?: 'http';
             Assertion::notEmpty($_SERVER['SERVER_NAME']);
             Assertion::notEmpty($_SERVER['REQUEST_URI']);
-            $prefixUri = explode('/', $_SERVER['REQUEST_URI'])[1];
+            $prefixUri = explode('/', (string) $_SERVER['REQUEST_URI'])[1];
             // ex: http://localhost:80/centreon
             $this->serverUri = $serverScheme . '://' . $_SERVER['SERVER_NAME'] . '/' . $prefixUri;
         }

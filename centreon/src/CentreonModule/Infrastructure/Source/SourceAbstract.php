@@ -132,7 +132,7 @@ abstract class SourceAbstract implements SourceInterface
         $codeVersion = trim(strtolower($codeVersion));
 
         if ($installedVersion == $codeVersion) {
-            $result = true;
+            return true;
         }
 
         return $result;

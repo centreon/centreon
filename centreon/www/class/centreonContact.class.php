@@ -38,14 +38,11 @@ use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
 
 class CentreonContact
 {
-    protected $db;
-
     /**
      * Constructor
      */
-    public function __construct($db)
+    public function __construct(protected $db)
     {
-        $this->db = $db;
     }
 
     /**
@@ -57,7 +54,7 @@ class CentreonContact
      * @param array $limit | i.e: array($limit, $offset)
      * @return array
      */
-    public function getContactTemplates($fields = array(), $filters = array(), $order = array(), $limit = array())
+    public function getContactTemplates($fields = [], $filters = [], $order = [], $limit = [])
     {
         $fieldStr = "*";
         if (count($fields)) {
@@ -80,7 +77,7 @@ class CentreonContact
                                 {$filterStr}
                                 {$orderStr}
                                 {$limitStr}");
-        $arr = array();
+        $arr = [];
         while ($row = $res->fetchRow()) {
             $arr[] = $row;
         }
@@ -101,7 +98,7 @@ class CentreonContact
             AND r.contact_contact_id = " . $db->escape($contactId);
         $stmt = $db->query($sql);
 
-        $cgs = array();
+        $cgs = [];
         while ($row = $stmt->fetchRow()) {
             $cgs[$row['cg_id']] = $row['cg_name'];
         }
@@ -115,7 +112,7 @@ class CentreonContact
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'contact';
         $parameters['currentObject']['id'] = 'contact_id';
         $parameters['currentObject']['name'] = 'contact_name';
@@ -187,31 +184,21 @@ class CentreonContact
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized contacts
         if (!$centreon->user->access->admin) {
             $cAcl = $centreon->user->access->getContactAclConf(
-                array(
-                    'fields' => array('contact_id'),
-                    'get_row' => 'contact_id',
-                    'keys' => array('contact_id'),
-                    'conditions' => array(
-                        'contact_id' => array(
-                            'IN',
-                            $values
-                        )
-                    )
-                ),
+                ['fields' => ['contact_id'], 'get_row' => 'contact_id', 'keys' => ['contact_id'], 'conditions' => ['contact_id' => ['IN', $values]]],
                 false
             );
         }
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':contact' . $v . ',';
@@ -242,11 +229,7 @@ class CentreonContact
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['contact_id'],
-                'text' => $row['contact_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['contact_id'], 'text' => $row['contact_name'], 'hide' => $hide];
         }
         return $items;
     }
@@ -270,7 +253,7 @@ class CentreonContact
         $statement->execute();
 
         if ($row = $statement->fetch()) {
-            $contactId = (int) $row['contact_id'];
+            return (int) $row['contact_id'];
         }
 
         return $contactId;
@@ -291,7 +274,7 @@ class CentreonContact
             throw new \Exception('Password security policy not found');
         }
 
-        $customConfiguration = json_decode($configuration['custom_configuration'], true);
+        $customConfiguration = json_decode((string) $configuration['custom_configuration'], true);
 
         if (!array_key_exists('password_security_policy', $customConfiguration)) {
             throw new \Exception('Security Policy not found in custom configuration');
@@ -432,7 +415,7 @@ class CentreonContact
         $statement->execute();
 
         if ($row = $statement->fetch()) {
-            $creationDate = (new \DateTimeImmutable())->setTimestamp((int) $row['creation_date']);
+            return (new \DateTimeImmutable())->setTimestamp((int) $row['creation_date']);
         }
 
         return $creationDate;
@@ -470,7 +453,7 @@ class CentreonContact
 
             $passwordHistory = $statement->fetchAll(\PDO::FETCH_ASSOC);
             foreach ($passwordHistory as $contactPassword) {
-                if (password_verify($password, $contactPassword['password'])) {
+                if (password_verify($password, (string) $contactPassword['password'])) {
                     throw new \Exception(
                         _(
                             "Your password has already been used. "

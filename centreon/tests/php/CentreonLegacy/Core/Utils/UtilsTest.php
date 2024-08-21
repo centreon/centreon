@@ -55,7 +55,7 @@ class UtilsTest extends TestCase
     /**
      * @covers CentreonLegacy\Core\Utils\Utils::objectIntoArray
      */
-    public function testObjectIntoArray()
+    public function testObjectIntoArray(): void
     {
         $object = new \stdClass();
         $object->message = 'test';
@@ -76,7 +76,7 @@ class UtilsTest extends TestCase
     /**
      * @covers CentreonLegacy\Core\Utils\Utils::objectIntoArray
      */
-    public function testObjectIntoArrayWithSkippedKeys()
+    public function testObjectIntoArrayWithSkippedKeys(): void
     {
         $object = new \stdClass();
         $object->message = 'test';
@@ -94,14 +94,14 @@ class UtilsTest extends TestCase
     /**
      * @covers CentreonLegacy\Core\Utils\Utils::objectIntoArray
      */
-    public function testObjectIntoArrayWithEmptyObject()
+    public function testObjectIntoArrayWithEmptyObject(): void
     {
         $result = $this->service->objectIntoArray(new \stdClass);
 
         $this->assertEmpty($result);
     }
 
-    public function testBuildPath()
+    public function testBuildPath(): void
     {
         $endPath = '.';
 
@@ -110,7 +110,7 @@ class UtilsTest extends TestCase
         $this->assertStringEndsWith('www', $result);
     }
 
-    public function testRequireConfiguration()
+    public function testRequireConfiguration(): void
     {
         $configurationFile = '';
         $type = '';
@@ -125,7 +125,7 @@ class UtilsTest extends TestCase
      *
      * @todo the method must be refactored
      */
-    public function testExecutePhpFileWithUnexistsFile()
+    public function testExecutePhpFileWithUnexistsFile(): void
     {
         $fileName = $this->fs->path('/tmp/conf2.php');
         $result = null;
@@ -139,7 +139,7 @@ class UtilsTest extends TestCase
         $this->assertInstanceOf(\Exception::class, $result);
     }
 
-    public function testExecuteSqlFile()
+    public function testExecuteSqlFile(): void
     {
         $this->fs->createFile('/tmp/conf.sql', "SELECT 'OK';");
         $fileName = $this->fs->path('/tmp/conf.sql');
@@ -149,7 +149,7 @@ class UtilsTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb()
+    public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb(): void
     {
         $fileName = $this->fs->path('/tmp/conf2.sql');
         $result = null;

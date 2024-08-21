@@ -153,17 +153,17 @@ class Centreon
      *
      * @param $pearDB The database connection to centreon database
      */
-    public function creatModuleList()
+    public function creatModuleList(): void
     {
-        $this->modules = array();
+        $this->modules = [];
         $query = "SELECT `name` FROM `modules_informations`";
         $dbResult = CentreonDBInstance::getConfInstance()->query($query);
         while ($result = $dbResult->fetch()) {
-            $this->modules[$result["name"]] = array(
+            $this->modules[$result["name"]] = [
                 "name" => $result["name"],
                 "gen" => false,
                 "license" => false
-            );
+            ];
 
             if (is_dir("./modules/" . $result["name"] . "/generate_files/")) {
                 $this->modules[$result["name"]]["gen"] = true;
@@ -172,9 +172,9 @@ class Centreon
         $dbResult = null;
     }
 
-    public function initHooks()
+    public function initHooks(): void
     {
-        $this->hooks = array();
+        $this->hooks = [];
 
         foreach ($this->modules as $name => $parameters) {
             $hookPaths = glob(_CENTREON_PATH_ . '/www/modules/' . $name . '/hooks/*.class.php');
@@ -193,10 +193,10 @@ class Centreon
                         }
                         $hookMethods = get_class_methods($className);
                         foreach ($hookMethods as $hookMethod) {
-                            $this->hooks[$hookName][$hookMethod][] = array(
+                            $this->hooks[$hookName][$hookMethod][] = [
                                 'path' => $hookPath,
                                 'class' => $className
-                            );
+                            ];
                         }
                     }
                 }
@@ -207,14 +207,14 @@ class Centreon
     /**
      * Create history list
      */
-    public function createHistory()
+    public function createHistory(): void
     {
-        $this->historyPage = array();
+        $this->historyPage = [];
         $this->historyLastUrl = '';
-        $this->historySearch = array();
-        $this->historySearchService = array();
-        $this->historySearchOutput = array();
-        $this->historyLimit = array();
+        $this->historySearch = [];
+        $this->historySearchService = [];
+        $this->historySearchOutput = [];
+        $this->historyLimit = [];
         $this->search_type_service = 1;
         $this->search_type_host = 1;
     }
@@ -224,9 +224,9 @@ class Centreon
      *
      * @param $pearDB The database connection to centreon database
      */
-    public function initNagiosCFG()
+    public function initNagiosCFG(): void
     {
-        $this->Nagioscfg = array();
+        $this->Nagioscfg = [];
         /*
          * We don't check activate because we can a server without a engine on localhost running
          * (but we order to get if we have one)
@@ -247,9 +247,9 @@ class Centreon
      *
      * @param $pearDB The database connection to centreon database
      */
-    public function initOptGen()
+    public function initOptGen(): void
     {
-        $this->optGen = array();
+        $this->optGen = [];
         $DBRESULT = CentreonDBInstance::getConfInstance()->query("SELECT * FROM `options`");
         while ($opt = $DBRESULT->fetch()) {
             $this->optGen[$opt["key"]] = $opt["value"];
@@ -282,7 +282,7 @@ class Centreon
     {
         $DBRESULT = CentreonDBInstance::getConfInstance()->query("SELECT illegal_object_name_chars FROM cfg_nagios");
         while ($data = $DBRESULT->fetchColumn()) {
-            $name = str_replace(str_split($data), '', $name);
+            $name = str_replace(str_split((string) $data), '', $name);
         }
         $DBRESULT = null;
         return $name;

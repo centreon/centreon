@@ -34,13 +34,13 @@
  */
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(dirname(__FILE__) . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
 if ($configFile !== false) {
     require_once $configFile;
 }
 
 require_once __DIR__ . '/centreonDB.class.php';
-require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
+require_once realpath(__DIR__ . "/centreonDBInstance.class.php");
 require_once __DIR__ . '/../include/common/common-Func.php';
 
 /*
@@ -51,10 +51,10 @@ class CentreonExternalCommand
 {
     protected $DB;
     protected $DBC;
-    protected $cmdTab = array();
+    protected $cmdTab = [];
     protected $pollerTab;
-    public $localhostTab = array();
-    protected $actions = array();
+    public $localhostTab = [];
+    protected $actions = [];
     protected $GMT;
     public $debug = 0;
     protected $userAlias;
@@ -91,7 +91,7 @@ class CentreonExternalCommand
     /**
      * @param $newUserId
      */
-    public function setUserId($newUserId)
+    public function setUserId($newUserId): void
     {
         $this->userId = $newUserId;
     }
@@ -99,7 +99,7 @@ class CentreonExternalCommand
     /**
      * @param $newUserAlias
      */
-    public function setUserAlias($newUserAlias)
+    public function setUserAlias($newUserAlias): void
     {
         $this->userAlias = $newUserAlias;
     }
@@ -136,8 +136,8 @@ class CentreonExternalCommand
             $return_remote = ($result !== false) ? 0 : 1;
         }
 
-        $this->cmdTab = array();
-        $this->pollerTab = array();
+        $this->cmdTab = [];
+        $this->pollerTab = [];
 
         return $return_remote;
     }
@@ -145,7 +145,7 @@ class CentreonExternalCommand
     /*
      *  set basic process commands
      */
-    public function setProcessCommand($command, $poller)
+    public function setProcessCommand($command, $poller): void
     {
         if ($this->debug) {
             print "POLLER: $poller<br>";
@@ -160,7 +160,7 @@ class CentreonExternalCommand
      *  set list of external commands
      */
 
-    private function setExternalCommandList()
+    private function setExternalCommandList(): void
     {
         # Services Actions
         $this->actions["service_checks"][0] = "ENABLE_SVC_CHECK";
@@ -285,7 +285,7 @@ class CentreonExternalCommand
         /*
          * Check if $host is an id or a name
          */
-        if (preg_match("/^\d+$/", $host)) {
+        if (preg_match("/^\d+$/", (string) $host)) {
             $statement = $db->prepare(<<<SQL
                 SELECT instance_id
                 FROM hosts
@@ -307,10 +307,7 @@ class CentreonExternalCommand
             $statement->execute();
         }
         $row = $statement->fetchRow();
-        if (isset($row['instance_id'])) {
-            return $row['instance_id'];
-        }
-        return 0;
+        return $row['instance_id'] ?? 0;
     }
 
     /**
@@ -329,7 +326,7 @@ class CentreonExternalCommand
     /**
      * @param $hostName
      */
-    public function scheduleForcedCheckHost($hostName)
+    public function scheduleForcedCheckHost($hostName): void
     {
         $pollerId = $this->getPollerID($hostName);
 
@@ -345,7 +342,7 @@ class CentreonExternalCommand
      * @param $hostName
      * @param $serviceDescription
      */
-    public function scheduleForcedCheckService($hostName, $serviceDescription)
+    public function scheduleForcedCheckService($hostName, $serviceDescription): void
     {
         $pollerId = $this->getPollerID($hostName);
 
@@ -377,7 +374,7 @@ class CentreonExternalCommand
         $persistent,
         $author,
         $comment
-    ) {
+    ): void {
         $pollerId = $this->getPollerID($hostName);
 
         $this->setProcessCommand(
@@ -406,7 +403,7 @@ class CentreonExternalCommand
         $persistent,
         $author,
         $comment
-    ) {
+    ): void {
         $pollerId = $this->getPollerID($hostName);
 
         $this->setProcessCommand(
@@ -424,7 +421,7 @@ class CentreonExternalCommand
      * @param string $type (HOST/SVC)
      * @param array $hosts
      */
-    public function deleteAcknowledgement($type, $hosts = array())
+    public function deleteAcknowledgement($type, $hosts = []): void
     {
         foreach (array_keys($hosts) as $name) {
             $res = preg_split("/\;/", $name);
@@ -464,9 +461,8 @@ class CentreonExternalCommand
         if ($dateTime3->format('H:m') === $dateTime->format('H:m')) {
             if ($start) {
                 return $dateTime->getTimestamp() - 3600;
-            } else {
-                return $dateTime->getTimestamp();
             }
+            return $dateTime->getTimestamp();
         }
 
         $dateTime4 = clone $dateTime;
@@ -474,9 +470,8 @@ class CentreonExternalCommand
         if ($dateTime4->format('H:m') === $dateTime->format('H:m')) {
             if ($start) {
                 return $dateTime->getTimestamp();
-            } else {
-                return $dateTime->getTimestamp() + 3600;
             }
+            return $dateTime->getTimestamp() + 3600;
         }
 
         return $dateTime->getTimestamp();
@@ -488,7 +483,7 @@ class CentreonExternalCommand
      * @param string $type
      * @param array $hosts
      */
-    public function deleteDowntime($type, $hosts = array())
+    public function deleteDowntime($type, $hosts = []): void
     {
         foreach ($hosts as $key => $value) {
             $res = preg_split("/\;/", $key);
@@ -517,7 +512,7 @@ class CentreonExternalCommand
         $duration = null,
         $withServices = false,
         $hostOrCentreonTime = "0"
-    ) {
+    ): void {
         global $centreon;
 
         if (is_null($centreon)) {
@@ -525,7 +520,7 @@ class CentreonExternalCommand
             $centreon = $oreon;
         }
 
-        if (!isset($persistant) || !in_array($persistant, array('0', '1'))) {
+        if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
             $persistant = '0';
         }
 
@@ -593,7 +588,7 @@ class CentreonExternalCommand
         $persistant,
         $duration = null,
         $hostOrCentreonTime = "0"
-    ) {
+    ): void {
         global $centreon;
 
         if (is_null($centreon)) {
@@ -602,7 +597,7 @@ class CentreonExternalCommand
         }
 
 
-        if (!isset($persistant) || !in_array($persistant, array('0', '1'))) {
+        if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
             $persistant = '0';
         }
 

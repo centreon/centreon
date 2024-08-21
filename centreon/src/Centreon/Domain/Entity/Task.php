@@ -198,11 +198,9 @@ class Task implements EntityInterface
      */
     public function getStatuses()
     {
-        $ref = new ReflectionClass(__CLASS__);
+        $ref = new ReflectionClass(self::class);
         $constants = $ref->getConstants();
-        $statusConstants = $this->arrayFilterKey($constants, function ($key) {
-            return strpos($key, 'STATE_') === 0;
-        });
+        $statusConstants = $this->arrayFilterKey($constants, fn($key) => str_starts_with((string) $key, 'STATE_'));
         $statuses = [];
         foreach ($statusConstants as $stKey => $stConstant) {
             $statuses[] = $ref->getConstant($stKey);
@@ -230,7 +228,7 @@ class Task implements EntityInterface
 
         $filteredKeys = array_filter(array_keys($input), $callback);
         if (empty($filteredKeys)) {
-            return array();
+            return [];
         }
 
         $input = array_intersect_key(array_flip($filteredKeys), $input);

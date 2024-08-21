@@ -27,6 +27,6 @@ use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Contact\Domain\Model\ContactGroup;
 
-it('should thrown an Exception when a contactgroupname is empty', function () {
+it('should thrown an Exception when a contactgroupname is empty', function (): void {
     new ContactGroup(1, '');
 })->throws(InvalidArgumentException::class, AssertionException::notEmpty('ContactGroup::name')->getMessage());

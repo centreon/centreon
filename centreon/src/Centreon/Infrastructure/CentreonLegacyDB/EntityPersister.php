@@ -41,11 +41,6 @@ use Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata;
 class EntityPersister
 {
     /**
-     * @var string
-     */
-    protected $entityClassName;
-
-    /**
      * @var \Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata
      */
     protected $classMetadata;
@@ -56,9 +51,8 @@ class EntityPersister
      * @param class-string $entityClassName
      * @param \Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata $classMetadata
      */
-    public function __construct($entityClassName, ClassMetadata $classMetadata)
+    public function __construct(protected $entityClassName, ClassMetadata $classMetadata)
     {
-        $this->entityClassName = $entityClassName;
         $this->classMetadata = $classMetadata;
     }
 

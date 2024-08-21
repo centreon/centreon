@@ -154,13 +154,11 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 AND c.`contact_register` = 1"
             )
         );
-
-        $excludedUsers = [];
         if ($statement !== false && $rows = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
-            $excludedUsers = $rows;
+            return $rows;
         }
 
-        return $excludedUsers;
+        return [];
     }
 
     /**

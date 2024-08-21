@@ -52,7 +52,7 @@ class CentreonWidgetParamsConnectorHostCategory extends CentreonWidgetParamsList
                 "WHERE hc_activate = '1' " .
                 "ORDER BY name";
             $res = $this->db->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['id']] = $row['name'];
             }

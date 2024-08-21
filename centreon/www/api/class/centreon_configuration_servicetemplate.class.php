@@ -54,7 +54,7 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
      */
     public function getList()
     {
-        $range = array();
+        $range = [];
         // Check for select2 'q' argument
         if (isset($this->arguments['q'])) {
             $q = (string)$this->arguments['q'];
@@ -63,7 +63,7 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
         }
 
         if (isset($this->arguments['l'])) {
-            $templateType = array('0', '1');
+            $templateType = ['0', '1'];
             if (in_array($this->arguments['l'], $templateType)) {
                 $l = $this->arguments['l'];
             } else {
@@ -87,11 +87,9 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
         }
 
         if ($l == '1') {
-            $serviceTemplateList = $this->listWithHostTemplate($q, $range);
-        } else {
-            $serviceTemplateList = $this->listClassic($q, $range);
+            return $this->listWithHostTemplate($q, $range);
         }
-        return $serviceTemplateList;
+        return $this->listClassic($q, $range);
     }
 
     /**
@@ -99,10 +97,10 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
      * @param array $range
      * @return array
      */
-    private function listClassic($q, $range = array())
+    private function listClassic($q, $range = [])
     {
-        $serviceList = array();
-        $queryValues = array();
+        $serviceList = [];
+        $queryValues = [];
 
         $queryContact = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT service_id, service_description ' .
             'FROM service ' .
@@ -123,12 +121,9 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
         }
         $stmt->execute();
         while ($data = $stmt->fetch()) {
-            $serviceList[] = array('id' => $data['service_id'], 'text' => $data['service_description']);
+            $serviceList[] = ['id' => $data['service_id'], 'text' => $data['service_description']];
         }
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
     /**
@@ -136,9 +131,9 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
      * @param array $range
      * @return array
      */
-    private function listWithHostTemplate($q = '', $range = array())
+    private function listWithHostTemplate($q = '', $range = [])
     {
-        $queryValues = array();
+        $queryValues = [];
         $queryValues['description'] = '%' . (string)$q . '%';
         $queryService = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT s.service_description, s.service_id, ' .
             'h.host_name, h.host_id ' .
@@ -161,19 +156,13 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $stmt->fetch()) {
             $serviceCompleteName = $data['host_name'] . ' - ' . $data['service_description'];
             $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
 
-            $serviceList[] = array(
-                'id' => htmlentities($serviceCompleteId),
-                'text' => $serviceCompleteName
-            );
+            $serviceList[] = ['id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName];
         }
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

@@ -35,10 +35,10 @@
 
 class CentreonPdo extends PDO
 {
-    public function __construct($dsn, $username = null, $password = null, $options = array())
+    public function __construct($dsn, $username = null, $password = null, $options = [])
     {
         parent::__construct($dsn, $username, $password, $options);
-        $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CentreonPdoStatement', array($this)));
+        $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, ['CentreonPdoStatement', [$this]]);
     }
 
     public function disconnect()
@@ -56,7 +56,7 @@ class CentreonPdo extends PDO
         $errString = "";
         $errTab = $this->errorInfo();
         if (count($errTab)) {
-            $errString = implode(";", $errTab);
+            return implode(";", $errTab);
         }
         return $errString;
     }

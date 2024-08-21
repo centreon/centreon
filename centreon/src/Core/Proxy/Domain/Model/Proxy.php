@@ -73,7 +73,7 @@ class Proxy implements \Stringable
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $url = $this->protocol . '://' . $this->url;
         if ($this->login !== null) {

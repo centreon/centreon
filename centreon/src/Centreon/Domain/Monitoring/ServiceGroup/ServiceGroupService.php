@@ -30,25 +30,11 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 final class ServiceGroupService extends AbstractCentreonService implements ServiceGroupServiceInterface
 {
     /**
-     * @var ServiceGroupRepositoryInterface
-     */
-    private $serviceGroupRepository;
-
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
-    private $accessGroupRepository;
-
-    /**
      * @param ServiceGroupRepositoryInterface $serviceGroupRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      */
-    public function __construct(
-        ServiceGroupRepositoryInterface $serviceGroupRepository,
-        ReadAccessGroupRepositoryInterface $accessGroupRepository
-    ) {
-        $this->serviceGroupRepository = $serviceGroupRepository;
-        $this->accessGroupRepository = $accessGroupRepository;
+    public function __construct(private ServiceGroupRepositoryInterface $serviceGroupRepository, private ReadAccessGroupRepositoryInterface $accessGroupRepository)
+    {
     }
 
     /**

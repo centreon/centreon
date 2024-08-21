@@ -35,14 +35,11 @@
 
 class CentreonTag
 {
-    protected $db;
-
     /*
      * constructor
      */
-    public function __construct($pearDB)
+    public function __construct(protected $db)
     {
-        $this->db = $pearDB;
     }
 
     /**
@@ -50,11 +47,11 @@ class CentreonTag
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':tags' . $v . ',';
@@ -79,10 +76,7 @@ class CentreonTag
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['tags_id'],
-                'text' => $row['tags_name']
-            );
+            $items[] = ['id' => $row['tags_id'], 'text' => $row['tags_name']];
         }
 
         return $items;

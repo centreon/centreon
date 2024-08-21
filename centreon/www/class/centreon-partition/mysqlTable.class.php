@@ -43,7 +43,6 @@
  */
 class MysqlTable
 {
-    private $db;
     private $name;
     private $schema;
     private $schemaFile;
@@ -60,13 +59,12 @@ class MysqlTable
     /**
      * Class constructor
      *
-     * @param CentreonDB $DBobj     the centreon database
+     * @param CentreonDB $db the centreon database
      * @param string     $tableName the database table name
      * @param string     $schema    the schema
      */
-    public function __construct($DBobj, $tableName, $schema)
+    public function __construct(private $db, $tableName, $schema)
     {
-        $this->db = $DBobj;
         $this->setName($tableName);
         $this->activate = 1;
         $this->column = null;
@@ -89,7 +87,7 @@ class MysqlTable
      *
      * @return null
      */
-    private function setName($name)
+    private function setName($name): void
     {
         if (isset($name) && $name != "") {
             $this->name = $name;
@@ -115,7 +113,7 @@ class MysqlTable
      *
      * @return null
      */
-    private function setSchema($schema)
+    private function setSchema($schema): void
     {
         if (isset($schema) && $schema != "") {
             $this->schema = $schema;
@@ -141,7 +139,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setActivate($activate)
+    public function setActivate($activate): void
     {
         if (isset($activate) && is_numeric($activate)) {
             $this->activate = $activate;
@@ -165,7 +163,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setColumn($column)
+    public function setColumn($column): void
     {
         if (isset($column) && $column != "") {
             $this->column = $column;
@@ -189,7 +187,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setTimezone($timezone)
+    public function setTimezone($timezone): void
     {
         if (isset($timezone) && $timezone != "") {
             $this->timezone = $timezone;
@@ -215,7 +213,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setType($type)
+    public function setType($type): void
     {
         if (isset($type) && ($type == "date")) {
             $this->type = $type;
@@ -244,16 +242,15 @@ class MysqlTable
      *
      * @return null
      */
-    public function setDuration($duration)
+    public function setDuration($duration): void
     {
         if (isset($duration) && ($duration != 'daily')) {
             throw new Exception(
                 "Config Error: Wrong duration format for table "
                 . $this->schema . "." . $this->name . "\n"
             );
-        } else {
-            $this->duration = $duration;
         }
+        $this->duration = $duration;
     }
 
     /**
@@ -273,7 +270,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setCreateStmt($createstmt)
+    public function setCreateStmt($createstmt): void
     {
         if (isset($createstmt) && $createstmt != "") {
             $this->createstmt = str_replace(";", "", $createstmt);
@@ -297,7 +294,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setBackupFolder($backupFolder)
+    public function setBackupFolder($backupFolder): void
     {
         if (isset($backupFolder) || $backupFolder != "") {
             $this->backupFolder = $backupFolder;
@@ -321,7 +318,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setBackupFormat($backupFormat)
+    public function setBackupFormat($backupFormat): void
     {
         if (isset($backupFormat) || $backupFormat != "") {
             $this->backupFormat = $backupFormat;
@@ -345,7 +342,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setRetention($retention)
+    public function setRetention($retention): void
     {
         if (isset($retention) && is_numeric($retention)) {
             $this->retention = $retention;
@@ -374,7 +371,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setRetentionForward($retentionforward)
+    public function setRetentionForward($retentionforward): void
     {
         if (isset($retentionforward) && is_numeric($retentionforward)) {
             $this->retentionforward = $retentionforward;

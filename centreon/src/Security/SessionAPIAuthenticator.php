@@ -109,9 +109,7 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
         return new SelfValidatingPassport(
             new UserBadge(
                 $sessionId,
-                function ($userIdentifier) {
-                    return $this->getUserAndUpdateSession($userIdentifier);
-                }
+                fn($userIdentifier) => $this->getUserAndUpdateSession($userIdentifier)
             )
         );
     }

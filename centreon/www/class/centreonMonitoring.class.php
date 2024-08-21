@@ -42,16 +42,14 @@
 class CentreonMonitoring
 {
     protected $poller;
-    protected $DB;
     protected $objBroker;
 
     /**
      *
      * Enter description here ...
      */
-    public function __construct($DB)
+    public function __construct(protected $DB)
     {
-        $this->DB = $DB;
     }
 
     /**
@@ -59,7 +57,7 @@ class CentreonMonitoring
      * Enter description here ...
      * @param unknown_type $pollerId
      */
-    public function setPoller($pollerId)
+    public function setPoller($pollerId): void
     {
         $this->poller = $pollerId;
     }

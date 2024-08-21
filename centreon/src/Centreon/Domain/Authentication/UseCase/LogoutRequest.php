@@ -25,16 +25,13 @@ namespace Centreon\Domain\Authentication\UseCase;
 
 class LogoutRequest
 {
-    /**
-     * Authentication Token
-     *
-     * @var string
-     */
-    private $token;
-
-    public function __construct(string $token)
+    public function __construct(
+        /**
+         * Authentication Token
+         */
+        private string $token
+    )
     {
-        $this->token = $token;
     }
 
     /**

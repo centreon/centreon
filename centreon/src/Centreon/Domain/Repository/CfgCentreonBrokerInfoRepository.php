@@ -35,7 +35,7 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
         $row = $stmt->fetch();
         if (!is_null($row['max_config_group_id'])) {
             // to get the new new config group id, we need to increment the max exsting one
-            $configGroupId = $row['max_config_group_id'] + 1;
+            return $row['max_config_group_id'] + 1;
         }
 
         return $configGroupId;

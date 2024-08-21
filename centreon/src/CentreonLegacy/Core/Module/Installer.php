@@ -106,11 +106,10 @@ class Installer extends Module
 
         $queryMax = 'SELECT MAX(id) as id FROM modules_informations';
         $result = $this->services->get('configuration_db')->query($queryMax);
-        $lastId = 0;
         if ($row = $result->fetchRow()) {
-            $lastId = $row['id'];
+            return $row['id'];
         }
 
-        return $lastId;
+        return 0;
     }
 }

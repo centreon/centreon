@@ -53,7 +53,7 @@ abstract class AbstractObject
     public static function getInstance(\Pimple\Container $dependencyInjector)
     {
         static $instances = [];
-        $calledClass = get_called_class();
+        $calledClass = static::class;
 
         if (!isset($instances[$calledClass])) {
             $instances[$calledClass] = new $calledClass($dependencyInjector);
@@ -148,7 +148,7 @@ abstract class AbstractObject
     {
         $finalString = $str;
         if (mb_detect_encoding($finalString, 'UTF-8', true) !== 'UTF-8') {
-            $finalString = mb_convert_encoding($finalString, 'UTF-8');
+            return mb_convert_encoding($finalString, 'UTF-8');
         }
 
         return $finalString;
@@ -165,7 +165,7 @@ abstract class AbstractObject
         $line = '';
         $append = '';
         for ($i = 0; $i < count($this->attributesWrite); $i++) {
-            if (isset($object[$this->attributesWrite[$i]]) && strlen($object[$this->attributesWrite[$i]])) {
+            if (isset($object[$this->attributesWrite[$i]]) && strlen((string) $object[$this->attributesWrite[$i]])) {
                 $line .= $append . '"' . str_replace('"', '""', $object[$this->attributesWrite[$i]]) . '"';
             } else {
                 $line .= $append . '\N';
@@ -269,11 +269,7 @@ abstract class AbstractObject
      */
     public function getExported(): array
     {
-        if (isset($this->exported)) {
-            return $this->exported;
-        }
-
-        return [];
+        return $this->exported ?? [];
     }
 
     /**

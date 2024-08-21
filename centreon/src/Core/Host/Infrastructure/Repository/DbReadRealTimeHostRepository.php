@@ -70,7 +70,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY hosts.name ASC';
+        $request .= $sort ?? ' ORDER BY hosts.name ASC';
 
         $request .= $sqlTranslator->translatePaginationToSql();
 
@@ -114,7 +114,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY hosts.name ASC';
+        $request .= $sort ?? ' ORDER BY hosts.name ASC';
 
         $request .= $sqlTranslator->translatePaginationToSql();
 
@@ -167,22 +167,13 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                  */
                 public function normalize($valueToNormalize)
                 {
-                    switch (mb_strtoupper((string) $valueToNormalize)) {
-                        case 'UP':
-                            $code = HostStatusesCount::STATUS_UP;
-                            break;
-                        case 'DOWN':
-                            $code = HostStatusesCount::STATUS_DOWN;
-                            break;
-                        case 'UNREACHABLE':
-                            $code = HostStatusesCount::STATUS_UNREACHABLE;
-                            break;
-                        case 'PENDING':
-                            $code = HostStatusesCount::STATUS_PENDING;
-                            break;
-                        default:
-                            throw new RequestParametersTranslatorException('Status provided not handled');
-                    }
+                    $code = match (mb_strtoupper((string) $valueToNormalize)) {
+                        'UP' => HostStatusesCount::STATUS_UP,
+                        'DOWN' => HostStatusesCount::STATUS_DOWN,
+                        'UNREACHABLE' => HostStatusesCount::STATUS_UNREACHABLE,
+                        'PENDING' => HostStatusesCount::STATUS_PENDING,
+                        default => throw new RequestParametersTranslatorException('Status provided not handled'),
+                    };
 
                     return $code;
                 }

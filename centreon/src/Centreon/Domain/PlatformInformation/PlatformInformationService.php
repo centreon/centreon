@@ -35,15 +35,8 @@ use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationReadReposi
 class PlatformInformationService implements PlatformInformationServiceInterface
 {
 
-    /**
-     * @var PlatformInformationReadRepositoryInterface
-     */
-    private $platformInformationRepository;
-
-    public function __construct(
-        PlatformInformationReadRepositoryInterface $platformInformationRepository
-    ) {
-        $this->platformInformationRepository = $platformInformationRepository;
+    public function __construct(private PlatformInformationReadRepositoryInterface $platformInformationRepository)
+    {
     }
 
     /**

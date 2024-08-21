@@ -47,15 +47,6 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
  */
 class TokenAPIAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
-    /** @var AuthenticationRepositoryInterface */
-    private $authenticationRepository;
-
-    /** @var ContactRepositoryInterface */
-    private $contactRepository;
-
-    /** @var LocalProvider */
-    private $localProvider;
-
     /**
      * TokenAPIAuthenticator constructor.
      *
@@ -63,14 +54,8 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
      * @param ContactRepositoryInterface $contactRepository
      * @param LocalProvider $localProvider
      */
-    public function __construct(
-        AuthenticationRepositoryInterface $authenticationRepository,
-        ContactRepositoryInterface $contactRepository,
-        LocalProvider $localProvider
-    ) {
-        $this->authenticationRepository = $authenticationRepository;
-        $this->contactRepository = $contactRepository;
-        $this->localProvider = $localProvider;
+    public function __construct(private AuthenticationRepositoryInterface $authenticationRepository, private ContactRepositoryInterface $contactRepository, private LocalProvider $localProvider)
+    {
     }
 
     /**

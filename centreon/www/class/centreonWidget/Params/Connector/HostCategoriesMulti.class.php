@@ -45,11 +45,6 @@ class CentreonWidgetParamsConnectorHostCategoriesMulti extends CentreonWidgetPar
     public function getParameters()
     {
         $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostcategory&action=list';
-        return array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => $path,
-            'multiple' => true,
-            'linkedObject' => 'centreonHostcategories'
-        );
+        return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonHostcategories'];
     }
 }

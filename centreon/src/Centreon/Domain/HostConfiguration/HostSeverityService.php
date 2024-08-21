@@ -37,25 +37,11 @@ use Centreon\Domain\Repository\RepositoryException;
 class HostSeverityService implements HostSeverityServiceInterface
 {
     /**
-     * @var HostSeverityReadRepositoryInterface
-     */
-    private $readRepository;
-
-    /**
-     * @var ContactInterface
-     */
-    private $contact;
-
-    /**
-     * @param HostSeverityReadRepositoryInterface $repository
+     * @param HostSeverityReadRepositoryInterface $readRepository
      * @param ContactInterface $contact
      */
-    public function __construct(
-        HostSeverityReadRepositoryInterface $repository,
-        ContactInterface $contact
-    ) {
-        $this->readRepository = $repository;
-        $this->contact = $contact;
+    public function __construct(private HostSeverityReadRepositoryInterface $readRepository, private ContactInterface $contact)
+    {
     }
 
     /**

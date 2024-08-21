@@ -25,18 +25,6 @@ namespace Security\Domain\Authentication\Model;
 
 class ProviderToken
 {
-    /** @var int|null */
-    private $id;
-
-    /** @var string */
-    private $token;
-
-    /** @var \DateTime */
-    private $creationDate;
-
-    /** @var \DateTime|null */
-    private $expirationDate;
-
     /**
      * ProviderToken constructor.
      *
@@ -45,16 +33,8 @@ class ProviderToken
      * @param \DateTime $creationDate
      * @param \DateTime|null $expirationDate
      */
-    public function __construct(
-        ?int $id,
-        string $token,
-        \DateTime $creationDate,
-        ?\DateTime $expirationDate = null
-    ) {
-        $this->id = $id;
-        $this->token = $token;
-        $this->creationDate = $creationDate;
-        $this->expirationDate = $expirationDate;
+    public function __construct(private ?int $id, private string $token, private \DateTime $creationDate, private ?\DateTime $expirationDate = null)
+    {
     }
 
     /**

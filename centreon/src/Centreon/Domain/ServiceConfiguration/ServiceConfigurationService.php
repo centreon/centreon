@@ -38,40 +38,15 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
     use LoggerTrait;
 
     /**
-     * @var ServiceConfigurationRepositoryInterface
-     */
-    private $serviceRepository;
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
-    private $accessGroupRepository;
-    /**
-     * @var EngineConfigurationServiceInterface
-     */
-    private $engineConfigurationService;
-    /**
-     * @var HostConfigurationServiceInterface
-     */
-    private $hostConfigurationService;
-
-    /**
      * ServiceConfigurationService constructor.
      *
-     * @param ServiceConfigurationRepositoryInterface $serviceConfigurationRepository
+     * @param ServiceConfigurationRepositoryInterface $serviceRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param HostConfigurationServiceInterface $hostConfigurationService
      * @param EngineConfigurationServiceInterface $engineConfigurationService
      */
-    public function __construct(
-        ServiceConfigurationRepositoryInterface $serviceConfigurationRepository,
-        ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        HostConfigurationServiceInterface $hostConfigurationService,
-        EngineConfigurationServiceInterface $engineConfigurationService
-    ) {
-        $this->serviceRepository = $serviceConfigurationRepository;
-        $this->accessGroupRepository = $accessGroupRepository;
-        $this->engineConfigurationService = $engineConfigurationService;
-        $this->hostConfigurationService = $hostConfigurationService;
+    public function __construct(private ServiceConfigurationRepositoryInterface $serviceRepository, private ReadAccessGroupRepositoryInterface $accessGroupRepository, private HostConfigurationServiceInterface $hostConfigurationService, private EngineConfigurationServiceInterface $engineConfigurationService)
+    {
     }
 
     /**
@@ -173,12 +148,14 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
         $extractServiceTemplatesByHostTemplate = function (int $hostTemplateId) use ($hostTemplateServices): array {
             $serviceTemplates = [];
             foreach ($hostTemplateServices as $hostTemplateService) {
-                if ($hostTemplateService->getHostTemplate()->getId() === $hostTemplateId) {
-                    // Only if the host template is activated
-                    if ($hostTemplateService->getHostTemplate()->isActivated()) {
-                        $serviceTemplates[] = $hostTemplateService->getServiceTemplate();
-                    }
+                if ($hostTemplateService->getHostTemplate()->getId() !== $hostTemplateId) {
+                    continue;
                 }
+                // Only if the host template is activated
+                if (!$hostTemplateService->getHostTemplate()->isActivated()) {
+                    continue;
+                }
+                $serviceTemplates[] = $hostTemplateService->getServiceTemplate();
             }
             return $serviceTemplates;
         };
@@ -221,11 +198,7 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
         }
 
         try {
-            $this->debug('Service to be created', [], function () use ($servicesToBeCreated) {
-                return array_map(function (Service $service) {
-                    return ['id' => $service->getId(), 'description' => $service->getDescription()];
-                }, $servicesToBeCreated);
-            });
+            $this->debug('Service to be created', [], fn() => array_map(fn(Service $service) => ['id' => $service->getId(), 'description' => $service->getDescription()], $servicesToBeCreated));
             $this->serviceRepository->addServicesToHost($host, $servicesToBeCreated);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage());

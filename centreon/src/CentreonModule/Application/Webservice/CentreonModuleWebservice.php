@@ -184,17 +184,17 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
         $updated = $request['updated'] ?? null;
         $typeList = isset($request['types']) ? (array) $request['types'] : null;
 
-        if ($installed && strtolower($installed) === 'true') {
+        if ($installed && strtolower((string) $installed) === 'true') {
             $installed = true;
-        } elseif ($installed && strtolower($installed) === 'false') {
+        } elseif ($installed && strtolower((string) $installed) === 'false') {
             $installed = false;
         } elseif ($installed) {
             $installed = null;
         }
 
-        if ($updated && strtolower($updated) === 'true') {
+        if ($updated && strtolower((string) $updated) === 'true') {
             $updated = true;
-        } elseif ($updated && strtolower($updated) === 'false') {
+        } elseif ($updated && strtolower((string) $updated) === 'false') {
             $updated = false;
         } elseif ($updated) {
             $updated = null;

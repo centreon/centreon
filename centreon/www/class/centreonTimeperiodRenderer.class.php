@@ -43,8 +43,6 @@
  */
 class CentreonTimeperiodRenderer
 {
-    protected $db;
-    protected $tpid;
     protected $tpname;
     protected $tpalias;
     protected $timerange;
@@ -61,28 +59,18 @@ class CentreonTimeperiodRenderer
      * @param strign $inex
      * @return void
      */
-    public function __construct($db, $tpid, $inex)
+    public function __construct(protected $db, protected $tpid, $inex)
     {
-        $dayTab = array(
-            "tp_sunday" => array(),
-            "tp_monday" => array(),
-            "tp_tuesday" => array(),
-            "tp_wednesday" => array(),
-            "tp_thursday" => array(),
-            "tp_friday" => array(),
-            "tp_saturday" => array()
-        );
+        $dayTab = ["tp_sunday" => [], "tp_monday" => [], "tp_tuesday" => [], "tp_wednesday" => [], "tp_thursday" => [], "tp_friday" => [], "tp_saturday" => []];
         $this->timerange = $dayTab;
         $this->timeline = $dayTab;
-        $this->includedTp = array();
-        $this->excludedTp = array();
-        $this->exceptionList = array();
-        $this->db = $db;
-        $this->tpid = $tpid;
+        $this->includedTp = [];
+        $this->excludedTp = [];
+        $this->exceptionList = [];
         $query = "SELECT tp_name, tp_alias, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday,
             tp_saturday, tp_sunday
             FROM timeperiod
-            WHERE tp_id = '" . $tpid . "'";
+            WHERE tp_id = '" . $this->tpid . "'";
         $res = $this->db->query($query);
         if (!$res->rowCount()) {
             throw new Exception("Timeperiod not found");
@@ -92,7 +80,7 @@ class CentreonTimeperiodRenderer
         $this->tpalias = $row["tp_alias"];
         foreach ($this->timerange as $key => $val) {
             if ($row[$key]) {
-                $tmparr = explode(",", $row[$key]);
+                $tmparr = explode(",", (string) $row[$key]);
                 foreach ($tmparr as $tr) {
                     $tmptr = $this->getTimeRange($this->tpid, $this->tpname, $inex, $tr);
                     $this->timerange[$key][] = $tmptr;
@@ -110,18 +98,12 @@ class CentreonTimeperiodRenderer
      *
      * @return void
      */
-    public function timeBars()
+    public function timeBars(): void
     {
         $coef = 4;
         foreach ($this->timerange as $day => $ranges) {
             $timeindex=0;
-            $timeline[0]=array("start"    => 0,
-                               "style"    => "unset",
-                               "end"      => 0,
-                               "size"     => 0,
-                               "Text"     => "init",
-                               "From"     => "",
-                               "Textual"  => "");
+            $timeline[0]=["start"    => 0, "style"    => "unset", "end"      => 0, "size"     => 0, "Text"     => "init", "From"     => "", "Textual"  => ""];
             if (isset($ranges[0])) {
                 $last["in"] = "";
                 $last["nb"] = 0;
@@ -178,13 +160,7 @@ class CentreonTimeperiodRenderer
                                 break;
                         }
                         if ($i < 1440) {
-                            $timeline[++$timeindex] = array("start"    => $i,
-                                                            "style"    => "unset",
-                                                            "end"      => 0,
-                                                            "size"     => 0,
-                                                            "Text"     => "New in loop",
-                                                            "From"     => "",
-                                                            "Textual"  => "");
+                            $timeline[++$timeindex] = ["start"    => $i, "style"    => "unset", "end"      => 0, "size"     => 0, "Text"     => "New in loop", "From"     => "", "Textual"  => ""];
                         }
                     }
                     $last = $actual;
@@ -193,13 +169,7 @@ class CentreonTimeperiodRenderer
             $endtime = $timeline[$timeindex]["end"];
             if ($endtime < 1440) {
                 $textual = sprintf("%02d", intval($endtime/60)).":".sprintf("%02d", $endtime%60)."-24:00";
-                $timeline[$timeindex] = array("start"    => $endtime,
-                                              "style"    => "unset",
-                                              "end"      => 1440,
-                                              "size"     => (1440 - $endtime) / $coef,
-                                              "Text"     => "No Timeperiod covering ".$textual,
-                                              "From"     => "No Timeperiod covering ".$textual,
-                                              "Textual"  => $textual);
+                $timeline[$timeindex] = ["start"    => $endtime, "style"    => "unset", "end"      => 1440, "size"     => (1440 - $endtime) / $coef, "Text"     => "No Timeperiod covering ".$textual, "From"     => "No Timeperiod covering ".$textual, "Textual"  => $textual];
             }
             $this->timeline[$day] = $timeline;
             unset($timeline);
@@ -232,7 +202,7 @@ class CentreonTimeperiodRenderer
     protected function orderTimeRanges()
     {
         foreach ($this->timerange as $key => $val) {
-            usort($val, array("CentreonTimeperiodRenderer", "startCompare"));
+            usort($val, ["CentreonTimeperiodRenderer", "startCompare"]);
             $this->timerange[$key] = $val;
         }
     }
@@ -306,7 +276,7 @@ class CentreonTimeperiodRenderer
      */
     protected function getTimeRange($id, $name, $in, $range)
     {
-        $timeRange = array();
+        $timeRange = [];
         $timeRange['fromTpId'] = $id;
         $timeRange['fromTpName'] = $name;
         $timeRange['inex'] = $in;
@@ -334,7 +304,7 @@ class CentreonTimeperiodRenderer
      */
     protected function getException($id, $name, $day, $range)
     {
-        $exception = array();
+        $exception = [];
         $exception['fromTpId'] = $id;
         $exception['fromTpName']  = $name;
         $exception['day'] = $day;
@@ -391,7 +361,7 @@ class CentreonTimeperiodRenderer
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'timeperiod';
         $parameters['currentObject']['id'] = 'tp_id';
         $parameters['currentObject']['name'] = 'tp_name';

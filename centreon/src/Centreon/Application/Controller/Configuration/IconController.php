@@ -40,11 +40,6 @@ class IconController extends AbstractController
     public const SERIALIZER_GROUPS_MAIN = ['icon_main'];
 
     /**
-     * @var IconServiceInterface
-     */
-    private $iconService;
-
-    /**
      * @var IconUrlNormalizer
      */
     protected $iconUrlNormalizer;
@@ -54,9 +49,8 @@ class IconController extends AbstractController
      *
      * @param IconServiceInterface $iconService
      */
-    public function __construct(IconServiceInterface $iconService, IconUrlNormalizer $iconUrlNormalizer)
+    public function __construct(private IconServiceInterface $iconService, IconUrlNormalizer $iconUrlNormalizer)
     {
-        $this->iconService = $iconService;
         $this->iconUrlNormalizer = $iconUrlNormalizer;
     }
 

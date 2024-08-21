@@ -35,27 +35,13 @@ use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServ
 class FindMetaServiceMetrics
 {
     /**
-     * @var MetaServiceMetricServiceInterface
-     */
-    private $metaServiceMetricServiceInterface;
-
-    /**
-     * @var ContactInterface
-     */
-    private $contact;
-
-    /**
      * FindMetaServiceMetrics constructor.
      *
      * @param MetaServiceMetricServiceInterface $metaServiceMetricServiceInterface
      * @param ContactInterface $contact
      */
-    public function __construct(
-        MetaServiceMetricServiceInterface $metaServiceMetricServiceInterface,
-        ContactInterface $contact
-    ) {
-        $this->metaServiceMetricServiceInterface = $metaServiceMetricServiceInterface;
-        $this->contact = $contact;
+    public function __construct(private MetaServiceMetricServiceInterface $metaServiceMetricServiceInterface, private ContactInterface $contact)
+    {
     }
 
     /**

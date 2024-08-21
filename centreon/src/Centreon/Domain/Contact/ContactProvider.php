@@ -31,16 +31,13 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  */
 class ContactProvider implements UserProviderInterface
 {
-    private ContactRepositoryInterface $contactRepository;
-
     /**
      * ContactProvider constructor.
      *
      * @param ContactRepositoryInterface $contactRepository
      */
-    public function __construct(ContactRepositoryInterface $contactRepository)
+    public function __construct(private ContactRepositoryInterface $contactRepository)
     {
-        $this->contactRepository = $contactRepository;
     }
 
     /**

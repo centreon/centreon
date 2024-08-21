@@ -442,15 +442,11 @@ class CheckController extends AbstractController
 
         $hasRights = false;
 
-        switch ($resource->getType()) {
-            case ResourceEntity::TYPE_HOST:
-                $hasRights = $contact->hasRole(Contact::ROLE_HOST_CHECK);
-                break;
-            case ResourceEntity::TYPE_SERVICE:
-            case ResourceEntity::TYPE_META:
-                $hasRights = $contact->hasRole(Contact::ROLE_SERVICE_CHECK);
-                break;
-        }
+        $hasRights = match ($resource->getType()) {
+            ResourceEntity::TYPE_HOST => $contact->hasRole(Contact::ROLE_HOST_CHECK),
+            ResourceEntity::TYPE_SERVICE, ResourceEntity::TYPE_META => $contact->hasRole(Contact::ROLE_SERVICE_CHECK),
+            default => $hasRights,
+        };
 
         return $hasRights;
     }

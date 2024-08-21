@@ -28,23 +28,11 @@ use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
 
 class ProviderConfiguration implements ProviderConfigurationInterface
 {
-    /** @var int|null */
-    private $id;
-
     /** @var string Provider's type */
     private $type;
 
     /** @var string Provider configuration name */
     private $name;
-
-    /** @var string */
-    private $centreonBaseUri = '/centreon';
-
-    /** @var bool is the provider is enabled ? */
-    private $isActive;
-
-    /** @var bool is the provider forced ? */
-    private $isForced;
 
     /**
      * @param int|null $id
@@ -55,22 +43,17 @@ class ProviderConfiguration implements ProviderConfigurationInterface
      * @param string $centreonBaseUri
      */
     public function __construct(
-        ?int $id,
+        private ?int $id,
         string $type,
         string $name,
-        bool $isActive,
-        bool $isForced,
-        string $centreonBaseUri = '/centreon',
+        private bool $isActive,
+        private bool $isForced,
+        private string $centreonBaseUri = '/centreon',
     ) {
         Assertion::minLength($type, 1, 'ConfigurationProvider::type');
         Assertion::minLength($name, 1, 'ConfigurationProvider::name');
-
-        $this->id = $id;
         $this->type = $type;
         $this->name = $name;
-        $this->isActive = $isActive;
-        $this->isForced = $isForced;
-        $this->centreonBaseUri = $centreonBaseUri;
     }
 
     /**

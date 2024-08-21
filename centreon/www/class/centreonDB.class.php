@@ -707,7 +707,7 @@ class CentreonDB extends PDO
          */
         if ($res = $this->query("SELECT VERSION() AS mysql_version")) {
             $row = $res->fetch();
-            $versionInformation = explode('-', $row['mysql_version']);
+            $versionInformation = explode('-', (string) $row['mysql_version']);
             $info["version"] = $versionInformation[0];
             $info["engine"] = $versionInformation[1] ?? 'MySQL';
             if ($dbResult = $this->query("SHOW TABLE STATUS FROM `" . $this->dbConfig->dbName . "`")) {
@@ -879,7 +879,7 @@ class CentreonDB extends PDO
      * @return void
      * @deprecated No longer used by internal code and not recommended
      */
-    public function autoCommit($val)
+    public function autoCommit($val): void
     {
         /* Deprecated */
     }

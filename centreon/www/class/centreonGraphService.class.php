@@ -41,7 +41,7 @@ require_once 'centreonGraph.class.php';
  */
 class CentreonGraphService extends CentreonGraph
 {
-    protected $legends = array();
+    protected $legends = [];
 
     /**
      * Constructor
@@ -62,22 +62,13 @@ class CentreonGraphService extends CentreonGraph
      */
     public function getData($rows = 200)
     {
-        $legendDataInfo = array(
-            "last" => "LAST",
-            "min" => "MINIMUM",
-            "max" => "MAXIMUM",
-            "average" => "AVERAGE",
-            "total" => "TOTAL"
-        );
+        $legendDataInfo = ["last" => "LAST", "min" => "MINIMUM", "max" => "MAXIMUM", "average" => "AVERAGE", "total" => "TOTAL"];
 
         /* Flush RRDCached for have the last values */
         $this->flushRrdCached($this->listMetricsId);
 
         $commandLine = '';
-        $defType = array(
-            0 => 'CDEF',
-            1 => 'VDEF'
-        );
+        $defType = [0 => 'CDEF', 1 => 'VDEF'];
 
         /* Build command line */
         $commandLine .= " xport ";
@@ -92,9 +83,9 @@ class CentreonGraphService extends CentreonGraph
         $commandLegendLine .= " --start " . $this->RRDoptions['start'];
         $commandLegendLine .= " --end " . $this->RRDoptions['end'];
 
-        $metrics = array();
-        $vname = array();
-        $virtuals = array();
+        $metrics = [];
+        $vname = [];
+        $virtuals = [];
         $i = 0;
 
         /* Parse metrics */
@@ -111,16 +102,7 @@ class CentreonGraphService extends CentreonGraph
                 $commandLegendLine .= " DEF:v" . $i . "=" . $path . ":value:AVERAGE";
                 $commandLine .= " XPORT:v" . $i . ":v" . $i;
                 $vname[$metric['metric']] = 'v' . $i;
-                $info = array(
-                    "data" => array(),
-                    "graph_type" => "line",
-                    "unit" => $metric["unit"],
-                    "color" => $metric["ds_color_line"],
-                    "negative" => false,
-                    "stack" => false,
-                    "crit" => null,
-                    "warn" => null
-                );
+                $info = ["data" => [], "graph_type" => "line", "unit" => $metric["unit"], "color" => $metric["ds_color_line"], "negative" => false, "stack" => false, "crit" => null, "warn" => null];
                 $info['legend'] = str_replace('\\\\', '\\', $metric['metric_legend']);
                 $info['metric_name'] = !empty($metric['ds_name']) ? $metric['ds_name'] : $info['legend'];
 
@@ -173,14 +155,7 @@ class CentreonGraphService extends CentreonGraph
                 . $this->subsRPN($metric['rpn_function'], $vname);
             if ($metric['def_type'] == 0) {
                 $commandLine .= " XPORT:" . $vname[$metric['metric']] . ":" . $vname[$metric['metric']];
-                $info = array(
-                    "data" => array(),
-                    "legend" => $metric["metric_legend"],
-                    "graph_type" => "line",
-                    "unit" => $metric["unit"],
-                    "color" => $metric["ds_color_line"],
-                    "negative" => false
-                );
+                $info = ["data" => [], "legend" => $metric["metric_legend"], "graph_type" => "line", "unit" => $metric["unit"], "color" => $metric["ds_color_line"], "negative" => false];
                 if (isset($metric['ds_color_area']) &&
                     isset($metric['ds_filled']) &&
                     $metric['ds_filled'] === '1'
@@ -194,11 +169,7 @@ class CentreonGraphService extends CentreonGraph
             }
         }
 
-        $descriptorspec = array(
-            0 => array('pipe', 'r'),
-            1 => array('pipe', 'w'),
-            2 => array('pipe', 'a'),
-        );
+        $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'a']];
 
         $process = proc_open($this->generalOpt["rrdtool_path_bin"] . " - ", $descriptorspec, $pipes, null, null);
         if (false === is_resource($process)) {
@@ -229,7 +200,7 @@ class CentreonGraphService extends CentreonGraph
 
         /* Transform XML to values */
         $useXmlErrors = libxml_use_internal_errors(true);
-        $xml = simplexml_load_string($str);
+        $xml = simplexml_load_string((string) $str);
 
         if (false === $xml) {
             throw new RuntimeException();
@@ -258,11 +229,7 @@ class CentreonGraphService extends CentreonGraph
         }
 
         /* Get legends */
-        $descriptorspec = array(
-            0 => array('pipe', 'r'),
-            1 => array('pipe', 'w'),
-            2 => array('pipe', 'a'),
-        );
+        $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'a']];
 
         $process = proc_open($this->generalOpt["rrdtool_path_bin"] . " - ", $descriptorspec, $pipes, null, null);
         if (false === is_resource($process)) {
@@ -290,17 +257,12 @@ class CentreonGraphService extends CentreonGraph
         /* Parsing */
         $retLines = explode("\n", $str);
         foreach ($retLines as $retLine) {
-            if (strpos($retLine, '|') !== false) {
+            if (str_contains($retLine, '|')) {
                 $infos = explode('|', $retLine);
                 if (!isset($this->legends[$infos[0]])) {
-                    $this->legends[$infos[0]] = array(
-                        'extras' => array()
-                    );
+                    $this->legends[$infos[0]] = ['extras' => []];
                 }
-                $this->legends[$infos[0]]['extras'][] = array(
-                    'name' => $infos[1],
-                    'value' => $infos[2]
-                );
+                $this->legends[$infos[0]]['extras'][] = ['name' => $infos[1], 'value' => $infos[2]];
             }
         }
 
@@ -316,10 +278,7 @@ class CentreonGraphService extends CentreonGraph
      */
     public function getLimits()
     {
-        $limits = array(
-            'min' => null,
-            'max' => null
-        );
+        $limits = ['min' => null, 'max' => null];
         if ($this->templateInformations['lower_limit'] !== '') {
             $limits['min'] = $this->templateInformations['lower_limit'];
         }
@@ -337,10 +296,7 @@ class CentreonGraphService extends CentreonGraph
      */
     public function getBase()
     {
-        if (isset($this->templateInformations['base'])) {
-            return $this->templateInformations['base'];
-        }
-        return 1000;
+        return $this->templateInformations['base'] ?? 1000;
     }
 
     public function getLegends()

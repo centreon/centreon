@@ -49,9 +49,7 @@ class EntityPersisterTest extends TestCase
         EntityMock::loadMetadata($metadata);
 
         $metadata->add('text', 'text');
-        $metadata->add('name', 'name_column', \PDO::PARAM_STR, function ($value) {
-            return "{$value} with formatter";
-        });
+        $metadata->add('name', 'name_column', \PDO::PARAM_STR, fn($value) => "{$value} with formatter");
 
         $entity = new EntityMock();
         $entity->setId(2);

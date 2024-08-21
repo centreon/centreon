@@ -54,21 +54,6 @@ class EngineService extends AbstractCentreonService implements
     EngineServiceInterface,
     EngineConfigurationServiceInterface
 {
-    /**
-     * @var EngineRepositoryInterface
-     */
-    private $engineRepository;
-
-    /**
-     * @var EntityValidator
-     */
-    private $validator;
-
-    /**
-     * @var EngineConfigurationRepositoryInterface
-     */
-    private $engineConfigurationRepository;
-
     private const ACKNOWLEDGEMENT_WITH_STICKY_OPTION = 2;
     private const ACKNOWLEDGEMENT_WITH_NO_STICKY_OPTION = 0;
 
@@ -79,14 +64,8 @@ class EngineService extends AbstractCentreonService implements
      * @param EngineConfigurationRepositoryInterface $engineConfigurationRepository
      * @param EntityValidator $validator
      */
-    public function __construct(
-        EngineRepositoryInterface $engineRepository,
-        EngineConfigurationRepositoryInterface $engineConfigurationRepository,
-        EntityValidator $validator
-    ) {
-        $this->engineRepository = $engineRepository;
-        $this->validator = $validator;
-        $this->engineConfigurationRepository = $engineConfigurationRepository;
+    public function __construct(private EngineRepositoryInterface $engineRepository, private EngineConfigurationRepositoryInterface $engineConfigurationRepository, private EntityValidator $validator)
+    {
     }
 
     /**

@@ -33,18 +33,12 @@ use Centreon\Domain\ActionLog\Interfaces\ActionLogServiceInterface;
 class ActionLogService implements ActionLogServiceInterface
 {
     /**
-     * @var ActionLogRepositoryInterface
-     */
-    private $actionLogRepository;
-
-    /**
      * ActionLogService constructor.
      *
      * @param ActionLogRepositoryInterface $actionLogRepository
      */
-    public function __construct(ActionLogRepositoryInterface $actionLogRepository)
+    public function __construct(private ActionLogRepositoryInterface $actionLogRepository)
     {
-        $this->actionLogRepository = $actionLogRepository;
     }
 
     /**

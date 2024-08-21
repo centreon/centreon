@@ -8,12 +8,6 @@ class CentreonMetrics
 {
     /**
      *
-     * @var \CentreonDB
-     */
-    protected $db;
-
-    /**
-     *
      * @var type
      */
     protected $instanceObj;
@@ -30,12 +24,11 @@ class CentreonMetrics
      * @param CentreonDB $db
      * @return void
      */
-    public function __construct($db)
+    public function __construct(protected $db)
     {
-        $this->db = $db;
         $this->dbo = new CentreonDB('centstorage');
-        $this->instanceObj = new CentreonInstance($db);
-        $this->serviceObj = new CentreonService($db);
+        $this->instanceObj = new CentreonInstance($this->db);
+        $this->serviceObj = new CentreonService($this->db);
     }
 
     /**
@@ -51,7 +44,7 @@ class CentreonMetrics
         $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $v) {
-                $multiValues = explode(',', $v);
+                $multiValues = explode(',', (string) $v);
                 foreach ($multiValues as $item) {
                     $listValues .= ':metric' . $item . ',';
                     $queryValues['metric' . $item] = (int)$item;

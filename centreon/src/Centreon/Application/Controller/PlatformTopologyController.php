@@ -45,19 +45,14 @@ class PlatformTopologyController extends AbstractController
 {
     public const SERIALIZER_GROUP_JSON_GRAPH = ['platform_topology_json_graph'];
 
-    /** @var PlatformTopologyServiceInterface */
-    private $platformTopologyService;
-
 
     /**
      * PlatformTopologyController constructor.
      *
      * @param PlatformTopologyServiceInterface $platformTopologyService
      */
-    public function __construct(
-        PlatformTopologyServiceInterface $platformTopologyService
-    ) {
-        $this->platformTopologyService = $platformTopologyService;
+    public function __construct(private PlatformTopologyServiceInterface $platformTopologyService)
+    {
     }
 
     /**

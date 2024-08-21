@@ -42,16 +42,12 @@ class CentreonWidgetParamsSort extends CentreonWidgetParams
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
-            $elems = array();
-            $operands = array(
-                null => null,
-                "ASC" => "ASC",
-                "DESC" => "DESC"
-            );
+            $elems = [];
+            $operands = [null => null, "ASC" => "ASC", "DESC" => "DESC"];
             $columnList = $this->getListValues($params['parameter_id']);
             $elems[] = $this->quickform->addElement('select', 'column_' . $params['parameter_id'], '', $columnList);
             $elems[] = $this->quickform->addElement('select', 'order_' . $params['parameter_id'], '', $operands);
@@ -64,7 +60,7 @@ class CentreonWidgetParamsSort extends CentreonWidgetParams
         }
     }
 
-    public function setValue($params)
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {
@@ -73,15 +69,12 @@ class CentreonWidgetParamsSort extends CentreonWidgetParams
             $target = $params['default_value'];
         }
         if (isset($target)) {
-            if (preg_match("/([a-zA-Z\._]+) (ASC|DESC)/", $target, $matches)) {
+            if (preg_match("/([a-zA-Z\._]+) (ASC|DESC)/", (string) $target, $matches)) {
                 $column = trim($matches[1]);
                 $order = trim($matches[2]);
             }
             if (isset($order) && isset($column)) {
-                $this->quickform->setDefaults(array(
-                    'order_' . $params['parameter_id'] => $order,
-                    'column_' . $params['parameter_id'] => $column
-                ));
+                $this->quickform->setDefaults(['order_' . $params['parameter_id'] => $order, 'column_' . $params['parameter_id'] => $column]);
             }
         }
     }

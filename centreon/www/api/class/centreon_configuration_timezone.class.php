@@ -54,7 +54,7 @@ class CentreonConfigurationTimezone extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
 
         // Check for select2 'q' argument
         if (isset($this->arguments['q'])) {
@@ -86,16 +86,10 @@ class CentreonConfigurationTimezone extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $timezoneList = array();
+        $timezoneList = [];
         while ($data = $stmt->fetch()) {
-            $timezoneList[] = array(
-                'id' => $data['timezone_id'],
-                'text' => $data['timezone_name']
-            );
+            $timezoneList[] = ['id' => $data['timezone_id'], 'text' => $data['timezone_name']];
         }
-        return array(
-            'items' => $timezoneList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $timezoneList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

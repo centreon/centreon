@@ -104,8 +104,8 @@ class EventDispatcher
     public function addEventHandler(string $context, int $eventType, EventHandler $eventHandler): void
     {
         foreach ($this->eventMethods as $eventMethod) {
-            $methodName = 'get' . ucfirst($eventMethod);
-            foreach (call_user_func(array($eventHandler, $methodName)) as $priority => $callables) {
+            $methodName = 'get' . ucfirst((string) $eventMethod);
+            foreach (call_user_func([$eventHandler, $methodName]) as $priority => $callables) {
                 $this->eventHandlers[$context][$eventType][$eventMethod][$priority] = array_merge(
                     $this->eventHandlers[$context][$eventType][$eventMethod][$priority] ?? [],
                     $callables
@@ -148,7 +148,7 @@ class EventDispatcher
                             $this->executionContext[$context][$eventType] ?? [];
                         $result = call_user_func_array(
                             $callable,
-                            array($arguments, $currentExecutionContext, $eventType)
+                            [$arguments, $currentExecutionContext, $eventType]
                         );
                         if (isset($result)) {
                             $this->executionContext[$context][$eventType] =

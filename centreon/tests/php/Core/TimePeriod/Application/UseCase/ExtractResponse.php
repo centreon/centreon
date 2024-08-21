@@ -15,12 +15,10 @@ class ExtractResponse
      */
     public static function daysToArray(TimePeriod $timePeriod): array
     {
-        return array_map(function (Day $day) {
-            return [
-                'day' => $day->getDay(),
-                'time_range' => (string)$day->getTimeRange()
-            ];
-        }, $timePeriod->getDays());
+        return array_map(fn(Day $day) => [
+            'day' => $day->getDay(),
+            'time_range' => (string)$day->getTimeRange()
+        ], $timePeriod->getDays());
     }
 
     /**
@@ -29,12 +27,10 @@ class ExtractResponse
      */
     public static function templatesToArray(TimePeriod $timePeriod): array
     {
-        return array_map(function (Template $template) {
-            return [
-                'id' => $template->getId(),
-                'alias' => $template->getAlias(),
-            ];
-        }, $timePeriod->getTemplates());
+        return array_map(fn(Template $template) => [
+            'id' => $template->getId(),
+            'alias' => $template->getAlias(),
+        ], $timePeriod->getTemplates());
     }
 
     /**
@@ -43,12 +39,10 @@ class ExtractResponse
      */
     public static function exceptionsToArray(TimePeriod $timePeriod): array
     {
-        return array_map(function (ExtraTimePeriod $exception) {
-            return [
-                'id' => $exception->getId(),
-                'day_range' => $exception->getDayRange(),
-                'time_range' => (string)$exception->getTimeRange(),
-            ];
-        }, $timePeriod->getExtraTimePeriods());
+        return array_map(fn(ExtraTimePeriod $exception) => [
+            'id' => $exception->getId(),
+            'day_range' => $exception->getDayRange(),
+            'time_range' => (string)$exception->getTimeRange(),
+        ], $timePeriod->getExtraTimePeriods());
     }
 }

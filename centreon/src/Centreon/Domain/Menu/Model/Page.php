@@ -28,36 +28,12 @@ class Page
     public const LEGACY_PAGE_BASE_URI = '/main.php?p=';
 
     /**
-     * @var int
-     */
-    private $id;
-
-    /**
-     * @var string
-     */
-    private $url;
-
-    /**
      * @var string|null
      */
     private $urlOptions;
 
-    /**
-     * @var int
-     */
-    private $pageNumber;
-
-    /**
-     * @var bool
-     */
-    private $isReact;
-
-    public function __construct(int $id, string $url, int $pageNumber, bool $isReact = false)
+    public function __construct(private int $id, private string $url, private int $pageNumber, private bool $isReact = false)
     {
-        $this->id = $id;
-        $this->url = $url;
-        $this->pageNumber = $pageNumber;
-        $this->isReact = $isReact;
     }
 
     /**

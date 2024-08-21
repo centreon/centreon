@@ -65,7 +65,7 @@ class ExportManifestTest extends TestCase
                 return [];
             }));
         $parser->method('dump')
-            ->will($this->returnCallback(function () {
+            ->will($this->returnCallback(function (): void {
                 $args = func_get_args();
 
                 $this->dumpData[$args[1]] = $args[0];
@@ -84,9 +84,7 @@ class ExportManifestTest extends TestCase
             ->getMock();
         $this->manifest
             ->method('getFile')
-            ->will($this->returnCallback(function () {
-                return __FILE__;
-            }));
+            ->will($this->returnCallback(fn() => __FILE__));
     }
 
     /**

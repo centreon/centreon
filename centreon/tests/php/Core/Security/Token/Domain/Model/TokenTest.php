@@ -29,21 +29,19 @@ use Core\Common\Domain\TrimmedString;
 use Core\Security\Token\Domain\Model\Token;
 
 beforeEach(function (): void {
-    $this->createToken = static function (array $fields = []): Token {
-        return new Token(
-            ...[
-                'name' => new TrimmedString('token-name'),
-                'userId' => 23,
-                'userName' => new TrimmedString('John Doe'),
-                'creatorId' => 12,
-                'creatorName' => new TrimmedString('John Doe'),
-                'creationDate' => new \DateTimeImmutable(),
-                'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
-                'isRevoked' => false,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createToken = static fn(array $fields = []): Token => new Token(
+        ...[
+            'name' => new TrimmedString('token-name'),
+            'userId' => 23,
+            'userName' => new TrimmedString('John Doe'),
+            'creatorId' => 12,
+            'creatorName' => new TrimmedString('John Doe'),
+            'creationDate' => new \DateTimeImmutable(),
+            'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
+            'isRevoked' => false,
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set token instance', function (): void {

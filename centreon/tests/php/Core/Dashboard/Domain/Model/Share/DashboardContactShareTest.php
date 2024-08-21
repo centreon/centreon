@@ -32,23 +32,21 @@ use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 
 beforeEach(function (): void {
-    $this->createDashboardContactShare = function (array $fields = []): DashboardContactShare {
-        return new DashboardContactShare(
-            new Dashboard(
-                99,
-                'dashboard-name',
-                null,
-                null,
-                new \DateTimeImmutable(),
-                new \DateTimeImmutable(),
-                new Refresh(RefreshType::Global, null),
-            ),
-            $fields['id'] ?? 1,
-            $fields['name'] ?? 'contact-name',
-            $fields['email'] ?? 'contact-email',
-            DashboardSharingRoleConverter::fromString($fields['role'] ?? 'viewer')
-        );
-    };
+    $this->createDashboardContactShare = fn(array $fields = []): DashboardContactShare => new DashboardContactShare(
+        new Dashboard(
+            99,
+            'dashboard-name',
+            null,
+            null,
+            new \DateTimeImmutable(),
+            new \DateTimeImmutable(),
+            new Refresh(RefreshType::Global, null),
+        ),
+        $fields['id'] ?? 1,
+        $fields['name'] ?? 'contact-name',
+        $fields['email'] ?? 'contact-email',
+        DashboardSharingRoleConverter::fromString($fields['role'] ?? 'viewer')
+    );
 });
 
 it(

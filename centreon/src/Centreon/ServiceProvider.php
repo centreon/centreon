@@ -85,9 +85,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     {
 
         //init global yml config from src/Centreon
-        $pimple[static::YML_CONFIG] = function (Container $pimple) {
-            return $pimple[\CentreonLegacy\ServiceProvider::CONFIGURATION]->getModuleConfig(__DIR__);
-        };
+        $pimple[static::YML_CONFIG] = fn(Container $pimple) => $pimple[\CentreonLegacy\ServiceProvider::CONFIGURATION]->getModuleConfig(__DIR__);
 
         $pimple[static::CENTREON_WEBSERVICE] = function (Container $container): CentreonWebserviceService {
             $service = new CentreonWebserviceService();
@@ -117,14 +115,12 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             return $service;
         };
 
-        $pimple[static::CENTREON_FRONTEND_COMPONENT_SERVICE] = function (Container $pimple): FrontendComponentService {
-            return new FrontendComponentService(
-                new ServiceLocator(
-                    $pimple,
-                    FrontendComponentService::dependencies()
-                )
-            );
-        };
+        $pimple[static::CENTREON_FRONTEND_COMPONENT_SERVICE] = fn(Container $pimple): FrontendComponentService => new FrontendComponentService(
+            new ServiceLocator(
+                $pimple,
+                FrontendComponentService::dependencies()
+            )
+        );
 
         $pimple[static::CENTREON_CLAPI] = function (Container $container): CentreonClapiService {
             $service = new CentreonClapiService();
@@ -159,7 +155,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             // @codeCoverageIgnoreStart
             if (!empty($GLOBALS['centreon']->user) && $GLOBALS['centreon']->user instanceof \CentreonUser) {
                 return $GLOBALS['centreon']->user;
-            } elseif (php_sapi_name() !== 'cli' && session_status() == PHP_SESSION_NONE) {
+            }
+            if (php_sapi_name() !== 'cli' && session_status() == PHP_SESSION_NONE) {
                 session_start();
             }
 
@@ -252,14 +249,12 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             );
         };
 
-        $pimple[static::SERIALIZER] = function ($container): Serializer\Serializer {
-            return new Serializer\Serializer([
-                $container[static::SERIALIZER_OBJECT_NORMALIZER],
-                new Serializer\Normalizer\ArrayDenormalizer(),
-            ], [
-                new Serializer\Encoder\JsonEncoder(),
-            ]);
-        };
+        $pimple[static::SERIALIZER] = fn($container): Serializer\Serializer => new Serializer\Serializer([
+            $container[static::SERIALIZER_OBJECT_NORMALIZER],
+            new Serializer\Normalizer\ArrayDenormalizer(),
+        ], [
+            new Serializer\Encoder\JsonEncoder(),
+        ]);
     }
 
     /**
@@ -269,13 +264,11 @@ class ServiceProvider implements AutoloadServiceProviderInterface
      */
     public function registerValidator(Container $pimple): void
     {
-        $pimple[static::VALIDATOR] = function (Container $container): Validator\Validator\ValidatorInterface {
-            return Validator\Validation::createValidatorBuilder()
-                    ->addMethodMapping('loadValidatorMetadata')
-                    ->setConstraintValidatorFactory($container[ServiceProvider::CENTREON_VALIDATOR_FACTORY])
-                    ->setTranslator($container[ServiceProvider::CENTREON_VALIDATOR_TRANSLATOR])
-                    ->getValidator();
-        };
+        $pimple[static::VALIDATOR] = fn(Container $container): Validator\Validator\ValidatorInterface => Validator\Validation::createValidatorBuilder()
+                ->addMethodMapping('loadValidatorMetadata')
+                ->setConstraintValidatorFactory($container[ServiceProvider::CENTREON_VALIDATOR_FACTORY])
+                ->setTranslator($container[ServiceProvider::CENTREON_VALIDATOR_TRANSLATOR])
+                ->getValidator();
 
         $pimple[static::CENTREON_VALIDATOR_FACTORY] =
             function (Container $container): Validation\CentreonValidatorFactory {
@@ -285,13 +278,9 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             };
 
         $pimple[static::CENTREON_VALIDATOR_TRANSLATOR] =
-            function (Container $container): Validation\CentreonValidatorTranslator {
-                return new Validation\CentreonValidatorTranslator($container['centreon.user']);
-            };
+            fn(Container $container): Validation\CentreonValidatorTranslator => new Validation\CentreonValidatorTranslator($container['centreon.user']);
 
-        $pimple[static::VALIDATOR_EXPRESSION] = function (): Constraints\ExpressionValidator {
-            return new Constraints\ExpressionValidator();
-        };
+        $pimple[static::VALIDATOR_EXPRESSION] = fn(): Constraints\ExpressionValidator => new Constraints\ExpressionValidator();
     }
 
     /**

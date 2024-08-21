@@ -81,14 +81,14 @@ class CentreonUser
      * @global type $pearDB
      * @param type $user
      */
-    public function __construct($user = array())
+    public function __construct($user = [])
     {
         global $pearDB;
 
         $this->user_id = $user["contact_id"];
-        $this->name = html_entity_decode($user["contact_name"], ENT_QUOTES, "UTF-8");
-        $this->alias = html_entity_decode($user["contact_alias"], ENT_QUOTES, "UTF-8");
-        $this->email = html_entity_decode($user["contact_email"], ENT_QUOTES, "UTF-8");
+        $this->name = html_entity_decode((string) $user["contact_name"], ENT_QUOTES, "UTF-8");
+        $this->alias = html_entity_decode((string) $user["contact_alias"], ENT_QUOTES, "UTF-8");
+        $this->email = html_entity_decode((string) $user["contact_email"], ENT_QUOTES, "UTF-8");
         $this->lang = $user["contact_lang"];
         $this->charset = "UTF-8";
         $this->passwd = $user["contact_passwd"] ?? null;
@@ -136,11 +136,7 @@ class CentreonUser
         if (!isset($div_name)) {
             return 0;
         }
-
-        if (isset($_SESSION['_Div_' . $div_name])) {
-            return $_SESSION['_Div_' . $div_name];
-        }
-        return 1;
+        return $_SESSION['_Div_' . $div_name] ?? 1;
     }
 
     /**
@@ -167,7 +163,7 @@ class CentreonUser
      * @param string $sid
      * @param \CentreonDB $pearDB
      */
-    public function checkUserStatus($sid, $pearDB)
+    public function checkUserStatus($sid, $pearDB): void
     {
         $query1 = "SELECT contact_admin, contact_id FROM session, contact " .
             "WHERE session.session_id = :session_id" .
@@ -254,7 +250,7 @@ class CentreonUser
             }
 
             // check that the variable value end with .UTF-8 or add it
-            $lang = (strpos($lang, '.UTF-8') !== false) ?: $lang . '.UTF-8';
+            $lang = (str_contains($lang, '.UTF-8')) ?: $lang . '.UTF-8';
         }
 
         return $lang;
@@ -300,7 +296,7 @@ class CentreonUser
      *
      * @param bool $showDeprecatedPages
      */
-    public function setShowDeprecatedPages(bool $showDeprecatedPages)
+    public function setShowDeprecatedPages(bool $showDeprecatedPages): void
     {
         $this->showDeprecatedPages = $showDeprecatedPages;
     }
@@ -311,7 +307,7 @@ class CentreonUser
      *
      * @param type $id
      */
-    public function set_id($id)
+    public function set_id($id): void
     {
         $this->user_id = $id;
     }
@@ -320,7 +316,7 @@ class CentreonUser
      *
      * @param type $name
      */
-    public function set_name($name)
+    public function set_name($name): void
     {
         $this->name = $name;
     }
@@ -329,7 +325,7 @@ class CentreonUser
      *
      * @param type $email
      */
-    public function set_email($email)
+    public function set_email($email): void
     {
         $this->email = $email;
     }
@@ -338,7 +334,7 @@ class CentreonUser
      *
      * @param type $lang
      */
-    public function set_lang($lang)
+    public function set_lang($lang): void
     {
         $this->lang = $lang;
     }
@@ -347,7 +343,7 @@ class CentreonUser
      *
      * @param type $alias
      */
-    public function set_alias($alias)
+    public function set_alias($alias): void
     {
         $this->alias = $alias;
     }
@@ -356,7 +352,7 @@ class CentreonUser
      *
      * @param type $version
      */
-    public function set_version($version)
+    public function set_version($version): void
     {
         $this->version = $version;
     }
@@ -380,7 +376,7 @@ class CentreonUser
         static $userList;
 
         if (!isset($userList)) {
-            $userList = array();
+            $userList = [];
             $res = $db->query(
                 "SELECT contact_id, contact_name
                 FROM contact
@@ -407,16 +403,13 @@ class CentreonUser
         static $userNames;
 
         if (!isset($userNames)) {
-            $userNames = array();
+            $userNames = [];
             $res = $db->query("SELECT contact_name, contact_id FROM contact");
             while ($row = $res->fetch()) {
                 $userNames[$row['contact_id']] = $row['contact_name'];
             }
         }
-        if (isset($userNames[$userId])) {
-            return $userNames[$userId];
-        }
-        return null;
+        return $userNames[$userId] ?? null;
     }
 
     /**
@@ -426,9 +419,9 @@ class CentreonUser
      * @param array $parameters
      * @return array
      */
-    public function getContactParameters($db, $parameters = array())
+    public function getContactParameters($db, $parameters = [])
     {
-        $values = array();
+        $values = [];
 
         $queryParameters = '';
         if (is_array($parameters) && count($parameters)) {
@@ -457,12 +450,12 @@ class CentreonUser
      * @param array $parameters
      * @return null
      */
-    public function setContactParameters($db, $parameters = array())
+    public function setContactParameters($db, $parameters = [])
     {
         if (!count($parameters)) {
             return null;
         }
-        $queryValues = array();
+        $queryValues = [];
         $keys = array_keys($parameters);
         $deleteQuery = 'DELETE FROM contact_param WHERE cp_contact_id = :cp_contact_id AND cp_key IN( ';
         $queryValues[':cp_contact_id'] = $this->user_id;
@@ -503,7 +496,7 @@ class CentreonUser
      * @param int $currentPage
      * @return void
      */
-    public function setCurrentPage($currentPage)
+    public function setCurrentPage($currentPage): void
     {
         $this->currentPage = $currentPage;
     }
@@ -524,7 +517,7 @@ class CentreonUser
      * @param string $theme
      * @return void
      */
-    public function setTheme($theme)
+    public function setTheme($theme): void
     {
         $this->theme = $theme;
     }
@@ -545,7 +538,7 @@ class CentreonUser
      * @param string $token
      * @return void
      */
-    public function setToken($token)
+    public function setToken($token): void
     {
         $this->token = $token;
     }

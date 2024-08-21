@@ -42,18 +42,16 @@ final class FindMetricsByServicePresenter extends AbstractPresenter implements F
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
-            $this->present(array_map(function (MetricDto $metric) {
-                return [
-                    'id' => $metric->id,
-                    'name' => $metric->name,
-                    'unit' => $metric->unit,
-                    'current_value' => $metric->currentValue,
-                    'warning_high_threshold' => $metric->warningHighThreshold,
-                    'warning_low_threshold' => $metric->warningLowThreshold,
-                    'critical_high_threshold' => $metric->criticalHighThreshold,
-                    'critical_low_threshold' => $metric->criticalLowThreshold,
-                ];
-            }, $response->metricsDto));
+            $this->present(array_map(fn(MetricDto $metric) => [
+                'id' => $metric->id,
+                'name' => $metric->name,
+                'unit' => $metric->unit,
+                'current_value' => $metric->currentValue,
+                'warning_high_threshold' => $metric->warningHighThreshold,
+                'warning_low_threshold' => $metric->warningLowThreshold,
+                'critical_high_threshold' => $metric->criticalHighThreshold,
+                'critical_low_threshold' => $metric->criticalLowThreshold,
+            ], $response->metricsDto));
         }
     }
 }

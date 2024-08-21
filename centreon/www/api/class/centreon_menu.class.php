@@ -35,7 +35,7 @@
 
 use CentreonLegacy\Core\Menu\Menu;
 
-require_once dirname(__FILE__) . "/webService.class.php";
+require_once __DIR__ . "/webService.class.php";
 
 class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInterface
 {
@@ -67,7 +67,7 @@ class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInt
      *
      * @param \Pimple\Container $dependencyInjector
      */
-    public function finalConstruct(\Pimple\Container $dependencyInjector)
+    public function finalConstruct(\Pimple\Container $dependencyInjector): void
     {
         $this->dependencyInjector = $dependencyInjector;
     }

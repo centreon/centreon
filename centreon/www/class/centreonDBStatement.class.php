@@ -35,12 +35,12 @@
 
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(dirname(__FILE__) . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
 if ($configFile !== false) {
     include_once $configFile;
 }
 
-require_once realpath(dirname(__FILE__) . "/centreonDB.class.php");
+require_once realpath(__DIR__ . "/centreonDB.class.php");
 
 class CentreonDBStatement extends \PDOStatement
 {
@@ -53,18 +53,12 @@ class CentreonDBStatement extends \PDOStatement
     public $allFetched;
 
     /**
-     * @var CentreonLog
-     */
-    private $log;
-
-    /**
      * Constructor
      *
      * @param CentreonLog $log
      */
-    protected function __construct(CentreonLog $log = null)
+    protected function __construct(private ?\CentreonLog $log = null)
     {
-        $this->log = $log;
         $this->allFetched = null;
     }
 
@@ -81,9 +75,11 @@ class CentreonDBStatement extends \PDOStatement
     ): mixed {
         if (is_null($this->allFetched)) {
             return parent::fetch($mode, $cursorOrientation, $cursorOffset);
-        } elseif (count($this->allFetched) <= 0) {
+        }
+        if (count($this->allFetched) <= 0) {
             return false;
-        } else {
+        }
+        else {
             return array_shift($this->allFetched);
         }
     }

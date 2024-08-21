@@ -114,7 +114,7 @@ class CentreonConfigurationTimeperiod extends CentreonConfigurationObjects
         while ($data = $stmt->fetch()) {
             $timePeriodList[] = [
                 'id' => $data['tp_id'],
-                'text' => html_entity_decode($data['tp_name']),
+                'text' => html_entity_decode((string) $data['tp_name']),
             ];
         }
 

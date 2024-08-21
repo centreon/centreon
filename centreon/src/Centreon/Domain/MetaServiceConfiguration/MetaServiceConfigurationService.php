@@ -36,25 +36,11 @@ use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfiguration
 class MetaServiceConfigurationService implements MetaServiceConfigurationServiceInterface
 {
     /**
-     * @var MetaServiceConfigurationReadRepositoryInterface
-     */
-    private $readRepository;
-
-    /**
-     * @var ContactInterface
-     */
-    private $contact;
-
-    /**
      * @param MetaServiceConfigurationReadRepositoryInterface $readRepository
      * @param ContactInterface $contact
      */
-    public function __construct(
-        MetaServiceConfigurationReadRepositoryInterface $readRepository,
-        ContactInterface $contact
-    ) {
-        $this->contact = $contact;
-        $this->readRepository = $readRepository;
+    public function __construct(private MetaServiceConfigurationReadRepositoryInterface $readRepository, private ContactInterface $contact)
+    {
     }
 
     /**

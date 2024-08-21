@@ -42,22 +42,22 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
-            $elems = array();
+            $elems = [];
             $elems[] = $this->quickform->addElement(
                 'text',
                 'from_' . $params['parameter_id'],
                 _('From'),
-                array("size" => 10, "class" => "datepicker")
+                ["size" => 10, "class" => "datepicker"]
             );
             $elems[] = $this->quickform->addElement(
                 'text',
                 'to_' . $params['parameter_id'],
                 _('To'),
-                array("size" => 10, "class" => "datepicker")
+                ["size" => 10, "class" => "datepicker"]
             );
             $this->element = $this->quickform->addGroup(
                 $elems,
@@ -68,7 +68,7 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
         }
     }
 
-    public function setValue($params)
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {
@@ -77,14 +77,11 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
             $target = $params['default_value'];
         }
         if (isset($target)) {
-            $tab = explode(',', $target);
+            $tab = explode(',', (string) $target);
             if (!isset($tab[0]) || !isset($tab[1])) {
                 throw new CentreonWidgetParamsException('Incorrect date format found in database');
             }
-            $this->quickform->setDefaults(array(
-                'from_' . $params['parameter_id'] => $tab[0],
-                'to_' . $params['parameter_id'] => $tab[1]
-            ));
+            $this->quickform->setDefaults(['from_' . $params['parameter_id'] => $tab[0], 'to_' . $params['parameter_id'] => $tab[1]]);
         }
     }
 }

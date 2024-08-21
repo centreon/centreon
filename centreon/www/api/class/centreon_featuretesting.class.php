@@ -33,7 +33,7 @@
  *
  */
 
-require_once dirname(__FILE__) . '/webService.class.php';
+require_once __DIR__ . '/webService.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonFeature.class.php';
 
 class CentreonFeaturetesting extends CentreonWebService
@@ -54,7 +54,7 @@ class CentreonFeaturetesting extends CentreonWebService
      *
      * METHOD POST
      */
-    public function postEnabled()
+    public function postEnabled(): void
     {
         if (!isset($this->arguments['name']) ||
             !isset($this->arguments['version']) ||
@@ -65,8 +65,8 @@ class CentreonFeaturetesting extends CentreonWebService
             throw new \RestUnauthorizedException('Session does not exists.');
         }
         $userId = $_SESSION['centreon']->user->user_id;
-        $features = array();
-        $features[$this->arguments['name']] = array();
+        $features = [];
+        $features[$this->arguments['name']] = [];
         $features[$this->arguments['name']][$this->arguments['version']] = $this->arguments['enabled'] ? 1 : 0;
 
         $this->obj->saveUserFeaturesValue(

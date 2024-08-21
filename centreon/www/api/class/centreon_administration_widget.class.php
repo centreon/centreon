@@ -68,9 +68,9 @@ class CentreonAdministrationWidget extends CentreonWebService implements Centreo
                 throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $limit = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
-            $range = array((int) $limit, (int) $this->arguments['page_limit']);
+            $range = [(int) $limit, (int) $this->arguments['page_limit']];
         } else {
-            $range = array();
+            $range = [];
         }
 
         $widgetObj = new CentreonWidget($centreon, $this->pearDB);

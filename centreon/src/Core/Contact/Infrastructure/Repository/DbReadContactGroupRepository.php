@@ -35,17 +35,13 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 {
     use LoggerTrait;
 
-    /** @var SqlRequestParametersTranslator */
-    private SqlRequestParametersTranslator $sqlRequestTranslator;
-
     /**
      * @param DatabaseConnection $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db, private SqlRequestParametersTranslator $sqlRequestTranslator)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
@@ -165,7 +161,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY cg_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY cg_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -216,7 +212,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY cg_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY cg_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();

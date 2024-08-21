@@ -911,15 +911,11 @@ class AcknowledgementController extends AbstractController
 
         $hasRights = false;
 
-        switch ($resource->getType()) {
-            case ResourceEntity::TYPE_HOST:
-                $hasRights = $contact->hasRole(Contact::ROLE_HOST_ACKNOWLEDGEMENT);
-                break;
-            case ResourceEntity::TYPE_SERVICE:
-            case ResourceEntity::TYPE_META:
-                $hasRights = $contact->hasRole(Contact::ROLE_SERVICE_ACKNOWLEDGEMENT);
-                break;
-        }
+        $hasRights = match ($resource->getType()) {
+            ResourceEntity::TYPE_HOST => $contact->hasRole(Contact::ROLE_HOST_ACKNOWLEDGEMENT),
+            ResourceEntity::TYPE_SERVICE, ResourceEntity::TYPE_META => $contact->hasRole(Contact::ROLE_SERVICE_ACKNOWLEDGEMENT),
+            default => $hasRights,
+        };
 
         return $hasRights;
     }
@@ -940,15 +936,11 @@ class AcknowledgementController extends AbstractController
 
         $hasRights = false;
 
-        switch ($resource->getType()) {
-            case ResourceEntity::TYPE_HOST:
-                $hasRights = $contact->hasRole(Contact::ROLE_HOST_DISACKNOWLEDGEMENT);
-                break;
-            case ResourceEntity::TYPE_SERVICE:
-            case ResourceEntity::TYPE_META:
-                $hasRights = $contact->hasRole(Contact::ROLE_SERVICE_DISACKNOWLEDGEMENT);
-                break;
-        }
+        $hasRights = match ($resource->getType()) {
+            ResourceEntity::TYPE_HOST => $contact->hasRole(Contact::ROLE_HOST_DISACKNOWLEDGEMENT),
+            ResourceEntity::TYPE_SERVICE, ResourceEntity::TYPE_META => $contact->hasRole(Contact::ROLE_SERVICE_DISACKNOWLEDGEMENT),
+            default => $hasRights,
+        };
 
         return $hasRights;
     }

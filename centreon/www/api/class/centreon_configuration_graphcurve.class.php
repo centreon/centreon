@@ -53,7 +53,7 @@ class CentreonConfigurationGraphcurve extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
         if (false === isset($this->arguments['q'])) {
             $queryValues['name'] = '%%';
@@ -87,16 +87,10 @@ class CentreonConfigurationGraphcurve extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $graphCurveList = array();
+        $graphCurveList = [];
         while ($data = $stmt->fetch()) {
-            $graphCurveList[] = array(
-                'id' => $data['compo_id'],
-                'text' => $data['name']
-            );
+            $graphCurveList[] = ['id' => $data['compo_id'], 'text' => $data['name']];
         }
-        return array(
-            'items' => $graphCurveList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $graphCurveList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

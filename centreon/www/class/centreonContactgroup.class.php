@@ -41,16 +41,13 @@ require_once realpath(__DIR__ . "/centreonACL.class.php");
  */
 class CentreonContactgroup
 {
-    private $db;
-
     /**
      * Constructor
      *
-     * @param CentreonDB $pearDB
+     * @param CentreonDB $db
      */
-    public function __construct($pearDB)
+    public function __construct(private $db)
     {
-        $this->db = $pearDB;
     }
 
     /**
@@ -63,7 +60,7 @@ class CentreonContactgroup
     public function getListContactgroup($withLdap = false, $dbOnly = false)
     {
         // Contactgroup from database
-        $contactgroups = array();
+        $contactgroups = [];
 
         $query = "SELECT a.cg_id, a.cg_name, a.cg_ldap_dn, b.ar_name FROM contactgroup a ";
         $query .= " LEFT JOIN auth_ressource b ON a.ar_id = b.ar_id";
@@ -107,7 +104,7 @@ class CentreonContactgroup
      */
     public function getLdapContactgroups($filter = '')
     {
-        $cgs = array();
+        $cgs = [];
 
         $query = "SELECT `value` FROM `options` WHERE `key` = 'ldap_auth_enable'";
         $res = $this->db->query($query);
@@ -172,7 +169,7 @@ class CentreonContactgroup
         $statement->execute();
 
         if ($row = $statement->fetch()) {
-            $ldapGroupId = (int) $row['cg_id'];
+            return (int) $row['cg_id'];
         }
 
         return $ldapGroupId;
@@ -199,7 +196,7 @@ class CentreonContactgroup
         $statement->execute();
 
         if ($row = $statement->fetch()) {
-            $ldapGroupId = (int) $row['cg_id'];
+            return (int) $row['cg_id'];
         }
 
         return $ldapGroupId;
@@ -276,8 +273,8 @@ class CentreonContactgroup
      */
     public function syncWithLdapConfigGen()
     {
-        $msg = array();
-        $ldapServerConnError = array();
+        $msg = [];
+        $ldapServerConnError = [];
 
         $cgRes = $this->db->query(
             "SELECT cg.cg_id, cg.cg_name, cg.cg_ldap_dn, cg.ar_id, ar.ar_name
@@ -373,7 +370,7 @@ class CentreonContactgroup
      */
     public function syncWithLdap()
     {
-        $msg = array();
+        $msg = [];
         $ldapRes = $this->db->query(
             "SELECT ar_id FROM auth_ressource WHERE ar_enable = '1'"
         );
@@ -438,20 +435,20 @@ class CentreonContactgroup
                                     throw $e;
                                 }
                                 continue;
-                            } else { // Update the ldap group dn in contactgroup
-                                try {
-                                    $updateDnStatement = $this->db->prepare(
-                                        "UPDATE contactgroup SET cg_ldap_dn = :cg_dn WHERE cg_id = :cg_id"
-                                    );
-                                    $updateDnStatement->bindValue(':cg_dn', $dn, \PDO::PARAM_STR);
-                                    $updateDnStatement->bindValue(':cg_id', $row['cg_id'], \PDO::PARAM_INT);
-                                    $updateDnStatement->execute();
-                                    $row['cg_ldap_dn'] = $dn;
-                                } catch (\PDOException $e) {
-                                    $msg[] = "Error processing update contactgroup request of ldap group : " .
-                                        $row['cg_name'];
-                                    throw $e;
-                                }
+                            }
+                            // Update the ldap group dn in contactgroup
+                            try {
+                                $updateDnStatement = $this->db->prepare(
+                                    "UPDATE contactgroup SET cg_ldap_dn = :cg_dn WHERE cg_id = :cg_id"
+                                );
+                                $updateDnStatement->bindValue(':cg_dn', $dn, \PDO::PARAM_STR);
+                                $updateDnStatement->bindValue(':cg_id', $row['cg_id'], \PDO::PARAM_INT);
+                                $updateDnStatement->execute();
+                                $row['cg_ldap_dn'] = $dn;
+                            } catch (\PDOException $e) {
+                                $msg[] = "Error processing update contactgroup request of ldap group : " .
+                                    $row['cg_name'];
+                                throw $e;
                             }
                         }
                         $members = $ldapConn->listUserForGroup($row['cg_ldap_dn']);
@@ -528,9 +525,8 @@ class CentreonContactgroup
         if ($res->rowCount()) {
             $row = $res->fetch();
             return $row['cg_name'];
-        } else {
-            throw new \Exception('No contact group name found');
         }
+        throw new \Exception('No contact group name found');
     }
 
     /**
@@ -545,7 +541,7 @@ class CentreonContactgroup
         foreach ($listCgs as $cg) {
             if (false === is_numeric($cg)) {
                 // Parse the name
-                if (false === preg_match('/\[(\d+)\](.*)/', $cg, $matches)) {
+                if (false === preg_match('/\[(\d+)\](.*)/', (string) $cg, $matches)) {
                     return false;
                 }
                 $cg_name = $matches[2];
@@ -574,7 +570,7 @@ class CentreonContactgroup
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'contactgroup';
         $parameters['currentObject']['id'] = 'cg_id';
         $parameters['currentObject']['name'] = 'cg_name';
@@ -611,33 +607,23 @@ class CentreonContactgroup
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized contactgroups
         if (!$centreon->user->access->admin) {
             $cgAcl = $centreon->user->access->getContactGroupAclConf(
-                array(
-                    'fields' => array('cg_id'),
-                    'get_row' => 'cg_id',
-                    'keys' => array('cg_id'),
-                    'conditions' => array(
-                        'cg_id' => array(
-                            'IN',
-                            $values
-                        )
-                    )
-                ),
+                ['fields' => ['cg_id'], 'get_row' => 'cg_id', 'keys' => ['cg_id'], 'conditions' => ['cg_id' => ['IN', $values]]],
                 false
             );
         }
 
-        $aElement = array();
+        $aElement = [];
         if (is_array($values)) {
             foreach ($values as $value) {
-                if (preg_match_all('/\[(\w+)\]/', $value, $matches, PREG_SET_ORDER)) {
+                if (preg_match_all('/\[(\w+)\]/', (string) $value, $matches, PREG_SET_ORDER)) {
                     foreach ($matches as $match) {
                         if (!in_array($match[1], $aElement)) {
                             $aElement[] = $match[1];
@@ -652,7 +638,7 @@ class CentreonContactgroup
         }
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($aElement)) {
             foreach ($aElement as $k => $v) {
                 $listValues .= ':cg' . $v . ',';
@@ -688,11 +674,7 @@ class CentreonContactgroup
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $cgId,
-                'text' => $cgName,
-                'hide' => $hide
-            );
+            $items[] = ['id' => $cgId, 'text' => $cgName, 'hide' => $hide];
         }
 
         return $items;

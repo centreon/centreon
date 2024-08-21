@@ -38,7 +38,6 @@
   */
 class CentreonObjects
 {
-    private $DB;
     public $hosts;
     public $services;
     public $hostgoups;
@@ -50,10 +49,8 @@ class CentreonObjects
      * Constructor
      * @param $pearDB
      */
-    public function __construct($pearDB)
+    public function __construct(private $DB)
     {
-        $this->DB = $pearDB;
-
         //$this->hostgroups = new CentreonHostGroups($pearDB);
     }
 }

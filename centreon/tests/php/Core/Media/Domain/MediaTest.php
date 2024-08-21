@@ -27,17 +27,14 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Media\Domain\Model\Media;
 
 beforeEach(function (): void {
-    $this->createMedia = function (array $arguments = []): Media
-    {
-        return new Media(...[
-            'id' => 1,
-            'filename' => 'filename',
-            'directory' => 'directory',
-            'comment' => null,
-            'data' => 'data',
-            ...$arguments,
-        ]);
-    };
+    $this->createMedia = fn(array $arguments = []): Media => new Media(...[
+        'id' => 1,
+        'filename' => 'filename',
+        'directory' => 'directory',
+        'comment' => null,
+        'data' => 'data',
+        ...$arguments,
+    ]);
 });
 
 it('should throw an exception when the ID property is lower than 1', function (): void {

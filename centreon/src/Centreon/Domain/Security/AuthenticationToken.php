@@ -24,26 +24,6 @@ namespace Centreon\Domain\Security;
 class AuthenticationToken
 {
     /**
-     * @var string Authentication token
-     */
-    private $token;
-
-    /**
-     * @var \DateTime Generation date of the authentication token
-     */
-    private $generatedDate;
-
-    /**
-     * @var int Contact ID for which the token belongs
-     */
-    private $contactId;
-
-    /**
-     * @var bool Indicates whether the authentication token is valid
-     */
-    private $isValid;
-
-    /**
      * AuthenticationToken constructor.
      *
      * @param string $token Authentication token
@@ -52,15 +32,12 @@ class AuthenticationToken
      * @param bool $isValid Indicates whether the authentication token is valid
      */
     public function __construct(
-        string $token,
-        int $contactId,
-        \DateTime $generatedDate,
-        bool $isValid
-    ) {
-        $this->token = $token;
-        $this->contactId = $contactId;
-        $this->generatedDate = $generatedDate;
-        $this->isValid = $isValid;
+        private string $token,
+        private int $contactId,
+        private \DateTime $generatedDate,
+        private bool $isValid
+    )
+    {
     }
 
     /**

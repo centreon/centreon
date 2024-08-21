@@ -43,15 +43,9 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
 {
     use AccessControlListRepositoryTrait;
 
-    /**
-     * @var SqlRequestParametersTranslator
-     */
-    private $sqlRequestTranslator;
-
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db, private SqlRequestParametersTranslator $sqlRequestTranslator)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);

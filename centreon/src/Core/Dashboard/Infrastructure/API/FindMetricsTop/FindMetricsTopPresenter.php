@@ -61,20 +61,18 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
      * @return array<array<string,int|string|float|null>>
      */
     private static function formatResource(array $resourceMetrics): array {
-        return array_map(function (MetricInformationDto $metricInformation) {
-            return [
-                'id' => $metricInformation->serviceId,
-                'name' => $metricInformation->resourceName,
-                'parent_name' => $metricInformation->parentName,
-                'uuid' => 'h' . $metricInformation->parentId . '-s' . $metricInformation->serviceId,
-                'current_value' => $metricInformation->currentValue,
-                'warning_high_threshold' => $metricInformation->warningHighThreshold,
-                'critical_high_threshold' => $metricInformation->criticalHighThreshold,
-                'warning_low_threshold' => $metricInformation->warningLowThreshold,
-                'critical_low_threshold' => $metricInformation->criticalLowThreshold,
-                'min' => $metricInformation->minimumValue,
-                'max' => $metricInformation->maximumValue,
-            ];
-        }, $resourceMetrics);
+        return array_map(fn(MetricInformationDto $metricInformation) => [
+            'id' => $metricInformation->serviceId,
+            'name' => $metricInformation->resourceName,
+            'parent_name' => $metricInformation->parentName,
+            'uuid' => 'h' . $metricInformation->parentId . '-s' . $metricInformation->serviceId,
+            'current_value' => $metricInformation->currentValue,
+            'warning_high_threshold' => $metricInformation->warningHighThreshold,
+            'critical_high_threshold' => $metricInformation->criticalHighThreshold,
+            'warning_low_threshold' => $metricInformation->warningLowThreshold,
+            'critical_low_threshold' => $metricInformation->criticalLowThreshold,
+            'min' => $metricInformation->minimumValue,
+            'max' => $metricInformation->maximumValue,
+        ], $resourceMetrics);
     }
 }

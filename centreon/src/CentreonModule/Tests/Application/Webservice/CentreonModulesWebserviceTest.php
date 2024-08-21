@@ -78,13 +78,11 @@ class CentreonModulesWebserviceTest extends TestCase
 
         $container[\CentreonLegacy\ServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION]
             ->method('getList')
-            ->will($this->returnCallback(function () {
-                return [
-                    'centreon-bam-server' => [
-                        'is_installed' => false,
-                    ],
-                ];
-            }));
+            ->will($this->returnCallback(fn() => [
+                'centreon-bam-server' => [
+                    'is_installed' => false,
+                ],
+            ]));
 
         $this->webservice->setDi($container);
 
@@ -108,13 +106,11 @@ class CentreonModulesWebserviceTest extends TestCase
             ->getMock();
         $container[\CentreonLegacy\ServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION]
             ->method('getList')
-            ->will($this->returnCallback(function () {
-                return [
-                    'centreon-bam-server' => [
-                        'is_installed' => true,
-                    ],
-                ];
-            }));
+            ->will($this->returnCallback(fn() => [
+                'centreon-bam-server' => [
+                    'is_installed' => true,
+                ],
+            ]));
 
         $this->webservice->setDi($container);
 

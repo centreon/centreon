@@ -59,12 +59,12 @@ class CentreonAclGroup
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':group' . $v . ',';
@@ -89,10 +89,7 @@ class CentreonAclGroup
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['acl_group_id'],
-                'text' => $row['acl_group_name']
-            );
+            $items[] = ['id' => $row['acl_group_id'], 'text' => $row['acl_group_name']];
         }
 
         return $items;

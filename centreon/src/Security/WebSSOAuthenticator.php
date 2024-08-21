@@ -194,9 +194,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         return new SelfValidatingPassport(
             new UserBadge(
                 $request->getSession()->getId(),
-                function ($userIdentifier) {
-                    return $this->getUser($userIdentifier);
-                }
+                fn($userIdentifier) => $this->getUser($userIdentifier)
             )
         );
     }

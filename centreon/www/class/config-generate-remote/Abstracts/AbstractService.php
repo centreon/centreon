@@ -65,7 +65,7 @@ abstract class AbstractService extends AbstractObject
         graph_id,
         service_acknowledgement_timeout
     ';
-    protected $attributesWrite = array(
+    protected $attributesWrite = [
         'service_id',
         'service_template_model_stm_id',
         'command_command_id',
@@ -88,8 +88,8 @@ abstract class AbstractService extends AbstractObject
         'service_notification_options',
         'service_notifications_enabled',
         'service_register',
-        'service_acknowledgement_timeout',
-    );
+        'service_acknowledgement_timeout'
+    ];
     protected $loopStpl = []; // To be reset
     protected $stmtMacro = null;
     protected $stmtStpl = null;
@@ -254,9 +254,6 @@ abstract class AbstractService extends AbstractObject
      */
     public function getString(int $serviceId, string $attr): ?string
     {
-        if (isset($this->serviceCache[$serviceId][$attr])) {
-            return $this->serviceCache[$serviceId][$attr];
-        }
-        return null;
+        return $this->serviceCache[$serviceId][$attr] ?? null;
     }
 }

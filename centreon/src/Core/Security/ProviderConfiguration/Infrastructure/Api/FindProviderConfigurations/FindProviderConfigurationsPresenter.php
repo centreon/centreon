@@ -38,16 +38,14 @@ class FindProviderConfigurationsPresenter extends AbstractPresenter implements F
             $this->setResponseStatus($data);
         } else {
             $this->present(array_map(
-                function (ProviderConfigurationDto $dto): array {
-                    return [
-                        'id' => $dto->id,
-                        'type' => $dto->type,
-                        'name' => $dto->name,
-                        'authentication_uri' => $dto->authenticationUri,
-                        'is_active' => $dto->isActive,
-                        'is_forced' => $dto->isForced,
-                    ];
-                },
+                fn(ProviderConfigurationDto $dto): array => [
+                    'id' => $dto->id,
+                    'type' => $dto->type,
+                    'name' => $dto->name,
+                    'authentication_uri' => $dto->authenticationUri,
+                    'is_active' => $dto->isActive,
+                    'is_forced' => $dto->isForced,
+                ],
                 $data->providerConfigurations
             ));
         }

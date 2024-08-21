@@ -103,7 +103,7 @@ class TopologyWebserviceTest extends TestCase
             "SELECT * FROM `topology` WHERE `topology_page` = :id",
             [['k']],
             null,
-            function () use ($checkpoint, $marker) {
+            function () use ($checkpoint, $marker): void {
                 $checkpoint->mark($marker);
             }
         );
@@ -155,9 +155,7 @@ class TopologyWebserviceTest extends TestCase
 
         $centreonAclMock = $this->createMock(\CentreonACL::class);
         $centreonAclMock->method('getTopology')
-            ->will($this->returnCallback(function () {
-                return [];
-            }));
+            ->will($this->returnCallback(fn() => []));
 
         $userMock = $this->createMock(CentreonUser::class);
         $userMock->access = $centreonAclMock;
@@ -191,9 +189,7 @@ class TopologyWebserviceTest extends TestCase
 
         $centreonAclMock = $this->createMock(\CentreonACL::class);
         $centreonAclMock->method('getTopology')
-            ->will($this->returnCallback(function () {
-                return [];
-            }));
+            ->will($this->returnCallback(fn() => []));
 
         $userMock = $this->createMock(CentreonUser::class);
         $userMock->access = $centreonAclMock;

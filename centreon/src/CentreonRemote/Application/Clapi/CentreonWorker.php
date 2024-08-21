@@ -34,12 +34,8 @@ use Pimple\Container;
  */
 class CentreonWorker implements CentreonClapiServiceInterface
 {
-    /** @var Container */
-    private $di;
-
-    public function __construct(Container $di)
+    public function __construct(private Container $di)
     {
-        $this->di = $di;
     }
 
     /**
@@ -51,7 +47,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
      */
     public static function getName() : string
     {
-        return (new \ReflectionClass(__CLASS__))->getShortName();
+        return (new \ReflectionClass(self::class))->getShortName();
     }
 
     /**
@@ -81,7 +77,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
         /**
          * create import task on remote.
          */
-        $serializedParams = htmlspecialchars($task->getParams());
+        $serializedParams = htmlspecialchars((string) $task->getParams());
         if (empty($serializedParams)) {
             throw new \Exception('Invalid Parameters');
         }
@@ -90,8 +86,8 @@ class CentreonWorker implements CentreonClapiServiceInterface
             throw new \Exception('Missing parameters: params');
         }
         $params = $taskParams['params'];
-        $centreonPath = trim($params['centreon_path'], '/');
-        $centreonPath = $centreonPath ? $centreonPath : '/centreon';
+        $centreonPath = trim((string) $params['centreon_path'], '/');
+        $centreonPath = $centreonPath ?: '/centreon';
         $url = $params['http_method'] ? $params['http_method'] . '://' : '';
         $url .= $params['remote_ip'];
         $url .= $params['http_port'] ? ':' . $params['http_port'] : '';
@@ -137,7 +133,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
 
             // mark task as being worked on
             $this->getDi()['centreon.taskservice']->updateStatus($task->getId(), Task::STATE_PROGRESS);
-            $serializedParams = htmlspecialchars($task->getParams(), ENT_NOQUOTES);
+            $serializedParams = htmlspecialchars((string) $task->getParams(), ENT_NOQUOTES);
             if (empty($serializedParams)) {
                 throw new \Exception('Invalid Parameters');
             }

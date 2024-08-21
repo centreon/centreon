@@ -113,9 +113,7 @@ class WidgetSourceTest extends TestCase
             ->getMock();
         $this->source
             ->method('getPath')
-            ->will($this->returnCallback(function () {
-                return $this->fs->path('/widgets/');
-            }));
+            ->will($this->returnCallback(fn() => $this->fs->path('/widgets/')));
     }
 
     public function tearDown(): void
@@ -134,13 +132,13 @@ class WidgetSourceTest extends TestCase
 
     public function testGetDetail(): void
     {
-        (function () {
+        (function (): void {
             $result = $this->source->getDetail('missing-widget');
 
             $this->assertNull($result);
         })();
 
-        (function () {
+        (function (): void {
             $result = $this->source->getDetail(static::$widgetName);
 
             $this->assertInstanceOf(Module::class, $result);

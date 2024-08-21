@@ -29,14 +29,8 @@ use Centreon\Domain\PlatformInformation\Interfaces\DtoValidatorInterface;
 
 class PlatformInformationDtoValidator implements DtoValidatorInterface
 {
-    /**
-     * @var string $jsonSchemaPath
-     */
-    private $jsonSchemaPath;
-
-    public function __construct(string $jsonSchemaPath)
+    public function __construct(private string $jsonSchemaPath)
     {
-        $this->jsonSchemaPath = $jsonSchemaPath;
     }
 
     /**

@@ -43,18 +43,12 @@ use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
 class ProxyController extends AbstractController
 {
     /**
-     * @var ProxyServiceInterface
-     */
-    private $proxyService;
-
-    /**
      * ProxyController constructor.
      *
      * @param ProxyServiceInterface $proxyService
      */
-    public function __construct(ProxyServiceInterface $proxyService)
+    public function __construct(private ProxyServiceInterface $proxyService)
     {
-        $this->proxyService = $proxyService;
     }
 
     /**

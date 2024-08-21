@@ -3,7 +3,7 @@ namespace Centreon\Domain\Entity;
 
 class ViewImg
 {
-    const TABLE = 'view_img';
+    public const TABLE = 'view_img';
 
     /**
      * @var int

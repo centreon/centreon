@@ -58,13 +58,11 @@ final class DeleteNotificationsPresenter extends AbstractPresenter implements De
     {
         if ($response instanceof DeleteNotificationsResponse) {
             $multiStatusResponse = [
-                'results' => array_map(function (DeleteNotificationsStatusResponse $notificationDto) {
-                    return [
-                        'href' => $this->getDeletedNotificationHref($notificationDto->id),
-                        'status' => $this->enumToIntConverter($notificationDto->status),
-                        'message' => $notificationDto->message,
-                    ];
-                }, $response->results),
+                'results' => array_map(fn(DeleteNotificationsStatusResponse $notificationDto) => [
+                    'href' => $this->getDeletedNotificationHref($notificationDto->id),
+                    'status' => $this->enumToIntConverter($notificationDto->status),
+                    'message' => $notificationDto->message,
+                ], $response->results),
             ];
 
             $this->present(new MultiStatusResponse($multiStatusResponse));

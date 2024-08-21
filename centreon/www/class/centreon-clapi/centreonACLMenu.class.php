@@ -49,12 +49,12 @@ require_once _CENTREON_PATH_ . '/www/class/centreonTopology.class.php';
  */
 class CentreonACLMenu extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
-    const LEVEL_1 = 0;
-    const LEVEL_2 = 1;
-    const LEVEL_3 = 2;
-    const LEVEL_4 = 3;
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
+    public const LEVEL_1 = 0;
+    public const LEVEL_2 = 1;
+    public const LEVEL_3 = 2;
+    public const LEVEL_4 = 3;
     protected $relObject;
     protected $aclGroupObj;
     protected $topologyObj;
@@ -69,7 +69,7 @@ class CentreonACLMenu extends CentreonObject
         $this->object = new \Centreon_Object_Acl_Menu($dependencyInjector);
         $this->aclGroupObj = new \Centreon_Object_Acl_Group($dependencyInjector);
         $this->relObject = new \Centreon_Object_Relation_Acl_Group_Menu($dependencyInjector);
-        $this->params = array('acl_topo_activate' => '1');
+        $this->params = ['acl_topo_activate' => '1'];
         $this->nbOfCompulsoryParams = 2;
         $this->activateField = "acl_topo_activate";
         $this->action = "ACLMENU";
@@ -81,13 +81,13 @@ class CentreonACLMenu extends CentreonObject
      * @return mixed|void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
-        $params = explode($this->delim, $parameters);
+        $params = explode($this->delim, (string) $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
         $addParams['acl_topo_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
@@ -101,7 +101,7 @@ class CentreonACLMenu extends CentreonObject
      */
     public function initUpdateParameters($parameters)
     {
-        $params = explode($this->delim, $parameters);
+        $params = explode($this->delim, (string) $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -113,25 +113,24 @@ class CentreonACLMenu extends CentreonObject
             } else {
                 $params[1] = "acl_topo_" . $params[1];
             }
-            $updateParams = array($params[1] => $params[2]);
+            $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
             return $updateParams;
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
         }
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
     }
 
     /**
      * @param null $parameters
      * @param array $filters
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array("acl_topo_id", "acl_topo_name", "acl_topo_alias", "acl_comments", "acl_topo_activate");
+        $params = ["acl_topo_id", "acl_topo_name", "acl_topo_alias", "acl_comments", "acl_topo_activate"];
         $paramString = str_replace("acl_topo_", "", implode($this->delim, $params));
         $paramString = str_replace("acl_", "", $paramString);
         $paramString = str_replace("comments", "comment", $paramString);
@@ -167,14 +166,14 @@ class CentreonACLMenu extends CentreonObject
         if (count($params) < 3) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $aclMenuId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($params[0]));
+        $aclMenuId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$params[0]]);
         if (!count($aclMenuId)) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[0]);
         }
         $processChildren = ($params[1] == '0') ? false : true;
-        $levels = array();
-        $menus = array();
-        $topologies = array();
+        $levels = [];
+        $menus = [];
+        $topologies = [];
         $levels[self::LEVEL_1] = $params[2];
         if (isset($params[3])) {
             $levels[self::LEVEL_2] = $params[3];
@@ -208,7 +207,7 @@ class CentreonACLMenu extends CentreonObject
 							FROM topology
 							WHERE topology_page = ?
 							AND LENGTH(topology_page) = ?";
-                    $res = $this->db->query($sql, array($menu, $length));
+                    $res = $this->db->query($sql, [$menu, $length]);
                 } else {
                     if ($level == self::LEVEL_1) {
                         $sql = "SELECT topology_id, topology_page
@@ -216,14 +215,14 @@ class CentreonACLMenu extends CentreonObject
                         		WHERE topology_name = ?
                         		AND LENGTH(topology_page) = ?
                         		AND topology_parent IS NULL";
-                        $res = $this->db->query($sql, array($menu, $length));
+                        $res = $this->db->query($sql, [$menu, $length]);
                     } else {
                         $sql = "SELECT topology_id, topology_page
                         		FROM topology
                         		WHERE topology_name = ?
                         		AND LENGTH(topology_page) = ?
                         		AND topology_parent = ?";
-                        $res = $this->db->query($sql, array($menu, $length, $topologies[($level - 1)]));
+                        $res = $this->db->query($sql, [$menu, $length, $topologies[($level - 1)]]);
                     }
                 }
                 $row = $res->fetch();
@@ -237,7 +236,7 @@ class CentreonACLMenu extends CentreonObject
                 break;
             }
         }
-        return array($aclMenuId[0], $menus, $topologies, $processChildren);
+        return [$aclMenuId[0], $menus, $topologies, $processChildren];
     }
 
     /**
@@ -247,12 +246,12 @@ class CentreonACLMenu extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getaclgroup($aclMenuName)
+    public function getaclgroup($aclMenuName): void
     {
         if (!isset($aclMenuName) || !$aclMenuName) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $aclMenuId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($aclMenuName));
+        $aclMenuId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$aclMenuName]);
         if (!count($aclMenuId)) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $aclMenuName);
         }
@@ -281,23 +280,23 @@ class CentreonACLMenu extends CentreonObject
         $parentTopologyId = null
     ) {
         $sql = "SELECT topology_id, topology_page FROM topology WHERE topology_parent = ?";
-        $res = $this->db->query($sql, array($parentTopologyId));
+        $res = $this->db->query($sql, [$parentTopologyId]);
         $rows = $res->fetchAll();
         foreach ($rows as $row) {
             $this->db->query(
                 "DELETE FROM acl_topology_relations WHERE acl_topo_id = ? AND topology_topology_id = ?",
-                array($aclMenuId, $row['topology_id'])
+                [$aclMenuId, $row['topology_id']]
             );
             if ($action == "grant") {
                 $this->db->query(
                     "INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id) VALUES (?, ?)",
-                    array($aclMenuId, $row['topology_id'])
+                    [$aclMenuId, $row['topology_id']]
                 );
             }
             if ($action == "grantro") {
                 $query = "INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right) " .
                     "VALUES (?, ?, 2)";
-                $this->db->query($query, array($aclMenuId, $row['topology_id']));
+                $this->db->query($query, [$aclMenuId, $row['topology_id']]);
             }
             $this->processChildrenOf($action, $aclMenuId, $row['topology_page']);
         }
@@ -310,7 +309,7 @@ class CentreonACLMenu extends CentreonObject
      * @param string $parameters
      * @return void
      */
-    public function grant($parameters)
+    public function grant($parameters): void
     {
         $this->grantRw($parameters);
     }
@@ -321,17 +320,17 @@ class CentreonACLMenu extends CentreonObject
      * @param string $parameters
      * @return void
      */
-    public function grantRw($parameters)
+    public function grantRw($parameters): void
     {
-        list($aclMenuId, $menus, $topologies, $processChildren) = $this->splitParams($parameters);
+        [$aclMenuId, $menus, $topologies, $processChildren] = $this->splitParams($parameters);
         foreach ($menus as $level => $menuId) {
             $this->db->query(
                 "DELETE FROM acl_topology_relations WHERE acl_topo_id = ? AND topology_topology_id = ?",
-                array($aclMenuId, $menuId)
+                [$aclMenuId, $menuId]
             );
             $this->db->query(
                 "INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id) VALUES (?, ?)",
-                array($aclMenuId, $menuId)
+                [$aclMenuId, $menuId]
             );
             if ($processChildren && !isset($menus[$level + 1]) && $level != self::LEVEL_4) {
                 $this->processChildrenOf("grant", $aclMenuId, $topologies[$level]);
@@ -345,17 +344,17 @@ class CentreonACLMenu extends CentreonObject
      * @param string $parameters
      * @return void
      */
-    public function grantRo($parameters)
+    public function grantRo($parameters): void
     {
-        list($aclMenuId, $menus, $topologies, $processChildren) = $this->splitParams($parameters);
+        [$aclMenuId, $menus, $topologies, $processChildren] = $this->splitParams($parameters);
         foreach ($menus as $level => $menuId) {
             $this->db->query(
                 "DELETE FROM acl_topology_relations WHERE acl_topo_id = ? AND topology_topology_id = ?",
-                array($aclMenuId, $menuId)
+                [$aclMenuId, $menuId]
             );
             $this->db->query(
                 "INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right) VALUES (?, ?, 2)",
-                array($aclMenuId, $menuId)
+                [$aclMenuId, $menuId]
             );
             if ($processChildren && !isset($menus[$level + 1]) && $level != self::LEVEL_4) {
                 $this->processChildrenOf("grantro", $aclMenuId, $topologies[$level]);
@@ -369,14 +368,14 @@ class CentreonACLMenu extends CentreonObject
      * @param string $parameters
      * @return void
      */
-    public function revoke($parameters)
+    public function revoke($parameters): void
     {
-        list($aclMenuId, $menus, $topologies, $processChildren) = $this->splitParams($parameters);
+        [$aclMenuId, $menus, $topologies, $processChildren] = $this->splitParams($parameters);
         foreach ($menus as $level => $menuId) {
             if ($processChildren && !isset($menus[$level + 1])) {
                 $this->db->query(
                     "DELETE FROM acl_topology_relations WHERE acl_topo_id = ? AND topology_topology_id = ?",
-                    array($aclMenuId, $menuId)
+                    [$aclMenuId, $menuId]
                 );
                 $this->processChildrenOf("revoke", $aclMenuId, $topologies[$level]);
             }
@@ -394,7 +393,7 @@ class CentreonACLMenu extends CentreonObject
         }
 
         $labelField = $this->object->getUniqueLabelField();
-        $filters = array();
+        $filters = [];
         if (!is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
@@ -444,10 +443,7 @@ class CentreonACLMenu extends CentreonObject
             '%s' . $this->delim .
             '%s' . $this->delim . "\n";
 
-        $grantedPossibilities = array(
-            '1' => 'GRANTRW',
-            '2' => 'GRANTRO'
-        );
+        $grantedPossibilities = ['1' => 'GRANTRW', '2' => 'GRANTRO'];
 
         $queryAclMenuRelations = 'SELECT t.topology_page, t.topology_id, t.topology_name, atr.access_right ' .
             'FROM acl_topology_relations atr ' .

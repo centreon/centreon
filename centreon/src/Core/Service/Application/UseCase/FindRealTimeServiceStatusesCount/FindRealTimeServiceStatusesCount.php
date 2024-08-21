@@ -142,11 +142,11 @@ final class FindRealTimeServiceStatusesCount
      */
     private function isAuthorized(): bool
     {
-        return $this->user->isAdmin()
-            || (
-                $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)
-                || $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RW)
-            );
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+        return $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)
+        || $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RW);
     }
 
     /**

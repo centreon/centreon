@@ -79,15 +79,10 @@ class CentreonGraphStatus
 
         $jsonData = $this->getJsonStream();
 
-        $metrics = array(
-            'critical' => array(),
-            'warning' => array(),
-            'ok' => array(),
-            'unknown' => array()
-        );
+        $metrics = ['critical' => [], 'warning' => [], 'ok' => [], 'unknown' => []];
 
         $lastStatus = null;
-        $interval = array();
+        $interval = [];
         foreach ($jsonData['data'] as $row) {
             $time = (string)$row[0];
             $value = $row[1];
@@ -103,19 +98,13 @@ class CentreonGraphStatus
                 $currentStatus = 'unknown';
             }
             if (is_null($lastStatus)) {
-                $interval = array(
-                    'start' => $time,
-                    'end' => null
-                );
+                $interval = ['start' => $time, 'end' => null];
                 $lastStatus = $currentStatus;
             } elseif ($lastStatus !== $currentStatus) {
                 $interval['end'] = $time;
                 $metrics[$lastStatus][] = $interval;
                 $lastStatus = $currentStatus;
-                $interval = array(
-                    'start' => $time,
-                    'end' => null
-                );
+                $interval = ['start' => $time, 'end' => null];
             }
         }
 
@@ -143,9 +132,9 @@ class CentreonGraphStatus
         $errno = 0;
         $errstr = '';
         if ($this->rrdCachedOptions['rrd_cached_option'] === 'tcp') {
-            $sock = fsockopen('127.0.0.1', trim($this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
+            $sock = fsockopen('127.0.0.1', trim((string) $this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
         } elseif ($this->rrdCachedOptions['rrd_cached_option'] === 'unix') {
-            $sock = fsockopen('unix://' . trim($this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
+            $sock = fsockopen('unix://' . trim((string) $this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
         } else {
             return false;
         }
@@ -191,7 +180,7 @@ class CentreonGraphStatus
      */
     protected function getOptions()
     {
-        $result = array();
+        $result = [];
         $query = "SELECT `key`, `value` FROM options
             WHERE `key` IN ('rrdtool_path_bin', 'rrdcached_enabled', 'debug_rrdtool', 'debug_path')";
         try {
@@ -289,7 +278,7 @@ class CentreonGraphStatus
      */
     protected function setRRDOption($name, $value = null)
     {
-        if (strpos($value, " ")!==false) {
+        if (str_contains((string) $value, " ")) {
             $value = "'".$value."'";
         }
         $this->rrdOptions[$name] = $value;
@@ -302,7 +291,7 @@ class CentreonGraphStatus
      *
      * @return void
      */
-    private function log($message)
+    private function log($message): void
     {
         if ($this->generalOpt['debug_rrdtool'] &&
             is_writable($this->generalOpt['debug_path'])) {
@@ -344,27 +333,23 @@ class CentreonGraphStatus
         $this->log($commandLine);
 
         if (is_writable($this->generalOpt['debug_path'])) {
-            $stderr = array('file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a');
+            $stderr = ['file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a'];
         } else {
-            $stderr = array('pipe', 'a');
+            $stderr = ['pipe', 'a'];
         }
-        $descriptorspec = array(
-                            0 => array("pipe", "r"),
-                            1 => array("pipe", "w"),
-                            2 => $stderr
-                        );
+        $descriptorspec = [0 => ["pipe", "r"], 1 => ["pipe", "w"], 2 => $stderr];
 
         $process = proc_open($this->generalOpt['rrdtool_path_bin']. " - ", $descriptorspec, $pipes, null, null);
 
         if (is_resource($process)) {
-            fwrite($pipes[0], $commandLine);
+            fwrite($pipes[0], (string) $commandLine);
             fclose($pipes[0]);
 
             $str = stream_get_contents($pipes[1]);
             $returnValue = proc_close($process);
 
             $str = preg_replace("/OK u:.*$/", "", $str);
-            $rrdData = json_decode($str, true);
+            $rrdData = json_decode((string) $str, true);
         }
 
         return $rrdData;

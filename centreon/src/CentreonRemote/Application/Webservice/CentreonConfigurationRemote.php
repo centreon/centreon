@@ -393,8 +393,8 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $pollerConfigurationBridge = $this->getDi()['centreon_remote.poller_config_bridge'];
 
         // extract HTTP method and port from form or database if registered
-        $serverIP = parse_url($this->arguments['server_ip'], PHP_URL_HOST) ?: $this->arguments['server_ip'];
-        $serverName = substr($this->arguments['server_name'], 0, 40);
+        $serverIP = parse_url((string) $this->arguments['server_ip'], PHP_URL_HOST) ?: $this->arguments['server_ip'];
+        $serverName = substr((string) $this->arguments['server_name'], 0, 40);
 
         // Check IPv6, IPv4 and FQDN format
         if (
@@ -423,8 +423,8 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $hasIpInTable = (bool) $dbAdapter->count();
 
         if (! $hasIpInTable) {
-            $httpMethod = parse_url($this->arguments['server_ip'], PHP_URL_SCHEME) ?: 'http';
-            $httpPort = parse_url($this->arguments['server_ip'], PHP_URL_PORT) ?: '';
+            $httpMethod = parse_url((string) $this->arguments['server_ip'], PHP_URL_SCHEME) ?: 'http';
+            $httpPort = parse_url((string) $this->arguments['server_ip'], PHP_URL_PORT) ?: '';
         } else {
             $result = $dbAdapter->results();
             $remoteData = reset($result);
@@ -448,7 +448,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             $serverConfigurationService->setDbPassword($this->arguments['db_password']);
             if (
                 $serverWizardIdentity->checkBamOnRemoteServer(
-                    $httpMethod . '://' . $serverIP . ':' . $httpPort . '/' . trim($centreonPath, '/'),
+                    $httpMethod . '://' . $serverIP . ':' . $httpPort . '/' . trim((string) $centreonPath, '/'),
                     $noCheckCertificate,
                     $noProxy
                 )

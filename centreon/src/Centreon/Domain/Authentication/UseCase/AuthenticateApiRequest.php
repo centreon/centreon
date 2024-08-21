@@ -25,23 +25,11 @@ namespace Centreon\Domain\Authentication\UseCase;
 class AuthenticateApiRequest
 {
     /**
-     * @var string
-     */
-    private $login;
-
-    /**
-     * @var string
-     */
-    private $password;
-
-    /**
      * @param string $login
      * @param string $password
      */
-    public function __construct(string $login, string $password)
+    public function __construct(private string $login, private string $password)
     {
-        $this->login = $login;
-        $this->password = $password;
     }
 
     /**

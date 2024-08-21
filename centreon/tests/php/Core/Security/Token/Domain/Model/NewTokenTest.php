@@ -30,19 +30,17 @@ use Core\Security\Token\Domain\Model\NewToken;
 use Core\Security\Token\Domain\Model\Token;
 
 beforeEach(function (): void {
-    $this->createToken = static function (array $fields = []): NewToken {
-        return new NewToken(
-            ...[
-                'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
-                'userId' => 23,
-                'configurationProviderId' => 1,
-                'name' => new TrimmedString('token-name'),
-                'creatorId' => 12,
-                'creatorName' => new TrimmedString('John Doe'),
-                ...$fields,
-            ]
-        );
-    };
+    $this->createToken = static fn(array $fields = []): NewToken => new NewToken(
+        ...[
+            'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
+            'userId' => 23,
+            'configurationProviderId' => 1,
+            'name' => new TrimmedString('token-name'),
+            'creatorId' => 12,
+            'creatorName' => new TrimmedString('John Doe'),
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set token instance', function (): void {

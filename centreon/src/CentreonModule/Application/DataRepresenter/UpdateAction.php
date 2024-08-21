@@ -26,12 +26,6 @@ use JsonSerializable;
 
 class UpdateAction implements JsonSerializable
 {
-    /** @var Module */
-    private $entity;
-
-    /** @var string|null */
-    private $message;
-
     /**
      * Construct.
      *
@@ -39,10 +33,8 @@ class UpdateAction implements JsonSerializable
      * @param Module|null $entity
      * @param string $message
      */
-    public function __construct(?Module $entity = null, ?string $message = null)
+    public function __construct(private ?Module $entity = null, private ?string $message = null)
     {
-        $this->entity = $entity;
-        $this->message = $message;
     }
 
     /**

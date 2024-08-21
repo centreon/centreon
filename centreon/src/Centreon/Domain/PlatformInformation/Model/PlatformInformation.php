@@ -33,11 +33,6 @@ use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
 class PlatformInformation
 {
     /**
-     * @var bool platform type
-     */
-    private $isRemote;
-
-    /**
      * @var string|null
      */
     private $platformName;
@@ -87,9 +82,13 @@ class PlatformInformation
      */
     private $apiPeerValidation = false;
 
-    public function __construct(bool $isRemote)
+    public function __construct(
+        /**
+         * @var bool platform type
+         */
+        private bool $isRemote
+    )
     {
-        $this->isRemote = $isRemote;
     }
 
 

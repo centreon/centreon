@@ -42,16 +42,6 @@ use Centreon\Infrastructure\PlatformTopology\Repository\Exception\PlatformTopolo
 class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterRepositoryInterface
 {
     /**
-     * @var HttpClientInterface
-     */
-    private $httpClient;
-
-    /**
-     * @var ApiPlatform
-     */
-    private $apiPlatform;
-
-    /**
      * Central's API endpoints base path
      *
      * @var string
@@ -63,10 +53,8 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
      * @param HttpClientInterface $httpClient
      * @param ApiPlatform $apiPlatform
      */
-    public function __construct(HttpClientInterface $httpClient, ApiPlatform $apiPlatform)
+    public function __construct(private HttpClientInterface $httpClient, private ApiPlatform $apiPlatform)
     {
-        $this->httpClient = $httpClient;
-        $this->apiPlatform = $apiPlatform;
     }
 
     /**

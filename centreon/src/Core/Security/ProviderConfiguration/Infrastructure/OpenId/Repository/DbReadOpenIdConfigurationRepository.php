@@ -71,13 +71,11 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
         );
         $statement->bindValue(':contactTemplateId', $contactTemplateId, \PDO::PARAM_INT);
         $statement->execute();
-
-        $contactTemplate = null;
         if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $contactTemplate = DbContactTemplateFactory::createFromRecord($result);
+            return DbContactTemplateFactory::createFromRecord($result);
         }
 
-        return $contactTemplate;
+        return null;
     }
 
     /**
@@ -101,13 +99,11 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
         );
         $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
         $statement->execute();
-
-        $contactGroup = null;
         if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $contactGroup = DbContactGroupFactory::createFromRecord($result);
+            return DbContactGroupFactory::createFromRecord($result);
         }
 
-        return $contactGroup;
+        return null;
     }
 
     /**

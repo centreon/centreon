@@ -465,7 +465,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
 
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY m.metric_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY m.metric_id ASC';
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
 
         return $request;

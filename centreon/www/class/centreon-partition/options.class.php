@@ -43,10 +43,10 @@ class Options
 {
     public $options;
     public $shortopts;
-    const INFO = "info";
-    const DEBUG = "debug";
-    const WARNING = "warning";
-    const ERROR = "error";
+    public const INFO = "info";
+    public const DEBUG = "debug";
+    public const WARNING = "warning";
+    public const ERROR = "error";
     public $verbosity = "info";
     public $confFile;
     public $version = '1.1';
@@ -75,7 +75,7 @@ class Options
      */
     public function getOptionValue($label)
     {
-        $value = isset($this->options[$label]) ? $this->options[$label] : null;
+        $value = $this->options[$label] ?? null;
 
         return $value;
     }
@@ -87,9 +87,11 @@ class Options
     {
         if (!isset($this->options) || count($this->options) == 0) {
             return(true);
-        } elseif (isset($this->options["h"])) {
+        }
+        if (isset($this->options["h"])) {
             return(true);
-        } elseif (!isset($this->options["m"]) && !isset($this->options["u"]) &&
+        }
+        if (!isset($this->options["m"]) && !isset($this->options["u"]) &&
                 !isset($this->options["c"]) && !isset($this->options["p"])
                 && !isset($this->options["l"]) && !isset($this->options["b"]) &&
                 !isset($this->options["o"])) {
@@ -193,7 +195,7 @@ class Options
     /*
      * Update verbose level of program
      */
-    private function updateVerboseLevel()
+    private function updateVerboseLevel(): void
     {
         if (isset($this->options) && isset($this->options["v"])) {
             $this->verbosity = $verbosity;
@@ -219,7 +221,7 @@ class Options
     /*
      * Print program usage
      */
-    public function printHelp()
+    public function printHelp(): void
     {
         echo "Version: $this->version\n";
         echo "Program options:\n";

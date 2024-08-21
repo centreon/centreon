@@ -157,6 +157,6 @@
         "codestyle:core": "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml",
         "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2",
         "rector:check": "rector --dry-run",
-        "rector:exec": "rector"
+        "rector:exec": "rector --debug"
     }
 }

@@ -42,7 +42,10 @@ class DashboardRights
 
     public function canCreate(): bool
     {
-        return $this->hasAdminRole() || $this->hasCreatorRole();
+        if ($this->hasAdminRole()) {
+            return true;
+        }
+        return $this->hasCreatorRole();
     }
 
     public function canAccess(): bool
@@ -87,15 +90,21 @@ class DashboardRights
 
     public function hasCreatorRole(): bool
     {
-        return $this->contact->hasTopologyRole(self::ROLE_ADMIN)
-            || $this->contact->hasTopologyRole(self::ROLE_CREATOR);
+        if ($this->contact->hasTopologyRole(self::ROLE_ADMIN)) {
+            return true;
+        }
+        return $this->contact->hasTopologyRole(self::ROLE_CREATOR);
     }
 
     public function hasViewerRole(): bool
     {
-        return $this->contact->hasTopologyRole(self::ROLE_ADMIN)
-            || $this->contact->hasTopologyRole(self::ROLE_CREATOR)
-            || $this->contact->hasTopologyRole(self::ROLE_VIEWER);
+        if ($this->contact->hasTopologyRole(self::ROLE_ADMIN)) {
+            return true;
+        }
+        if ($this->contact->hasTopologyRole(self::ROLE_CREATOR)) {
+            return true;
+        }
+        return $this->contact->hasTopologyRole(self::ROLE_VIEWER);
     }
 
     public function getGlobalRole(): ?DashboardGlobalRole

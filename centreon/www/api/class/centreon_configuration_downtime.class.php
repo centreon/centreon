@@ -35,7 +35,7 @@
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonDowntime.class.php";
-require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
 class CentreonConfigurationDowntime extends CentreonConfigurationObjects
 {
@@ -62,7 +62,7 @@ class CentreonConfigurationDowntime extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
         if (false === isset($this->arguments['q'])) {
             $queryValues['dtName'] = '%%';
@@ -83,16 +83,10 @@ class CentreonConfigurationDowntime extends CentreonConfigurationObjects
             throw new \Exception("An error occured");
         }
 
-        $downtimeList = array();
+        $downtimeList = [];
         while ($data = $stmt->fetch()) {
-            $downtimeList[] = array(
-                'id' => htmlentities($data['dt_id']),
-                'text' => $data['dt_name']
-            );
+            $downtimeList[] = ['id' => htmlentities((string) $data['dt_id']), 'text' => $data['dt_name']];
         }
-        return array(
-            'items' => $downtimeList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $downtimeList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

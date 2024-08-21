@@ -32,17 +32,15 @@ beforeEach(function (): void {
     $this->testedCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00');
     $this->testedUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00');
     $this->testedGlobalRefresh = new Refresh(RefreshType::Manual, 30);
-    $this->createDashboard = function (array $fields = []): Dashboard {
-        return new Dashboard(
-            $fields['id'] ?? 1,
-            $fields['name'] ?? 'dashboard-name',
-            \array_key_exists('created_by', $fields) ? $fields['created_by'] : 2,
-            \array_key_exists('updated_by', $fields) ? $fields['updated_by'] : 3,
-            $this->testedCreatedAt,
-            $this->testedUpdatedAt,
-            $this->testedGlobalRefresh,
-        );
-    };
+    $this->createDashboard = fn(array $fields = []): Dashboard => new Dashboard(
+        $fields['id'] ?? 1,
+        $fields['name'] ?? 'dashboard-name',
+        \array_key_exists('created_by', $fields) ? $fields['created_by'] : 2,
+        \array_key_exists('updated_by', $fields) ? $fields['updated_by'] : 3,
+        $this->testedCreatedAt,
+        $this->testedUpdatedAt,
+        $this->testedGlobalRefresh,
+    );
 });
 
 it('should return properly set dashboard instance', function (): void {

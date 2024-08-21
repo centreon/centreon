@@ -531,13 +531,13 @@ final class PartialUpdateOpenIdConfiguration
         $data = [];
         if (
             $requestArray['client_id'] !== null
-            && ! str_starts_with($requestArray['client_id'], VaultConfiguration::VAULT_PATH_PATTERN)
+            && ! str_starts_with((string) $requestArray['client_id'], VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $data[VaultConfiguration::OPENID_CLIENT_ID_KEY] = $requestArray['client_id'];
         }
         if (
             $requestArray['client_secret'] !== null
-            && ! str_starts_with($requestArray['client_secret'], VaultConfiguration::VAULT_PATH_PATTERN)
+            && ! str_starts_with((string) $requestArray['client_secret'], VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $data[VaultConfiguration::OPENID_CLIENT_SECRET_KEY] = $requestArray['client_secret'];
         }

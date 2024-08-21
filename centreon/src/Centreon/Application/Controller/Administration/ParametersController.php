@@ -171,15 +171,11 @@ class ParametersController extends AbstractController
      */
     private function convertToSeconds(int $duration, string $scale): int
     {
-        switch ($scale) {
-            case 'm':
-                return ($duration * 60);
-            case 'h':
-                return ($duration * 3600);
-            case 'd':
-                return ($duration * 86400);
-            default:
-                return $duration;
-        }
+        return match ($scale) {
+            'm' => $duration * 60,
+            'h' => $duration * 3600,
+            'd' => $duration * 86400,
+            default => $duration,
+        };
     }
 }

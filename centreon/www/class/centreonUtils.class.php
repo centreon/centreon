@@ -69,9 +69,9 @@ class CentreonUtils
      * @param array $arrSkipIndices
      * @return mixed
      */
-    public function objectIntoArray($arrObjData, $arrSkipIndices = array())
+    public function objectIntoArray($arrObjData, $arrSkipIndices = [])
     {
-        $arrData = array();
+        $arrData = [];
 
         if (is_object($arrObjData)) {
             $arrObjData = get_object_vars($arrObjData);
@@ -89,7 +89,7 @@ class CentreonUtils
             }
         }
         if (!count($arrData)) {
-            $arrData = "";
+            return "";
         }
         return $arrData;
     }
@@ -164,41 +164,19 @@ class CentreonUtils
     public static function operandToMysqlFormat($str)
     {
         $result = "";
-        switch ($str) {
-            case "gt":
-                $result = ">";
-                break;
-            case "lt":
-                $result = "<";
-                break;
-            case "gte":
-                $result = ">=";
-                break;
-            case "lte":
-                $result = "<=";
-                break;
-            case "eq":
-                $result = "=";
-                break;
-            case "ne":
-                $result = "!=";
-                break;
-            case "like":
-                $result = "LIKE";
-                break;
-            case "notlike":
-                $result = "NOT LIKE";
-                break;
-            case "regex":
-                $result = "REGEXP";
-                break;
-            case "notregex":
-                $result = "NOT REGEXP";
-                break;
-            default:
-                $result = "";
-                break;
-        }
+        $result = match ($str) {
+            "gt" => ">",
+            "lt" => "<",
+            "gte" => ">=",
+            "lte" => "<=",
+            "eq" => "=",
+            "ne" => "!=",
+            "like" => "LIKE",
+            "notlike" => "NOT LIKE",
+            "regex" => "REGEXP",
+            "notregex" => "NOT REGEXP",
+            default => "",
+        };
         return $result;
     }
 
@@ -211,7 +189,7 @@ class CentreonUtils
      */
     public static function mergeWithInitialValues($form, $key)
     {
-        $init = array();
+        $init = [];
         try {
             $initForm = $form->getElement('initialValues');
             $initForm = \HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
@@ -241,7 +219,7 @@ class CentreonUtils
      *                             otherwise values will be used
      * @return string
      */
-    public static function toStringWithQuotes($arr = array(), $transformKey = true)
+    public static function toStringWithQuotes($arr = [], $transformKey = true)
     {
         $string = "";
         $first = true;
@@ -254,7 +232,7 @@ class CentreonUtils
             $string .= $transformKey ? "'" . $key . "'" : "'" . $value . "'";
         }
         if ($string == "") {
-            $string = "''";
+            return "''";
         }
         return $string;
     }
@@ -293,13 +271,15 @@ class CentreonUtils
                 $isCurrentEqual = true;
             }
         }
-
-
         if ($isCurrentSuperior) {
             return 1;
-        } elseif (($isCurrentSuperior === false) && $isCurrentEqual) {
+        }
+
+
+        if (($isCurrentSuperior === false) && $isCurrentEqual) {
             return 2;
-        } else {
+        }
+        else {
             return 0;
         }
     }
@@ -322,7 +302,7 @@ class CentreonUtils
         switch ($escapeMethod) {
             case self::ESCAPE_LEGACY_METHOD:
                 // Remove script and input tags by default
-                return preg_replace(array("/<script.*?\/script>/si", "/<input[^>]+\>/si"), "", $stringToEscape ?? '');
+                return preg_replace(["/<script.*?\/script>/si", "/<input[^>]+\>/si"], "", $stringToEscape ?? '');
             case self::ESCAPE_ALL_EXCEPT_LINK:
                 return self::escapeAllExceptLink($stringToEscape);
             case self::ESCAPE_ALL:
@@ -398,7 +378,7 @@ class CentreonUtils
             if (!in_array($currentTag, self::$selfclosingHtmlTagsAllowed)) {
                 // The current tag is not self-closing tag allowed
                 $index = 0;
-                $tagsFound = array();
+                $tagsFound = [];
 
                 // Specific process for not self-closing HTML tags
                 while ($occurence = self::getHtmlTags($currentTag, $stringToEscape)) {
@@ -425,7 +405,7 @@ class CentreonUtils
             $tagOccurences[$linkToken] = $tagsFound;
         }
 
-        $escapedString = htmlentities($stringToEscape, ENT_QUOTES, 'UTF-8');
+        $escapedString = htmlentities((string) $stringToEscape, ENT_QUOTES, 'UTF-8');
 
         /**
          * After we escaped all unauthorized HTML tags, we will search and
@@ -469,18 +449,14 @@ class CentreonUtils
             ($end = stripos($html, "</$tag>", strlen("</$tag>")))
         ) {
             if (!is_array($occurrences[$tag])) {
-                $occurrences[$tag] = array();
+                $occurrences[$tag] = [];
             }
             $occurrences =
-                array(
-                    'tag' => substr(
-                        $html,
-                        $start,
-                        $end + strlen("</$tag>") - $start
-                    ),
-                    'start' => $start,
-                    'length' => $end + strlen("</$tag>") - $start
-                );
+                ['tag' => substr(
+                    $html,
+                    $start,
+                    $end + strlen("</$tag>") - $start
+                ), 'start' => $start, 'length' => $end + strlen("</$tag>") - $start];
         }
         return $occurrences;
     }
@@ -495,7 +471,7 @@ class CentreonUtils
         if (
             preg_match(
                 '/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/',
-                $coords
+                (string) $coords
             )
         ) {
             return true;

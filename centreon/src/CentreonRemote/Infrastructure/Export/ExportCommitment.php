@@ -26,17 +26,8 @@ final class ExportCommitment
     /** @var int[] */
     private $pollers;
 
-    /** @var string */
-    private $path;
-
-    /** @var ExportParserInterface */
-    private $parser;
-
     /** @var array<mixed> */
     private $exporters;
-
-    /** @var array<mixed> */
-    private $meta;
 
     /** @var int */
     private $filePermission = 0775;
@@ -57,9 +48,9 @@ final class ExportCommitment
     public function __construct(
         ?int $remote = null,
         ?array $pollers = null,
-        ?array $meta = null,
-        ?ExportParserInterface $parser = null,
-        ?string $path = null,
+        private ?array $meta = null,
+        private ExportParserInterface $parser = new ExportParserJson(),
+        private ?string $path = null,
         ?array $exporters = null
     ) {
         if ($remote && $pollers && ! in_array($remote, $pollers)) {
@@ -68,15 +59,11 @@ final class ExportCommitment
 
         $this->remote = $remote;
         $this->pollers = $pollers;
-        $this->meta = $meta;
-        $this->path = $path;
         $this->exporters = $exporters ?? [];
 
         if ($this->path === null) {
             $this->path = _CENTREON_CACHEDIR_ . '/config/export/' . $this->remote;
         }
-
-        $this->parser = $parser ?? new ExportParserJson();
     }
 
     public function getRemote(): int

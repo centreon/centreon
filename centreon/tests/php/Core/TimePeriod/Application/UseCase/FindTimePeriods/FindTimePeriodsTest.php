@@ -35,14 +35,14 @@ use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\{FindTimePeriods, FindTimePeriodsResponse};
 use Core\TimePeriod\Domain\Model\{Template, ExtraTimePeriod, TimePeriod, Day, TimeRange};
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->requestParameter = $this->createMock(RequestParameters::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
@@ -70,7 +70,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(TimePeriodException::errorWhenSearchingForAllTimePeriods()->getMessage());
 });
 
-it('should present an ForbiddenResponse when an user has no rights', function () {
+it('should present an ForbiddenResponse when an user has no rights', function (): void {
     $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
@@ -92,7 +92,7 @@ it('should present an ForbiddenResponse when an user has no rights', function ()
         ->toBe(TimePeriodException::accessNotAllowed()->getMessage());
 });
 
-it('should present a FindTimePeriodsResponse when user has read only rights', function () {
+it('should present a FindTimePeriodsResponse when user has read only rights', function (): void {
     $useCase = new FindTimePeriods($this->repository, $this->requestParameter, $this->user);
 
     $timePeriod = new TimePeriod(
@@ -172,7 +172,7 @@ it('should present a FindTimePeriodsResponse when user has read only rights', fu
 });
 
 
-it('should present a FindTimePeriodsResponse when user has read-write rights', function () {
+it('should present a FindTimePeriodsResponse when user has read-write rights', function (): void {
     $useCase = new FindTimePeriods($this->repository, $this->requestParameter, $this->user);
 
     $timePeriod = new TimePeriod(

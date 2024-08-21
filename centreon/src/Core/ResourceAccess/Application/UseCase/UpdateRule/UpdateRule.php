@@ -547,12 +547,19 @@ final class UpdateRule
      */
     private function shouldUpdateBasicInformation(Rule $current, UpdateRuleRequest $updateRequest): bool
     {
-        return
-            $current->getName() !== NewRule::formatName($updateRequest->name)
-                || $current->getDescription() !== $updateRequest->description
-                || $current->isEnabled() !== $updateRequest->isEnabled
-                || $current->doesApplyToAllContactGroups() !== $updateRequest->applyToAllContactGroups
-                || $current->doesApplyToAllContacts() !== $updateRequest->applyToAllContacts;
+        if ($current->getName() !== NewRule::formatName($updateRequest->name)) {
+            return true;
+        }
+        if ($current->getDescription() !== $updateRequest->description) {
+            return true;
+        }
+        if ($current->isEnabled() !== $updateRequest->isEnabled) {
+            return true;
+        }
+        if ($current->doesApplyToAllContactGroups() !== $updateRequest->applyToAllContactGroups) {
+            return true;
+        }
+        return $current->doesApplyToAllContacts() !== $updateRequest->applyToAllContacts;
     }
 
     /**

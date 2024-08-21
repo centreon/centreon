@@ -40,16 +40,13 @@
  */
 class CentreonConfigEngine
 {
-    protected $db;
-    
     /**
      * Constructor
      *
      * @param CentreonDB $db
      */
-    public function __construct($db)
+    public function __construct(protected $db)
     {
-        $this->db = $db;
     }
     
     /**
@@ -59,7 +56,7 @@ class CentreonConfigEngine
      * @param array $directives | event broker directives
      * @return void
      */
-    public function insertBrokerDirectives($serverId, $directives = array())
+    public function insertBrokerDirectives($serverId, $directives = []): void
     {
         $this->db->query("DELETE FROM cfg_nagios_broker_module
                 WHERE cfg_nagios_id = ".$this->db->escape($serverId));
@@ -80,7 +77,7 @@ class CentreonConfigEngine
      */
     public function getBrokerDirectives($serverId = null)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
         if (!isset($_REQUEST['in_broker']) && $serverId) {
             $res = $this->db->query("SELECT broker_module
@@ -120,7 +117,7 @@ class CentreonConfigEngine
             ") as t LIMIT 1";
         $result = $this->db->query($query);
         if ($row = $result->fetchRow()) {
-            $timezone = $row['timezone'];
+            return $row['timezone'];
         }
 
         return $timezone;

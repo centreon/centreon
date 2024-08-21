@@ -50,7 +50,7 @@ class CentreonWidgetParamsConnectorServiceCategory extends CentreonWidgetParamsL
             $query = "SELECT sc_id AS id, sc_name AS name FROM service_categories WHERE sc_activate = '1'";
             $query .= " ORDER BY name";
             $res = $this->db->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['id']] = $row['name'];
             }

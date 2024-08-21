@@ -36,17 +36,16 @@
 class CentreonTopology
 {
     /**
-     * @var
-     */
-    protected $db;
-
-    /**
      * CentreonTopology constructor.
      * @param $db
      */
-    public function __construct($db)
+    public function __construct(
+        /**
+         * @var
+         */
+        protected $db
+    )
     {
-        $this->db = $db;
     }
 
     /**

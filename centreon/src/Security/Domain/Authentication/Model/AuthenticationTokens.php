@@ -32,18 +32,6 @@ class AuthenticationTokens
     /** @var string */
     private $sessionToken;
 
-    /** @var ProviderToken */
-    private $providerToken;
-
-    /** @var null|ProviderToken */
-    private $providerRefreshToken;
-
-    /** @var int */
-    private $userId;
-
-    /** @var int */
-    private $configurationProviderId;
-
     /**
      * @param int $userId
      * @param int $configurationProviderId
@@ -54,18 +42,14 @@ class AuthenticationTokens
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
-        int $userId,
-        int $configurationProviderId,
+        private int $userId,
+        private int $configurationProviderId,
         string $sessionToken,
-        ProviderToken $providerToken,
-        ?ProviderToken $providerRefreshToken
+        private ProviderToken $providerToken,
+        private ?ProviderToken $providerRefreshToken
     ) {
         Assertion::minLength($sessionToken, self::SESSION_TOKEN_MIN_LENGTH, 'AuthenticationToken::sessionToken');
-        $this->userId = $userId;
-        $this->configurationProviderId = $configurationProviderId;
         $this->sessionToken = $sessionToken;
-        $this->providerToken = $providerToken;
-        $this->providerRefreshToken = $providerRefreshToken;
     }
 
     /**

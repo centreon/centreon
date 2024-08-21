@@ -78,7 +78,7 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
         $statement = $this->db->query($request);
 
         if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $engineConfiguration = (new EngineConfiguration())
+            return (new EngineConfiguration())
                 ->setId((int) $record['nagios_id'])
                 ->setName($record['nagios_name'])
                 ->setIllegalObjectNameCharacters($record['illegal_object_name_chars'])

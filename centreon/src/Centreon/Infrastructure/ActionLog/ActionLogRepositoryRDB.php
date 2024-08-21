@@ -33,18 +33,12 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogRepositoryInterface
 {
     /**
-     * @var SqlRequestParametersTranslator
-     */
-    private $sqlRequestTranslator;
-
-    /**
      * @param DatabaseConnection $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db, private SqlRequestParametersTranslator $sqlRequestTranslator)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);

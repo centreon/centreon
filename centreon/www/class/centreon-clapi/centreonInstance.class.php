@@ -47,13 +47,13 @@ require_once "Centreon/Object/Relation/Instance/Host.php";
  */
 class CentreonInstance extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ADDRESS = 1;
-    const ORDER_SSH_PORT = 2;
-    const ORDER_GORGONE_PROTOCOL = 3;
-    const ORDER_GORGONE_PORT = 4;
-    const GORGONE_COMMUNICATION = array('ZMQ' => '1', 'SSH' => '2');
-    const INCORRECTIPADDRESS = "Invalid IP address format";
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ADDRESS = 1;
+    public const ORDER_SSH_PORT = 2;
+    public const ORDER_GORGONE_PROTOCOL = 3;
+    public const ORDER_GORGONE_PORT = 4;
+    public const GORGONE_COMMUNICATION = ['ZMQ' => '1', 'SSH' => '2'];
+    public const INCORRECTIPADDRESS = "Invalid IP address format";
 
     /*
      * Constructor
@@ -81,13 +81,10 @@ class CentreonInstance extends CentreonObject
             'centreonbroker_module_path' => '/usr/share/centreon/lib/centreon-broker',
             'centreonconnector_path' => '/usr/lib64/centreon-connector'
         ];
-        $this->insertParams = array('name', 'ns_ip_address', 'ssh_port', 'gorgone_communication_type', 'gorgone_port');
+        $this->insertParams = ['name', 'ns_ip_address', 'ssh_port', 'gorgone_communication_type', 'gorgone_port'];
         $this->exportExcludedParams = array_merge(
             $this->insertParams,
-            array(
-                $this->object->getPrimaryKey(),
-                'last_restart'
-            )
+            [$this->object->getPrimaryKey(), 'last_restart']
         );
         $this->action = "INSTANCE";
         $this->nbOfCompulsoryParams = count($this->insertParams);
@@ -100,13 +97,13 @@ class CentreonInstance extends CentreonObject
      * @return mixed|void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
-        $params = explode($this->delim, $parameters);
+        $params = explode($this->delim, (string) $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
         $addParams['ns_ip_address'] = $params[self::ORDER_ADDRESS];
 
@@ -149,7 +146,7 @@ class CentreonInstance extends CentreonObject
      */
     public function initUpdateParameters($parameters)
     {
-        $params = explode($this->delim, $parameters);
+        $params = explode($this->delim, (string) $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -168,12 +165,11 @@ class CentreonInstance extends CentreonObject
             $params[2] = self::GORGONE_COMMUNICATION[$params[2]];
         }
         if ($objectId != 0) {
-            $updateParams = array($params[1] => $params[2]);
+            $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
             return $updateParams;
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
         }
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
     }
 
     /**
@@ -181,11 +177,11 @@ class CentreonInstance extends CentreonObject
      * @param array $filters
      * @throws \Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
 
         $pollerState = $this->centreonConfigPoller->getPollerState();
@@ -235,7 +231,7 @@ class CentreonInstance extends CentreonObject
      */
     public function getInstanceId($name)
     {
-        $instanceIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($name));
+        $instanceIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
         if (!count($instanceIds)) {
             throw new CentreonClapiException("Unknown instance");
         }
@@ -250,7 +246,7 @@ class CentreonInstance extends CentreonObject
      */
     public function getInstanceName($instanceId)
     {
-        $instanceName = $this->object->getParameters($instanceId, array($this->object->getUniqueLabelField()));
+        $instanceName = $this->object->getParameters($instanceId, [$this->object->getUniqueLabelField()]);
         return $instanceName[$this->object->getUniqueLabelField()];
     }
 
@@ -260,24 +256,24 @@ class CentreonInstance extends CentreonObject
      * @param string $instanceName
      * @return string
      */
-    public function getHosts($instanceName)
+    public function getHosts($instanceName): void
     {
         $relObj = new \Centreon_Object_Relation_Instance_Host($this->dependencyInjector);
-        $fields = array('host_id', 'host_name', 'host_address');
+        $fields = ['host_id', 'host_name', 'host_address'];
         $elems = $relObj->getMergedParameters(
-            array(),
+            [],
             $fields,
             -1,
             0,
             "host_name",
             "ASC",
-            array('name' => $instanceName),
+            ['name' => $instanceName],
             'AND'
         );
 
         echo "id;name;address\n";
         foreach ($elems as $elem) {
-            if (!preg_match('/^_Module_/', $elem['host_name'])) {
+            if (!preg_match('/^_Module_/', (string) $elem['host_name'])) {
                 echo $elem['host_id'] . $this->delim . $elem['host_name'] . $this->delim . $elem['host_address'] . "\n";
             }
         }

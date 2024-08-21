@@ -46,40 +46,6 @@ class HostConfigurationService implements HostConfigurationServiceInterface
     use LoggerTrait;
 
     /**
-     * @var HostConfigurationRepositoryInterface
-     */
-    private $hostConfigurationRepository;
-    /**
-     * @var EngineConfigurationServiceInterface
-     */
-    private $engineConfigurationService;
-    /**
-     * @var ActionLogServiceInterface
-     */
-    private $actionLogService;
-    /**
-     * @var DataStorageEngineInterface
-     */
-    private $dataStorageEngine;
-    /**
-     * @var HostMacroServiceInterface
-     */
-    private $hostMacroService;
-    /**
-     * @var HostCategoryServiceInterface
-     */
-    private $hostCategoryService;
-    /**
-     * @var HostGroupServiceInterface
-     */
-    private $hostGroupService;
-
-    /**
-     * @var ContactInterface
-     */
-    private $contact;
-
-    /**
      * @param HostConfigurationRepositoryInterface $hostConfigurationRepository
      * @param ActionLogServiceInterface $actionLogService
      * @param EngineConfigurationServiceInterface $engineConfigurationService
@@ -89,24 +55,8 @@ class HostConfigurationService implements HostConfigurationServiceInterface
      * @param DataStorageEngineInterface $dataStorageEngine
      * @param ContactInterface $contact
      */
-    public function __construct(
-        HostConfigurationRepositoryInterface $hostConfigurationRepository,
-        ActionLogServiceInterface $actionLogService,
-        EngineConfigurationServiceInterface $engineConfigurationService,
-        HostMacroServiceInterface $hostMacroService,
-        HostCategoryServiceInterface $hostCategoryService,
-        HostGroupServiceInterface $hostGroupService,
-        DataStorageEngineInterface $dataStorageEngine,
-        ContactInterface $contact
-    ) {
-        $this->hostConfigurationRepository = $hostConfigurationRepository;
-        $this->actionLogService = $actionLogService;
-        $this->engineConfigurationService = $engineConfigurationService;
-        $this->hostMacroService = $hostMacroService;
-        $this->hostCategoryService = $hostCategoryService;
-        $this->hostGroupService = $hostGroupService;
-        $this->dataStorageEngine = $dataStorageEngine;
-        $this->contact = $contact;
+    public function __construct(private HostConfigurationRepositoryInterface $hostConfigurationRepository, private ActionLogServiceInterface $actionLogService, private EngineConfigurationServiceInterface $engineConfigurationService, private HostMacroServiceInterface $hostMacroService, private HostCategoryServiceInterface $hostCategoryService, private HostGroupServiceInterface $hostGroupService, private DataStorageEngineInterface $dataStorageEngine, private ContactInterface $contact)
+    {
     }
 
     /**

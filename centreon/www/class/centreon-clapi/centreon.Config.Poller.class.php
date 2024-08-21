@@ -40,6 +40,7 @@ use App\Kernel;
 use Centreon\Domain\Entity\Task;
 use CentreonRemote\ServiceProvider;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
+use Pimple\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 require_once "centreonUtils.class.php";
@@ -47,24 +48,23 @@ require_once "centreonClapiException.class.php";
 require_once _CENTREON_PATH_ . 'www/class/config-generate/generate.class.php';
 
 /**
+ * Class
  *
- * @author Julien Mathis
- *
+ * @class CentreonConfigPoller
+ * @package CentreonClapi
  */
 class CentreonConfigPoller
 {
     private $DB;
     private $DBC;
-    private $dependencyInjector;
     private $resultTest;
     private $brokerCachePath;
     private $engineCachePath;
-    private $centreon_path;
 
     /**
      * @var EngineCommandGenerator|null
      */
-    private ?EngineCommandGenerator $commandGenerator;
+    private ?EngineCommandGenerator $commandGenerator = null;
 
     /**
      * @var ContainerInterface
@@ -75,22 +75,19 @@ class CentreonConfigPoller
     public const UNKNOWN_POLLER_ID = "Unknown poller ID";
 
     /**
-     * Constructor
-     * @param CentreonDB $DB
-     * @param string $centreon_path
-     * @param CentreonDB $DBC
-     * @return void
+     * CentreonConfigPoller constructor
+     *
+     * @param $centreon_path
+     * @param Container $dependencyInjector
+     * @throws \LogicException
      */
-    public function __construct($centreon_path, \Pimple\Container $dependencyInjector)
+    public function __construct(private $centreon_path, private \Pimple\Container $dependencyInjector)
     {
-        $this->dependencyInjector = $dependencyInjector;
         $this->DB = $this->dependencyInjector["configuration_db"];
         $this->DBC = $this->dependencyInjector["realtime_db"];
-        $this->resultTest = 0;
         $this->brokerCachePath = _CENTREON_CACHEDIR_ . "/config/broker/";
         $this->engineCachePath = _CENTREON_CACHEDIR_ . "/config/engine/";
-        $this->centreon_path = $centreon_path;
-        $this->resultTest = array("warning" => 0, "errors" => 0);
+        $this->resultTest = ["warning" => 0, "errors" => 0];
 
         $kernel = new Kernel('prod', false);
         $kernel->boot();
@@ -138,9 +135,8 @@ class CentreonConfigPoller
         if ($statement->rowCount() > 0) {
             $row = $statement->fetchRow();
             return $row['id'];
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
         }
+        throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
     }
 
     /**
@@ -474,7 +470,7 @@ class CentreonConfigPoller
             if ($apacheUser != "") {
                 foreach (glob($Nagioscfg["cfg_dir"] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
                     //handle path traversal vulnerability
-                    if (strpos($file, '..') !== false) {
+                    if (str_contains($file, '..')) {
                         throw new \Exception('Path traversal found');
                     }
                     if (posix_getuid() === 0) {
@@ -484,7 +480,7 @@ class CentreonConfigPoller
                 }
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.DEBUG") as $file) {
                     //handle path traversal vulnerability
-                    if (strpos($file, '..') !== false) {
+                    if (str_contains($file, '..')) {
                         throw new \Exception('Path traversal found');
                     }
                     if (posix_getuid() === 0) {
@@ -535,7 +531,7 @@ class CentreonConfigPoller
                 if ($apacheUser != "") {
                     foreach (glob(rtrim($centreonBrokerDirCfg, "/") . "/" . "/*.{xml,json,cfg}", GLOB_BRACE) as $file) {
                         //handle path traversal vulnerability
-                        if (strpos($file, '..') !== false) {
+                        if (str_contains($file, '..')) {
                             throw new \Exception('Path traversal found');
                         }
                         @chown($file, $apacheUser);
@@ -638,11 +634,7 @@ class CentreonConfigPoller
             $lines = preg_split("/\n/", $stream);
             foreach ($lines as $line) {
                 if (preg_match('/WEB\_USER\=([a-zA-Z\_\-]*)/', $line, $tabUser)) {
-                    if (isset($tabUser[1])) {
-                        return $tabUser[1];
-                    } else {
-                        return "";
-                    }
+                    return $tabUser[1] ?? "";
                 }
             }
         } else {
@@ -654,8 +646,9 @@ class CentreonConfigPoller
      * Send Trap configuration files to poller
      *
      * @param int $pollerId
-     * @return void
+     * @return int
      * @throws CentreonClapiException
+     * @throws \Exception
      */
     public function sendTrapCfg($pollerId = null)
     {
@@ -676,7 +669,7 @@ class CentreonConfigPoller
         }
         $filename = "{$trapdPath}/{$pollerId}/centreontrapd.sdb";
         //handle path traversal vulnerability
-        if (strpos($filename, '..') !== false) {
+        if (str_contains($filename, '..')) {
             throw new \Exception('Path traversal found');
         }
         $cmd = sprintf('%s %d %s 2>&1',
@@ -684,8 +677,7 @@ class CentreonConfigPoller
                        $pollerId,
                        escapeshellarg($filename));
         passthru($cmd);
-        $return = $this->writeToCentcorePipe('SYNCTRAP', $pollerId);
-        return $return;
+        return $this->writeToCentcorePipe('SYNCTRAP', $pollerId);
     }
 
     /**
@@ -706,7 +698,7 @@ class CentreonConfigPoller
 
     public function getPollerState()
     {
-        $pollerState = array();
+        $pollerState = [];
         $dbResult = $this->DBC->query("SELECT instance_id, running, name FROM instances");
 
         while ($row = $dbResult->fetchRow()) {

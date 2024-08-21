@@ -35,11 +35,6 @@ use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
 class Response implements ResponseInterface
 {
     /**
-     * @var CommandInterface Command sent to the Gorgone server
-     */
-    private $command;
-
-    /**
      * @var string|null Error message
      */
     private $error;
@@ -66,11 +61,6 @@ class Response implements ResponseInterface
     private static $staticResponseRepository;
 
     /**
-     * @var ResponseRepositoryInterface
-     */
-    private $responseRepository;
-
-    /**
      * @param ResponseRepositoryInterface $responseRepository
      */
     public static function setRepository(ResponseRepositoryInterface $responseRepository): void
@@ -94,11 +84,13 @@ class Response implements ResponseInterface
     }
 
     public function __construct(
-        ResponseRepositoryInterface $responseRepository,
-        CommandInterface $command
-    ) {
-        $this->command = $command;
-        $this->responseRepository = $responseRepository;
+        private ResponseRepositoryInterface $responseRepository,
+        /**
+         * @var CommandInterface Command sent to the Gorgone server
+         */
+        private CommandInterface $command
+    )
+    {
     }
 
     /**

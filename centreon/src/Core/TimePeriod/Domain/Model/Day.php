@@ -30,20 +30,17 @@ class Day
     /** @var int ISO 8601 numeric representation of the day of the week (1 for monday) */
     private int $day;
 
-    private TimeRange $timeRange;
-
     /**
      * @param int $day
      * @param TimeRange $timeRange
      *
      * @throws \Assert\AssertionFailedException
      */
-    public function __construct(int $day, TimeRange $timeRange)
+    public function __construct(int $day, private TimeRange $timeRange)
     {
         Assertion::min($day, 1, 'TimePeriodDay::day');
         Assertion::max($day, 7, 'TimePeriodDay::day');
         $this->day = $day;
-        $this->timeRange = $timeRange;
     }
 
     /**

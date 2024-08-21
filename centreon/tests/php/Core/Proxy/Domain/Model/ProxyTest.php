@@ -27,16 +27,13 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Proxy\Domain\Model\Proxy;
 
 beforeEach(function (): void {
-    $this->createProxy = function (array $arguments = []): Proxy
-    {
-        return new Proxy(...[
-            'url' => 'localhost',
-            'port' => 0,
-            'login' => 'login',
-            'password' => 'password',
-            ...$arguments,
-        ]);
-    };
+    $this->createProxy = fn(array $arguments = []): Proxy => new Proxy(...[
+        'url' => 'localhost',
+        'port' => 0,
+        'login' => 'login',
+        'password' => 'password',
+        ...$arguments,
+    ]);
 });
 
 it('should throw an exception when the URL property is empty', function(): void {

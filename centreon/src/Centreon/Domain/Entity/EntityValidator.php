@@ -70,9 +70,7 @@ class EntityValidator
         } elseif (is_dir($validationFilePath)) {
             $finder = (new Finder())
                 ->in($validationFilePath)
-                ->filter(function (\SplFileInfo $file) {
-                    return $file->getExtension() == 'yaml';
-                })
+                ->filter(fn(\SplFileInfo $file) => $file->getExtension() == 'yaml')
                 ->files();
             if ($finder->hasResults()) {
                 $paths = [];
@@ -217,9 +215,8 @@ class EntityValidator
                 'allowExtraFields' => $this->allowExtraFields,
                 'allowMissingFields' => $this->allowMissingFields
             ]);
-        } else {
-            return new Collection($constraints);
         }
+        return new Collection($constraints);
     }
 
     /**
@@ -301,6 +298,6 @@ class EntityValidator
      */
     private static function convertCamelCaseToSnakeCase(string $stringToConvert): string
     {
-        return strtolower(preg_replace('/[A-Z]/', '_\\0', lcfirst($stringToConvert)));
+        return strtolower((string) preg_replace('/[A-Z]/', '_\\0', lcfirst($stringToConvert)));
     }
 }

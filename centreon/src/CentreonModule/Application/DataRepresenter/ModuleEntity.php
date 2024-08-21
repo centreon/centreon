@@ -26,17 +26,13 @@ use JsonSerializable;
 
 class ModuleEntity implements JsonSerializable
 {
-    /** @var Module */
-    private $entity;
-
     /**
      * Construct.
      *
      * @param Module|null $entity
      */
-    public function __construct(?Module $entity)
+    public function __construct(private ?Module $entity)
     {
-        $this->entity = $entity;
     }
 
     /**

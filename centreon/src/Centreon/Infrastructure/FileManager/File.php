@@ -52,7 +52,7 @@ class File
         }
 
         if ($this->name) {
-            $this->extension = pathinfo($this->name, PATHINFO_EXTENSION);
+            $this->extension = pathinfo((string) $this->name, PATHINFO_EXTENSION);
         }
     }
 

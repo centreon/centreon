@@ -36,7 +36,6 @@ require_once(__DIR__ . '/centreonAuth.class.php');
 
 class CentreonLogAction
 {
-    protected $logUser;
     protected $uselessKey;
 
     /**
@@ -48,10 +47,9 @@ class CentreonLogAction
      * Initializes variables
      */
 
-    public function __construct($usr)
+    public function __construct(protected $logUser)
     {
-        $this->logUser = $usr;
-        $this->uselessKey = array();
+        $this->uselessKey = [];
         $this->uselessKey['submitA'] = 1;
         $this->uselessKey['submitC'] = 1;
         $this->uselessKey['o'] = 1;
@@ -150,7 +148,7 @@ class CentreonLogAction
     public function listAction($id, $object_type): array
     {
         global $pearDBO;
-        $list_actions = array();
+        $list_actions = [];
         $i = 0;
 
         $statement = $pearDBO->prepare(
@@ -203,7 +201,7 @@ class CentreonLogAction
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['field_value']) && $info['field_value'] != '') {
-            return array('h' => $info['field_value']);
+            return ['h' => $info['field_value']];
         }
 
         /* Get hostgroups */
@@ -221,7 +219,7 @@ class CentreonLogAction
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['field_value']) && $info['field_value'] != '') {
-            return array('hg' => $info['field_value']);
+            return ['hg' => $info['field_value']];
         }
         return -1;
     }
@@ -272,10 +270,7 @@ class CentreonLogAction
         $DBRESULT2->bindValue(':hg_id', $hg_id, PDO::PARAM_INT);
         $DBRESULT2->execute();
         $info = $DBRESULT2->fetch(PDO::FETCH_ASSOC);
-        if (isset($info['object_name'])) {
-            return $info['object_name'];
-        }
-        return -1;
+        return $info['object_name'] ?? -1;
     }
 
     /*
@@ -316,7 +311,7 @@ class CentreonLogAction
             $macroPasswordStatement->execute();
             $macroPasswordRef = [];
             if ($result = $macroPasswordStatement->fetch(PDO::FETCH_ASSOC)) {
-                $macroPasswordRef = explode(',', $result['field_value']);
+                $macroPasswordRef = explode(',', (string) $result['field_value']);
             }
             while ($field = $DBRESULT2->fetch(PDO::FETCH_ASSOC)) {
                 switch ($field['field_name']) {
@@ -325,7 +320,7 @@ class CentreonLogAction
                          * explode the macroValue string to easily change any password to ****** on the "After" part
                          * of the changeLog
                          */
-                        $macroValueArray = explode(',', $field['field_value']);
+                        $macroValueArray = explode(',', (string) $field['field_value']);
                         foreach ($macroPasswordRef as $macroIdPassword) {
                             if (!empty($macroValueArray[$macroIdPassword])) {
                                 $macroValueArray[$macroIdPassword] = self::PASSWORD_AFTER;
@@ -360,7 +355,7 @@ class CentreonLogAction
                     $list_modifications[$i]["field_value_after"] = $field["field_value"];
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n while nothing was set before
-                        if (strpos($field["field_name"], 'macroOldValue_' . $macroPasswordId) !== false) {
+                        if (str_contains((string) $field["field_name"], 'macroOldValue_' . $macroPasswordId)) {
                             $list_modifications[$i]["field_value_after"] = self::PASSWORD_AFTER;
                         }
                     }
@@ -371,7 +366,7 @@ class CentreonLogAction
                     $list_modifications[$i]["field_value_after"] = $field["field_value"];
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n for "Before" and "After" value
-                        if (strpos($field["field_name"], 'macroOldValue_' . $macroPasswordId) !== false) {
+                        if (str_contains((string) $field["field_name"], 'macroOldValue_' . $macroPasswordId)) {
                             $list_modifications[$i]["field_value_before"] = self::PASSWORD_BEFORE;
                             $list_modifications[$i]["field_value_after"] = self::PASSWORD_AFTER;
                         }
@@ -389,7 +384,7 @@ class CentreonLogAction
      */
     public function replaceActiontype($action): mixed
     {
-        $actionList = array();
+        $actionList = [];
         $actionList["d"] = "Delete";
         $actionList["c"] = "Change";
         $actionList["a"] = "Create";
@@ -410,7 +405,7 @@ class CentreonLogAction
      */
     public function listObjecttype(): array
     {
-        $object_type_tab = array();
+        $object_type_tab = [];
 
         $object_type_tab[0] = _("All");
         $object_type_tab[1] = "command";
@@ -454,37 +449,36 @@ class CentreonLogAction
 
         if (!isset($ret)) {
             return [];
-        } else {
-            $info = [];
-            $oldMacroPassword = [];
-            foreach ($ret as $key => $value) {
-                if (!isset($uselessKey[trim($key)])) {
-                    if (is_array($value)) {
-                        /*
-                         * Set a new refMacroPassword value to be able to find which macro index is a password
-                         * in the listModification method and hash password in log_action_modification table
-                         */
-                        if ($key === 'macroValue' && isset($ret['macroPassword'])) {
-                            foreach ($value as $macroId => $macroValue) {
-                                if (array_key_exists($macroId, $ret['macroPassword'])) {
-                                    $info['refMacroPassword'] = implode(",", array_keys($ret['macroPassword']));
-                                    $value[$macroId] = md5($macroValue);
-                                    if (!empty($ret['macroOldValue_' . $macroId])) {
-                                        $oldMacroPassword['macroOldValue_' . $macroId] = md5(
-                                            $ret['macroOldValue_' . $macroId]
-                                        );
-                                    }
+        }
+        $info = [];
+        $oldMacroPassword = [];
+        foreach ($ret as $key => $value) {
+            if (!isset($uselessKey[trim((string) $key)])) {
+                if (is_array($value)) {
+                    /*
+                     * Set a new refMacroPassword value to be able to find which macro index is a password
+                     * in the listModification method and hash password in log_action_modification table
+                     */
+                    if ($key === 'macroValue' && isset($ret['macroPassword'])) {
+                        foreach ($value as $macroId => $macroValue) {
+                            if (array_key_exists($macroId, $ret['macroPassword'])) {
+                                $info['refMacroPassword'] = implode(",", array_keys($ret['macroPassword']));
+                                $value[$macroId] = md5((string) $macroValue);
+                                if (!empty($ret['macroOldValue_' . $macroId])) {
+                                    $oldMacroPassword['macroOldValue_' . $macroId] = md5(
+                                        (string) $ret['macroOldValue_' . $macroId]
+                                    );
                                 }
                             }
                         }
-                        if (isset($value[$key])) {
-                            $info[$key] = $value[$key];
-                        } else {
-                            $info[$key] = implode(",", $value);
-                        }
-                    } else {
-                        $info[$key] = CentreonDB::escape($value);
                     }
+                    if (isset($value[$key])) {
+                        $info[$key] = $value[$key];
+                    } else {
+                        $info[$key] = implode(",", $value);
+                    }
+                } else {
+                    $info[$key] = CentreonDB::escape($value);
                 }
             }
         }

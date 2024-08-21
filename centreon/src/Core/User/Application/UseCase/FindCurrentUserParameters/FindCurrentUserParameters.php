@@ -92,7 +92,10 @@ final class FindCurrentUserParameters
      */
     private function hasExportButtonRole(ContactInterface $user): bool
     {
-        return $user->isAdmin() || $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION);
+        if ($user->isAdmin()) {
+            return true;
+        }
+        return $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION);
     }
 
     /**
@@ -102,6 +105,9 @@ final class FindCurrentUserParameters
      */
     private function canManageApiTokens(ContactInterface $user): bool
     {
-        return $user->isAdmin() || $user->hasRole(Contact::ROLE_MANAGE_TOKENS);
+        if ($user->isAdmin()) {
+            return true;
+        }
+        return $user->hasRole(Contact::ROLE_MANAGE_TOKENS);
     }
 }

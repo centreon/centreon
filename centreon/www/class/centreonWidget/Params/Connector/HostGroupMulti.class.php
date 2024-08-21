@@ -45,11 +45,6 @@ class CentreonWidgetParamsConnectorHostGroupMulti extends CentreonWidgetParamsSe
     public function getParameters()
     {
         $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list';
-        return array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => $path,
-            'multiple' => true,
-            'linkedObject' => 'centreonHostgroups'
-        );
+        return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonHostgroups'];
     }
 }

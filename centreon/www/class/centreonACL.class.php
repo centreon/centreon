@@ -32,7 +32,7 @@
  * For more information : contact@centreon.com
  */
 
-require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
+require_once realpath(__DIR__ . "/centreonDBInstance.class.php");
 require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
 /**
@@ -41,31 +41,29 @@ require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
  */
 class CentreonACL
 {
-    const ACL_ACCESS_NONE = 0;
-    const ACL_ACCESS_READ_WRITE = 1;
-    const ACL_ACCESS_READ_ONLY = 2;
-
-    private $userID; /* ID of the user */
+    public const ACL_ACCESS_NONE = 0;
+    public const ACL_ACCESS_READ_WRITE = 1;
+    public const ACL_ACCESS_READ_ONLY = 2; /* ID of the user */
     private ?array $parentTemplates = null;
     public $admin; /* Flag that tells us if the user is admin or not */
-    private $accessGroups = array(); /* Access groups the user belongs to */
-    private $resourceGroups = array(); /* Resource groups the user belongs to */
-    public $hostGroups = array(); /* Hostgroups the user can see */
-    protected $pollers = array(); /* Pollers the user can see */
-    private $hostGroupsAlias = array(); /* Hostgroups by alias the user can see */
-    private $serviceGroups = array(); /* Servicegroups the user can see */
-    private $serviceGroupsAlias = array(); /* Servicegroups by alias the user can see */
-    private $serviceCategories = array(); /* Service categories the user can see */
-    private $hostCategories = array();
-    private $actions = array(); /* Actions the user can do */
-    private $hostGroupsFilter = array();
-    private $serviceGroupsFilter = array();
-    private $serviceCategoriesFilter = array();
-    public $topology = array();
+    private $accessGroups = []; /* Access groups the user belongs to */
+    private $resourceGroups = []; /* Resource groups the user belongs to */
+    public $hostGroups = []; /* Hostgroups the user can see */
+    protected $pollers = []; /* Pollers the user can see */
+    private $hostGroupsAlias = []; /* Hostgroups by alias the user can see */
+    private $serviceGroups = []; /* Servicegroups the user can see */
+    private $serviceGroupsAlias = []; /* Servicegroups by alias the user can see */
+    private $serviceCategories = []; /* Service categories the user can see */
+    private $hostCategories = [];
+    private $actions = []; /* Actions the user can do */
+    private $hostGroupsFilter = [];
+    private $serviceGroupsFilter = [];
+    private $serviceCategoriesFilter = [];
+    public $topology = [];
     public $topologyStr = "";
-    private $metaServices = array();
+    private $metaServices = [];
     private $metaServiceStr = "";
-    private $tempTableArray = array();
+    private $tempTableArray = [];
     public $hasAccessToAllHostGroups = false;
     public $hasAccessToAllServiceGroups = false;
 
@@ -75,15 +73,13 @@ class CentreonACL
      * @param int $user_id The user identifiant
      * @param bool $is_admin If the user is administrator
      */
-    public function __construct($userId, $isAdmin = null)
+    public function __construct(private $userID, $isAdmin = null)
     {
-        $this->userID = $userId;
-
         if (!isset($isAdmin)) {
             $db = \CentreonDBInstance::getConfInstance();
             $query = "SELECT contact_admin "
                 . "FROM `contact` "
-                . "WHERE contact_id = '" . CentreonDB::escape($userId) . "' "
+                . "WHERE contact_id = '" . CentreonDB::escape($this->userID) . "' "
                 . "LIMIT 1 ";
             $result = $db->query($query);
             $row = $result->fetch();
@@ -113,15 +109,15 @@ class CentreonACL
     /**
      * Function that will reset ACL
      */
-    private function resetACL()
+    private function resetACL(): void
     {
         $this->parentTemplates = null;
-        $this->resourceGroups = array();
-        $this->serviceGroups = array();
-        $this->serviceCategories = array();
-        $this->actions = array();
-        $this->topology = array();
-        $this->pollers = array();
+        $this->resourceGroups = [];
+        $this->serviceGroups = [];
+        $this->serviceCategories = [];
+        $this->actions = [];
+        $this->topology = [];
+        $this->pollers = [];
         $this->setAccessGroups();
         $this->setResourceGroups();
         $this->setHostGroups();
@@ -140,7 +136,7 @@ class CentreonACL
     /**
      * Function that will check whether or not the user needs to rebuild his ACL
      */
-    private function checkUpdateACL()
+    private function checkUpdateACL(): void
     {
         if (is_null($this->parentTemplates)) {
             $this->loadParentTemplates();
@@ -218,7 +214,7 @@ class CentreonACL
     private function hasAccessToAllHostGroups(): bool
     {
         [$bindValues, $bindQuery] = createMultipleBindQuery(
-            list: explode(',', $this->getAccessGroupsString()),
+            list: explode(',', (string) $this->getAccessGroupsString()),
             prefix: ':access_group_id_'
         );
 
@@ -256,7 +252,7 @@ class CentreonACL
     private function hasAccessToAllServiceGroups(): bool
     {
         [$bindValues, $bindQuery] = createMultipleBindQuery(
-            list: explode(',', $this->getAccessGroupsString()),
+            list: explode(',', (string) $this->getAccessGroupsString()),
             prefix: ':access_group_id_'
         );
 
@@ -290,7 +286,7 @@ class CentreonACL
     /**
      * Resource groups Setter
      */
-    private function setResourceGroups()
+    private function setResourceGroups(): void
     {
         $query = "SELECT acl.acl_res_id, acl.acl_res_name "
             . "FROM acl_resources acl, acl_res_group_relations argr "
@@ -308,7 +304,7 @@ class CentreonACL
     /**
      * Access groups Setter
      */
-    private function setHostGroups()
+    private function setHostGroups(): void
     {
         $this->hostGroups = [];
         $this->hostGroupsAlias = [];
@@ -370,7 +366,7 @@ class CentreonACL
     /**
      * Poller Setter
      */
-    private function setPollers()
+    private function setPollers(): void
     {
         $pearDB = \CentreonDBInstance::getConfInstance();
         $query = "SELECT ns.id, ns.name, arpr.acl_res_id "
@@ -400,14 +396,14 @@ class CentreonACL
     /**
      * Service groups Setter
      */
-    private function setServiceGroups()
+    private function setServiceGroups(): void
     {
         $aclSubRequest = '';
         $bindValues = [];
 
         if ($this->hasAccessToAllServiceGroups === false) {
             [$bindValues, $bindQuery] = createMultipleBindQuery(
-                list: explode(',', $this->getAccessGroupsString()),
+                list: explode(',', (string) $this->getAccessGroupsString()),
                 prefix: ':access_group_id_'
             );
 
@@ -449,7 +445,7 @@ class CentreonACL
     /**
      * Service categories Setter
      */
-    private function setServiceCategories()
+    private function setServiceCategories(): void
     {
         $query = "SELECT sc.sc_id, sc.sc_name, arsr.acl_res_id "
             . "FROM service_categories sc, acl_resources_sc_relations arsr "
@@ -469,7 +465,7 @@ class CentreonACL
     /**
      * Host categories setter
      */
-    private function setHostCategories()
+    private function setHostCategories(): void
     {
         $query = "SELECT hc.hc_id, hc.hc_name, arhr.acl_res_id "
             . "FROM hostcategories hc, acl_resources_hc_relations arhr "
@@ -487,7 +483,7 @@ class CentreonACL
     /**
      * Access meta Setter
      */
-    private function setMetaServices()
+    private function setMetaServices(): void
     {
         $query = "SELECT ms.meta_id, ms.meta_name, arsr.acl_res_id " .
             "FROM meta_service ms, acl_resources_meta_relations arsr " .
@@ -512,7 +508,7 @@ class CentreonACL
     /**
      * Actions Setter
      */
-    private function setActions()
+    private function setActions(): void
     {
         $query = "SELECT ar.acl_action_name "
             . "FROM acl_group_actions_relations agar, acl_actions a, acl_actions_rules ar "
@@ -531,7 +527,7 @@ class CentreonACL
     /**
      *  Topology setter
      */
-    private function setTopology()
+    private function setTopology(): void
     {
         $this->topology = [];
         $centreonDb = \CentreonDBInstance::getConfInstance();
@@ -556,8 +552,8 @@ class CentreonACL
             $DBRESULT = $centreonDb->query($query);
 
             if ($DBRESULT->rowCount()) {
-                $topology = array();
-                $tmp_topo_page = array();
+                $topology = [];
+                $tmp_topo_page = [];
                 $statement = $centreonDb
                     ->prepare("SELECT topology_topology_id, acl_topology_relations.access_right "
                         . "FROM acl_topology_relations, acl_topology "
@@ -723,7 +719,7 @@ class CentreonACL
     /**
      * Get ACL by string
      */
-    public function getACLStr()
+    public function getACLStr(): void
     {
         $this->topologyStr = empty($this->topology)
             ? "''"
@@ -749,7 +745,7 @@ class CentreonACL
     public function getAccessGroupsString($flag = null, $escape = true)
     {
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
 
         // before returning access groups as string, make sure that those are up to date
@@ -773,13 +769,11 @@ class CentreonACL
                     break;
             }
         }
-
-        $result = "'0'";
         if (strlen($accessGroups)) {
-            $result = trim($accessGroups, ',');
+            return trim($accessGroups, ',');
         }
 
-        return $result;
+        return "'0'";
     }
 
     /**
@@ -800,7 +794,7 @@ class CentreonACL
     public function getResourceGroupsString($flag = null, $escape = true)
     {
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
 
         $resourceGroups = "";
@@ -821,13 +815,11 @@ class CentreonACL
                     break;
             }
         }
-
-        $result = "''";
         if (strlen($resourceGroups)) {
-            $result = trim($resourceGroups, ',');
+            return trim($resourceGroups, ',');
         }
 
-        return $result;
+        return "''";
     }
 
     /**
@@ -837,7 +829,7 @@ class CentreonACL
     {
         $this->checkUpdateACL();
 
-        if ($flag !== null && strtoupper($flag) == "ALIAS") {
+        if ($flag !== null && strtoupper((string) $flag) == "ALIAS") {
             return $this->hostGroupsAlias;
         }
         return $this->hostGroups;
@@ -861,33 +853,23 @@ class CentreonACL
     public function getHostGroupsString($flag = null)
     {
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
 
         $hostgroups = "";
         foreach ($this->hostGroups as $key => $value) {
-            switch ($flag) {
-                case "NAME":
-                    $hostgroups .= "'" . $value . "',";
-                    break;
-                case "ALIAS":
-                    $hostgroups .= "'" . addslashes($this->hostGroupsAlias[$key]) . "',";
-                    break;
-                case "ID":
-                    $hostgroups .= $key . ",";
-                    break;
-                default:
-                    $hostgroups .= "'" . $key . "',";
-                    break;
-            }
+            match ($flag) {
+                "NAME" => $hostgroups .= "'" . $value . "',",
+                "ALIAS" => $hostgroups .= "'" . addslashes((string) $this->hostGroupsAlias[$key]) . "',",
+                "ID" => $hostgroups .= $key . ",",
+                default => $hostgroups .= "'" . $key . "',",
+            };
         }
-
-        $result = "''";
         if (strlen($hostgroups)) {
-            $result = trim($hostgroups, ',');
+            return trim($hostgroups, ',');
         }
 
-        return $result;
+        return "''";
     }
 
     /**
@@ -900,7 +882,7 @@ class CentreonACL
     public function getPollerString($flag = null, $escape = true)
     {
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
 
         $pollers = "";
@@ -955,7 +937,7 @@ class CentreonACL
     public function getServiceGroupsString($flag = null, $escape = true)
     {
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
 
         $servicegroups = "";
@@ -979,13 +961,11 @@ class CentreonACL
                     break;
             }
         }
-
-        $result = "''";
         if (strlen($servicegroups)) {
-            $result = trim($servicegroups, ',');
+            return trim($servicegroups, ',');
         }
 
-        return $result;
+        return "''";
     }
 
     /**
@@ -1014,7 +994,7 @@ class CentreonACL
     public function getServiceCategoriesString($flag = null, $escape = true)
     {
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
 
         $serviceCategories = "";
@@ -1035,13 +1015,11 @@ class CentreonACL
                     break;
             }
         }
-
-        $result = "''";
         if (strlen($serviceCategories)) {
-            $result = trim($serviceCategories, ',');
+            return trim($serviceCategories, ',');
         }
 
-        return $result;
+        return "''";
     }
 
     /**
@@ -1054,7 +1032,7 @@ class CentreonACL
     public function getHostCategoriesString($flag = null, $escape = true)
     {
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
 
         $hostCategories = "";
@@ -1075,13 +1053,11 @@ class CentreonACL
                     break;
             }
         }
-
-        $result = "''";
         if (strlen($hostCategories)) {
-            $result = trim($hostCategories, ',');
+            return trim($hostCategories, ',');
         }
 
-        return $result;
+        return "''";
     }
 
 
@@ -1123,7 +1099,7 @@ class CentreonACL
         }
 
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
         switch ($flag) {
             case "NAME":
@@ -1143,7 +1119,7 @@ class CentreonACL
                 break;
         }
 
-        $hosts = array();
+        $hosts = [];
         $DBRES = \CentreonDBInstance::getMonInstance()->query($query);
         while ($row = $DBRES->fetchRow()) {
             if ($escape === true) {
@@ -1162,12 +1138,12 @@ class CentreonACL
         $charactersLength = strlen($characters);
         $randomString = '';
         for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
         }
         return $randomString;
     }
 
-    private function fillTemporaryTable($tmpName, $db, $rows, $fields)
+    private function fillTemporaryTable($tmpName, $db, $rows, $fields): void
     {
         $queryInsert = "INSERT INTO " . $tmpName . ' (';
         $queryValues = "";
@@ -1181,9 +1157,9 @@ class CentreonACL
 
         $db->autoCommit(false);
         $stmt = $db->prepare($queryInsert);
-        $arrayValues = array();
+        $arrayValues = [];
         foreach ($rows as $row) {
-            $arrayValue = array();
+            $arrayValue = [];
             foreach ($fields as $field) {
                 $arrayValue[] = $row[$field['key']];
             }
@@ -1197,23 +1173,23 @@ class CentreonACL
     private function getRowFields($db, $rows, $originTable = 'centreon_acl')
     {
         if (empty($rows)) {
-            return array();
+            return [];
         }
 
         $row = $rows[0];
-        $fieldsArray = array();
+        $fieldsArray = [];
 
         foreach ($row as $fieldKey => $field) {
             $fieldDef = $this->getField($originTable, $fieldKey, $db);
             $options = ($fieldDef['Null'] == 'NO' ? ' Not Null ' : ' Null ')
                 . ($fieldDef['Key'] == 'PRI' ? ' PRIMARY KEY ' : ' ');
-            $fieldsArray[] = array('key' => $fieldKey, 'type' => $fieldDef['Type'], 'options' => $options);
+            $fieldsArray[] = ['key' => $fieldKey, 'type' => $fieldDef['Type'], 'options' => $options];
         }
         return $fieldsArray;
     }
 
 
-    private function createTemporaryTable($name, $db, $rows, $originTable = 'centreon_acl', $fields = array())
+    private function createTemporaryTable($name, $db, $rows, $originTable = 'centreon_acl', $fields = [])
     {
         $tempTableName = 'tmp_' . $name . '_' . self::generateRandomString(5);
         if (empty($fields)) {
@@ -1244,7 +1220,7 @@ class CentreonACL
         $rows,
         $originTable = 'centreon_acl',
         $force = false,
-        $fields = array()
+        $fields = []
     ) {
         if (!empty($this->tempTableArray[$tmpTableName]) && !$force) {
             return $this->tempTableArray[$tmpTableName];
@@ -1256,7 +1232,7 @@ class CentreonACL
         return $this->tempTableArray[$tmpTableName];
     }
 
-    public function destroyTemporaryTable($db, $name = false)
+    public function destroyTemporaryTable($db, $name = false): void
     {
         if (!$name) {
             foreach ($this->tempTableArray as $tmpTable) {
@@ -1280,7 +1256,7 @@ class CentreonACL
             . "FROM centreon_acl "
             . "WHERE group_id IN (" . implode(',', $groupIds) . ") ";
         $DBRES = $db->query($query);
-        $rows = array();
+        $rows = [];
         while ($row = $DBRES->fetchRow()) {
             $rows[] = $row;
         }
@@ -1300,7 +1276,7 @@ class CentreonACL
             . "FROM centreon_acl "
             . "WHERE group_id IN (" . implode(',', $groupIds) . ") ";
         $DBRES = $db->query($query);
-        $rows = array();
+        $rows = [];
         while ($row = $DBRES->fetchRow()) {
             $rows[] = $row;
         }
@@ -1353,7 +1329,7 @@ class CentreonACL
         }
 
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
         switch ($flag) {
             case "NAME":
@@ -1386,13 +1362,11 @@ class CentreonACL
                 }
             }
         }
-
-        $result = "''";
         if (strlen($hosts)) {
-            $result = trim($hosts, ',');
+            return trim($hosts, ',');
         }
 
-        return $result;
+        return "''";
     }
 
 
@@ -1413,7 +1387,7 @@ class CentreonACL
         }
 
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
         switch ($flag) {
             case "NAME":
@@ -1431,10 +1405,10 @@ class CentreonACL
                 break;
         }
 
-        $services = array();
+        $services = [];
 
         $DBRES = $pearDBndo->query($query);
-        $items = array();
+        $items = [];
         while ($row = $DBRES->fetchRow()) {
             if (isset($items[$row[$fieldName]])) {
                 continue;
@@ -1468,7 +1442,7 @@ class CentreonACL
         }
 
         if ($flag !== null) {
-            $flag = strtoupper($flag);
+            $flag = strtoupper((string) $flag);
         }
         switch ($flag) {
             case "NAME":
@@ -1489,7 +1463,7 @@ class CentreonACL
         $services = "";
 
         $DBRES = $pearDBndo->query($query);
-        $items = array();
+        $items = [];
         while ($row = $DBRES->fetchRow()) {
             if (isset($items[$row[$fieldName]])) {
                 continue;
@@ -1505,13 +1479,11 @@ class CentreonACL
                 }
             }
         }
-
-        $result = "''";
         if (strlen($services)) {
-            $result = trim($services, ',');
+            return trim($services, ',');
         }
 
-        return $result;
+        return "''";
     }
 
     /**
@@ -1538,13 +1510,11 @@ class CentreonACL
         while ($row = $res->fetchRow()) {
             $hostsServices .= "'" . $row['host_id'] . "_" . $row['service_id'] . "',";
         }
-
-        $result = "''";
         if (strlen($hostsServices)) {
-            $result = trim($hostsServices, ',');
+            return trim($hostsServices, ',');
         }
 
-        return $result;
+        return "''";
     }
 
     /*
@@ -1566,7 +1536,7 @@ class CentreonACL
     /**
      * Update topologystr value
      */
-    public function updateTopologyStr()
+    public function updateTopologyStr(): void
     {
         $this->setTopology();
         $this->topologyStr = $this->getTopologyString();
@@ -1577,13 +1547,11 @@ class CentreonACL
         $this->checkUpdateACL();
 
         $topology = array_keys($this->topology);
-
-        $result = "''";
         if (count($topology)) {
-            $result = implode(', ', $topology);
+            return implode(', ', $topology);
         }
 
-        return $result;
+        return "''";
     }
 
     /**
@@ -1618,7 +1586,8 @@ class CentreonACL
         $this->checkUpdateACL();
         if ($this->admin) {
             return self::ACL_ACCESS_READ_WRITE;
-        } elseif (isset($this->topology[$p])) {
+        }
+        if (isset($this->topology[$p])) {
             if (
                 $checkAction
                 && $this->topology[$p] == self::ACL_ACCESS_READ_ONLY
@@ -1717,7 +1686,7 @@ class CentreonACL
 
     public function getHostServices($pearDBMonitoring, $host_id)
     {
-        $tab = array();
+        $tab = [];
         if ($this->admin) {
             $query = "SELECT DISTINCT h.host_id, s.service_id, s.service_description "
                 . "FROM host_service_relation hsr, host h, service s "
@@ -1740,7 +1709,7 @@ class CentreonACL
                 . "AND service_id = hsr.service_service_id ";
             $DBRESULT = \CentreonDBInstance::getConfInstance()->query($query);
             while ($elem = $DBRESULT->fetchRow()) {
-                $tab[$elem["service_id"]] = html_entity_decode($elem["service_description"], ENT_QUOTES, "UTF-8");
+                $tab[$elem["service_id"]] = html_entity_decode((string) $elem["service_description"], ENT_QUOTES, "UTF-8");
             }
             $DBRESULT->closeCursor();
         } else {
@@ -1773,7 +1742,7 @@ class CentreonACL
                 . "AND ca.group_id IN (" . $this->getAccessGroupsString() . ") ";
         }
 
-        $tab = array();
+        $tab = [];
         $query = "SELECT DISTINCT h.name, s.description "
             . "FROM hosts h "
             . "LEFT JOIN services s "
@@ -1802,7 +1771,7 @@ class CentreonACL
                 . "AND ca.group_id IN (" . $this->getAccessGroupsString() . ") ";
         }
 
-        $tab = array();
+        $tab = [];
         $query = "SELECT DISTINCT s.service_id, s.description, h.name "
             . "FROM hosts h "
             . "LEFT JOIN services s "
@@ -1826,7 +1795,7 @@ class CentreonACL
      */
     public function getHostgroupHosts($hg_id, $pearDBndo)
     {
-        $tab = array();
+        $tab = [];
         $query = "SELECT DISTINCT h.host_id, h.host_name "
             . "FROM hostgroup_relation hgr, host h "
             . "WHERE hgr.hostgroup_hg_id = '" . CentreonDB::escape($hg_id) . "' "
@@ -1844,7 +1813,7 @@ class CentreonACL
     /**
      * Function that sets the changed flag to 1 for the cron centAcl.php
      */
-    public function updateACL($data = null)
+    public function updateACL($data = null): void
     {
         if (!$this->admin) {
             $groupIds = array_keys($this->accessGroups);
@@ -1998,10 +1967,10 @@ class CentreonACL
     /**
      * Load the list of parent template
      */
-    private function loadParentTemplates()
+    private function loadParentTemplates(): void
     {
         /* Get parents template */
-        $this->parentTemplates = array();
+        $this->parentTemplates = [];
         $currentContact = $this->userID;
         while ($currentContact != 0) {
             $this->parentTemplates[] = $currentContact;
@@ -2043,7 +2012,7 @@ class CentreonACL
      */
     private function constructRequest($options, $hasWhereClause = false)
     {
-        $requests = array();
+        $requests = [];
 
         // Manage select clause
         $requests['select'] = 'SELECT ';
@@ -2136,7 +2105,7 @@ class CentreonACL
 
         // Manage limit and select clause
         $requests['pages'] = '';
-        if (isset($options['pages']) && trim($options['pages']) != '') {
+        if (isset($options['pages']) && trim((string) $options['pages']) != '') {
             $requests['pages'] = ' LIMIT ' . $options['pages'];
         }
 
@@ -2152,7 +2121,7 @@ class CentreonACL
                 return '';
             }
             $key .= $separator . $res[$value];
-            $separator = isset($options['keys_separator']) ? $options['keys_separator'] : '_';
+            $separator = $options['keys_separator'] ?? '_';
         }
 
         return $key;
@@ -2168,7 +2137,7 @@ class CentreonACL
      */
     private function constructResult($sql, $options)
     {
-        $result = array();
+        $result = [];
 
         try {
             $res = \CentreonDBInstance::getConfInstance()->query($sql);
@@ -2189,13 +2158,9 @@ class CentreonACL
         }
 
         if (isset($options['total']) && $options['total'] == true) {
-            return array(
-                'items' => $result,
-                'total' => \CentreonDBInstance::getConfInstance()->numberRows()
-            );
-        } else {
-            return $result;
+            return ['items' => $result, 'total' => \CentreonDBInstance::getConfInstance()->numberRows()];
         }
+        return $result;
     }
 
     /**
@@ -2203,16 +2168,10 @@ class CentreonACL
      */
     public function getServiceGroupAclConf($search = null, $broker = null, $options = null, $sg_empty = null)
     {
-        $sg = array();
+        $sg = [];
 
         if (is_null($options)) {
-            $options = array(
-                'order' => array('LOWER(sg_name)'),
-                'fields' => array('servicegroup.sg_id', 'servicegroup.sg_name'),
-                'keys' => array('sg_id'),
-                'keys_separator' => '',
-                'get_row' => 'sg_name'
-            );
+            $options = ['order' => ['LOWER(sg_name)'], 'fields' => ['servicegroup.sg_id', 'servicegroup.sg_name'], 'keys' => ['sg_id'], 'keys_separator' => '', 'get_row' => 'sg_name'];
         }
 
         $request = $this->constructRequest($options);
@@ -2272,7 +2231,7 @@ class CentreonACL
      */
     public function getServiceServiceGroupAclConf($sgId, $broker = null, $options = null)
     {
-        $services = array();
+        $services = [];
 
         $db_name_acl = $this->getNameDBAcl($broker);
         if (is_null($db_name_acl) || $db_name_acl == "") {
@@ -2280,17 +2239,7 @@ class CentreonACL
         }
 
         if (is_null($options)) {
-            $options = array(
-                'order' => array('LOWER(host_name)', 'LOWER(service_description)'),
-                'fields' => array(
-                    'service.service_description',
-                    'service.service_id',
-                    'host.host_id',
-                    'host.host_name'
-                ),
-                'keys' => array('host_id', 'service_id'),
-                'keys_separator' => '_'
-            );
+            $options = ['order' => ['LOWER(host_name)', 'LOWER(service_description)'], 'fields' => ['service.service_description', 'service.service_id', 'host.host_id', 'host.host_name'], 'keys' => ['host_id', 'service_id'], 'keys_separator' => '_'];
         }
 
         $request = $this->constructRequest($options);
@@ -2349,7 +2298,7 @@ class CentreonACL
      */
     public function getHostAclConf($search = null, $broker = null, $options = null, $host_empty = false)
     {
-        $hosts = array();
+        $hosts = [];
 
         $db_name_acl = $this->getNameDBAcl($broker);
         if (is_null($db_name_acl) || $db_name_acl == "") {
@@ -2357,13 +2306,7 @@ class CentreonACL
         }
 
         if (is_null($options)) {
-            $options = array(
-                'order' => array('LOWER(host.host_name)'),
-                'fields' => array('host.host_id', 'host.host_name'),
-                'keys' => array('host_id'),
-                'keys_separator' => '',
-                'get_row' => 'host_name'
-            );
+            $options = ['order' => ['LOWER(host.host_name)'], 'fields' => ['host.host_id', 'host.host_name'], 'keys' => ['host_id'], 'keys_separator' => '', 'get_row' => 'host_name'];
         }
 
         $request = $this->constructRequest($options, true);
@@ -2417,7 +2360,7 @@ class CentreonACL
 
     public function getHostServiceAclConf($host_id, $broker = null, $options = null)
     {
-        $services = array();
+        $services = [];
 
         $db_name_acl = $this->getNameDBAcl($broker);
         if (is_null($db_name_acl) || $db_name_acl == "") {
@@ -2425,13 +2368,7 @@ class CentreonACL
         }
 
         if (is_null($options)) {
-            $options = array(
-                'order' => array('LOWER(service_description)'),
-                'fields' => array('s.service_id', 'service_description'),
-                'keys' => array('service_id'),
-                'keys_separator' => '',
-                'get_row' => 'service_description'
-            );
+            $options = ['order' => ['LOWER(service_description)'], 'fields' => ['s.service_id', 'service_description'], 'keys' => ['service_id'], 'keys_separator' => '', 'get_row' => 'service_description'];
         }
 
         $request = $this->constructRequest($options);
@@ -2498,16 +2435,10 @@ class CentreonACL
      */
     public function getHostGroupAclConf($search = null, $broker = null, $options = null, $hg_empty = false)
     {
-        $hg = array();
+        $hg = [];
 
         if (is_null($options)) {
-            $options = array(
-                'order' => array('LOWER(hg_name)'),
-                'fields' => array('hg_id', 'hg_name'),
-                'keys' => array('hg_id'),
-                'keys_separator' => '',
-                'get_row' => 'hg_name'
-            );
+            $options = ['order' => ['LOWER(hg_name)'], 'fields' => ['hg_id', 'hg_name'], 'keys' => ['hg_id'], 'keys_separator' => '', 'get_row' => 'hg_name'];
         }
 
         $request = $this->constructRequest($options, true);
@@ -2620,17 +2551,10 @@ class CentreonACL
      */
     public function getHostHostGroupAclConf($hgId, $broker = null, $options = null)
     {
-        $hg = array();
+        $hg = [];
 
         if (is_null($options)) {
-            $options = array(
-                'distinct' => true,
-                'order' => array('LOWER(host_name)'),
-                'fields' => array('host_id', 'host_name'),
-                'keys' => array('host_id'),
-                'keys_separator' => '',
-                'get_row' => 'host_name'
-            );
+            $options = ['distinct' => true, 'order' => ['LOWER(host_name)'], 'fields' => ['host_id', 'host_name'], 'keys' => ['host_id'], 'keys_separator' => '', 'get_row' => 'host_name'];
         }
 
         $request = $this->constructRequest($options);
@@ -2674,14 +2598,10 @@ class CentreonACL
      * @param array $options
      * @return void
      */
-    public function getPollerAclConf($options = array())
+    public function getPollerAclConf($options = [])
     {
         if (!count($options)) {
-            $options = array(
-                'fields' => array('id', 'name'),
-                'order' => array('name'),
-                'keys' => array('id')
-            );
+            $options = ['fields' => ['id', 'name'], 'order' => ['name'], 'keys' => ['id']];
         }
 
         $request = $this->constructRequest($options);
@@ -2710,7 +2630,7 @@ class CentreonACL
      * @access public
      * @return void
      */
-    public function getContactAclConf($options = array())
+    public function getContactAclConf($options = [])
     {
         $request = $this->constructRequest($options, true);
         if ($this->admin) {
@@ -2794,7 +2714,7 @@ class CentreonACL
      * @param type $options
      * @return type
      */
-    public function getAclGroupAclConf($options = array())
+    public function getAclGroupAclConf($options = [])
     {
         $request = $this->constructRequest($options);
 
@@ -2815,7 +2735,7 @@ class CentreonACL
      * @param array $hosts | hosts to duplicate
      * @return void
      */
-    public static function duplicateHostAcl($hosts = [])
+    public static function duplicateHostAcl($hosts = []): void
     {
         $sql = "INSERT INTO %s (host_host_id, acl_res_id)
             (SELECT %d, acl_res_id FROM %s WHERE host_host_id = %d)";
@@ -2833,7 +2753,7 @@ class CentreonACL
      * @param array $hgs | host groups to duplicate
      * @return void
      */
-    public static function duplicateHgAcl($hgs = array())
+    public static function duplicateHgAcl($hgs = []): void
     {
         $sql = "INSERT INTO %s
                     (hg_hg_id, acl_res_id)
@@ -2852,7 +2772,7 @@ class CentreonACL
      * @param array $sgs | service groups to duplicate
      * @return void
      */
-    public static function duplicateSgAcl($sgs = array())
+    public static function duplicateSgAcl($sgs = []): void
     {
         $sql = "INSERT INTO %s
                     (sg_id, acl_res_id)
@@ -2871,7 +2791,7 @@ class CentreonACL
      * @param array $hcs | host categories to duplicate
      * @return void
      */
-    public static function duplicateHcAcl($hcs = array())
+    public static function duplicateHcAcl($hcs = []): void
     {
         $sql = "INSERT INTO %s
                     (hc_id, acl_res_id)
@@ -2890,7 +2810,7 @@ class CentreonACL
      * @param array $scs | service categories to duplicate
      * @return void
      */
-    public static function duplicateScAcl($scs = array())
+    public static function duplicateScAcl($scs = []): void
     {
         $sql = "INSERT INTO %s
                     (sc_id, acl_res_id)

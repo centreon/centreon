@@ -52,9 +52,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     /** @var ResourceTypeInterface[] */
     private array $resourceTypes;
 
-    /** @var SqlRequestParametersTranslator */
-    private SqlRequestParametersTranslator $sqlRequestTranslator;
-
     /** @var ExtraDataProviderInterface[] */
     private array $extraDataProviders;
 
@@ -97,13 +94,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      */
     public function __construct(
         DatabaseConnection $db,
-        SqlRequestParametersTranslator $sqlRequestTranslator,
+        private SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
         private readonly \Traversable $resourceACLProviders,
         \Traversable $extraDataProviders
     ) {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT)
@@ -814,7 +810,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
          * @var int[] $resourceTypes
          */
         $resourceTypes = [];
-        $subRequest = '';
         foreach ($filter->getTypes() as $filterType) {
             foreach ($this->resourceTypes as $resourceType) {
                 if ($resourceType->isValidForTypeName($filterType)) {
@@ -825,10 +820,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         if (! empty($resourceTypes)) {
-            $subRequest = ' AND resources.type IN (' . implode(', ', $resourceTypes) . ')';
+            return ' AND resources.type IN (' . implode(', ', $resourceTypes) . ')';
         }
 
-        return $subRequest;
+        return '';
     }
 
     /**

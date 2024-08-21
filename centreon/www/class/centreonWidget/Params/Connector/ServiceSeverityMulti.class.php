@@ -58,11 +58,6 @@ class CentreonWidgetParamsConnectorServiceSeverityMulti extends CentreonWidgetPa
     public function getParameters()
     {
         $path = './api/internal.php?object=centreon_configuration_service_severity&action=list';
-        return array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => $path,
-            'multiple' => true,
-            'linkedObject' => 'centreonServicecategories'
-        );
+        return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonServicecategories'];
     }
 }

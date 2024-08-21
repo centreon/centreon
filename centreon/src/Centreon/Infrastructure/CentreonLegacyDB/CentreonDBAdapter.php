@@ -46,9 +46,6 @@ use CentreonDB;
  */
 class CentreonDBAdapter
 {
-    /** @var \CentreonDB */
-    private $db;
-
     /**
      * @var \Centreon\Infrastructure\Service\CentreonDBManagerService
      */
@@ -65,9 +62,8 @@ class CentreonDBAdapter
      * @param \CentreonDB $db
      * @param \Centreon\Infrastructure\Service\CentreonDBManagerService $manager
      */
-    public function __construct(CentreonDB $db, CentreonDBManagerService $manager = null)
+    public function __construct(private CentreonDB $db, CentreonDBManagerService $manager = null)
     {
-        $this->db = $db;
         $this->manager = $manager;
     }
 
@@ -121,7 +117,7 @@ class CentreonDBAdapter
 
         try {
             $result = $this->query->execute();
-            $isSelect = strpos(strtolower($query), 'select') !== false;
+            $isSelect = str_contains(strtolower($query), 'select');
 
             if ($result && $isSelect) {
                 $this->result = $this->query->fetchAll(\PDO::FETCH_OBJ);

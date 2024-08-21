@@ -86,17 +86,12 @@ class Command
      */
     public static function getTypeIdFromName(?string $name = null): ?int
     {
-        switch ($name) {
-            case 'notification':
-                return static::TYPE_NOTIFICATION;
-            case 'check':
-                return static::TYPE_CHECK;
-            case 'misc':
-                return static::TYPE_MISC;
-            case 'discovery':
-                return static::TYPE_DISCOVERY;
-        }
-
-        return null;
+        return match ($name) {
+            'notification' => static::TYPE_NOTIFICATION,
+            'check' => static::TYPE_CHECK,
+            'misc' => static::TYPE_MISC,
+            'discovery' => static::TYPE_DISCOVERY,
+            default => null,
+        };
     }
 }

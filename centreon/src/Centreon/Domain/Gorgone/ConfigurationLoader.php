@@ -42,11 +42,6 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
     private const GORGONE_COMMAND_TIMEOUT = 'gorgone_cmd_timeout';
 
     /**
-     * @var OptionServiceInterface
-     */
-    private $optionService;
-
-    /**
      * @var array<string, string|null> Parameters of the Gorgone server
      */
     private $gorgoneParameters;
@@ -59,9 +54,8 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
     /**
      * @param OptionServiceInterface $optionService
      */
-    public function __construct(OptionServiceInterface $optionService)
+    public function __construct(private OptionServiceInterface $optionService)
     {
-        $this->optionService = $optionService;
     }
 
     /**

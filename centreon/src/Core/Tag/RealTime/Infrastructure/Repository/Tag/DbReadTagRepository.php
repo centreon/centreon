@@ -43,17 +43,13 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
 {
     use LoggerTrait;
 
-    /** @var SqlRequestParametersTranslator */
-    private SqlRequestParametersTranslator $sqlRequestTranslator;
-
     /**
      * @param DatabaseConnection $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db, private SqlRequestParametersTranslator $sqlRequestTranslator)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
@@ -83,7 +79,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
 
         // Handle sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY name ASC';
+        $request .= $sortRequest ?? ' ORDER BY name ASC';
 
         // Handle pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -148,9 +144,8 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
             return $this->findAllByTypeId($typeId);
         }
 
-        switch ($typeId) {
-            case Tag::HOST_CATEGORY_TYPE_ID:
-                $aclJoins = <<<'SQL'
+        $aclJoins = match ($typeId) {
+            Tag::HOST_CATEGORY_TYPE_ID => <<<'SQL'
                     INNER JOIN `:db`.acl_resources_hc_relations arhr
                         ON tags.id = arhr.hc_id
                     INNER JOIN `:db`.acl_resources res
@@ -159,10 +154,8 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
                         ON res.acl_res_id = argr.acl_res_id
                     INNER JOIN `:db`.acl_groups ag
                         ON argr.acl_group_id = ag.acl_group_id
-                    SQL;
-                break;
-            case Tag::SERVICE_CATEGORY_TYPE_ID:
-                $aclJoins = <<<'SQL'
+                    SQL,
+            Tag::SERVICE_CATEGORY_TYPE_ID => <<<'SQL'
                     INNER JOIN `:db`.acl_resources_sc_relations arsr
                         ON tags.id = arsr.sc_id
                     INNER JOIN `:db`.acl_resources res
@@ -171,10 +164,8 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
                         ON res.acl_res_id = argr.acl_res_id
                     INNER JOIN `:db`.acl_groups ag
                         ON argr.acl_group_id = ag.acl_group_id
-                    SQL;
-                break;
-            case Tag::HOST_GROUP_TYPE_ID:
-                $aclJoins = <<<'SQL'
+                    SQL,
+            Tag::HOST_GROUP_TYPE_ID => <<<'SQL'
                     INNER JOIN `:db`.acl_resources_hg_relations arhr
                         ON hg.hg_id = arhr.hg_hg_id
                     INNER JOIN `:db`.acl_resources res
@@ -183,10 +174,8 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
                         ON res.acl_res_id = argr.acl_res_id
                     INNER JOIN `:db`.acl_groups ag
                         ON argr.acl_group_id = ag.acl_group_id
-                    SQL;
-                break;
-            case Tag::SERVICE_GROUP_TYPE_ID:
-                $aclJoins = <<<'SQL'
+                    SQL,
+            Tag::SERVICE_GROUP_TYPE_ID => <<<'SQL'
                     INNER JOIN `:db`.acl_resources_sg_relations arsr
                         ON sg.sg_id = arsr.sg_id
                     INNER JOIN `:db`.acl_resources res
@@ -195,11 +184,9 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
                         ON res.acl_res_id = argr.acl_res_id
                     INNER JOIN `:db`.acl_groups ag
                         ON argr.acl_group_id = ag.acl_group_id
-                    SQL;
-                break;
-            default:
-                throw new \Exception('Unknown tag type');
-        }
+                    SQL,
+            default => throw new \Exception('Unknown tag type'),
+        };
 
         // Handle search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -212,7 +199,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
 
         // Handle sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $sort = $sortRequest !== null ? $sortRequest : ' ORDER BY name ASC';
+        $sort = $sortRequest ?? ' ORDER BY name ASC';
 
         // Handle pagination
         $pagination = $this->sqlRequestTranslator->translatePaginationToSql();

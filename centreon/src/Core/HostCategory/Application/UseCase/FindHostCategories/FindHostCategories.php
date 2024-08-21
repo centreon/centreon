@@ -146,21 +146,17 @@ final class FindHostCategories
         // If the current user has ACL filter on Host Categories it means that not all categories are visible so
         // we need to apply the ACL
         if ($this->readHostCategoryRepository->hasRestrictedAccessToHostCategories($accessGroupIds)) {
-            $categories = $this->readHostCategoryRepository->findAllByAccessGroupIds(
+            return $this->readHostCategoryRepository->findAllByAccessGroupIds(
                 $accessGroupIds,
                 $this->requestParameters
             );
-        } else {
-            $this->debug(
-                'No ACL filter found on host categories for user. Retrieving all host categories',
-                ['user' => $this->user->getName()]
-            );
-
-            $categories = $this->readHostCategoryRepository->findAll($this->requestParameters);
-
         }
+        $this->debug(
+            'No ACL filter found on host categories for user. Retrieving all host categories',
+            ['user' => $this->user->getName()]
+        );
 
-        return $categories;
+        return $this->readHostCategoryRepository->findAll($this->requestParameters);
     }
 
     /**
@@ -171,11 +167,11 @@ final class FindHostCategories
      */
     private function isAuthorized(): bool
     {
-        return $this->user->isAdmin()
-            || (
-                $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
-                || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
-            );
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+        return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
+        || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE);
     }
 
     /**

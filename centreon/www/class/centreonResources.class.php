@@ -38,14 +38,11 @@
  */
 class CentreonResources
 {
-    protected $db;
-
     /*
      * constructor
      */
-    public function __construct($pearDB)
+    public function __construct(protected $db)
     {
-        $this->db = $pearDB;
     }
     
     /**
@@ -55,7 +52,7 @@ class CentreonResources
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'cfg_resource';
         $parameters['currentObject']['id'] = 'resource_id';
         $parameters['currentObject']['name'] = 'resource_name';
@@ -86,7 +83,7 @@ class CentreonResources
         $queryResources = "SELECT * FROM cfg_resource WHERE resource_name = '$name'";
         $resultQueryResources = $db->query($queryResources);
         
-        $finalResource = array();
+        $finalResource = [];
         while ($resultResources = $resultQueryResources->fetchRow()) {
             $finalResource = $resultResources;
         }

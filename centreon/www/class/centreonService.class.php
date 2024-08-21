@@ -47,12 +47,6 @@ class CentreonService
      *
      * @var \CentreonDB
      */
-    protected $db;
-
-    /**
-     *
-     * @var \CentreonDB
-     */
     protected $dbMon;
 
     /**
@@ -95,16 +89,15 @@ class CentreonService
      *
      * @param CentreonDB $db
      */
-    public function __construct($db, $dbMon = null)
+    public function __construct(protected $db, $dbMon = null)
     {
-        $this->db = $db;
         if (is_null($dbMon)) {
             $this->dbMon = \CentreonDBInstance::getMonInstance();
         } else {
             $this->dbMon = $dbMon;
         }
 
-        $this->instanceObj = CentreonInstance::getInstance($db, $dbMon);
+        $this->instanceObj = CentreonInstance::getInstance($this->db, $dbMon);
     }
 
     /**
@@ -145,7 +138,7 @@ class CentreonService
 
         if ($serviceId) {
             if (is_null($svcTab)) {
-                $svcTab = array();
+                $svcTab = [];
 
                 $rq = "SELECT service_id, service_description
      	    		   FROM service";
@@ -194,7 +187,7 @@ class CentreonService
      */
     public function getServiceId($svc_desc = null, $host_name = null)
     {
-        static $hostSvcTab = array();
+        static $hostSvcTab = [];
 
         if (!isset($hostSvcTab[$host_name])) {
             $rq = "SELECT s.service_id, s.service_description " .
@@ -212,7 +205,7 @@ class CentreonService
                 "     	WHERE h.host_name = '" . $this->db->escape($host_name) . "' ) ghsrv" .
                 " ON s.service_id = ghsrv.service_service_id";
             $DBRES = $this->db->query($rq);
-            $hostSvcTab[$host_name] = array();
+            $hostSvcTab[$host_name] = [];
             while ($row = $DBRES->fetchRow()) {
                 $hostSvcTab[$host_name][$row['service_description']] = $row['service_id'];
             }
@@ -235,7 +228,7 @@ class CentreonService
      */
     public function getServiceIdFromHgName($service_desc, $hgName)
     {
-        static $hgSvcTab = array();
+        static $hgSvcTab = [];
 
         if (!isset($hgSvcTab[$hgName])) {
             $rq = "SELECT hsr.service_service_id, s.service_description
@@ -262,7 +255,7 @@ class CentreonService
      */
     public function getServiceName($sid)
     {
-        static $svcTab = array();
+        static $svcTab = [];
 
         if (!isset($svcTab[$sid])) {
             $query = "SELECT service_alias
@@ -274,10 +267,7 @@ class CentreonService
                 $svcTab[$sid] = $row['service_alias'];
             }
         }
-        if (isset($svcTab[$sid])) {
-            return $svcTab[$sid];
-        }
-        return null;
+        return $svcTab[$sid] ?? null;
     }
 
     /**
@@ -300,7 +290,7 @@ class CentreonService
 
             if (count($filteredSvcIds) > 0) {
                 foreach ($filteredSvcIds as $hostAndServiceId) {
-                    list($hostId, $serviceId) = explode("_", $hostAndServiceId);
+                    [$hostId, $serviceId] = explode("_", $hostAndServiceId);
                     $where .= empty($where) ? " ( " : " OR ";
                     $where .= " (h.host_id = $hostId AND s.service_id = $serviceId) ";
                 }
@@ -337,7 +327,7 @@ class CentreonService
     {
         $DBRESULT = $this->db->query("SELECT illegal_object_name_chars FROM cfg_nagios");
         while ($data = $DBRESULT->fetchRow()) {
-            $name = str_replace(str_split($data['illegal_object_name_chars']), '', $name);
+            $name = str_replace(str_split((string) $data['illegal_object_name_chars']), '', $name);
         }
         $DBRESULT->closeCursor();
         return $name;
@@ -389,7 +379,7 @@ class CentreonService
                 );
             }
         }
-        $matches = array();
+        $matches = [];
         $pattern = '|(\$_SERVICE[0-9a-zA-Z\_\-]+\$)|';
         preg_match_all($pattern, $string, $matches);
         $i = 0;
@@ -432,7 +422,7 @@ class CentreonService
                             FROM service
                             WHERE service_register = '0'
                             ORDER BY service_description");
-        $list = array();
+        $list = [];
         while ($row = $res->fetchRow()) {
             $list[$row['service_id']] = $row['service_description'];
         }
@@ -452,14 +442,14 @@ class CentreonService
      */
     public function insertMacro(
         $serviceId,
-        $macroInput = array(),
-        $macroValue = array(),
-        $macroPassword = array(),
-        $macroDescription = array(),
+        $macroInput = [],
+        $macroValue = [],
+        $macroPassword = [],
+        $macroDescription = [],
         $isMassiveChange = false,
         $cmdId = false,
         $macroFrom = false
-    ) {
+    ): void {
         if (false === $isMassiveChange) {
             $this->db->query("DELETE FROM on_demand_macro_service
 							WHERE svc_svc_id = " . $this->db->escape($serviceId));
@@ -476,7 +466,7 @@ class CentreonService
             }
         }
 
-        $stored = array();
+        $stored = [];
         $cnt = 0;
         $macros = $macroInput;
         $macrovalues = $macroValue;
@@ -492,7 +482,7 @@ class CentreonService
         foreach ($macros as $key => $value) {
             if (
                 $value != "" &&
-                !isset($stored[strtolower($value)])
+                !isset($stored[strtolower((string) $value)])
             ) {
                 $this->db->query(
                     "INSERT INTO on_demand_macro_service
@@ -503,14 +493,14 @@ class CentreonService
                     ", '" . $this->db->escape($macroDescription[$key]) . "', " . $this->db->escape($serviceId) .
                     ", " . $cnt . " )"
                 );
-                $stored[strtolower($value)] = true;
+                $stored[strtolower((string) $value)] = true;
                 $cnt++;
 
                 //Format macros to improve handling on form submit.
                 $dbResult = $this->db->query("SELECT MAX(svc_macro_id) FROM on_demand_macro_service");
                 $macroId = $dbResult->fetch();
                 $this->formattedMacros[(int) $macroId['MAX(svc_macro_id)']] = [
-                    "macroName" => '_SERVICE' . strtoupper($value),
+                    "macroName" => '_SERVICE' . strtoupper((string) $value),
                     "macroValue" => $macrovalues[$key],
                     "macroPassword" => $macroPassword[$key] ?? '0',
                 ];
@@ -530,7 +520,7 @@ class CentreonService
      */
     public function getCustomMacroInDb($serviceId = null, $template = null)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
         if ($serviceId) {
             $res = $this->db->query("SELECT svc_macro_name, svc_macro_value, is_password, description
@@ -539,7 +529,7 @@ class CentreonService
                 $this->db->escape($serviceId) . "
                                 ORDER BY macro_order ASC");
             while ($row = $res->fetchRow()) {
-                if (preg_match('/\$_SERVICE(.*)\$$/', $row['svc_macro_name'], $matches)) {
+                if (preg_match('/\$_SERVICE(.*)\$$/', (string) $row['svc_macro_name'], $matches)) {
                     $arr[$i]['macroInput_#index#'] = $matches[1];
                     $arr[$i]['macroValue_#index#'] = $row['svc_macro_value'];
                     $arr[$i]['macroPassword_#index#'] = $row['is_password'] ? 1 : null;
@@ -564,7 +554,7 @@ class CentreonService
      */
     public function getCustomMacro($serviceId = null, $realKeys = false)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
         if (!isset($_REQUEST['macroInput']) && $serviceId) {
             $res = $this->db->query("SELECT svc_macro_name, svc_macro_value, is_password, description
@@ -573,7 +563,7 @@ class CentreonService
                 $this->db->escape($serviceId) . "
                                 ORDER BY macro_order ASC");
             while ($row = $res->fetchRow()) {
-                if (preg_match('/\$_SERVICE(.*)\$$/', $row['svc_macro_name'], $matches)) {
+                if (preg_match('/\$_SERVICE(.*)\$$/', (string) $row['svc_macro_name'], $matches)) {
                     $arr[$i]['macroInput_#index#'] = $matches[1];
                     $arr[$i]['macroValue_#index#'] = $row['svc_macro_value'];
 
@@ -611,10 +601,8 @@ class CentreonService
                 }
                 $arr[$i]['macroPassword_#index#'] = $valPassword;
 
-                $arr[$index]['macroDescription_#index#'] = isset($_REQUEST['description'][$key]) ?
-                    $_REQUEST['description'][$key] : null;
-                $arr[$index]['macroDescription'] = isset($_REQUEST['description'][$key]) ?
-                    $_REQUEST['description'][$key] : null;
+                $arr[$index]['macroDescription_#index#'] = $_REQUEST['description'][$key] ?? null;
+                $arr[$index]['macroDescription'] = $_REQUEST['description'][$key] ?? null;
                 $i++;
             }
         }
@@ -631,7 +619,7 @@ class CentreonService
         static $arr = null;
 
         if (is_null($arr)) {
-            $arr = array();
+            $arr = [];
             $res = $this->db->query("SELECT service_id
                     FROM service
                     WHERE service_locked = 1");
@@ -650,7 +638,7 @@ class CentreonService
      * @param string $service_id_field
      * @return void
      */
-    public function cleanServiceRelations($table = "", $host_id_field = "", $service_id_field = "")
+    public function cleanServiceRelations($table = "", $host_id_field = "", $service_id_field = ""): void
     {
         $sql = "DELETE FROM {$table}
                     WHERE NOT EXISTS (
@@ -676,10 +664,10 @@ class CentreonService
      * @param array $cctSCache
      * @return bool
      */
-    public function serviceHasContact($service, $type = 0, $cgSCache = array(), $cctSCache = array())
+    public function serviceHasContact($service, $type = 0, $cgSCache = [], $cctSCache = [])
     {
-        static $serviceTemplateHasContactGroup = array();
-        static $serviceTemplateHasContact = array();
+        static $serviceTemplateHasContactGroup = [];
+        static $serviceTemplateHasContact = [];
 
         if ($type == 0) {
             $staticArr = &$serviceTemplateHasContact;
@@ -722,7 +710,7 @@ class CentreonService
         $cmdId = false,
         $isMassiveChange = false,
         $macroFrom = false
-    ) {
+    ): void {
         $aListTemplate = getListTemplates($pearDB, $serviceId);
 
         if (!isset($cmdId)) {
@@ -732,19 +720,19 @@ class CentreonService
         $aMacros = $this->getMacros($serviceId, $aListTemplate, $cmdId);
         foreach ($aMacros as $macro) {
             foreach ($macroInput as $ind => $input) {
-                if (isset($macro['macroInput_#index#'], $macro["macroValue_#index#"])) {
-                    # Don't override macros on massive change if there is not direct inheritance
-                    if (
-                        ($input == $macro['macroInput_#index#'] && $macroValue[$ind] == $macro["macroValue_#index#"])
-                        || ($isMassiveChange
-                            && $input == $macro['macroInput_#index#']
-                            && isset($macroFrom[$ind])
-                            && $macroFrom[$ind] != 'direct')
-                    ) {
-                        unset($macroInput[$ind]);
-                        unset($macroValue[$ind]);
-                    }
+                if (!isset($macro['macroInput_#index#'], $macro["macroValue_#index#"])) {
+                    continue;
                 }
+                # Don't override macros on massive change if there is not direct inheritance
+                if (!(($input == $macro['macroInput_#index#'] && $macroValue[$ind] == $macro["macroValue_#index#"])
+                || ($isMassiveChange
+                    && $input == $macro['macroInput_#index#']
+                    && isset($macroFrom[$ind])
+                    && $macroFrom[$ind] != 'direct'))) {
+                    continue;
+                }
+                unset($macroInput[$ind]);
+                unset($macroValue[$ind]);
             }
         }
     }
@@ -752,18 +740,16 @@ class CentreonService
     public function getMacroFromForm($form, $fromKey)
     {
 
-        $Macros = array();
+        $Macros = [];
         if (!empty($form['macroInput'])) {
             foreach ($form['macroInput'] as $key => $macroInput) {
                 if ($form['macroFrom'][$key] == $fromKey) {
-                    $macroTmp = array();
+                    $macroTmp = [];
                     $macroTmp['macroInput_#index#'] = $macroInput;
                     $macroTmp['macroValue_#index#'] = $form['macroValue'][$key];
                     $macroTmp['macroPassword_#index#'] = isset($form['is_password'][$key]) ? 1 : null;
-                    $macroTmp['macroDescription_#index#'] = isset($form['description'][$key]) ?
-                        $form['description'][$key] : null;
-                    $macroTmp['macroDescription'] = isset($form['description'][$key]) ?
-                        $form['description'][$key] : null;
+                    $macroTmp['macroDescription_#index#'] = $form['description'][$key] ?? null;
+                    $macroTmp['macroDescription'] = $form['description'][$key] ?? null;
                     $Macros[] = $macroTmp;
                 }
             }
@@ -780,7 +766,7 @@ class CentreonService
      *
      * @return array
      */
-    public function getMacros($iServiceId, $aListTemplate, $iIdCommande, $form = array())
+    public function getMacros($iServiceId, $aListTemplate, $iIdCommande, $form = [])
     {
 
         $macroArray = $this->getCustomMacroInDb($iServiceId);
@@ -821,7 +807,7 @@ class CentreonService
         }
 
         //filter a macro
-        $aTempMacro = array();
+        $aTempMacro = [];
         if (count($aMacroInService) > 0) {
             for ($i = 0; $i < count($aMacroInService); $i++) {
                 $aMacroInService[$i]['macroOldValue_#index#'] = $aMacroInService[$i]["macroValue_#index#"];
@@ -858,15 +844,15 @@ class CentreonService
 
     public function ajaxMacroControl($form)
     {
-        $aMacroInService = array();
+        $aMacroInService = [];
         $macroArray = $this->getCustomMacro(null, true);
         $this->purgeOldMacroToForm($macroArray, $form, 'fromTpl');
-        $aListTemplate = array();
+        $aListTemplate = [];
         if (isset($form['service_template_model_stm_id']) && !empty($form['service_template_model_stm_id'])) {
             $aListTemplate = getListTemplates($this->db, $form['service_template_model_stm_id']);
         }
         //Get macro attached to the template
-        $aMacroTemplate = array();
+        $aMacroTemplate = [];
 
         foreach ($aListTemplate as $template) {
             if (!empty($template)) {
@@ -901,7 +887,7 @@ class CentreonService
 
 
         //filter a macro
-        $aTempMacro = array();
+        $aTempMacro = [];
 
         if (count($aMacroInService) > 0) {
             for ($i = 0; $i < count($aMacroInService); $i++) {
@@ -937,7 +923,7 @@ class CentreonService
         return $aFinalMacro;
     }
 
-    public function purgeOldMacroToForm(&$macroArray, &$form, $fromKey, $macrosArrayToCompare = null)
+    public function purgeOldMacroToForm(&$macroArray, &$form, $fromKey, $macrosArrayToCompare = null): void
     {
         if (isset($form["macroInput"]["#index#"])) {
             unset($form["macroInput"]["#index#"]);
@@ -960,18 +946,20 @@ class CentreonService
                 }
             }
         } else {
-            $inputIndexArray = array();
+            $inputIndexArray = [];
             foreach ($macrosArrayToCompare as $tocompare) {
                 if (isset($tocompare['macroInput_#index#'])) {
                     $inputIndexArray[] = $tocompare['macroInput_#index#'];
                 }
             }
             foreach ($macroArray as $key => $macro) {
-                if ($form['macroFrom'][$key] == $fromKey) {
-                    if (!in_array($macro['macroInput_#index#'], $inputIndexArray)) {
-                        unset($macroArray[$key]);
-                    }
+                if ($form['macroFrom'][$key] != $fromKey) {
+                    continue;
                 }
+                if (in_array($macro['macroInput_#index#'], $inputIndexArray)) {
+                    continue;
+                }
+                unset($macroArray[$key]);
             }
         }
     }
@@ -984,7 +972,7 @@ class CentreonService
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'service';
         $parameters['currentObject']['id'] = 'service_id';
         $parameters['currentObject']['name'] = 'service_description';
@@ -1094,7 +1082,7 @@ class CentreonService
                 $parameters['externalObject']['id'] = 'sc_id';
                 $parameters['externalObject']['name'] = 'sc_name';
                 $parameters['externalObject']['comparator'] = 'sc_id';
-                $parameters['externalObject']['additionalComparator'] = array('level' => null);
+                $parameters['externalObject']['additionalComparator'] = ['level' => null];
                 $parameters['relationObject']['table'] = 'service_categories_relation';
                 $parameters['relationObject']['field'] = 'sc_id';
                 $parameters['relationObject']['comparator'] = 'service_service_id';
@@ -1110,11 +1098,11 @@ class CentreonService
      * @param string $register
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array(), $register = '1')
+    public function getObjectForSelect2($values = [], $options = [], $register = '1')
     {
         $hostgroup = false;
-        $hostIdList = array();
-        $serviceIdList = array();
+        $hostIdList = [];
+        $serviceIdList = [];
         $values = is_array($values) ? $values : [];
 
         if (isset($options['hostgroup']) && $options['hostgroup'] == true) {
@@ -1127,8 +1115,8 @@ class CentreonService
                 continue;
             }
 
-            if (strpos($value, '-')) {
-                $tmpValue = explode('-', $value);
+            if (strpos((string) $value, '-')) {
+                $tmpValue = explode('-', (string) $value);
                 $hostIdList[] = $tmpValue[0];
                 $serviceIdList[] = $tmpValue[1];
             } else {
@@ -1139,7 +1127,7 @@ class CentreonService
         # Construct host filter for query
         $selectedHosts = '';
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($hostIdList)) {
             if ($hostgroup) {
                 $selectedHosts .= "AND hsr.hostgroup_hg_id IN (";
@@ -1165,7 +1153,7 @@ class CentreonService
             $selectedServices .= rtrim($listValues, ',') . ") ";
         }
 
-        $serviceList = array();
+        $serviceList = [];
         if (!empty($selectedServices)) {
             if ($hostgroup) {
                 $queryService = "SELECT DISTINCT s.service_description, s.service_id, hg.hg_name, hg.hg_id "
@@ -1189,7 +1177,7 @@ class CentreonService
                     $serviceCompleteName = $data['hg_name'] . ' - ' . $data['service_description'];
                     $serviceCompleteId = $data['hg_id'] . '-' . $data['service_id'];
 
-                    $serviceList[] = array('id' => $serviceCompleteId, 'text' => $serviceCompleteName);
+                    $serviceList[] = ['id' => $serviceCompleteId, 'text' => $serviceCompleteName];
                 }
             } else {
                 $queryService = "SELECT DISTINCT s.service_description, s.service_id, h.host_name, h.host_id "
@@ -1212,7 +1200,7 @@ class CentreonService
                 while ($data = $stmt->fetch()) {
                     $serviceCompleteName = $data['host_name'] . ' - ' . $data['service_description'];
                     $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
-                    $serviceList[] = array('id' => $serviceCompleteId, 'text' => $serviceCompleteName);
+                    $serviceList[] = ['id' => $serviceCompleteId, 'text' => $serviceCompleteName];
                 }
             }
         }
@@ -1229,34 +1217,31 @@ class CentreonService
     private function comparaPriority($macroA, $macroB, $getFirst = true)
     {
 
-        $arrayPrio = array('direct' => 3, 'fromTpl' => 2, 'fromService' => 1);
+        $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromService' => 1];
         if ($getFirst) {
             if ($arrayPrio[$macroA['source']] > $arrayPrio[$macroB['source']]) {
                 return $macroA;
-            } else {
-                return $macroB;
             }
-        } else {
-            if ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
-                return $macroA;
-            } else {
-                return $macroB;
-            }
+            return $macroB;
         }
+        if ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
+            return $macroA;
+        }
+        return $macroB;
     }
 
     public function macroUnique($aTempMacro)
     {
 
-        $storedMacros = array();
+        $storedMacros = [];
         foreach ($aTempMacro as $TempMacro) {
             $sInput = $TempMacro['macroInput_#index#'];
             $storedMacros[$sInput][] = $TempMacro;
         }
 
-        $finalMacros = array();
+        $finalMacros = [];
         foreach ($storedMacros as $key => $macros) {
-            $choosedMacro = array();
+            $choosedMacro = [];
             foreach ($macros as $macro) {
                 if (empty($choosedMacro)) {
                     $choosedMacro = $macro;
@@ -1272,7 +1257,7 @@ class CentreonService
         return $finalMacros;
     }
 
-    private function addInfosToMacro($storedMacros, &$finalMacros)
+    private function addInfosToMacro($storedMacros, &$finalMacros): void
     {
 
         foreach ($finalMacros as &$finalMacro) {
@@ -1300,7 +1285,7 @@ class CentreonService
     {
         $description = "";
         if (empty($finalMacro['macroDescription'])) {
-            $choosedMacro = array();
+            $choosedMacro = [];
             foreach ($storedMacros as $storedMacro) {
                 if (!empty($storedMacro['macroDescription'])) {
                     if (empty($choosedMacro)) {
@@ -1317,13 +1302,13 @@ class CentreonService
         return $description;
     }
 
-    private function setInheritedDescription(&$finalMacro, $description)
+    private function setInheritedDescription(&$finalMacro, $description): void
     {
         $finalMacro['macroDescription_#index#'] = $description;
         $finalMacro['macroDescription'] = $description;
     }
 
-    private function setTplValue($tplValue, &$finalMacro)
+    private function setTplValue($tplValue, &$finalMacro): void
     {
 
         if ($tplValue !== false) {
@@ -1493,7 +1478,7 @@ class CentreonService
      * @param type $aDatas
      * @return type
      */
-    public function insertExtendInfo($aDatas)
+    public function insertExtendInfo($aDatas): void
     {
 
         if (empty($aDatas['service_service_id'])) {
@@ -1523,7 +1508,7 @@ class CentreonService
      *
      * @param array $ret
      */
-    public function update($service_id, $ret)
+    public function update($service_id, $ret): void
     {
         $rq = "UPDATE service SET ";
         $rq .= "service_template_model_stm_id = ";
@@ -1665,19 +1650,12 @@ class CentreonService
      * update service extended informations in DB
      *
      */
-    public function updateExtendedInfos($service_id, $ret)
+    public function updateExtendedInfos($service_id, $ret): void
     {
-        $fields = array(
-            'esi_notes' => 'esi_notes',
-            'esi_notes_url' => 'esi_notes_url',
-            'esi_action_url' => 'esi_action_url',
-            'esi_icon_image' => 'esi_icon_image',
-            'esi_icon_image_alt' => 'esi_icon_image_alt',
-            'graph_id' => 'graph_id'
-        );
+        $fields = ['esi_notes' => 'esi_notes', 'esi_notes_url' => 'esi_notes_url', 'esi_action_url' => 'esi_action_url', 'esi_icon_image' => 'esi_icon_image', 'esi_icon_image_alt' => 'esi_icon_image_alt', 'graph_id' => 'graph_id'];
 
         $query = "UPDATE extended_service_information SET ";
-        $updateFields = array();
+        $updateFields = [];
         foreach ($ret as $key => $value) {
             if (isset($fields[$key])) {
                 $updateFields[] = '`' . $fields[$key] . '` = "' . CentreonDB::escape($value) . '" ';
@@ -1701,14 +1679,14 @@ class CentreonService
      * @param $argArray
      * @return string
      */
-    public function getCommandArgs($argArray = array(), $conf = array())
+    public function getCommandArgs($argArray = [], $conf = [])
     {
         if (isset($conf['command_command_id_arg'])) {
             return $conf['command_command_id_arg'];
         }
-        $argTab = array();
+        $argTab = [];
         foreach ($argArray as $key => $value) {
-            if (preg_match('/^ARG(\d+)/', $key, $matches)) {
+            if (preg_match('/^ARG(\d+)/', (string) $key, $matches)) {
                 $argTab[$matches[1]] = $value;
                 $argTab[$matches[1]] = str_replace("\n", "#BR#", $argTab[$matches[1]]);
                 $argTab[$matches[1]] = str_replace("\t", "#T#", $argTab[$matches[1]]);
@@ -1759,13 +1737,11 @@ class CentreonService
         );
         $statement->bindValue(':serviceId', (int) $id, \PDO::PARAM_INT);
         $statement->execute();
-
-        $result = [];
         if ($statement->rowCount()) {
-            $result = $statement->fetchRow();
+            return $statement->fetchRow();
         }
 
-        return $result;
+        return [];
     }
 
     /**
@@ -1774,32 +1750,29 @@ class CentreonService
      * @param int $svcId The service ID
      * @return array
      */
-    public function getTemplatesChain($svcId, $alreadyProcessed = array())
+    public function getTemplatesChain($svcId, $alreadyProcessed = [])
     {
-        $svcTmpl = array();
+        $svcTmpl = [];
         if (in_array($svcId, $alreadyProcessed)) {
             return $svcTmpl;
-        } else {
-            $alreadyProcessed[] = $svcId;
-
-            $statement = $this->db->prepare(
-                "SELECT service_template_model_stm_id FROM service WHERE service_id = :service_id"
-            );
-            $statement->bindValue(':service_id', (int) $svcId, \PDO::PARAM_INT);
-            $statement->execute();
-
-            if ($statement->rowCount()) {
-                $row = $statement->fetch(\PDO::FETCH_ASSOC);
-                if (!empty($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] !== null) {
-                    $svcTmpl = array_merge(
-                        $svcTmpl,
-                        $this->getTemplatesChain($row['service_template_model_stm_id'], $alreadyProcessed)
-                    );
-                    $svcTmpl[] = $row['service_template_model_stm_id'];
-                }
-            }
-            return $svcTmpl;
         }
+        $alreadyProcessed[] = $svcId;
+        $statement = $this->db->prepare(
+            "SELECT service_template_model_stm_id FROM service WHERE service_id = :service_id"
+        );
+        $statement->bindValue(':service_id', (int) $svcId, \PDO::PARAM_INT);
+        $statement->execute();
+        if ($statement->rowCount()) {
+            $row = $statement->fetch(\PDO::FETCH_ASSOC);
+            if (!empty($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] !== null) {
+                $svcTmpl = array_merge(
+                    $svcTmpl,
+                    $this->getTemplatesChain($row['service_template_model_stm_id'], $alreadyProcessed)
+                );
+                $svcTmpl[] = $row['service_template_model_stm_id'];
+            }
+        }
+        return $svcTmpl;
     }
 
     /**
@@ -1808,7 +1781,7 @@ class CentreonService
      * @param string $service_description Hostname
      * @throws Exception
      */
-    public function deleteServiceByDescription($service_description)
+    public function deleteServiceByDescription($service_description): void
     {
         $sQuery = 'DELETE FROM service '
             . 'WHERE service_description = "' . $this->db->escape($service_description) . '"';
@@ -1827,7 +1800,7 @@ class CentreonService
      * @param string $serviceDescription service description
      * @throws Exception
      */
-    public function setServiceDescription($serviceId, $serviceDescription)
+    public function setServiceDescription($serviceId, $serviceDescription): void
     {
         $query = 'UPDATE service '
             . 'SET service_description = "' . $this->db->escape($serviceDescription) . '" '
@@ -1847,7 +1820,7 @@ class CentreonService
      * @param string $serviceAlias service alias
      * @throws Exception
      */
-    public function setServiceAlias($serviceId, $serviceAlias)
+    public function setServiceAlias($serviceId, $serviceAlias): void
     {
         $query = 'UPDATE service '
             . 'SET service_alias = "' . $this->db->escape($serviceAlias) . '" '
@@ -1869,7 +1842,7 @@ class CentreonService
      */
     public function getLinkedHostsByServiceDescription($serviceDescription, $getHostName = false)
     {
-        $hosts = array();
+        $hosts = [];
 
         $select = 'SELECT h.host_id ';
         if ($getHostName) {

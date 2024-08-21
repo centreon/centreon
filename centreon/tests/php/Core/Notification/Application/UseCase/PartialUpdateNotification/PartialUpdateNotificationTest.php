@@ -39,7 +39,7 @@ use Core\Notification\Application\UseCase\PartialUpdateNotification\{
 use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\Notification;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new PartialUpdateNotificationPresenterStub($this->presenterFormatter);
     $this->dataStorage = $this->createMock(DataStorageEngineInterface::class);
@@ -48,7 +48,7 @@ beforeEach(function () {
     $this->notificationId = 1;
 });
 
-it('should present a Forbidden Response when user doesn\'t have access to endpoint', function () {
+it('should present a Forbidden Response when user doesn\'t have access to endpoint', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
     $request = new PartialUpdateNotificationRequest();
     $request->isActivated = true;
@@ -67,7 +67,7 @@ it('should present a Forbidden Response when user doesn\'t have access to endpoi
         ->toBe(NotificationException::partialUpdateNotAllowed()->getMessage());
 });
 
-it('should present a Not Found Response when notification ID doesn\'t exist', function () {
+it('should present a Not Found Response when notification ID doesn\'t exist', function (): void {
     $contact = (new Contact())
         ->setAdmin(false)
         ->setTopologyRules([Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]);
@@ -93,7 +93,7 @@ it('should present a Not Found Response when notification ID doesn\'t exist', fu
         ->toBe('Notification not found');
 });
 
-it('should present an Error Response when an unhandled error occurs', function () {
+it('should present an Error Response when an unhandled error occurs', function (): void {
     $contact = (new Contact())
         ->setAdmin(false)
         ->setTopologyRules([Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]);
@@ -119,7 +119,7 @@ it('should present an Error Response when an unhandled error occurs', function (
         ->toBe(NotificationException::errorWhilePartiallyUpdatingObject()->getMessage());
 });
 
-it('should present a No Content Response when a notification definition has been partially updated', function () {
+it('should present a No Content Response when a notification definition has been partially updated', function (): void {
     $contact = (new Contact())
         ->setAdmin(false)
         ->setTopologyRules([Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]);

@@ -45,29 +45,10 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
 {
     public const VALIDATION_GROUPS_ADD_HOST_DOWNTIME = ['Default', 'downtime_host', 'downtime_host_add'];
     public const VALIDATION_GROUPS_ADD_SERVICE_DOWNTIME = ['Default', 'downtime_service'];
-
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
-    private $accessGroupRepository;
-    /**
-     * @var EngineServiceInterface For all downtimes requests except reading
-     */
-    private $engineService;
-
-    /**
-     * @var DowntimeRepositoryInterface
-     */
-    private $downtimeRepository;
     /**
      * @var AccessGroup[] Access groups of contact
      */
     private $accessGroups;
-
-    /**
-     * @var MonitoringRepositoryInterface
-     */
-    private $monitoringRepository;
 
     /**
      * DowntimeService constructor.
@@ -77,16 +58,8 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
      * @param DowntimeRepositoryInterface $downtimeRepository
      * @param MonitoringRepositoryInterface $monitoringRepository
      */
-    public function __construct(
-        ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        EngineServiceInterface $engineService,
-        DowntimeRepositoryInterface $downtimeRepository,
-        MonitoringRepositoryInterface $monitoringRepository
-    ) {
-        $this->accessGroupRepository = $accessGroupRepository;
-        $this->engineService = $engineService;
-        $this->downtimeRepository = $downtimeRepository;
-        $this->monitoringRepository = $monitoringRepository;
+    public function __construct(private ReadAccessGroupRepositoryInterface $accessGroupRepository, private EngineServiceInterface $engineService, private DowntimeRepositoryInterface $downtimeRepository, private MonitoringRepositoryInterface $monitoringRepository)
+    {
     }
 
     /**
@@ -131,11 +104,10 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
     {
         if ($this->contact->isAdmin()) {
             return $this->downtimeRepository->findHostDowntimesForAdminUser();
-        } else {
-            return $this->downtimeRepository
-                ->forAccessGroups($this->accessGroups)
-                ->findHostDowntimesForNonAdminUser();
         }
+        return $this->downtimeRepository
+            ->forAccessGroups($this->accessGroups)
+            ->findHostDowntimesForNonAdminUser();
     }
 
     /**
@@ -145,11 +117,10 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
     {
         if ($this->contact->isAdmin()) {
             return $this->downtimeRepository->findServicesDowntimesForAdminUser();
-        } else {
-            return $this->downtimeRepository
-                ->forAccessGroups($this->accessGroups)
-                ->findServicesDowntimesForNonAdminUser();
         }
+        return $this->downtimeRepository
+            ->forAccessGroups($this->accessGroups)
+            ->findServicesDowntimesForNonAdminUser();
     }
 
     /**
@@ -159,11 +130,10 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
     {
         if ($this->contact->isAdmin()) {
             return $this->downtimeRepository->findDowntimesByServiceForAdminUser($hostId, $serviceId);
-        } else {
-            return $this->downtimeRepository
-                ->forAccessGroups($this->accessGroups)
-                ->findDowntimesByServiceForNonAdminUser($hostId, $serviceId);
         }
+        return $this->downtimeRepository
+            ->forAccessGroups($this->accessGroups)
+            ->findDowntimesByServiceForNonAdminUser($hostId, $serviceId);
     }
 
     /**
@@ -180,14 +150,13 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
                 $service->getHost()->getId(),
                 $service->getId()
             );
-        } else {
-            return $this->downtimeRepository
-                ->forAccessGroups($this->accessGroups)
-                ->findDowntimesByServiceForNonAdminUser(
-                    $service->getHost()->getId(),
-                    $service->getId()
-                );
         }
+        return $this->downtimeRepository
+            ->forAccessGroups($this->accessGroups)
+            ->findDowntimesByServiceForNonAdminUser(
+                $service->getHost()->getId(),
+                $service->getId()
+            );
     }
 
     /**
@@ -197,11 +166,10 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
     {
         if ($this->contact->isAdmin()) {
             return $this->downtimeRepository->findDowntimesByHostForAdminUser($hostId, $withServices);
-        } else {
-            return $this->downtimeRepository
-                ->forAccessGroups($this->accessGroups)
-                ->findDowntimesByHostForNonAdminUser($hostId, $withServices);
         }
+        return $this->downtimeRepository
+            ->forAccessGroups($this->accessGroups)
+            ->findDowntimesByHostForNonAdminUser($hostId, $withServices);
     }
 
     /**
@@ -211,11 +179,10 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
     {
         if ($this->contact->isAdmin()) {
             return $this->downtimeRepository->findDowntimesForAdminUser();
-        } else {
-            return $this->downtimeRepository
-                ->forAccessGroups($this->accessGroups)
-                ->findDowntimesForNonAdminUser();
         }
+        return $this->downtimeRepository
+            ->forAccessGroups($this->accessGroups)
+            ->findDowntimesForNonAdminUser();
     }
 
     /**
@@ -225,11 +192,10 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
     {
         if ($this->contact->isAdmin()) {
             return $this->downtimeRepository->findOneDowntimeForAdminUser($downtimeId);
-        } else {
-            return $this->downtimeRepository
-                ->forAccessGroups($this->accessGroups)
-                ->findOneDowntimeForNonAdminUser($downtimeId);
         }
+        return $this->downtimeRepository
+            ->forAccessGroups($this->accessGroups)
+            ->findOneDowntimeForNonAdminUser($downtimeId);
     }
 
     /**

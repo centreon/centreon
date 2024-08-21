@@ -39,7 +39,7 @@
 
 function microtime_float2()
 {
-    list($usec, $sec) = explode(" ", microtime());
+    [$usec, $sec] = explode(" ", microtime());
     return ((float) $usec + (float) $sec);
 }
 
@@ -47,7 +47,7 @@ function microtime_float2()
  * send a formatted message before exiting the script
  * @param $msg
  */
-function programExit($msg)
+function programExit($msg): never
 {
     echo "[" . date("Y-m-d H:i:s") . "] " . $msg . "\n";
     exit;
@@ -153,7 +153,7 @@ function getFilteredPollers($host, $resId)
     $dbResult->execute();
 
     if ($dbResult->rowCount()) {
-        $host = array();
+        $host = [];
         while ($row = $dbResult->fetch()) {
             if (isset($hostTmp[$row['host_host_id']])) {
                 $host[$row['host_host_id']] = 1;
@@ -162,7 +162,7 @@ function getFilteredPollers($host, $resId)
     } else {
         // If result of query is empty and user have poller restrictions, clean host table.
         if ($isPollerFilter) {
-            $host = array();
+            $host = [];
         }
     }
     return $host;
@@ -266,7 +266,7 @@ function getServiceTemplateCategoryList($serviceId = null)
 {
     global $svcTplCache, $svcCatCache;
 
-    $tabCategory = array();
+    $tabCategory = [];
 
     if (!$serviceId) {
         return;
@@ -282,7 +282,7 @@ function getServiceTemplateCategoryList($serviceId = null)
     /*
      * Init Table of template
      */
-    $loopBreak = array();
+    $loopBreak = [];
     while (1) {
         if (isset($svcTplCache[$serviceId]) && !isset($loopBreak[$serviceId])) {
             $serviceId = $svcTplCache[$serviceId];
@@ -310,7 +310,7 @@ function getACLSGForHost($pearDB, $hostId, $resId)
         return;
     }
 
-    $svc = array();
+    $svc = [];
     if (isset($sgCache[$resId])) {
         foreach ($sgCache[$resId] as $sgHostId => $tab) {
             if ($hostId == $sgHostId) {
@@ -425,7 +425,7 @@ function getAuthorizedServicesHost($hostId, $resId, $authorizedCategories)
      */
     $svcSg = getACLSGForHost($pearDB, $hostId, $resId);
 
-    $tabServices = array();
+    $tabServices = [];
     if (count($authorizedCategories)) {
         if ($tabSvc) {
             foreach (array_keys($tabSvc) as $serviceId) {
@@ -506,7 +506,7 @@ function getMyHostServicesByName($hostId = null)
         return;
     }
 
-    $hSvs = array();
+    $hSvs = [];
     if (isset($hsRelation[$hostId])) {
         foreach ($hsRelation[$hostId] as $serviceId => $flag) {
             if (isset($svcCache[$serviceId])) {
@@ -529,7 +529,7 @@ function getMetaServices($resId, $db, $metaObj)
 {
     $sql = "SELECT meta_id FROM acl_resources_meta_relations WHERE acl_res_id = " . (int) $resId;
     $res = $db->query($sql);
-    $arr = array();
+    $arr = [];
     if ($res->rowCount()) {
         $hostId = $metaObj->getRealHostId();
         while ($row = $res->fetch()) {
@@ -542,7 +542,7 @@ function getMetaServices($resId, $db, $metaObj)
 
 function getModulesExtensionsPaths($db)
 {
-    $extensionsPaths = array();
+    $extensionsPaths = [];
     $res = $db->query("SELECT name FROM modules_informations");
     while ($row = $res->fetch()) {
         $extensionsPaths = array_merge(

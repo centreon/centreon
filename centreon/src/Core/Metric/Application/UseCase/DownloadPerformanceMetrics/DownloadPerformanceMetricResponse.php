@@ -30,16 +30,13 @@ final class DownloadPerformanceMetricResponse
     /** @var PerformanceMetric[] */
     public iterable $performanceMetrics = [];
 
-    public string $filename;
-
     /**
      * @param iterable<PerformanceMetric> $performanceMetrics
      * @param string $filename
      */
-    public function __construct(iterable $performanceMetrics, string $filename)
+    public function __construct(iterable $performanceMetrics, public string $filename)
     {
         $this->performanceMetrics = $this->performanceMetricToArray($performanceMetrics);
-        $this->filename = $filename;
     }
 
     /**

@@ -25,21 +25,16 @@ use Pimple\Container;
 
 class PollerInteractionService
 {
-    /** @var Container */
-    private $di;
-
     /** @var \CentreonDB */
     private $db;
 
     /** @var \Centreon */
     private $centreon;
 
-    public function __construct(Container $di)
+    public function __construct(private Container $di)
     {
         global $centreon;
-
-        $this->di = $di;
-        $this->db = $di[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
+        $this->db = $this->di[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
             ->getAdapter('configuration_db')
             ->getCentreonDBInstance();
 

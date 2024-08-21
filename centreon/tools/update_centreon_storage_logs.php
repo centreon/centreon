@@ -39,7 +39,7 @@
  */
 ini_set('max_execution_time', 0);
 
-require_once(realpath(dirname(__FILE__) . '/../config/centreon.config.php'));
+require_once(realpath(__DIR__ . '/../config/centreon.config.php'));
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 
 define('TEMP_DIRECTORY', '/tmp/');
@@ -71,7 +71,7 @@ function checkTemporaryDirectory(&$temporaryPath)
             'This path for temporary files (' . $temporaryPath . ') does not exist'
         );
     }
-    if (substr($temporaryPath, -1, 1) != '/') {
+    if (!str_ends_with($temporaryPath, '/')) {
         $temporaryPath .= '/';
     }
 }
@@ -123,7 +123,7 @@ function askQuestion($question, $hidden = false)
  * @param string $message Message to show
  * @param bool $showStep Set to true if you want showing steps
  */
-$logs = function ($message, $showStep = true) use (&$currentStep, &$partitionName)
+$logs = function ($message, $showStep = true) use (&$currentStep, &$partitionName): void
 {
     if ($showStep && $currentStep) {
         if (! empty($partitionName)) {
@@ -205,7 +205,7 @@ function getNotEmptyPartitions($db, $isMigrationRecovery = false)
         "SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS "
         . "WHERE TABLE_NAME='{$tableName}'"
     );
-    $partitions = array();
+    $partitions = [];
     while (($row = $result->fetch(\PDO::FETCH_ASSOC))) {
         $partitions[] = $row['PARTITION_NAME'];
     }
@@ -242,13 +242,15 @@ function isInCompatibleMode(\PDO $db)
 {
     $statement = $db->query("SELECT VERSION() AS version");
     $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-    list($version, $dbType) = explode('-', $result[0]['version']);
-    list($majorVersion, $minorVersion, $revision) = explode('.', $version);
+    [$version, $dbType] = explode('-', (string) $result[0]['version']);
+    [$majorVersion, $minorVersion, $revision] = explode('.', $version);
     if ($dbType === 'MariaDB' && $majorVersion >= 10) {
         return false;
-    } elseif ($dbType === 'standard' && $majorVersion >= 5 && $minorVersion >= 6) {
+    }
+    if ($dbType === 'standard' && $majorVersion >= 5 && $minorVersion >= 6) {
         return false;
-    } else {
+    }
+    else {
         return true;
     }
 }
@@ -286,20 +288,20 @@ try {
     // We load start parameters
     if ($argc > 1) {
         foreach ($argv as $parameter) {
-            if (substr($parameter, 0, 11) === '--password=') {
-                list(, $dbPassword) = explode('=', $parameter);
+            if (str_starts_with($parameter, '--password=')) {
+                [, $dbPassword] = explode('=', $parameter);
             } elseif ($parameter === '--no-keep') {
                 $shouldDeleteOldData = true;
             } elseif ($parameter === '--keep') {
                 $shouldDeleteOldData = false;
-            } elseif (substr($parameter, 0, 10) === '--continue') {
+            } elseif (str_starts_with($parameter, '--continue')) {
                 $firstRecoveryPartitionName = '';
-                if (strpos($parameter, '=', 0) !== false) {
-                    list(, $firstRecoveryPartitionName) = explode('=', $parameter);
+                if (str_contains($parameter, '=')) {
+                    [, $firstRecoveryPartitionName] = explode('=', $parameter);
                 }
                 $isMigrationRecovery = true;
-            } elseif (substr($parameter, 0, 17) === '--temporary-path=') {
-                list(, $temporaryPath) = explode('=', $parameter);
+            } elseif (str_starts_with($parameter, '--temporary-path=')) {
+                [, $temporaryPath] = explode('=', $parameter);
             }
         }
     }
@@ -462,7 +464,8 @@ try {
         // If the name of the first recovery partition is defined, we will start copying from it
         if (isset($firstRecoveryPartitionName) && $firstRecoveryPartitionName !== $partitionName) {
             continue;
-        } elseif (isset($firstRecoveryPartitionName) && $firstRecoveryPartitionName === $partitionName) {
+        }
+        if (isset($firstRecoveryPartitionName) && $firstRecoveryPartitionName === $partitionName) {
             unset($firstRecoveryPartitionName);
         }
         $currentStep = 1;
@@ -477,9 +480,9 @@ try {
         if ($isInCompatibleMode) {
             $date = new DateTime();
             $date->setDate(
-                (int) substr($partitionName, 1, 4),
-                (int) substr($partitionName, 5, 2),
-                (int) substr($partitionName, 7, 2)
+                (int) substr((string) $partitionName, 1, 4),
+                (int) substr((string) $partitionName, 5, 2),
+                (int) substr((string) $partitionName, 7, 2)
             );
             $date->setTime(0, 0, 0);
             $end = (int) $date->format('U');

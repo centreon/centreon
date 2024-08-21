@@ -47,7 +47,7 @@ class CentreonHook
     {
         global $centreon;
 
-        $result = array();
+        $result = [];
 
         if (isset($centreon->hooks[$category][$method])) {
             foreach ($centreon->hooks[$category][$method] as $hook) {

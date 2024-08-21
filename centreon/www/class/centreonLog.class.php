@@ -37,7 +37,6 @@ class CentreonUserLog
 {
     private static $instance;
     private $errorType;
-    private $uid;
     private $path;
 
     public const TYPE_LOGIN = 1;
@@ -48,11 +47,10 @@ class CentreonUserLog
     /*
      * Constructor
      */
-    public function __construct($uid, $pearDB)
+    public function __construct(private $uid, $pearDB)
     {
 
-        $this->uid = $uid;
-        $this->errorType = array();
+        $this->errorType = [];
 
         /*
          * Get Log directory path
@@ -82,7 +80,7 @@ class CentreonUserLog
      * Function for writing logs
      */
 
-    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0)
+    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
     {
         /*
          * Construct alert message
@@ -94,7 +92,7 @@ class CentreonUserLog
          * Display error on Standard exit
          */
         if ($print) {
-            print htmlspecialchars($str);
+            print htmlspecialchars((string) $str);
         }
 
         /*
@@ -109,7 +107,7 @@ class CentreonUserLog
         file_put_contents($this->errorType[$id], $string . "\n", FILE_APPEND);
     }
 
-    public function setUID($uid)
+    public function setUID($uid): void
     {
         $this->uid = $uid;
     }
@@ -155,7 +153,7 @@ class CentreonLog
      */
     public function __construct($customLogs = [])
     {
-        $this->errorType = array();
+        $this->errorType = [];
 
         $this->path = _CENTREON_LOG_;
 
@@ -166,7 +164,7 @@ class CentreonLog
         $this->errorType[5] = $this->path . '/plugin-pack-manager.log';
 
         foreach ($customLogs as $key => $value) {
-            if (!preg_match('@' . $this->path . '@', $value)) {
+            if (!preg_match('@' . $this->path . '@', (string) $value)) {
                 $value = $this->path . '/' . $value;
             }
             $this->errorType[$key] = $value;
@@ -191,7 +189,7 @@ class CentreonLog
      * @param int $option
      * @return void
      */
-    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0)
+    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
     {
         /*
          * Construct alerte message

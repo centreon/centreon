@@ -68,25 +68,13 @@ class Validator implements JsonValidatorInterface
     private $version;
 
     /**
-     * @var string Path where the definition files are stored
-     */
-    private $validationFilePath;
-
-    /**
-     * @var ValidatorCacheInterface
-     */
-    private $validatorCache;
-
-    /**
      * Validator constructor.
      *
      * @param string $validationFilePath
      * @param ValidatorCacheInterface $validatorCache
      */
-    public function __construct(string $validationFilePath, ValidatorCacheInterface $validatorCache)
+    public function __construct(private string $validationFilePath, private ValidatorCacheInterface $validatorCache)
     {
-        $this->validationFilePath = $validationFilePath;
-        $this->validatorCache = $validatorCache;
         $this->version = self::VERSION_DEFAULT;
     }
 
@@ -255,7 +243,7 @@ class Validator implements JsonValidatorInterface
         $jsonData = json_decode($json, true);
         $constraints = new ConstraintViolationList();
         foreach ($errors as $error) {
-            $originalValue = $this->getOriginalValue(explode('.', $error['property']), $jsonData);
+            $originalValue = $this->getOriginalValue(explode('.', (string) $error['property']), $jsonData);
             $constraints->add(
                 new ConstraintViolation(
                     $error['message'],
@@ -280,16 +268,16 @@ class Validator implements JsonValidatorInterface
     private function getOriginalValue(array $root, array $data): ?string
     {
         $firstKeyToFind = array_shift($root);
-        if (array_key_exists($firstKeyToFind, $data)) {
-            if (is_array($data[$firstKeyToFind])) {
-                return $this->getOriginalValue($root, $data[$firstKeyToFind]);
-            } else {
-                if (\is_bool($data[$firstKeyToFind])) {
-                    return ($data[$firstKeyToFind]) ? 'true' : 'false';
-                }
-                return (string) $data[$firstKeyToFind];
-            }
+        if (!array_key_exists($firstKeyToFind, $data)) {
+            return null;
         }
+        if (is_array($data[$firstKeyToFind])) {
+            return $this->getOriginalValue($root, $data[$firstKeyToFind]);
+        }
+        if (\is_bool($data[$firstKeyToFind])) {
+            return ($data[$firstKeyToFind]) ? 'true' : 'false';
+        }
+        return (string) $data[$firstKeyToFind];
         return null;
     }
 }

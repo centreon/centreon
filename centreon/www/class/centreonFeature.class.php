@@ -46,17 +46,15 @@
  */
 class CentreonFeature
 {
-    protected $db;
-    protected static $availableFeatures = array();
+    protected static $availableFeatures = [];
 
     /**
      * Constructor
      *
      * @param CentreonDB $db - The centreon database
      */
-    public function __construct($db)
+    public function __construct(protected $db)
     {
-        $this->db = $db;
     }
 
     /**
@@ -70,11 +68,11 @@ class CentreonFeature
         if (!is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');
         }
-        $result = array();
+        $result = [];
         if (count(self::$availableFeatures) != 0) {
             $query = 'SELECT feature, feature_version FROM contact_feature WHERE contact_id = ' . $userId;
             $res = $this->db->query($query);
-            $toAsk = array();
+            $toAsk = [];
             foreach (self::$availableFeatures as $feature) {
                 if ($feature['visible']) {
                     $version = $feature['name'] . '__' . $feature['version'];
@@ -99,7 +97,7 @@ class CentreonFeature
      */
     public function getFeatures()
     {
-        $result = array();
+        $result = [];
         foreach (self::$availableFeatures as $feature) {
             if ($feature['visible']) {
                 $result[] = $feature;
@@ -122,13 +120,9 @@ class CentreonFeature
         }
         $query = 'SELECT feature, feature_version, feature_enabled FROM contact_feature WHERE contact_id = ' . $userId;
         $res = $this->db->query($query);
-        $result = array();
+        $result = [];
         while ($row = $res->fetchRow()) {
-            $result[] = array(
-                'name' => $row['feature'],
-                'version' => $row['feature_version'],
-                'enabled' => $row['feature_enabled']
-            );
+            $result[] = ['name' => $row['feature'], 'version' => $row['feature_version'], 'enabled' => $row['feature_enabled']];
         }
         return $result;
     }
@@ -139,7 +133,7 @@ class CentreonFeature
      * @param int $userId - The user id
      * @param array $features - The list of features
      */
-    public function saveUserFeaturesValue($userId, $features)
+    public function saveUserFeaturesValue($userId, $features): void
     {
         if (!is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');

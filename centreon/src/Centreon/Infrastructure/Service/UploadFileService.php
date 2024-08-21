@@ -43,7 +43,6 @@ class UploadFileService
 {
     /** @var array|null $filesRequest */
     protected $filesRequest;
-    protected ContainerInterface $services;
 
     /**
      * Construct
@@ -51,9 +50,8 @@ class UploadFileService
      * @param \Psr\Container\ContainerInterface $services
      * @param array $filesRequest Copy of $_FILES
      */
-    public function __construct(ContainerInterface $services, array $filesRequest = null)
+    public function __construct(protected ContainerInterface $services, array $filesRequest = null)
     {
-        $this->services = $services;
         $this->filesRequest = $filesRequest;
     }
 

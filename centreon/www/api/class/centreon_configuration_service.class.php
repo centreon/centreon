@@ -68,7 +68,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         $isAdmin = $centreon->user->admin;
         $aclServices = '';
         $aclMetaServices = '';
-        $range = array();
+        $range = [];
 
         /* Get ACL if user is not admin */
         if (!$isAdmin) {
@@ -87,8 +87,8 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
 
         // Check for service enable
         if (isset($this->arguments['e'])) {
-            $enableList = array('enable', 'disable');
-            if (in_array(strtolower($this->arguments['e']), $enableList)) {
+            $enableList = ['enable', 'disable'];
+            if (in_array(strtolower((string) $this->arguments['e']), $enableList)) {
                 $e = $this->arguments['e'];
             } else {
                 throw new \RestBadRequestException('Error, bad enable status');
@@ -99,8 +99,8 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
 
         // Check for service type
         if (isset($this->arguments['t'])) {
-            $typeList = array('hostgroup', 'host');
-            if (in_array(strtolower($this->arguments['t']), $typeList)) {
+            $typeList = ['hostgroup', 'host'];
+            if (in_array(strtolower((string) $this->arguments['t']), $typeList)) {
                 $t = $this->arguments['t'];
             } else {
                 throw new \RestBadRequestException('Error, bad service type');
@@ -120,8 +120,8 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
 
         // Check for service type
         if (isset($this->arguments['s'])) {
-            $sTypeList = array('s', 'm', 'all');
-            if (in_array(strtolower($this->arguments['s']), $sTypeList)) {
+            $sTypeList = ['s', 'm', 'all'];
+            if (in_array(strtolower((string) $this->arguments['s']), $sTypeList)) {
                 $s = $this->arguments['s'];
             } else {
                 throw new \RestBadRequestException('Error, bad service type');
@@ -169,13 +169,13 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
     private function getServicesByHost(
         $q,
         $aclServices,
-        $range = array(),
+        $range = [],
         $hasGraph = false,
         $aclMetaServices = '',
         $s = 'all',
         $e = 'enable'
     ) {
-        $queryValues = array();
+        $queryValues = [];
         if ($e == 'enable') {
             $enableQuery = 'AND s.service_activate = \'1\' AND h.host_activate = \'1\' ';
             $enableQueryMeta = 'AND ms.service_activate = \'1\' AND mh.host_activate = \'1\' ';
@@ -279,7 +279,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
             throw new \Exception("An error occured");
         }
 
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $stmt->fetch()) {
             if ($hasGraph) {
                 if (service_has_graph($data['host_id'], $data['service_id'], $this->pearDBMonitoring)) {
@@ -302,10 +302,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
             }
         }
 
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
     /**
@@ -315,9 +312,9 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
      * @return array
      * @throws Exception
      */
-    private function getServicesByHostgroup($q, $aclServices, $range = array())
+    private function getServicesByHostgroup($q, $aclServices, $range = [])
     {
-        $queryValues = array();
+        $queryValues = [];
         $queryService = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT CONCAT(hg.hg_name, " - ", s.service_description) ' .
             'as fullname, s.service_id, hg.hg_id ' .
             'FROM hostgroup hg, service s, host_service_relation hsr ' .
@@ -343,17 +340,14 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         if (!$dbResult) {
             throw new \Exception("An error occured");
         }
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $stmt->fetch()) {
             $serviceCompleteName = $data['fullname'];
             $serviceCompleteId = $data['hg_id'] . '-' . $data['service_id'];
-            $serviceList[] = array('id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName);
+            $serviceList[] = ['id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName];
         }
 
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
     /**
@@ -363,7 +357,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
      */
     public function getDefaultEscalationValues()
     {
-        $defaultValues = array();
+        $defaultValues = [];
         // Get Object targeted
         if (isset($this->arguments['id']) && !empty($this->arguments['id'])) {
             $id = $this->arguments['id'];
@@ -386,7 +380,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         while ($data = $stmt->fetch()) {
             $serviceCompleteName = $data['host_name'] . ' - ' . $data['service_description'];
             $serviceCompleteId = $data['host_host_id'] . '-' . $data['service_service_id'];
-            $defaultValues[] = array('id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName);
+            $defaultValues[] = ['id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName];
         }
         return $defaultValues;
     }

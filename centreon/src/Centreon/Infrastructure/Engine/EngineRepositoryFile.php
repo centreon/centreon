@@ -30,11 +30,6 @@ final class EngineRepositoryFile implements EngineRepositoryInterface
     /**
      * @var string
      */
-    private $centCoreDirectory;
-
-    /**
-     * @var string
-     */
     private $centCoreFile;
 
     /**
@@ -42,11 +37,10 @@ final class EngineRepositoryFile implements EngineRepositoryInterface
      *
      * @param string $centCoreDirectory
      */
-    public function __construct(string $centCoreDirectory)
+    public function __construct(private string $centCoreDirectory)
     {
-        $this->centCoreDirectory = $centCoreDirectory;
         $this->centCoreFile =
-            $centCoreDirectory
+            $this->centCoreDirectory
             . DIRECTORY_SEPARATOR
             . 'external-cmd-' . microtime(true) . '.cmd';
     }

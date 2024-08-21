@@ -58,17 +58,11 @@ class SqlRequestParametersTranslator
     private $normalizers = [];
 
     /**
-     * @var RequestParametersInterface
-     */
-    private $requestParameters;
-
-    /**
      * SqlRequestParametersTranslator constructor.
      * @param RequestParametersInterface $requestParameters
      */
-    public function __construct(RequestParametersInterface $requestParameters)
+    public function __construct(private RequestParametersInterface $requestParameters)
     {
-        $this->requestParameters = $requestParameters;
     }
 
     /**

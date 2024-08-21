@@ -42,9 +42,6 @@ class NotifyMasterService
     public const SUCCESS = 'success';
     public const FAIL = 'fail';
 
-    /** @var CentreonDBManagerService */
-    private $dbManager;
-
     /** @var Curl */
     private $curl;
 
@@ -53,9 +50,8 @@ class NotifyMasterService
      *
      * @param CentreonDBManagerService $dbManager
      */
-    public function __construct(CentreonDBManagerService $dbManager)
+    public function __construct(private CentreonDBManagerService $dbManager)
     {
-        $this->dbManager = $dbManager;
     }
 
     /**
@@ -111,20 +107,12 @@ class NotifyMasterService
             $this->getCurl()->post($url, $curlData);
 
             if ($this->getCurl()->error) {
-                switch ($this->getCurl()->error_code) {
-                    case 6:
-                        $details = self::CANT_RESOLVE_HOST;
-                        break;
-                    case 7:
-                        $details = self::CANT_CONNECT;
-                        break;
-                    case 28:
-                        $details = self::TIMEOUT;
-                        break;
-                    default:
-                        $details = self::UNKNOWN_ERROR;
-                        break;
-                }
+                $details = match ($this->getCurl()->error_code) {
+                    6 => self::CANT_RESOLVE_HOST,
+                    7 => self::CANT_CONNECT,
+                    28 => self::TIMEOUT,
+                    default => self::UNKNOWN_ERROR,
+                };
 
                 return [
                     'status' => 'fail',

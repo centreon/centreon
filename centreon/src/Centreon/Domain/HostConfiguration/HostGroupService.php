@@ -38,32 +38,12 @@ use Centreon\Domain\Repository\RepositoryException;
 class HostGroupService implements HostGroupServiceInterface
 {
     /**
-     * @var HostGroupReadRepositoryInterface
-     */
-    private $readRepository;
-
-    /**
-     * @var ContactInterface
-     */
-    private $contact;
-    /**
-     * @var HostGroupWriteRepositoryInterface
-     */
-    private $writeRepository;
-
-    /**
      * @param HostGroupReadRepositoryInterface $readRepository
      * @param HostGroupWriteRepositoryInterface $writeRepository
      * @param ContactInterface $contact
      */
-    public function __construct(
-        HostGroupReadRepositoryInterface $readRepository,
-        HostGroupWriteRepositoryInterface $writeRepository,
-        ContactInterface $contact
-    ) {
-        $this->readRepository = $readRepository;
-        $this->writeRepository = $writeRepository;
-        $this->contact = $contact;
+    public function __construct(private HostGroupReadRepositoryInterface $readRepository, private HostGroupWriteRepositoryInterface $writeRepository, private ContactInterface $contact)
+    {
     }
 
     /**

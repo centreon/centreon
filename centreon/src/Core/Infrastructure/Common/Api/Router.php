@@ -37,22 +37,14 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 {
     use HttpUrlTrait;
 
-    /** @var RouterInterface */
-    private RouterInterface $router;
-
-    /** @var RequestMatcherInterface */
-    private RequestMatcherInterface $requestMatcher;
-
     /**
      * MyRouter constructor.
      *
      * @param RouterInterface $router
      * @param RequestMatcherInterface $requestMatcher
      */
-    public function __construct(RouterInterface $router, RequestMatcherInterface $requestMatcher)
+    public function __construct(private RouterInterface $router, private RequestMatcherInterface $requestMatcher)
     {
-        $this->router = $router;
-        $this->requestMatcher = $requestMatcher;
     }
 
     /**

@@ -30,12 +30,6 @@ class Module
     /** @var Information */
     protected $informationObj;
 
-    /** @var string */
-    protected $moduleName;
-
-    /** @var int */
-    protected $moduleId;
-
     /** @var Utils */
     protected $utils;
 
@@ -55,14 +49,12 @@ class Module
     public function __construct(
         ContainerInterface $services,
         ?Information $informationObj = null,
-        $moduleName = '',
+        protected $moduleName = '',
         ?Utils $utils = null,
-        $moduleId = null
+        protected $moduleId = null
     ) {
-        $this->moduleId = $moduleId;
         $this->services = $services;
         $this->informationObj = $informationObj ?? $services->get(ServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION);
-        $this->moduleName = $moduleName;
         $this->utils = $utils ?? $services->get(ServiceProvider::CENTREON_LEGACY_UTILS);
 
         $this->moduleConfiguration = $this->informationObj->getConfiguration($this->moduleName);

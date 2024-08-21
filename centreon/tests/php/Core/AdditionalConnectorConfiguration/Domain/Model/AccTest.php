@@ -33,18 +33,16 @@ beforeEach(function (): void {
     $this->testedUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00');
     $this->testedParameters = $this->createMock(AccParametersInterface::class);
     $this->testedType = Type::VMWARE_V6;
-    $this->createAcc = function (array $fields = []): Acc {
-        return new Acc(
-            id: $fields['id'] ?? 1,
-            name: $fields['name'] ?? 'acc-name',
-            type: $this->testedType,
-            createdBy: \array_key_exists('created_by', $fields) ? $fields['created_by'] : 2,
-            updatedBy: \array_key_exists('updated_by', $fields) ? $fields['updated_by'] : 3,
-            createdAt: $this->testedCreatedAt,
-            updatedAt: $this->testedUpdatedAt,
-            parameters: $this->testedParameters,
-        );
-    };
+    $this->createAcc = fn(array $fields = []): Acc => new Acc(
+        id: $fields['id'] ?? 1,
+        name: $fields['name'] ?? 'acc-name',
+        type: $this->testedType,
+        createdBy: \array_key_exists('created_by', $fields) ? $fields['created_by'] : 2,
+        updatedBy: \array_key_exists('updated_by', $fields) ? $fields['updated_by'] : 3,
+        createdAt: $this->testedCreatedAt,
+        updatedAt: $this->testedUpdatedAt,
+        parameters: $this->testedParameters,
+    );
 });
 
 it('should return properly set ACC instance', function (): void {

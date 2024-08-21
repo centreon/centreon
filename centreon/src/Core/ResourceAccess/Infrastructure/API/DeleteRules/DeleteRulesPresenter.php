@@ -58,13 +58,11 @@ final class DeleteRulesPresenter extends AbstractPresenter implements DeleteRule
     {
         if ($response instanceof DeleteRulesResponse) {
             $multiStatusResponse = [
-                'results' => array_map(function (DeleteRulesStatusResponse $dto) {
-                    return [
-                        'self' => $this->getDeletedNotificationHref($dto->id),
-                        'status' => $this->enumToIntConverter($dto->status),
-                        'message' => $dto->message,
-                    ];
-                }, $response->responseStatuses),
+                'results' => array_map(fn(DeleteRulesStatusResponse $dto) => [
+                    'self' => $this->getDeletedNotificationHref($dto->id),
+                    'status' => $this->enumToIntConverter($dto->status),
+                    'message' => $dto->message,
+                ], $response->responseStatuses),
             ];
 
             $this->present(new MultiStatusResponse($multiStatusResponse));

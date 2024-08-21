@@ -50,16 +50,10 @@ class MonitoringServerController extends AbstractController
     use LoggerTrait;
 
     /**
-     * @var MonitoringServerServiceInterface
-     */
-    private $monitoringServerService;
-
-    /**
      * @param MonitoringServerServiceInterface $monitoringServerService
      */
-    public function __construct(MonitoringServerServiceInterface $monitoringServerService)
+    public function __construct(private MonitoringServerServiceInterface $monitoringServerService)
     {
-        $this->monitoringServerService = $monitoringServerService;
     }
 
     /**
@@ -97,7 +91,7 @@ class MonitoringServerController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($generateConfiguration, $monitoringServerId) {
+            function () use ($generateConfiguration, $monitoringServerId): void {
                 $generateConfiguration->execute($monitoringServerId);
             }
         );
@@ -114,7 +108,7 @@ class MonitoringServerController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($generateAllConfigurations) {
+            function () use ($generateAllConfigurations): void {
                 $generateAllConfigurations->execute();
             }
         );
@@ -132,7 +126,7 @@ class MonitoringServerController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($reloadConfiguration, $monitoringServerId) {
+            function () use ($reloadConfiguration, $monitoringServerId): void {
                 $reloadConfiguration->execute($monitoringServerId);
             }
         );
@@ -149,7 +143,7 @@ class MonitoringServerController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($reloadAllConfigurations) {
+            function () use ($reloadAllConfigurations): void {
                 $reloadAllConfigurations->execute();
             }
         );
@@ -173,7 +167,7 @@ class MonitoringServerController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($generateConfiguration, $reloadConfiguration, $monitoringServerId) {
+            function () use ($generateConfiguration, $reloadConfiguration, $monitoringServerId): void {
                 $generateConfiguration->execute($monitoringServerId);
                 $reloadConfiguration->execute($monitoringServerId);
             }
@@ -196,7 +190,7 @@ class MonitoringServerController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($generateAllConfigurations, $reloadAllConfigurations) {
+            function () use ($generateAllConfigurations, $reloadAllConfigurations): void {
                 $generateAllConfigurations->execute();
                 $reloadAllConfigurations->execute();
             }

@@ -32,17 +32,13 @@ use Core\Contact\Domain\Model\ContactTemplate;
 
 class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements ReadContactTemplateRepositoryInterface
 {
-    /** @var SqlRequestParametersTranslator */
-    private SqlRequestParametersTranslator $sqlRequestTranslator;
-
     /**
      * @param DatabaseConnection $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db, private SqlRequestParametersTranslator $sqlRequestTranslator)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
@@ -70,7 +66,7 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY contact_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -114,15 +110,10 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
         );
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         $statement->execute();
-
-        $contactTemplate = null;
         if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /**
-             * @var array<string, string> $result
-             */
-            $contactTemplate = DbContactTemplateFactory::createFromRecord($result);
+            return DbContactTemplateFactory::createFromRecord($result);
         }
 
-        return $contactTemplate;
+        return null;
     }
 }

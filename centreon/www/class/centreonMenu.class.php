@@ -36,11 +36,6 @@
 class CentreonMenu
 {
     /**
-     * @var CentreonLang
-     */
-    protected $centreonLang;
-
-    /**
      * @var
      */
     protected $db;
@@ -51,9 +46,8 @@ class CentreonMenu
      * @param CentreonLang $centreonLang
      * @return void
      */
-    public function __construct($centreonLang)
+    public function __construct(protected $centreonLang)
     {
-        $this->centreonLang = $centreonLang;
     }
 
     /**

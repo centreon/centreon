@@ -83,9 +83,11 @@ class ContactForDebug
     {
         if ($this->id === null && $this->email === null) {
             return true;
-        } elseif ($this->id !== null && $contact->getId() === $this->id) {
+        }
+        if ($this->id !== null && $contact->getId() === $this->id) {
             return true;
-        } elseif ($this->email !== null && $contact->getEmail() === $this->email) {
+        }
+        if ($this->email !== null && $contact->getEmail() === $this->email) {
             return true;
         }
         return false;

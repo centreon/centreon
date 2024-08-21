@@ -267,7 +267,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
              * @var FilterCriteria[] $filterCriterias
              */
             $filterCriterias = [];
-            foreach (json_decode($filter['criterias'], true) as $filterCriteria) {
+            foreach (json_decode((string) $filter['criterias'], true) as $filterCriteria) {
                 $filterCriterias[] = EntityCreator::createEntityByArray(
                     FilterCriteria::class,
                     $filterCriteria
@@ -315,7 +315,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
              * @var FilterCriteria[] $filterCriterias
              */
             $filterCriterias = [];
-            foreach (json_decode($filter['criterias'], true) as $filterCriteria) {
+            foreach (json_decode((string) $filter['criterias'], true) as $filterCriteria) {
                 $filterCriterias[] = EntityCreator::createEntityByArray(
                     FilterCriteria::class,
                     $filterCriteria
@@ -363,7 +363,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
              * @var FilterCriteria[] $filterCriterias
              */
             $filterCriterias = [];
-            foreach (json_decode($filter['criterias'], true) as $filterCriteria) {
+            foreach (json_decode((string) $filter['criterias'], true) as $filterCriteria) {
                 $filterCriterias[] = EntityCreator::createEntityByArray(
                     FilterCriteria::class,
                     $filterCriteria
@@ -410,7 +410,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         $statement->execute();
 
         if (false !== ($order = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $maxOrder = $order['max_order'] === null ? 0 : (int)$order['max_order'];
+            return $order['max_order'] === null ? 0 : (int)$order['max_order'];
         }
 
         return $maxOrder;

@@ -46,26 +46,6 @@ class SubmitResultService extends AbstractCentreonService implements SubmitResul
     public const VALIDATION_GROUPS_SERVICE_SUBMIT_RESULT = ['submit_result_service'];
 
     /**
-     * @var EngineServiceInterface Used to send external commands to engine.
-     */
-    private $engineService;
-
-    /**
-     * @var EntityValidator
-     */
-    private $validator;
-
-    /**
-     * @var MonitoringRepositoryInterface
-     */
-    private $monitoringRepository;
-
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
-    private $accessGroupRepository;
-
-    /**
      * SubmitResultService constructor.
      *
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
@@ -73,16 +53,8 @@ class SubmitResultService extends AbstractCentreonService implements SubmitResul
      * @param EngineServiceInterface $engineService
      * @param EntityValidator $validator
      */
-    public function __construct(
-        ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        MonitoringRepositoryInterface $monitoringRepository,
-        EngineServiceInterface $engineService,
-        EntityValidator $validator
-    ) {
-        $this->accessGroupRepository = $accessGroupRepository;
-        $this->monitoringRepository = $monitoringRepository;
-        $this->engineService = $engineService;
-        $this->validator = $validator;
+    public function __construct(private ReadAccessGroupRepositoryInterface $accessGroupRepository, private MonitoringRepositoryInterface $monitoringRepository, private EngineServiceInterface $engineService, private EntityValidator $validator)
+    {
     }
 
     /**

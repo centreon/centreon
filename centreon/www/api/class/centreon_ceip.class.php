@@ -129,11 +129,11 @@ class CentreonCeip extends CentreonWebService
             $grouplistStr = $this->user->access->getAccessGroupsString('NAME');
 
             // Check main ACL Group
-            if (preg_match('/customer_admin_acl/', $grouplistStr)) {
+            if (preg_match('/customer_admin_acl/', (string) $grouplistStr)) {
                 $role = 'Administrator';
-            } elseif (preg_match('/customer_editor_acl/', $grouplistStr)) {
+            } elseif (preg_match('/customer_editor_acl/', (string) $grouplistStr)) {
                 $role = 'Editor';
-            } elseif (preg_match('/customer_user_acl/', $grouplistStr)) {
+            } elseif (preg_match('/customer_user_acl/', (string) $grouplistStr)) {
                 $role = 'User';
             } else {
                 $role = 'User';

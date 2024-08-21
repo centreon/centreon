@@ -40,31 +40,6 @@ class ActionLog
     private $creationDate;
 
     /**
-     * @var string
-     */
-    private $objectType;
-
-    /**
-     * @var int
-     */
-    private $objectId;
-
-    /**
-     * @var string
-     */
-    private $objectName;
-
-    /**
-     * @var string
-     */
-    private $actionType;
-
-    /**
-     * @var int Id of the contact who added this action log
-     */
-    private $contactId;
-
-    /**
      * ActionLog constructor.
      *
      * @param string $objectType Object type (ex: host, service)
@@ -80,19 +55,13 @@ class ActionLog
      * @see ActionLog::ACTION_TYPE_DISABLE
      */
     public function __construct(
-        string $objectType,
-        int $objectId,
-        string $objectName,
-        string $actionType,
-        int $contactId,
+        private string $objectType,
+        private int $objectId,
+        private string $objectName,
+        private string $actionType,
+        private int $contactId,
         \DateTime $creationDate = null
     ) {
-        $this->objectType = $objectType;
-        $this->objectId = $objectId;
-        $this->objectName = $objectName;
-        $this->actionType = $actionType;
-        $this->contactId = $contactId;
-
         if ($creationDate === null) {
             $this->creationDate = new \DateTime();
         }

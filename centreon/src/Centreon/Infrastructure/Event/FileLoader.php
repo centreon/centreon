@@ -46,25 +46,13 @@ use Centreon\Infrastructure\Event\DispatcherLoaderInterface;
 class FileLoader implements DispatcherLoaderInterface
 {
     /**
-     * @var string Path where we will try to find php files
-     */
-    private $pathModules;
-
-    /**
-     * @var string Name of the php file to find in path
-     */
-    private $filename;
-
-    /**
      * FileLoader constructor.
      *
      * @param string $pathModules Path where we will try to find php files
      * @param string $filename Name of the php file to find in path
      */
-    public function __construct(string $pathModules, string $filename)
+    public function __construct(private string $pathModules, private string $filename)
     {
-        $this->pathModules = $pathModules;
-        $this->filename = $filename;
     }
 
     /**

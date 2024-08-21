@@ -33,18 +33,12 @@ use Centreon\Domain\Configuration\Icon\Interfaces\IconServiceInterface;
 class IconService implements IconServiceInterface
 {
     /**
-     * @var IconRepositoryInterface
-     */
-    private $iconRepository;
-
-    /**
      * IconService constructor.
      *
      * @param IconRepositoryInterface $iconRepository
      */
-    public function __construct(IconRepositoryInterface $iconRepository)
+    public function __construct(private IconRepositoryInterface $iconRepository)
     {
-        $this->iconRepository = $iconRepository;
     }
 
     /**

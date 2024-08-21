@@ -51,7 +51,7 @@ class CentreonWidgetParamsConnectorServicegroup extends CentreonWidgetParamsList
             $query .= $this->acl->queryBuilder('AND', 'sg_id', $this->acl->getServiceGroupsString());
             $query .= " ORDER BY sg_name";
             $res = $this->db->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['sg_id']] = $row['sg_name'];
             }

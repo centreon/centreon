@@ -41,14 +41,11 @@
  */
 class CentreonServicecategories
 {
-    protected $db;
-
     /*
      * constructor
      */
-    public function __construct($pearDB)
+    public function __construct(protected $db)
     {
-        $this->db = $pearDB;
     }
 
     /**
@@ -58,7 +55,7 @@ class CentreonServicecategories
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'service_categories';
         $parameters['currentObject']['id'] = 'sc_id';
         $parameters['currentObject']['name'] = 'sc_name';
@@ -82,10 +79,10 @@ class CentreonServicecategories
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized service categories
         if (!$centreon->user->access->admin) {
@@ -95,7 +92,7 @@ class CentreonServicecategories
         $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
-                $multiValues = explode(',', $v);
+                $multiValues = explode(',', (string) $v);
                 foreach ($multiValues as $item) {
                     $queryValues[':sc_' . $item] = (int) $item;
                 }
@@ -123,11 +120,7 @@ class CentreonServicecategories
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['sc_id'],
-                'text' => $row['sc_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['sc_id'], 'text' => $row['sc_name'], 'hide' => $hide];
         }
 
         return $items;

@@ -72,17 +72,13 @@ class ExportServiceTest extends TestCase
             ->getMock();
 
         $this->container['centreon_remote.exporter']->method('get')
-            ->will($this->returnCallback(function () {
-                return [
-                    'name' => ConfigurationExporter::getName(),
-                    'classname' => ConfigurationExporter::class,
-                    'factory' => function () {
-                        return $this->getMockBuilder(ConfigurationExporter::class)
-                            ->disableOriginalConstructor()
-                            ->getMock();
-                    },
-                ];
-            }));
+            ->will($this->returnCallback(fn() => [
+                'name' => ConfigurationExporter::getName(),
+                'classname' => ConfigurationExporter::class,
+                'factory' => fn() => $this->getMockBuilder(ConfigurationExporter::class)
+                    ->disableOriginalConstructor()
+                    ->getMock(),
+            ]));
 
         // Cache
         $this->container['centreon_remote.exporter.cache'] = $this->getMockBuilder(ExporterCacheService::class)
@@ -94,7 +90,7 @@ class ExportServiceTest extends TestCase
             ->getMock();
 
         $this->container['centreon.acl']->method('reload')
-            ->will($this->returnCallback(function () {
+            ->will($this->returnCallback(function (): void {
                 $this->aclReload = true;
             }));
 
@@ -161,13 +157,13 @@ class ExportServiceTest extends TestCase
                             ->getMock();
 
                         $exporter->method('setCommitment')
-                            ->will($this->returnCallback(function ($argCommitment) use ($points) {
+                            ->will($this->returnCallback(function ($argCommitment) use ($points): void {
                                 $points->mark('ConfigurationExporter::setCommitment');
                                 $this->assertInstanceOf(ExportCommitment::class, $argCommitment);
                             }));
 
                         $exporter->method('import')
-                            ->will($this->returnCallback(function ($argManifest) use ($points) {
+                            ->will($this->returnCallback(function ($argManifest) use ($points): void {
                                 $points->mark('ConfigurationExporter::import');
                                 $this->assertInstanceOf(ExportManifest::class, $argManifest);
                             }));

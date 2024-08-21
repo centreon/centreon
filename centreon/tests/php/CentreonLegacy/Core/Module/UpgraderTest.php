@@ -37,35 +37,17 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $this->information = $this->getMockBuilder('CentreonLegacy\Core\Module\Information')
+        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('getInstalledInformation', 'getModulePath', 'getConfiguration'))
+            ->onlyMethods(['getInstalledInformation', 'getModulePath', 'getConfiguration'])
             ->getMock();
 
-        $installedInformation = array(
-            'name' => 'MyModule',
-            'rname' => 'MyModule',
-            'mod_release' => '1.0.0',
-            'is_removeable' => 1,
-            'infos' => 'my module for unit test',
-            'author' => 'unit test',
-            'svc_tools' => null,
-            'host_tools' => null
-        );
+        $installedInformation = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
         $this->information->expects($this->any())
             ->method('getInstalledInformation')
             ->willReturn($installedInformation);
 
-        $configuration = array(
-            'name' => 'MyModule',
-            'rname' => 'MyModule',
-            'mod_release' => '1.0.1',
-            'is_removeable' => 1,
-            'infos' => 'my module for unit test',
-            'author' => 'unit test',
-            'svc_tools' => null,
-            'host_tools' => null
-        );
+        $configuration = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.1', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
         $this->information->expects($this->any())
             ->method('getConfiguration')
             ->willReturn($configuration);
@@ -74,20 +56,11 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->method('getModulePath')
             ->willReturn('/MyModule/');
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('requireConfiguration', 'executeSqlFile', 'executePhpFile'))
+            ->onlyMethods(['requireConfiguration', 'executeSqlFile', 'executePhpFile'])
             ->getMock();
-        $upgradeConfiguration = array(
-            'MyModule' => array(
-                'name' => 'MyModule',
-                'rname' => 'MyModule',
-                'release_from' => '1.0.0',
-                'release_to' => '1.0.1',
-                'infos' => 'my module for unit test',
-                'author' => 'unit test'
-            )
-        );
+        $upgradeConfiguration = ['MyModule' => ['name' => 'MyModule', 'rname' => 'MyModule', 'release_from' => '1.0.0', 'release_to' => '1.0.1', 'infos' => 'my module for unit test', 'author' => 'unit test']];
         $this->utils->expects($this->any())
             ->method('requireConfiguration')
             ->willReturn($upgradeConfiguration);
@@ -103,21 +76,21 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testUpgrader()
+    public function testUpgrader(): void
     {
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('exists'))
+            ->onlyMethods(['exists'])
             ->getMock();
         $filesystem->expects($this->any())
             ->method('exists')
-            ->will($this->returnCallback(array($this, 'mockExists')));
+            ->will($this->returnCallback($this->mockExists(...)));
             //->willReturn(true);
         $this->container->registerProvider(new FilesystemProvider($filesystem));
 
-        $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
+        $finder = $this->getMockBuilder(\Symfony\Component\Finder\Finder::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
+            ->onlyMethods(['directories', 'depth', 'in', 'getIterator'])
             ->getMock();
         $finder->expects($this->any())
             ->method('directories')
@@ -139,15 +112,15 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id';
         $this->db->addResultSet(
             $query,
-            array()
+            []
         );
         $this->db->addResultSet(
             'SELECT MAX(id) as id FROM modules_informations',
-            array(array('id' => 1))
+            [['id' => 1]]
         );
         $this->db->addResultSet(
             'UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id',
-            array()
+            []
         );
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
@@ -160,7 +133,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function mockExists($file)
     {
-        if (preg_match('/install\.pre\.php/', $file)) {
+        if (preg_match('/install\.pre\.php/', (string) $file)) {
             return false;
         }
         return true;

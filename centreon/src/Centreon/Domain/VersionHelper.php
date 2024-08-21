@@ -76,7 +76,8 @@ class VersionHelper
         $actualDepth = substr_count($version, $glue);
         if ($actualDepth == $depth) {
             return $version;
-        } elseif ($actualDepth > $depth) {
+        }
+        if ($actualDepth > $depth) {
             $parts = array_slice(explode($glue, $version), 0, ($depth + 1));
             return implode($glue, $parts);
         }

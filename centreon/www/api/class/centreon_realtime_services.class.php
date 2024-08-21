@@ -34,8 +34,8 @@
  */
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
-require_once dirname(__FILE__) . "/centreon_realtime_base.class.php";
+require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . "/centreon_realtime_base.class.php";
 
 class CentreonRealtimeServices extends CentreonRealtimeBase
 {
@@ -95,9 +95,9 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
     protected function getFieldContent()
     {
-        $tab = explode(',', $this->arguments['fields']);
+        $tab = explode(',', (string) $this->arguments['fields']);
 
-        $fieldList = array();
+        $fieldList = [];
         foreach ($tab as $key) {
             $fieldList[$key] = 1;
         }
@@ -123,8 +123,8 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
         /* Filters */
         if (isset($this->arguments['status'])) {
-            $statusList = array('ok', 'warning', 'critical', 'unknown', 'pending', 'all');
-            if (in_array(strtolower($this->arguments['status']), $statusList)) {
+            $statusList = ['ok', 'warning', 'critical', 'unknown', 'pending', 'all'];
+            if (in_array(strtolower((string) $this->arguments['status']), $statusList)) {
                 $this->status = $this->arguments['status'];
             } else {
                 throw new \RestBadRequestException('Error, bad status parameter');
@@ -185,7 +185,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
     protected function setServiceFieldList()
     {
-        $fields = array();
+        $fields = [];
 
         if (!isset($this->arguments['fields'])) {
             $fields["h.host_id"] = 'host_id';
@@ -204,9 +204,9 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
             $fields["s.acknowledged"] = 'acknowledged';
             $fields["cv.value as criticality"] = 'criticality';
         } else {
-            $tab = explode(',', $this->arguments['fields']);
+            $tab = explode(',', (string) $this->arguments['fields']);
 
-            $fieldList = array();
+            $fieldList = [];
             foreach ($tab as $key) {
                 $fieldList[trim($key)] = 1;
             }
@@ -360,10 +360,12 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
     /**
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getServiceState()
     {
-        $queryValues = array();
+        $queryValues = [];
 
         /** * *************************************************
          * Get Service status
@@ -426,10 +428,10 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         }
 
         $q = 'ASC';
-        if (isset($this->order) && strtoupper($this->order) === 'DESC') {
+        if (isset($this->order) && strtoupper((string) $this->order) === 'DESC') {
             $q = 'DESC';
         }
-        $tabOrder = array();
+        $tabOrder = [];
         $tabOrder["criticality_id"] = " ORDER BY criticality $q, h.name, s.description ";
         $tabOrder["service_id"] = " ORDER BY s.service_id $q ";
         $tabOrder["host_name"] = " ORDER BY h.name $q, s.description ";
@@ -442,8 +444,8 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         $tabOrder["output"] = " ORDER BY s.output $q, h.name, s.description";
         $tabOrder["default"] = " ORDER BY s.description $q, h.name";
 
-        if ($this->viewType !== null && preg_match("/^unhandled/", $this->viewType)) {
-            if (preg_match("/^unhandled_(warning|critical|unknown)\$/", $this->viewType, $matches)) {
+        if ($this->viewType !== null && preg_match("/^unhandled/", (string) $this->viewType)) {
+            if (preg_match("/^unhandled_(warning|critical|unknown)\$/", (string) $this->viewType, $matches)) {
                 if (isset($matches[1]) && $matches[1] == 'warning') {
                     $query .= " AND s.state = 1 ";
                 } elseif (isset($matches[1]) && $matches[1] == "critical") {
@@ -483,7 +485,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
          */
         if (isset($this->hostgroup) && $this->hostgroup != 0) {
             $explodedValues = '';
-            foreach (explode(',', $this->hostgroup) as $hgId => $hgValue) {
+            foreach (explode(',', (string) $this->hostgroup) as $hgId => $hgValue) {
                 if (!is_numeric($hgValue)) {
                     throw new \RestBadRequestException('Error, host group id must be numerical');
                 }
@@ -571,7 +573,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
         $stmt->execute();
 
-        $dataList = array();
+        $dataList = [];
         while ($data = $stmt->fetch()) {
             if (isset($data['criticality']) && isset($this->criticalityList[$data['criticality']])) {
                 $data["criticality"] = $this->criticalityList[$data['criticality']];
@@ -583,7 +585,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
     protected function getCriticality()
     {
-        $this->criticalityList = array();
+        $this->criticalityList = [];
 
         $sql = "SELECT `sc_id`, `sc_name`, `level`, `icon_id`, `sc_description` FROM `service_categories` " .
             "WHERE `level` IS NOT NULL ORDER BY `level` DESC";

@@ -162,7 +162,7 @@ class ContactGroup extends AbstractObject
      * @param integer $cgId
      * @return void
      */
-    public function getContactFromCgId(int $cgId)
+    public function getContactFromCgId(int $cgId): void
     {
         if (!isset($this->cg[$cgId]['members_cache'])) {
             if (is_null($this->stmtContact)) {

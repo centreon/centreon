@@ -13,7 +13,7 @@ trait ServiceContainerTrait
 
     public function has($id): bool
     {
-        $result = array_key_exists(strtolower($id), $this->objects);
+        $result = array_key_exists(strtolower((string) $id), $this->objects);
 
         return $result;
     }
@@ -24,7 +24,7 @@ trait ServiceContainerTrait
             throw new NotFoundException(sprintf(_('Not found exporter with name: %d'), $id));
         }
 
-        $result = $this->objects[strtolower($id)];
+        $result = $this->objects[strtolower((string) $id)];
 
         return $result;
     }

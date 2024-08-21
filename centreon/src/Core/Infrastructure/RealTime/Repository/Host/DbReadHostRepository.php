@@ -142,7 +142,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
             LEFT JOIN `:dbstg`.`customvariables` AS host_cvl ON host_cvl.host_id = h.host_id
                 AND host_cvl.service_id = 0
                 AND host_cvl.name = 'CRITICALITY_LEVEL'"
-            . ($accessGroupRequest !== null ? $accessGroupRequest : '')
+            . ($accessGroupRequest ?? '')
             . "WHERE  h.host_id = :host_id AND h.enabled = '1' AND h.name NOT LIKE '\_Module_BAM%'";
 
         $statement = $this->db->prepare($this->translateDbName($request));

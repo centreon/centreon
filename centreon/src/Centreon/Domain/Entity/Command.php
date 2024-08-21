@@ -4,8 +4,8 @@ namespace Centreon\Domain\Entity;
 
 class Command
 {
-    const COMMAND_START_IMPEX_WORKER = 'STARTWORKER:1';
-    const COMMAND_TRANSFER_EXPORT_FILES = 'SENDEXPORTFILE:';
+    public const COMMAND_START_IMPEX_WORKER = 'STARTWORKER:1';
+    public const COMMAND_TRANSFER_EXPORT_FILES = 'SENDEXPORTFILE:';
 
     /**
      * @var string

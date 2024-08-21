@@ -158,7 +158,7 @@ class Service
                 );
             }
             if ($propertyValue !== null) {
-                $this->{$field} = trim($propertyValue);
+                $this->{$field} = trim((string) $propertyValue);
                 Assertion::notEmptyString($this->{$field}, "{$className}::{$field}");
                 Assertion::maxLength($this->{$field}, $limitation, "{$className}::{$field}");
             }

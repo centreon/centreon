@@ -35,11 +35,8 @@
 
 class CentreonPdoStatement extends PDOStatement
 {
-    public $dbh;
-
-    protected function __construct($dbh)
+    protected function __construct(public $dbh)
     {
-        $this->dbh = $dbh;
     }
 
     public function fetchRow()

@@ -32,25 +32,13 @@ abstract class AbstractCommand
     private $token;
 
     /**
-     * @var int Poller id
-     */
-    private $monitoringInstanceId;
-
-    /**
-     * @var string|null Body of the request that will be send in case of request of type POST, PUT or PATCH
-     */
-    private $bodyRequest;
-
-    /**
      * We create a command for a specific poller.
      *
-     * @param int $monitoringServer Id of the monitoring server for which this command is intended
+     * @param int $monitoringInstanceId Id of the monitoring server for which this command is intended
      * @param string|null $bodyRequest Body of the request
      */
-    public function __construct(int $monitoringServer, string $bodyRequest = null)
+    public function __construct(private int $monitoringInstanceId, private ?string $bodyRequest = null)
     {
-        $this->monitoringInstanceId = $monitoringServer;
-        $this->bodyRequest = $bodyRequest;
     }
 
     /**

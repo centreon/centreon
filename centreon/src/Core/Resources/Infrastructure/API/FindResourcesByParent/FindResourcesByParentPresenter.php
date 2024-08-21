@@ -249,13 +249,15 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
         $data = [];
         foreach ($extraData as $sourceName => $sourceData) {
             foreach (iterator_to_array($this->extraDataNormalizers) as $provider) {
-                if ($provider->isValidFor($sourceName)) {
-                    if (array_key_exists($resourceId, $sourceData)) {
-                        $data[$sourceName] = $provider->normalizeExtraDataForResource(
-                            $sourceData[$resourceId],
-                        );
-                    }
+                if (!$provider->isValidFor($sourceName)) {
+                    continue;
                 }
+                if (!array_key_exists($resourceId, $sourceData)) {
+                    continue;
+                }
+                $data[$sourceName] = $provider->normalizeExtraDataForResource(
+                    $sourceData[$resourceId],
+                );
             }
         }
 

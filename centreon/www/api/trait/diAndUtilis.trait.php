@@ -51,7 +51,7 @@ trait CentreonWebServiceDiAndUtilisTrait
     /**
      * {@inheritdoc}
      */
-    public function finalConstruct(Container $dependencyInjector)
+    public function finalConstruct(Container $dependencyInjector): void
     {
         $this->dependencyInjector = $dependencyInjector;
 

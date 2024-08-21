@@ -57,11 +57,11 @@ class CentreonRestHttp
         $this->getProxy();
         $this->contentType = $contentType;
         if (!is_null($logFile)) {
-            $this->logObj = new \CentreonLog(array(4 => $logFile));
+            $this->logObj = new \CentreonLog([4 => $logFile]);
         }
     }
 
-    private function insertLog($output, $url, $type = 'RestInternalServerErrorException')
+    private function insertLog($output, $url, $type = 'RestInternalServerErrorException'): void
     {
         if (is_null($this->logObj)) {
             return;
@@ -84,7 +84,7 @@ class CentreonRestHttp
      * @param bool$noProxy To disable CURLOPT_PROXY
      * @return array The result content
      */
-    public function call($url, $method = 'GET', $data = null, $headers = array(), $throwContent = false, $noCheckCertificate = false, $noProxy = false)
+    public function call($url, $method = 'GET', $data = null, $headers = [], $throwContent = false, $noCheckCertificate = false, $noProxy = false)
     {
         /* Add content type to headers */
         $headers[] = 'Content-type: ' . $this->contentType;
@@ -110,17 +110,11 @@ class CentreonRestHttp
             }
         }
 
-        switch ($method) {
-            case 'POST':
-                curl_setopt($ch, CURLOPT_POST, true);
-                break;
-            case 'GET':
-                curl_setopt($ch, CURLOPT_HTTPGET, true);
-                break;
-            default:
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-                break;
-        }
+        match ($method) {
+            'POST' => curl_setopt($ch, CURLOPT_POST, true),
+            'GET' => curl_setopt($ch, CURLOPT_HTTPGET, true),
+            default => curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method),
+        };
 
         if (!is_null($data)) {
             if (isset($this->contentType) && $this->contentType == 'application/json') {
@@ -204,7 +198,7 @@ class CentreonRestHttp
      * @param type $url
      * @param type $port
      */
-    public function setProxy($url, $port)
+    public function setProxy($url, $port): void
     {
         if (isset($url) && !empty($url)) {
             $this->proxy = $url;
@@ -218,7 +212,7 @@ class CentreonRestHttp
      * get proxy data
      *
      */
-    private function getProxy()
+    private function getProxy(): void
     {
         $db = new \CentreonDB();
         $query = 'SELECT `key`, `value` '

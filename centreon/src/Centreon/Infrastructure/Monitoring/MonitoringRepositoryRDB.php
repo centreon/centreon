@@ -125,9 +125,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 
@@ -308,9 +306,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 
@@ -371,9 +367,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 
@@ -631,9 +625,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 
@@ -688,12 +680,10 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 }
 
                 return $host;
-            } else {
-                return null;
             }
-        } else {
-            throw new \Exception(_('Bad SQL request'));
+            return null;
         }
+        throw new \Exception(_('Bad SQL request'));
     }
 
     /**
@@ -885,9 +875,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 
@@ -983,9 +971,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 
@@ -1179,9 +1165,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 
@@ -1356,9 +1340,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 
@@ -1676,9 +1658,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             return $services;
         }
         $serviceIds = array_map(
-            function ($serviceId) {
-                return (int)$serviceId;
-            },
+            fn($serviceId) => (int)$serviceId,
             $serviceIds
         );
 
@@ -1686,9 +1666,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 
@@ -1745,9 +1723,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($this->isAdmin() === false) {
             $accessGroupIds = array_map(
-                function ($accessGroup) {
-                    return $accessGroup->getId();
-                },
+                fn($accessGroup) => $accessGroup->getId(),
                 $this->accessGroups
             );
 

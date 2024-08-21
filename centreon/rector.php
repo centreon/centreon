@@ -10,7 +10,10 @@ use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
 use Rector\EarlyReturn\Rector\If_\ChangeAndIfToEarlyReturnRector;
 use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
 use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
+use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
+use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
 use Rector\Php73\Rector\String_\SensitiveHereNowDocRector;
+use Rector\Php80\Rector\Catch_\RemoveUnusedVariableInCatchRector;
 use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
 use Rector\Php80\Rector\Property\NestedAnnotationToAttributeRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
@@ -26,9 +29,20 @@ return RectorConfig::configure()
     ->withPaths([
 //        __DIR__ . '/api',
 //        __DIR__ . '/config',
+//        __DIR__ . '/cron',
+//        __DIR__ . '/lib',
+//        __DIR__ . '/libinstall',
+//        __DIR__ . '/packaging',
 //        __DIR__ . '/src',
+//        __DIR__ . '/tests',
+//        __DIR__ . '/tools',
 //        __DIR__ . '/www',
-
+//        __DIR__ . '/.env.local.php',
+//        __DIR__ . '/.php-cs-fixer.dist.php',
+//        __DIR__ . '/.php-cs-fixer.unstrict.php',
+//        __DIR__ . '/rector.php',
+//        __DIR__ . '/bootstrap.php',
+//        __DIR__ . '/container.php',
     ])
     ->withPhpSets(php82: true)
     ->withPreparedSets(earlyReturn: true)
@@ -44,6 +58,9 @@ return RectorConfig::configure()
         ReadOnlyPropertyRector::class,
         ChangeOrIfContinueToMultiContinueRector::class,
         ChangeAndIfToEarlyReturnRector::class,
+        RemoveUnusedVariableInCatchRector::class,
+        SensitiveConstantNameRector::class,
+        RemoveExtraParametersRector::class
     ])
     ->withRules([
         AddVoidReturnTypeWhereNoReturnRector::class,

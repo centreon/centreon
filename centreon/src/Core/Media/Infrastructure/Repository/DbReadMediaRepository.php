@@ -200,7 +200,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
 
         // Handle sort
         $sortRequest = $sqlTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY img_id';
+        $request .= $sortRequest ?? ' ORDER BY img_id';
         $request .= $sqlTranslator->translatePaginationToSql();
         $statement = $this->db->prepare($this->translateDbName($request));
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {

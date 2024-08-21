@@ -84,11 +84,10 @@ class CentreonBase
         if (!isset($sessionId)) {
             print "Your must check your session id";
             exit(1);
-        } else {
-            $this->sessionId = htmlentities($sessionId, ENT_QUOTES, "UTF-8");
         }
+        $this->sessionId = htmlentities((string) $sessionId, ENT_QUOTES, "UTF-8");
 
-        $this->index = htmlentities($index, ENT_QUOTES, "UTF-8");
+        $this->index = htmlentities((string) $index, ENT_QUOTES, "UTF-8");
 
         /*
 		 * Enable Database Connexions
@@ -112,7 +111,7 @@ class CentreonBase
     /*
 	 * Set General options
 	 */
-    public function setGeneralOption($options)
+    public function setGeneralOption($options): void
     {
         $this->general_opt = $options;
     }

@@ -37,32 +37,12 @@ use Centreon\Domain\HostConfiguration\Model\HostCategory;
 class HostCategoryService implements HostCategoryServiceInterface
 {
     /**
-     * @var HostCategoryReadRepositoryInterface
-     */
-    private $readRepository;
-
-    /**
-     * @var ContactInterface
-     */
-    private $contact;
-    /**
-     * @var HostCategoryWriteRepositoryInterface
-     */
-    private $writeRepository;
-
-    /**
      * @param HostCategoryReadRepositoryInterface $readRepository
      * @param HostCategoryWriteRepositoryInterface $writeRepository
      * @param ContactInterface $contact
      */
-    public function __construct(
-        HostCategoryReadRepositoryInterface $readRepository,
-        HostCategoryWriteRepositoryInterface $writeRepository,
-        ContactInterface $contact
-    ) {
-        $this->contact = $contact;
-        $this->readRepository = $readRepository;
-        $this->writeRepository = $writeRepository;
+    public function __construct(private HostCategoryReadRepositoryInterface $readRepository, private HostCategoryWriteRepositoryInterface $writeRepository, private ContactInterface $contact)
+    {
     }
 
     /**

@@ -55,12 +55,10 @@ class FindNotifiableContactGroupsPresenter extends AbstractPresenter implements 
         } else {
             $this->present(
                 [
-                    'result' => \array_map(static function ($notifiableContactGroupDto) {
-                        return [
-                            'id' => $notifiableContactGroupDto->id,
-                            'name' => $notifiableContactGroupDto->name,
-                        ];
-                    }, $data->notifiableContactGroups),
+                    'result' => \array_map(static fn($notifiableContactGroupDto) => [
+                        'id' => $notifiableContactGroupDto->id,
+                        'name' => $notifiableContactGroupDto->name,
+                    ], $data->notifiableContactGroups),
                     'meta' => $this->requestParameters->toArray(),
                 ]
             );

@@ -43,9 +43,7 @@ class CentreonFileManager implements iFileManager
 {
     protected $rawFile;
     protected $dependencyInjector;
-    protected $comment;
     protected $tmpFile;
-    protected $mediaPath;
     protected $destinationPath;
     protected $destinationDir;
     protected $originalFile;
@@ -68,14 +66,12 @@ class CentreonFileManager implements iFileManager
     public function __construct(
         \Pimple\Container $dependencyInjector,
         $rawFile,
-        $mediaPath,
+        protected $mediaPath,
         $destinationDir,
-        $comment = ''
+        protected $comment = ''
     ) {
 
         $this->dependencyInjector = $dependencyInjector;
-        $this->mediaPath = $mediaPath;
-        $this->comment = $comment;
         $this->rawFile = $rawFile["filename"];
         $this->destinationDir = $this->secureName($destinationDir);
         $this->destinationPath = $this->mediaPath . $this->destinationDir;
@@ -83,11 +79,11 @@ class CentreonFileManager implements iFileManager
         $this->originalFile = $this->rawFile['name'];
         $this->tmpFile = $this->rawFile['tmp_name'];
         $this->size = $this->rawFile['size'];
-        $this->extension = pathinfo($this->originalFile, PATHINFO_EXTENSION);
-        $this->fileName = $this->secureName(basename($this->originalFile, '.' . $this->extension));
+        $this->extension = pathinfo((string) $this->originalFile, PATHINFO_EXTENSION);
+        $this->fileName = $this->secureName(basename((string) $this->originalFile, '.' . $this->extension));
         $this->newFile = $this->fileName . '.' . $this->extension;
         $this->completePath = $this->destinationPath . '/' . $this->newFile;
-        $this->legalExtensions = array();
+        $this->legalExtensions = [];
         $this->legalSize = 500000;
     }
 
@@ -99,9 +95,8 @@ class CentreonFileManager implements iFileManager
         if ($this->securityCheck()) {
             $this->moveFile();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -116,9 +111,8 @@ class CentreonFileManager implements iFileManager
             $this->fileExist()
         ) {
             return false;
-        } else {
-            return true;
         }
+        return true;
     }
 
     /**
@@ -127,27 +121,7 @@ class CentreonFileManager implements iFileManager
      */
     protected function secureName($text)
     {
-        $utf8 = array(
-            '/[áàâãªä]/u' => 'a',
-            '/[ÁÀÂÃÄ]/u' => 'A',
-            '/[ÍÌÎÏ]/u' => 'I',
-            '/[íìîï]/u' => 'i',
-            '/[éèêë]/u' => 'e',
-            '/[ÉÈÊË]/u' => 'E',
-            '/[óòôõºö]/u' => 'o',
-            '/[ÓÒÔÕÖ]/u' => 'O',
-            '/[úùûü]/u' => 'u',
-            '/[ÚÙÛÜ]/u' => 'U',
-            '/ç/' => 'c',
-            '/Ç/' => 'C',
-            '/ñ/' => 'n',
-            '/Ñ/' => 'N',
-            '/–/' => '-',
-            '/[“”«»„"’‘‹›‚]/u' => '',
-            '/ /' => '',
-            '/\//' => '',
-            '/\'/' => '',
-        );
+        $utf8 = ['/[áàâãªä]/u' => 'a', '/[ÁÀÂÃÄ]/u' => 'A', '/[ÍÌÎÏ]/u' => 'I', '/[íìîï]/u' => 'i', '/[éèêë]/u' => 'e', '/[ÉÈÊË]/u' => 'E', '/[óòôõºö]/u' => 'o', '/[ÓÒÔÕÖ]/u' => 'O', '/[úùûü]/u' => 'u', '/[ÚÙÛÜ]/u' => 'U', '/ç/' => 'c', '/Ç/' => 'C', '/ñ/' => 'n', '/Ñ/' => 'N', '/–/' => '-', '/[“”«»„"’‘‹›‚]/u' => '', '/ /' => '', '/\//' => '', '/\'/' => ''];
         return preg_replace(array_keys($utf8), array_values($utf8), $text);
     }
 
@@ -157,11 +131,10 @@ class CentreonFileManager implements iFileManager
     protected function secureExtension()
     {
 
-        if (in_array(strtolower($this->extension), $this->legalExtensions)) {
+        if (in_array(strtolower((string) $this->extension), $this->legalExtensions)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -171,9 +144,8 @@ class CentreonFileManager implements iFileManager
     {
         if (empty($this->tmpFile) || $this->size == 0) {
             return false;
-        } else {
-            return true;
         }
+        return true;
     }
 
     /**
@@ -183,9 +155,8 @@ class CentreonFileManager implements iFileManager
     {
         if ($this->size < $this->legalSize) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -195,9 +166,8 @@ class CentreonFileManager implements iFileManager
     {
         if (file_exists($this->completePath)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

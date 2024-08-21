@@ -63,13 +63,13 @@ class Wiki
             return $this->config;
         }
 
-        $options = array();
+        $options = [];
 
         $res = $this->db->query(
             "SELECT * FROM `options` WHERE options.key LIKE 'kb_%'"
         );
         while ($opt = $res->fetch()) {
-            $options[$opt["key"]] = html_entity_decode($opt["value"], ENT_QUOTES, "UTF-8");
+            $options[$opt["key"]] = html_entity_decode((string) $opt["value"], ENT_QUOTES, "UTF-8");
         }
         $res->closeCursor();
 

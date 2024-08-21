@@ -223,7 +223,7 @@ class ClassMetadata
     public function getProperty(string $column): ?string
     {
         foreach ($this->columns as $property => $data) {
-            if (strtolower($data[self::COLUMN]) === strtolower($column)) {
+            if (strtolower((string) $data[self::COLUMN]) === strtolower($column)) {
                 return $property;
             }
         }

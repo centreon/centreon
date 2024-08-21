@@ -93,13 +93,12 @@ class Backend
             foreach ($files as $file) {
                 $this->deleteDir(realpath($path) . '/' . $file);
             }
-
             if (!$onlyContent) {
                 return rmdir($path);
-            } else {
-                return true;
             }
-        } elseif (is_file($path)) {
+            return true;
+        }
+        if (is_file($path)) {
             return unlink($path);
         }
 
@@ -222,9 +221,9 @@ class Backend
      * @param integer $pollerId
      * @return void
      */
-    public function movePath(int $pollerId)
+    public function movePath(int $pollerId): void
     {
-        $subdir = dirname($this->fullPath);
+        $subdir = dirname((string) $this->fullPath);
         $this->deleteDir($subdir . '/' . $pollerId);
         unlink($subdir . '/' . $this->tmpFile);
         rename($this->fullPath, $subdir . '/' . $pollerId);
@@ -237,7 +236,7 @@ class Backend
      */
     public function cleanPath(): void
     {
-        $subdir = dirname($this->fullPath);
+        $subdir = dirname((string) $this->fullPath);
         if (is_dir($this->fullPath)) {
             $this->deleteDir($this->fullPath, true);
         }
@@ -306,8 +305,7 @@ class Backend
             $row = $this->stmtCentralPoller->fetch(PDO::FETCH_ASSOC);
             $this->centralPollerId = $row['id'];
             return $this->centralPollerId;
-        } else {
-            throw new Exception("Cannot get central poller id");
         }
+        throw new Exception("Cannot get central poller id");
     }
 }

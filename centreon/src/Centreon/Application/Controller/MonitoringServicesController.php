@@ -38,18 +38,12 @@ use Symfony\Component\HttpFoundation\Response;
 class MonitoringServicesController extends AbstractController
 {
     /**
-     * @var MonitoringServiceInterface
-     */
-    private $monitoring;
-
-    /**
      * MonitoringController constructor.
      *
-     * @param MonitoringServiceInterface $monitoringService
+     * @param MonitoringServiceInterface $monitoring
      */
-    public function __construct(MonitoringServiceInterface $monitoringService)
+    public function __construct(private MonitoringServiceInterface $monitoring)
     {
-        $this->monitoring = $monitoringService;
     }
 
     /**
@@ -147,8 +141,7 @@ class MonitoringServicesController extends AbstractController
                     'meta' => $requestParameters->toArray()
                 ]
             )->setContext($context);
-        } else {
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
         }
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 }

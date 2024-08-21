@@ -108,7 +108,7 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
                         AND i.id = m.index_id AND m.hidden = "0") THEN 1
                 ELSE 0
             END AS `has_graph_data`
-        FROM `:dbstg`.`services` AS s ' . ($accessGroupRequest !== null ? $accessGroupRequest : '')
+        FROM `:dbstg`.`services` AS s ' . ($accessGroupRequest ?? '')
         . ' INNER JOIN `:dbstg`.`hosts` sh ON sh.host_id = s.host_id'
         . ' INNER JOIN `:dbstg`.`instances` AS i ON i.instance_id = sh.instance_id'
         . " WHERE s.description = :meta_id AND s.enabled = '1'";

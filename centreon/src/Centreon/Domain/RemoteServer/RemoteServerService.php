@@ -41,36 +41,6 @@ use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRegisterReposito
 class RemoteServerService implements RemoteServerServiceInterface
 {
     /**
-     * @var MenuRepositoryInterface
-     */
-    private $menuRepository;
-
-    /**
-     * @var PlatformTopologyRepositoryInterface
-     */
-    private $platformTopologyRepository;
-
-    /**
-     * @var RemoteServerLocalConfigurationRepositoryInterface
-     */
-    private $remoteServerRepository;
-
-    /**
-     * @var PlatformTopologyRegisterRepositoryInterface
-     */
-    private $platformTopologyRegisterRepository;
-
-    /**
-     * @var ProxyServiceInterface
-     */
-    private $proxyService;
-
-    /**
-     * @var MonitoringServerServiceInterface
-     */
-    private $monitoringServerService;
-
-    /**
      * @param MenuRepositoryInterface $menuRepository
      * @param PlatformTopologyRepositoryInterface $platformTopologyRepository
      * @param RemoteServerLocalConfigurationRepositoryInterface $remoteServerRepository
@@ -78,20 +48,8 @@ class RemoteServerService implements RemoteServerServiceInterface
      * @param ProxyServiceInterface $proxyService
      * @param MonitoringServerServiceInterface $monitoringServerService
      */
-    public function __construct(
-        MenuRepositoryInterface $menuRepository,
-        PlatformTopologyRepositoryInterface $platformTopologyRepository,
-        RemoteServerLocalConfigurationRepositoryInterface $remoteServerRepository,
-        PlatformTopologyRegisterRepositoryInterface $platformTopologyRegisterRepository,
-        ProxyServiceInterface $proxyService,
-        MonitoringServerServiceInterface $monitoringServerService
-    ) {
-        $this->menuRepository = $menuRepository;
-        $this->platformTopologyRepository = $platformTopologyRepository;
-        $this->remoteServerRepository = $remoteServerRepository;
-        $this->platformTopologyRegisterRepository = $platformTopologyRegisterRepository;
-        $this->proxyService = $proxyService;
-        $this->monitoringServerService = $monitoringServerService;
+    public function __construct(private MenuRepositoryInterface $menuRepository, private PlatformTopologyRepositoryInterface $platformTopologyRepository, private RemoteServerLocalConfigurationRepositoryInterface $remoteServerRepository, private PlatformTopologyRegisterRepositoryInterface $platformTopologyRegisterRepository, private ProxyServiceInterface $proxyService, private MonitoringServerServiceInterface $monitoringServerService)
+    {
     }
 
     /**

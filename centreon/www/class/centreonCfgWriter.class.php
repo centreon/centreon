@@ -40,22 +40,18 @@ class CentreonCfgWriter
 {
     private $buffer;
     private $xmlBuffer;
-    private $centreon;
-    private $file_path;
 
     /**
      *  Constructor
      *
      *  @param Centreon $centreon
-     *  @param string $file_full_path
+     * @param string $file_path
      *  @return void
      */
-    public function __construct($centreon, $file_full_path)
+    public function __construct(private $centreon, private $file_path)
     {
-        $this->centreon = $centreon;
         $this->buffer = "";
         $this->xmlBuffer = new CentreonXML();
-        $this->file_path = $file_full_path;
     }
 
     /**
@@ -129,7 +125,7 @@ class CentreonCfgWriter
      *  @param string $type
      *  @return void
      */
-    public function startCfg($type)
+    public function startCfg($type): void
     {
         $this->writeText("define " . $type . "{\n");
         $this->xmlBuffer->startElement($type);
@@ -140,7 +136,7 @@ class CentreonCfgWriter
      *
      *  @return void
      */
-    public function endCfg()
+    public function endCfg(): void
     {
         $this->writeText("\t}\n\n");
         $this->xmlBuffer->endElement();
@@ -153,7 +149,7 @@ class CentreonCfgWriter
      * @param string $value
      * @return void
      */
-    public function attribute($key, $value)
+    public function attribute($key, $value): void
     {
         $len = strlen($key);
         if ($len <= 9) {
@@ -173,7 +169,7 @@ class CentreonCfgWriter
      *
      * @return void
      */
-    public function createCfgFile()
+    public function createCfgFile(): void
     {
         file_put_contents($this->file_path, $this->buffer);
     }

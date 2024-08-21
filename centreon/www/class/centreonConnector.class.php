@@ -75,20 +75,18 @@
 class CentreonConnector
 {
     /**
-     * The database connection
-     * @var CentreonDB
-     */
-    protected $dbConnection;
-
-    /**
      * Constructor
      *
      * @param CentreonDB $dbConnection
      * @return void
      */
-    public function __construct($dbConnection)
+    public function __construct(
+        /**
+         * The database connection
+         */
+        protected $dbConnection
+    )
     {
-        $this->dbConnection = $dbConnection;
     }
 
     /**
@@ -168,18 +166,17 @@ class CentreonConnector
             $lastId = $lastIdQueryResult->fetchRow();
             if (!isset($lastId['id'])) {
                 throw new RuntimeException('Field id for connector not selected in query or connector not inserted');
-            } else {
-                if (isset($connector["command_id"])) {
-                    $statement = $this->dbConnection->prepare("UPDATE `command` " .
-                        "SET connector_id = :conId WHERE `command_id` = :value");
-                    foreach ($connector["command_id"] as $key => $value) {
-                        try {
-                            $statement->bindValue(':conId', (int) $lastId['id'], \PDO::PARAM_INT);
-                            $statement->bindValue(':value', (int) $value, \PDO::PARAM_INT);
-                            $statement->execute();
-                        } catch (\PDOException $e) {
-                            throw new RuntimeException('Cannot update connector');
-                        }
+            }
+            if (isset($connector["command_id"])) {
+                $statement = $this->dbConnection->prepare("UPDATE `command` " .
+                    "SET connector_id = :conId WHERE `command_id` = :value");
+                foreach ($connector["command_id"] as $key => $value) {
+                    try {
+                        $statement->bindValue(':conId', (int) $lastId['id'], \PDO::PARAM_INT);
+                        $statement->bindValue(':value', (int) $value, \PDO::PARAM_INT);
+                        $statement->execute();
+                    } catch (\PDOException $e) {
+                        throw new RuntimeException('Cannot update connector');
                     }
                 }
             }
@@ -230,7 +227,7 @@ class CentreonConnector
         $connector['created'] = (int)$connector['created'];
         $connector['modified'] = (int)$connector['modified'];
 
-        $connector['command_id'] = array();
+        $connector['command_id'] = [];
         $DBRESULT = $this->dbConnection->query("SELECT command_id FROM command WHERE connector_id = '$id'");
         while ($row = $DBRESULT->fetchRow()) {
             $connector['command_id'][] = $row["command_id"];
@@ -252,7 +249,7 @@ class CentreonConnector
      *
      * @return CentreonConnector
      */
-    public function update(int $connectorId, array $connector = array()): self
+    public function update(int $connectorId, array $connector = []): self
     {
         if ($connector === []) {
             return $this;
@@ -388,7 +385,7 @@ class CentreonConnector
                     `modified`
                 FROM
                     `connector`";
-        $whereClauses = array();
+        $whereClauses = [];
         if ($onlyEnabled) {
             $whereClauses[] = " `enabled` = 1 ";
         }
@@ -410,7 +407,7 @@ class CentreonConnector
         } catch (\PDOException $e) {
             throw new RuntimeException('Cannot select connectors');
         }
-        $connectors = array();
+        $connectors = [];
         while ($connector = $connectorsResult->fetchRow()) {
             $connector['id'] = (int)$connector['id'];
             $connector['enabled'] = (boolean)$connector['enabled'];
@@ -438,7 +435,7 @@ class CentreonConnector
             throw new RuntimeException('Cannot read connector', 404);
         }
 
-        $ids = array();
+        $ids = [];
         $originalName = $connector['name'];
         $suffix = 1;
 
@@ -545,7 +542,7 @@ class CentreonConnector
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'connector';
         $parameters['currentObject']['id'] = 'connector_id';
         $parameters['currentObject']['name'] = 'connector_name';
@@ -570,11 +567,11 @@ class CentreonConnector
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':id' . $v . ',';
@@ -599,10 +596,7 @@ class CentreonConnector
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['id'],
-                'text' => $row['name']
-            );
+            $items[] = ['id' => $row['id'], 'text' => $row['name']];
         }
 
         return $items;

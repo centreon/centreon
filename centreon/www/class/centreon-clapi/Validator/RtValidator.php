@@ -34,20 +34,8 @@ use CentreonClapi\CentreonService;
  */
 class RtValidator
 {
-    /**
-     * @var CentreonHost
-     */
-    private $hostObject;
-
-    /**
-     * @var CentreonService
-     */
-    private $serviceObject;
-
-    public function __construct(CentreonHost $hostObject, CentreonService $serviceObject)
+    public function __construct(private CentreonHost $hostObject, private CentreonService $serviceObject)
     {
-        $this->hostObject = $hostObject;
-        $this->serviceObject = $serviceObject;
     }
 
     /**

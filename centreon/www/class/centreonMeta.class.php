@@ -39,18 +39,11 @@
 class CentreonMeta
 {
     /**
-     *
-     * @var \CentreonDB
-     */
-    protected $db;
-
-    /**
      * Constructor
      * @param type $db
      */
-    public function __construct($db)
+    public function __construct(protected $db)
     {
-        $this->db = $db;
     }
 
     /**
@@ -112,11 +105,7 @@ class CentreonMeta
                 $services[$metaId] = $row['service_id'];
             }
         }
-
-        if (isset($services[$metaId])) {
-            return $services[$metaId];
-        }
-        return 0;
+        return $services[$metaId] ?? 0;
     }
 
     /**
@@ -134,7 +123,7 @@ class CentreonMeta
         $res = $this->db->query($query);
         if ($res->rowCount()) {
             $row = $res->fetchRow();
-            if (preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
+            if (preg_match('/meta_(\d+)/', (string) $row['service_description'], $matches)) {
                 $metaId = $matches[1];
             }
         }
@@ -149,7 +138,7 @@ class CentreonMeta
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'meta_service';
         $parameters['currentObject']['id'] = 'meta_id';
         $parameters['currentObject']['name'] = 'meta_name';
@@ -194,11 +183,11 @@ class CentreonMeta
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':meta' . $v . ',';
@@ -221,10 +210,7 @@ class CentreonMeta
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['meta_id'],
-                'text' => $row['meta_name']
-            );
+            $items[] = ['id' => $row['meta_id'], 'text' => $row['meta_name']];
         }
         return $items;
     }
@@ -244,9 +230,9 @@ class CentreonMeta
         try {
             $res = $this->db->query($queryList);
         } catch (\PDOException $e) {
-            return array();
+            return [];
         }
-        $listMeta = array();
+        $listMeta = [];
         while ($row = $res->fetchRow()) {
             $listMeta[$row['meta_id']] = $row['meta_name'];
         }
@@ -259,12 +245,12 @@ class CentreonMeta
      * @param int $id
      * @return array
      */
-    public function getParameters($id, $parameters = array())
+    public function getParameters($id, $parameters = [])
     {
         $sElement = "*";
-        $values = array();
+        $values = [];
         if (empty($id) || empty($parameters)) {
-            return array();
+            return [];
         }
 
         if (count($parameters) > 0) {
@@ -278,7 +264,7 @@ class CentreonMeta
         $res = $this->db->query($query);
 
         if ($res->rowCount()) {
-            $values = $res->fetchRow();
+            return $res->fetchRow();
         }
 
         return $values;

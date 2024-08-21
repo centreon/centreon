@@ -125,13 +125,11 @@ class Information
         }
 
         $sth->execute();
-
-        $id = null;
         if ($row = $sth->fetch()) {
-            $id = $row['parameter_id'];
+            return $row['parameter_id'];
         }
 
-        return $id;
+        return null;
     }
 
     /**
@@ -173,13 +171,11 @@ class Information
         $sth->bindParam(':directory', $name, \PDO::PARAM_STR);
 
         $sth->execute();
-
-        $id = null;
         if ($row = $sth->fetch()) {
-            $id = $row['widget_model_id'];
+            return $row['widget_model_id'];
         }
 
-        return $id;
+        return null;
     }
 
     /**
@@ -198,7 +194,7 @@ class Information
 
         foreach ($widgets as $widget) {
             $widgetDirectory = $widget->getBasename();
-            if (! empty($search) && ! stristr($widgetDirectory, $search)) {
+            if (! empty($search) && ! stristr((string) $widgetDirectory, $search)) {
                 continue;
             }
 
@@ -208,7 +204,7 @@ class Information
             }
 
             // we use lowercase to avoid problems if directory name have some letters in uppercase
-            $widgetsConf[strtolower($widgetDirectory)] = $this->getConfiguration($widgetDirectory);
+            $widgetsConf[strtolower((string) $widgetDirectory)] = $this->getConfiguration($widgetDirectory);
         }
 
         return $widgetsConf;
@@ -302,9 +298,7 @@ class Information
     {
         $list = empty($this->cachedWidgetsList) ? $this->getList() : $this->cachedWidgetsList;
 
-        return array_filter($list, function ($widget) {
-            return $widget['upgradeable'];
-        });
+        return array_filter($list, fn($widget) => $widget['upgradeable']);
     }
 
     public function hasWidgetsForInstallation()
@@ -316,9 +310,7 @@ class Information
     {
         $list = empty($this->cachedWidgetsList) ? $this->getList() : $this->cachedWidgetsList;
 
-        return array_filter($list, function ($widget) {
-            return ! $widget['is_installed'];
-        });
+        return array_filter($list, fn($widget) => ! $widget['is_installed']);
     }
 
     /**
@@ -338,8 +330,8 @@ class Information
         $installedWidgets = [];
         foreach ($widgets as $widget) {
             // we use lowercase to avoid problems if directory name have some letters in uppercase
-            $installedWidgets[strtolower($widget['directory'])] = $widget;
-            $installedWidgets[strtolower($widget['directory'])]['is_internal'] = $widget['is_internal'] === 1;
+            $installedWidgets[strtolower((string) $widget['directory'])] = $widget;
+            $installedWidgets[strtolower((string) $widget['directory'])]['is_internal'] = $widget['is_internal'] === 1;
         }
 
         return $installedWidgets;

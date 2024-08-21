@@ -40,18 +40,12 @@ use Symfony\Component\HttpFoundation\Request;
 class GorgoneController extends AbstractFOSRestController
 {
     /**
-     * @var GorgoneServiceInterface
-     */
-    private $gorgoneService;
-
-    /**
      * GorgoneController constructor.
      *
      * @param GorgoneServiceInterface $gorgoneService
      */
-    public function __construct(GorgoneServiceInterface $gorgoneService)
+    public function __construct(private GorgoneServiceInterface $gorgoneService)
     {
-        $this->gorgoneService = $gorgoneService;
     }
 
     /**
@@ -135,12 +129,10 @@ class GorgoneController extends AbstractFOSRestController
      */
     private function createFromName(string $commandType, int $pollerId, ?string $requestBody): CommandInterface
     {
-        switch ($commandType) {
-            case 'thumbprint':
-                return new Thumbprint($pollerId);
-            default:
-                throw new \LogicException('Unrecognized Command');
-        }
+        return match ($commandType) {
+            'thumbprint' => new Thumbprint($pollerId),
+            default => throw new \LogicException('Unrecognized Command'),
+        };
     }
 
     /**

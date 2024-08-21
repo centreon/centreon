@@ -44,7 +44,7 @@ use Pimple\Container;
  */
 class ServiceProvider implements AutoloadServiceProviderInterface
 {
-    const DUMMY_SERVICE = 'dummy.service';
+    public const DUMMY_SERVICE = 'dummy.service';
 
     /**
      * Register dummy service
@@ -53,9 +53,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
      */
     public function register(Container $pimple): void
     {
-        $pimple[static::DUMMY_SERVICE] = function () {
-            return true;
-        };
+        $pimple[static::DUMMY_SERVICE] = fn() => true;
     }
 
     public static function order(): int

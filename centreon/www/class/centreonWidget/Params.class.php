@@ -42,16 +42,12 @@ class CentreonWidgetParamsException extends Exception
 abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
 {
     protected static $instances;
-    protected $db;
-    protected $quickform;
     protected $params;
     protected $userGroups;
     protected $trigger;
     protected $acl;
     protected $monitoringDb;
-    protected $multiType = array(
-        'serviceMulti'
-    );
+    protected $multiType = ['serviceMulti'];
 
 
     /**
@@ -62,13 +58,11 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @param int $userId
      * @return void
      */
-    public function __construct($db, $quickform, $userId)
+    public function __construct(protected $db, protected $quickform, $userId)
     {
         $this->trigger = false;
-        $this->db = $db;
-        $this->quickform = $quickform;
         $this->userId = $userId;
-        $this->userGroups = array();
+        $this->userGroups = [];
         $query = "SELECT contactgroup_cg_id
                           FROM contactgroup_contact_relation
                           WHERE contact_contact_id = " . $this->db->escape($this->userId);
@@ -133,7 +127,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @param array $params
      * @return void
      */
-    public function init($params)
+    public function init($params): void
     {
         $this->params = $params;
     }
@@ -144,7 +138,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @param array $params
      * @return void
      */
-    public function setValue($params)
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (in_array($params['ft_typename'], $this->multiType)) {
@@ -153,9 +147,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
             }
         }
         if (isset($userPref)) {
-            $this->quickform->setDefaults(array('param_' . $params['parameter_id'] => $userPref));
+            $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $userPref]);
         } elseif (isset($params['default_value']) && $params['default_value'] != "") {
-            $this->quickform->setDefaults(array('param_' . $params['parameter_id'] => $params['default_value']));
+            $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $params['default_value']]);
         }
     }
 
@@ -181,7 +175,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
                           FROM widget_parameters_multiple_options
                           WHERE parameter_id = " . $this->db->escape($paramId);
         $res = $this->db->query($query);
-        $tab = array(null => null);
+        $tab = [null => null];
         while ($row = $res->fetchRow()) {
             $tab[$row['option_value']] = $row['option_name'];
         }

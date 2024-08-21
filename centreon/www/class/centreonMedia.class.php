@@ -42,12 +42,6 @@ class CentreonMedia
 
     /**
      *
-     * @var \CentreonDB
-     */
-    protected $db;
-
-    /**
-     *
      * @var type
      */
     protected $filenames;
@@ -62,10 +56,9 @@ class CentreonMedia
      * Constructor
      * @param type $db
      */
-    public function __construct($db)
+    public function __construct(protected $db)
     {
-        $this->db = $db;
-        $this->filenames = array();
+        $this->filenames = [];
     }
 
     /**
@@ -77,9 +70,8 @@ class CentreonMedia
     {
         if (empty($this->mediadirectoryname)) {
             return self::CENTREON_MEDIA_PATH;
-        } else {
-            return $this->mediadirectoryname;
         }
+        return $this->mediadirectoryname;
     }
 
     /**
@@ -87,7 +79,7 @@ class CentreonMedia
      * @return string
      * @throws \Exception
      */
-    public function setMediaDirectory($dirname)
+    public function setMediaDirectory($dirname): void
     {
         $this->mediadirectoryname = $dirname;
     }
@@ -107,13 +99,11 @@ class CentreonMedia
         );
         $statement->bindValue(':dirName', $dirName, \PDO::PARAM_STR);
         $statement->execute();
-
-        $dirId = null;
         if ($row = $statement->fetch()) {
-            $dirId = (int) $row['dir_id'];
+            return (int) $row['dir_id'];
         }
 
-        return $dirId;
+        return null;
     }
 
     /**
@@ -243,11 +233,7 @@ class CentreonMedia
             return "";
         }
         if (count($this->filenames)) {
-            if (isset($this->filenames[$imgId])) {
-                return $this->filenames[$imgId];
-            } else {
-                return "";
-            }
+            return $this->filenames[$imgId] ?? "";
         }
         $query = "SELECT img_id, img_path, dir_alias
 	    		  FROM view_img vi, view_img_dir vid, view_img_dir_relation vidr
@@ -258,10 +244,7 @@ class CentreonMedia
         while ($row = $res->fetchRow()) {
             $this->filenames[$row['img_id']] = $row["dir_alias"] . "/" . $row["img_path"];
         }
-        if (isset($this->filenames[$imgId])) {
-            return $this->filenames[$imgId];
-        }
-        return "";
+        return $this->filenames[$imgId] ?? "";
     }
 
     /**
@@ -279,22 +262,8 @@ class CentreonMedia
             throw new Exception('Missing extension');
         }
         $extension = substr($fileName, ($position + 1));
-        $files = array();
-        $allowedExt = array(
-            'zip',
-            'tar',
-            'gz',
-            'tgzip',
-            'tgz',
-            'bz',
-            'tbzip',
-            'tbz',
-            'bzip',
-            'bz2',
-            'tbzip2',
-            'tbz2',
-            'bzip2'
-        );
+        $files = [];
+        $allowedExt = ['zip', 'tar', 'gz', 'tgzip', 'tgz', 'bz', 'tbzip', 'tbz', 'bzip', 'bz2', 'tbzip2', 'tbz2', 'bzip2'];
         if (!in_array(strtolower($extension), $allowedExt)) {
             throw new Exception('Unknown extension');
         }
@@ -311,7 +280,7 @@ class CentreonMedia
                 $files[] = $archiveObj->statIndex($i)['name'];
             }
         } else {
-            $archiveObj = new \PharData($archiveFile, \Phar::KEY_AS_FILENAME);
+            $archiveObj = new \PharData($archiveFile, \Phar::KEY_AS_FILENAME | \FilesystemIterator::SKIP_DOTS);
 
             foreach ($archiveObj as $file) {
                 $files[] = $file->getFilename();
@@ -369,9 +338,9 @@ class CentreonMedia
         $directoryName = $this->sanitizePath($parameters['dir_name']);
         $directoryId = $this->addDirectory($directoryName);
 
-        $imageName = htmlentities($parameters['img_name'], ENT_QUOTES, "UTF-8");
-        $imagePath = htmlentities($parameters['img_path'], ENT_QUOTES, "UTF-8");
-        $imageComment = htmlentities($parameters['img_comment'], ENT_QUOTES, "UTF-8");
+        $imageName = htmlentities((string) $parameters['img_name'], ENT_QUOTES, "UTF-8");
+        $imagePath = htmlentities((string) $parameters['img_path'], ENT_QUOTES, "UTF-8");
+        $imageComment = htmlentities((string) $parameters['img_comment'], ENT_QUOTES, "UTF-8");
 
         // Check if image already exists
         $query = 'SELECT vidr.vidr_id '
@@ -445,7 +414,7 @@ class CentreonMedia
      * @param string $imagePath
      * @param string $binary
      */
-    private function createImage($directoryPath, $imagePath, $binary)
+    private function createImage($directoryPath, $imagePath, $binary): void
     {
         $fullPath = $directoryPath . '/' . $imagePath;
         $decodedBinary = base64_decode($binary);

@@ -33,16 +33,10 @@ use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 class OptionService implements OptionServiceInterface
 {
     /**
-     * @var OptionRepositoryInterface
-     */
-    private $repository;
-
-    /**
      * @param OptionRepositoryInterface $repository
      */
-    public function __construct(OptionRepositoryInterface $repository)
+    public function __construct(private OptionRepositoryInterface $repository)
     {
-        $this->repository = $repository;
     }
 
     /**

@@ -37,26 +37,6 @@ use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
 class CheckService extends AbstractCentreonService implements CheckServiceInterface
 {
     /**
-     * @var EngineServiceInterface Used to send external commands to engine.
-     */
-    private $engineService;
-
-    /**
-     * @var EntityValidator
-     */
-    private $validator;
-
-    /**
-     * @var MonitoringRepositoryInterface
-     */
-    private $monitoringRepository;
-
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
-    private $accessGroupRepository;
-
-    /**
      * CheckService constructor.
      *
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
@@ -64,16 +44,8 @@ class CheckService extends AbstractCentreonService implements CheckServiceInterf
      * @param EngineServiceInterface $engineService
      * @param EntityValidator $validator
      */
-    public function __construct(
-        ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        MonitoringRepositoryInterface $monitoringRepository,
-        EngineServiceInterface $engineService,
-        EntityValidator $validator
-    ) {
-        $this->accessGroupRepository = $accessGroupRepository;
-        $this->monitoringRepository = $monitoringRepository;
-        $this->engineService = $engineService;
-        $this->validator = $validator;
+    public function __construct(private ReadAccessGroupRepositoryInterface $accessGroupRepository, private MonitoringRepositoryInterface $monitoringRepository, private EngineServiceInterface $engineService, private EntityValidator $validator)
+    {
     }
 
     /**

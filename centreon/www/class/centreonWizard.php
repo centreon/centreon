@@ -36,21 +36,17 @@
 
 class Centreon_Wizard
 {
-    private $_uuid = null;
-    private $_name = null;
-    private $_values = array();
+    private $_values = [];
     private $_lastUpdate = 0;
 
     /**
      * Constructor
      *
-     * @param string $name The wizard name
-     * @param string $uuid The wizard unique id
+     * @param string $_name The wizard name
+     * @param string $_uuid The wizard unique id
      */
-    public function __construct($name, $uuid)
+    public function __construct(private $_name, private $_uuid)
     {
-        $this->_uuid = $uuid;
-        $this->_name = $name;
         $this->_lastUpdate = time();
     }
 
@@ -63,7 +59,7 @@ class Centreon_Wizard
     public function getValues($step)
     {
         if (false === isset($this->_values[$step])) {
-            return array();
+            return [];
         }
         return $this->_values[$step];
     }
@@ -90,10 +86,10 @@ class Centreon_Wizard
      * @param int $step The step position
      * @param array $post The post with values
      */
-    public function addValues($step, $post)
+    public function addValues($step, $post): void
     {
         /* Reinit */
-        $this->_values[$step] = array();
+        $this->_values[$step] = [];
         foreach ($post as $key => $value) {
             if (strncmp($key, 'step' . $step . '_', 6) === 0) {
                 $this->_values[$step][str_replace('step' . $step . '_', '', $key)] = $value;
@@ -122,7 +118,7 @@ class Centreon_Wizard
     public function __sleep()
     {
         $this->_lastUpdate = time();
-        return array('_uuid', '_lastUpdate', '_name', '_values');
+        return ['_uuid', '_lastUpdate', '_name', '_values'];
     }
 
     /**

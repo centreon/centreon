@@ -706,9 +706,9 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             $services[] = new ServiceLight(
                 id: $result['service_id'],
                 name: new TrimmedString($result['service_description']),
-                hostIds: array_map('intval', explode(',', $result['host_ids'])),
+                hostIds: array_map('intval', explode(',', (string) $result['host_ids'])),
                 categoryIds: $result['category_ids']
-                    ? array_map('intval', explode(',', $result['category_ids']))
+                    ? array_map('intval', explode(',', (string) $result['category_ids']))
                     : [],
                 groups: $result['sg_host_concat']
                     ? array_map(
@@ -721,7 +721,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                                 hostId: (int) $hostId
                             );
                         },
-                        explode(',', $result['sg_host_concat'])
+                        explode(',', (string) $result['sg_host_concat'])
                     )
                     : [],
                 serviceTemplate: $result['service_template_id'] !== null

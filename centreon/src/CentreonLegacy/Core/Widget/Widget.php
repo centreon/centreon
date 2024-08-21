@@ -30,9 +30,6 @@ class Widget
     /** @var Information */
     protected $informationObj;
 
-    /** @var string */
-    protected $widgetName;
-
     /** @var Utils */
     protected $utils;
 
@@ -53,12 +50,11 @@ class Widget
     public function __construct(
         ContainerInterface $services,
         ?Information $informationObj = null,
-        $widgetName = '',
+        protected $widgetName = '',
         ?Utils $utils = null
     ) {
         $this->services = $services;
         $this->informationObj = $informationObj ?? $services->get(ServiceProvider::CENTREON_LEGACY_WIDGET_INFORMATION);
-        $this->widgetName = $widgetName;
         $this->utils = $utils ?? $services->get(ServiceProvider::CENTREON_LEGACY_UTILS);
         $this->widgetConfiguration = $this->informationObj->getConfiguration($this->widgetName);
     }

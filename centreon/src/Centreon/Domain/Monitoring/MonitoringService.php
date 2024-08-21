@@ -102,7 +102,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
     {
         $hosts = $this->monitoringRepository->findHosts();
         if ($withServices && !empty($hosts)) {
-            $hosts = $this->completeHostsWithTheirServices($hosts);
+            return $this->completeHostsWithTheirServices($hosts);
         }
         return $hosts;
     }
@@ -165,7 +165,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
         $host = $this->monitoringRepository->findOneHost($hostId);
 
         if (!empty($host)) {
-            $host = $this->completeHostsWithTheirServices([$host])[0];
+            return $this->completeHostsWithTheirServices([$host])[0];
         }
         return $host;
     }
@@ -368,10 +368,9 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
                 // For META SERVICE we can define the configuration command line with the monitoring command line
                 $monitoringService->setCommandLine($monitoringCommand);
                 return;
-            } else {
-                // The service is not a META SERVICE
-                throw ServiceCommandException::notFound($monitoringService->getId());
             }
+            // The service is not a META SERVICE
+            throw ServiceCommandException::notFound($monitoringService->getId());
         }
 
         $hostMacros = $this->hostConfiguration->findHostMacrosFromCommandLine(

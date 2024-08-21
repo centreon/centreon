@@ -43,13 +43,11 @@ class DeleteRulesPresenterStub extends AbstractPresenter implements DeleteRulesP
     {
         if ($response instanceof DeleteRulesResponse) {
             $multiStatusResponse = [
-                'results' => array_map(function (DeleteRulesStatusResponse $dto) {
-                    return [
-                        'self' => self::HREF . $dto->id,
-                        'status' => $this->enumToIntConverter($dto->status),
-                        'message' => $dto->message,
-                    ];
-                }, $response->responseStatuses),
+                'results' => array_map(fn(DeleteRulesStatusResponse $dto) => [
+                    'self' => self::HREF . $dto->id,
+                    'status' => $this->enumToIntConverter($dto->status),
+                    'message' => $dto->message,
+                ], $response->responseStatuses),
             ];
 
             $this->response = new MultiStatusResponse($multiStatusResponse);

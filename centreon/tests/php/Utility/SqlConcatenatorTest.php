@@ -37,17 +37,15 @@ beforeEach(function (): void {
         return $method->invoke($builder, $prefix, ...$values);
     };
 
-    $this->stringable = static function (string $string): \Stringable {
-        return new class ($string) implements \Stringable {
-            public function __construct(public string $string)
-            {
-            }
+    $this->stringable = static fn(string $string): \Stringable => new class ($string) implements \Stringable {
+        public function __construct(public string $string)
+        {
+        }
 
-            public function __toString(): string
-            {
-                return $this->string;
-            }
-        };
+        public function __toString(): string
+        {
+            return $this->string;
+        }
     };
 });
 

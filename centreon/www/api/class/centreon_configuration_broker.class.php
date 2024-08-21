@@ -33,7 +33,7 @@
  *
  */
 
-require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
 class CentreonConfigurationBroker extends CentreonConfigurationObjects
 {
@@ -61,14 +61,14 @@ class CentreonConfigurationBroker extends CentreonConfigurationObjects
 
         $cbObj = new CentreonConfigCentreonBroker($this->pearDB);
 
-        $form = $cbObj->quickFormById($blockId, $page, $position, "new_" . rand(100, 1000));
+        $form = $cbObj->quickFormById($blockId, $page, $position, "new_" . random_int(100, 1000));
 
-        $helps = array();
-        list($tagId, $typeId) = explode('_', $blockId);
+        $helps = [];
+        [$tagId, $typeId] = explode('_', $blockId);
         $typeName = $cbObj->getTypeName($typeId);
         $fields = $cbObj->getBlockInfos($typeId);
-        $helps[] = array('name' => $tag . '[' . $position . '][name]', 'desc' => _('The name of block configuration'));
-        $helps[] = array('name' => $tag . '[' . $position . '][type]', 'desc' => _('The type of block configuration'));
+        $helps[] = ['name' => $tag . '[' . $position . '][name]', 'desc' => _('The name of block configuration')];
+        $helps[] = ['name' => $tag . '[' . $position . '][type]', 'desc' => _('The type of block configuration')];
         $cbObj->nbSubGroup = 1;
         textdomain('help');
         foreach ($fields as $field) {
@@ -77,10 +77,7 @@ class CentreonConfigurationBroker extends CentreonConfigurationObjects
                 $fieldname .= $cbObj->getParentGroups($field['group']);
             }
             $fieldname .= $field['fieldname'];
-            $helps[] = array(
-                'name' => $tag . '[' . $position . '][' . $fieldname . ']',
-                'desc' => _($field['description'])
-            );
+            $helps[] = ['name' => $tag . '[' . $position . '][' . $fieldname . ']', 'desc' => _($field['description'])];
         }
         textdomain('messages');
 

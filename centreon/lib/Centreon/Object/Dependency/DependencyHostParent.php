@@ -37,7 +37,7 @@ class Centreon_Object_DependencyHostParent extends Centreon_Object
               WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostParent_relation
                                          WHERE host_host_id = ?)
               GROUP BY dependency_dep_id';
-        $result = $this->getResult($query, array($hostId), "fetch");
+        $result = $this->getResult($query, [$hostId], "fetch");
 
         //is last parent
         if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {

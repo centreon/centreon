@@ -47,11 +47,6 @@ class ActionLog
     private $id;
 
     /**
-     * @var string Token of the response
-     */
-    private $token;
-
-    /**
      * @var int Status code of the response
      * @see ResponseInterface::STATUS_BEGIN for code when action begin
      * @see ResponseInterface::STATUS_ERROR for code when there is an error
@@ -88,9 +83,8 @@ class ActionLog
      * @param string $token
      * @see ActionLog::$token
      */
-    public function __construct(string $token)
+    public function __construct(private string $token)
     {
-        $this->token = $token;
     }
 
     /**

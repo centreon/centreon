@@ -178,14 +178,14 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     continue;
                 }
                 foreach ($parameterValue as $subParameterName => $subParameterValues) {
-                    if (str_contains($subParameterValues, '|')) {
-                        $subParameterValues = explode('|', urldecode($subParameterValues));
+                    if (str_contains((string) $subParameterValues, '|')) {
+                        $subParameterValues = explode('|', urldecode((string) $subParameterValues));
                         foreach ($subParameterValues as $value) {
                             $search[RequestParameters::AGGREGATE_OPERATOR_OR][] = [$subParameterName => $value];
                         }
                     } else {
                         $search[RequestParameters::AGGREGATE_OPERATOR_AND][$subParameterName]
-                            = urldecode($subParameterValues);
+                            = urldecode((string) $subParameterValues);
                     }
                 }
             }
@@ -374,7 +374,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     'code' => $errorCode,
                     'message' => $event->getThrowable()->getMessage(),
                 ]);
-            } elseif (get_class($event->getThrowable()) === \Exception::class) {
+            } elseif ($event->getThrowable()::class === \Exception::class) {
                 $errorMessage = json_encode([
                     'code' => $errorCode,
                     'message' => 'Internal error',

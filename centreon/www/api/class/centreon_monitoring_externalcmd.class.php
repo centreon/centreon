@@ -36,7 +36,7 @@
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . '/www/class/centreonExternalCommand.class.php';
-require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . "/centreon_configuration_objects.class.php";
 class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
 {
     /**
@@ -80,14 +80,14 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                 'WHERE ns_activate = "1"';
 
             $dbResult = $this->pearDB->query($query);
-            $pollers = array();
+            $pollers = [];
 
             while ($row = $dbResult->fetch(PDO::FETCH_ASSOC)) {
                 $pollers[$row['id']] = 1;
             }
 
             $externalCommand = new CentreonExternalCommand();
-            $availableCommands = array();
+            $availableCommands = [];
 
             /**
              * We need to make the concordance between the data saved in the database
@@ -110,7 +110,7 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
 
             if ($fh = @fopen($this->centcore_file, 'a+')) {
                 foreach ($this->arguments['commands'] as $command) {
-                    $commandSplitted = explode(';', $command['command']);
+                    $commandSplitted = explode(';', (string) $command['command']);
                     $action = $commandSplitted[0];
                     if (!$isAdmin) {
                         if (preg_match('/HOST(_SVC)?/', $action, $matches)) {
@@ -174,12 +174,10 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                     }
                 }
                 fclose($fh);
-                return (array('success' => true));
-            } else {
-                throw new RestException('Cannot open Centcore file');
+                return (['success' => true]);
             }
-        } else {
-            throw new RestBadRequestException('Bad arguments - Cannot find command list');
+            throw new RestException('Cannot open Centcore file');
         }
+        throw new RestBadRequestException('Bad arguments - Cannot find command list');
     }
 }

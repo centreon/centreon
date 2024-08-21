@@ -44,9 +44,7 @@ class ExporterCacheServiceTest extends TestCase
      */
     public function testGetIf(): void
     {
-        $callable = function () {
-            return 'val1a';
-        };
+        $callable = fn() => 'val1a';
 
         $result = $this->cache->getIf('key1', $callable);
 

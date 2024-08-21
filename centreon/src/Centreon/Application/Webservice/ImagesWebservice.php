@@ -156,7 +156,7 @@ class ImagesWebservice extends Webservice\WebServiceAbstract implements
         }
 
         if (isset($request['searchByIds']) && $request['searchByIds']) {
-            $filters['ids'] = explode(',', $request['searchByIds']);
+            $filters['ids'] = explode(',', (string) $request['searchByIds']);
         }
 
         $pagination = $this->services->get(ServiceProvider::CENTREON_PAGINATION);

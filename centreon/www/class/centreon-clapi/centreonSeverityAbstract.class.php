@@ -39,8 +39,8 @@ require_once "centreonObject.class.php";
 
 abstract class CentreonSeverityAbstract extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
 
     /**
      * Set severity
@@ -48,7 +48,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
      * @param string $parameters
      * @throws CentreonClapiException
      */
-    public function setseverity($parameters)
+    public function setseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         $uniqueLabel = $params[self::ORDER_UNIQUENAME];
@@ -66,10 +66,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
             if (is_null($iconId)) {
                 throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
             }
-            $updateParams = array(
-                'level' => $level,
-                'icon_id' => $iconId
-            );
+            $updateParams = ['level' => $level, 'icon_id' => $iconId];
 
             $this->object->update($objectId, $updateParams);
             $this->addAuditLog(
@@ -89,7 +86,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
      * @param string $parameters
      * @throws CentreonClapiException
      */
-    public function unsetseverity($parameters)
+    public function unsetseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         $uniqueLabel = $params[self::ORDER_UNIQUENAME];
@@ -99,10 +96,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
 
         $objectId = $this->getObjectId($uniqueLabel);
         if ($objectId != 0) {
-            $updateParams = array(
-                'level' => null,
-                'icon_id' => null
-            );
+            $updateParams = ['level' => null, 'icon_id' => null];
 
             $this->object->update($objectId, $updateParams);
             $this->addAuditLog(

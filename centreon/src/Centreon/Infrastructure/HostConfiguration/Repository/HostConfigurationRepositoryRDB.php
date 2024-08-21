@@ -47,15 +47,9 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements HostConfigurationRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
-    private $sqlRequestTranslator;
-
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db, private SqlRequestParametersTranslator $sqlRequestTranslator)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
@@ -256,7 +250,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 ON host_server.host_host_id = host.host_id
             INNER JOIN `:db`.nagios_server nagios
                 ON nagios.id = host_server.nagios_server_id '  .
-            ($accessGroupRequest !== null ? $accessGroupRequest : '') .
+            ($accessGroupRequest ?? '') .
             'WHERE host.host_id = :host_id
             AND host.host_register = \'1\''
         );
@@ -435,7 +429,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             $hostTpl = null;
             $record = $statement->fetch(\PDO::FETCH_ASSOC);
             if (!is_null($record['templates']) && is_null($hostTpl)) {
-                $hostTpl = explode(',', $record['templates']);
+                $hostTpl = explode(',', (string) $record['templates']);
             }
             if (!is_null($record['command_line'])) {
                 return (string)$record['command_line'];

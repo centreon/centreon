@@ -42,7 +42,7 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -54,7 +54,7 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
         }
     }
 
-    public function setValue($params)
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         $cbVal = false;

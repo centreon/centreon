@@ -44,7 +44,7 @@ class LicenseTest extends TestCase
         $this->container = null;
     }
 
-    public function testGetLicenseExpiration()
+    public function testGetLicenseExpiration(): void
     {
         $module = 'mod';
         $value = null;
@@ -54,7 +54,7 @@ class LicenseTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testGetLicenseExpirationWithException()
+    public function testGetLicenseExpirationWithException(): void
     {
         $module = 'mod';
         $value = null;
@@ -68,7 +68,7 @@ class LicenseTest extends TestCase
             ->getMock();
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_HEALTHCHECK]
             ->method('check')
-            ->will($this->returnCallback(function () {
+            ->will($this->returnCallback(function (): never {
                     throw new \Exception;
                 }));
 
@@ -77,7 +77,7 @@ class LicenseTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testGetLicenseExpirationWithExpirationDate()
+    public function testGetLicenseExpirationWithExpirationDate(): void
     {
         $module = 'mod';
         $value = date(\DateTime::ISO8601);
@@ -91,9 +91,7 @@ class LicenseTest extends TestCase
             ->getMock();
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_HEALTHCHECK]
             ->method('getLicenseExpiration')
-            ->will($this->returnCallback(function () use ($value) {
-                    return new \DateTime($value);
-                }));
+            ->will($this->returnCallback(fn() => new \DateTime($value)));
 
         $result = $this->service->getLicenseExpiration($module);
 

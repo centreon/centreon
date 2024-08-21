@@ -27,15 +27,12 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Media\Domain\Model\NewMedia;
 
 beforeEach(function (): void {
-    $this->createMedia = function (array $arguments = []): NewMedia
-    {
-        return new NewMedia(...[
-            'filename' => 'filename',
-            'directory' => 'directory',
-            'data' => 'data',
-            ...$arguments,
-        ]);
-    };
+    $this->createMedia = fn(array $arguments = []): NewMedia => new NewMedia(...[
+        'filename' => 'filename',
+        'directory' => 'directory',
+        'data' => 'data',
+        ...$arguments,
+    ]);
 });
 
 it('should throw an exception when the filename property is empty', function (): void {

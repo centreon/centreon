@@ -39,19 +39,12 @@
 class CentreonTimeperiod
 {
     /**
-     *
-     * @var \CentreonDB
-     */
-    protected $db;
-
-    /**
      *  Constructor
      *
      * @param CentreonDB $db
      */
-    public function __construct($db)
+    public function __construct(protected $db)
     {
-        $this->db = $db;
     }
 
     /**
@@ -59,11 +52,11 @@ class CentreonTimeperiod
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':tp' . $v . ',';
@@ -87,10 +80,7 @@ class CentreonTimeperiod
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['tp_id'],
-                'text' => $row['tp_name']
-            );
+            $items[] = ['id' => $row['tp_id'], 'text' => $row['tp_name']];
         }
 
         return $items;
@@ -140,7 +130,7 @@ class CentreonTimeperiod
      * @param array $parameters Values to insert (command_name and command_line is mandatory)
      * @throws Exception
      */
-    public function insert($parameters)
+    public function insert($parameters): void
     {
         $sQuery = "INSERT INTO `timeperiod` "
             . "(`tp_name`, `tp_alias`, `tp_sunday`, `tp_monday`, `tp_tuesday`, `tp_wednesday`, "
@@ -169,7 +159,7 @@ class CentreonTimeperiod
      * @param array $command Values to set
      * @throws Exception
      */
-    public function update($tp_id, $parameters)
+    public function update($tp_id, $parameters): void
     {
 
         $sQuery = "UPDATE `timeperiod` SET `tp_alias` = '" . $parameters['alias'] . "', "
@@ -196,7 +186,7 @@ class CentreonTimeperiod
      * @param array $parameters Values to insert (days and timerange)
      * @throws Exception
      */
-    public function setTimeperiodException($tpId, $parameters)
+    public function setTimeperiodException($tpId, $parameters): void
     {
         foreach ($parameters as $exception) {
             $sQuery = "INSERT INTO `timeperiod_exceptions` "
@@ -220,7 +210,7 @@ class CentreonTimeperiod
      * @param integer $depId
      * @throws Exception
      */
-    public function setTimeperiodDependency($timeperiodId, $depId)
+    public function setTimeperiodDependency($timeperiodId, $depId): void
     {
         $sQuery = "INSERT INTO `timeperiod_include_relations` "
             . "(`timeperiod_id`,`timeperiod_include_id`) "
@@ -239,7 +229,7 @@ class CentreonTimeperiod
      * @param integer $tpId
      * @throws Exception
      */
-    public function deleteTimeperiodException($tpId)
+    public function deleteTimeperiodException($tpId): void
     {
         $sQuery = "DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id` = " . (int)$tpId;
 
@@ -256,7 +246,7 @@ class CentreonTimeperiod
      * @param integer $tpId
      * @throws Exception
      */
-    public function deleteTimeperiodInclude($tpId)
+    public function deleteTimeperiodInclude($tpId): void
     {
         $sQuery = "DELETE FROM `timeperiod_include_relations` WHERE `timeperiod_id` = " . (int)$tpId;
 
@@ -273,7 +263,7 @@ class CentreonTimeperiod
      * @param string $tp_name timperiod name
      * @throws Exception
      */
-    public function deleteTimeperiodByName($tp_name)
+    public function deleteTimeperiodByName($tp_name): void
     {
         $sQuery = 'DELETE FROM timeperiod '
             . 'WHERE tp_name = "' . $this->db->escape($tp_name) . '"';
@@ -297,7 +287,7 @@ class CentreonTimeperiod
             $registerClause = 'AND h.host_register = "' . $register . '" ';
         }
 
-        $linkedHosts = array();
+        $linkedHosts = [];
         $query = 'SELECT DISTINCT h.host_name '
             . 'FROM host h, timeperiod t '
             . 'WHERE (h.timeperiod_tp_id = t.tp_id OR h.timeperiod_tp_id2 = t.tp_id) '
@@ -329,7 +319,7 @@ class CentreonTimeperiod
             $registerClause = 'AND s.service_register = "' . $register . '" ';
         }
 
-        $linkedServices = array();
+        $linkedServices = [];
         $query = 'SELECT DISTINCT s.service_description '
             . 'FROM service s, timeperiod t '
             . 'WHERE (s.timeperiod_tp_id = t.tp_id OR s.timeperiod_tp_id2 = t.tp_id) '
@@ -358,7 +348,7 @@ class CentreonTimeperiod
      */
     public function getLinkedContactsByName($timeperiodName)
     {
-        $linkedContacts = array();
+        $linkedContacts = [];
         $query = 'SELECT DISTINCT c.contact_name '
             . 'FROM contact c, timeperiod t '
             . 'WHERE (c.timeperiod_tp_id = t.tp_id OR c.timeperiod_tp_id2 = t.tp_id) '
@@ -386,7 +376,7 @@ class CentreonTimeperiod
      */
     public function getLinkedTimeperiodsByName($timeperiodName)
     {
-        $linkedTimeperiods = array();
+        $linkedTimeperiods = [];
 
         $query = 'SELECT DISTINCT t1.tp_name '
             . 'FROM timeperiod t1, timeperiod_include_relations tir1, timeperiod t2 '

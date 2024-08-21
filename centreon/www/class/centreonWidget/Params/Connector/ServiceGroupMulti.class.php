@@ -45,11 +45,6 @@ class CentreonWidgetParamsConnectorServiceGroupMulti extends CentreonWidgetParam
     public function getParameters()
     {
         $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicegroup&action=list';
-        return array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => $path,
-            'multiple' => true,
-            'linkedObject' => 'centreonServicegroups'
-        );
+        return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonServicegroups'];
     }
 }

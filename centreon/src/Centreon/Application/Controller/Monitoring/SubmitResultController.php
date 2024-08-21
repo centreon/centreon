@@ -35,13 +35,6 @@ use Exception;
 
 class SubmitResultController extends AbstractController
 {
-    /**
-     * submitResult
-     *
-     * @var SubmitResultServiceInterface
-     */
-    private $submitResultService;
-
     private const SUBMIT_RESULT_RESOURCES_PAYLOAD_VALIDATION_FILE =
         __DIR__ . '/../../../../../config/json_validator/latest/Centreon/SubmitResult/SubmitResultResources.json';
 
@@ -51,9 +44,13 @@ class SubmitResultController extends AbstractController
     /**
      * @param SubmitResultServiceInterface $submitResultService
      */
-    public function __construct(SubmitResultServiceInterface $submitResultService)
+    public function __construct(
+        /**
+         * submitResult
+         */
+        private SubmitResultServiceInterface $submitResultService
+    )
     {
-        $this->submitResultService = $submitResultService;
     }
 
     /**

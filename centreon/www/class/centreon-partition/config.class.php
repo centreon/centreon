@@ -44,25 +44,19 @@
  */
 class Config
 {
-    public $XMLfile;
     private $defaultConfiguration;
     public $tables;
-    public $centstorageDb;
-    private $centreonDb;
 
     /**
      * Class constructor
      *
      * @param CentreonDB $centstorageDb   the centstorage database
-     * @param string     $file            the xml file name
+     * @param string $XMLfile the xml file name
      * @param CentreonDB $centreonDb      the centreon database
      */
-    public function __construct($centstorageDb, $file, $centreonDb)
+    public function __construct(public $centstorageDb, public $XMLfile, private $centreonDb)
     {
-        $this->XMLFile = $file;
-        $this->centstorageDb = $centstorageDb;
-        $this->centreonDb = $centreonDb;
-        $this->tables = array();
+        $this->tables = [];
         $this->loadCentreonDefaultConfiguration();
         $this->parseXML($this->XMLFile);
     }
@@ -70,7 +64,7 @@ class Config
     /**
      *
      */
-    public function loadCentreonDefaultConfiguration()
+    public function loadCentreonDefaultConfiguration(): void
     {
         $queryOptions = 'SELECT `opt`.`key`, `opt`.`value` ' .
             'FROM `options` opt ' .
@@ -92,7 +86,7 @@ class Config
      *
      * @return null
      */
-    public function parseXML($xmlfile)
+    public function parseXML($xmlfile): void
     {
         if (!file_exists($xmlfile)) {
             throw new \Exception("Config file '" . $xmlfile . "' does not exist\n");

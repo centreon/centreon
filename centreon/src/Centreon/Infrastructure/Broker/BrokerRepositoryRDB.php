@@ -30,17 +30,11 @@ use Centreon\Domain\Broker\Interfaces\BrokerRepositoryInterface;
 class BrokerRepositoryRDB implements BrokerRepositoryInterface
 {
     /**
-     * @var DatabaseConnection
-     */
-    private $db;
-
-    /**
      * BrokerRepositoryRDB constructor.
      * @param DatabaseConnection $db
      */
-    public function __construct(DatabaseConnection $db)
+    public function __construct(private DatabaseConnection $db)
     {
-        $this->db = $db;
     }
 
     /**

@@ -67,9 +67,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             return new Utils\Utils($locator);
         };
 
-        $pimple[static::SYMFONY_FINDER] = function (Container $container) : Finder {
-            return new Finder();
-        };
+        $pimple[static::SYMFONY_FINDER] = fn(Container $container): Finder => new Finder();
 
         $this->registerConfiguration($pimple);
         $this->registerRestHttp($pimple);
@@ -100,11 +98,9 @@ class ServiceProvider implements AutoloadServiceProviderInterface
      */
     protected function registerRestHttp(Container $pimple)
     {
-        $pimple[static::CENTREON_REST_HTTP] = function (Container $container) {
-            return function ($contentType = 'application/json', $logFile = null) {
-                // @codeCoverageIgnoreStart
-                return new \CentreonRestHttp($contentType, $logFile); // @codeCoverageIgnoreEnd
-            };
+        $pimple[static::CENTREON_REST_HTTP] = fn(Container $container) => function ($contentType = 'application/json', $logFile = null) {
+            // @codeCoverageIgnoreStart
+            return new \CentreonRestHttp($contentType, $logFile); // @codeCoverageIgnoreEnd
         };
     }
 
@@ -143,9 +139,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = function ($moduleName) use ($locator): Module\Installer {
-                return new Module\Installer($locator, null, $moduleName);
-            };
+            $service = fn($moduleName): Module\Installer => new Module\Installer($locator, null, $moduleName);
 
             return $service;
         });
@@ -160,9 +154,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = function ($moduleName, $moduleId) use ($locator): Module\Upgrader {
-                return new Module\Upgrader($locator, null, $moduleName, null, $moduleId);
-            };
+            $service = fn($moduleName, $moduleId): Module\Upgrader => new Module\Upgrader($locator, null, $moduleName, null, $moduleId);
 
             return $service;
         });
@@ -176,9 +168,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = function ($moduleName, $moduleId) use ($locator): Module\Remover {
-                return new Module\Remover($locator, null, $moduleName, null, $moduleId);
-            };
+            $service = fn($moduleName, $moduleId): Module\Remover => new Module\Remover($locator, null, $moduleName, null, $moduleId);
 
             return $service;
         });
@@ -194,9 +184,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         });
 
         // alias to centreon.legacy.module.license service
-        $pimple[static::CENTREON_LEGACY_LICENSE] = function (Container $container): License {
-            return $container[ServiceProvider::CENTREON_LEGACY_MODULE_LICENSE];
-        };
+        $pimple[static::CENTREON_LEGACY_LICENSE] = fn(Container $container): License => $container[ServiceProvider::CENTREON_LEGACY_MODULE_LICENSE];
     }
 
     protected function registerWidget(Container $pimple)
@@ -222,9 +210,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = function ($widgetDirectory) use ($locator): Widget\Installer {
-                return new Widget\Installer($locator, null, $widgetDirectory, null);
-            };
+            $service = fn($widgetDirectory): Widget\Installer => new Widget\Installer($locator, null, $widgetDirectory, null);
 
             return $service;
         });
@@ -237,9 +223,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = function ($widgetDirectory) use ($locator): Widget\Upgrader {
-                return new Widget\Upgrader($locator, null, $widgetDirectory, null);
-            };
+            $service = fn($widgetDirectory): Widget\Upgrader => new Widget\Upgrader($locator, null, $widgetDirectory, null);
 
             return $service;
         });
@@ -252,9 +236,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = function ($widgetDirectory) use ($locator): Widget\Remover {
-                return new Widget\Remover($locator, null, $widgetDirectory, null);
-            };
+            $service = fn($widgetDirectory): Widget\Remover => new Widget\Remover($locator, null, $widgetDirectory, null);
 
             return $service;
         });

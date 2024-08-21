@@ -37,18 +37,12 @@
 class CentreonUUID
 {
     /**
-     * @var CentreonDB
-     */
-    private $db;
-
-    /**
      * Constructor
      *
      * @param CentreonDB $db
      */
-    public function __construct($db)
+    public function __construct(private $db)
     {
-        $this->db = $db;
     }
 
     /**
@@ -112,7 +106,7 @@ class CentreonUUID
         );
 
         $query = "INSERT INTO informations VALUES ('uuid', ?) ";
-        $queryValues = array($uuid);
+        $queryValues = [$uuid];
         $stmt = $this->db->prepare($query);
         $this->db->execute($stmt, $queryValues);
 

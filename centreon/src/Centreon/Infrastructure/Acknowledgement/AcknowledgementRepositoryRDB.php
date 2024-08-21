@@ -36,11 +36,6 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implements AcknowledgementRepositoryInterface
 {
     /**
-     * @var SqlRequestParametersTranslator
-     */
-    private $sqlRequestTranslator;
-
-    /**
      * @var AccessGroup[] List of access group used to filter the requests
      */
     private $accessGroups;
@@ -73,10 +68,9 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
      */
     public function __construct(
         DatabaseConnection $db,
-        SqlRequestParametersTranslator $sqlRequestTranslator
+        private SqlRequestParametersTranslator $sqlRequestTranslator
     ) {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
@@ -425,9 +419,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
                 Acknowledgement::class,
                 $row
             );
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**

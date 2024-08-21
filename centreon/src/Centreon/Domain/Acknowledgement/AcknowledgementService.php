@@ -45,31 +45,6 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
     public const VALIDATION_GROUPS_ADD_SERVICE_ACK = ['Default'];
 
     /**
-     * @var AcknowledgementRepositoryInterface
-     */
-    private $acknowledgementRepository;
-
-    /**
-     * @var EngineServiceInterface All acknowledgement requests except reading use Engine.
-     */
-    private $engineService;
-
-    /**
-     * @var EntityValidator
-     */
-    private $validator;
-
-    /**
-     * @var MonitoringRepositoryInterface
-     */
-    private $monitoringRepository;
-
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
-    private $accessGroupRepository;
-
-    /**
      * AcknowledgementService constructor.
      *
      * @param AcknowledgementRepositoryInterface $acknowledgementRepository
@@ -79,17 +54,13 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
      * @param EntityValidator $validator
      */
     public function __construct(
-        AcknowledgementRepositoryInterface $acknowledgementRepository,
-        ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        MonitoringRepositoryInterface $monitoringRepository,
-        EngineServiceInterface $engineService,
-        EntityValidator $validator
-    ) {
-        $this->accessGroupRepository = $accessGroupRepository;
-        $this->acknowledgementRepository = $acknowledgementRepository;
-        $this->monitoringRepository = $monitoringRepository;
-        $this->engineService = $engineService;
-        $this->validator = $validator;
+        private AcknowledgementRepositoryInterface $acknowledgementRepository,
+        private ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private MonitoringRepositoryInterface $monitoringRepository,
+        private EngineServiceInterface $engineService,
+        private EntityValidator $validator
+    )
+    {
     }
 
     /**
@@ -122,10 +93,9 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
     {
         if ($this->contact->isAdmin()) {
             return $this->acknowledgementRepository->findOneAcknowledgementForAdminUser($acknowledgementId);
-        } else {
-            return $this->acknowledgementRepository
-                ->findOneAcknowledgementForNonAdminUser($acknowledgementId);
         }
+        return $this->acknowledgementRepository
+            ->findOneAcknowledgementForNonAdminUser($acknowledgementId);
     }
 
     /**
@@ -135,10 +105,9 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
     {
         if ($this->contact->isAdmin()) {
             return $this->acknowledgementRepository->findAcknowledgementsForAdminUser();
-        } else {
-            return $this->acknowledgementRepository
-                ->findAcknowledgementsForNonAdminUser();
         }
+        return $this->acknowledgementRepository
+            ->findAcknowledgementsForNonAdminUser();
     }
 
     /**

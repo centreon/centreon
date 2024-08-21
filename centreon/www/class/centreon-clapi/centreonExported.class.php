@@ -37,8 +37,8 @@ namespace CentreonClapi;
 
 class CentreonExported
 {
-    private $exported = array();
-    private $ariane = array();
+    private $exported = [];
+    private $ariane = [];
     private $filter = 0;
     private $filter_type = null;
     private $filter_ariane = null;
@@ -58,34 +58,34 @@ class CentreonExported
     {
     }
 
-    public function arianePush($object, $id, $name)
+    public function arianePush($object, $id, $name): void
     {
         array_push($this->ariane, $object . ':' . $name . ':' . $id);
     }
 
-    public function arianePop()
+    public function arianePop(): void
     {
         array_pop($this->ariane);
     }
 
-    public function setFilter($value = 1)
+    public function setFilter($value = 1): void
     {
         $this->filter = $value;
     }
 
-    public function setOptions($options)
+    public function setOptions($options): void
     {
         if (isset($options['filter-type'])) {
             $this->filter_type = $options['filter-type'];
             if (!is_array($options['filter-type'])) {
-                $this->filter_type = array($options['filter-type']);
+                $this->filter_type = [$options['filter-type']];
             }
         }
 
         if (isset($options['filter-ariane'])) {
             $this->filter_ariane = $options['filter-ariane'];
             if (!is_array($options['filter-ariane'])) {
-                $this->filter_ariane = array($options['filter-ariane']);
+                $this->filter_ariane = [$options['filter-ariane']];
             }
         }
     }
@@ -115,7 +115,7 @@ class CentreonExported
     {
         if (!is_null($this->filter_type)) {
             foreach ($this->filter_type as $filter) {
-                if (preg_match('/' . $filter . '/', $object)) {
+                if (preg_match('/' . $filter . '/', (string) $object)) {
                     return 0;
                 }
             }
@@ -144,7 +144,7 @@ class CentreonExported
         }
 
         if (!isset($this->exported[$object]) || !is_array($this->exported[$object])) {
-            $this->exported[$object] = array();
+            $this->exported[$object] = [];
         }
         $this->exported[$object][$id] = 1;
         return 0;

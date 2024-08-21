@@ -120,16 +120,12 @@ class ModuleSourceTest extends TestCase
             ->getMock();
         $this->source
             ->method('getPath')
-            ->will($this->returnCallback(function () {
-                return $this->fs->path('/modules/');
-            }));
+            ->will($this->returnCallback(fn() => $this->fs->path('/modules/')));
         $this->source
             ->method('getModuleConf')
-            ->will($this->returnCallback(function () {
-                return [
-                    ModuleSourceTest::$moduleName => ModuleSourceTest::$moduleInfo,
-                ];
-            }));
+            ->will($this->returnCallback(fn() => [
+                ModuleSourceTest::$moduleName => ModuleSourceTest::$moduleInfo,
+            ]));
     }
 
     public function tearDown(): void
@@ -148,13 +144,13 @@ class ModuleSourceTest extends TestCase
 
     public function testGetDetail(): void
     {
-        (function () {
+        (function (): void {
             $result = $this->source->getDetail(static::$moduleNameMissing);
 
             $this->assertNull($result);
         })();
 
-        (function () {
+        (function (): void {
             $result = $this->source->getDetail(static::$moduleName);
 
             $this->assertInstanceOf(Module::class, $result);

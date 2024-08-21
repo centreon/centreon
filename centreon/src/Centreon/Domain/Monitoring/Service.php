@@ -947,13 +947,11 @@ class Service implements EntityDescriptorMetadataInterface
      */
     public function getDuration(): ?string
     {
-        $duration = null;
-
         if ($this->getLastStateChange()) {
-            $duration = CentreonDuration::toString(time() - $this->getLastStateChange()->getTimestamp());
+            return CentreonDuration::toString(time() - $this->getLastStateChange()->getTimestamp());
         }
 
-        return $duration;
+        return null;
     }
 
     /**

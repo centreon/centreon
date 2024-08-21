@@ -144,7 +144,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
             FROM `:dbstg`.`services` AS s
             LEFT JOIN `:dbstg`.`customvariables` AS service_cvl ON service_cvl.service_id = s.service_id
                 AND service_cvl.name = 'CRITICALITY_LEVEL'"
-            . ($accessGroupRequest !== null ? $accessGroupRequest : '')
+            . ($accessGroupRequest ?? '')
             . "WHERE  s.service_id = :service_id AND s.host_id = :host_id AND s.enabled = '1'";
 
         $statement = $this->db->prepare($this->translateDbName($request));

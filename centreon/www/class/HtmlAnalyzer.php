@@ -23,7 +23,6 @@ declare(strict_types=1);
 class HtmlAnalyzer
 {
     private int $index;
-    private mixed $stringToSanitize;
     private int $deepTag = 0;
 
     /**
@@ -46,10 +45,9 @@ class HtmlAnalyzer
     /**
      * @param string $stringToSanitize
      */
-    public function __construct(string $stringToSanitize)
+    public function __construct(private mixed $stringToSanitize)
     {
         $this->index = -1;
-        $this->stringToSanitize = $stringToSanitize;
         $this->deepTag = 0;
     }
 
@@ -86,8 +84,8 @@ class HtmlAnalyzer
     private function getNextToken(): ?string
     {
         $this->index++;
-        if (mb_strlen($this->stringToSanitize) > $this->index) {
-            return mb_substr($this->stringToSanitize, $this->index, 1);
+        if (mb_strlen((string) $this->stringToSanitize) > $this->index) {
+            return mb_substr((string) $this->stringToSanitize, $this->index, 1);
         }
 
         return null;

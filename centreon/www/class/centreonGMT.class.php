@@ -35,12 +35,12 @@
 
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(dirname(__FILE__) . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
 if ($configFile !== false) {
     include_once $configFile;
 }
 
-require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
+require_once realpath(__DIR__ . "/centreonDBInstance.class.php");
 
 class CentreonGMT
 {
@@ -99,7 +99,7 @@ class CentreonGMT
      *
      * @param string $value
      */
-    public function setMyGMT($value)
+    public function setMyGMT($value): void
     {
         $this->myGMT = $value;
     }
@@ -150,7 +150,7 @@ class CentreonGMT
             }
         }
 
-        $this->myTimezone = trim($this->myTimezone);
+        $this->myTimezone = trim((string) $this->myTimezone);
         return $this->myTimezone;
     }
 
@@ -363,7 +363,7 @@ class CentreonGMT
     public function getHostCurrentDatetime($host_id, $date_format = 'c')
     {
         $locations = $this->getHostLocations();
-        $timezone = isset($locations[$host_id]) ? $locations[$host_id] : '';
+        $timezone = $locations[$host_id] ?? '';
         $sDate = new DateTime();
         $sDate->setTimezone(new DateTimeZone($this->getActiveTimezone($timezone)));
         return $sDate;
@@ -400,7 +400,7 @@ class CentreonGMT
         $locations = $this->getHostLocations();
 
         if (isset($locations[$hostId]) && $locations[$hostId] != '0') {
-            $date = $this->getUTCDate($date, $locations[$hostId]);
+            return $this->getUTCDate($date, $locations[$hostId]);
         }
 
         return $date;
@@ -415,11 +415,7 @@ class CentreonGMT
     {
         $locations = $this->getHostLocations();
 
-        if (isset($locations[$hostId])) {
-            return $locations[$hostId];
-        }
-
-        return null;
+        return $locations[$hostId] ?? null;
     }
 
     /**
@@ -451,12 +447,12 @@ class CentreonGMT
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':timezone' . $v . ',';
@@ -481,10 +477,7 @@ class CentreonGMT
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['timezone_id'],
-                'text' => $row['timezone_name']
-            );
+            $items[] = ['id' => $row['timezone_id'], 'text' => $row['timezone_name']];
         }
 
         return $items;

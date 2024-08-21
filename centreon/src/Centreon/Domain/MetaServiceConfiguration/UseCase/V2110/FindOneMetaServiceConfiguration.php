@@ -41,26 +41,13 @@ class FindOneMetaServiceConfiguration
     use LoggerTrait;
 
     /**
-     * @var MetaServiceConfigurationServiceInterface
-     */
-    private $metaServiceConfigurationService;
-    /**
-     * @var ContactInterface
-     */
-    private $contact;
-
-    /**
      * FindMetaServiceConfiguration constructor.
      *
      * @param MetaServiceConfigurationServiceInterface $metaServiceConfigurationService
      * @param ContactInterface $contact
      */
-    public function __construct(
-        MetaServiceConfigurationServiceInterface $metaServiceConfigurationService,
-        ContactInterface $contact
-    ) {
-        $this->metaServiceConfigurationService = $metaServiceConfigurationService;
-        $this->contact = $contact;
+    public function __construct(private MetaServiceConfigurationServiceInterface $metaServiceConfigurationService, private ContactInterface $contact)
+    {
     }
 
     /**

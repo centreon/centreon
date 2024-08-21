@@ -47,14 +47,13 @@ class CentreonACLResources
     public function getACLResourceID($name)
     {
         $request = "SELECT acl_group_id FROM acl_groups WHERE acl_group_name LIKE '"
-            . htmlentities($name, ENT_QUOTES) . "'";
+            . htmlentities((string) $name, ENT_QUOTES) . "'";
         $DBRESULT = $this->_DB->query($request);
         $data = $DBRESULT->fetchRow();
         if ($data["acl_group_id"]) {
             return $data["acl_group_id"];
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     public function addContact($contact_id, $aclid)

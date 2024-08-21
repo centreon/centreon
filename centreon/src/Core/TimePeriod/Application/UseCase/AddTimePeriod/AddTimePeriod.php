@@ -121,25 +121,19 @@ final class AddTimePeriod
         $response->id = $timePeriod->getId();
         $response->name = $timePeriod->getName();
         $response->alias = $timePeriod->getAlias();
-        $response->days = array_map(function (Day $day) {
-            return [
-                'day' => $day->getDay(),
-                'time_range' => (string) $day->getTimeRange(),
-            ];
-        }, $timePeriod->getDays());
-        $response->templates = array_map(function (Template $template) {
-            return [
-                'id' => $template->getId(),
-                'alias' => $template->getAlias(),
-            ];
-        }, $timePeriod->getTemplates());
-        $response->exceptions = array_map(function (ExtraTimePeriod $exception) {
-            return [
-                'id' => $exception->getId(),
-                'day_range' => $exception->getDayRange(),
-                'time_range' => (string) $exception->getTimeRange(),
-            ];
-        }, $timePeriod->getExtraTimePeriods());
+        $response->days = array_map(fn(Day $day) => [
+            'day' => $day->getDay(),
+            'time_range' => (string) $day->getTimeRange(),
+        ], $timePeriod->getDays());
+        $response->templates = array_map(fn(Template $template) => [
+            'id' => $template->getId(),
+            'alias' => $template->getAlias(),
+        ], $timePeriod->getTemplates());
+        $response->exceptions = array_map(fn(ExtraTimePeriod $exception) => [
+            'id' => $exception->getId(),
+            'day_range' => $exception->getDayRange(),
+            'time_range' => (string) $exception->getTimeRange(),
+        ], $timePeriod->getExtraTimePeriods());
 
         return $response;
     }

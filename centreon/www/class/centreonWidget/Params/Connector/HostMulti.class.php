@@ -45,11 +45,6 @@ class CentreonWidgetParamsConnectorHostMulti extends CentreonWidgetParamsSelect2
     public function getParameters()
     {
         $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';
-        return array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => $path,
-            'multiple' => true,
-            'linkedObject' => 'centreonHost'
-        );
+        return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonHost'];
     }
 }

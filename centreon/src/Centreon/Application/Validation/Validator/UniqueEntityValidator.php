@@ -70,15 +70,16 @@ class UniqueEntityValidator extends ConstraintValidator implements CentreonValid
         $fields = (array) $constraint->fields;
         $methodRepository = $constraint->repositoryMethod;
         $methodIdGetter = $constraint->entityIdentificatorMethod;
-
         if (0 === count($fields)) {
             throw new ConstraintDefinitionException('At least one field has to be specified.');
-        } elseif (null === $entity) {
+        }
+
+        if (null === $entity) {
             return;
         }
 
         foreach ($fields as $field) {
-            $methodValueGetter = 'get' . ucfirst($field);
+            $methodValueGetter = 'get' . ucfirst((string) $field);
             $value = $entity->$methodValueGetter();
 
             $repository = (Kernel::createForWeb())

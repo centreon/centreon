@@ -88,7 +88,9 @@ class UserController extends AbstractController
         if ($contact === null) {
             return false;
         }
-
-        return $contact->isAdmin() || $contact->hasRole($role);
+        if ($contact->isAdmin()) {
+            return true;
+        }
+        return $contact->hasRole($role);
     }
 }

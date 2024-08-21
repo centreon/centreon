@@ -58,7 +58,7 @@ class CentreonConfigurationMeta extends CentreonConfigurationObjects
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
         $aclMetaServices = '';
-        $queryValues = array();
+        $queryValues = [];
 
         /* Get ACL if user is not admin */
         if (!$isAdmin) {
@@ -99,18 +99,11 @@ class CentreonConfigurationMeta extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $metaList = array();
+        $metaList = [];
         while ($data = $stmt->fetch()) {
-            $metaList[] = array(
-                'id' => $data['meta_id'],
-                'text' => $data['meta_name'],
-                'status' => (bool) $data['meta_activate'],
-            );
+            $metaList[] = ['id' => $data['meta_id'], 'text' => $data['meta_name'], 'status' => (bool) $data['meta_activate']];
         }
 
-        return array(
-            'items' => $metaList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $metaList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

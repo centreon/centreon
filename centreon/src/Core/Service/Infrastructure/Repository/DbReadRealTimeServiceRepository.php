@@ -67,7 +67,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY services.name ASC';
+        $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);
@@ -110,7 +110,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY services.name ASC';
+        $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);
@@ -141,7 +141,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY services.name ASC';
+        $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $request .= $sqlTranslator->translatePaginationToSql();
 
@@ -185,7 +185,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY services.name ASC';
+        $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);
@@ -269,25 +269,14 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                  */
                 public function normalize($valueToNormalize)
                 {
-                    switch (mb_strtoupper((string) $valueToNormalize)) {
-                        case 'OK':
-                            $code = ServiceStatusesCount::STATUS_OK;
-                            break;
-                        case 'WARNING':
-                            $code = ServiceStatusesCount::STATUS_WARNING;
-                            break;
-                        case 'CRITICAL':
-                            $code = ServiceStatusesCount::STATUS_CRITICAL;
-                            break;
-                        case 'UNKNOWN':
-                            $code = ServiceStatusesCount::STATUS_UNKNOWN;
-                            break;
-                        case 'PENDING':
-                            $code = ServiceStatusesCount::STATUS_PENDING;
-                            break;
-                        default:
-                            throw new RequestParametersTranslatorException('Status provided not handled');
-                    }
+                    $code = match (mb_strtoupper((string) $valueToNormalize)) {
+                        'OK' => ServiceStatusesCount::STATUS_OK,
+                        'WARNING' => ServiceStatusesCount::STATUS_WARNING,
+                        'CRITICAL' => ServiceStatusesCount::STATUS_CRITICAL,
+                        'UNKNOWN' => ServiceStatusesCount::STATUS_UNKNOWN,
+                        'PENDING' => ServiceStatusesCount::STATUS_PENDING,
+                        default => throw new RequestParametersTranslatorException('Status provided not handled'),
+                    };
 
                     return $code;
                 }

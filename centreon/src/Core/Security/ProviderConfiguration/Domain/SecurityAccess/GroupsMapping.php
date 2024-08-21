@@ -95,12 +95,10 @@ class GroupsMapping implements SecurityAccessInterface
         $this->info('Configured groups mapping attribute path found', $groupsAttributePath);
 
         $groupRelationContextDebug = array_map(
-            function (ContactGroupRelation $contactGroupRelation) {
-                return [
-                    'group claim' => $contactGroupRelation->getClaimValue(),
-                    'contact group' => $contactGroupRelation->getContactGroup()->getName(),
-                ];
-            },
+            fn(ContactGroupRelation $contactGroupRelation) => [
+                'group claim' => $contactGroupRelation->getClaimValue(),
+                'contact group' => $contactGroupRelation->getContactGroup()->getName(),
+            ],
             $groupsMapping->getContactGroupRelations()
         );
 

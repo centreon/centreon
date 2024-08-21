@@ -72,35 +72,13 @@ class CentreonContact extends CentreonObject
     public const UNKNOWN_NOTIFICATION_OPTIONS = "Invalid notifications options";
 
     protected $register;
-    public static $aDepends = array(
-        'CONTACTTPL',
-        'CMD',
-        'TP'
-    );
+    public static $aDepends = ['CONTACTTPL', 'CMD', 'TP'];
     /**
      *
      * @var array
      * Contains : list of authorized notifications_options for each objects
      */
-    public static $aAuthorizedNotificationsOptions = array(
-        'host' => array(
-            'd' => 'Down',
-            'u' => 'Unreachable',
-            'r' => 'Recovery',
-            'f' => 'Flapping',
-            's' => 'Downtime Scheduled',
-            'n' => 'None'
-        ),
-        'service' => array(
-            'w' => 'Warning',
-            'u' => 'Unreachable',
-            'c' => 'Critical',
-            'r' => 'Recovery',
-            'f' => 'Flapping',
-            's' => 'Downtime Scheduled',
-            'n' => 'None'
-        )
-    );
+    public static $aAuthorizedNotificationsOptions = ['host' => ['d' => 'Down', 'u' => 'Unreachable', 'r' => 'Recovery', 'f' => 'Flapping', 's' => 'Downtime Scheduled', 'n' => 'None'], 'service' => ['w' => 'Warning', 'u' => 'Unreachable', 'c' => 'Critical', 'r' => 'Recovery', 'f' => 'Flapping', 's' => 'Downtime Scheduled', 'n' => 'None']];
 
     /**
      *
@@ -131,15 +109,7 @@ class CentreonContact extends CentreonObject
         $this->tpObject = new CentreonTimePeriod($dependencyInjector);
         $this->object = new \Centreon_Object_Contact($dependencyInjector);
         $this->timezoneObject = new \Centreon_Object_Timezone($dependencyInjector);
-        $this->params = array(
-            'contact_host_notification_options' => 'n',
-            'contact_service_notification_options' => 'n',
-            'contact_location' => '0',
-            'contact_enable_notifications' => '0',
-            'contact_type_msg' => 'txt',
-            'contact_activate' => '1',
-            'contact_register' => '1'
-        );
+        $this->params = ['contact_host_notification_options' => 'n', 'contact_service_notification_options' => 'n', 'contact_location' => '0', 'contact_enable_notifications' => '0', 'contact_type_msg' => 'txt', 'contact_activate' => '1', 'contact_register' => '1'];
         $this->insertParams = [
             'contact_name',
             'contact_alias',
@@ -152,11 +122,7 @@ class CentreonContact extends CentreonObject
         ];
         $this->exportExcludedParams = array_merge(
             $this->insertParams,
-            array(
-                $this->object->getPrimaryKey(),
-                "contact_register",
-                "ar_id"
-            )
+            [$this->object->getPrimaryKey(), "contact_register", "ar_id"]
         );
         $this->action = "CONTACT";
         $this->nbOfCompulsoryParams = count($this->insertParams);
@@ -173,7 +139,7 @@ class CentreonContact extends CentreonObject
      */
     public function getContactID($contact_name = null)
     {
-        $cIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($contact_name));
+        $cIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$contact_name]);
         if (!count($cIds)) {
             throw new CentreonClapiException("Unknown contact: " . $contact_name);
         }
@@ -207,7 +173,7 @@ class CentreonContact extends CentreonObject
      *
      * @param string $parameters
      */
-    public function del($parameters)
+    public function del($parameters): void
     {
         if (isset($parameters)) {
             $parameters = str_replace(" ", "_", $parameters);
@@ -219,24 +185,15 @@ class CentreonContact extends CentreonObject
      * @param null $parameters
      * @param array $filters
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array('contact_register' => $this->register);
+        $filters = ['contact_register' => $this->register];
         if (isset($parameters)) {
             $parameters = str_replace(" ", "_", $parameters);
             $filters[$this->object->getUniqueLabelField()] = "%" . $parameters . "%";
         }
 
-        $params = array(
-            'contact_id',
-            'contact_name',
-            'contact_alias',
-            'contact_email',
-            'contact_pager',
-            'contact_oreon',
-            'contact_admin',
-            'contact_activate'
-        );
+        $params = ['contact_id', 'contact_name', 'contact_alias', 'contact_email', 'contact_pager', 'contact_oreon', 'contact_admin', 'contact_activate'];
         $paramString = str_replace("contact_", "", implode($this->delim, $params));
         $paramString = str_replace("oreon", "gui access", $paramString);
         echo $paramString . "\n";
@@ -259,9 +216,9 @@ class CentreonContact extends CentreonObject
      * @param $parameters
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
-        $params = explode($this->delim, $parameters);
+        $params = explode($this->delim, (string) $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -320,7 +277,7 @@ class CentreonContact extends CentreonObject
                 throw new CentreonClapiException($e->getMessage(), $e->getCode(), $e);
             }
             $this->addParams['contact_passwd'] = password_hash(
-                $params[static::ORDER_PASS],
+                (string) $params[static::ORDER_PASS],
                 \CentreonAuth::PASSWORD_HASH_ALGORITHM
             );
         } else {
@@ -354,8 +311,8 @@ class CentreonContact extends CentreonObject
     {
         if (
             empty($params[static::ORDER_LANG])
-            || strtolower($params[static::ORDER_LANG]) === "browser"
-            || strtoupper(substr($params[static::ORDER_LANG], -6)) === '.UTF-8'
+            || strtolower((string) $params[static::ORDER_LANG]) === "browser"
+            || strtoupper(substr((string) $params[static::ORDER_LANG], -6)) === '.UTF-8'
         ) {
             $completeLanguage = $params[static::ORDER_LANG];
         } else {
@@ -396,7 +353,7 @@ class CentreonContact extends CentreonObject
      */
     public function initUpdateParameters($parameters)
     {
-        $params = explode($this->delim, $parameters);
+        $params = explode($this->delim, (string) $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -497,14 +454,13 @@ class CentreonContact extends CentreonObject
             }
 
             if ($regularParam == true) {
-                $updateParams = array($params[1] => $params[2]);
+                $updateParams = [$params[1] => $params[2]];
                 $updateParams['objectId'] = $objectId;
                 return $updateParams;
             }
-            return array();
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            return [];
         }
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
     }
 
     /**
@@ -518,7 +474,7 @@ class CentreonContact extends CentreonObject
     protected function setNotificationCmd($type, $contactId, $commands)
     {
         $cmds = explode("|", $commands);
-        $cmdIds = array();
+        $cmdIds = [];
         $cmdObject = new \Centreon_Object_Command($this->dependencyInjector);
         foreach ($cmds as $commandName) {
             $tmp = $cmdObject->getIdByParameter($cmdObject->getUniqueLabelField(), $commandName);
@@ -547,7 +503,7 @@ class CentreonContact extends CentreonObject
      * @param string $contactName
      * @return void
      */
-    private function exportNotifCommands($objType, $contactId, $contactName)
+    private function exportNotifCommands($objType, $contactId, $contactName): void
     {
         $commandObj = new \Centreon_Object_Command($this->dependencyInjector);
         if ($objType == self::HOST_NOTIF_CMD) {
@@ -557,13 +513,13 @@ class CentreonContact extends CentreonObject
         }
 
         $cmds = $obj->getMergedParameters(
-            array(),
-            array($commandObj->getUniqueLabelField()),
+            [],
+            [$commandObj->getUniqueLabelField()],
             -1,
             0,
             null,
             null,
-            array($this->object->getPrimaryKey() => $contactId),
+            [$this->object->getPrimaryKey() => $contactId],
             "AND"
         );
         $str = "";
@@ -595,7 +551,7 @@ class CentreonContact extends CentreonObject
         }
 
         $labelField = $this->object->getUniqueLabelField();
-        $filters = array("contact_register" => $this->register);
+        $filters = ["contact_register" => $this->register];
         if (!is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }

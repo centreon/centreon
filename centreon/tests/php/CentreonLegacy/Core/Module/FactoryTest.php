@@ -42,29 +42,17 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_INSTALLER] = function (Container $container) {
-            return function ($moduleName) {
-                return $this->getMockBuilder(Module\Installer::class)
-                    ->disableOriginalConstructor()
-                    ->getMock();
-            };
-        };
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_INSTALLER] = fn(Container $container) => fn($moduleName) => $this->getMockBuilder(Module\Installer::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER] = function (Container $container) {
-            return function ($moduleName, $moduleId) {
-                return $this->getMockBuilder(Module\Upgrader::class)
-                    ->disableOriginalConstructor()
-                    ->getMock();
-            };
-        };
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER] = fn(Container $container) => fn($moduleName, $moduleId) => $this->getMockBuilder(Module\Upgrader::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_REMOVER] = function (Container $container) {
-            return function ($moduleName, $moduleId) {
-                return $this->getMockBuilder(Module\Remover::class)
-                    ->disableOriginalConstructor()
-                    ->getMock();
-            };
-        };
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_REMOVER] = fn(Container $container) => fn($moduleName, $moduleId) => $this->getMockBuilder(Module\Remover::class)
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     public function tearDown(): void
@@ -73,31 +61,31 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
     
-    public function testNewInformation()
+    public function testNewInformation(): void
     {
         $factory = new Module\Factory($this->container);
         $this->assertInstanceOf(Module\Information::class, $factory->newInformation());
     }
     
-    public function testNewInstaller()
+    public function testNewInstaller(): void
     {
         $factory = new Module\Factory($this->container);
         $this->assertInstanceOf(Module\Installer::class, $factory->newInstaller('MyModule'));
     }
     
-    public function testNewUpgrader()
+    public function testNewUpgrader(): void
     {
         $factory = new Module\Factory($this->container);
         $this->assertInstanceOf(Module\Upgrader::class, $factory->newUpgrader('MyModule', 1));
     }
     
-    public function testNewRemover()
+    public function testNewRemover(): void
     {
         $factory = new Module\Factory($this->container);
         $this->assertInstanceOf(Module\Remover::class, $factory->newRemover('MyModule', 1));
     }
     
-    public function testNewLicense()
+    public function testNewLicense(): void
     {
         $factory = new Module\Factory($this->container);
         $this->assertInstanceOf(Module\License::class, $factory->newLicense());

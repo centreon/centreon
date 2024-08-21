@@ -28,8 +28,7 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\User\Domain\Model\User;
 
 beforeEach(function (): void {
-        $this->createUser = static function (array $fields = []): User {
-        return new User(
+        $this->createUser = static fn(array $fields = []): User => new User(
             ...[
                 'id' => 1,
                 'name' => 'user-name',
@@ -42,7 +41,6 @@ beforeEach(function (): void {
                 ...$fields,
             ]
         );
-    };
 });
 
 // too short fields

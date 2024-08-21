@@ -32,14 +32,8 @@ class PlatformInformationFactoryRDB
      */
     public const ENCRYPT_SECOND_KEY = 'api_remote_credentials';
 
-    /**
-     * @var string|null
-     */
-    private $encryptionFirstKey;
-
-    public function __construct(?string $encryptionFirstKey)
+    public function __construct(private ?string $encryptionFirstKey)
     {
-        $this->encryptionFirstKey = $encryptionFirstKey;
     }
 
     /**

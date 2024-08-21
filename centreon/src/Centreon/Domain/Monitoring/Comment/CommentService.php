@@ -48,31 +48,6 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
     public const VALIDATION_GROUPS_SERVICE_ADD_COMMENT = ['add_service_comment'];
 
     /**
-     * @var EngineServiceInterface Used to send external commands to engine.
-     */
-    private $engineService;
-
-    /**
-     * @var EntityValidator
-     */
-    private $validator;
-
-    /**
-     * @var MonitoringRepositoryInterface
-     */
-    private $monitoringRepository;
-
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
-    private $accessGroupRepository;
-
-    /**
-     * @var MonitoringServiceInterface
-     */
-    private $monitoringService;
-
-    /**
      * CommentService constructor.
      *
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
@@ -81,18 +56,8 @@ class CommentService extends AbstractCentreonService implements CommentServiceIn
      * @param MonitoringServiceInterface $monitoringService
      * @param EntityValidator $validator
      */
-    public function __construct(
-        ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        MonitoringRepositoryInterface $monitoringRepository,
-        EngineServiceInterface $engineService,
-        MonitoringServiceInterface $monitoringService,
-        EntityValidator $validator
-    ) {
-        $this->accessGroupRepository = $accessGroupRepository;
-        $this->monitoringRepository = $monitoringRepository;
-        $this->engineService = $engineService;
-        $this->monitoringService = $monitoringService;
-        $this->validator = $validator;
+    public function __construct(private ReadAccessGroupRepositoryInterface $accessGroupRepository, private MonitoringRepositoryInterface $monitoringRepository, private EngineServiceInterface $engineService, private MonitoringServiceInterface $monitoringService, private EntityValidator $validator)
+    {
     }
 
     /**

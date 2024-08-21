@@ -39,10 +39,7 @@ require_once "centreonContact.class.php";
 
 class CentreonContactTemplate extends CentreonContact
 {
-    public static $aDepends = array(
-        'CMD',
-        'TP'
-    );
+    public static $aDepends = ['CMD', 'TP'];
 
     public const ORDER_NAME = 0;
     public const ORDER_UNIQUENAME = 1;
@@ -80,9 +77,9 @@ class CentreonContactTemplate extends CentreonContact
      * @param $parameters
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
-        $params = explode($this->delim, $parameters);
+        $params = explode($this->delim, (string) $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }

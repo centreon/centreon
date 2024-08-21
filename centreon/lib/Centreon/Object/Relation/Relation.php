@@ -78,10 +78,10 @@ abstract class Centreon_Object_Relation
      * @param int $skey
      * @return void
      */
-    public function insert($fkey, $skey = null)
+    public function insert($fkey, $skey = null): void
     {
         $sql = "INSERT INTO $this->relationTable ($this->firstKey, $this->secondKey) VALUES (?, ?)";
-        $this->db->query($sql, array($fkey, $skey));
+        $this->db->query($sql, [$fkey, $skey]);
     }
 
     /**
@@ -91,22 +91,22 @@ abstract class Centreon_Object_Relation
      * @param int $skey
      * @return void
      */
-    public function delete($fkey, $skey = null)
+    public function delete($fkey, $skey = null): void
     {
         if (isset($fkey) && isset($skey)) {
             $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ? AND $this->secondKey = ?";
-            $args = array($fkey, $skey);
+            $args = [$fkey, $skey];
         } elseif (isset($skey)) {
             $sql = "DELETE FROM $this->relationTable WHERE $this->secondKey = ?";
-            $args = array($skey);
+            $args = [$skey];
         } else {
             $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ?";
-            $args = array($fkey);
+            $args = [$fkey];
         }
         $this->db->query($sql, $args);
     }
 
-    protected function getResult($sql, $params = array())
+    protected function getResult($sql, $params = [])
     {
         $res = $this->db->query($sql, $params);
         $result = $res->fetchAll();
@@ -142,13 +142,13 @@ abstract class Centreon_Object_Relation
      * @throws Exception
      */
     public function getMergedParameters(
-        $firstTableParams = array(),
-        $secondTableParams = array(),
+        $firstTableParams = [],
+        $secondTableParams = [],
         $count = -1,
         $offset = 0,
         $order = null,
         $sort = "ASC",
-        $filters = array(),
+        $filters = [],
         $filterType = "OR"
     ) {
         if (!isset($this->firstObject) || !isset($this->secondObject)) {
@@ -174,7 +174,7 @@ abstract class Centreon_Object_Relation
             $this->firstObject->getPrimaryKey() . " = " . $this->relationTable . "." . $this->firstKey .
             " AND " . $this->relationTable . "." . $this->secondKey . " = " . $this->secondObject->getTableName() .
             "." . $this->secondObject->getPrimaryKey();
-        $filterTab = array();
+        $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
                 if (is_array($rawvalue)) {
@@ -182,7 +182,7 @@ abstract class Centreon_Object_Relation
                     $filterTab = array_merge($filterTab, $rawvalue);
                 } else {
                     $sql .= " $filterType $key LIKE ? ";
-                    $value = trim($rawvalue);
+                    $value = trim((string) $rawvalue);
                     $value = str_replace("\\", "\\\\", $value);
                     $value = str_replace("_", "\_", $value);
                     $value = str_replace(" ", "\ ", $value);
@@ -212,11 +212,11 @@ abstract class Centreon_Object_Relation
     public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
     {
         if (!is_array($sourceId)) {
-            $sourceId = array($sourceId);
+            $sourceId = [$sourceId];
         }
         $sql = "SELECT $targetKey FROM $this->relationTable WHERE $sourceKey = ?";
         $result = $this->getResult($sql, $sourceId);
-        $tab = array();
+        $tab = [];
         foreach ($result as $rez) {
             $tab[] = $rez[$targetKey];
         }
@@ -232,7 +232,7 @@ abstract class Centreon_Object_Relation
      * @return array
      * @throws Exception
      */
-    public function __call($name, $args = array())
+    public function __call($name, $args = [])
     {
         if (!count($args)) {
             throw new Exception('Missing arguments');
@@ -248,7 +248,8 @@ abstract class Centreon_Object_Relation
                 throw new Exception('Unknown field');
             }
             return $this->getTargetIdFromSourceId($matches[1], $matches[2], $args);
-        } elseif (preg_match('/^delete_([a-zA-Z0-9_]+)/', $name, $matches)) {
+        }
+        if (preg_match('/^delete_([a-zA-Z0-9_]+)/', $name, $matches)) {
             if ($matches[1] == $this->firstKey) {
                 $this->delete($args[0]);
             } elseif ($matches[1] == $this->secondKey) {
@@ -256,7 +257,8 @@ abstract class Centreon_Object_Relation
             } else {
                 throw new Exception('Unknown field');
             }
-        } else {
+        }
+        else {
             throw new Exception('Unknown method');
         }
     }

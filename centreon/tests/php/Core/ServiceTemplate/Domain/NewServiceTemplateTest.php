@@ -49,9 +49,9 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} is an empty string",
-        function () use ($field) {
+        function () use ($field): void {
             $template = createNewServiceTemplate();
-            call_user_func_array(array($template, 'set' . ucfirst($field)), ['']);
+            call_user_func_array([$template, 'set' . ucfirst($field)], ['']);
         }
     )->throws(
         AssertionException::class,
@@ -61,9 +61,9 @@ foreach (
     $tooLongString = str_repeat('a', $length + 1);
     it(
         "should throw an exception when service template {$field} is too long",
-        function () use ($field, $tooLongString) {
+        function () use ($field, $tooLongString): void {
             $template = createNewServiceTemplate();
-            call_user_func_array(array($template, 'set' . ucfirst($field)), [$tooLongString]);
+            call_user_func_array([$template, 'set' . ucfirst($field)], [$tooLongString]);
         }
     )->throws(
         AssertionException::class,
@@ -92,9 +92,9 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} is less than 0",
-        function () use ($field) {
+        function () use ($field): void {
             $template = createNewServiceTemplate();
-            call_user_func_array(array($template, 'set' . ucfirst($field)), [-1]);
+            call_user_func_array([$template, 'set' . ucfirst($field)], [-1]);
         }
     )->throws(
         AssertionException::class,
@@ -120,9 +120,9 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} is less than 1",
-        function () use ($field) {
+        function () use ($field): void {
             $template = createNewServiceTemplate();
-            call_user_func_array(array($template, 'set' . ucfirst($field)), [0]);
+            call_user_func_array([$template, 'set' . ucfirst($field)], [0]);
         }
     )->throws(
         AssertionException::class,
@@ -137,12 +137,12 @@ foreach (
 foreach (['commandArgument', 'eventHandlerArgument'] as $field) {
     it(
         "should retrieve all arguments to the {$field} field that were previously added",
-        function () use ($field) {
+        function () use ($field): void {
             $arguments = ['1', '2', '3'];
             $serviceTemplate = createNewServiceTemplate();
             $methodName = 'get' . ucfirst($field) . 's';
             foreach ($arguments as $argument) {
-                call_user_func_array(array($serviceTemplate, 'add' . ucfirst($field)), [$argument]);
+                call_user_func_array([$serviceTemplate, 'add' . ucfirst($field)], [$argument]);
             }
 
             expect($serviceTemplate->{$methodName}())->toBe(['1', '2', '3']);
@@ -152,7 +152,7 @@ foreach (['commandArgument', 'eventHandlerArgument'] as $field) {
 
 it(
     "should retrieve all notificationTypes that were previously added",
-    function () {
+    function (): void {
         $serviceTemplate = createNewServiceTemplate();
         $notificationTypes = [
             NotificationType::Unknown,
@@ -160,7 +160,7 @@ it(
             NotificationType::Recovery
         ];
         foreach ($notificationTypes as $notificationType) {
-            call_user_func_array(array($serviceTemplate, 'addNotificationType'), [$notificationType]);
+            call_user_func_array($serviceTemplate->addNotificationType(...), [$notificationType]);
         }
         expect($serviceTemplate->getNotificationTypes())->toBe($notificationTypes);
     }
@@ -193,7 +193,7 @@ it(
 
 it(
     "should remove spaces that are too long in the alias",
-    function () {
+    function (): void {
         $serviceTemplate = new NewServiceTemplate('fake_name', '   fake   alias       ok    ');
         expect($serviceTemplate->getAlias())->toBe('fake alias ok');
     }

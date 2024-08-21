@@ -95,7 +95,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY contact_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -158,7 +158,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY contact_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -283,16 +283,20 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
                 WHERE TABLE_NAME = 'contact' AND COLUMN_NAME = 'contact_theme'
                 SQL
         );
-        if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        if (!($statement !== false)) {
+            return [];
+        }
+        if (!($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            return [];
+        }
+        /**
+         * @var array<string, string> $result
+         */
+        if (preg_match_all("/'([^,]+)'/", $result['COLUMN_TYPE'], $match)) {
             /**
-             * @var array<string, string> $result
+             * @var array<int, string[]> $match
              */
-            if (preg_match_all("/'([^,]+)'/", $result['COLUMN_TYPE'], $match)) {
-                /**
-                 * @var array<int, string[]> $match
-                 */
-                return $match[1];
-            }
+            return $match[1];
         }
 
         return [];

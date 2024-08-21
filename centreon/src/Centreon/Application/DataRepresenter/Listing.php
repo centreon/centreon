@@ -62,11 +62,6 @@ class Listing implements JsonSerializable
     /**
      * @var int
      */
-    private $offset;
-
-    /**
-     * @var int
-     */
     private $limit;
 
     /**
@@ -92,14 +87,13 @@ class Listing implements JsonSerializable
     public function __construct(
         $entities,
         int $total = null,
-        int $offset = null,
+        private ?int $offset = null,
         int $limit = null,
         string $entityClass = null
     ) {
         $this->entities = $entities ?? [];
-        $this->total = $total ? $total : count($this->entities);
-        $this->offset = $offset;
-        $this->limit = $limit !== null ? $limit : $this->total;
+        $this->total = $total ?: count($this->entities);
+        $this->limit = $limit ?? $this->total;
         $this->entityClass = $entityClass ?? Entity::class;
     }
 
@@ -113,7 +107,7 @@ class Listing implements JsonSerializable
         $result = [
             'pagination' => [
                 'total' => $this->total,
-                'offset' => $this->offset !== null ? $this->offset : 0,
+                'offset' => $this->offset ?? 0,
                 'limit' => $this->limit,
             ],
             'entities' => [],

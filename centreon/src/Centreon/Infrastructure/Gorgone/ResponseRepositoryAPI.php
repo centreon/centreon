@@ -42,17 +42,11 @@ class ResponseRepositoryAPI implements ResponseRepositoryInterface
     private $client;
 
     /**
-     * @var ConfigurationLoaderApiInterface
-     */
-    private $configuration;
-
-    /**
      * @param ConfigurationLoaderApiInterface $configuration
      */
-    public function __construct(ConfigurationLoaderApiInterface $configuration)
+    public function __construct(private ConfigurationLoaderApiInterface $configuration)
     {
         $this->client = new CurlHttpClient();
-        $this->configuration = $configuration;
     }
 
     /**

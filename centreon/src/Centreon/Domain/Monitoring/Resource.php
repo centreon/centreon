@@ -322,7 +322,7 @@ class Resource
         }
 
         if ($this->getParent() !== null) {
-            $uuid = $this->getParent()->getUuid() . '-' . $uuid;
+            return $this->getParent()->getUuid() . '-' . $uuid;
         }
 
         return $uuid;

@@ -50,22 +50,20 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
         } else {
             $this->present(
                 [
-                    'result' => array_map(static function ($notificationDto) {
-                        return [
-                            'id' => $notificationDto->id,
-                            'is_activated' => $notificationDto->isActivated,
-                            'name' => $notificationDto->name,
-                            'user_count' => $notificationDto->usersCount,
-                            'channels' => self::convertNotificationChannelToString(
-                                $notificationDto->notificationChannels
-                            ),
-                            'resources' => $notificationDto->resources,
-                            'timeperiod' => [
-                                'id' => $notificationDto->timeperiodId,
-                                'name' => $notificationDto->timeperiodName,
-                            ],
-                        ];
-                    }, $response->notifications),
+                    'result' => array_map(static fn($notificationDto) => [
+                        'id' => $notificationDto->id,
+                        'is_activated' => $notificationDto->isActivated,
+                        'name' => $notificationDto->name,
+                        'user_count' => $notificationDto->usersCount,
+                        'channels' => self::convertNotificationChannelToString(
+                            $notificationDto->notificationChannels
+                        ),
+                        'resources' => $notificationDto->resources,
+                        'timeperiod' => [
+                            'id' => $notificationDto->timeperiodId,
+                            'name' => $notificationDto->timeperiodName,
+                        ],
+                    ], $response->notifications),
                     'meta' => $this->requestParameters->toArray(),
                 ]
             );

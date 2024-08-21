@@ -42,8 +42,8 @@ use Centreon\Infrastructure\Webservice\WebserviceAutorizeRestApiInterface;
 
 class CentreonWebService
 {
-    const RESULT_HTML = 'html';
-    const RESULT_JSON = 'json';
+    public const RESULT_HTML = 'html';
+    public const RESULT_JSON = 'json';
 
     /**
      * @var CentreonDB|null
@@ -53,7 +53,7 @@ class CentreonWebService
     /**
      * @var array
      */
-    protected $arguments = array();
+    protected $arguments = [];
 
     /**
      * @var null
@@ -162,9 +162,9 @@ class CentreonWebService
      */
     protected static function webservicePath($object = "")
     {
-        $webServiceClass = array();
+        $webServiceClass = [];
         foreach (self::$webServicePaths as $webServicePath) {
-            if (false !== strpos($webServicePath, $object . '.class.php')) {
+            if (str_contains((string) $webServicePath, $object . '.class.php')) {
                 require_once $webServicePath;
                 $explodedClassName = explode('_', $object);
                 $className = "";
@@ -172,10 +172,7 @@ class CentreonWebService
                     $className .= ucfirst(strtolower($partClassName));
                 }
                 if (class_exists($className)) {
-                    $webServiceClass = array(
-                        'path' => $webServicePath,
-                        'class' => $className
-                    );
+                    $webServiceClass = ['path' => $webServicePath, 'class' => $className];
                 }
             }
         }
@@ -193,7 +190,7 @@ class CentreonWebService
      * @param mixed $data The values
      * @param integer $code The HTTP code
      */
-    public static function sendResult($data, $code = 200, $format = null)
+    public static function sendResult($data, $code = 200, $format = null): void
     {
         switch ($code) {
             case 500:
@@ -228,7 +225,7 @@ class CentreonWebService
                 break;
             case 206:
                 header("HTTP/1.1 206 Partial content");
-                $data = json_decode($data, true);
+                $data = json_decode((string) $data, true);
                 break;
         }
 
@@ -282,7 +279,7 @@ class CentreonWebService
      * @param CentreonUser $user The current user
      * @param boolean $isInternal If the Rest API call is internal
      */
-    public static function router(\Pimple\Container $dependencyInjector, $user, $isInternal = false)
+    public static function router(\Pimple\Container $dependencyInjector, $user, $isInternal = false): void
     {
         global $pearDB;
 
@@ -296,9 +293,9 @@ class CentreonWebService
             $resultFormat = $_GET['resultFormat'];
         }
 
-        $methodPrefix = strtolower($_SERVER['REQUEST_METHOD']);
+        $methodPrefix = strtolower((string) $_SERVER['REQUEST_METHOD']);
         $object = $_GET['object'];
-        $action = $methodPrefix . ucfirst($_GET['action']);
+        $action = $methodPrefix . ucfirst((string) $_GET['action']);
 
         /* Generate path for WebService */
         self::$webServicePaths = glob(_CENTREON_PATH_ . '/www/api/class/*.class.php');
@@ -386,11 +383,9 @@ class CentreonWebService
 
         // skip checks if public interface is implemented
         if ($webservice instanceof WebserviceAutorizePublicInterface) {
-            $allowed = true;
-        } else {
-            $allowed = $webservice->authorize($action, $user, $isInternal);
+            return true;
         }
 
-        return $allowed;
+        return $webservice->authorize($action, $user, $isInternal);
     }
 }

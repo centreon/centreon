@@ -43,7 +43,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
         $this->trigger = true;
     }
 
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -54,15 +54,13 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
                 'param_trigger_' . $params['parameter_id'],
                 'Host',
                 $tab,
-                array(
-                    'onchange' => 'javascript:loadFromTrigger("' . $triggerSource . '", ' .
-                        $params['parameter_id'] . ', this.value);'
-                )
+                ['onchange' => 'javascript:loadFromTrigger("' . $triggerSource . '", ' .
+                    $params['parameter_id'] . ', this.value);']
             );
             $userPref = $this->getUserPreferences($params);
-            $svcTab = array();
+            $svcTab = [];
             if (isset($userPref)) {
-                list($hostId, $serviceId) = explode('-', $userPref);
+                [$hostId, $serviceId] = explode('-', (string) $userPref);
                 $svcTab = $this->getServiceIds($hostId);
             }
             $this->quickform->addElement(
@@ -101,10 +99,10 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
         $sql .= $aclString;
         $sql .= " ORDER BY service_description ";
         $res = $this->db->query($sql);
-        $tab = array();
+        $tab = [];
         while ($row = $res->fetchRow()) {
             // For meta services, use display_name column instead of service_description
-            $serviceDescription = (preg_match('/meta_/', $row['service_description'])) 
+            $serviceDescription = (preg_match('/meta_/', (string) $row['service_description'])) 
                 ? $row['display_name'] : $row['service_description'];
             $tab[$hostId . "-" . $row['service_id']] = $serviceDescription;
         }
@@ -137,7 +135,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
             $query .= $aclString;
             $query .= " ORDER BY host_name";
             $res = $this->db->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['host_id']] = $row['host_name'];
             }
@@ -151,13 +149,13 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      * @param array $params
      * @return void
      */
-    public function setValue($params)
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {
-            list($hostId, $serviceId) = explode('-', $userPref);
-            $this->quickform->setDefaults(array('param_trigger_' . $params['parameter_id'] => $hostId));
-            $this->quickform->setDefaults(array('param_' . $params['parameter_id'] => $userPref));
+            [$hostId, $serviceId] = explode('-', (string) $userPref);
+            $this->quickform->setDefaults(['param_trigger_' . $params['parameter_id'] => $hostId]);
+            $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $userPref]);
         }
     }
 }

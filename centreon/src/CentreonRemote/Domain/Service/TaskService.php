@@ -30,12 +30,6 @@ use Centreon\Infrastructure\Service\Exception\NotFoundException;
 
 class TaskService
 {
-    /** @var CentreonDBManagerService */
-    private $dbManager;
-
-    /** @var CentcoreCommandService */
-    private $cmdService;
-
     /** @var \CentreonRestHttp */
     private $centreonRestHttp;
 
@@ -45,12 +39,8 @@ class TaskService
      * @param CentreonDBManagerService $dbManager
      * @param CentcoreCommandService $cmdService
      */
-    public function __construct(
-        CentreonDBManagerService $dbManager,
-        CentcoreCommandService $cmdService
-    ) {
-        $this->dbManager = $dbManager;
-        $this->cmdService = $cmdService;
+    public function __construct(private CentreonDBManagerService $dbManager, private CentcoreCommandService $cmdService)
+    {
     }
 
     /**

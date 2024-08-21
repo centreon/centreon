@@ -153,13 +153,13 @@ class FrontendComponentService
         ];
 
         foreach ($files as $file) {
-            if (preg_match('/\.js$/', $file)) {
-                if (preg_match('/^(index|main)/', $file)) {
+            if (preg_match('/\.js$/', (string) $file)) {
+                if (preg_match('/^(index|main)/', (string) $file)) {
                     $structure['js']['bundle'] = $relativePath . '/' . $file;
                 } else {
                     $structure['js']['chunks'][] = $relativePath . '/' . $file;
                 }
-            } elseif (preg_match('/\.css$/', $file)) {
+            } elseif (preg_match('/\.css$/', (string) $file)) {
                 $structure['css'][] = $relativePath . '/' . $file;
             }
         }
@@ -184,7 +184,7 @@ class FrontendComponentService
             $files = [];
             $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
             foreach ($files as $path => $hookFiles) {
-                if (preg_match('/\/static\/hooks(\/.+)$/', $path, $hookMatches)) {
+                if (preg_match('/\/static\/hooks(\/.+)$/', (string) $path, $hookMatches)) {
                     // parse hook name by removing beginning of the path
                     $hookName = $hookMatches[1];
 
@@ -217,7 +217,7 @@ class FrontendComponentService
             $files = [];
             $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
             foreach ($files as $path => $pageFiles) {
-                if (preg_match('/\/static\/pages(\/.+)$/', $path, $pageMatches)) {
+                if (preg_match('/\/static\/pages(\/.+)$/', (string) $path, $pageMatches)) {
                     $pageParameters = $this->getBundleStructure($path, $pageFiles, $chunks);
 
                     if ($pageParameters['js']['bundle'] !== null) {

@@ -26,17 +26,13 @@ use Pimple\Container;
 
 class InformationsService
 {
-    /** @var Container */
-    private $di;
-
     /**
      * NotifyMasterService constructor.
      *
      * @param Container $di
      */
-    public function __construct(Container $di)
+    public function __construct(private Container $di)
     {
-        $this->di = $di;
     }
 
     /**

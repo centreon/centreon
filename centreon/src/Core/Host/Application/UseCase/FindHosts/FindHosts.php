@@ -116,8 +116,10 @@ final class FindHosts
 
     private function canAccessToListing(): bool
     {
-        return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_READ)
-            || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE);
+        if ($this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_READ)) {
+            return true;
+        }
+        return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE);
     }
 
     private function setUsersAccessGroups(): void

@@ -27,20 +27,18 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 
 beforeEach(function (): void {
-    $this->createPanel = function (array $fields = []): DashboardPanel {
-        return new DashboardPanel(
-            id: $fields['id'] ?? 123,
-            name: $fields['name'] ?? 'panel-name',
-            widgetType: $fields['widgetType'] ?? 'widget-type',
-            widgetSettings: $fields['widgetSettings'] ?? ['foo' => 'bar'],
-            layoutX: $fields['layoutX'] ?? 1,
-            layoutY: $fields['layoutY'] ?? 2,
-            layoutWidth: $fields['layoutWidth'] ?? 3,
-            layoutHeight: $fields['layoutHeight'] ?? 4,
-            layoutMinWidth: $fields['layoutMinWidth'] ?? 5,
-            layoutMinHeight: $fields['layoutMinHeight'] ?? 6,
-        );
-    };
+    $this->createPanel = fn(array $fields = []): DashboardPanel => new DashboardPanel(
+        id: $fields['id'] ?? 123,
+        name: $fields['name'] ?? 'panel-name',
+        widgetType: $fields['widgetType'] ?? 'widget-type',
+        widgetSettings: $fields['widgetSettings'] ?? ['foo' => 'bar'],
+        layoutX: $fields['layoutX'] ?? 1,
+        layoutY: $fields['layoutY'] ?? 2,
+        layoutWidth: $fields['layoutWidth'] ?? 3,
+        layoutHeight: $fields['layoutHeight'] ?? 4,
+        layoutMinWidth: $fields['layoutMinWidth'] ?? 5,
+        layoutMinHeight: $fields['layoutMinHeight'] ?? 6,
+    );
 });
 
 it('should return properly set dashboard panel instance', function (): void {

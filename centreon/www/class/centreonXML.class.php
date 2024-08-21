@@ -70,7 +70,7 @@ class CentreonXML
     /*
      *  Starts an element that contains other elements
      */
-    public function startElement($element_tag)
+    public function startElement($element_tag): void
     {
         $this->buffer->startElement($element_tag);
     }
@@ -78,7 +78,7 @@ class CentreonXML
     /*
      *  Ends an element (closes tag)
      */
-    public function endElement()
+    public function endElement(): void
     {
         $this->buffer->endElement();
     }
@@ -86,12 +86,12 @@ class CentreonXML
     /*
      *  Simply puts text
      */
-    public function text($txt, $cdata = true, $encode = 0)
+    public function text($txt, $cdata = true, $encode = 0): void
     {
         $txt = $this->cleanStr($txt);
         $txt = html_entity_decode($txt);
         if ($encode || !$this->is_utf8($txt)) {
-            $this->buffer->writeCData(utf8_encode($txt));
+            $this->buffer->writeCData(mb_convert_encoding($txt, 'UTF-8', 'ISO-8859-1'));
         } else {
             if ($cdata) {
                 $this->buffer->writeCData($txt);
@@ -118,13 +118,13 @@ class CentreonXML
     /*
      *  Creates a tag and writes data
      */
-    public function writeElement($element_tag, $element_value, $encode = 0)
+    public function writeElement($element_tag, $element_value, $encode = 0): void
     {
         $this->startElement($element_tag);
         $element_value = $this->cleanStr($element_value);
         $element_value = html_entity_decode($element_value);
         if ($encode || !$this->is_utf8($element_value)) {
-            $this->buffer->writeCData(utf8_encode($element_value));
+            $this->buffer->writeCData(mb_convert_encoding($element_value, 'UTF-8', 'ISO-8859-1'));
         } else {
             $this->buffer->writeCData($element_value);
         }
@@ -135,11 +135,11 @@ class CentreonXML
     /*
      *  Writes attribute
      */
-    public function writeAttribute($att_name, $att_value, $encode = false)
+    public function writeAttribute($att_name, $att_value, $encode = false): void
     {
         $att_value = $this->cleanStr($att_value);
         if ($encode) {
-            $this->buffer->writeAttribute($att_name, utf8_encode(html_entity_decode($att_value)));
+            $this->buffer->writeAttribute($att_name, mb_convert_encoding(html_entity_decode($att_value), 'UTF-8', 'ISO-8859-1'));
         } else {
             $this->buffer->writeAttribute($att_name, html_entity_decode($att_value));
         }
@@ -148,18 +148,18 @@ class CentreonXML
     /*
      *  Output the whole XML buffer
      */
-    public function output()
+    public function output(): void
     {
         $this->buffer->endDocument();
         print $this->buffer->outputMemory(true);
     }
 
-    public function outputFile($filename = null)
+    public function outputFile($filename = null): void
     {
         $this->buffer->endDocument();
         $content = $this->buffer->outputMemory(true);
         if ($handle = fopen($filename, 'w')) {
-            if (strcmp($content, "") && !fwrite($handle, $content)) {
+            if (strcmp((string) $content, "") && !fwrite($handle, (string) $content)) {
                 throw new RuntimeException('Cannot write to file "' . $filename . '"');
             }
         } else {

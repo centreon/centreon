@@ -174,7 +174,7 @@ class Utils
             }
         }
         if (! count($arrData)) {
-            $arrData = '';
+            return '';
         }
 
         return $arrData;
@@ -203,10 +203,10 @@ class Utils
          * before they can be encrypted as bcrypt.
          */
         if ($algo === 'md5') {
-            return 'md5__' . md5($password);
+            return 'md5__' . md5((string) $password);
         }
 
-        return password_hash($password, PASSWORD_BCRYPT);
+        return password_hash((string) $password, PASSWORD_BCRYPT);
     }
 
     /**
@@ -214,7 +214,7 @@ class Utils
      */
     public function detectPassPattern($pattern)
     {
-        $patternData = explode('__', $pattern);
+        $patternData = explode('__', (string) $pattern);
         if (isset($patternData[1])) {
             return $patternData[0];
         }

@@ -34,7 +34,7 @@
  */
 
 
-require_once dirname(__FILE__) . "/webService.class.php";
+require_once __DIR__ . "/webService.class.php";
 
 class CentreonWs extends CentreonWebService
 {
@@ -46,7 +46,7 @@ class CentreonWs extends CentreonWebService
     /**
      * Keep alive function
      */
-    public function getKeepAlive()
+    public function getKeepAlive(): void
     {
         self::sendResult(true);
     }

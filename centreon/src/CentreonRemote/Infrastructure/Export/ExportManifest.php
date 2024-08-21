@@ -33,12 +33,6 @@ class ExportManifest
     public const ERR_CODE_MANIFEST_WRONG_FORMAT = 1002;
     public const ERR_CODE_INCOMPATIBLE_VERSIONS = 1005;
 
-    /** @var ExportCommitment */
-    private $commitment;
-
-    /** @var string */
-    private $version;
-
     /** @var array<mixed> */
     private $data;
 
@@ -46,10 +40,8 @@ class ExportManifest
      * @param ExportCommitment $commitment
      * @param string|null $version
      */
-    public function __construct(ExportCommitment $commitment, ?string $version = null)
+    public function __construct(private ExportCommitment $commitment, private ?string $version = null)
     {
-        $this->commitment = $commitment;
-        $this->version = $version;
     }
 
     /**

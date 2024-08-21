@@ -44,36 +44,18 @@ use Symfony\Component\Filesystem\Filesystem;
 class I18nService
 {
     /**
-     * @var Information
-     */
-    private $modulesInformation;
-
-    /**
      * @var String
      */
     private $lang;
-
-    /**
-     * @var Finder
-     */
-    private $finder;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
 
     /**
      * I18nService constructor
      *
      * @param Information $modulesInformation To get information from centreon modules
      */
-    public function __construct(Information $modulesInformation, Finder $finder, Filesystem $filesystem)
+    public function __construct(private Information $modulesInformation, private Finder $finder, private Filesystem $filesystem)
     {
-        $this->modulesInformation = $modulesInformation;
         $this->initLang();
-        $this->finder = $finder;
-        $this->filesystem = $filesystem;
     }
 
     /**
@@ -85,7 +67,7 @@ class I18nService
     {
         $this->lang = getenv('LANG');
 
-        if (strstr($this->lang, '.UTF-8') === false) {
+        if (!str_contains($this->lang, '.UTF-8')) {
             $this->lang .= '.UTF-8';
         }
     }

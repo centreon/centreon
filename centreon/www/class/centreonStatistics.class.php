@@ -30,8 +30,6 @@ use Psr\Log\LoggerInterface;
 
 class CentreonStatistics
 {
-    private LoggerInterface $logger;
-
     private CentreonDB $dbConfig;
 
     private ?\Core\Common\Infrastructure\FeatureFlags $featureFlags;
@@ -39,10 +37,9 @@ class CentreonStatistics
     /**
      * CentreonStatistics constructor.
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
         $this->dbConfig = new CentreonDB();
-        $this->logger = $logger;
 
         $kernel = \App\Kernel::createForWeb();
         $this->featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class);
@@ -179,7 +176,7 @@ class CentreonStatistics
         $query = "SELECT * FROM provider_configuration WHERE is_active = '1'";
         $result = $this->dbConfig->query($query);
         while ($row = $result->fetch()) {
-            $customConfiguration = json_decode($row['custom_configuration'], true);
+            $customConfiguration = json_decode((string) $row['custom_configuration'], true);
             switch ($row['type']) {
                 case 'local':
                     $data['local'] = $customConfiguration['password_security_policy'];
@@ -415,12 +412,9 @@ class CentreonStatistics
                 SQL
         );
 
-        $extractMetricInformationFromWidgetSettings = function (array $widgetSettings): int|null
-        {
-            return \array_key_exists('metrics', $widgetSettings['data'])
-                ? \count($widgetSettings['data']['metrics'])
-                : null;
-        };
+        $extractMetricInformationFromWidgetSettings = fn(array $widgetSettings): int|null => \array_key_exists('metrics', $widgetSettings['data'])
+            ? \count($widgetSettings['data']['metrics'])
+            : null;
 
         $dashboardId = '';
         foreach ($dashboardsInformations as $dashboardsInformation) {

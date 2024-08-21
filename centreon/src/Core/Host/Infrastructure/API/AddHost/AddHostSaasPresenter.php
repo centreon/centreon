@@ -65,41 +65,33 @@ class AddHostSaasPresenter extends AbstractPresenter implements AddHostPresenter
                         'severity_id' => $response->severityId,
                         'check_timeperiod_id' => $response->checkTimeperiodId,
                         'categories' => array_map(
-                            function (array $category) {
-                                return [
-                                    'id' => $category['id'],
-                                    'name' => $category['name'],
-                                ];
-                            },
+                            fn(array $category) => [
+                                'id' => $category['id'],
+                                'name' => $category['name'],
+                            ],
                             $response->categories
                         ),
                         'groups' => array_map(
-                            function (array $group) {
-                                return [
-                                    'id' => $group['id'],
-                                    'name' => $group['name'],
-                                ];
-                            },
+                            fn(array $group) => [
+                                'id' => $group['id'],
+                                'name' => $group['name'],
+                            ],
                             $response->groups
                         ),
                         'templates' => array_map(
-                            function (array $template) {
-                                return [
-                                    'id' => $template['id'],
-                                    'name' => $template['name'],
-                                ];
-                            },
+                            fn(array $template) => [
+                                'id' => $template['id'],
+                                'name' => $template['name'],
+                            ],
                             $response->templates
                         ),
                         'macros' => array_map(
-                            function (array $macro) {
-                                return [
-                                    'name' => $macro['name'],
-                                    'value' => $macro['isPassword'] ? null : $macro['value'],
-                                    'is_password' => $macro['isPassword'],
-                                    'description' => $this->emptyStringAsNull($macro['description']),
-                                ];
-                            },
+                            fn(array $macro) => [
+                                'name' => $macro['name'],
+                                'value' => $macro['isPassword'] ? null : $macro['value'],
+                                'is_password' => $macro['isPassword'],
+                                'description' => $this->emptyStringAsNull($macro['description']),
+                            ],
                             $response->macros
                         ),
                     ]

@@ -184,7 +184,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         $hostGroupConditions = '';
         if ($this->hostgroup) {
             $explodedValues = '';
-            foreach (explode(',', $this->hostgroup) as $hgId => $hgValue) {
+            foreach (explode(',', (string) $this->hostgroup) as $hgId => $hgValue) {
                 if (! is_numeric($hgValue)) {
                     throw new \RestBadRequestException('Error, host group id must be numerical');
                 }
@@ -213,58 +213,29 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         if (
             ! isset($this->arguments['fields'])
             || is_null($this->arguments['fields'])
-            || in_array($this->sortType, explode(',', $this->arguments['fields']), true)
+            || in_array($this->sortType, explode(',', (string) $this->arguments['fields']), true)
         ) {
             $q = 'ASC';
-            if (isset($this->order) && mb_strtoupper($this->order) === 'DESC') {
+            if (isset($this->order) && mb_strtoupper((string) $this->order) === 'DESC') {
                 $q = 'DESC';
             }
 
-            switch ($this->sortType) {
-                case 'id':
-                    $order = " ORDER BY h.host_id {$q}, h.name";
-                    break;
-                case 'alias':
-                    $order = " ORDER BY h.alias {$q}, h.name";
-                    break;
-                case 'address':
-                    $order = " ORDER BY IFNULL(inet_aton(h.address), h.address) {$q}, h.name ";
-                    break;
-                case 'state':
-                    $order = " ORDER BY h.state {$q}, h.name ";
-                    break;
-                case 'last_state_change':
-                    $order = " ORDER BY h.last_state_change {$q}, h.name ";
-                    break;
-                case 'last_hard_state_change':
-                    $order = " ORDER BY h.last_hard_state_change {$q}, h.name ";
-                    break;
-                case 'acknowledged':
-                    $order = "ORDER BY h.acknowledged {$q}, h.name";
-                    break;
-                case 'last_check':
-                    $order = " ORDER BY h.last_check {$q}, h.name ";
-                    break;
-                case 'check_attempt':
-                    $order = " ORDER BY h.check_attempt {$q}, h.name ";
-                    break;
-                case 'max_check_attempts':
-                    $order = " ORDER BY h.max_check_attempts {$q}, h.name";
-                    break;
-                case 'instance_name':
-                    $order = " ORDER BY i.name {$q}, h.name";
-                    break;
-                case 'output':
-                    $order = " ORDER BY h.output {$q}, h.name ";
-                    break;
-                case 'criticality':
-                    $order = " ORDER BY criticality {$q}, h.name ";
-                    break;
-                case 'name':
-                default:
-                    $order = " ORDER BY h.name {$q}";
-                    break;
-            }
+            $order = match ($this->sortType) {
+                'id' => " ORDER BY h.host_id {$q}, h.name",
+                'alias' => " ORDER BY h.alias {$q}, h.name",
+                'address' => " ORDER BY IFNULL(inet_aton(h.address), h.address) {$q}, h.name ",
+                'state' => " ORDER BY h.state {$q}, h.name ",
+                'last_state_change' => " ORDER BY h.last_state_change {$q}, h.name ",
+                'last_hard_state_change' => " ORDER BY h.last_hard_state_change {$q}, h.name ",
+                'acknowledged' => "ORDER BY h.acknowledged {$q}, h.name",
+                'last_check' => " ORDER BY h.last_check {$q}, h.name ",
+                'check_attempt' => " ORDER BY h.check_attempt {$q}, h.name ",
+                'max_check_attempts' => " ORDER BY h.max_check_attempts {$q}, h.name",
+                'instance_name' => " ORDER BY i.name {$q}, h.name",
+                'output' => " ORDER BY h.output {$q}, h.name ",
+                'criticality' => " ORDER BY criticality {$q}, h.name ",
+                default => " ORDER BY h.name {$q}",
+            };
         }
 
         // Get Host status
@@ -351,7 +322,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         // Filters
         if (isset($this->arguments['status'])) {
             $statusList = ['up', 'down', 'unreachable', 'pending', 'all'];
-            if (in_array(mb_strtolower($this->arguments['status']), $statusList, true)) {
+            if (in_array(mb_strtolower((string) $this->arguments['status']), $statusList, true)) {
                 $this->status = $this->arguments['status'];
             } else {
                 throw new \RestBadRequestException('Bad status parameter');
@@ -388,8 +359,8 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         }
         if (isset($this->arguments['order'])) {
             if (
-                mb_strtolower($this->arguments['order']) === 'asc'
-                || mb_strtolower($this->arguments['order']) === 'desc'
+                mb_strtolower((string) $this->arguments['order']) === 'asc'
+                || mb_strtolower((string) $this->arguments['order']) === 'desc'
             ) {
                 $this->order = $this->arguments['order'];
             } else {
@@ -412,7 +383,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
      */
     protected function getFieldContent()
     {
-        $tab = explode(',', $this->arguments['fields']);
+        $tab = explode(',', (string) $this->arguments['fields']);
 
         $fieldList = [];
         foreach ($tab as $key) {

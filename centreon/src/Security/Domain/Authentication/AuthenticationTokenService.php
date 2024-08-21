@@ -31,12 +31,8 @@ use Security\Domain\Authentication\Interfaces\AuthenticationTokenServiceInterfac
 
 class AuthenticationTokenService implements AuthenticationTokenServiceInterface
 {
-    /** @var AuthenticationTokenRepositoryInterface */
-    private $authenticationTokenRepository;
-
-    public function __construct(AuthenticationTokenRepositoryInterface $authenticationTokenRepository)
+    public function __construct(private AuthenticationTokenRepositoryInterface $authenticationTokenRepository)
     {
-        $this->authenticationTokenRepository = $authenticationTokenRepository;
     }
 
     /**

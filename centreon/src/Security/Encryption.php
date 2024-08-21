@@ -33,16 +33,13 @@ class Encryption implements EncryptionInterface
     /** @var string|null Second secure key */
     private $secondKey;
 
-    /** @var string Encryption method use to encrypt/decrypt data */
-    private $encryptionMethod;
-
-    /** @var string Hashing method use to hash/unhash data during */
-    private $hashingAlgorithm;
-
-    public function __construct(string $encryptionMethod = 'aes-256-cbc', string $hashingAlgorithm = 'sha3-512')
+    public function __construct(
+        /** @var string Encryption method use to encrypt/decrypt data */
+        private string $encryptionMethod = 'aes-256-cbc',
+        /** @var string Hashing method use to hash/unhash data during */
+        private string $hashingAlgorithm = 'sha3-512'
+    )
     {
-        $this->encryptionMethod = $encryptionMethod;
-        $this->hashingAlgorithm = $hashingAlgorithm;
     }
 
     /**

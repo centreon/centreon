@@ -45,20 +45,14 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  */
 class FilterController extends AbstractController
 {
-    /**
-     * @var FilterServiceInterface
-     */
-    private $filterService;
-
     public const SERIALIZER_GROUPS_MAIN = ['filter_main'];
 
     /**
      * PollerController constructor.
      * @param FilterServiceInterface $filterService
      */
-    public function __construct(FilterServiceInterface $filterService)
+    public function __construct(private FilterServiceInterface $filterService)
     {
-        $this->filterService = $filterService;
     }
 
     /**

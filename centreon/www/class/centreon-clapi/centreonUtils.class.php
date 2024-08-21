@@ -73,7 +73,7 @@ class CentreonUtils
         if (is_null($db)) {
             $db = new \CentreonDB('centreon');
         }
-        $tab = preg_split("/\//", $imagename);
+        $tab = preg_split("/\//", (string) $imagename);
         isset($tab[0]) ? $dirname = $tab[0] : $dirname = null;
         isset($tab[1]) ? $imagename = $tab[1] : $imagename = null;
 
@@ -91,7 +91,7 @@ class CentreonUtils
         $img_id = null;
         $row = $res->fetchRow();
         if (isset($row['img_id']) && $row['img_id']) {
-            $img_id = (int)$row['img_id'];
+            return (int)$row['img_id'];
         }
         return $img_id;
     }
@@ -119,7 +119,7 @@ class CentreonUtils
         if (
             preg_match(
                 '/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/',
-                $coords
+                (string) $coords
             )
         ) {
             return true;
@@ -127,7 +127,7 @@ class CentreonUtils
         return false;
     }
 
-    public static function setUserName($userName)
+    public static function setUserName($userName): void
     {
         self::$clapiUserName = $userName;
     }
@@ -137,7 +137,7 @@ class CentreonUtils
         return self::$clapiUserName;
     }
 
-    public static function setUserId($userId)
+    public static function setUserId($userId): void
     {
         self::$clapiUserId = $userId;
     }
