@@ -7,7 +7,9 @@ interface Props {
 }
 
 const DescriptionWrapper = ({ children }: Props): JSX.Element => (
-  <Box sx={{ maxHeight: 22, overflow: 'hidden' }}>
+  <Box
+    sx={{ maxHeight: 22, overflow: 'hidden', position: 'relative', zIndex: 1 }}
+  >
     <Tooltip followCursor={false} label={children} placement="top">
       <div>{children}</div>
     </Tooltip>

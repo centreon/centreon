@@ -104,7 +104,8 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
     },
     widgetPadding: {
       overflowX: 'auto',
-      padding: theme.spacing(0.5, 1.5, 1.5)
+      padding: theme.spacing(0.5, 1.5, 1.5),
+      position: 'relative'
     }
   })
 );

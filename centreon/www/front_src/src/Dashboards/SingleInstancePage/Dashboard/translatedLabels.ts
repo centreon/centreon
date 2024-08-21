@@ -131,3 +131,8 @@ export const labelDiscard = 'Discard';
 export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
 export const labelIfYouClickOnDiscard =
   'If you click on Discard, your changes will not be saved.';
+export const labelSelectTimezone = 'Select time zone';
+export const labelSelectTimeFormat = 'Select time format';
+export const labelBackgroundColor = 'Background color';
+export const label12Hours = '12 hours';
+export const label24Hours = '24 hours';
