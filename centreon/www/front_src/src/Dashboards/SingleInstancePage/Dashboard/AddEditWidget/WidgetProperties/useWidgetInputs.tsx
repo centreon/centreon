@@ -38,8 +38,11 @@ import { Widget, WidgetPropertyProps } from '../models';
 import {
   WidgetButtonGroup,
   WidgetCheckboxes,
+  WidgetColorSelector,
   WidgetConnectedAutocomplete,
+  WidgetDatePicker,
   WidgetDisplayType,
+  WidgetLocale,
   WidgetMetrics,
   WidgetRadio,
   WidgetRefreshInterval,
@@ -52,13 +55,10 @@ import {
   WidgetTextField,
   WidgetThreshold,
   WidgetTiles,
-  WidgetTimePeriod,
-  WidgetTopBottomSettings,
-  WidgetTimezone,
-  WidgetLocale,
-  WidgetColorSelector,
   WidgetTimeFormat,
-  WidgetDatePicker
+  WidgetTimePeriod,
+  WidgetTimezone,
+  WidgetTopBottomSettings
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {

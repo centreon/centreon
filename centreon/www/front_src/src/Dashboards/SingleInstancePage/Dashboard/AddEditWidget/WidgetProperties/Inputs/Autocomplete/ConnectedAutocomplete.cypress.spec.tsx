@@ -1,5 +1,5 @@
-import { createStore, Provider } from 'jotai';
 import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
