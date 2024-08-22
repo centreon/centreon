@@ -1,16 +1,16 @@
+import { useAtomValue } from 'jotai';
 import {
+  F,
+  T,
   always,
   cond,
   equals,
-  F,
   head,
   identity,
   lensPath,
   pluck,
-  set,
-  T
+  set
 } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import {
   BarChart,
@@ -21,13 +21,13 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import useThresholds from '../../useThresholds';
-import { CommonWidgetProps, Data } from '../../models';
 import NoResources from '../../NoResources';
+import { CommonWidgetProps, Data } from '../../models';
+import useThresholds from '../../useThresholds';
 import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
-import { PanelOptions } from './models';
 import { graphEndpoint } from './api/endpoints';
+import { PanelOptions } from './models';
 
 const forceStackedMetrics = (data?: LineChartData): LineChartData | undefined =>
   data && {

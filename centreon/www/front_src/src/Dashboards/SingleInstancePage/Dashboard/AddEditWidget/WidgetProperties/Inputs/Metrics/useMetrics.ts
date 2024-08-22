@@ -1,6 +1,7 @@
-import { useMemo, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import {
   equals,
   identity,
@@ -14,10 +15,13 @@ import {
   propEq,
   reject
 } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
+import {
+  resourcesInputKeyDerivedAtom,
+  widgetPropertiesAtom
+} from '../../../atoms';
 import {
   FormMetric,
   Metric,
@@ -27,10 +31,6 @@ import {
   WidgetResourceType
 } from '../../../models';
 import { getDataProperty } from '../utils';
-import {
-  resourcesInputKeyDerivedAtom,
-  widgetPropertiesAtom
-} from '../../../atoms';
 
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
@@ -310,7 +310,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       servicesMetrics?.result || []
     );
 
-    setFieldValue(`data.services`, services);
+    setFieldValue('data.services', services);
   }, [values?.data?.[propertyName]]);
 
   return {

@@ -2,9 +2,9 @@ import { equals } from 'ramda';
 
 import { Module } from '@centreon/ui';
 
-import { StatusGridProps } from './StatusGridStandard/models';
-import StatusGrid from './StatusGridStandard/StatusGrid';
 import StatusGridCondensed from './StatusGridCondensed/StatusGridCondensed';
+import StatusGrid from './StatusGridStandard/StatusGrid';
+import { StatusGridProps } from './StatusGridStandard/models';
 
 export const StatusGridWrapper = ({
   panelOptions,

@@ -1,34 +1,34 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
+import useNavigation from '../../Navigation/useNavigation';
+import { pollerConfigurationPageNumber } from '../Poller/getPollerPropsAdapter';
 import {
-  labelPollers,
-  labelNoLatencyDetected,
-  labelLatencyDetected,
   labelAllPollers,
+  labelCancel,
+  labelConfigurationExportedAndReloaded,
+  labelConfigurePollers,
+  labelDatabaseNotActive,
   labelDatabaseUpdateAndActive,
   labelDatabaseUpdatesNotActive,
-  labelPollerNotRunning,
-  labelDatabaseNotActive,
-  labelConfigurePollers,
-  labelExportConfiguration,
-  labelExportAndReloadTheConfiguration,
-  labelCancel,
   labelExportAndReload,
+  labelExportAndReloadTheConfiguration,
+  labelExportConfiguration,
   labelExportingAndReloadingTheConfiguration,
-  labelConfigurationExportedAndReloaded
+  labelLatencyDetected,
+  labelNoLatencyDetected,
+  labelPollerNotRunning,
+  labelPollers
 } from '../Poller/translatedLabels';
-import { pollerConfigurationPageNumber } from '../Poller/getPollerPropsAdapter';
-import useNavigation from '../../Navigation/useNavigation';
 
 import {
   initialize,
+  openSubMenu,
   submenuShouldBeClosed,
-  submenuShouldBeOpened,
-  openSubMenu
-} from './Header.testUtils';
+  submenuShouldBeOpened
+} from './Header.utils';
 
 const getElements = (): void => {
   cy.findByRole('button', { name: labelPollers, timeout: 5000 }).as(
@@ -337,8 +337,8 @@ export default (): void =>
           .as('items')
           .should('have.length', expectedItems.length);
 
-        cy.get('@items').each(($el, index) => {
-          cy.wrap($el)
+        cy.get('@items').each((el, index) => {
+          cy.wrap(el)
             .should('contain.text', expectedItems[index].text)
             .should('contain.text', expectedItems[index].qty);
         });
@@ -347,7 +347,7 @@ export default (): void =>
       });
 
       describe('configuration', () => {
-        let userData;
+        let userData: object;
 
         beforeEach(() => {
           const { result } = renderHook(() => useNavigation());

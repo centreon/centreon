@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
 
-import { labelResourceAccessRules } from './translatedLabels';
 import Filter from './Filter';
 import usePageHeaderStyles from './PageHeader.styles';
+import { labelResourceAccessRules } from './translatedLabels';
 
 const Title = (): JSX.Element => {
   const { classes } = usePageHeaderStyles();

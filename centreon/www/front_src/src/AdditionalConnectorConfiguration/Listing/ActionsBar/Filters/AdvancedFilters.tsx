@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { equals, isNil, map, pick, propEq, reject } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   MultiAutocompleteField,
@@ -12,6 +12,7 @@ import {
 } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
 
+import { getPollersEndpoint } from '../../../api/endpoints';
 import {
   labelClear,
   labelName,
@@ -19,12 +20,11 @@ import {
   labelSearch,
   labelTypes
 } from '../../../translatedLabels';
-import { useFilterStyles } from '../useActionsStyles';
-import { filtersAtom } from '../../atom';
-import useLoadData from '../../useLoadData';
-import { getPollersEndpoint } from '../../../api/endpoints';
 import { filtersDefaultValue } from '../../../utils';
+import { filtersAtom } from '../../atom';
 import { NamedEntity } from '../../models';
+import useLoadData from '../../useLoadData';
+import { useFilterStyles } from '../useActionsStyles';
 
 import useUpdateSearchBarBasedOnFilters from './useUpdateSearchBarBasedOnFilters';
 

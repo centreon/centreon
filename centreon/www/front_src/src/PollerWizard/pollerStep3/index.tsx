@@ -1,8 +1,8 @@
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { pollerAtom, PollerData } from '../pollerAtoms';
 import WizardFormSetupStatus from '../../components/WizardFormSetupStatus';
+import { PollerData, pollerAtom } from '../pollerAtoms';
 import { labelFinalStep } from '../translatedLabels';
 
 const PollerWizardStepThree = (): JSX.Element => {

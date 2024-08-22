@@ -6,14 +6,14 @@ import { capitalize } from '@mui/material';
 import { SeverityCode } from '@centreon/ui';
 
 import {
-  labelDown,
   labelCritical,
-  labelWarning,
-  labelUp,
+  labelDown,
   labelOk,
+  labelPending,
   labelUnknown,
   labelUnreachable,
-  labelPending
+  labelUp,
+  labelWarning
 } from './translatedLabels';
 
 export const getResourceTypeName = (resourceType: string): string => {

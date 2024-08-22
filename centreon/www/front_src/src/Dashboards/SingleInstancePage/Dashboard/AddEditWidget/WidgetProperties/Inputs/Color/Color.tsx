@@ -2,20 +2,20 @@ import { useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { CardActionArea, Paper, Popover, Typography } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { CardActionArea, Paper, Popover, Typography } from '@mui/material';
 
 import { Subtitle } from '@centreon/ui';
 import { IconButton } from '@centreon/ui/components';
 
-import { WidgetPropertyProps } from '../../../models';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 
 import ColorChip from './ColorChip';
-import { useColorSelector } from './useColorSelector';
-import colors from './colors.json';
 import { useColorSelectorStyle } from './ColorSelector.styles';
+import colors from './colors.json';
+import { useColorSelector } from './useColorSelector';
 
 const ColorSelector = ({
   propertyName,

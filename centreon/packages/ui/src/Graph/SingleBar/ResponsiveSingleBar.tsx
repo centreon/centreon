@@ -1,26 +1,26 @@
 import { useMemo, useRef } from 'react';
 
-import { Group, Tooltip } from '@visx/visx';
+import { animated, useSpring } from '@react-spring/web';
 import { scaleLinear } from '@visx/scale';
-import { equals, flatten, head, lt, pluck } from 'ramda';
 import { Bar } from '@visx/shape';
-import { useSpring, animated } from '@react-spring/web';
+import { Group, Tooltip } from '@visx/visx';
+import { equals, flatten, head, lt, pluck } from 'ramda';
 
-import { alpha, Box, useTheme } from '@mui/material';
+import { Box, alpha, useTheme } from '@mui/material';
 
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
+import { margins } from '../common/margins';
 import {
   formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
-import { getColorFromDataAndTresholds } from '../common/utils';
-import { margins } from '../common/margins';
 import { useTooltipStyles } from '../common/useTooltipStyles';
+import { getColorFromDataAndTresholds } from '../common/utils';
 
-import { SingleBarProps } from './models';
-import Thresholds, { groupMargin } from './Thresholds';
 import { barHeights } from './ThresholdLine';
+import Thresholds, { groupMargin } from './Thresholds';
+import { SingleBarProps } from './models';
 
 interface Props extends SingleBarProps {
   height: number;

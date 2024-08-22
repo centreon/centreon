@@ -9,12 +9,12 @@ import {
   SingleConnectedAutocompleteField
 } from '@centreon/ui';
 
-import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 
-import useAutocomplete from './useConnectedAutocomplete';
 import { useStyles } from './ConnectedAutocomplete.styles';
+import useAutocomplete from './useConnectedAutocomplete';
 
 const ConnectedAutocomplete = ({
   propertyName,

@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import {
@@ -12,15 +12,15 @@ import {
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
-import { getBooleanRuleLink, getColor } from '../utils';
+import { ResourceData } from '../models';
 import {
   labelClickHereForDetails,
   labelExpressionIn,
   labelImpactAppliedWhen,
   labelParent
 } from '../translatedLabels';
+import { getBooleanRuleLink, getColor } from '../utils';
 
 import useBooleanTooltipContent from './useBooleanTooltipContent';
 

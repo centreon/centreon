@@ -45,6 +45,7 @@ import {
   resourcesEndpoint as allResourcesEndpoint,
   hostsEndpoint
 } from '../../api/endpoint';
+import { resourceDetailsDecoder } from '../../decoders';
 import { ResourceListing, SortOrder, Visualization } from '../../models';
 import {
   labelNoResourceFound,
@@ -58,7 +59,6 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
-import { resourceDetailsDecoder } from '../../decoders';
 
 import { Search } from './models';
 

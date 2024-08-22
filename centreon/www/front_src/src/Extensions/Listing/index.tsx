@@ -1,43 +1,43 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { find, propEq, pathEq, filter, isEmpty } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { filter, find, isEmpty, pathEq, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
 import InstallIcon from '@mui/icons-material/Add';
-import Stack from '@mui/material/Stack';
+import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
 import { Button } from '@mui/material';
+import Stack from '@mui/material/Stack';
 
 import {
-  useRequest,
+  Responsive,
   getData,
   postData,
-  useSnackbar,
-  Responsive
+  useRequest,
+  useSnackbar
 } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
-import FederatedComponents from '../../components/FederatedComponents';
+import usePlatformVersions from '../../Main/usePlatformVersions';
 import useNavigation from '../../Navigation/useNavigation';
+import FederatedComponents from '../../components/FederatedComponents';
 import { appliedFilterCriteriasAtom } from '../Filter/filterAtoms';
 import { labelInstallAll, labelUpdateAll } from '../translatedLabels';
-import usePlatformVersions from '../../Main/usePlatformVersions';
 
-import { deleteExtension } from './api';
-import ExtensionsHolder from './ExtensionsHolder';
-import ExtensionDetailsPopup from './ExtensionDetailsDialog';
 import ExtensionDeletePopup from './ExtensionDeleteDialog';
-import {
-  Extensions,
-  EntityType,
-  ExtensionsStatus,
-  ExtensionResult,
-  InstallOrUpdateExtensionResult,
-  EntityDeleting
-} from './models';
+import ExtensionDetailsPopup from './ExtensionDetailsDialog';
+import ExtensionsHolder from './ExtensionsHolder';
+import { deleteExtension } from './api';
 import { buildEndPoint, buildExtensionEndPoint } from './api/endpoint';
+import {
+  EntityDeleting,
+  EntityType,
+  ExtensionResult,
+  Extensions,
+  ExtensionsStatus,
+  InstallOrUpdateExtensionResult
+} from './models';
 
 const useStyles = makeStyles()((theme) => ({
   contentWrapper: {
@@ -114,7 +114,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
       getAppliedFilterCriteriasAtom
     );
 
-    if (types && types.value) {
+    if (types?.value) {
       const typesValues = types.value as Array<SelectEntry>;
       setModulesActive(!!find(propEq('MODULE', 'id'), typesValues));
       setWidgetsActive(!!find(propEq('WIDGET', 'id'), typesValues));

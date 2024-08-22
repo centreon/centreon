@@ -1,8 +1,13 @@
-import { equals } from 'ramda';
 import { Provider, createStore } from 'jotai';
+import { equals } from 'ramda';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
+import Listing from '..';
+import { DeleteConfirmationDialog } from '../../Actions/Delete';
+import { DuplicationForm } from '../../Actions/Duplicate';
+import { notificationEndpoint } from '../../Panel/api/endpoints';
+import { getNotificationResponse } from '../../Panel/specs/testUtils';
 import {
   labelCancel,
   labelDelete,
@@ -12,20 +17,15 @@ import {
   labelDuplicate,
   labelFailedToDeleteNotifications,
   labelFailedToDeleteSelectedNotifications,
+  labelNotificationDuplicated,
   labelNotificationName,
   labelNotificationSuccessfullyDeleted,
-  labelNotificationDuplicated,
   labelNotificationsSuccessfullyDeleted,
   labelPleaseEnterNameForDuplicatedNotification,
   labelRequired,
   labelThisNameAlreadyExists
 } from '../../translatedLabels';
-import { notificationEndpoint } from '../../Panel/api/endpoints';
-import { getNotificationResponse } from '../../Panel/specs/testUtils';
-import { DeleteConfirmationDialog } from '../../Actions/Delete';
-import { DuplicationForm } from '../../Actions/Duplicate';
 import { buildNotificationsEndpoint } from '../api/endpoints';
-import Listing from '..';
 
 import {
   defaultQueryParams,

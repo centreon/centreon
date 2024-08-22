@@ -6,7 +6,7 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required" : true
+      "required": true
     },
     "metrics": {
       "type": "metrics",

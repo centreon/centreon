@@ -1,6 +1,6 @@
+import { useAtomValue } from 'jotai';
 import { map, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 import { ObjectSchema, ObjectShape, object, string } from 'yup';
 
 import { notificationsNamesAtom } from '../../atom';

@@ -1,6 +1,4 @@
-import * as React from 'react';
-
-import { closestCenter, DraggableSyntheticListeners } from '@dnd-kit/core';
+import { DraggableSyntheticListeners, closestCenter } from '@dnd-kit/core';
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { equals, find, map, pick, propEq } from 'ramda';
 
@@ -8,16 +6,17 @@ import { TableHead, TableRow } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { getVisibleColumns, Props as ListingProps } from '..';
+import { Props as ListingProps, getVisibleColumns } from '..';
 import SortableItems from '../../SortableItems';
 import { Column } from '../models';
 
+import { memo, useCallback } from 'react';
 import ListingHeaderCell from './Cell/ListingHeaderCell';
-import { useStyles } from './ListingHeader.styles';
 import {
   SelectActionListingHeaderCell,
   SelectActionListingHeaderCellProps
 } from './Cell/SelectActionListingHeaderCell';
+import { useStyles } from './ListingHeader.styles';
 
 type Props = Pick<
   ListingProps<unknown>,
@@ -74,7 +73,7 @@ const ListingHeader = ({
     return find(propEq(id, 'id'), columns) as Column;
   };
 
-  const Content = React.useCallback(
+  const Content = useCallback(
     ({
       isInDragOverlay,
       listeners,
@@ -145,7 +144,7 @@ const columnMemoProps = [
   'type'
 ];
 
-const MemoizedListingHeader = React.memo<Props>(
+const MemoizedListingHeader = memo<Props>(
   ListingHeader,
   (prevProps, nextProps) =>
     equals(prevProps.sortOrder, nextProps.sortOrder) &&

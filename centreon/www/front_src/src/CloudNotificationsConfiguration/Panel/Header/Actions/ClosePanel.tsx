@@ -1,21 +1,21 @@
 import { useState } from 'react';
 
-import { useSetAtom } from 'jotai';
-import { makeStyles } from 'tss-react/mui';
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
+import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import CloseIcon from '@mui/icons-material/Close';
 
 import { ConfirmDialog, IconButton } from '@centreon/ui';
 
 import { isPanelOpenAtom } from '../../../atom';
-import { editedNotificationIdAtom } from '../../atom';
 import {
   labelClosePanel,
   labelDoYouWantToQuitWithoutSaving,
   labelYourFormHasUnsavedChanges
 } from '../../../translatedLabels';
+import { editedNotificationIdAtom } from '../../atom';
 
 const useStyles = makeStyles()((theme) => ({
   button: {

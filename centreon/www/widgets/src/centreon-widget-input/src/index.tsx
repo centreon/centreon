@@ -1,6 +1,6 @@
 import { createStore } from 'jotai';
 
-import { Typography, TextField, Box } from '@mui/material';
+import { Box, TextField, Typography } from '@mui/material';
 
 import { Module } from '@centreon/ui';
 

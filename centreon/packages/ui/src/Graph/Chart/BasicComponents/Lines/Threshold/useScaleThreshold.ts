@@ -1,9 +1,9 @@
 import { equals, isNil, prop } from 'ramda';
 
-import { ThresholdType, VariationThreshold } from '../../../models';
-import { TimeValue } from '../../../../common/timeSeries/models';
 import { getTime, getYScale } from '../../../../common/timeSeries';
+import { TimeValue } from '../../../../common/timeSeries/models';
 import { displayArea } from '../../../helpers/index';
+import { ThresholdType, VariationThreshold } from '../../../models';
 
 import { envelopeVariationFormula } from './helpers';
 import {

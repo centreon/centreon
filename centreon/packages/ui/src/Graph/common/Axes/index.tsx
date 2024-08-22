@@ -4,9 +4,9 @@ import { equals, isNil } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
+import { margin } from '../../Chart/common';
 import { getXAxisTickFormat } from '../../Chart/helpers';
 import { getUnits } from '../timeSeries';
-import { margin } from '../../Chart/common';
 
 import UnitLabel from './UnitLabel';
 import { Data } from './models';
