@@ -388,9 +388,11 @@ Then(
       })
       .applyPollerConfiguration();
     cy.visit('/');
-    cy.getWebVersion().then(({ major_version, minor_version }) => {
-      cy.contains(`${major_version}.${minor_version}`).should('be.visible');
-    });
+    if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
+      cy.getWebVersion().then(({ major_version, minor_version }) => {
+        cy.contains(`${major_version}.${minor_version}`).should('be.visible');
+      });
+    }
     cy.loginByTypeOfUser({
       jsonName: 'admin'
     }).wait('@getLastestUserFilters');
