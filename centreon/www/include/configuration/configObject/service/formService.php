@@ -415,7 +415,7 @@ if ($o === SERVICE_MASSIVE_CHANGE) {
 $form->addElement('text', 'command_command_id_arg', _('Args'), $attrsText);
 
 
-if (! $isCloudPlatform) {
+//if (! $isCloudPlatform) {
     $serviceIV = [
         $form->createElement('radio', 'service_is_volatile', null, _('Yes'), '1'),
         $form->createElement('radio', 'service_is_volatile', null, _('No'), '0'),
@@ -704,7 +704,7 @@ if (! $isCloudPlatform) {
     $form->addGroup($serviceStalOpt, 'service_stalOpts', _('Stalking Options'), '&nbsp;&nbsp;');
 
     $form->addElement('textarea', 'service_comment', _('Comments'), $attrsTextarea);
-}
+//}
 
 $serviceActivation = [
     $form->createElement('radio', 'service_activate', null, _('Enabled'), '1'),
