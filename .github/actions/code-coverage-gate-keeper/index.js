@@ -77,7 +77,7 @@ const run = async () => {
     const lowerBaseCodeCoverage = baseCodeCoveragePercentage - 0.04;
 
     const passGateKeep =
-      lowerBaseCodeCoverage >= codeCoverageLines ||
+      codeCoverageLines >= lowerBaseCodeCoverage ||
       codeCoverageLines >= baseCodeCoveragePercentage;
     const strictlyPassGateKeep =
       codeCoverageLines >= baseCodeCoveragePercentage;
