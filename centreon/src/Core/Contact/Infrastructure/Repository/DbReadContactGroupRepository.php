@@ -358,20 +358,42 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         ?RequestParametersInterface $requestParameters = null,
     ): array
     {
+        if ($accessGroups === []) {
+            return [];
+        }
+
         $accessGroupIds = array_map(
             fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($accessGroupIds, ':id_');
-        $request = $this->translateDbName(
-            <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
+
+        $request = $this->translateDbName(<<<SQL
+            SELECT SQL_CALC_FOUND_ROWS *
+            FROM (
+                SELECT
                     cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                FROM `:db`.contactgroup cg
-                INNER JOIN `:db`.acl_group_contactgroups_relations gcgr
+                FROM `centreon`.acl_group_contactgroups_relations gcgr
+                LEFT JOIN `centreon`.contactgroup cg
                     ON cg.cg_id = gcgr.cg_cg_id
-                SQL
+                WHERE gcgr.acl_group_id IN ({$subQuery})
+                    AND cg_activate = '1'
+                GROUP BY cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                UNION
+                SELECT
+                    cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                FROM `centreon`.acl_groups aclg
+                LEFT JOIN `centreon`.acl_group_contacts_relations agcr
+                    ON agcr.acl_group_id = aclg.acl_group_id
+                LEFT JOIN `centreon`.contactgroup_contact_relation cgcr
+                    ON cgcr.contact_contact_id = agcr.contact_contact_id
+                LEFT JOIN `centreon`.contactgroup cg
+                    ON cg.cg_id = cgcr.contactgroup_cg_id
+                WHERE aclg.acl_group_id IN ({$subQuery})
+                    AND cg.cg_activate = '1'
+            ) AS contact_groups
+            SQL
         );
         $sqlTranslator = $requestParameters !== null
             ? new SqlRequestParametersTranslator($requestParameters)
@@ -389,9 +411,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 
         // Search
         if ($search = $sqlTranslator?->translateSearchParameterToSql()) {
-            $request .= $search . " AND gcgr.acl_group_id IN ({$subQuery})";
-        } else {
-            $request .= " WHERE gcgr.acl_group_id IN ({$subQuery})";
+            $request .= ' WHERE ' . $search;
         }
 
         $request .= ' GROUP BY cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type';
