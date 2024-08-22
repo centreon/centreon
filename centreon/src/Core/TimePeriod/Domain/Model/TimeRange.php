@@ -66,10 +66,6 @@ class TimeRange implements \Stringable
      */
     public function getRanges(): array
     {
-        if (str_contains($this->timeRange, ',')) {
-            return $this->extractRanges($this->timeRange);
-        }
-
         return $this->extractRange($this->timeRange);
     }
 
@@ -124,9 +120,7 @@ class TimeRange implements \Stringable
      */
     private function extractRange(string $rule): array
     {
-        [$start, $end] = explode('-', trim($rule));
-
-        return [['start' => $start, 'end' => $end]];
+        return $this->extractRanges($rule);
     }
 
     /**

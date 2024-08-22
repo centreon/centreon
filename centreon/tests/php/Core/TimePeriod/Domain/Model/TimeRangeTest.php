@@ -112,3 +112,13 @@ it(
     TimeRangeException::class,
     TimeRangeException::orderTimeIntervalsNotConsistent()->getMessage()
 );
+
+it('should return a valid single array', function (): void {
+        $timeRange = new TimeRange('00:00-10:00');
+        expect($timeRange->getRanges())->toBeArray()->toHaveCount(1);
+});
+
+it('should return a valid multiple array', function (): void {
+    $timeRange = new TimeRange('00:00-10:00,11:00-18:00');
+    expect($timeRange->getRanges())->toBeArray()->toHaveCount(2);
+});
