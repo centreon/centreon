@@ -169,6 +169,7 @@ jobs:
           test_tags: ${{ inputs.test_tags }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
+          stability: ${{ inputs.stability }}
           is_cloud: ${{ inputs.is_cloud }}
           artifactory_internal_repo_username: ${{ secrets.artifactory_internal_repo_username }}
           artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}

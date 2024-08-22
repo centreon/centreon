@@ -35,6 +35,9 @@ inputs:
   test_execution_key:
     description: "xray test execution key"
     required: true
+  stability:
+    description: "Branch stability"
+    required: true
   is_cloud:
     description: "Define if the version is targeting cloud"
     required: false
@@ -91,6 +94,7 @@ runs:
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
         CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.saml_image_version }}
+        CYPRESS_STABILITY: ${{ inputs.stability }}
         CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
         CYPRESS_INTERNAL_REPO_USERNAME: ${{ inputs.artifactory_internal_repo_username }}
         CYPRESS_INTERNAL_REPO_PASSWORD: ${{ inputs.artifactory_internal_repo_password }}

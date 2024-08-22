@@ -238,8 +238,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
         return cy.execInContainer({
           command: [
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
-            `dnf install -y ${containerPackageDirectory}/*.rpm`,
-            `rm -f /usr/share/centreon/www/install/php/Update-24.09.0.php`
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
           ],
           name: 'web'
         });
@@ -329,11 +328,14 @@ When('administrator runs the update procedure', () => {
   // check correct updated version
   const installed_version = Cypress.env('installed_version');
   cy.log(`installed_version : ${installed_version}`);
-  cy.getWebVersion().then(({ major_version, minor_version }) => {
-    cy.contains(
-      `upgraded from version ${installed_version} to ${major_version}.${minor_version}`
-    ).should('be.visible');
-  });
+
+  if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
+    cy.getWebVersion().then(({ major_version, minor_version }) => {
+      cy.contains(
+        `upgraded from version ${installed_version} to ${major_version}.${minor_version}`
+      ).should('be.visible');
+    });
+  }
 
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();

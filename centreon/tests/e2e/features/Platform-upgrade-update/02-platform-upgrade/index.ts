@@ -22,7 +22,7 @@ before(() => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.exec(`ls ${localPackageDirectory}/centreon-web-*.rpm`);
   } else {
-    cy.exec(`ls ${localPackageDirectory}/centreon-web-*.deb`);
+    cy.exec(`ls ${localPackageDirectory}/centreon-web_*.deb`);
   }
 });
 
