@@ -4,13 +4,13 @@ import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  TextField as MuiTextField,
+  Box,
   InputAdornment,
+  TextField as MuiTextField,
   TextFieldProps,
   Theme,
   Tooltip,
-  Typography,
-  Box
+  Typography
 } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';

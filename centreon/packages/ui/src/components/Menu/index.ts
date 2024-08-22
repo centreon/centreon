@@ -1,7 +1,7 @@
-import { Menu as MenuRoot } from './Menu';
 import { MenuButton } from './Button';
-import { MenuItem } from './MenuItem';
+import { Menu as MenuRoot } from './Menu';
 import { MenuDivider } from './MenuDivider';
+import { MenuItem } from './MenuItem';
 import { MenuItems } from './MenuItems';
 
 export const Menu = Object.assign(MenuRoot, {

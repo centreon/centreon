@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 

@@ -1,11 +1,12 @@
+import { Provider, createStore } from 'jotai';
 import { equals } from 'ramda';
-import { createStore, Provider } from 'jotai';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import ResourceAccessRulesListing from '../Listing';
-import { buildResourceAccessRulesEndpoint } from '../api/endpoints';
+import { DeleteConfirmationDialog } from '../../Actions/Delete';
+import { DuplicationForm } from '../../Actions/Duplicate';
 import { resourceAccessRuleEndpoint } from '../../AddEditResourceAccessRule/api/endpoints';
+import { findResourceAccessRuleResponse } from '../../AddEditResourceAccessRule/specs/testUtils';
 import {
   labelActiveOrInactive,
   labelCancel,
@@ -13,10 +14,10 @@ import {
   labelDeleteMultipleResourceAccessRules,
   labelDeleteResourceAccessRule,
   labelDeleteResourceAccessRuleDialogMessage,
+  labelDeleteResourceAccessRuleWarning,
   labelDeleteResourceAccessRules,
   labelDeleteResourceAccessRulesDialogMessage,
   labelDeleteResourceAccessRulesWarning,
-  labelDeleteResourceAccessRuleWarning,
   labelDuplicate,
   labelEnterNameForDuplicatedRule,
   labelFailedToDeleteSelectedRules,
@@ -27,9 +28,8 @@ import {
   labelResourceAccessRulesDeletedSuccess,
   labelRuleDuplicatedSuccess
 } from '../../translatedLabels';
-import { DeleteConfirmationDialog } from '../../Actions/Delete';
-import { DuplicationForm } from '../../Actions/Duplicate';
-import { findResourceAccessRuleResponse } from '../../AddEditResourceAccessRule/specs/testUtils';
+import ResourceAccessRulesListing from '../Listing';
+import { buildResourceAccessRulesEndpoint } from '../api/endpoints';
 
 import {
   defaultQueryParams,

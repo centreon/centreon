@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
@@ -8,12 +8,12 @@ import { Grid, useMediaQuery, useTheme } from '@mui/material';
 import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import GlobalActionsSkeleton from './GlobalActionsSkeleton';
-import { Type } from './model';
 import { Props } from './Refresh';
 import useMediaQueryListing from './Resource/useMediaQueryListing';
 import ResourceActionsSkeleton from './ResourceActionsSkeleton';
 import VisualizationActions from './Visualization';
 import { useStyles } from './Visualization/Visualization.styles';
+import { Type } from './model';
 
 const WrapperResourceActions = lazy(() => import('./WrapperResourceActions'));
 const GlobalActions = lazy(() => import('./Refresh'));

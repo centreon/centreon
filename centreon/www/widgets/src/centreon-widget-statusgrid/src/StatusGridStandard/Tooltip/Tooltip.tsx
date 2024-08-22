@@ -2,10 +2,10 @@ import { equals } from 'ramda';
 
 import { ResourceData } from '../models';
 
-import HostTooltipContent from './HostTooltipContent';
-import ServiceTooltipContent from './ServiceTooltipContent';
 import BATooltipContent from './BATooltipContent';
 import BooleanTooltipContent from './BooleanTooltipContent';
+import HostTooltipContent from './HostTooltipContent';
+import ServiceTooltipContent from './ServiceTooltipContent';
 
 interface Props {
   data: ResourceData;

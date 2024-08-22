@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Link, Box, Typography } from '@mui/material';
+import { Box, Link, Typography } from '@mui/material';
 
 import { PersistentTooltip, getDocsURL } from '@centreon/ui';
 import {

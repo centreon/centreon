@@ -3,11 +3,11 @@ import { useEffect } from 'react';
 import * as Yup from 'yup';
 
 import {
-  render,
+  RenderResult,
   fireEvent,
-  waitFor,
+  render,
   screen,
-  RenderResult
+  waitFor
 } from '../../test/testRenderer';
 
 import { StepComponentProps } from './models';

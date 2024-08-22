@@ -6,8 +6,8 @@ import { equals, isNil, pick, prop } from 'ramda';
 
 import { getTime } from '../../../../common/timeSeries';
 import { TimeValue } from '../../../../common/timeSeries/models';
-import { getCurveFactory, getFillColor } from '../../../common';
 import { getStrokeDashArray } from '../../../../common/utils';
+import { getCurveFactory, getFillColor } from '../../../common';
 
 interface Props {
   areaColor: string;

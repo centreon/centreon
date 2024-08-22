@@ -1,19 +1,19 @@
-import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
-import { useSnackbar, Form, useMutationQuery, Method } from '@centreon/ui';
+import { Form, Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import useValidationSchema from '../useValidationSchema';
+import FormButtons from '../../FormButtons';
+import { adaptWebSSOConfigurationToAPI } from '../../api/adapters';
+import { authenticationProvidersEndpoint } from '../../api/endpoints';
+import { groups } from '../../groups';
+import { Provider } from '../../models';
+import { WebSSOConfiguration, WebSSOConfigurationToAPI } from '../models';
 import {
   labelFailedToSaveWebSSOConfiguration,
   labelWebSSOConfigurationSaved
 } from '../translatedLabels';
-import { WebSSOConfiguration, WebSSOConfigurationToAPI } from '../models';
-import { groups } from '../../groups';
-import { Provider } from '../../models';
-import { adaptWebSSOConfigurationToAPI } from '../../api/adapters';
-import FormButtons from '../../FormButtons';
-import { authenticationProvidersEndpoint } from '../../api/endpoints';
+import useValidationSchema from '../useValidationSchema';
 
 import { inputs } from './inputs';
 

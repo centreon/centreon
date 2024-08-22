@@ -1,21 +1,21 @@
-import { equals, isEmpty, isNil, keys, path } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { path, equals, isEmpty, isNil, keys } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { CollapsibleItem } from '@centreon/ui/components';
 
+import Subtitle from '../../components/Subtitle';
 import {
   labelDescription,
   labelShowDescription,
-  labelWidgetProperties,
-  labelTitle
+  labelTitle,
+  labelWidgetProperties
 } from '../../translatedLabels';
-import Subtitle from '../../components/Subtitle';
 import { widgetPropertiesAtom } from '../atoms';
 
+import CollapsibleWidgetProperties from './CollapsibleWidgetProperties';
 import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
-import CollapsibleWidgetProperties from './CollapsibleWidgetProperties';
 
 const WidgetProperties = (): JSX.Element => {
   const { t } = useTranslation();

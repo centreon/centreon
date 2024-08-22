@@ -1,14 +1,13 @@
 /* eslint-disable import/no-unresolved */
 
-import { Formik } from 'formik';
-import { createStore, Provider } from 'jotai';
 import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
+import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 import { difference, includes, pluck, reject } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { widgetPropertiesAtom } from '../../../atoms';
-import { WidgetResourceType } from '../../../models';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelAddFilter,
   labelDelete,
@@ -19,7 +18,8 @@ import {
   labelServiceCategory,
   labelServiceGroup
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { widgetPropertiesAtom } from '../../../atoms';
+import { WidgetResourceType } from '../../../models';
 
 import Resources from './Resources';
 import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';

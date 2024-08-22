@@ -5,12 +5,12 @@ import { Box, Typography, useTheme } from '@mui/material';
 
 import { getResourcesUrl, getStatusColors } from '@centreon/ui';
 
-import { useStatusesColumnStyles } from '../Columns.styles';
 import {
   formatStatusFilter,
   goToUrl,
   severityStatusBySeverityCode
 } from '../../../../utils';
+import { useStatusesColumnStyles } from '../Columns.styles';
 
 interface Props {
   count: number;

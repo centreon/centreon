@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { BarType } from './models';
 import ResponsiveBarStack from './ResponsiveBarStack';
+import { BarType } from './models';
 
 import { BarStack } from '.';
 

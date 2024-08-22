@@ -99,9 +99,9 @@ export type ResourceListing = ListingModel<Resource>;
 
 export enum ResourceCategory {
   'anomaly-detection' = 'anomaly-detection',
-  'host' = 'host',
-  'metaservice' = 'metaservice',
-  'service' = 'service'
+  host = 'host',
+  metaservice = 'metaservice',
+  service = 'service'
 }
 
 export interface Ticket {

@@ -1,20 +1,20 @@
 import { useMemo, useState } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { equals, isEmpty } from 'ramda';
-import { Link } from 'react-router-dom';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isEmpty } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
+import DvrIcon from '@mui/icons-material/Dvr';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import UpdateIcon from '@mui/icons-material/Update';
 import {
   Button,
   CardHeader,
   CircularProgress,
   Typography
 } from '@mui/material';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import DvrIcon from '@mui/icons-material/Dvr';
-import UpdateIcon from '@mui/icons-material/Update';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
@@ -24,15 +24,15 @@ import {
   duplicatePanelDerivedAtom,
   isEditingAtom
 } from '../../atoms';
+import { useLastRefresh } from '../../hooks/useLastRefresh';
 import {
   labelMoreActions,
   labelResourcesStatus,
   labelSeeMore
 } from '../../translatedLabels';
-import { useLastRefresh } from '../../hooks/useLastRefresh';
 
-import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
+import { usePanelHeaderStyles } from './usePanelStyles';
 
 interface PanelHeaderProps {
   changeViewMode: (displayType) => void;

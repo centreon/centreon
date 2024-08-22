@@ -3,13 +3,13 @@ import { useAtomValue } from 'jotai';
 import { useFetchQuery } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { buildResourcesEndpoint } from '../api/endpoints';
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
-import { PanelOptions } from '../models';
 import { getWidgetEndpoint } from '../../../utils';
+import { buildResourcesEndpoint } from '../api/endpoints';
+import { PanelOptions } from '../models';
 
-import { formatRessources } from './utils';
 import { DisplayType, NamedEntity, ResourceListing } from './models';
+import { formatRessources } from './utils';
 
 interface LoadResourcesProps
   extends Pick<

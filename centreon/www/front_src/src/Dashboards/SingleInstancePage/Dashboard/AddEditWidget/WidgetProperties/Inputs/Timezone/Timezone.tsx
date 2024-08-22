@@ -1,15 +1,15 @@
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { SingleAutocompleteField } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { WidgetPropertyProps } from '../../../models';
-import { labelSelectTimezone } from '../../../../translatedLabels';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { labelSelectTimezone } from '../../../../translatedLabels';
+import { WidgetPropertyProps } from '../../../models';
 
-import { useTimezone } from './useTimezone';
 import timezones from './timezones.json';
+import { useTimezone } from './useTimezone';
 
 const Timezone = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();

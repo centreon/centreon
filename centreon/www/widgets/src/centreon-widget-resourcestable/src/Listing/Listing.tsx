@@ -7,13 +7,13 @@ import { MemoizedListing, SeverityCode } from '@centreon/ui';
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { PanelOptions } from '../models';
 
-import { rowColorConditions } from './colors';
-import useListing from './useListing';
-import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
+import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
-import Actions from './Actions';
 import OpenTicketModal from './Columns/OpenTicket/Modal';
+import { rowColorConditions } from './colors';
+import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
+import useListing from './useListing';
 
 interface ListingProps
   extends Pick<

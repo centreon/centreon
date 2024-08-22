@@ -2,9 +2,7 @@
   "federatedComponentsConfiguration": [
     {
       "path": "/widgets/graph",
-      "federatedComponents": [
-        "./graph"
-      ],
+      "federatedComponents": ["./graph"],
       "panelMinHeight": 3,
       "panelMinWidth": 4
     }

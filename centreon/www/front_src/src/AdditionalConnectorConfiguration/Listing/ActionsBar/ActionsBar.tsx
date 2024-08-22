@@ -5,8 +5,8 @@ import { Grid } from '@mui/material';
 import { dialogStateAtom } from '../../atoms';
 
 import AddDashboard from './AddConnector';
-import { useActionsStyles } from './useActionsStyles';
 import Filters from './Filters/Filters';
+import { useActionsStyles } from './useActionsStyles';
 
 const ActionsBar = (): JSX.Element => {
   const { classes } = useActionsStyles();

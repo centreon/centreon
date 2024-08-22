@@ -7,8 +7,8 @@ import {
   useState
 } from 'react';
 
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useSetAtom, useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import Collapse from '@mui/material/Collapse';
@@ -19,8 +19,8 @@ import { useMemoComponent } from '@centreon/ui';
 
 import { Page } from '../../models';
 import {
-  selectedNavigationItemsAtom,
   hoveredNavigationItemsAtom,
+  selectedNavigationItemsAtom,
   setHoveredNavigationItemsDerivedAtom
 } from '../sideBarAtoms';
 
@@ -160,7 +160,7 @@ const CollapsibleItems = ({
     levelTitle,
     currentPage
   }): boolean => {
-    if (navigationItem && navigationItem[levelTitle]) {
+    if (navigationItem?.[levelTitle]) {
       return (
         navigationItem[levelTitle].label === currentPage.label &&
         navigationItem[levelTitle]?.url === currentPage?.url

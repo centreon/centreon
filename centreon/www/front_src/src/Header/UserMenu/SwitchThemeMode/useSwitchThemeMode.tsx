@@ -3,7 +3,7 @@ import { useTransition } from 'react';
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
 
-import { userAtom, ThemeMode } from '@centreon/ui-context';
+import { ThemeMode, userAtom } from '@centreon/ui-context';
 
 const useSwitchThemeMode = (): [
   isDarkMode: boolean,

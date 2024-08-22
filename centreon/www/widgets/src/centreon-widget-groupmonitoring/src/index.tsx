@@ -1,7 +1,7 @@
 import { Module } from '@centreon/ui';
 
-import { WidgetProps } from './models';
 import GroupMonitoring from './GroupMonitoring';
+import { WidgetProps } from './models';
 
 const Widget = ({ store, queryClient, ...rest }: WidgetProps): JSX.Element => (
   <Module

@@ -1,12 +1,12 @@
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { Schema, array, boolean, mixed, number, object, string } from 'yup';
 
-import { OpenidConfiguration, NamedEntity, EndpointType } from './models';
+import { EndpointType, NamedEntity, OpenidConfiguration } from './models';
 import {
-  labelRequired,
+  labelInvalidIPAddress,
   labelInvalidURL,
-  labelInvalidIPAddress
+  labelRequired
 } from './translatedLabels';
 
 const IPAddressRegexp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,3})?$/;

@@ -1,16 +1,16 @@
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { SingleAutocompleteField } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { WidgetPropertyProps } from '../../../models';
-import { labelSelectTimeFormat } from '../../../../translatedLabels';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { labelSelectTimeFormat } from '../../../../translatedLabels';
+import { WidgetPropertyProps } from '../../../models';
 
-import { useLocale } from './useLocale';
 import locales from './locales.json';
+import { useLocale } from './useLocale';
 
 const Locale = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();

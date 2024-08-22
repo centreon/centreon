@@ -1,0 +1,11 @@
+{
+	"extends": [
+		"../../packages/js-config/biome/base.json"
+	],
+	"files": {
+		"ignore": [
+			"static/*.js",
+			"static/*.css"
+		]
+	}
+}

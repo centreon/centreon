@@ -1,8 +1,8 @@
+// @ts-expect-error ts-migrate(2307)
+import widgetDataConfiguration from 'centreon-widgets/centreon-widget-data/moduleFederation.json';
 /* eslint-disable import/no-unresolved */
 // @ts-expect-error ts-migrate(2307)
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
-// @ts-expect-error ts-migrate(2307)
-import widgetDataConfiguration from 'centreon-widgets/centreon-widget-data/moduleFederation.json';
 import { Provider, createStore } from 'jotai';
 
 import { Button } from '@mui/material';
@@ -10,9 +10,9 @@ import { Button } from '@mui/material';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { Remote } from '../../federatedModules/Load';
+import FederatedComponentFallback from '../../federatedModules/Load/FederatedComponentFallback';
 import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
 import { labelCannotLoadModule } from '../../federatedModules/translatedLabels';
-import FederatedComponentFallback from '../../federatedModules/Load/FederatedComponentFallback';
 
 import LoadableComponentsContainer from '.';
 

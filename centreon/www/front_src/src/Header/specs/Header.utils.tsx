@@ -1,27 +1,24 @@
-import React from 'react';
-
 import '@testing-library/cypress/add-commands';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { mergeDeepRight } from 'ramda';
+import { BrowserRouter as Router } from 'react-router-dom';
 
-import { SnackbarProvider, Method, TestQueryProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import Header from '../index';
+import { retrievedNavigation } from '../../Navigation/mocks';
+import type Navigation from '../../Navigation/models';
+import { testUtils } from '../UserMenu';
 import type {
   HostStatusResponse,
   ServiceStatusResponse
 } from '../api/decoders';
 import type { PollersIssuesList } from '../api/models';
-import { retrievedNavigation } from '../../Navigation/mocks';
-import type Navigation from '../../Navigation/models';
-import { testUtils } from '../UserMenu';
+import Header from '../index';
 
-export type DeepPartial<Thing> =
-  Thing extends Array<infer InferredArrayMember>
-    ? DeepPartialArray<InferredArrayMember>
-    : Thing extends object
-      ? DeepPartialObject<Thing>
-      : Thing | undefined;
+export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
+  ? DeepPartialArray<InferredArrayMember>
+  : Thing extends object
+    ? DeepPartialObject<Thing>
+    : Thing | undefined;
 
 type DeepPartialArray<Thing> = Array<DeepPartial<Thing>>;
 

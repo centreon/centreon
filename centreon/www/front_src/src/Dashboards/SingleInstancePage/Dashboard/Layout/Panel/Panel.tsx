@@ -3,8 +3,9 @@ import { useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 
-import { client, RichTextEditor, useMemoComponent } from '@centreon/ui';
+import { RichTextEditor, client, useMemoComponent } from '@centreon/ui';
 
+import FederatedComponent from '../../../../../components/FederatedComponents';
 import {
   dashboardRefreshIntervalAtom,
   getPanelConfigurationsDerivedAtom,
@@ -13,12 +14,11 @@ import {
   setPanelOptionsAndDataDerivedAtom,
   switchPanelsEditionModeDerivedAtom
 } from '../../atoms';
-import FederatedComponent from '../../../../../components/FederatedComponents';
+import DescriptionWrapper from '../../components/DescriptionWrapper';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
+import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
-import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
-import DescriptionWrapper from '../../components/DescriptionWrapper';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 

@@ -29,6 +29,7 @@ jobs:
           frontend_directory: ${{ env.directory }}
           module_name: centreon-ui
           dependencies_lock_file: centreon/pnpm-lock.yaml
+          pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   cypress-component-testing:
     uses: ./.github/workflows/cypress-component-parallelization.yml
