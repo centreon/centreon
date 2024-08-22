@@ -85,6 +85,15 @@ beforeEach(() => {
 Given(
   'a running platform in major {string} with {string} version',
   (major_version_from_expression: string, version_from_expression: string) => {
+    if (
+      Cypress.env('IS_CLOUD') &&
+      !Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ) {
+      cy.log('Cloud platforms are only available on almalinux');
+
+      return cy.wrap('skipped');
+    }
+
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
 
     return cy.getWebVersion().then(({ major_version }) => {
