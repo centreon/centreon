@@ -3,16 +3,16 @@ import { useEffect, useMemo, useRef } from 'react';
 import {
   QueryKey,
   QueryObserverBaseResult,
+  UseQueryOptions,
   useQuery,
-  useQueryClient,
-  UseQueryOptions
+  useQueryClient
 } from '@tanstack/react-query';
-import { JsonDecoder } from 'ts.data.json';
 import { equals, has, includes, isNil, not, omit } from 'ramda';
+import { JsonDecoder } from 'ts.data.json';
 
-import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
+import { CatchErrorProps, ResponseError, customFetch } from '../customFetch';
 import { errorLog } from '../logger';
 
 export interface UseFetchQueryProps<T> {
@@ -122,12 +122,12 @@ const useFetchQuery = <T extends object>({
 
   const prefetchNextPage = ({ page, getPrefetchQueryKey }): void => {
     if (!isPaginated) {
-      return undefined;
+      return;
     }
 
     const nextPage = page + 1;
 
-    return prefetchQuery({
+    prefetchQuery({
       endpointParams: { page: nextPage },
       queryKey: getPrefetchQueryKey(nextPage)
     });
@@ -135,12 +135,12 @@ const useFetchQuery = <T extends object>({
 
   const prefetchPreviousPage = ({ page, getPrefetchQueryKey }): void => {
     if (!isPaginated) {
-      return undefined;
+      return;
     }
 
     const previousPage = page - 1;
 
-    return prefetchQuery({
+    prefetchQuery({
       endpointParams: { page: previousPage },
       queryKey: getPrefetchQueryKey(previousPage)
     });

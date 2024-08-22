@@ -1,7 +1,7 @@
 import { ScaleLinear } from 'd3-scale';
 
-import { Line, TimeValue } from '../../../common/timeSeries/models';
 import { LineChartData } from '../../../common/models';
+import { Line, TimeValue } from '../../../common/timeSeries/models';
 
 import { FactorsVariation } from './Threshold/models';
 

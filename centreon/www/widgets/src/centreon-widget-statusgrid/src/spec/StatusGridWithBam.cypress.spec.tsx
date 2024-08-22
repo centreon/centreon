@@ -1,32 +1,32 @@
-import { createStore, Provider } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
-import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
-import { always, cond, equals, T } from 'ramda';
+import { Provider, createStore } from 'jotai';
+import { T, always, cond, equals } from 'ramda';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
-  userAtom,
+  additionalResourcesAtom,
   isOnPublicPageAtom,
-  additionalResourcesAtom
+  userAtom
 } from '@centreon/ui-context';
 
-import { Data, PanelOptions } from '../StatusGridStandard/models';
 import { StatusGridWrapper } from '..';
+import { getPublicWidgetEndpoint } from '../../../utils';
+import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
+import { Data, PanelOptions } from '../StatusGridStandard/models';
 import {
   baIndicatorsEndpoint,
   businessActivitiesEndpoint,
   getBAEndpoint,
   getBooleanRuleEndpoint
 } from '../api/endpoints';
-import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
-import { getPublicWidgetEndpoint } from '../../../utils';
 
 import {
   baCondensedOptions,
-  bvResources,
   baOptions,
-  baResources
+  baResources,
+  bvResources
 } from './testUtils';
 
 interface Props {
@@ -63,7 +63,7 @@ const baTestCases = [
         'All KPIs on this Business Activity are working fine.'
       ).should('be.visible');
 
-      cy.get(`[data-resourceName=ba1]`).should(
+      cy.get('[data-resourceName=ba1]').should(
         'have.css',
         'color',
         'rgb(136, 185, 34)'
@@ -77,7 +77,7 @@ const baTestCases = [
     testFunction: () => {
       cy.contains('Calculation method : Impact').should('be.visible');
 
-      cy.get(`[data-resourceName=ba1`).should(
+      cy.get('[data-resourceName=ba1').should(
         'have.css',
         'color',
         'rgb(136, 185, 34)'
@@ -103,7 +103,7 @@ const baTestCases = [
     testFunction: () => {
       cy.contains('Calculation method : Ratio').should('be.visible');
 
-      cy.get(`[data-resourceName=ba1`).should(
+      cy.get('[data-resourceName=ba1').should(
         'have.css',
         'color',
         'rgb(136, 185, 34)'
@@ -129,7 +129,7 @@ const baTestCases = [
     testFunction: () => {
       cy.contains('Calculation method : Impact').should('be.visible');
 
-      cy.get(`[data-resourceName=ba4]`).should(
+      cy.get('[data-resourceName=ba4]').should(
         'have.css',
         'color',
         'rgb(255, 102, 102)'
@@ -160,7 +160,7 @@ const baTestCases = [
     testFunction: () => {
       cy.contains('Calculation method : Ratio').should('be.visible');
 
-      cy.get(`[data-resourceName=ba5]`).should(
+      cy.get('[data-resourceName=ba5]').should(
         'have.css',
         'color',
         'rgb(255, 102, 102)'
@@ -585,7 +585,7 @@ describe('Condensed view', () => {
     it('displays status tiles', () => {
       cy.get('[data-skeleton="true"]').should('be.visible');
 
-      cy.waitForRequest(`@getStatuses/KPIS`);
+      cy.waitForRequest('@getStatuses/KPIS');
 
       cy.contains('40 KPIS').should('be.visible');
       cy.contains('ok').should('be.visible');

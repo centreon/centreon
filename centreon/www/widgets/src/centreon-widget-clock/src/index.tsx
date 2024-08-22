@@ -4,20 +4,20 @@ import 'dayjs/locale/fr';
 import 'dayjs/locale/es';
 import 'dayjs/locale/de';
 
-import { equals } from 'ramda';
 import dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import utcPlugin from 'dayjs/plugin/utc';
-import timezonePlugin from 'dayjs/plugin/timezone';
 import duration from 'dayjs/plugin/duration';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import { equals } from 'ramda';
 
 import { Module } from '@centreon/ui';
 
 import { CommonWidgetProps } from '../../models';
 
 import Clock from './Clock';
-import { ForceDimension, PanelOptions } from './models';
 import Timer from './Timer';
+import { ForceDimension, PanelOptions } from './models';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);

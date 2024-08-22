@@ -4,8 +4,8 @@ import { generatePath } from 'react-router';
 
 import { centreonBaseURL } from '@centreon/ui';
 
-import { isSharesOpenAtom } from '../../../atoms';
 import { UserRole } from '../../../api/models';
+import { isSharesOpenAtom } from '../../../atoms';
 
 interface UseDashboardAccessRightsState {
   close: () => void;

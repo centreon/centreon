@@ -1,10 +1,10 @@
-import { createStore } from 'jotai';
 import { QueryClient } from '@tanstack/react-query';
+import { createStore } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { PanelOptions } from '../models';
 import Widget from '..';
+import { PanelOptions } from '../models';
 
 const countdown = 1722587072000;
 const farCountdown = 1723830148000;

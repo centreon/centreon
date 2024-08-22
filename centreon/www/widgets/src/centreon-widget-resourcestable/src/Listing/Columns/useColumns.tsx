@@ -1,40 +1,40 @@
-import { pipe, T, equals, head, split, propOr, cond, always } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { T, always, cond, equals, head, pipe, propOr, split } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { ColumnType, useStyleTable } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
 import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
-import {
-  labelResource,
-  labelStatus,
-  labelDuration,
-  labelTries,
-  labelState,
-  labelLastCheck,
-  labelParent,
-  labelSeverity,
-  labelService,
-  labelHost,
-  labelServices,
-  labelInformation,
-  labelOpenTicket,
-  labelTicketID,
-  labelTicketSubject,
-  labelTicketOpenTime
-} from '../translatedLabels';
 import { DisplayType } from '../models';
+import {
+  labelDuration,
+  labelHost,
+  labelInformation,
+  labelLastCheck,
+  labelOpenTicket,
+  labelParent,
+  labelResource,
+  labelService,
+  labelServices,
+  labelSeverity,
+  labelState,
+  labelStatus,
+  labelTicketID,
+  labelTicketOpenTime,
+  labelTicketSubject,
+  labelTries
+} from '../translatedLabels';
 
+import useStyles, { useStatusStyles } from './Columns.styles';
+import OpenTicket from './OpenTicket/OpenTicket';
+import ParentResourceColumn from './Parent';
+import ResourceColumn from './Resource';
+import SubItem from './ServiceSubItemColumn/SubItem';
+import SeverityColumn from './Severity';
 import StateColumn from './State';
 import StatusColumn from './Status';
-import SeverityColumn from './Severity';
-import ResourceColumn from './Resource';
-import ParentResourceColumn from './Parent';
-import SubItem from './ServiceSubItemColumn/SubItem';
-import useStyles, { useStatusStyles } from './Columns.styles';
 import truncate from './truncate';
-import OpenTicket from './OpenTicket/OpenTicket';
 
 interface ColumnProps {
   displayResources: 'all' | 'withTicket' | 'withoutTicket';

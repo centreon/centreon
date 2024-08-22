@@ -1,21 +1,21 @@
 import {
-  labelDownStatusHosts,
-  labelUnreachableStatusHosts,
-  labelUpStatusHosts,
-  labelHosts,
-  labelDown,
   labelAll,
-  labelUnreachable,
+  labelDown,
+  labelDownStatusHosts,
+  labelHosts,
   labelPending,
-  labelUp
+  labelUnreachable,
+  labelUnreachableStatusHosts,
+  labelUp,
+  labelUpStatusHosts
 } from '../Resources/Host/translatedLabels';
 
 import {
   initialize,
+  openSubMenu,
   submenuShouldBeClosed,
-  submenuShouldBeOpened,
-  openSubMenu
-} from './Header.testUtils';
+  submenuShouldBeOpened
+} from './Header.utils';
 
 const getElements = (): void => {
   cy.findByRole('button', { name: labelHosts, timeout: 5000 }).as(
@@ -204,7 +204,7 @@ export default (): void =>
         initialize({ hosts_status: hoststubs });
         openSubMenu(labelHosts);
 
-        cy.get(`#Hosts-menu`).within(() => {
+        cy.get('#Hosts-menu').within(() => {
           const expectedOrderAndContent = [
             {
               count: '1/2',
@@ -237,8 +237,8 @@ export default (): void =>
             .as('items')
             .should('have.length', expectedOrderAndContent.length);
 
-          cy.get('@items').each(($el, index) => {
-            cy.wrap($el)
+          cy.get('@items').each((el, index) => {
+            cy.wrap(el)
               .should('contain.text', expectedOrderAndContent[index].label)
               .should('contain.text', expectedOrderAndContent[index].count)
               .should('have.attr', 'href', expectedOrderAndContent[index].href);

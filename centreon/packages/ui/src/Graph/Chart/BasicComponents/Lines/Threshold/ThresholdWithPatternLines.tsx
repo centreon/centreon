@@ -3,9 +3,9 @@ import { ScaleLinear } from 'd3-scale';
 
 import { useTheme } from '@mui/material/styles';
 
+import { LineChartData } from '../../../../common/models';
 import { adjustGraphData } from '../../../helpers/index';
 import { PatternOrientation } from '../../../models';
-import { LineChartData } from '../../../../common/models';
 
 import BasicThreshold from './BasicThreshold';
 import useScaleThreshold from './useScaleThreshold';

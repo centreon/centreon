@@ -1,15 +1,15 @@
+import { useQueryClient } from '@tanstack/react-query';
 import {
+  complement,
+  equals,
   includes,
   isEmpty,
   last,
   length,
+  prop,
   propEq,
-  split,
-  complement,
-  equals,
-  prop
+  split
 } from 'ramda';
-import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -19,6 +19,7 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { DeleteType } from '../../models';
 import {
   labelFailedToDeleteNotification,
   labelFailedToDeleteNotifications,
@@ -26,14 +27,13 @@ import {
   labelNotificationSuccessfullyDeleted,
   labelNotificationsSuccessfullyDeleted
 } from '../../translatedLabels';
-import { DeleteType } from '../../models';
 
 import {
   deleteMultipleNotificationEndpoint,
   deleteSingleNotificationEndpoint
 } from './endpoints';
 
-interface useDeleteRequestState {
+interface UseDeleteRequestState {
   isLoading: boolean;
   submit: () => void;
 }
@@ -42,7 +42,7 @@ const useDeleteRequest = ({
   onSettled,
   selectedRows,
   deleteNotification
-}): useDeleteRequestState => {
+}): UseDeleteRequestState => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { showSuccessMessage, showErrorMessage, showWarningMessage } =
@@ -85,7 +85,9 @@ const useDeleteRequest = ({
           const failedResponsesIds = data
             .filter(complement(propEq(204, 'status')))
             .map(prop('href'))
-            .map((item) => parseInt(last(split('/', item)) as string, 10));
+            .map((item) =>
+              Number.parseInt(last(split('/', item)) as string, 10)
+            );
 
           if (isEmpty(successfullResponses)) {
             showErrorMessage(t(labelFailed));

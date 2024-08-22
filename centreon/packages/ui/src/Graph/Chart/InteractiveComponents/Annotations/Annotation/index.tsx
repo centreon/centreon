@@ -1,13 +1,13 @@
-import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Tooltip, Paper, Typography } from '@mui/material';
+import { Paper, Tooltip, Typography } from '@mui/material';
 
 import { truncate } from '../../../helpers';
 import { labelBy } from '../../../translatedLabels';
-import { TimelineEvent } from '../models';
 import { annotationHoveredAtom } from '../annotationsAtoms';
+import { TimelineEvent } from '../models';
 
 const yMargin = -32;
 const iconSize = 20;

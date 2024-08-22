@@ -1,7 +1,7 @@
 import { MutableRefObject } from 'react';
 
 import { Event } from '@visx/visx';
-import { ScaleTime, ScaleLinear } from 'd3-scale';
+import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { useSetAtom } from 'jotai';
 import {
   all,
@@ -22,12 +22,6 @@ import {
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  AnnotationEvent,
-  GraphInterval,
-  InteractedZone,
-  InteractedZone as ZoomPreviewModel
-} from '../models';
-import {
   formatMetricName,
   getLineForMetric,
   getLinesForMetrics,
@@ -36,6 +30,12 @@ import {
 } from '../../common/timeSeries';
 import { Line, TimeValue } from '../../common/timeSeries/models';
 import { margin } from '../common';
+import {
+  AnnotationEvent,
+  GraphInterval,
+  InteractedZone,
+  InteractedZone as ZoomPreviewModel
+} from '../models';
 
 import Annotations from './Annotations';
 import { TimelineEvent } from './Annotations/models';

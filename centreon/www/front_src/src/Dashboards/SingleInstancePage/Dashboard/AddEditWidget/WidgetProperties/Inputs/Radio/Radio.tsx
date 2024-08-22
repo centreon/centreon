@@ -1,14 +1,14 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { RadioGroup, FormControlLabel, Radio, Typography } from '@mui/material';
+import { FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material';
 
-import { Widget, WidgetPropertyProps } from '../../../models';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
 
 const WidgetRadio = ({

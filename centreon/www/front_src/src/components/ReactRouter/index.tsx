@@ -1,27 +1,27 @@
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 
-import { Routes, Route, useLocation, useParams } from 'react-router-dom';
-import { flatten, isNil, not } from 'ramda';
-import { useAtomValue } from 'jotai';
 import { animated, useTransition } from '@react-spring/web';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
+import { flatten, isNil, not } from 'ramda';
+import { Route, Routes, useLocation, useParams } from 'react-router-dom';
 
 import { styled } from '@mui/material';
 
+import { PageSkeleton, client, useMemoComponent } from '@centreon/ui';
 import {
   featureFlagsDerivedAtom,
   federatedModulesAtom
 } from '@centreon/ui-context';
-import { client, PageSkeleton, useMemoComponent } from '@centreon/ui';
 
-import internalPagesRoutes from '../../reactRoutes';
 import BreadcrumbTrail from '../../BreadcrumbTrail';
 import useNavigation from '../../Navigation/useNavigation';
-import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
-import routeMap from '../../reactRoutes/routeMap';
-import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
 import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
+import { FederatedModule } from '../../federatedModules/models';
+import internalPagesRoutes from '../../reactRoutes';
+import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
+import routeMap from '../../reactRoutes/routeMap';
 
 import DeprecatedRoute from './DeprecatedRoute';
 

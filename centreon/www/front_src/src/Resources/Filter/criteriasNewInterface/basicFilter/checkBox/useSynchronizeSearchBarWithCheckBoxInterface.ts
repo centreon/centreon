@@ -4,7 +4,7 @@ import { equals, isEmpty, isNil } from 'ramda';
 
 import { ResourceType } from '../../../../models';
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
-import { SectionType, categoryHostStatus } from '../../model';
+import { CategoryHostStatus, SectionType } from '../../model';
 
 interface Parameters {
   data: Array<Criteria & CriteriaDisplayProps>;
@@ -29,7 +29,7 @@ const useSynchronizeSearchBarWithCheckBoxInterface = ({
     }
 
     const result = initialValue.map((item) => {
-      const type = Object.keys(categoryHostStatus).includes(item.id)
+      const type = Object.keys(CategoryHostStatus).includes(item.id)
         ? ResourceType.host
         : resourceType;
 

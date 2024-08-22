@@ -1,27 +1,27 @@
 import { useCallback, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, has, inc, map, pluck, filter } from 'ramda';
+import { equals, filter, has, inc, map, pluck } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import {
   IconButton,
   ListItemText,
   Tooltip,
   TypographyProps
 } from '@mui/material';
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 import {
   MultiConnectedAutocompleteField,
   buildListingEndpoint
 } from '@centreon/ui';
 
+import { contactsEndpoint } from '../../../api/endpoints';
+import { Contact } from '../../models';
 import { labelAdmin, labelExcludedUsers } from '../../translatedLabels';
 import { getField } from '../utils';
-import { Contact } from '../../models';
-import { contactsEndpoint } from '../../../api/endpoints';
 
 const excludedUsersFieldName = 'passwordExpiration.excludedUsers';
 

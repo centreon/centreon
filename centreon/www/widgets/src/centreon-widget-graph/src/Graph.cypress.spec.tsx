@@ -1,4 +1,4 @@
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
@@ -6,9 +6,9 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
 
-import { Data, FormThreshold, FormTimePeriod, PanelOptions } from './models';
-import { graphEndpoint } from './api/endpoints';
 import WidgetLineChart from './LineChart';
+import { graphEndpoint } from './api/endpoints';
+import { Data, FormThreshold, FormTimePeriod, PanelOptions } from './models';
 
 const serviceMetrics: Data = {
   metrics: [

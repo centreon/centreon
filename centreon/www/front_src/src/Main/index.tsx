@@ -1,4 +1,4 @@
-import { useEffect, Suspense, startTransition } from 'react';
+import { Suspense, startTransition, useEffect } from 'react';
 
 import 'dayjs/locale/en';
 import 'dayjs/locale/pt';
@@ -6,25 +6,25 @@ import 'dayjs/locale/fr';
 import 'dayjs/locale/es';
 import 'dayjs/locale/de';
 import dayjs from 'dayjs';
-import timezonePlugin from 'dayjs/plugin/timezone';
-import utcPlugin from 'dayjs/plugin/utc';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import isToday from 'dayjs/plugin/isToday';
-import isYesterday from 'dayjs/plugin/isYesterday';
-import weekday from 'dayjs/plugin/weekday';
+import duration from 'dayjs/plugin/duration';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import duration from 'dayjs/plugin/duration';
+import isToday from 'dayjs/plugin/isToday';
+import isYesterday from 'dayjs/plugin/isYesterday';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import weekday from 'dayjs/plugin/weekday';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, isNil, not } from 'ramda';
 import { Outlet, useLocation } from 'react-router-dom';
-import { useAtomValue, useAtom, useSetAtom } from 'jotai';
 
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import reactRoutes from '../reactRoutes/routeMap';
 
-import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import { MainLoaderWithoutTranslation } from './MainLoader';
+import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import useMain, { router } from './useMain';
 import { areUserParametersLoadedAtom } from './useUser';
 

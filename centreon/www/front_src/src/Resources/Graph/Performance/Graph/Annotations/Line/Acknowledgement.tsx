@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import { useTheme } from '@mui/material';
 import IconAcknowledge from '@mui/icons-material/Person';
+import { useTheme } from '@mui/material';
 
 import { Props } from '..';
 import { labelAcknowledgement } from '../../../../../translatedLabels';

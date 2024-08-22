@@ -1,5 +1,5 @@
-import MultiAutocompleteField from '../Multi';
 import ConnectedAutocompleteField from '../Connected';
+import MultiAutocompleteField from '../Multi';
 
 import DraggableAutocompleteField from '.';
 

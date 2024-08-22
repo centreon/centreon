@@ -1,11 +1,11 @@
-import { createStore, Provider } from 'jotai';
 import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import { labelBackgroundColor } from '../../../../translatedLabels';
 
-import colors from './colors.json';
 import ColorSelector from './Color';
+import colors from './colors.json';
 
 const initialize = ({
   isInGroup = false,

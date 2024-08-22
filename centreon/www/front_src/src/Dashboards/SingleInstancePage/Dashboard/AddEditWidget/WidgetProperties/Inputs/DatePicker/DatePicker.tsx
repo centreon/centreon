@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
 import { DateTimePickerInput } from '@centreon/ui';
 
-import { WidgetPropertyProps } from '../../../models';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 
 import { useDatePicker } from './useDatePicker';
 

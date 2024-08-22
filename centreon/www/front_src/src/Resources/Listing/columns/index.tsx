@@ -1,14 +1,14 @@
 import {
-  pipe,
-  split,
-  head,
-  propOr,
   T,
   equals,
+  head,
   insert,
   map,
+  pipe,
   propEq,
-  reject
+  propOr,
+  reject,
+  split
 } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -16,44 +16,44 @@ import { ColumnType } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
 import { FeatureFlags } from '@centreon/ui-context';
 
+import { Visualization } from '../../models';
 import {
-  labelResource,
-  labelStatus,
-  labelDuration,
-  labelTries,
-  labelInformation,
-  labelState,
-  labelLastCheck,
-  labelParent,
-  labelNotes,
   labelAction,
-  labelGraph,
   labelAlias,
-  labelFqdn,
-  labelMonitoringServer,
-  labelNotification,
   labelCheck,
-  labelSeverity,
-  labelParentAlias,
-  labelService,
+  labelDuration,
+  labelFqdn,
+  labelGraph,
   labelHost,
-  labelServices
+  labelInformation,
+  labelLastCheck,
+  labelMonitoringServer,
+  labelNotes,
+  labelNotification,
+  labelParent,
+  labelParentAlias,
+  labelResource,
+  labelService,
+  labelServices,
+  labelSeverity,
+  labelState,
+  labelStatus,
+  labelTries
 } from '../../translatedLabels';
 import truncate from '../../truncate';
-import { Visualization } from '../../models';
 
-import StateColumn from './State';
-import GraphColumn from './Graph';
-import NotesUrlColumn from './Url/Notes';
-import ActionUrlColumn from './Url/Action';
-import StatusColumn from './Status';
-import SeverityColumn from './Severity';
-import ResourceColumn from './Resource';
-import ParentResourceColumn from './Parent';
-import NotificationColumn from './Notification';
 import ChecksColumn from './Checks';
+import GraphColumn from './Graph';
+import NotificationColumn from './Notification';
+import ParentResourceColumn from './Parent';
 import ParentAliasColumn from './ParentAlias';
+import ResourceColumn from './Resource';
 import SubItem from './ServiceSubItemColumn/SubItem';
+import SeverityColumn from './Severity';
+import StateColumn from './State';
+import StatusColumn from './Status';
+import ActionUrlColumn from './Url/Action';
+import NotesUrlColumn from './Url/Notes';
 
 interface StyleProps {
   isHovered: boolean;
