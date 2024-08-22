@@ -15,7 +15,7 @@ before(() => {
       !Cypress.env('INTERNAL_REPO_PASSWORD'))
   ) {
     throw new Error(
-      `Missing INTERNAL_REPO_USERNAME or INTERNAL_REPO_PASSWORD environment variables to configure cloud repository`
+      `Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.`
     );
   }
 
