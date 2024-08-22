@@ -58,7 +58,8 @@ import {
   WidgetTimeFormat,
   WidgetTimePeriod,
   WidgetTimezone,
-  WidgetTopBottomSettings
+  WidgetTopBottomSettings,
+  WidgetValueFormat
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
