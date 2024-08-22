@@ -54,50 +54,54 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
-     * @throws Exception
+     * @return array{items: array{id: string, text: string}, total: int}
+     *
+     * @throws \Exception
      */
-    public function getList()
+    public function getList(): array
     {
         global $centreon;
 
-        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT(`metric_name`)
-            COLLATE utf8_bin as "metric_name" FROM `metrics` as m ';
+        $configurationDbName = db;
+
+        $aclSubQuery = '';
+        $whereClause = '';
+        $limitClause = '';
 
         $queryValues = [];
 
-        /**
-         * If ACLs on, then only return metrics linked to services that the user can see.
-         */
-        if (!$centreon->user->admin) {
-            $query .= 'INNER JOIN index_data i
-                  ON i.id = m.index_id
-                INNER JOIN centreon_acl acl
-                  ON acl.host_id = i.host_id
-                  AND acl.service_id = i.service_id
-                INNER JOIN `' . db . '`.acl_groups acg
-                  ON acg.acl_group_id = acl.group_id
-                  AND acg.acl_group_activate = "1"
-                  AND (
-                    acg.acl_group_id IN (
-                        SELECT acl_group_id FROM `' . db . '`.acl_group_contacts_relations
-                        WHERE contact_contact_id = :contact_id
-                    ) OR acl_group_id IN (
-                        SELECT acl_group_id FROM `' . db . '`.acl_group_contactgroups_relations agcr
-                        INNER JOIN `' . db . '`.contactgroup_contact_relation cgcr
-                            ON cgcr.contactgroup_cg_id = agcr.cg_cg_id
-                        WHERE cgcr.contact_contact_id = :contact_id
+        if (! $centreon->user->admin) {
+            $aclSubQuery = <<<SQL
+                INNER JOIN `index_data` i
+                    ON i.`id` = m.`index_id`
+                INNER JOIN `centreon_acl` acl
+                    ON acl.`host_id` = i.`host_id`
+                    AND acl.`service_id` = i.`service_id`
+                INNER JOIN {$configurationDbName}.`acl_groups` ag
+                    ON ag.`acl_group_id` = acl.`group_id`
+                    AND ag.acl_group_activate = '1'
+                    AND (`acl_group_id` IN (SELECT `acl_group_id`
+                            FROM {$configurationDbName}.`acl_group_contacts_relations`
+                            WHERE `contact_contact_id` = :contact_id)
+                        OR `acl_group_id` IN (SELECT `acl_group_id`
+                            FROM {$configurationDbName}.`acl_group_contactgroups_relations` acgr
+                            INNER JOIN {$configurationDbName}.`contactgroup_contact_relation` cgcr
+                                ON cgcr.`contactgroup_cg_id` = acgr.cg_cg_id
+                            WHERE cgcr.`contact_contact_id` = :contact_id
+                        )
                     )
-                  )';
+                SQL;
+
             $queryValues[':contact_id'] = [$centreon->user->user_id, \PDO::PARAM_INT];
         }
 
         if (isset($this->arguments['q'])) {
-            $query .= 'WHERE metric_name LIKE :name ';
+            $whereClause = <<<'SQL'
+                WHERE `metric_name` LIKE :name
+                SQL;
+
             $queryValues[':name'] = ['%' . (string)$this->arguments['q'] . '%', \PDO::PARAM_STR];
         }
-
-        $query .= ' ORDER BY `metric_name` COLLATE utf8_general_ci ';
 
         if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
             if (
@@ -112,10 +116,20 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
             }
 
             $offset = ($page - 1) * $limit;
-            $query .= 'LIMIT :offset, :limit';
+            $limitClause = 'LIMIT :offset, :limit';
+
             $queryValues[':offset'] = [$offset, \PDO::PARAM_INT];
             $queryValues[':limit'] = [$limit, \PDO::PARAM_INT];
         }
+
+        $query = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT `metric_name`
+            FROM `metrics` m
+            {$aclSubQuery}
+            {$whereClause}
+            ORDER BY `metric_name`
+            {$limitClause}
+            SQL;
 
         $stmt = $this->pearDBMonitoring->prepare($query);
         foreach ($queryValues as $name => $parameters) {
@@ -127,14 +141,14 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
         $metrics = [];
         while ($row = $stmt->fetch()) {
             $metrics[] = [
-                'id' => $row['metric_name'],
-                'text' => $row['metric_name']
+                'id' => (string) $row['metric_name'],
+                'text' => (string) $row['metric_name']
             ];
         }
 
         return [
             'items' => $metrics,
-            'total' => (int) $this->pearDBMonitoring->numberRows()
+            'total' => $stmt->rowCount(),
         ];
     }
 
