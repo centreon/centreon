@@ -1,5 +1,5 @@
-import { QueryClient } from '@tanstack/react-query';
 import { createStore } from 'jotai';
+import { QueryClient } from '@tanstack/react-query';
 
 import { SelectEntry } from '@centreon/ui';
 
@@ -80,6 +80,7 @@ export enum SeverityStatus {
 export interface CommonWidgetProps<T extends object> {
   dashboardId: number | string;
   globalRefreshInterval: GlobalRefreshInterval;
+  hasDescription: boolean;
   id: string;
   isFromPreview?: boolean;
   playlistHash?: string;

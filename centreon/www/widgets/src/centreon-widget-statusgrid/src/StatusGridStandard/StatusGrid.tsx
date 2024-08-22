@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
-import { useAtomValue } from 'jotai';
 import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { useTheme } from '@mui/material';
 
@@ -14,6 +14,12 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import {
+  buildBAsEndpoint,
+  buildResourcesEndpoint,
+  hostsEndpoint,
+  resourcesEndpoint
+} from '../api/endpoints';
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
   labelNoBAFound,
@@ -22,23 +28,17 @@ import {
   labelNoServicesFound
 } from '../../../translatedLabels';
 import { getWidgetEndpoint } from '../../../utils';
-import {
-  buildBAsEndpoint,
-  buildResourcesEndpoint,
-  hostsEndpoint,
-  resourcesEndpoint
-} from '../api/endpoints';
 
-import HeatMapSkeleton from './LoadingSkeleton';
-import Tile from './Tile';
-import Tooltip from './Tooltip/Tooltip';
 import {
   IndicatorType,
   ResourceData,
   ResourceStatus,
   StatusGridProps
 } from './models';
+import Tile from './Tile';
+import HeatMapSkeleton from './LoadingSkeleton';
 import { getColor } from './utils';
+import Tooltip from './Tooltip/Tooltip';
 
 const StatusGrid = ({
   globalRefreshInterval,
@@ -153,6 +153,7 @@ const StatusGrid = ({
           id,
           uuid,
           name,
+          resource_name,
           parent,
           status,
           is_in_downtime,
@@ -179,7 +180,7 @@ const StatusGrid = ({
               is_acknowledged,
               is_in_downtime,
               metricsEndpoint: links?.endpoints.metrics,
-              name,
+              name: name || resource_name,
               parentId: parent?.id || resource?.parent_id,
               parentName: parent?.name || resource?.parent_name,
               parentStatus: parent?.status?.severity_code,
