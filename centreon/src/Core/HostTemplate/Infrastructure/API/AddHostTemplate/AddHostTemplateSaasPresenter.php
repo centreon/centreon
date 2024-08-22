@@ -64,6 +64,8 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'is_locked' => $response->isLocked,
                         'categories' => $response->categories,
                         'templates' => $response->templates,
+                        'event_handler_enabled' => $response->eventHandlerEnabled,
+                        'event_handler_command_id' => $response->eventHandlerCommandId,
                         'macros' => array_map(
                             function ($macro) {
                                 return [

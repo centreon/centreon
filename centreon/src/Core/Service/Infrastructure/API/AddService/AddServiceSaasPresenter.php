@@ -30,6 +30,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Service\Application\UseCase\AddService\AddServicePresenterInterface;
 use Core\Service\Application\UseCase\AddService\AddServiceResponse;
 use Core\Service\Application\UseCase\AddService\MacroDto;
+use Core\Service\Infrastructure\Model\YesNoDefaultConverter;
 
 class AddServiceSaasPresenter extends AbstractPresenter implements AddServicePresenterInterface
 {
@@ -61,6 +62,8 @@ class AddServiceSaasPresenter extends AbstractPresenter implements AddServicePre
                         'geo_coords' => $response->geoCoords,
                         'icon_id' => $response->iconId,
                         'severity_id' => $response->severityId,
+                        'event_handler_enabled' => YesNoDefaultConverter::toInt($response->eventHandlerEnabled),
+                        'event_handler_command_id' => $response->eventHandlerId,
                         'categories' => array_map(fn($category): array => [
                             'id' => $category['id'],
                             'name' => $category['name'],
