@@ -25,7 +25,7 @@ $resultat = [
 ];
 
 // We get Host or Service
-$selected_values = explode(',', $get_information['form']['selection']);
+$selected_values = explode(',', (string) $get_information['form']['selection']);
 $db_storage = new CentreonDBManager('centstorage');
 
 $problems = [];
@@ -77,7 +77,7 @@ if (!$centreon_bg->is_admin) {
 }
 $query .= ") ORDER BY `host_name`, `description`";
 
-$hosts_done = array();
+$hosts_done = [];
 
 $dbResult = $db_storage->query($query);
 while (($row = $dbResult->fetch())) {
@@ -115,7 +115,7 @@ try {
         $method_external_name = 'setProcessCommand';
     }
 
-    $error_msg = array();
+    $error_msg = [];
 
     foreach ($problems as $row) {
         if (is_null($row['description']) || $row['description'] == '') {

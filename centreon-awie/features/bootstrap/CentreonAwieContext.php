@@ -13,32 +13,28 @@ class CentreonAwieContext extends CentreonContext
     /**
      * @Given I am logged in a Centreon server with Awie installed
      */
-    public function iAmLoggedInACentreonServerWithAWIEInstalled()
+    public function iAmLoggedInACentreonServerWithAWIEInstalled(): void
     {
         $this->launchCentreonWebContainer('awie');
         $this->iAmLoggedIn();
     }
 
-    public function iAmOnTheExportPage()
+    public function iAmOnTheExportPage(): void
     {
         $this->visit('main.php?p=61201');
         // Check that page is valid for this class.
         $mythis = $this;
         $this->spin(
-            function ($context) use ($mythis) {
-                return $context->getSession()->getPage()->has('css', '#poller');
-            }
+            fn($context) => $context->getSession()->getPage()->has('css', '#poller')
         );
     }
 
-    public function iAmOnTheImportPage()
+    public function iAmOnTheImportPage(): void
     {
         $this->visit('main.php?p=61202');
         $mythis = $this;
         $this->spin(
-            function ($context) use ($mythis) {
-                return $context->getSession()->getPage()->has('css', '#file');
-            }
+            fn($context) => $context->getSession()->getPage()->has('css', '#file')
         );
     }
 }

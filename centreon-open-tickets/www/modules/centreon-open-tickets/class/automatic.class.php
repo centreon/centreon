@@ -22,18 +22,8 @@
 
 class Automatic
 {
-    /** @var Centreon  */
-    protected $centreon;
-    /** @var CentreonDB */
-    protected $dbCentstorage;
-    /** @var CentreonDB */
-    protected $dbCentreon;
-    /** @var string */
-    protected $centreonPath;
     /** @var string */
     protected $openTicketPath;
-    /** @var Centreon_OpenTickets_Rule */
-    protected $rule;
     /** @var string */
     protected $uniqId;
     /** @var array<string, int> */
@@ -50,19 +40,21 @@ class Automatic
      * @param CentreonDB $dbCentreon
      * @return void
      */
-    public function __construct($rule, $centreonPath, $openTicketPath, $centreon, $dbCentstorage, $dbCentreon)
+    public function __construct(
+        protected $rule,
+        protected $centreonPath,
+        $openTicketPath,
+        protected $centreon,
+        protected $dbCentstorage,
+        protected $dbCentreon
+    )
     {
         global $register_providers;
         require_once $openTicketPath . 'providers/register.php';
         require_once $openTicketPath . 'providers/Abstract/AbstractProvider.class.php';
 
         $this->registerProviders = $register_providers;
-        $this->rule = $rule;
-        $this->centreonPath = $centreonPath;
         $this->openTicketPath = $openTicketPath;
-        $this->centreon = $centreon;
-        $this->dbCentstorage = $dbCentstorage;
-        $this->dbCentreon = $dbCentreon;
         $this->uniqId = uniqid();
     }
 

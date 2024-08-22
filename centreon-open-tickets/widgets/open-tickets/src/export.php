@@ -139,7 +139,7 @@ $query .= " WHERE s.host_id = h.host_id
     AND h.name NOT LIKE '_Module_%'
     AND s.enabled = 1 ";
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
-    $tab = explode(" ", $preferences['host_name_search']);
+    $tab = explode(" ", (string) $preferences['host_name_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
@@ -153,7 +153,7 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
     }
 }
 if (isset($preferences['service_description_search']) && $preferences['service_description_search'] != "") {
-    $tab = explode(" ", $preferences['service_description_search']);
+    $tab = explode(" ", (string) $preferences['service_description_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
@@ -165,7 +165,7 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         );
     }
 }
-$stateTab = array();
+$stateTab = [];
 if (isset($preferences['svc_ok']) && $preferences['svc_ok']) {
     $stateTab[] = 0;
 }
@@ -221,7 +221,7 @@ if (! empty($preferences['state_type_filter'])) {
 }
 
 if (! empty($preferences['poller'])) {
-    $resultsPoller = explode(',', $preferences['poller']);
+    $resultsPoller = explode(',', (string) $preferences['poller']);
     $queryPoller = '';
     foreach ($resultsPoller as $resultPoller) {
         if ($queryPoller != '') {
@@ -238,7 +238,7 @@ if (! empty($preferences['poller'])) {
     $query = CentreonUtils::conditionBuilder($query, $instanceIdCondition);
 }
 if (! empty($preferences['hostgroup'])) {
-    $results = explode(',', $preferences['hostgroup']);
+    $results = explode(',', (string) $preferences['hostgroup']);
     $queryHG = '';
     foreach ($results as $result) {
         if ($queryHG !== '') {
@@ -261,7 +261,7 @@ if (! empty($preferences['hostgroup'])) {
     );
 }
 if (! empty($preferences['servicegroup'])) {
-    $resultsSG = explode(',', $preferences['servicegroup']);
+    $resultsSG = explode(',', (string) $preferences['servicegroup']);
     $querySG = '';
     foreach ($resultsSG as $resultSG) {
         if ($querySG !== '') {
@@ -284,7 +284,7 @@ if (! empty($preferences['servicegroup'])) {
     );
 }
 if (! empty($preferences['hostcategories'])) {
-    $resultsHC = explode(',', $preferences['hostcategories']);
+    $resultsHC = explode(',', (string) $preferences['hostcategories']);
     $queryHC = '';
     foreach ($resultsHC as $resultHC) {
         if ($queryHC !== '') {
@@ -311,7 +311,7 @@ if (isset($preferences["display_severities"])
     && isset($preferences['criticality_filter'])
     && $preferences['criticality_filter'] != ""
 ) {
-    $tab = explode(",", $preferences['criticality_filter']);
+    $tab = explode(",", (string) $preferences['criticality_filter']);
     $labels = "";
     foreach ($tab as $p) {
         if ($labels != '') {
@@ -344,9 +344,9 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 $query .= "ORDER BY $orderby";
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
-$data = array();
-$outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
-$commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
+$data = [];
+$outputLength = $preferences['output_length'] ?: 50;
+$commentLength = $preferences['comment_length'] ?: 50;
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
@@ -366,7 +366,7 @@ while ($row = $res->fetch()) {
             $data[$row['host_id']."_".$row['service_id']]['hcolor'] = $stateHColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
-            $value = substr($value, 0, $outputLength);
+            $value = substr((string) $value, 0, $outputLength);
         } elseif (($key == "h_action_url" || $key == "h_notes_url") && $value) {
             $value = $hostObj->replaceMacroInString($row['hostname'], $value);
         } elseif (($key == "s_action_url" || $key == "s_notes_url") && $value) {
@@ -388,7 +388,7 @@ while ($row = $res->fetch()) {
             ORDER BY entry_time DESC LIMIT 1'
         );
         if ($row2 = $res2->fetch()) {
-            $data[$row['host_id']."_".$row['service_id']]['comment'] = substr($row2['data'], 0, $commentLength);
+            $data[$row['host_id']."_".$row['service_id']]['comment'] = substr((string) $row2['data'], 0, $commentLength);
         } else {
             $data[$row['host_id']."_".$row['service_id']]['comment'] = '-';
         }

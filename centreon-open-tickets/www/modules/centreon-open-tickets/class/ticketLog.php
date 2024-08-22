@@ -21,19 +21,15 @@
 
 class Centreon_OpenTickets_Log
 {
-    protected $_db;
-    protected $_dbStorage;
-
     /**
      * Constructor
      *
-     * @param CentreonDB $db
-     * @param CentreonDB $dbStorage
+     * @param CentreonDB $_db
+     * @param CentreonDB $_dbStorage
      * @return void
      */
-    public function __construct($db, $dbStorage) {
-        $this->_db = $db;
-        $this->_dbStorage = $dbStorage;
+    public function __construct(protected $_db, protected $_dbStorage)
+    {
     }
 
     protected function getTime($start_date, $start_time, $end_date, $end_time, $period)
@@ -47,8 +43,8 @@ class Centreon_OpenTickets_Log
                 $start_time = "00:00";
             }
 
-            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $start_date, $matchesD);
-            preg_match("/^([0-9]*):([0-9]*)/", $start_time, $matchesT);
+            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", (string) $start_date, $matchesD);
+            preg_match("/^([0-9]*):([0-9]*)/", (string) $start_time, $matchesT);
             $start = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3]);
         }
         if (!is_null($end_date) && $end_date != '') {
@@ -57,8 +53,8 @@ class Centreon_OpenTickets_Log
                 $end_time = "00:00";
             }
 
-            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $end_date, $matchesD);
-            preg_match("/^([0-9]*):([0-9]*)/", $end_time, $matchesT);
+            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", (string) $end_date, $matchesD);
+            preg_match("/^([0-9]*):([0-9]*)/", (string) $end_time, $matchesT);
             $end = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3]);
         }
 
@@ -67,7 +63,7 @@ class Centreon_OpenTickets_Log
             $end = time();
         }
 
-        return array('start' => $start, 'end' => $end);
+        return ['start' => $start, 'end' => $end];
     }
 
     /*
@@ -121,7 +117,7 @@ class Centreon_OpenTickets_Log
         $build_services_filter_append = '';
         if (isset($params['service_filter']) && is_array($params['service_filter'])) {
             foreach ($params['service_filter'] as $val) {
-                $tmp = explode('-', $val);
+                $tmp = explode('-', (string) $val);
                 $build_services_filter .= $build_services_filter_append . '(motl.host_id = ' . $tmp[0] .
                     ' AND motl.service_id = ' . $tmp[1] . ') ';
                 $build_services_filter_append = 'OR ';

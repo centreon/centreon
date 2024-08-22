@@ -44,7 +44,7 @@ class GlpiProvider extends AbstractProvider
     public const ARG_TITLE = 10;
 
     /** @var array<int, string> */
-    protected $internal_arg_name = array(
+    protected $internal_arg_name = [
         self::ARG_CONTENT => 'content',
         self::ARG_ENTITY => 'entity',
         self::ARG_URGENCY => 'urgency',
@@ -54,8 +54,8 @@ class GlpiProvider extends AbstractProvider
         self::ARG_USER_EMAIL => 'user_email',
         self::ARG_GROUP => 'group',
         self::ARG_GROUP_ASSIGN => 'groupassign',
-        self::ARG_TITLE => 'title',
-    );
+        self::ARG_TITLE => 'title'
+    ];
 
     public function __destruct()
     {
@@ -72,20 +72,20 @@ class GlpiProvider extends AbstractProvider
         $this->default_data['https'] = 0;
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = array(
-            array(
+        $this->default_data['clones']['mappingTicket'] = [
+            [
                 'Arg' => self::ARG_TITLE,
                 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
                     '/Abstract/templates/display_title.ihtml"}'
-            ),
-            array('Arg' => self::ARG_CONTENT, 'Value' => '{$body}'),
-            array('Arg' => self::ARG_ENTITY, 'Value' => '{$select.gpli_entity.id}'),
-            array('Arg' => self::ARG_CATEGORY, 'Value' => '{$select.glpi_itil_category.id}'),
-            array('Arg' => self::ARG_GROUP_ASSIGN, 'Value' => '{$select.glpi_group.id}'),
-            array('Arg' => self::ARG_USER_EMAIL, 'Value' => '{$user.email}'),
-            array('Arg' => self::ARG_URGENCY, 'Value' => '{$select.urgency.value}'),
-            array('Arg' => self::ARG_IMPACT, 'Value' => '{$select.impact.value}'),
-        );
+            ],
+            ['Arg' => self::ARG_CONTENT, 'Value' => '{$body}'],
+            ['Arg' => self::ARG_ENTITY, 'Value' => '{$select.gpli_entity.id}'],
+            ['Arg' => self::ARG_CATEGORY, 'Value' => '{$select.glpi_itil_category.id}'],
+            ['Arg' => self::ARG_GROUP_ASSIGN, 'Value' => '{$select.glpi_group.id}'],
+            ['Arg' => self::ARG_USER_EMAIL, 'Value' => '{$user.email}'],
+            ['Arg' => self::ARG_URGENCY, 'Value' => '{$select.urgency.value}'],
+            ['Arg' => self::ARG_IMPACT, 'Value' => '{$select.impact.value}']
+        ];
     }
 
     protected function setDefaultValueMain($body_html = 0)
@@ -94,54 +94,49 @@ class GlpiProvider extends AbstractProvider
 
         $this->default_data['url'] = 'http://{$address}/glpi/front/ticket.form.php?id={$ticket_id}';
 
-        $this->default_data['clones']['groupList'] = array(
-            array(
+        $this->default_data['clones']['groupList'] = [
+            [
                 'Id' => 'gpli_entity',
                 'Label' => _('Entity'),
                 'Type' => self::GPLI_ENTITIES_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'glpi_group',
                 'Label' => _('Glpi group'),
                 'Type' => self::GPLI_GROUPS_TYPE,
-                'Filter' => '', 'Mandatory' => ''
-            ),
-            array(
+                'Filter' => '',
+                'Mandatory' => ''
+            ],
+            [
                 'Id' => 'glpi_itil_category',
                 'Label' => _('Itil category'),
                 'Type' => self::GLPI_ITIL_CATEGORIES_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'urgency',
                 'Label' => _('Urgency'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
-                'Id' => 'impact',
-                'Label' => _('Impact'),
-                'Type' => self::CUSTOM_TYPE,
-                'Filter' => '',
-                'Mandatory' => ''
-            ),
-        );
-        $this->default_data['clones']['customList'] = array(
-            array('Id' => 'urgency', 'Value' => '1', 'Default' => ''),
-            array('Id' => 'urgency', 'Value' => '2', 'Default' => ''),
-            array('Id' => 'urgency', 'Value' => '3', 'Default' => ''),
-            array('Id' => 'urgency', 'Value' => '4', 'Default' => ''),
-            array('Id' => 'urgency', 'Value' => '5', 'Default' => ''),
-            array('Id' => 'impact', 'Value' => '1', 'Default' => ''),
-            array('Id' => 'impact', 'Value' => '2', 'Default' => ''),
-            array('Id' => 'impact', 'Value' => '3', 'Default' => ''),
-            array('Id' => 'impact', 'Value' => '4', 'Default' => ''),
-            array('Id' => 'impact', 'Value' => '5', 'Default' => ''),
-        );
+            ],
+            ['Id' => 'impact', 'Label' => _('Impact'), 'Type' => self::CUSTOM_TYPE, 'Filter' => '', 'Mandatory' => '']
+        ];
+        $this->default_data['clones']['customList'] = [
+            ['Id' => 'urgency', 'Value' => '1', 'Default' => ''],
+            ['Id' => 'urgency', 'Value' => '2', 'Default' => ''],
+            ['Id' => 'urgency', 'Value' => '3', 'Default' => ''],
+            ['Id' => 'urgency', 'Value' => '4', 'Default' => ''],
+            ['Id' => 'urgency', 'Value' => '5', 'Default' => ''],
+            ['Id' => 'impact', 'Value' => '1', 'Default' => ''],
+            ['Id' => 'impact', 'Value' => '2', 'Default' => ''],
+            ['Id' => 'impact', 'Value' => '3', 'Default' => ''],
+            ['Id' => 'impact', 'Value' => '4', 'Default' => ''],
+            ['Id' => 'impact', 'Value' => '5', 'Default' => '']
+        ];
     }
 
     /**
@@ -175,7 +170,7 @@ class GlpiProvider extends AbstractProvider
 
         $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", array("glpi" => _("Glpi")));
+        $tpl->assign("header", ["glpi" => _("Glpi")]);
 
         // Form
         $address_html = '<input size="50" name="address" type="text" value="' .
@@ -193,15 +188,15 @@ class GlpiProvider extends AbstractProvider
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
             $this->getFormValue('timeout') . '" />';
 
-        $array_form = array(
-            'address' => array('label' => _("Address") . $this->required_field, 'html' => $address_html),
-            'path' => array('label' => _("Path"), 'html' => $path_html),
-            'username' => array('label' => _("Username") . $this->required_field, 'html' => $username_html),
-            'password' => array('label' => _("Password") . $this->required_field, 'html' => $password_html),
-            'https' => array('label' => _("Use https"), 'html' => $https_html),
-            'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
-            'mappingticket' => array('label' => _("Mapping ticket arguments")),
-        );
+        $array_form = [
+            'address' => ['label' => _("Address") . $this->required_field, 'html' => $address_html],
+            'path' => ['label' => _("Path"), 'html' => $path_html],
+            'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html],
+            'password' => ['label' => _("Password") . $this->required_field, 'html' => $password_html],
+            'https' => ['label' => _("Use https"), 'html' => $https_html],
+            'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html],
+            'mappingticket' => ['label' => _("Mapping ticket arguments")]
+        ];
 
         // mapping Ticket clone
         $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
@@ -219,10 +214,10 @@ class GlpiProvider extends AbstractProvider
         '<option value="' . self::ARG_GROUP . '">' . _('Group') . '</options>' .
         '<option value="' . self::ARG_GROUP_ASSIGN . '">' . _('Group assign') . '</options>' .
         '</select>';
-        $array_form['mappingTicket'] = array(
-            array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
-            array('label' => _("Value"), 'html' => $mappingTicketValue_html),
-        );
+        $array_form['mappingTicket'] = [
+            ['label' => _("Argument"), 'html' => $mappingTicketArg_html],
+            ['label' => _("Value"), 'html' => $mappingTicketValue_html]
+        ];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -250,7 +245,7 @@ class GlpiProvider extends AbstractProvider
 
         $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
-            array('Arg', 'Value')
+            ['Arg', 'Value']
         );
     }
 
@@ -267,12 +262,12 @@ class GlpiProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listEntitiesGlpi();
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
+                ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -281,14 +276,14 @@ class GlpiProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->glpi_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['completename']);
                 continue;
             }
 
-            if (preg_match('/' . $entry['Filter'] . '/', $row['completename'])) {
+            if (preg_match('/' . $entry['Filter'] . '/', (string) $row['completename'])) {
                 $result[$row['id']] = $this->to_utf8($row['completename']);
             }
         }
@@ -305,12 +300,12 @@ class GlpiProvider extends AbstractProvider
         }
         $code = $this->listGroupsGlpi($filter);
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
+                ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -319,7 +314,7 @@ class GlpiProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->glpi_call_response['response'] as $row) {
             $result[$row['id']] = $this->to_utf8($row['completename']);
         }
@@ -336,12 +331,12 @@ class GlpiProvider extends AbstractProvider
         }
         $code = $this->listItilCategoriesGlpi($filter);
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
+                ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -350,7 +345,7 @@ class GlpiProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->glpi_call_response['response'] as $row) {
             $result[$row['id']] = $this->to_utf8($row['name']);
         }
@@ -372,7 +367,7 @@ class GlpiProvider extends AbstractProvider
 
     public function validateFormatPopup()
     {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
         return $result;
     }
@@ -393,16 +388,16 @@ class GlpiProvider extends AbstractProvider
         }
 
         if (is_null($session_name) && $selected_id == -1) {
-            return array();
+            return [];
         }
         if ($selected_id == -1) {
-            return array('id' => null, 'value' => null);
+            return ['id' => null, 'value' => null];
         }
 
         $result = $this->getSession($session_name);
 
         if (is_null($result)) {
-            return array();
+            return [];
         }
 
         foreach ($result as $value) {
@@ -411,7 +406,7 @@ class GlpiProvider extends AbstractProvider
             }
         }
 
-        return array();
+        return [];
     }
 
     protected function doSubmit(
@@ -419,14 +414,9 @@ class GlpiProvider extends AbstractProvider
         $contact,
         $host_problems,
         $service_problems,
-        $extra_ticket_arguments = array()
+        $extra_ticket_arguments = []
     ) {
-        $result = array(
-            'ticket_id' => null,
-            'ticket_error_message' => null,
-            'ticket_is_ok' => 0,
-            'ticket_time' => time()
-        );
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         $tpl = $this->initSmartyTemplate();
 
@@ -463,14 +453,15 @@ class GlpiProvider extends AbstractProvider
         $this->saveHistory(
             $db_storage,
             $result,
-            array(
+            [
                 'contact' => $contact,
                 'host_problems' => $host_problems,
                 'service_problems' => $service_problems,
                 'ticket_value' => $this->glpi_call_response['response']['id'],
                 'subject' => $ticket_arguments[self::ARG_TITLE],
-                'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticket_arguments)
-            )
+                'data_type' => self::DATA_TYPE_JSON,
+                'data' => json_encode($ticket_arguments)
+            ]
         );
         return $result;
     }
@@ -489,9 +480,9 @@ class GlpiProvider extends AbstractProvider
 
     protected function requestRpc($method, $args = null)
     {
-        $array_result = array('code' => -1);
+        $array_result = ['code' => -1];
         if (is_null($args)) {
-            $args = array();
+            $args = [];
         }
         foreach ($args as $key => $value) {
             if (is_null($value)) {
@@ -513,16 +504,16 @@ class GlpiProvider extends AbstractProvider
             $url .= '?session=' . $this->glpi_session;
         }
 
-        $request = xmlrpc_encode_request($method, $args, array('encoding' => 'utf-8', 'escaping' => 'markup'));
+        $request = xmlrpc_encode_request($method, $args, ['encoding' => 'utf-8', 'escaping' => 'markup']);
         $context = stream_context_create(
-            array(
-                'http' => array(
-                    'method'  => "POST",
-                    'header'  => 'Content-Type: text/xml',
+            [
+                'http' => [
+                    'method' => "POST",
+                    'header' => 'Content-Type: text/xml',
                     'timeout' => $this->rule_data['timeout'],
                     'content' => $request
-                )
-            )
+                ]
+            ]
         );
         $file = file_get_contents("$proto://$host/$url", false, $context);
         if (!$file) {
@@ -553,7 +544,7 @@ class GlpiProvider extends AbstractProvider
             }
         }
 
-        $this->glpi_call_response = $this->requestRpc('glpi.listEntities', array('start' => 0, 'limit' => 100));
+        $this->glpi_call_response = $this->requestRpc('glpi.listEntities', ['start' => 0, 'limit' => 100]);
         if ($this->glpi_call_response['code'] == -1) {
             return -1;
         }
@@ -571,7 +562,7 @@ class GlpiProvider extends AbstractProvider
 
         $this->glpi_call_response = $this->requestRpc(
             'glpi.listGroups',
-            array('start' => 0, 'limit' => 100, 'name' => $filter)
+            ['start' => 0, 'limit' => 100, 'name' => $filter]
         );
         if ($this->glpi_call_response['code'] == -1) {
             return -1;
@@ -590,13 +581,7 @@ class GlpiProvider extends AbstractProvider
 
         $this->glpi_call_response = $this->requestRpc(
             'glpi.listObjects',
-            array(
-                'start' => 0,
-                'limit' => 100,
-                'name' => $filter,
-                'itemtype' => 'itilcategory',
-                'show_label' => 1
-            )
+            ['start' => 0, 'limit' => 100, 'name' => $filter, 'itemtype' => 'itilcategory', 'show_label' => 1]
         );
         if ($this->glpi_call_response['code'] == -1) {
             return -1;
@@ -662,10 +647,7 @@ class GlpiProvider extends AbstractProvider
 
         $this->glpi_call_response = $this->requestRpc(
             'glpi.doLogin',
-            array(
-                'login_name' => $this->rule_data['username'],
-                'login_password' => $this->rule_data['password']
-            )
+            ['login_name' => $this->rule_data['username'], 'login_password' => $this->rule_data['password']]
         );
         if ($this->glpi_call_response['code'] == -1) {
             return -1;

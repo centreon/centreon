@@ -77,7 +77,7 @@ class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProv
 
         // handle sort
         $sort = $sqlTranslator?->translateSortParameterToSql();
-        $request .= $sort !== null ? $sort : ' ORDER BY alias ASC';
+        $request .= $sort ?? ' ORDER BY alias ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();

@@ -23,7 +23,7 @@ function get_contact_information()
 {
     global $db, $centreon_bg;
 
-    $result = array('alias' => '', 'email' => '', 'name' => '');
+    $result = ['alias' => '', 'email' => '', 'name' => ''];
     $dbResult = $db->query(
         "SELECT
             contact_name as `name`,
@@ -33,7 +33,7 @@ function get_contact_information()
         WHERE contact_id = '" . $centreon_bg->user_id . "' LIMIT 1"
     );
     if (($row = $dbResult->fetch())) {
-        $result = $row;
+        return $row;
     }
 
     return $result;
@@ -77,7 +77,7 @@ function get_provider_class($rule_id)
 
 function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected)
 {
-    $loop_check = array();
+    $loop_check = [];
 
     while (($provider = array_shift($rule_list))) {
         $provider_class = get_provider_class($provider['Provider']);
@@ -99,10 +99,7 @@ function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected)
     }
 }
 
-$resultat = array(
-    "code" => 0,
-    "msg" => 'ok'
-);
+$resultat = ["code" => 0, "msg" => 'ok'];
 
 // Load provider class
 if (is_null($get_information['provider_id']) || is_null($get_information['form'])) {
@@ -154,7 +151,7 @@ $centreon_provider->setUniqId($get_information['form']['uniqId']);
 // We get Host or Service
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 
-$selected_values = explode(',', $get_information['form']['selection']);
+$selected_values = explode(',', (string) $get_information['form']['selection']);
 $db_storage = new CentreonDBManager('centstorage');
 
 $selected = $rule->loadSelection(

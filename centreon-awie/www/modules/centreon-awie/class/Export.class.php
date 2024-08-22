@@ -33,18 +33,15 @@ class Export
     protected $tmpName = '';
     /** @var CentreonDB */
     protected $db;
-    /** @var ClapiObject */
-    protected $clapiConnector;
 
     /**
      * Export constructor.
      * @param ClapiObject $clapiConnector
      * @param \Pimple\Container $dependencyInjector
      */
-    public function __construct($clapiConnector, $dependencyInjector)
+    public function __construct(protected $clapiConnector, $dependencyInjector)
     {
         $this->db = $dependencyInjector['configuration_db'];
-        $this->clapiConnector = $clapiConnector;
         $this->tmpName = 'centreon-clapi-export-' . time();
         $this->tmpFile = '/tmp/' . $this->tmpName . '.txt';
     }
@@ -85,7 +82,7 @@ class Export
      */
     private function generateInstance($value)
     {
-        $cmdScript = array();
+        $cmdScript = [];
 
         if (isset($value['INSTANCE'])) {
             //export instance
@@ -258,7 +255,7 @@ class Export
     {
         $fp = fopen($this->tmpFile, 'w');
         foreach ($content as $command) {
-            fwrite($fp, utf8_encode($command));
+            fwrite($fp, mb_convert_encoding($command, 'UTF-8', 'ISO-8859-1'));
         }
         fclose($fp);
         return $this->tmpName;

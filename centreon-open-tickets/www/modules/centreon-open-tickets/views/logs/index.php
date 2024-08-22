@@ -33,8 +33,8 @@ $tpl = initSmartyTpl($path, $tpl);
  */
 $form = new HTML_QuickFormCustom('FormTicketLogs', 'get', "?p=".$p);
 
-$periods = array(
-    ""=>"",
+$periods = [
+    "" => "",
     "10800" => _("Last 3 Hours"),
     "21600" => _("Last 6 Hours"),
     "43200" => _("Last 12 Hours"),
@@ -50,7 +50,7 @@ $periods = array(
     "10368000" => _("Last 4 Months"),
     "15552000" => _("Last 6 Months"),
     "31104000" => _("Last Year")
-);
+];
 
 $form->addElement(
     'select',
@@ -62,79 +62,79 @@ $form->addElement(
     'text',
     'StartDate',
     '',
-    array("id" => "StartDate", "class" => "datepicker", "size"=>8)
+    ["id" => "StartDate", "class" => "datepicker", "size"=>8]
 );
 $form->addElement(
     'text',
     'StartTime',
     '',
-    array("id" => "StartTime", "class" => "timepicker", "size"=>5)
+    ["id" => "StartTime", "class" => "timepicker", "size"=>5]
 );
 $form->addElement(
     'text',
     'EndDate',
     '',
-    array("id" => "EndDate", "class" => "datepicker", "size"=>8)
+    ["id" => "EndDate", "class" => "datepicker", "size"=>8]
 );
 $form->addElement(
     'text',
     'EndTime',
     '',
-    array("id" => "EndTime", "class" => "timepicker", "size"=>5)
+    ["id" => "EndTime", "class" => "timepicker", "size"=>5]
 );
 $form->addElement(
     'text',
     'subject',
     _("Subject"),
-    array("id" => "subject", "style" => "width: 203px;", "size" => 15, "value" => '')
+    ["id" => "subject", "style" => "width: 203px;", "size" => 15, "value" => '']
 );
 $form->addElement(
     'text',
     'ticket_id',
     _("Ticket ID"),
-    array("id" => "ticket_id", "style" => "width: 203px;", "size" => 15, "value" => '')
+    ["id" => "ticket_id", "style" => "width: 203px;", "size" => 15, "value" => '']
 );
 
 $form->addElement(
     'submit',
     'graph',
     _("Apply"),
-    array("onclick" => "return applyForm();", "class" => "btc bt_success")
+    ["onclick" => "return applyForm();", "class" => "btc bt_success"]
 );
 
-$attrHosts = array(
+$attrHosts = [
     'datasourceOrigin' => 'ajax',
     'allowClear' => false,
     'availableDatasetRoute' => './include/common/webServices/rest/internal.php' .
         '?object=centreon_configuration_host&action=list',
     'multiple' => true
-);
+];
 $attrHost1 = array_merge($attrHosts);
 $form->addElement(
     'select2',
     'host_filter',
     _("Hosts"),
-    array(),
+    [],
     $attrHost1
 );
 
-$attrService = array(
+$attrService = [
     'datasourceOrigin' => 'ajax',
     'allowClear' => false,
     'availableDatasetRoute' => './include/common/webServices/rest/internal.php' .
         '?object=centreon_configuration_service&action=list',
     'multiple' => true
-);
+];
 $attrService1 = array_merge($attrService);
 $form->addElement(
     'select2',
     'service_filter',
     _("Services"),
-    array(),
+    [],
     $attrService1
 );
 
-$form->setDefaults(array("period" => '10800'));
+$form->setDefaults(["period" => '10800']);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);

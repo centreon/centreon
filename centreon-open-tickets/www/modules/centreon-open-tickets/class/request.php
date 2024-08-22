@@ -41,8 +41,8 @@ class CentreonOpenTicketsRequest
      */
     public function __construct()
     {
-        $this->postVar = array();
-        $this->getVar = array();
+        $this->postVar = [];
+        $this->getVar = [];
 
         foreach ($_POST as $key => $value) {
             $this->postVar[$key] = $value;

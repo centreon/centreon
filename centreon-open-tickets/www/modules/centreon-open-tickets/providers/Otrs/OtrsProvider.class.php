@@ -53,7 +53,7 @@ class OtrsProvider extends AbstractProvider
     public const ARG_RESPONSIBLE = 18;
 
     /** @var array<int, string> */
-    protected $internal_arg_name = array(
+    protected $internal_arg_name = [
         self::ARG_QUEUE => 'Queue',
         self::ARG_PRIORITY => 'Priority',
         self::ARG_STATE => 'State',
@@ -64,8 +64,8 @@ class OtrsProvider extends AbstractProvider
         self::ARG_FROM => 'From',
         self::ARG_CONTENTTYPE => 'ContentType',
         self::ARG_OWNER => 'Owner',
-        self::ARG_RESPONSIBLE => 'Responsible',
-    );
+        self::ARG_RESPONSIBLE => 'Responsible'
+    ];
 
     public function __destruct()
     {
@@ -83,63 +83,64 @@ class OtrsProvider extends AbstractProvider
         $this->default_data['https'] = 0;
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = array(
-            array(
+        $this->default_data['clones']['mappingTicket'] = [
+            [
                 'Arg' => self::ARG_SUBJECT,
                 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/' .
-                    'Abstract/templates/display_title.ihtml"}'),
-            array('Arg' => self::ARG_BODY, 'Value' => '{$body}'),
-            array('Arg' => self::ARG_FROM, 'Value' => '{$user.email}'),
-            array('Arg' => self::ARG_QUEUE, 'Value' => '{$select.otrs_queue.value}'),
-            array('Arg' => self::ARG_PRIORITY, 'Value' => '{$select.otrs_priority.value}'),
-            array('Arg' => self::ARG_STATE, 'Value' => '{$select.otrs_state.value}'),
-            array('Arg' => self::ARG_TYPE, 'Value' => '{$select.otrs_type.value}'),
-            array('Arg' => self::ARG_CUSTOMERUSER, 'Value' => '{$select.otrs_customeruser.value}'),
-            array('Arg' => self::ARG_CONTENTTYPE, 'Value' => 'text/html; charset=utf8'),
-        );
+                    'Abstract/templates/display_title.ihtml"}'
+            ],
+            ['Arg' => self::ARG_BODY, 'Value' => '{$body}'],
+            ['Arg' => self::ARG_FROM, 'Value' => '{$user.email}'],
+            ['Arg' => self::ARG_QUEUE, 'Value' => '{$select.otrs_queue.value}'],
+            ['Arg' => self::ARG_PRIORITY, 'Value' => '{$select.otrs_priority.value}'],
+            ['Arg' => self::ARG_STATE, 'Value' => '{$select.otrs_state.value}'],
+            ['Arg' => self::ARG_TYPE, 'Value' => '{$select.otrs_type.value}'],
+            ['Arg' => self::ARG_CUSTOMERUSER, 'Value' => '{$select.otrs_customeruser.value}'],
+            ['Arg' => self::ARG_CONTENTTYPE, 'Value' => 'text/html; charset=utf8']
+        ];
     }
 
     protected function setDefaultValueMain($body_html = 0)
     {
         parent::setDefaultValueMain(1);
         $this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';
-        $this->default_data['clones']['groupList'] = array(
-            array(
+        $this->default_data['clones']['groupList'] = [
+            [
                 'Id' => 'otrs_queue',
                 'Label' => _('Otrs queue'),
                 'Type' => self::OTRS_QUEUE_TYPE,
                 'Filter' => '',
                 'Mandatory' => '1'
-            ),
-            array(
+            ],
+            [
                 'Id' => 'otrs_priority',
                 'Label' => _('Otrs priority'),
                 'Type' => self::OTRS_PRIORITY_TYPE,
                 'Filter' => '',
                 'Mandatory' => '1'
-            ),
-            array(
+            ],
+            [
                 'Id' => 'otrs_state',
                 'Label' => _('Otrs state'),
                 'Type' => self::OTRS_STATE_TYPE,
                 'Filter' => '',
                 'Mandatory' => '1'
-            ),
-            array(
+            ],
+            [
                 'Id' => 'otrs_type',
                 'Label' => _('Otrs type'),
                 'Type' => self::OTRS_TYPE_TYPE,
                 'Filter' => '',
                 'Mandatory' => ''
-            ),
-            array(
+            ],
+            [
                 'Id' => 'otrs_customeruser',
                 'Label' => _('Otrs customer user'),
                 'Type' => self::OTRS_CUSTOMERUSER_TYPE,
                 'Filter' => '',
                 'Mandatory' => '1'
-            ),
-        );
+            ]
+        ];
     }
 
     /**
@@ -175,7 +176,7 @@ class OtrsProvider extends AbstractProvider
 
         $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", array("otrs" => _("OTRS")));
+        $tpl->assign("header", ["otrs" => _("OTRS")]);
 
         // Form
         $address_html = '<input size="50" name="address" type="text" value="' .
@@ -197,21 +198,21 @@ class OtrsProvider extends AbstractProvider
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
             $this->getFormValue('timeout') . '" />';
 
-        $array_form = array(
-            'address' => array('label' => _("Address") . $this->required_field, 'html' => $address_html),
-            'path' => array('label' => _("Path"), 'html' => $path_html),
-            'rest_link' => array('label' => _("Rest link") . $this->required_field, 'html' => $rest_link_html),
-            'webservice_name' => array(
+        $array_form = [
+            'address' => ['label' => _("Address") . $this->required_field, 'html' => $address_html],
+            'path' => ['label' => _("Path"), 'html' => $path_html],
+            'rest_link' => ['label' => _("Rest link") . $this->required_field, 'html' => $rest_link_html],
+            'webservice_name' => [
                 'label' => _("Webservice name") . $this->required_field,
                 'html' => $webservice_name_html
-            ),
-            'username' => array('label' => _("Username") . $this->required_field, 'html' => $username_html),
-            'password' => array('label' => _("Password") . $this->required_field, 'html' => $password_html),
-            'https' => array('label' => _("Use https"), 'html' => $https_html),
-            'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
-            'mappingticket' => array('label' => _("Mapping ticket arguments")),
-            'mappingticketdynamicfield' => array('label' => _("Mapping ticket dynamic field")),
-        );
+            ],
+            'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html],
+            'password' => ['label' => _("Password") . $this->required_field, 'html' => $password_html],
+            'https' => ['label' => _("Use https"), 'html' => $https_html],
+            'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html],
+            'mappingticket' => ['label' => _("Mapping ticket arguments")],
+            'mappingticketdynamicfield' => ['label' => _("Mapping ticket dynamic field")]
+        ];
 
         // mapping Ticket clone
         $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
@@ -230,20 +231,23 @@ class OtrsProvider extends AbstractProvider
         '<option value="' . self::ARG_BODY . '">' . _('Body') . '</options>' .
         '<option value="' . self::ARG_CONTENTTYPE . '">' . _('Content Type') . '</options>' .
         '</select>';
-        $array_form['mappingTicket'] = array(
-            array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
-            array('label' => _("Value"), 'html' => $mappingTicketValue_html),
-        );
+        $array_form['mappingTicket'] = [
+            ['label' => _("Argument"), 'html' => $mappingTicketArg_html],
+            ['label' => _("Value"), 'html' => $mappingTicketValue_html]
+        ];
 
         // mapping Ticket DynamicField
         $mappingTicketDynamicFieldName_html = '<input id="mappingTicketDynamicFieldName_#index#" ' .
             'name="mappingTicketDynamicFieldName[#index#]" size="20"  type="text" />';
         $mappingTicketDynamicFieldValue_html = '<input id="mappingTicketDynamicFieldValue_#index#" ' .
             'name="mappingTicketDynamicFieldValue[#index#]" size="20"  type="text" />';
-        $array_form['mappingTicketDynamicField'] = array(
-            array('label' => _("Name"), 'html' => $mappingTicketDynamicFieldName_html),
-            array('label' => _("Value"), 'html' => $mappingTicketDynamicFieldValue_html),
-        );
+        $array_form['mappingTicketDynamicField'] = [
+            [
+                'label' => _("Name"),
+                'html' => $mappingTicketDynamicFieldName_html
+            ],
+            ['label' => _("Value"), 'html' => $mappingTicketDynamicFieldValue_html]
+        ];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -273,11 +277,11 @@ class OtrsProvider extends AbstractProvider
 
         $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
-            array('Arg', 'Value')
+            ['Arg', 'Value']
         );
         $this->save_config['clones']['mappingTicketDynamicField'] = $this->getCloneSubmitted(
             'mappingTicketDynamicField',
-            array('Name', 'Value')
+            ['Name', 'Value']
         );
     }
 
@@ -307,12 +311,12 @@ class OtrsProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listQueueOtrs();
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
+                ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -321,14 +325,14 @@ class OtrsProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
 
-            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+            if (preg_match('/' . $entry['Filter'] . '/', (string) $row['name'])) {
                 $result[$row['id']] = $this->to_utf8($row['name']);
             }
         }
@@ -348,12 +352,12 @@ class OtrsProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listPriorityOtrs();
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
+                ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -362,14 +366,14 @@ class OtrsProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
 
-            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+            if (preg_match('/' . $entry['Filter'] . '/', (string) $row['name'])) {
                 $result[$row['id']] = $this->to_utf8($row['name']);
             }
         }
@@ -389,12 +393,12 @@ class OtrsProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listStateOtrs();
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
+                ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -403,14 +407,14 @@ class OtrsProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
 
-            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+            if (preg_match('/' . $entry['Filter'] . '/', (string) $row['name'])) {
                 $result[$row['id']] = $this->to_utf8($row['name']);
             }
         }
@@ -430,12 +434,12 @@ class OtrsProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listTypeOtrs();
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
+                ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -444,14 +448,14 @@ class OtrsProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
 
-            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+            if (preg_match('/' . $entry['Filter'] . '/', (string) $row['name'])) {
                 $result[$row['id']] = $this->to_utf8($row['name']);
             }
         }
@@ -471,12 +475,12 @@ class OtrsProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listCustomerUserOtrs();
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
+                ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -485,14 +489,14 @@ class OtrsProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
 
-            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+            if (preg_match('/' . $entry['Filter'] . '/', (string) $row['name'])) {
                 $result[$row['id']] = $this->to_utf8($row['name']);
             }
         }
@@ -512,12 +516,12 @@ class OtrsProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listUserOtrs();
 
-        $groups[$entry['Id']] = array(
+        $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
+                ),
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        ];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -526,14 +530,14 @@ class OtrsProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
 
-            if (preg_match('/' . $entry['Filter'] . '/', $row['name'])) {
+            if (preg_match('/' . $entry['Filter'] . '/', (string) $row['name'])) {
                 $result[$row['id']] = $this->to_utf8($row['name']);
             }
         }
@@ -569,7 +573,7 @@ class OtrsProvider extends AbstractProvider
 
     public function validateFormatPopup()
     {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
         return $result;
     }
@@ -603,16 +607,16 @@ class OtrsProvider extends AbstractProvider
         }
 
         if (is_null($session_name) && $selected_id == -1) {
-            return array();
+            return [];
         }
         if ($selected_id == -1) {
-            return array('id' => null, 'value' => null);
+            return ['id' => null, 'value' => null];
         }
 
         $result = $this->getSession($session_name);
 
         if (is_null($result)) {
-            return array();
+            return [];
         }
 
         foreach ($result as $value) {
@@ -621,17 +625,12 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        return array();
+        return [];
     }
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
-        $result = array(
-            'ticket_id' => null,
-            'ticket_error_message' => null,
-            'ticket_is_ok' => 0,
-            'ticket_time' => time()
-        );
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         $tpl = $this->initSmartyTemplate();
 
@@ -642,7 +641,7 @@ class OtrsProvider extends AbstractProvider
 
         $this->assignSubmittedValues($tpl);
 
-        $ticket_arguments = array();
+        $ticket_arguments = [];
         if (isset($this->rule_data['clones']['mappingTicket'])) {
             foreach ($this->rule_data['clones']['mappingTicket'] as $value) {
                 $tpl->assign('string', $value['Value']);
@@ -655,15 +654,15 @@ class OtrsProvider extends AbstractProvider
                 $ticket_arguments[$this->internal_arg_name[$value['Arg']]] = $result_str;
             }
         }
-        $ticket_dynamic_fields = array();
+        $ticket_dynamic_fields = [];
         if (isset($this->rule_data['clones']['mappingTicketDynamicField'])) {
             foreach ($this->rule_data['clones']['mappingTicketDynamicField'] as $value) {
                 if ($value['Name'] == '' ||  $value['Value'] == '') {
                     continue;
                 }
-                $array_tmp = array();
+                $array_tmp = [];
                 $tpl->assign('string', $value['Name']);
-                $array_tmp = array('Name' => $tpl->fetch('eval.ihtml'));
+                $array_tmp = ['Name' => $tpl->fetch('eval.ihtml')];
 
                 $tpl->assign('string', $value['Value']);
                 $array_tmp['Value'] = $tpl->fetch('eval.ihtml');
@@ -681,7 +680,7 @@ class OtrsProvider extends AbstractProvider
         $this->saveHistory(
             $db_storage,
             $result,
-            array(
+            [
                 'contact' => $contact,
                 'host_problems' => $host_problems,
                 'service_problems' => $service_problems,
@@ -689,12 +688,9 @@ class OtrsProvider extends AbstractProvider
                 'subject' => $ticket_arguments['Subject'],
                 'data_type' => self::DATA_TYPE_JSON,
                 'data' => json_encode(
-                    array(
-                        'arguments' => $ticket_arguments,
-                        'dynamic_fields' => $ticket_dynamic_fields
-                    )
+                    ['arguments' => $ticket_arguments, 'dynamic_fields' => $ticket_dynamic_fields]
                 )
-            )
+            ]
         );
 
         return $result;
@@ -723,7 +719,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $argument = array('SessionID' => $this->otrs_session);
+        $argument = ['SessionID' => $this->otrs_session];
         if ($this->callRest('QueueGet', $argument) == 1) {
             return -1;
         }
@@ -742,7 +738,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $argument = array('SessionID' => $this->otrs_session);
+        $argument = ['SessionID' => $this->otrs_session];
         if ($this->callRest('PriorityGet', $argument) == 1) {
             return -1;
         }
@@ -761,7 +757,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $argument = array('SessionID' => $this->otrs_session);
+        $argument = ['SessionID' => $this->otrs_session];
         if ($this->callRest('StateGet', $argument) == 1) {
             return -1;
         }
@@ -780,7 +776,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $argument = array('SessionID' => $this->otrs_session);
+        $argument = ['SessionID' => $this->otrs_session];
         if ($this->callRest('TypeGet', $argument) == 1) {
             return -1;
         }
@@ -799,7 +795,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $argument = array('SessionID' => $this->otrs_session);
+        $argument = ['SessionID' => $this->otrs_session];
         if ($this->callRest('CustomerUserGet', $argument) == 1) {
             return -1;
         }
@@ -818,7 +814,7 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $argument = array('SessionID' => $this->otrs_session);
+        $argument = ['SessionID' => $this->otrs_session];
         if ($this->callRest('UserGet', $argument) == 1) {
             return -1;
         }
@@ -838,13 +834,11 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $argument = array(
+        $argument = [
             'SessionID' => $this->otrs_session,
             'TicketNumber' => $ticket_number,
-            'Ticket' => array(
-                'State' => 'closed successful',
-            ),
-        );
+            'Ticket' => ['State' => 'closed successful']
+        ];
 
         if ($this->callRest('TicketUpdate', $argument) == 1) {
             return -1;
@@ -866,41 +860,42 @@ class OtrsProvider extends AbstractProvider
             }
         }
 
-        $argument = array(
+        $argument = [
             'SessionID' => $this->otrs_session,
-            'Ticket' => array(
-                'Title'             => $ticket_arguments['Subject'],
+            'Ticket' => [
+                'Title' => $ticket_arguments['Subject'],
                 //'QueueID'         => xxx,
-                'Queue'             => $ticket_arguments['Queue'],
+                'Queue' => $ticket_arguments['Queue'],
                 //'StateID'         => xxx,
-                'State'             => $ticket_arguments['State'],
+                'State' => $ticket_arguments['State'],
                 //'PriorityID'      => xxx,
-                'Priority'          => $ticket_arguments['Priority'],
+                'Priority' => $ticket_arguments['Priority'],
                 //'TypeID'          => 123,
-                'Type'              => $ticket_arguments['Type'],
+                'Type' => $ticket_arguments['Type'],
                 //'OwnerID'         => 123,
-                'Owner'             => $ticket_arguments['Owner'],
+                'Owner' => $ticket_arguments['Owner'],
                 //'ResponsibleID'   => 123,
-                'Responsible'       => $ticket_arguments['Responsible'],
-                'CustomerUser'      => $ticket_arguments['CustomerUser'],
-            ),
-            'Article' => array(
-                'From' => $ticket_arguments['From'], // Must be an email
+                'Responsible' => $ticket_arguments['Responsible'],
+                'CustomerUser' => $ticket_arguments['CustomerUser'],
+            ],
+            'Article' => [
+                'From' => $ticket_arguments['From'],
+                // Must be an email
                 'Subject' => $ticket_arguments['Subject'],
                 'Body' => $ticket_arguments['Body'],
                 'ContentType' => $ticket_arguments['ContentType'],
-            ),
-        );
+            ]
+        ];
 
-        $files = array();
+        $files = [];
         $attach_files = $this->getUploadFiles();
         foreach ($attach_files as $file) {
             $base64_content = base64_encode(file_get_contents($file['filepath']));
-            $files[] = array(
+            $files[] = [
                 'Content' => $base64_content,
                 'Filename' => $file['filename'],
                 'ContentType' => mime_content_type($file['filepath'])
-            );
+            ];
         }
         if (count($files) > 0) {
             $argument['Attachment'] = $files;
@@ -931,7 +926,7 @@ class OtrsProvider extends AbstractProvider
             return -1;
         }
 
-        $argument = array('UserLogin' => $this->rule_data['username'], 'Password' => $this->rule_data['password']);
+        $argument = ['UserLogin' => $this->rule_data['username'], 'Password' => $this->rule_data['password']];
         if ($this->callRest('SessionCreate', $argument) == 1) {
             return -1;
         }
@@ -973,11 +968,7 @@ class OtrsProvider extends AbstractProvider
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
-            array(
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Content-Length: ' . strlen($argument_json)
-            )
+            ['Content-Type: application/json', 'Accept: application/json', 'Content-Length: ' . strlen($argument_json)]
         );
         $result = curl_exec($ch);
         if ($result == false) {
@@ -1003,7 +994,7 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
-    public function closeTicket(&$tickets)
+    public function closeTicket(&$tickets): void
     {
         if ($this->doCloseTicket()) {
             foreach ($tickets as $k => $v) {

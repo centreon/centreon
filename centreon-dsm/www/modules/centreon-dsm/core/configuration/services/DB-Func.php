@@ -56,7 +56,7 @@ function getListServiceForPool($poolId)
     $res->closeCursor();
 
     if (is_null($row['pool_host_id']) || $row['pool_host_id'] == '') {
-        return array();
+        return [];
     }
 
     $poolPrefix = $row['pool_prefix'];
@@ -68,9 +68,9 @@ function getListServiceForPool($poolId)
             AND service_id = service_service_id
             AND service_description LIKE "' . $poolPrefix . '%"'
     );
-    $listServices = array();
+    $listServices = [];
     while ($row = $res->fetch()) {
-        if (preg_match('/^' . $poolPrefix . '(\d{4})$/', $row['service_description'])) {
+        if (preg_match('/^' . $poolPrefix . '(\d{4})$/', (string) $row['service_description'])) {
             $listServices[] = $row['service_id'];
         }
     }
@@ -108,7 +108,7 @@ function hostPoolPrefixUsed($hostId, $poolPrefix, $poolId = null)
  * @param $pool_id
  * @param $pool_arr
  */
-function enablePoolInDB($pool_id = null, $pool_arr = array())
+function enablePoolInDB($pool_id = null, $pool_arr = [])
 {
     global $pearDB;
 
@@ -117,7 +117,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = array())
     }
 
     if ($pool_id) {
-        $pool_arr = array($pool_id => "1");
+        $pool_arr = [$pool_id => "1"];
     }
 
     /*
@@ -140,7 +140,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = array())
  * @param $pool_id
  * @param $pool_arr
  */
-function disablePoolInDB($pool_id = null, $pool_arr = array())
+function disablePoolInDB($pool_id = null, $pool_arr = [])
 {
     global $pearDB;
 
@@ -149,7 +149,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = array())
     }
 
     if ($pool_id) {
-        $pool_arr = array($pool_id => "1");
+        $pool_arr = [$pool_id => "1"];
     }
 
     foreach ($pool_arr as $id => $values) {
@@ -172,7 +172,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = array())
  * Delete a slot pool system
  * @param $pools
  */
-function deletePoolInDB($pools = array())
+function deletePoolInDB($pools = [])
 {
     global $pearDB;
 
@@ -216,7 +216,7 @@ function updatePoolInDB($pool_id = null)
  * @param array The values
  * @return int $pool_id The pool id, return -1 if error
  */
-function insertPoolInDB($ret = array())
+function insertPoolInDB($ret = [])
 {
     $pool_id = insertPool($ret);
     return ($pool_id);
@@ -234,9 +234,8 @@ function testPoolExistence($pool_name)
     $dbResult = $pearDB->query("SELECT * FROM `mod_dsm_pool` WHERE `pool_name` = '" . $pool_name . "'");
     if ($dbResult->rowCount() == 0) {
         return 0;
-    } else {
-        return 1;
     }
+    return 1;
 }
 
 /**
@@ -245,7 +244,7 @@ function testPoolExistence($pool_name)
  * @param $select
  * @param $nbrDup
  */
-function multiplePoolInDB($pool = array(), $nbrDup = array())
+function multiplePoolInDB($pool = [], $nbrDup = [])
 {
     global $pearDB;
 
@@ -468,7 +467,7 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
  * @param array $ret The values for new pool
  * @return int The pool id
  */
-function insertPool($ret = array())
+function insertPool($ret = [])
 {
     global $form, $pearDB;
 
@@ -569,7 +568,7 @@ function updatePool($pool_id = null)
     $data = $dbResult->fetch();
     $oldPrefix = $data["pool_prefix"];
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     /*
@@ -643,7 +642,7 @@ function updatePool($pool_id = null)
  * Update Pool ContactGroups
  * @param $ret
  */
-function updatePoolContactGroup($pool_id = null, $ret = array())
+function updatePoolContactGroup($pool_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -671,7 +670,7 @@ function updatePoolContactGroup($pool_id = null, $ret = array())
  * Update Pool Contacts
  * @param $ret
  */
-function updatePoolContact($pool_id = null, $ret = array())
+function updatePoolContact($pool_id = null, $ret = [])
 {
     global $form, $pearDB;
 

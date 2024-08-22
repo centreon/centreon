@@ -50,7 +50,7 @@ isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
 isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
 $cG ? $dupNbr = $cG : $dupNbr = $cP;
 
-$search = isset($_POST['searchSlot']) ? htmlentities($_POST['searchSlot'], ENT_QUOTES) : null;
+$search = isset($_POST['searchSlot']) ? htmlentities((string) $_POST['searchSlot'], ENT_QUOTES) : null;
 
 /*
  * Path to the configuration dir
@@ -78,7 +78,7 @@ switch ($o) {
         include_once $path . "listSlot.php"; // Activate a slot
         break;
     case "ms":
-        enablePoolInDB(null, isset($select) ? $select : array());
+        enablePoolInDB(null, $select ?? []);
         include_once $path . "listSlot.php";
         break;
     case "u":
@@ -86,15 +86,15 @@ switch ($o) {
         include_once $path . "listSlot.php"; // Desactivate a slot
         break;
     case "mu":
-        disablePoolInDB(null, isset($select) ? $select : array());
+        disablePoolInDB(null, $select ?? []);
         include_once $path . "listSlot.php";
         break;
     case "m":
-        multiplePoolInDB(isset($select) ? $select : array(), $dupNbr);
+        multiplePoolInDB($select ?? [], $dupNbr);
         include_once $path . "listSlot.php"; // Duplicate n slots
         break;
     case "d":
-        deletePoolInDB(isset($select) ? $select : array());
+        deletePoolInDB($select ?? []);
         include_once $path . "listSlot.php"; // Delete n slots
         break;
     default:

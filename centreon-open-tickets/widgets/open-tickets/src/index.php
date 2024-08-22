@@ -111,7 +111,7 @@ $stateLabels = [
     4 => 'Pending'
 ];
 
-$aStateType = array("1" => "H", "0" => "S");
+$aStateType = ["1" => "H", "0" => "S"];
 $mainQueryParameters = [];
 
 // Build Query
@@ -191,7 +191,7 @@ $query .= " WHERE s.host_id = h.host_id
     AND h.enabled = 1 AND h.name NOT LIKE '_Module_%'
     AND s.enabled = 1 ";
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
-    $tab = explode(" ", $preferences['host_name_search']);
+    $tab = explode(" ", (string) $preferences['host_name_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
@@ -204,7 +204,7 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
     }
 }
 if (isset($preferences['service_description_search']) && $preferences['service_description_search'] != "") {
-    $tab = explode(" ", $preferences['service_description_search']);
+    $tab = explode(" ", (string) $preferences['service_description_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
@@ -232,7 +232,7 @@ if (count($stateTab)) {
 }
 
 if (! empty($preferences['duration_filter'])) {
-    $tab = explode(" ", $preferences['duration_filter']);
+    $tab = explode(" ", (string) $preferences['duration_filter']);
     if (
         count($tab) >= 2
         && ! empty($tab[0])
@@ -309,7 +309,7 @@ if (! empty($preferences['state_type_filter'])) {
 }
 
 if (! empty($preferences['poller'])) {
-    $resultsPoller = explode(',', $preferences['poller']);
+    $resultsPoller = explode(',', (string) $preferences['poller']);
     $queryPoller = '';
 
     foreach ($resultsPoller as $resultPoller) {
@@ -329,7 +329,7 @@ if (! empty($preferences['poller'])) {
 }
 
 if (! empty($preferences['hostgroup'])) {
-    $results = explode(',', $preferences['hostgroup']);
+    $results = explode(',', (string) $preferences['hostgroup']);
     $queryHG = '';
     foreach ($results as $result) {
         if ($queryHG !== '') {
@@ -353,7 +353,7 @@ if (! empty($preferences['hostgroup'])) {
 }
 
 if (! empty($preferences['servicegroup'])) {
-    $resultsSG = explode(',', $preferences['servicegroup']);
+    $resultsSG = explode(',', (string) $preferences['servicegroup']);
     $querySG = '';
     foreach ($resultsSG as $resultSG) {
         if ($querySG !== '') {
@@ -377,7 +377,7 @@ if (! empty($preferences['servicegroup'])) {
 }
 
 if (! empty($preferences['hostcategories'])) {
-    $resultsHC = explode(',', $preferences['hostcategories']);
+    $resultsHC = explode(',', (string) $preferences['hostcategories']);
     $queryHC = '';
     foreach ($resultsHC as $resultHC) {
         if ($queryHC !== '') {
@@ -405,7 +405,7 @@ if (isset($preferences["display_severities"]) &&
     isset($preferences['criticality_filter']) &&
     $preferences['criticality_filter'] != ""
 ) {
-    $tab = explode(",", $preferences['criticality_filter']);
+    $tab = explode(",", (string) $preferences['criticality_filter']);
     $labels = "";
     foreach ($tab as $p) {
         if ($labels != '') {
@@ -432,7 +432,7 @@ if (!$centreon->user->admin) {
     $query .= " AND h.host_id = acl.host_id AND acl.service_id = s.service_id AND acl.group_id IN ($groupList)";
 }
 if (isset($preferences['output_search']) && $preferences['output_search'] != "") {
-    $tab = explode(" ", $preferences['output_search']);
+    $tab = explode(" ", (string) $preferences['output_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
@@ -455,7 +455,7 @@ if (isset($preferences['ticket_subject_search']) && $preferences['ticket_subject
 
 $orderBy = "hostname ASC , description ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    $aOrder = explode(" ", $preferences['order_by']);
+    $aOrder = explode(" ", (string) $preferences['order_by']);
     if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
         if ($aOrder[1] == 'DESC') {
             $order = 'ASC';
@@ -468,7 +468,7 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     }
 
     if (isset($preferences['order_by2']) && $preferences['order_by2'] != "") {
-        $aOrder = explode(" ", $preferences['order_by2']);
+        $aOrder = explode(" ", (string) $preferences['order_by2']);
         $orderBy .= ", " . $aOrder[0] . " " . $aOrder[1];
     }
 }
@@ -486,8 +486,8 @@ unset($parameter, $mainQueryParameters);
 $res->execute();
 
 $nbRows = $dbb->query("SELECT FOUND_ROWS()")->fetchColumn();
-$data = array();
-$outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
+$data = [];
+$outputLength = $preferences['output_length'] ?: 50;
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
@@ -509,7 +509,7 @@ while ($row = $res->fetch()) {
             $data[$row['host_id'] . "_" . $row['service_id']]['hcolor'] = $aColorHost[$value];
             $value = $stateLabels[$value];
         } elseif ($key == "output") {
-            $value = substr($value, 0, $outputLength);
+            $value = substr((string) $value, 0, $outputLength);
         } elseif (($key == "h_action_url" || $key == "h_notes_url") && $value) {
             $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['hostname'], $value));
             if (preg_match("/^.\/include\/configuration\/configKnowledge\/proxy\/proxy.php(.*)/i", $value)) {
@@ -530,11 +530,11 @@ while ($row = $res->fetch()) {
     }
 
     $data[$row['host_id'] . '_' . $row['service_id']]['encoded_description'] = urlencode(
-        $data[$row['host_id'] . '_' . $row['service_id']]['description']
+        (string) $data[$row['host_id'] . '_' . $row['service_id']]['description']
     );
 
     $data[$row['host_id'] . '_' . $row['service_id']]['encoded_hostname'] = urlencode(
-        $data[$row['host_id'] . '_' . $row['service_id']]['hostname']
+        (string) $data[$row['host_id'] . '_' . $row['service_id']]['hostname']
     );
 
     if ($row['host_ticket_time'] > $row['host_last_time_up'] &&

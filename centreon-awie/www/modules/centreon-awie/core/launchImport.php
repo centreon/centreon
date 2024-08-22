@@ -59,7 +59,7 @@ if (!isset($_FILES['clapiImport'])) {
 }
 
 $uploadDir = _CENTREON_CACHEDIR_ . '/';
-$uploadFile = $uploadDir . basename($_FILES['clapiImport']['name']);
+$uploadFile = $uploadDir . basename((string) $_FILES['clapiImport']['name']);
 $tmpLogFile = $uploadDir . 'log' . time() . '.htm';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir);

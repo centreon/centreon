@@ -27,21 +27,15 @@ class ClapiObject
     protected $db;
     /** @var mixed */
     protected $dbMon;
-    /** @var array<mixed> */
-    protected $clapiParameters = [];
     /** @var \CentreonClapi\CentreonAPI */
     protected $clapiConnector;
-    /** @var \Pimple\Container */
-    protected $dependencyInjector;
 
     /**
      * @param \Pimple\Container $dependencyInjector
      * @param array<mixed> $clapiParameters
      */
-    public function __construct($dependencyInjector, $clapiParameters)
+    public function __construct(protected $dependencyInjector, protected $clapiParameters)
     {
-        $this->dependencyInjector = $dependencyInjector;
-        $this->clapiParameters = $clapiParameters;
         $this->connectToClapi();
     }
 
@@ -50,7 +44,7 @@ class ClapiObject
      * @param string $value
      * @return void
      */
-    public function addClapiParameter($key, $value)
+    public function addClapiParameter($key, $value): void
     {
         $this->clapiParameters[$key] = $value;
     }
@@ -58,7 +52,7 @@ class ClapiObject
     /**
      * @return void
      */
-    private function connectToClapi()
+    private function connectToClapi(): void
     {
         \CentreonClapi\CentreonUtils::setUserName($this->clapiParameters['username']);
         $this->clapiConnector = \CentreonClapi\CentreonAPI::getInstance(

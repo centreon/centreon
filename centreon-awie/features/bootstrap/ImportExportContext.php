@@ -8,7 +8,7 @@ class ImportExportContext extends CentreonAwieContext
     /**
      * @When I export an object
      */
-    public function iExportAnObject()
+    public function iExportAnObject(): void
     {
         $this->iAmOnTheExportPage();
         $this->assertFind('css', '#contact')->click();
@@ -18,7 +18,7 @@ class ImportExportContext extends CentreonAwieContext
     /**
      * @Then I have a file
      */
-    public function iHaveAFile()
+    public function iHaveAFile(): void
     {
         $mythis = $this;
 
@@ -26,9 +26,8 @@ class ImportExportContext extends CentreonAwieContext
             function ($context) use ($mythis) {
                 if ($context->getSession()->getPage()->has('css', '.loadingWrapper')) {
                     return !$context->assertFind('css', '.loadingWrapper')->isVisible();
-                } else {
-                    return true;
                 }
+                return true;
             }
         );
 
@@ -37,10 +36,10 @@ class ImportExportContext extends CentreonAwieContext
             $cmd,
             'web'
         );
-        $output = explode("\n", $output['output']);
+        $output = explode("\n", (string) $output['output']);
         $fileCreate = false;
         foreach ($output as $file) {
-            if (substr("$file", -3) == 'zip') {
+            if (str_ends_with("$file", 'zip')) {
                 $fileCreate = true;
             }
         }

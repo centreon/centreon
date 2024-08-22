@@ -139,7 +139,7 @@ try {
     $cmd = filter_input(INPUT_GET, 'cmd', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 
     $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
-    $selections = explode(',', $_REQUEST['selection']);
+    $selections = explode(',', (string) $_REQUEST['selection']);
 
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);

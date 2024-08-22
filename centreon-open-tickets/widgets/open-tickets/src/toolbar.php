@@ -34,7 +34,7 @@ if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
 }
 
 $baseUri = (function() {
-    $scriptName = htmlspecialchars($_SERVER['SCRIPT_NAME']);
+    $scriptName = htmlspecialchars((string) $_SERVER['SCRIPT_NAME']);
     $paths = explode('/', $scriptName);
     $baseUri = "/" . $paths[1] . "/";
     return $baseUri;

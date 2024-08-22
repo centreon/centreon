@@ -19,10 +19,7 @@
  * limitations under the License.
  */
 
-$resultat = array(
-    "code" => 0,
-    "msg" => 'ok',
-);
+$resultat = ["code" => 0, "msg" => 'ok'];
 
 // Load provider class
 if (is_null($get_information['provider_id']) || is_null($get_information['form'])) {
@@ -63,19 +60,19 @@ $centreon_provider = new $classname(
 );
 
 // We get Host or Service
-$selected_values = explode(',', $get_information['form']['selection']);
+$selected_values = explode(',', (string) $get_information['form']['selection']);
 $db_storage = new CentreonDBManager('centstorage');
 
-$problems = array();
-$tickets = array();
+$problems = [];
+$tickets = [];
 
 # check services and hosts
 $selected_str = '';
 $selected_str_append = '';
 $hosts_selected_str = '';
 $hosts_selected_str_append = '';
-$hosts_done = array();
-$services_done = array();
+$hosts_done = [];
+$services_done = [];
 foreach ($selected_values as $value) {
     $str = explode(';', $value);
     $selected_str .= $selected_str_append . 'services.host_id = ' .
@@ -127,7 +124,7 @@ $query .= " AND motl.host_id = hosts.host_id
             AND mot.timestamp > hosts.last_hard_state_change
     ) ORDER BY `host_name`, `description`, `timestamp` DESC";
 
-$hosts_done = array();
+$hosts_done = [];
 
 $dbResult = $db_storage->query($query);
 while ($row = $dbResult->fetch()) {
@@ -136,7 +133,7 @@ while ($row = $dbResult->fetch()) {
     }
 
     $problems[] = $row;
-    $tickets[$row['ticket_value']] = array('status' => 0, 'msg_error' => null);
+    $tickets[$row['ticket_value']] = ['status' => 0, 'msg_error' => null];
     $hosts_done[$row['host_name'] . ';' . $row['description']] = 1;
 }
 
@@ -150,8 +147,8 @@ try {
         $method_external_name = 'setProcessCommand';
     }
 
-    $removed_tickets = array();
-    $error_msg = array();
+    $removed_tickets = [];
+    $error_msg = [];
 
     foreach ($problems as $row) {
         // an error in ticket close
@@ -171,39 +168,30 @@ try {
         if (is_null($row['description']) || $row['description'] == '') {
             $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
             call_user_func_array(
-                array($external_cmd, $method_external_name),
-                array(
-                    sprintf($command, $row['host_name'], $centreon_provider->getMacroTicketId(), ''),
-                    $row['instance_id']
-                )
+                [$external_cmd, $method_external_name],
+                [sprintf($command, $row['host_name'], $centreon_provider->getMacroTicketId(), ''), $row['instance_id']]
             );
             $command = "REMOVE_HOST_ACKNOWLEDGEMENT;%s";
             call_user_func_array(
-                array($external_cmd, $method_external_name),
-                array(
-                    sprintf($command, $row['host_name']),
-                    $row['instance_id']
-                )
+                [$external_cmd, $method_external_name],
+                [sprintf($command, $row['host_name']), $row['instance_id']]
             );
             continue;
         }
 
         $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
         call_user_func_array(
-            array($external_cmd, $method_external_name),
-            array(
+            [$external_cmd, $method_external_name],
+            [
                 sprintf($command, $row['host_name'], $row['description'], $centreon_provider->getMacroTicketId(), ''),
                 $row['instance_id']
-            )
+            ]
         );
         if ($centreon_provider->doAck()) {
             $command = "REMOVE_SVC_ACKNOWLEDGEMENT;%s;%s";
             call_user_func_array(
-                array($external_cmd, $method_external_name),
-                array(
-                    sprintf($command, $row['host_name'], $row['description']),
-                    $row['instance_id']
-                )
+                [$external_cmd, $method_external_name],
+                [sprintf($command, $row['host_name'], $row['description']), $row['instance_id']]
             );
         }
     }

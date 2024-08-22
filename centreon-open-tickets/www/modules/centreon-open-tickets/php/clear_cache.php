@@ -36,7 +36,7 @@ $extractErrorMessage = function (BufferedOutput $output): ?string
         }
     }
     if (!empty($filteredMessages)) {
-        if (substr(strtolower($filteredMessages[0]), 0, 2) === 'in') {
+        if (str_starts_with(strtolower($filteredMessages[0]), 'in')) {
             array_shift($filteredMessages);
         }
         return implode('<br/>', $filteredMessages);

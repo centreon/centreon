@@ -27,22 +27,31 @@ use Rector\Visibility\Rector\ClassMethod\ExplicitPublicClassMethodRector;
 
 return RectorConfig::configure()
     ->withPaths([
-//        __DIR__ . '/api',
-//        __DIR__ . '/config',
-//        __DIR__ . '/cron',
-//        __DIR__ . '/lib',
-//        __DIR__ . '/libinstall',
-//        __DIR__ . '/packaging',
-//        __DIR__ . '/src',
-//        __DIR__ . '/tests',
-//        __DIR__ . '/tools',
-//        __DIR__ . '/www',
-//        __DIR__ . '/.env.local.php',
-//        __DIR__ . '/.php-cs-fixer.dist.php',
-//        __DIR__ . '/.php-cs-fixer.unstrict.php',
-//        __DIR__ . '/rector.php',
-//        __DIR__ . '/bootstrap.php',
-//        __DIR__ . '/container.php',
+        // ----- centreon_web ----
+        // __DIR__ . '/api',
+        // __DIR__ . '/config',
+        // __DIR__ . '/cron',
+        // __DIR__ . '/lib',
+        // __DIR__ . '/libinstall',
+        // __DIR__ . '/packaging',
+        // __DIR__ . '/src',
+        // __DIR__ . '/tests',
+        // __DIR__ . '/tools',
+        // __DIR__ . '/www',
+        // __DIR__ . '/.env.local.php',
+        // __DIR__ . '/.php-cs-fixer.dist.php',
+        // __DIR__ . '/.php-cs-fixer.unstrict.php',
+        // __DIR__ . '/rector.php',
+        // __DIR__ . '/bootstrap.php',
+        // __DIR__ . '/container.php',
+        // ---- centreon-awie ----
+//        __DIR__ . '/../centreon-awie',
+        // ---- centreon-dsm ----
+//        __DIR__ . '/../centreon-dsm',
+        // ---- centreon-ha ----
+//        __DIR__ . '/../centreon-ha',
+        // ---- centreon-open-tickets ----
+//        __DIR__ . '/../centreon-open-tickets',
     ])
     ->withPhpSets(php82: true)
     ->withPreparedSets(earlyReturn: true)

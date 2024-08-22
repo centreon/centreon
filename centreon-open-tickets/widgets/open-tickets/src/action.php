@@ -214,7 +214,7 @@ try {
     $cmd = $_REQUEST['cmd'];
 
     $widgetId = $_REQUEST['widgetId'];
-    $selections = explode(",", $_REQUEST['selection']);
+    $selections = explode(",", (string) $_REQUEST['selection']);
 
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
