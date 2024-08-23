@@ -37,11 +37,20 @@ runs:
     - name: Install Cypress binary
       uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
       with:
-        timeout_seconds: 120
+        timeout_seconds: 200
         max_attempts: 10
         retry_wait_seconds: 30
         retry_on: error
         command: cd ${{ inputs.module }} && pnpm cypress install --force
+
+    - name: Install browser dependencies
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get -qq -y install wget libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb xdg-utils libu2f-udev fonts-liberation libu2f-udev fonts-liberation xdg-utils
+        sudo wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_114.0.5735.90-1_amd64.deb
+        sudo apt-get install -y ./google-chrome-stable_114.0.5735.90-1_amd64.deb
+        sudo dpkg -i google-chrome-stable_114.0.5735.90-1_amd64.deb
+      shell: bash
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@1b70233146622b69e789ccdd4f9452adc638d25a # v6.6.1

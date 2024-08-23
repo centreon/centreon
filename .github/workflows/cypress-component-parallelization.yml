@@ -22,7 +22,7 @@ on:
 
 jobs:
   cypress-component-test-list:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     outputs:
       specs: ${{ steps.list-specs.outputs.specs }}
 
@@ -38,7 +38,7 @@ jobs:
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     strategy:
       fail-fast: false
       matrix:
@@ -77,7 +77,7 @@ jobs:
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -163,7 +163,7 @@ jobs:
   cypress-component-test-report:
     needs: [cypress-component-test-run]
     if: failure()
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
