@@ -25,7 +25,7 @@
     "friends-of-behat/mink": "^1.9",
     "friends-of-behat/mink-extension": "^2.5",
     "centreon/centreon-test-lib": "dev-master",
-    "squizlabs/php_codesniffer": "3.6.2",
+    "squizlabs/php_codesniffer": "3.5.8",
     "psr/container": "1.1.1"
   },
   "config": {
