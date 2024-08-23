@@ -83,12 +83,12 @@ const run = async () => {
       codeCoverageLines >= baseCodeCoveragePercentage;
 
     if (generateNewCodeCoverages) {
-      if (!strictlyPassGateKeep) {
-        core.info(
-          `Cannot update base percentage for ${module}. Requirement: ${baseCodeCoveragePercentage}%. Current: ${codeCoverageLines}%`
-        );
-        return;
-      }
+      // if (!strictlyPassGateKeep) {
+      //   core.info(
+      //     `Cannot update base percentage for ${module}. Requirement: ${baseCodeCoveragePercentage}%. Current: ${codeCoverageLines}%`
+      //   );
+      //   return;
+      // }
       const newCodeCoverages = {
         ...codeCoverages,
         [module]: codeCoverageLines

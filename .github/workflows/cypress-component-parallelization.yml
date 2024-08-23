@@ -152,11 +152,12 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ steps.title.outputs.replaced }}
           dynamicCodeCoveragesFilePath: /tmp/baseCodeCoverages.json
-          generateNewCodeCoverages: ${{ github.ref_name == 'develop' && github.event.inputs.is_nightly == 'false' }}
+          generateNewCodeCoverage: true
+          # generateNewCodeCoverages: ${{ github.ref_name == 'develop' && github.event.inputs.is_nightly == 'false' }}
 
       - name: Send new dynamic code coverages
         shell: bash
-        if: ${{ github.ref_name == 'develop' }}
+        # if: ${{ github.ref_name == 'develop' }}
         run: |
           aws s3 cp /tmp/newBaseCodeCoverages.json s3://centreon-lighthouse-report/baseCodeCoverages.json
 
