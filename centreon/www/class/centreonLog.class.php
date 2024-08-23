@@ -63,7 +63,7 @@ class CentreonUserLog
      * @param int $uid
      * @param CentreonDB $pearDB
      */
-    public function __construct(private $uid, $pearDB)
+    public function __construct($uid, $pearDB)
     {
         $this->uid = $uid;
         $this->errorType = [];
