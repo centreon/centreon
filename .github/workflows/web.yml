@@ -295,7 +295,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
     with:
-      name: component
+      name: centreon
       module_name: centreon
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
