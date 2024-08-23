@@ -1,31 +1,31 @@
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
-import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
 import { useAtom } from 'jotai';
+import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
 
 import { Skeleton } from '@mui/material';
 
+import { Tooltip } from '../../components';
+import { useDeepCompare } from '../../utils';
+import { margin } from '../Chart/common';
 import { Data, LineChartProps } from '../Chart/models';
-import { Thresholds as ThresholdsModel } from '../common/models';
 import { useIntersection } from '../Chart/useChartIntersection';
-import { Line } from '../common/timeSeries/models';
+import BaseChart from '../common/BaseChart/BaseChart';
+import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
+import Thresholds from '../common/Thresholds/Thresholds';
+import { Thresholds as ThresholdsModel } from '../common/models';
 import {
   getUnits,
   getXScaleBand,
   getYScalePerUnit
 } from '../common/timeSeries';
-import BaseChart from '../common/BaseChart/BaseChart';
-import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
+import { Line } from '../common/timeSeries/models';
 import { useTooltipStyles } from '../common/useTooltipStyles';
-import { margin } from '../Chart/common';
-import { Tooltip } from '../../components';
-import Thresholds from '../common/Thresholds/Thresholds';
-import { useDeepCompare } from '../../utils';
 
 import BarGroup from './BarGroup';
-import { tooltipDataAtom } from './atoms';
 import BarChartTooltip from './Tooltip/BarChartTooltip';
+import { tooltipDataAtom } from './atoms';
 import { BarStyle } from './models';
 
 interface Props

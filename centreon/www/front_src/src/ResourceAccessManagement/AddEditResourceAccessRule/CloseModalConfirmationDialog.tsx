@@ -1,17 +1,17 @@
-import { useTranslation } from 'react-i18next';
 import { useAtom, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { ConfirmDialog } from '@centreon/ui';
 
-import {
-  labelDoYouWantToQuitWithoutSaving,
-  labelYourFormHasUnsavedChanges
-} from '../translatedLabels';
 import {
   isCloseModalConfirmationDialogOpenAtom,
   modalStateAtom
 } from '../atom';
 import { ModalMode } from '../models';
+import {
+  labelDoYouWantToQuitWithoutSaving,
+  labelYourFormHasUnsavedChanges
+} from '../translatedLabels';
 
 const CloseModalConfirmationDialog = (): React.JSX.Element => {
   const { t } = useTranslation();

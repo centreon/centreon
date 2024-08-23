@@ -1,4 +1,4 @@
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 

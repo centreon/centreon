@@ -2,17 +2,17 @@ import { ReactNode } from 'react';
 
 import { ScaleLinear } from 'd3-scale';
 
-import { Line, TimeValue } from '../common/timeSeries/models';
-import { LineChartData } from '../common/models';
-import { AxisX, Axis as AxisYLeft, AxisYRight } from '../common/Axes/models';
 import { BarStyle } from '../BarChart/models';
+import { AxisX, Axis as AxisYLeft, AxisYRight } from '../common/Axes/models';
+import { LineChartData } from '../common/models';
+import { Line, TimeValue } from '../common/timeSeries/models';
 
+import { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 import {
   AreaRegularLines,
   AreaStackedLines
 } from './BasicComponents/Lines/models';
 import { TimelineEvent } from './InteractiveComponents/Annotations/models';
-import { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 
 export interface LineChartEndpoint {
   baseUrl: string;

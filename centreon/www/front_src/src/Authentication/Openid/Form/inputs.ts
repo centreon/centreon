@@ -1,47 +1,9 @@
-import { equals, not, pathEq, prop } from 'ramda';
 import { FormikValues } from 'formik';
+import { equals, not, pathEq, prop } from 'ramda';
 
 import { InputType } from '@centreon/ui';
 import type { InputProps } from '@centreon/ui';
 
-import {
-  labelAtLeastOneOfTheTwoFollowingFieldsMustBeFilled,
-  labelAuthorizationEndpoint,
-  labelBaseUrl,
-  labelBlacklistClientAddresses,
-  labelClientID,
-  labelClientSecret,
-  labelDisableVerifyPeer,
-  labelEmailAttributePath,
-  labelEnableOpenIDConnectAuthentication,
-  labelEndSessionEndpoint,
-  labelFullnameAttributePath,
-  labelIntrospectionTokenEndpoint,
-  labelLoginAttributePath,
-  labelOpenIDConnectOnly,
-  labelScopes,
-  labelTokenEndpoint,
-  labelTrustedClientAddresses,
-  labelUseBasicAuthenticatonForTokenEndpointAuthentication,
-  labelUserInformationEndpoint,
-  labelWhichEndpointTheConditionsAttributePathComeFrom,
-  labelOther,
-  labelUserIformation,
-  labelIntrospectionEndpoint,
-  labelWhichEndpointTheRolesAttributePathComeFrom,
-  labelDefineRelationBetweenRolesAndAcl,
-  labelDefineYourEndpoint,
-  labelWhichEndpointTheGroupsAttributePathComeFrom,
-  labelRedirectUrl
-} from '../translatedLabels';
-import { AuthenticationType, EndpointType } from '../models';
-import {
-  labelActivation,
-  labelAutoImportUsers,
-  labelAuthenticationConditions,
-  labelIdentityProvider,
-  labelGroupsMapping
-} from '../../translatedLabels';
 import {
   accessGroupsEndpoint,
   contactGroupsEndpoint,
@@ -68,6 +30,44 @@ import {
   labelRolesAttributePath,
   labelRolesMapping
 } from '../../shared/translatedLabels';
+import {
+  labelActivation,
+  labelAuthenticationConditions,
+  labelAutoImportUsers,
+  labelGroupsMapping,
+  labelIdentityProvider
+} from '../../translatedLabels';
+import { AuthenticationType, EndpointType } from '../models';
+import {
+  labelAtLeastOneOfTheTwoFollowingFieldsMustBeFilled,
+  labelAuthorizationEndpoint,
+  labelBaseUrl,
+  labelBlacklistClientAddresses,
+  labelClientID,
+  labelClientSecret,
+  labelDefineRelationBetweenRolesAndAcl,
+  labelDefineYourEndpoint,
+  labelDisableVerifyPeer,
+  labelEmailAttributePath,
+  labelEnableOpenIDConnectAuthentication,
+  labelEndSessionEndpoint,
+  labelFullnameAttributePath,
+  labelIntrospectionEndpoint,
+  labelIntrospectionTokenEndpoint,
+  labelLoginAttributePath,
+  labelOpenIDConnectOnly,
+  labelOther,
+  labelRedirectUrl,
+  labelScopes,
+  labelTokenEndpoint,
+  labelTrustedClientAddresses,
+  labelUseBasicAuthenticatonForTokenEndpointAuthentication,
+  labelUserIformation,
+  labelUserInformationEndpoint,
+  labelWhichEndpointTheConditionsAttributePathComeFrom,
+  labelWhichEndpointTheGroupsAttributePathComeFrom,
+  labelWhichEndpointTheRolesAttributePathComeFrom
+} from '../translatedLabels';
 
 const isAutoImportDisabled = (values: FormikValues): boolean =>
   not(prop('autoImport', values));

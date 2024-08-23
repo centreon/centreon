@@ -1,8 +1,8 @@
+import { DataListing } from './DataListing';
 import { DataTable as DataTableRoot } from './DataTable';
+import { DataTableEmptyState } from './EmptyState/DataTableEmptyState';
 import { DataTableItem } from './Item/DataTableItem';
 import { DataTableItemSkeleton } from './Item/DataTableItemSkeleton';
-import { DataTableEmptyState } from './EmptyState/DataTableEmptyState';
-import { DataListing } from './DataListing';
 
 export const DataTable = Object.assign(DataTableRoot, {
   EmptyState: DataTableEmptyState,

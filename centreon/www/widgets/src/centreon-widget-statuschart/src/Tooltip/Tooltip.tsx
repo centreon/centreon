@@ -1,20 +1,20 @@
+import dayjs from 'dayjs';
 import { dec, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 
 import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
+import { Resource } from '../../../models';
 import {
   labelAreWorkingFine,
   labelStatus,
   lableNoResourceFound
 } from '../translatedLabels';
-import { Resource } from '../../../models';
 
-import { useTooltipContent } from './useTooltip';
 import { useTooltipStyles } from './Tooltip.styles';
+import { useTooltipContent } from './useTooltip';
 
 interface Props {
   color: string;

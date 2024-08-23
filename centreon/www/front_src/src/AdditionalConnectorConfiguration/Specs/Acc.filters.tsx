@@ -1,7 +1,8 @@
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
+import Filters from '../Listing/ActionsBar/Filters/Filters';
 import {
   additionalConnectorsEndpoint,
   pollersEndpoint
@@ -14,7 +15,6 @@ import {
   labelSearch,
   labelTypes
 } from '../translatedLabels';
-import Filters from '../Listing/ActionsBar/Filters/Filters';
 
 const store = createStore();
 

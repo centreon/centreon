@@ -1,6 +1,6 @@
-import { object } from 'yup';
 import { faker } from '@faker-js/faker';
 import { useFormikContext } from 'formik';
+import { object } from 'yup';
 
 import { Typography } from '@mui/material';
 

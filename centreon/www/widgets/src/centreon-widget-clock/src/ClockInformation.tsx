@@ -1,12 +1,12 @@
 import { memo } from 'react';
 
 import { Dayjs } from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import PublicIcon from '@mui/icons-material/Public';
+import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import { Tooltip, Typography } from '@mui/material';
 
 import { EllipsisTypography } from '@centreon/ui';

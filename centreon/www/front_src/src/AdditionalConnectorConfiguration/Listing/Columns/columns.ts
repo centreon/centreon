@@ -1,7 +1,7 @@
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { ColumnType, Column, useLocaleDateTimeFormat } from '@centreon/ui';
+import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelActions,

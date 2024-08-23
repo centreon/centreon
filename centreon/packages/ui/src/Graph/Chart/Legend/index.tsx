@@ -8,15 +8,15 @@ import { useMemoComponent } from '@centreon/ui';
 
 import { formatMetricValue } from '../../common/timeSeries';
 import { Line } from '../../common/timeSeries/models';
-import { labelAvg, labelMax, labelMin } from '../translatedLabels';
-import { LegendModel } from '../models';
 import { margin } from '../common';
+import { LegendModel } from '../models';
+import { labelAvg, labelMax, labelMin } from '../translatedLabels';
 
 import { useStyles } from './Legend.styles';
+import LegendContent from './LegendContent';
 import LegendHeader from './LegendHeader';
 import { GetMetricValueProps, LegendDisplayMode } from './models';
 import useLegend from './useLegend';
-import LegendContent from './LegendContent';
 
 interface Props extends Pick<LegendModel, 'placement' | 'mode'> {
   base: number;

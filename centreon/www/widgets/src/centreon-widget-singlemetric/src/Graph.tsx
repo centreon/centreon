@@ -1,5 +1,5 @@
-import { equals, isNil } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals, isNil } from 'ramda';
 
 import {
   ContentWithCircularLoading,
@@ -8,14 +8,14 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import useThresholds from '../../useThresholds';
-import { Resource, GlobalRefreshInterval, Metric } from '../../models';
 import NoResources from '../../NoResources';
+import { GlobalRefreshInterval, Metric, Resource } from '../../models';
+import useThresholds from '../../useThresholds';
 import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
-import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
-import { graphEndpoint } from './api/endpoints';
 import SingleMetricRenderer from './SingleMetricRenderer';
+import { graphEndpoint } from './api/endpoints';
+import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 
 interface Props {
   dashboardId: number | string;

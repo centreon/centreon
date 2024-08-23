@@ -33,14 +33,11 @@
       ],
       "defaultValue": "host",
       "hiddenCondition": {
-        "target" : "data",
+        "target": "data",
         "when": "data.resources",
         "property": "resourceType",
         "method": "includes",
-        "matches":  [
-          "business-view",
-          "business-activity"
-        ]
+        "matches": ["business-view", "business-activity"]
       }
     },
     "statuses": {
@@ -68,10 +65,7 @@
           "name": "Undefined (Unreachable/Unknown)"
         }
       ],
-      "defaultValue": [
-        "warning",
-        "problem"
-      ]
+      "defaultValue": ["warning", "problem"]
     },
     "sortBy": {
       "type": "radio",
@@ -116,9 +110,7 @@
       "defaultValue": [],
       "required": false,
       "useAdditionalResources": true,
-      "excludedResourceTypes": [
-        "meta-service"
-      ]
+      "excludedResourceTypes": ["meta-service"]
     }
   },
   "moduleName": "centreon-widget-statusgrid"

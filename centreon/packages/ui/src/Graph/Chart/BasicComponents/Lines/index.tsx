@@ -3,6 +3,12 @@ import { MutableRefObject } from 'react';
 import { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
 
+import {
+  getDates,
+  getTimeSeriesForLines,
+  getYScale
+} from '../../../common/timeSeries';
+import { Line, TimeValue } from '../../../common/timeSeries/models';
 import { getPointRadius } from '../../../common/utils';
 import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
 import RegularAnchorPoint, {
@@ -10,13 +16,8 @@ import RegularAnchorPoint, {
 } from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
 import { displayArea } from '../../helpers/index';
 import { DisplayAnchor, GlobalAreaLines } from '../../models';
-import {
-  getDates,
-  getTimeSeriesForLines,
-  getYScale
-} from '../../../common/timeSeries';
-import { Line, TimeValue } from '../../../common/timeSeries/models';
 
+import Point from './Point';
 import RegularLine from './RegularLines';
 import useRegularLines from './RegularLines/useRegularLines';
 import StackedLines from './StackedLines';
@@ -26,7 +27,6 @@ import {
   canDisplayThreshold,
   requiredNumberLinesThreshold
 } from './Threshold/models';
-import Point from './Point';
 
 interface Props extends GlobalAreaLines {
   areaTransparency?: number;

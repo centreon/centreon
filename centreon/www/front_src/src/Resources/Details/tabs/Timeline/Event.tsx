@@ -1,37 +1,37 @@
-import { prop, isNil, filter, equals } from 'ramda';
-import { TFunction, useTranslation } from 'react-i18next';
 import dayjs, { Dayjs } from 'dayjs';
+import { equals, filter, isNil, prop } from 'ramda';
+import { TFunction, useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Chip, Typography } from '@mui/material';
-import EventIcon from '@mui/icons-material/Event';
 import CommentIcon from '@mui/icons-material/Comment';
-import NotificationIcon from '@mui/icons-material/Notifications';
+import EventIcon from '@mui/icons-material/Event';
 import FaceIcon from '@mui/icons-material/Face';
+import NotificationIcon from '@mui/icons-material/Notifications';
+import { Chip, Typography } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import CompactStatusChip from '../CompactStatusChip';
-import {
-  labelEvent,
-  labelComment,
-  labelAcknowledgement,
-  labelDowntime,
-  labelFrom,
-  labelTo,
-  labelTries,
-  labelNotification,
-  labelToday,
-  labelYesterday,
-  labelThisWeek,
-  labelLastWeek,
-  labelLastMonth,
-  labelLastYear,
-  labelBeforeLastYear,
-  labelStatus
-} from '../../../translatedLabels';
-import DowntimeChip from '../../../Chip/Downtime';
 import AcknowledgeChip from '../../../Chip/Acknowledge';
+import DowntimeChip from '../../../Chip/Downtime';
+import {
+  labelAcknowledgement,
+  labelBeforeLastYear,
+  labelComment,
+  labelDowntime,
+  labelEvent,
+  labelFrom,
+  labelLastMonth,
+  labelLastWeek,
+  labelLastYear,
+  labelNotification,
+  labelStatus,
+  labelThisWeek,
+  labelTo,
+  labelToday,
+  labelTries,
+  labelYesterday
+} from '../../../translatedLabels';
+import CompactStatusChip from '../CompactStatusChip';
 import OutputInformation from '../OutputInformation';
 
 import { TimelineEvent, Type } from './models';
@@ -127,7 +127,7 @@ interface Props {
   event: TimelineEvent;
 }
 
-const Date = ({ event }: Props): JSX.Element => {
+const DateDisplay = ({ event }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
 
   const parsedDate = format({ date: event.date, formatString: 'LLLL' });
@@ -158,7 +158,7 @@ const EventTimelineEvent = ({ event }: Props): JSX.Element => {
     <div className={classes.event}>
       <div className={classes.eventTimeLineContainer}>
         <div>
-          <Date event={event} />
+          <DateDisplay event={event} />
         </div>
         <div className={classes.chip}>
           <CompactStatusChip
@@ -185,7 +185,7 @@ const CommentTimelineEvent = ({ event }: Props): JSX.Element => {
   return (
     <div className={classes.event}>
       <div className={classes.infoHeader}>
-        <Date event={event} />
+        <DateDisplay event={event} />
         <div className={classes.title}>
           <Author event={event} />
         </div>
@@ -201,7 +201,7 @@ const AcknowledgeTimelineEvent = ({ event }: Props): JSX.Element => {
   return (
     <div className={classes.event}>
       <div className={classes.infoHeader}>
-        <Date event={event} />
+        <DateDisplay event={event} />
         <div className={classes.title}>
           <Author event={event} />
         </div>
@@ -255,7 +255,7 @@ const NotificationTimelineEvent = ({ event }: Props): JSX.Element => {
   return (
     <div className={classes.event}>
       <div className={classes.infoHeader}>
-        <Date event={event} />
+        <DateDisplay event={event} />
         <div className={classes.title}>
           <Author event={event} />
         </div>

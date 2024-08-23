@@ -1,36 +1,36 @@
 import { useEffect, useState } from 'react';
 
+import { DraggableSyntheticListeners, rectIntersection } from '@dnd-kit/core';
+import { verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { FormikValues, useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-import { verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { DraggableSyntheticListeners, rectIntersection } from '@dnd-kit/core';
 import {
+  path,
+  clone,
   dec,
   equals,
-  inc,
-  isNil,
-  pick,
-  split,
-  path,
-  type,
-  not,
   filter,
-  pipe,
-  map,
-  or,
+  inc,
   is,
-  clone
+  isNil,
+  map,
+  not,
+  or,
+  pick,
+  pipe,
+  split,
+  type
 } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import { FormHelperText, IconButton, Typography } from '@mui/material';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import { FormHelperText, IconButton, Typography } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { DragEnd } from '../../../SortableItems';
 import { SortableItems, useMemoComponent } from '../../..';
+import { DragEnd } from '../../../SortableItems';
 import {
   InputPropsWithoutGroup,
   InputPropsWithoutGroupAndType

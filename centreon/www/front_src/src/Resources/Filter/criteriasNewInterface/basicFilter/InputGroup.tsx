@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 
 import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
 
-import useInputData from '../useInputsData';
-import { removeDuplicateFromObjectArray } from '../utils';
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { ChangedCriteriaParams, SectionType } from '../model';
+import useInputData from '../useInputsData';
+import { removeDuplicateFromObjectArray } from '../utils';
 
-import useSectionsData from './sections/useSections';
 import { useStyles } from './sections/sections.style';
+import useSectionsData from './sections/useSections';
 
 interface ParametersGetEndpoint {
   page: number;

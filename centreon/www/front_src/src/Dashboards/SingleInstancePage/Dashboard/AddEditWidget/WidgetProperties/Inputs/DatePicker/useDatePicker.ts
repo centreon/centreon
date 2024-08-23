@@ -1,17 +1,17 @@
 import { useCallback, useMemo } from 'react';
 
+import dayjs, { Dayjs } from 'dayjs';
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
-import dayjs, { Dayjs } from 'dayjs';
 
-import { userAtom } from '@centreon/ui-context';
 import { SelectEntry } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
-import { Widget, WidgetPropertyProps } from '../../../models';
 import {
   localeInputKeyDerivedAtom,
   timezoneInputKeyDerivedAtom
 } from '../../../atoms';
+import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
 
 interface UseDatePickerState {

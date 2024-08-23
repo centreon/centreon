@@ -8,10 +8,10 @@ import { Method, useMutationQuery } from '@centreon/ui';
 
 import { Resource } from '../../models';
 import { labelCheck, labelForcedCheck } from '../../translatedLabels';
-import { checkEndpoint } from '../api/endpoint';
-import { Data } from '../model';
 import ResourceActionButton from '../ResourceActionButton';
 import useAclQuery from '../aclQuery';
+import { checkEndpoint } from '../api/endpoint';
+import { Data } from '../model';
 
 import Check from './Check';
 import CheckOptionsList from './CheckOptionsList';

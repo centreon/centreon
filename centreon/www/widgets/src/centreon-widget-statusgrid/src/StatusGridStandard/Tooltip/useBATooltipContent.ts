@@ -6,9 +6,9 @@ import {
   usePluralizedTranslation
 } from '@centreon/ui';
 
-import { ResourceData, BusinessActivity, Indicator } from '../models';
 import { getBAEndpoint } from '../../api/endpoints';
 import { businessActivityDecoder } from '../api/decoders';
+import { BusinessActivity, Indicator, ResourceData } from '../models';
 
 interface UseServiceTooltipContentState {
   calculationMethod?: string;

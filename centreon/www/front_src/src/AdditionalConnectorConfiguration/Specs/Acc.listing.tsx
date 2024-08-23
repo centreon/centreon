@@ -1,7 +1,8 @@
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
+import Listing from '../Listing/Listing';
 import {
   additionalConnectorsEndpoint,
   getAdditionalConnectorEndpoint
@@ -18,7 +19,6 @@ import {
   labelType,
   labelUpdateBy
 } from '../translatedLabels';
-import Listing from '../Listing/Listing';
 
 const mockRequests = (): void => {
   cy.fixture('ACC/additionalConnectors.json').then((connectors) => {

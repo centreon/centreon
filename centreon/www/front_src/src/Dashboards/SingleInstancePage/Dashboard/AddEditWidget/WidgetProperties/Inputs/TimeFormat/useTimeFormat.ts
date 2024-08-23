@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 
+import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
-import dayjs from 'dayjs';
 
-import { userAtom } from '@centreon/ui-context';
 import { SelectEntry } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
-import { Widget, WidgetPropertyProps } from '../../../models';
 import { localeInputKeyDerivedAtom } from '../../../atoms';
+import { Widget, WidgetPropertyProps } from '../../../models';
 
 export const useTimeFormat = ({
   propertyName

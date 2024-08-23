@@ -1,35 +1,35 @@
 import { useCallback, useEffect } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
-import { isNil } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Paper, useMediaQuery, useTheme } from '@mui/material';
 
 import { Modal } from '@centreon/ui/components';
 
+import { isSidebarOpenAtom } from '../../../../Navigation/navigationAtoms';
+import Title from '../../../components/Title';
+import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 import {
   labelAddWidget,
   labelEditWidget,
   labelViewWidgetProperties
 } from '../translatedLabels';
-import Title from '../../../components/Title';
-import { useCanEditProperties } from '../hooks/useCanEditDashboard';
-import { isSidebarOpenAtom } from '../../../../Navigation/navigationAtoms';
 
-import useWidgetForm from './useWidgetModal';
-import { useAddWidgetStyles } from './addWidget.styles';
-import { Widget } from './models';
+import Actions from './Actions';
+import UnsavedChanges from './UnsavedChanges';
 import {
   Preview,
   WidgetData,
   WidgetProperties,
   WidgetSelection
 } from './WidgetProperties';
-import Actions from './Actions';
+import { useAddWidgetStyles } from './addWidget.styles';
+import { Widget } from './models';
 import useValidationSchema from './useValidationSchema';
-import UnsavedChanges from './UnsavedChanges';
+import useWidgetForm from './useWidgetModal';
 
 const AddWidgetModal = (): JSX.Element | null => {
   const { t } = useTranslation();

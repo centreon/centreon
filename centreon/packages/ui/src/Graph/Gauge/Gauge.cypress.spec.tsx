@@ -1,12 +1,12 @@
-import dataLastWeek from '../mockedData/lastWeek.json';
 import {
   criticalThresholds,
   rangedThresholds,
   successThresholds,
   warningThresholds
 } from '../common/testUtils';
+import dataLastWeek from '../mockedData/lastWeek.json';
 
-import { Props, Gauge } from './Gauge';
+import { Gauge, Props } from './Gauge';
 
 const initialize = (
   args: Omit<Props, 'data' | 'labels' | 'baseColor'>

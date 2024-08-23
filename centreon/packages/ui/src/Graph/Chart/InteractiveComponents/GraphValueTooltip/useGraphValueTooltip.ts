@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import {
+  T,
   always,
   cond,
   equals,
@@ -7,13 +8,12 @@ import {
   isNil,
   prop,
   reverse,
-  sortBy,
-  T
+  sortBy
 } from 'ramda';
 
-import { graphTooltipDataAtom } from '../interactionWithGraphAtoms';
 import { useLocaleDateTimeFormat } from '../../../../utils';
 import { GraphTooltipData, Tooltip } from '../../models';
+import { graphTooltipDataAtom } from '../interactionWithGraphAtoms';
 
 interface UseGraphValueTooltipState extends Omit<GraphTooltipData, 'date'> {
   dateTime: string;

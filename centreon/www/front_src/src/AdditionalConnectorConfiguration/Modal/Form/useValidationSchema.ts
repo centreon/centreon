@@ -1,6 +1,6 @@
-import { string, object, number, array } from 'yup';
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { array, number, object, string } from 'yup';
 
 import {
   labelAtLeastOneVCenterIsRequired,

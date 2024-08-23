@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { useLocation, useNavigate } from 'react-router-dom';
 import { equals, includes, isNil, replace } from 'ramda';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { PageSkeleton, useFullscreen } from '@centreon/ui';
 

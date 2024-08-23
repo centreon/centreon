@@ -1,6 +1,22 @@
+import {
+  formatMetricValue,
+  formatMetricValueWithUnit,
+  getDates,
+  getInvertedStackedLines,
+  getLineData,
+  getLineForMetric,
+  getMetricValuesForLines,
+  getMetricValuesForUnit,
+  getMetrics,
+  getNotInvertedStackedLines,
+  getSortedStackedLines,
+  getStackedMetricValues,
+  getTimeSeries,
+  getTimeSeriesForLines,
+  getUnits,
+  hasUnitStackedLines
+} from '.';
 import { LineChartData } from '../models';
-
-import * as timeSeries from '.';
 
 type TestCase = [number | null, string, 1000 | 1024, string | null];
 
@@ -114,7 +130,7 @@ describe('timeSeries', () => {
 
   describe('getTimeSeries', () => {
     it('returns the time series for the given graph data', () => {
-      expect(timeSeries.getTimeSeries(graphData)).toEqual([
+      expect(getTimeSeries(graphData)).toEqual([
         {
           1: 0,
           2: 0.5,
@@ -142,7 +158,7 @@ describe('timeSeries', () => {
         }
       };
 
-      expect(timeSeries.getTimeSeries(graphDataWithLowerLimit)).toEqual([
+      expect(getTimeSeries(graphDataWithLowerLimit)).toEqual([
         {
           2: 0.5,
           3: 6,
@@ -163,7 +179,7 @@ describe('timeSeries', () => {
 
   describe('getLineData', () => {
     it('returns the line information for the given graph data', () => {
-      expect(timeSeries.getLineData(graphData)).toEqual([
+      expect(getLineData(graphData)).toEqual([
         {
           areaColor: 'transparent',
           average_value: 1,
@@ -266,7 +282,7 @@ describe('timeSeries', () => {
   describe('getMetrics', () => {
     it('returns the metrics for the given time value', () => {
       expect(
-        timeSeries.getMetrics({
+        getMetrics({
           rta: 1,
           time: 0,
           timeTick: '2020-11-05T10:40:00Z'
@@ -277,29 +293,29 @@ describe('timeSeries', () => {
 
   describe('getMetricValuesForUnit', () => {
     it('returns the values in the given time series corresponding to the given line unit', () => {
-      const series = timeSeries.getTimeSeries(graphData);
-      const lines = timeSeries.getLineData(graphData);
+      const series = getTimeSeries(graphData);
+      const lines = getLineData(graphData);
       const unit = 'ms';
 
       expect(
-        timeSeries.getMetricValuesForUnit({ lines, timeSeries: series, unit })
+        getMetricValuesForUnit({ lines, timeSeries: series, unit })
       ).toEqual([0, 1, 0.5, 3, 6, 4, 12, 25]);
     });
   });
 
   describe('getUnits', () => {
     it('returns the units for the given lines', () => {
-      const lines = timeSeries.getLineData(graphData);
+      const lines = getLineData(graphData);
 
-      expect(timeSeries.getUnits(lines)).toEqual(['ms', '%']);
+      expect(getUnits(lines)).toEqual(['ms', '%']);
     });
   });
 
   describe('getDates', () => {
     it('teruns the dates for the given time series', () => {
-      const series = timeSeries.getTimeSeries(graphData);
+      const series = getTimeSeries(graphData);
 
-      expect(timeSeries.getDates(series)).toEqual([
+      expect(getDates(series)).toEqual([
         new Date('2020-11-05T10:35:00.000Z'),
         new Date('2020-11-05T10:40:00.000Z')
       ]);
@@ -308,9 +324,9 @@ describe('timeSeries', () => {
 
   describe('getLineForMetric', () => {
     it('returns the line corresponding to the given metrics', () => {
-      const lines = timeSeries.getLineData(graphData);
+      const lines = getLineData(graphData);
 
-      expect(timeSeries.getLineForMetric({ lines, metric_id: 1 })).toEqual({
+      expect(getLineForMetric({ lines, metric_id: 1 })).toEqual({
         areaColor: 'transparent',
         average_value: 1,
         color: 'black',
@@ -334,16 +350,16 @@ describe('timeSeries', () => {
 
   describe('getMetricValuesForLines', () => {
     it('returns the metric values for the given lines within the given time series', () => {
-      const lines = timeSeries.getLineData(graphData);
-      const series = timeSeries.getTimeSeries(graphData);
+      const lines = getLineData(graphData);
+      const series = getTimeSeries(graphData);
 
-      expect(
-        timeSeries.getMetricValuesForLines({ lines, timeSeries: series })
-      ).toEqual([0, 1, 0.5, 3, 6, 4, 12, 25, 0, 1]);
+      expect(getMetricValuesForLines({ lines, timeSeries: series })).toEqual([
+        0, 1, 0.5, 3, 6, 4, 12, 25, 0, 1
+      ]);
     });
   });
 
-  describe(timeSeries.formatMetricValue, () => {
+  describe(formatMetricValue, () => {
     const cases: Array<TestCase> = [
       [218857269, '', 1000, '218.86m'],
       [218857269, '', 1024, '208.72 M'],
@@ -356,7 +372,7 @@ describe('timeSeries', () => {
     it.each(cases)(
       'formats the given value to a human readable form according to the given unit and base',
       (value, unit, base, formattedResult) => {
-        expect(timeSeries.formatMetricValue({ base, unit, value })).toEqual(
+        expect(formatMetricValue({ base, unit, value })).toEqual(
           formattedResult
         );
       }
@@ -365,9 +381,9 @@ describe('timeSeries', () => {
 
   describe('getSortedStackedLines', () => {
     it('returns stacked lines sorted by their own order for the given lines', () => {
-      const lines = timeSeries.getLineData(graphData);
+      const lines = getLineData(graphData);
 
-      expect(timeSeries.getSortedStackedLines(lines)).toEqual([
+      expect(getSortedStackedLines(lines)).toEqual([
         {
           areaColor: 'yellow',
           average_value: 1,
@@ -412,12 +428,12 @@ describe('timeSeries', () => {
 
   describe('getStackedMetricValues', () => {
     it('returns stacked metrics values for the given lines and the given time series', () => {
-      const lines = timeSeries.getLineData(graphData);
-      const series = timeSeries.getTimeSeries(graphData);
+      const lines = getLineData(graphData);
+      const series = getTimeSeries(graphData);
 
       expect(
-        timeSeries.getStackedMetricValues({
-          lines: timeSeries.getSortedStackedLines(lines),
+        getStackedMetricValues({
+          lines: getSortedStackedLines(lines),
           timeSeries: series
         })
       ).toEqual([18, 29]);
@@ -426,12 +442,12 @@ describe('timeSeries', () => {
 
   describe('getTimeSeriesForLines', () => {
     it('returns the specific time series for the given lines and the fiven time series', () => {
-      const lines = timeSeries.getLineData(graphData);
-      const series = timeSeries.getTimeSeries(graphData);
+      const lines = getLineData(graphData);
+      const series = getTimeSeries(graphData);
 
       expect(
-        timeSeries.getTimeSeriesForLines({
-          lines: timeSeries.getSortedStackedLines(lines),
+        getTimeSeriesForLines({
+          lines: getSortedStackedLines(lines),
           timeSeries: series
         })
       ).toEqual([
@@ -451,9 +467,9 @@ describe('timeSeries', () => {
 
   describe('getInvertedStackedLines', () => {
     it('returns inverted and stacked lines for the given lines', () => {
-      const lines = timeSeries.getLineData(graphData);
+      const lines = getLineData(graphData);
 
-      expect(timeSeries.getInvertedStackedLines(lines)).toEqual([
+      expect(getInvertedStackedLines(lines)).toEqual([
         {
           areaColor: 'yellow',
           average_value: 1,
@@ -479,9 +495,9 @@ describe('timeSeries', () => {
 
   describe('getNotInvertedStackedLines', () => {
     it('returns not inverted and stacked lines for the given lines', () => {
-      const lines = timeSeries.getLineData(graphData);
+      const lines = getLineData(graphData);
 
-      expect(timeSeries.getNotInvertedStackedLines(lines)).toEqual([
+      expect(getNotInvertedStackedLines(lines)).toEqual([
         {
           areaColor: 'red',
           average_value: 1,
@@ -507,15 +523,11 @@ describe('timeSeries', () => {
 
   describe('hasUnitStackedLines', () => {
     it('returns true if the given unit contains stacked lines following the given lines, false otherwise', () => {
-      const lines = timeSeries.getLineData(graphData);
+      const lines = getLineData(graphData);
 
-      expect(timeSeries.hasUnitStackedLines({ lines, unit: 'ms' })).toEqual(
-        true
-      );
+      expect(hasUnitStackedLines({ lines, unit: 'ms' })).toEqual(true);
 
-      expect(timeSeries.hasUnitStackedLines({ lines, unit: '%' })).toEqual(
-        false
-      );
+      expect(hasUnitStackedLines({ lines, unit: '%' })).toEqual(false);
     });
   });
 });
@@ -598,7 +610,7 @@ describe('Format value with unit', () => {
       'formats the value with $unit',
       ({ value, unit, expectedResult }) => {
         expect(
-          timeSeries.formatMetricValueWithUnit({
+          formatMetricValueWithUnit({
             unit,
             value
           })
@@ -612,7 +624,7 @@ describe('Format value with unit', () => {
       'formats the value with $unit',
       ({ value, unit, expectedResult }) => {
         expect(
-          timeSeries.formatMetricValueWithUnit({
+          formatMetricValueWithUnit({
             isRaw: true,
             unit,
             value

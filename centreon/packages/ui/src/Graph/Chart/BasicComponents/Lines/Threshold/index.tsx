@@ -1,12 +1,12 @@
 import { equals, isNil } from 'ramda';
 
+import { TimeValue } from '../../../../common/timeSeries/models';
 import { displayArea } from '../../../helpers/index';
 import {
   PatternThreshold,
   ThresholdType,
   VariationThreshold
 } from '../../../models';
-import { TimeValue } from '../../../../common/timeSeries/models';
 
 import BasicThreshold from './BasicThreshold';
 import Circle from './Circle';

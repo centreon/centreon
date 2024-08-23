@@ -7,8 +7,10 @@ import { Typography } from '@mui/material';
 
 import { usePluralizedTranslation } from '@centreon/ui';
 
+import BackgroundColor from './BackgroundColor';
 import { useClockStyles } from './Clock.styles';
 import ClockInformation from './ClockInformation';
+import CustomFluidTypography from './CustomFluidTypography';
 import { ForceDimension, PanelOptions } from './models';
 import {
   labelDay,
@@ -16,8 +18,6 @@ import {
   labelMinute,
   labelSecond
 } from './translatedLabels';
-import CustomFluidTypography from './CustomFluidTypography';
-import BackgroundColor from './BackgroundColor';
 import { useTimer } from './useTimer';
 
 const formatTimerPart = (timerPart: number): string => {
@@ -95,7 +95,7 @@ const Timer = ({
               className={classes.clockHourMinuteSubLabel}
               style={{
                 gap: fontSize / 2.2,
-                gridTemplateColumns: `1fr auto 1fr`,
+                gridTemplateColumns: '1fr auto 1fr',
                 top: (30 + height) / 2 + fontSize / 2.5
               }}
             >
