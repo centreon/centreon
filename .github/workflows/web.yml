@@ -283,7 +283,7 @@ jobs:
         distrib: [el7, el8, bullseye]
         include:
           - package_extension: rpm
-            image: packaging-centos7
+            image: packaging-alma8
             distrib: el7
           - package_extension: rpm
             image: packaging-alma8
@@ -324,8 +324,8 @@ jobs:
       matrix:
         include:
           - project: centreon-web
-            distrib: centos7
-            distrib_rpm: el7
+            distrib: alma8
+            distrib_rpm: el8
             module_name: web
 
     steps:
@@ -491,7 +491,7 @@ jobs:
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-centos7
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma8
           image_version: ${{ github.head_ref || github.ref_name }}
           image_cypress_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
@@ -515,7 +515,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-centos7
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma8
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
