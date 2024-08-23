@@ -91,6 +91,7 @@ $insertIntoTopology = function(CentreonDB $pearDB) use(&$errorMessage): void {
     }
 };
 
+// CLOCK WIDGET
 $insertClockWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to select data into table dashboard_widgets';
     $statement = $pearDB->executeQuery(
@@ -112,29 +113,38 @@ $insertClockWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
 
 // BROKER LOGS
 $addCentreonBrokerForeignKeyOnBrokerLogTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
-    // Clean no more existings broker configuration in log table
-    $errorMessage = 'Unable to delete no more existing Broker Configuration';
-    $pearDB->executeQuery(
+    $constraintStatement = $pearDB->executeQuery(
         <<<SQL
+            SELECT 1 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_NAME='cfg_centreonbroker_log_ibfk_01'
+            SQL
+    );
+
+    if ($constraintStatement->rowCount() > 0) {
+        // Clean no more existings broker configuration in log table
+        $errorMessage = 'Unable to delete no more existing Broker Configuration';
+        $pearDB->executeQuery(
+            <<<SQL
             DELETE FROM `cfg_centreonbroker_log`
             WHERE `id_centreonbroker` NOT IN (
                 SELECT `config_id`
                 FROM `cfg_centreonbroker`
             )
             SQL
-    );
+        );
 
-    // Add Foreign Key.
-    $errorMessage = 'Unable to add foreign key on cfg_centreonbroker_log table';
-    $pearDB->query(
-        <<<'SQL'
+        // Add Foreign Key.
+        $errorMessage = 'Unable to add foreign key on cfg_centreonbroker_log table';
+        $pearDB->executeQuery(
+            <<<'SQL'
             ALTER TABLE `cfg_centreonbroker_log`
             ADD CONSTRAINT `cfg_centreonbroker_log_ibfk_01` 
             FOREIGN KEY (`id_centreonbroker`) 
             REFERENCES `cfg_centreonbroker` (`config_id`) 
             ON DELETE CASCADE
             SQL
-    );
+        );
+    }
 };
 
 $insertNewBrokerLogs = function (CentreonDB $pearDB) use (&$errorMessage): void {
@@ -172,7 +182,7 @@ $insertNewBrokersLogsRelations = function(CentreonDB $pearDB) use(&$errorMessage
     // Logs 11 to 17 are new logs, 3 is the default "error" level
     foreach ($configIds as $configId) {
         for( $logId = 11; $logId <= 17; $logId++){
-            $insertSubQuery .= "({$configId},{$i},3),";
+            $insertSubQuery .= "({$configId},{$logId},3),";
         }
     }
     $insertSubQuery = rtrim($insertSubQuery, ',');

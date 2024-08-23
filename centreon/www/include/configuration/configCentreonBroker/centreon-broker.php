@@ -65,7 +65,6 @@ require_once './class/centreonConfigCentreonBroker.php';
 /*
  * Path to the configuration dir
  */
-//$path = "./include/configuration/configCentreonBroker/";
 
 /*
  * PHP functions
