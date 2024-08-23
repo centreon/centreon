@@ -42,6 +42,8 @@ const Main = (): JSX.Element => {
   const navigate = router.useNavigate();
   const { pathname } = useLocation();
 
+  const test = 'test';
+
   const hasReachedAPublicPage = !!pathname.match(/^\/public\//);
 
   useMain(hasReachedAPublicPage);
@@ -52,9 +54,11 @@ const Main = (): JSX.Element => {
   );
   const setIsOnPublicPageAtom = useSetAtom(isOnPublicPageAtom);
 
-  const navigateTo = (path: string) => {
+  const navigateTo = (path: string): void => {
     navigate(path);
     window.location.reload();
+
+    return 'hey';
   };
 
   startTransition(() => {
