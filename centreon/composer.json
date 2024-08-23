@@ -5,6 +5,7 @@
     "description": "Centreon - IT and Application monitoring software",
     "config": {
         "secure-http": false,
+        "sort-packages": true,
         "platform": {
             "php": "8.2"
         },
@@ -17,11 +18,18 @@
     "require-dev": {
         "behat/behat": "^3.10",
         "behat/mink-selenium2-driver": "1.6.*",
+        "centreon/centreon-test-lib": "dev-master",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "friends-of-behat/mink": "^1.9",
         "friends-of-behat/mink-extension": "^2.5",
-        "centreon/centreon-test-lib": "dev-master",
+        "friendsofphp/php-cs-fixer": "^3.10",
+        "pestphp/pest": "^1.9",
+        "php-vfs/php-vfs": "^1.4",
+        "phpcompatibility/php-compatibility": "^9.3",
         "phpstan/phpstan": "^1.3.0",
         "phpstan/phpstan-beberlei-assert": "^1.0.0",
+        "rector/rector": "^1.0",
+        "robertfausk/mink-panther-driver": "^1.1",
         "squizlabs/php_codesniffer": "3.6.2",
         "symfony/phpunit-bridge": "6.4.*",
         "symfony/stopwatch": "6.4.*",
@@ -30,18 +38,11 @@
         "symfony/web-profiler-bundle": "6.4.*",
         "twig/twig": "^3.3",
         "webmozart/assert": "^1.8",
-        "zircote/swagger-php": "^4.0",
-        "pestphp/pest": "^1.9",
-        "php-vfs/php-vfs": "^1.4",
-        "friendsofphp/php-cs-fixer": "^3.10",
-        "robertfausk/mink-panther-driver": "^1.1",
-        "rector/rector": "^1.0",
-        "phpcompatibility/php-compatibility": "9.3.5",
-        "dealerdirect/phpcodesniffer-composer-installer": "0.7.1"
+        "zircote/swagger-php": "^4.0"
     },
     "require": {
         "beberlei/assert": "^3.3",
-        "curl/curl" : "^2.3",
+        "curl/curl": "^2.3",
         "dragonmantank/cron-expression": "3.1.0",
         "enshrined/svg-sanitize": "^0.15",
         "doctrine/annotations": "^1.0",
@@ -50,7 +51,7 @@
         "ext-json": "*",
         "ext-openssl": "*",
         "ext-phar": "*",
-        "ext-zip":  "*",
+        "ext-zip": "*",
         "ext-pdo": "*",
         "friendsofsymfony/rest-bundle": "^3.0",
         "jms/serializer-bundle": "^5.4",
@@ -96,7 +97,7 @@
         "symfony/uid": "6.4.*",
         "symfony/mime": "6.4.*",
         "monolog/monolog": "^3.3",
-        "symfony/security-core": "6.4.*",
+        "symfony/security-core": "6.4.*"
     },
     "autoload": {
         "psr-4": {
@@ -105,8 +106,11 @@
             "Tests\\": "tests/php/",
             "Centreon\\Test\\Api\\": "tests/api/"
         },
-        "classmap": ["www/class/", "lib/Centreon"],
-        "files" : [
+        "classmap": [
+            "www/class/",
+            "lib/Centreon"
+        ],
+        "files": [
             "GPL_LIB/smarty-plugins/compiler.displaysvg.php",
             "GPL_LIB/smarty-plugins/compiler.pagination.php",
             "GPL_LIB/smarty-plugins/function.eval.php",
@@ -154,8 +158,8 @@
         "phpstan:ci": "@phpstan --error-format=absolute --no-interaction --no-progress",
         "phpstan:core": "phpstan analyse -c phpstan.core.neon --memory-limit=1G",
         "codestyle:core": "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml",
-        "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2",
-        "rector:check": "rector --dry-run",
-        "rector:exec": "rector"
+        "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
+        "rector:check": "rector --dry-run --debug",
+        "rector:exec": "rector --debug"
     }
 }

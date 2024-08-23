@@ -5,12 +5,17 @@
   "license": "GPL-2.0-only",
   "scripts": {
     "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./",
-    "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache"
+    "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache",
+    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
+    "rector:check": "rector --dry-run --debug",
+    "rector:exec": "rector --debug"
   },
-  "repositories": [{
-    "type": "path",
-    "url": "../centreon"
-  }],
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../centreon"
+    }
+  ],
   "require": {
     "centreon/centreon": "dev-develop"
   },
@@ -20,11 +25,13 @@
   },
   "config": {
     "secure-http": false,
+    "sort-packages": true,
     "platform": {
-      "php": "8.1"
+      "php": "8.2"
     },
     "allow-plugins": {
-      "symfony/flex": false
+      "symfony/flex": false,
+      "dealerdirect/phpcodesniffer-composer-installer": true
     }
   }
 }
