@@ -19,6 +19,8 @@
  *
  */
 
+ require_once __DIR__ . '/../vendor/autoload.php';
+
 // Define constants
 $constants = [
     '_CENTREON_PATH_' => realpath(__DIR__ . '/..') . '/',
