@@ -120,7 +120,7 @@ $addCentreonBrokerForeignKeyOnBrokerLogTable = function(CentreonDB $pearDB) use(
             SQL
     );
 
-    if ($constraintStatement->rowCount() > 0) {
+    if ($constraintStatement->rowCount() === 0) {
         // Clean no more existings broker configuration in log table
         $errorMessage = 'Unable to delete no more existing Broker Configuration';
         $pearDB->executeQuery(
