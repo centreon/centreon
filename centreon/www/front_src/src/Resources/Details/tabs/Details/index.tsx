@@ -1,20 +1,20 @@
-import { equals, isNil } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals, isNil } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
-import { detailsAtom, panelWidthStorageAtom } from '../../detailsAtoms';
 import DetailsLoadingSkeleton from '../../LoadingSkeleton';
+import { detailsAtom, panelWidthStorageAtom } from '../../detailsAtoms';
 
-import SortableCards from './SortableCards';
 import DetailsActions from './DetailsActions';
+import SortableCards from './SortableCards';
 
 const DetailsTab = (): JSX.Element => {
   const theme = useTheme();
   const details = useAtomValue(detailsAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const loading = isNil(details) || equals(panelWidth, 0);
-  const panelPadding = parseInt(theme.spacing(4), 10);
+  const panelPadding = Number.parseInt(theme.spacing(4), 10);
 
   return loading ? (
     <DetailsLoadingSkeleton />

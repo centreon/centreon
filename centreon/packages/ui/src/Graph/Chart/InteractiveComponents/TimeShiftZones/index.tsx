@@ -5,8 +5,8 @@ import { equals, isNil, negate } from 'ramda';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-import { GraphInterval, Interval } from '../../models';
 import { margin } from '../../common';
+import { GraphInterval, Interval } from '../../models';
 
 import TimeShiftIcon, { timeShiftIconSize } from './TimeShiftIcon';
 import TimeShiftZone from './TimeShiftZone';

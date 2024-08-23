@@ -6,8 +6,8 @@ import {
   isPanelOpenAtom,
   selectedRowsAtom
 } from '../../atom';
-import useDeleteRequest from '../api/useDeleteRequest';
 import { DeleteNotificationType } from '../../models';
+import useDeleteRequest from '../api/useDeleteRequest';
 
 interface UseDeleteState {
   closeDialog: () => void;

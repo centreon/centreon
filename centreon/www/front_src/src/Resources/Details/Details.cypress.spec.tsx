@@ -211,7 +211,7 @@ const initializeTimeLine = ({
     cy.interceptAPIRequest({
       alias: 'getTimeLine',
       method: Method.GET,
-      path: `**/timeline**`,
+      path: '**/timeline**',
       response: data
     });
   });

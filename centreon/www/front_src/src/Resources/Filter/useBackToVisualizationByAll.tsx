@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 
-import { useAtomValue, useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, isNil, or } from 'ramda';
 
-import { Visualization } from '../models';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
 import { defaultSelectedColumnIds } from '../Listing/columns';
+import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
+import { Visualization } from '../models';
 
 import { applyCurrentFilterDerivedAtom, searchAtom } from './filterAtoms';
 

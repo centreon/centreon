@@ -1,13 +1,13 @@
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, includes, path, split, type } from 'ramda';
+import { path, equals, includes, split, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
   FormControlLabel,
   FormGroup,
   FormLabel,
-  RadioGroup,
-  Radio as MUIRadio
+  Radio as MUIRadio,
+  RadioGroup
 } from '@mui/material';
 
 import { useMemoComponent } from '../..';

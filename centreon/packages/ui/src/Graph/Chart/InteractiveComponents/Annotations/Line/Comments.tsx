@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import { useTheme } from '@mui/material';
 import IconComment from '@mui/icons-material/Comment';
+import { useTheme } from '@mui/material';
 
 import { labelComment } from '../../../translatedLabels';
 import EventAnnotations from '../EventAnnotations';

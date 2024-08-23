@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { ArcType } from './models';
 import ResponsivePie from './ResponsivePie';
+import { ArcType } from './models';
 
 const data = [
   { color: '#88B922', label: 'Ok', value: 148 },

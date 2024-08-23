@@ -1,17 +1,18 @@
+import { equals, isNil } from 'ramda';
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { equals, isNil } from 'ramda';
 
-import { Divider, FormHelperText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { Divider, FormHelperText, Typography } from '@mui/material';
 
-import { Avatar, ItemComposition } from '@centreon/ui/components';
 import {
   MultiConnectedAutocompleteField,
   SelectField,
   SingleConnectedAutocompleteField
 } from '@centreon/ui';
+import { Avatar, ItemComposition } from '@centreon/ui/components';
 
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelAddFilter,
   labelDelete,
@@ -21,10 +22,9 @@ import {
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
+import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
-import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 
 import useResources from './useResources';
 

@@ -4,9 +4,9 @@ import { MemoizedListing } from '@centreon/ui';
 
 import NoResources from '../../NoResources';
 
+import { useColumns } from './Columns/useColumns';
 import { FormattedGroup, WidgetProps } from './models';
 import { useGroupMonitoring } from './useGroupMonitoring';
-import { useColumns } from './Columns/useColumns';
 
 const GroupMonitoring = ({
   panelData,

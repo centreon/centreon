@@ -1,8 +1,6 @@
-import React from 'react';
-
-import { BrowserRouter as Router } from 'react-router-dom';
-import { renderHook, act } from '@testing-library/react-hooks/dom';
+import { act, renderHook } from '@testing-library/react-hooks/dom';
 import { Provider, createStore, useAtom, useAtomValue } from 'jotai';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
@@ -53,8 +51,8 @@ modes.forEach((mode) => {
 
     it(`matches the current snapshot "initial menu" in ${mode} theme`, () => {
       cy.findByAltText(labelMiniCentreonLogo).should('be.visible');
-      cy.get('li').each(($li) => {
-        cy.wrap($li).get('svg').should('be.visible');
+      cy.get('li').each((li) => {
+        cy.wrap(li).get('svg').should('be.visible');
       });
 
       cy.makeSnapshot().then(() => {
@@ -65,8 +63,8 @@ modes.forEach((mode) => {
     it(`expands the menu when the logo is clicked in ${mode} theme`, () => {
       cy.findByLabelText(labelMiniCentreonLogo).click();
       cy.findByAltText(labelCentreonLogo).should('be.visible');
-      cy.get('li').each(($li, index) => {
-        cy.wrap($li).as('element').get('svg').should('be.visible');
+      cy.get('li').each((li, index) => {
+        cy.wrap(li).as('element').get('svg').should('be.visible');
         if (index === 0) {
           cy.get('@element').contains('Monitoring');
         } else if (index === 1) {
@@ -121,7 +119,7 @@ modes.forEach((mode) => {
   });
 });
 
-describe.only('Navigation with additional label', () => {
+describe('Navigation with additional label', () => {
   beforeEach(() => {
     cy.fixture('menuDataWithAdditionalLabel').then((data) => {
       const store = createStore();

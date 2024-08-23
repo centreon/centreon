@@ -31,7 +31,7 @@ $errorMessage = '';
 // ADDITIONAL CONNECTOR CONFIGURATION
 $createAcc = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to create table additional_connector_configuration';
-        $pearDB->query(
+        $pearDB->executeQuery(
             <<<'SQL'
                 CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
                     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -56,7 +56,7 @@ $createAcc = function(CentreonDB $pearDB) use(&$errorMessage): void {
         );
 
     $errorMessage = 'Unable to create table acc_poller_relation';
-    $pearDB->query(
+    $pearDB->executeQuery(
         <<<'SQL'
             CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
                 `acc_id` INT UNSIGNED NOT NULL,
@@ -75,17 +75,36 @@ $createAcc = function(CentreonDB $pearDB) use(&$errorMessage): void {
 
 $insertIntoTopology = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert data into table topology';
-    $statement = $pearDB->query(
+    $statement = $pearDB->executeQuery(
         <<<'SQL'
             SELECT 1 FROM `topology` WHERE `topology_name` = 'Additional Connector Configuration'
             SQL
     );
 
     if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
-        $pearDB->query(
+        $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_show`)
                 VALUES ( 'Additional Connector Configuration', '/configuration/additional-connector-configurations', '1', '1', 6, 618, 1, 1, '0')
+                SQL
+        );
+    }
+};
+
+$insertClockWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to select data into table dashboard_widgets';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-clock'
+            SQL
+    );
+
+    $errorMessage = 'Unable to insert data into table dashboard_widgets';
+    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                INSERT INTO `dashboard_widgets` (`name`)
+                VALUES ('centreon-widget-clock')
                 SQL
         );
     }
@@ -166,8 +185,6 @@ $insertNewBrokersLogsRelations = function(CentreonDB $pearDB) use(&$errorMessage
     );
 };
 
-
-
 try {
     $createAcc($pearDB);
     $addCentreonBrokerForeignKeyOnBrokerLogTable($pearDB);
@@ -177,6 +194,7 @@ try {
         $pearDB->beginTransaction();
     }
     $insertIntoTopology($pearDB);
+    $insertClockWidget($pearDB);
     $insertNewBrokerLogs($pearDB);
     $insertNewBrokersLogsRelations($pearDB);
 

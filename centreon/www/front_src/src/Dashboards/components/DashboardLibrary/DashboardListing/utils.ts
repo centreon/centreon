@@ -4,8 +4,8 @@ import {
   Dashboard,
   FormattedDashboard,
   FormattedShare,
-  Shares,
-  ShareType
+  ShareType,
+  Shares
 } from '../../../api/models';
 
 const formatShares = ({

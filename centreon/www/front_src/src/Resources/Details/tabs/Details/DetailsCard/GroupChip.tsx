@@ -1,17 +1,17 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import SettingsIcon from '@mui/icons-material/Settings';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import IconButton from '@mui/material/IconButton';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { Chip, Grid, Tooltip, Typography } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../../../Filter/filterAtoms';
-import { Group, Category } from '../../../models';
+import { Category, Group } from '../../../models';
 
 const useStyles = makeStyles()((theme) => ({
   chip: {

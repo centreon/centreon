@@ -1,9 +1,9 @@
-import { EllipsisTypography, type ComponentColumnProps } from '@centreon/ui';
+import { type ComponentColumnProps, EllipsisTypography } from '@centreon/ui';
 
 import { getStatus } from '../utils';
 
-import StatusChip from './ServiceSubItemColumn/StatusChip';
 import useStyle from './Columns.styles';
+import StatusChip from './ServiceSubItemColumn/StatusChip';
 
 const ParentResourceColumn = ({
   row

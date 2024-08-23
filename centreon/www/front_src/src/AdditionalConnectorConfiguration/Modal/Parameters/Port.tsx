@@ -1,12 +1,12 @@
 import { ReactElement } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
 import { path } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { TextField } from '@centreon/ui';
 
-import { labelValue, labelPort, labelName } from '../../translatedLabels';
+import { labelName, labelPort, labelValue } from '../../translatedLabels';
 import { AdditionalConnectorConfiguration } from '../models';
 
 import { useParameterStyles } from './useParametersStyles';

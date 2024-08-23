@@ -1,11 +1,10 @@
-import * as React from 'react';
-
-import { findIndex, not, propEq } from 'ramda';
 import { DraggableSyntheticListeners } from '@dnd-kit/core';
 import clsx from 'clsx';
+import { findIndex, not, propEq } from 'ramda';
 
 import { Chip, Typography, useTheme } from '@mui/material';
 
+import { RefObject, useRef } from 'react';
 import { DraggableSelectEntry, SortableListProps } from './SortableList';
 
 interface ContentProps
@@ -14,7 +13,7 @@ interface ContentProps
   id: string;
   index: number;
   isDragging: boolean;
-  itemRef: React.RefObject<HTMLDivElement>;
+  itemRef: RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
   style;
 }
@@ -42,9 +41,9 @@ const SortableListContent = ({
     isDragging
   }: ContentProps): JSX.Element => {
     const theme = useTheme();
-    const labelItemRef = React.useRef<HTMLElement | null>(null);
+    const labelItemRef = useRef<HTMLElement | null>(null);
 
-    const mouseUp = (event: React.MouseEvent): void => {
+    const mouseUp = (event: MouseEvent): void => {
       if (not(event.shiftKey)) {
         return;
       }

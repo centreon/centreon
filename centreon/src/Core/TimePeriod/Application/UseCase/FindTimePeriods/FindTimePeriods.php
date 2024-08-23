@@ -36,21 +36,30 @@ use Core\TimePeriod\Domain\Model\Day;
 use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\Template;
 use Core\TimePeriod\Domain\Model\TimePeriod;
+use Core\TimePeriod\Domain\Rules\TimePeriodRuleStrategyInterface;
+use Throwable;
+use Traversable;
 
 final class FindTimePeriods
 {
     use LoggerTrait;
 
+    /** @var TimePeriodRuleStrategyInterface[] */
+    private array $strategies;
+
     /**
      * @param ReadTimePeriodRepositoryInterface $readTimePeriodRepository
      * @param RequestParametersInterface $requestParameters
      * @param ContactInterface $user
+     * @param Traversable<TimePeriodRuleStrategyInterface> $strategies
      */
     public function __construct(
         readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
         readonly private RequestParametersInterface $requestParameters,
-        readonly private ContactInterface $user
+        readonly private ContactInterface $user,
+        Traversable $strategies
     ) {
+        $this->strategies = iterator_to_array($strategies);
     }
 
     /**
@@ -75,7 +84,7 @@ final class FindTimePeriods
             $this->info('Find the time periods', ['parameters' => $this->requestParameters->getSearch()]);
             $timePeriods = $this->readTimePeriodRepository->findByRequestParameter($this->requestParameters);
             $presenter->present($this->createResponse($timePeriods));
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             $presenter->setResponseStatus(
                 new ErrorResponse(TimePeriodException::errorWhenSearchingForAllTimePeriods()->getMessage())
             );
@@ -121,6 +130,7 @@ final class FindTimePeriods
                     ],
                     $timePeriod->getExtraTimePeriods()
                 ),
+                'in_period' => $timePeriod->isDateTimeIncludedInPeriod(new \DateTimeImmutable(), $this->strategies),
             ];
         }
 

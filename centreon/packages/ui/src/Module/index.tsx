@@ -1,9 +1,9 @@
-import { Provider as JotaiProvider, createStore } from 'jotai';
 import { QueryClient } from '@tanstack/react-query';
+import { Provider as JotaiProvider, createStore } from 'jotai';
 
-import { createGenerateClassName, StylesProvider } from '@mui/styles';
+import { StylesProvider, createGenerateClassName } from '@mui/styles';
 
-import { ThemeProvider, QueryProvider } from '..';
+import { QueryProvider, ThemeProvider } from '..';
 import SnackbarProvider from '../Snackbar/SnackbarProvider';
 
 export interface ModuleProps {

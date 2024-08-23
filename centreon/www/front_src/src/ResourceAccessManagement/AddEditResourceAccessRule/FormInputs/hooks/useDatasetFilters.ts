@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 
-import { useAtom } from 'jotai';
 import { FormikValues, useFormikContext } from 'formik';
+import { useAtom } from 'jotai';
 import { equals } from 'ramda';
 
-import { Dataset, ResourceTypeEnum } from '../../../models';
 import { selectedDatasetFiltersAtom } from '../../../atom';
+import { Dataset, ResourceTypeEnum } from '../../../models';
 
 type UseDatasetFiltersState = {
   addDatasetFilter: () => void;

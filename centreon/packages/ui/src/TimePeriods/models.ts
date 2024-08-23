@@ -3,12 +3,12 @@ import { ReactNode } from 'react';
 import dayjs from 'dayjs';
 
 import {
-  labelLastDay,
   label1Day,
   label7Days,
   label31Days,
   labelLast7Days,
-  labelLast31Days
+  labelLast31Days,
+  labelLastDay
 } from './translatedLabels';
 
 export const dateFormat = 'L';

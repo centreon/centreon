@@ -3,7 +3,7 @@ import { concat, pipe, prop, toLower } from 'ramda';
 import { labelSoft } from '../../../translatedLabels';
 import { selectableResourceTypes, selectableStatuses } from '../models';
 
-import { build, parse, getAutocompleteSuggestions } from './index';
+import { build, getAutocompleteSuggestions, parse } from './index';
 
 const search =
   'type:host,service state:unhandled status:ok,up status_type:soft host_group:Linux-Servers monitoring_server:Central host_category:Linux h.name:centreon parent_name:Centreon name:Service';

@@ -1,6 +1,6 @@
 import { SetStateAction } from 'react';
 
-import { useSetAtom, useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 
 import { limitAtom, pageAtom } from './listingAtoms';
 

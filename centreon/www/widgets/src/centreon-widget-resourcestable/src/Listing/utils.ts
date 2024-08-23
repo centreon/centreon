@@ -2,7 +2,7 @@ import { cond, equals, map } from 'ramda';
 
 import { SeverityCode } from '@centreon/ui';
 
-import { ResourceListing, DisplayType } from './models';
+import { DisplayType, ResourceListing } from './models';
 
 interface FormatRessourcesProps {
   data?: ResourceListing;

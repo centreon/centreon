@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '../..';
 
-import { labelCannotEnterInFullscreen } from './translatedLabels';
 import { isFullscreenActivatedAtom } from './atoms';
+import { labelCannotEnterInFullscreen } from './translatedLabels';
 
 interface UseFullscreenState {
   enterInFullscreen: (element: HTMLElement | null) => void;

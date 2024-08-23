@@ -1513,4 +1513,5 @@ VALUES ('centreon-widget-statusgrid');
 INSERT INTO dashboard_widgets (`name`) VALUES
 ('centreon-widget-resourcestable'),
 ('centreon-widget-groupmonitoring'),
-('centreon-widget-statuschart');
+('centreon-widget-statuschart'),
+('centreon-widget-clock');

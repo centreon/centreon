@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { isNil } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { isNil } from 'ramda';
 
 import { getUrlQueryParameters, setUrlQueryParameters } from '@centreon/ui';
 
@@ -11,17 +11,17 @@ import {
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
 import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
 
-import { getTabIdFromLabel, getTabLabelFromId } from './tabs';
-import { DetailsUrlQueryParameters } from './models';
 import {
   defaultSelectedCustomTimePeriodAtom,
   defaultSelectedTimePeriodIdAtom,
   openDetailsTabIdAtom,
-  selectedResourcesDetailsAtom,
   selectedResourceUuidAtom,
+  selectedResourcesDetailsAtom,
   sendingDetailsAtom,
   tabParametersAtom
 } from './detailsAtoms';
+import { DetailsUrlQueryParameters } from './models';
+import { getTabIdFromLabel, getTabLabelFromId } from './tabs';
 
 const useDetails = (): void => {
   const [openDetailsTabId, setOpenDetailsTabId] = useAtom(openDetailsTabIdAtom);

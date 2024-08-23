@@ -2,19 +2,19 @@ import { useState } from 'react';
 
 import { useSetAtom } from 'jotai';
 
+import { Dashboard } from '../../../api/models';
 import {
   dashboardToDeleteAtom,
   dashboardToDuplicateAtom,
   isSharesOpenAtom
 } from '../../../atoms';
-import { Dashboard } from '../../../api/models';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 
 interface Props {
   dashboard: Dashboard;
 }
 
-interface useDashboardCardActionsState {
+interface UseDashboardCardActionsState {
   closeMoreActions: () => void;
   moreActionsOpen: HTMLElement | null;
   openDeleteModal: () => void;
@@ -26,7 +26,7 @@ interface useDashboardCardActionsState {
 
 const useDashboardCardActions = ({
   dashboard
-}: Props): useDashboardCardActionsState => {
+}: Props): UseDashboardCardActionsState => {
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
 
   const closeMoreActions = (): void => setMoreActionsOpen(null);

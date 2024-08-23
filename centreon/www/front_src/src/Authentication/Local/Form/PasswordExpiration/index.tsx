@@ -1,20 +1,20 @@
 import { useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { FormikValues, useFormikContext } from 'formik';
 import dayjs from 'dayjs';
+import { FormikValues, useFormikContext } from 'formik';
 import { lte } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { FormHelperText, FormLabel } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { labelPasswordExpiresAfter } from '../../translatedLabels';
-import { getField } from '../utils';
 import TimeInputs from '../../TimeInputs';
 import { TimeInputConfiguration } from '../../models';
 import { twelveMonths } from '../../timestamps';
+import { labelPasswordExpiresAfter } from '../../translatedLabels';
+import { getField } from '../utils';
 
 const passwordExpirationFieldName = 'passwordExpiration.expirationDelay';
 

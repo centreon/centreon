@@ -1,8 +1,8 @@
 import { useFetchQuery } from '@centreon/ui';
 
-import { ResourceData, BooleanRule } from '../models';
 import { getBooleanRuleEndpoint } from '../../api/endpoints';
 import { booleanRuleDecoder } from '../api/decoders';
+import { BooleanRule, ResourceData } from '../models';
 
 interface UseServiceTooltipContentState {
   isImpactingWhenTrue?: boolean;

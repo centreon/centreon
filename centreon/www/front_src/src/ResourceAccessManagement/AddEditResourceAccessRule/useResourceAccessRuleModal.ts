@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 
-import { ModalMode } from '../models';
 import { modalStateAtom } from '../atom';
+import { ModalMode } from '../models';
 
 type UseResourceAccessRuleConfig = {
   closeModal: () => void;

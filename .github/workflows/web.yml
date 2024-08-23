@@ -235,6 +235,7 @@ jobs:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
@@ -248,6 +249,7 @@ jobs:
           frontend_directory: ${{ env.widgets_directory }}
           module_name: centreon-widgets
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -957,7 +959,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !needs.get-version.outputs.release_cloud && !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 

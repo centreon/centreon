@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { styled } from '@mui/material/styles';
 import { Switch as MUISwitch } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 import {
-  Method,
   type ComponentColumnProps,
-  useMutationQuery,
-  ResponseError
+  Method,
+  ResponseError,
+  useMutationQuery
 } from '@centreon/ui';
 
 import { notificationEndpoint } from '../../Panel/api/endpoints';
