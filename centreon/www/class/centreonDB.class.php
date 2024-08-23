@@ -850,7 +850,7 @@ class CentreonDB extends PDO
         if ($res = $this->query("SELECT VERSION() AS mysql_version")) {
             $row = $res->fetch();
             $info['version'] = $row['mysql_version'];
-            if ($dbResult = $this->query("SHOW TABLE STATUS FROM `" . $this->dsn['database'] . "`")) {
+            if ($dbResult = $this->query("SHOW TABLE STATUS FROM `" . $this->dbConfig->dbName . "`")) {
                 while ($data = $dbResult->fetch()) {
                     $info['dbsize'] += $data['Data_length'] + $data['Index_length'];
                     $info['indexsize'] += $data['Index_length'];
