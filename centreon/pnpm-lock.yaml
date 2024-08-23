@@ -210,6 +210,9 @@ importers:
       '@biomejs/cli-darwin-x64':
         specifier: ^1.8.3
         version: 1.8.3
+      '@biomejs/cli-linux-x64':
+        specifier: ^1.8.3
+        version: 1.8.3
       '@centreon/js-config':
         specifier: workspace:*
         version: link:packages/js-config
@@ -3967,6 +3970,13 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@biomejs/cli-linux-x64@1.8.3:
+    resolution: {integrity: sha512-I8G2QmuE1teISyT8ie1HXsjFRz9L1m5n83U1O6m30Kw+kPMPSKjag6QGUn+sXT8V+XWIZxFFBoTDEDZW2KPDDw==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [linux]
+    dev: true
 
   /@biomejs/cli-linux-x64@1.8.4-nightly.d079e53:
     resolution: {integrity: sha512-cSaJyzd/I29hloYlfAw1evcjtXahvl0prk4l8xRtMNWcjPJ8xngXm4OhE1Uezi6kKUM/V0gNcimtelLcuJd5eA==}
