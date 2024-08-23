@@ -113,12 +113,16 @@ $insertClockWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
 
 // BROKER LOGS
 $addCentreonBrokerForeignKeyOnBrokerLogTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
-    $constraintStatement = $pearDB->executeQuery(
+    $constraintStatement = $pearDB->prepareQuery(
         <<<SQL
             SELECT 1 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
             WHERE CONSTRAINT_NAME='cfg_centreonbroker_log_ibfk_01'
+            AND TABLE_SCHEMA = :db_name
+            AND TABLE_NAME = 'cfg_centreonbroker_log'
             SQL
     );
+
+    $pearDB->executePreparedQuery($constraintStatement, ['db_name' => db]);
 
     if ($constraintStatement->rowCount() === 0) {
         // Clean no more existings broker configuration in log table
