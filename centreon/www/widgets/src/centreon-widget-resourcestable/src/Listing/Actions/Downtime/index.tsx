@@ -1,21 +1,21 @@
 import { useEffect } from 'react';
 
-import { useFormik } from 'formik';
-import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
+import { useFormik } from 'formik';
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
-import { useSnackbar, useRequest, useLocaleDateTimeFormat } from '@centreon/ui';
+import { useLocaleDateTimeFormat, useRequest, useSnackbar } from '@centreon/ui';
 import { downtimeAtom, userAtom } from '@centreon/ui-context';
 
-import {
-  labelDowntimeCommandSent,
-  labelDowntimeBy
-} from '../../translatedLabels';
 import { Resource } from '../../models';
+import {
+  labelDowntimeBy,
+  labelDowntimeCommandSent
+} from '../../translatedLabels';
 import { setDowntimeOnResources } from '../api';
 
 import DialogDowntime from './Dialog';

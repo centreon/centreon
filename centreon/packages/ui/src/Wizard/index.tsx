@@ -1,16 +1,16 @@
 import { useState } from 'react';
 
-import { equals, length, dec, pipe, inc, filter, isEmpty, not } from 'ramda';
 import { Formik } from 'formik';
+import { dec, equals, filter, inc, isEmpty, length, not, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Dialog, DialogContent } from '@mui/material';
 
 import Confirm from '../Dialog/Confirm';
 
-import { WizardProps } from './models';
 import Stepper from './Stepper';
 import WizardContent from './WizardContent';
+import { WizardProps } from './models';
 
 const useStyles = makeStyles()(() => ({
   dialogContent: {

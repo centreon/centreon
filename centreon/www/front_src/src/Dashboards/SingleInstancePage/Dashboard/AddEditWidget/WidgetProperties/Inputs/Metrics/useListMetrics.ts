@@ -18,9 +18,9 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 
-import { Metric, ServiceMetric, WidgetDataResource } from '../../../models';
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
+import { Metric, ServiceMetric, WidgetDataResource } from '../../../models';
 
 interface Props {
   resources: Array<WidgetDataResource>;

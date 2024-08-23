@@ -4,8 +4,8 @@ import { Event, Tooltip } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
 import { useAtomValue } from 'jotai';
 
-import { getDate } from '../../helpers/index';
 import { TimeValue } from '../../../common/timeSeries/models';
+import { getDate } from '../../helpers/index';
 import { applyingZoomAtomAtom } from '../ZoomPreview/zoomPreviewAtoms';
 import { eventMouseUpAtom } from '../interactionWithGraphAtoms';
 

@@ -2,8 +2,8 @@ import { equals, includes } from 'ramda';
 
 import { SeverityCode, useFetchQuery } from '@centreon/ui';
 
-import { ResourceData } from '../models';
 import { metricsDecoder } from '../api/decoders';
+import { ResourceData } from '../models';
 import { getMetricsEndpoint, getStatusFromThresholds } from '../utils';
 
 interface UseServiceTooltipContentState {

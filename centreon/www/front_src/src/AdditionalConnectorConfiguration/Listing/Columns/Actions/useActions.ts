@@ -1,7 +1,7 @@
 import { useAtom, useSetAtom } from 'jotai';
 
-import { connectorsToDeleteAtom } from '../../atom';
 import { dialogStateAtom } from '../../../atoms';
+import { connectorsToDeleteAtom } from '../../atom';
 
 interface UseActionsState {
   openDeleteModal: () => void;

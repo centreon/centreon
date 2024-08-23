@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import pluralize from 'pluralize';
 import { useAtomValue } from 'jotai';
+import pluralize from 'pluralize';
 import { equals, includes } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { userAtom } from '@centreon/ui-context';
 

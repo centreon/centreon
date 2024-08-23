@@ -4,10 +4,10 @@ import type { User } from '@centreon/ui-context';
 import {
   DashboardGlobalRole,
   DashboardRolesAndPermissions,
-  ListingVariant,
-  ThemeMode,
   FeatureFlags,
-  PlatformFeatures
+  ListingVariant,
+  PlatformFeatures,
+  ThemeMode
 } from '@centreon/ui-context';
 
 import {

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import { find, includes, isEmpty, last, pipe, replace, trim } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { find, includes, isEmpty, last, pipe, replace, trim } from 'ramda';
 
 import { filtersAtom, searchAtom } from '../../atom';
 

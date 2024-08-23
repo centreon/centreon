@@ -1,9 +1,9 @@
-import { renderHook, act } from '@testing-library/react-hooks';
-import axios from 'axios';
 import { waitFor } from '@testing-library/dom';
+import { act, renderHook } from '@testing-library/react-hooks';
+import axios from 'axios';
 
+import { allowedPages, reactRoutes, retrievedNavigation } from './mocks';
 import useNavigation from './useNavigation';
-import { retrievedNavigation, allowedPages, reactRoutes } from './mocks';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

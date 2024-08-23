@@ -28,10 +28,7 @@
           "name": "Undefined (Unreachable/Unknown)"
         }
       ],
-      "defaultValue": [
-        "warning",
-        "problem"
-      ]
+      "defaultValue": ["warning", "problem"]
     },
     "states": {
       "type": "checkbox",
@@ -50,9 +47,7 @@
           "name": "In downtime"
         }
       ],
-      "defaultValue": [
-        "unhandled_problems"
-      ]
+      "defaultValue": ["unhandled_problems"]
     },
     "statusTypes": {
       "type": "checkbox",

@@ -1,7 +1,7 @@
 import { ReactElement, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   DashboardForm,
@@ -10,6 +10,10 @@ import {
   Modal
 } from '@centreon/ui/components';
 
+import {
+  labelGlobalRefreshInterval,
+  labelManualRefreshOnly
+} from '../../../SingleInstancePage/Dashboard/translatedLabels';
 import {
   labelCancel,
   labelCreate,
@@ -23,10 +27,6 @@ import {
   labelUpdate,
   labelUpdateDashboard
 } from '../../../translatedLabels';
-import {
-  labelGlobalRefreshInterval,
-  labelManualRefreshOnly
-} from '../../../SingleInstancePage/Dashboard/translatedLabels';
 
 import { useDashboardConfig } from './useDashboardConfig';
 

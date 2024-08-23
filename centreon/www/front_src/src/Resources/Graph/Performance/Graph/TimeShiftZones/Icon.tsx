@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { equals, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { useMemoComponent } from '@centreon/ui';

@@ -1,13 +1,13 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelCustomize,
   labelFrom,
   labelTimePeriod,
   labelTo
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';

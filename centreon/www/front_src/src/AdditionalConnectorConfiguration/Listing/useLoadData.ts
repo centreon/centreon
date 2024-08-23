@@ -2,15 +2,14 @@ import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
 import {
-  buildListingEndpoint,
   ListingModel,
+  buildListingEndpoint,
   useFetchQuery
 } from '@centreon/ui';
 
-import { additionalConnectorsEndpoint } from '../api/endpoints';
 import { additionalConnectorsListDecoder } from '../api/decoders';
+import { additionalConnectorsEndpoint } from '../api/endpoints';
 
-import { AdditionalConnectorListItem, List } from './models';
 import {
   filtersAtom,
   limitAtom,
@@ -18,6 +17,7 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from './atom';
+import { AdditionalConnectorListItem, List } from './models';
 
 interface LoadDataState {
   data?: List<AdditionalConnectorListItem>;

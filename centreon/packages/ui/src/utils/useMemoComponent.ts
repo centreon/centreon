@@ -1,4 +1,4 @@
-import { useMemo, useRef, DependencyList, ReactElement } from 'react';
+import { DependencyList, ReactElement, useMemo, useRef } from 'react';
 
 import { equals } from 'ramda';
 

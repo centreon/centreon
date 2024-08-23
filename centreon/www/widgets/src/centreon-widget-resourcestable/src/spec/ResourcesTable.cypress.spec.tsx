@@ -1,4 +1,4 @@
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
@@ -9,19 +9,19 @@ import {
 } from '@centreon/ui-context';
 
 import { SortOrder } from '../../../models';
-import { Data, PanelOptions } from '../models';
+import { getPublicWidgetEndpoint } from '../../../utils';
+import { DisplayType } from '../Listing/models';
 import ResourcesTable from '../ResourcesTable';
 import { resourcesEndpoint, viewByHostEndpoint } from '../api/endpoints';
-import { DisplayType } from '../Listing/models';
-import { getPublicWidgetEndpoint } from '../../../utils';
+import { Data, PanelOptions } from '../models';
 
 import {
-  options as resourcesOptions,
-  resources,
   columnsForViewByHost,
   columnsForViewByService,
-  selectedColumnIds,
-  metaServiceResources
+  metaServiceResources,
+  resources,
+  options as resourcesOptions,
+  selectedColumnIds
 } from './testUtils';
 
 interface Props {

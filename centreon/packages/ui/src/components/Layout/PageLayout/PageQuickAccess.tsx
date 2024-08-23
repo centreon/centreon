@@ -36,19 +36,18 @@ export const PageQuickAccess = ({
     <Menu>
       <Menu.Button data-testid="quickaccess" />
       <Menu.Items>
-        {elements &&
-          elements.map((element) => (
-            <Menu.Item
-              key={`${element.id}`}
-              onClick={navigateToElement(element.id)}
-              {...(isActive(element.id) && {
-                isActive: true,
-                isDisabled: true
-              })}
-            >
-              {element.name}
-            </Menu.Item>
-          ))}
+        {elements?.map((element) => (
+          <Menu.Item
+            key={`${element.id}`}
+            onClick={navigateToElement(element.id)}
+            {...(isActive(element.id) && {
+              isActive: true,
+              isDisabled: true
+            })}
+          >
+            {element.name}
+          </Menu.Item>
+        ))}
         <Menu.Divider key="divider" />
         <Menu.Item key="create">
           <>

@@ -1,4 +1,4 @@
-import { memo, MutableRefObject, useRef } from 'react';
+import { MutableRefObject, memo, useRef } from 'react';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
@@ -11,8 +11,8 @@ import utcPlugin from 'dayjs/plugin/utc';
 import { equals } from 'ramda';
 
 import { ParentSize } from '../..';
-import { LineChartData, Thresholds } from '../common/models';
 import Loading from '../../LoadingSkeleton';
+import { LineChartData, Thresholds } from '../common/models';
 
 import Chart from './Chart';
 import LoadingSkeleton from './LoadingSkeleton';
