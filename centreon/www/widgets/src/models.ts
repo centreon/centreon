@@ -1,5 +1,5 @@
-import { createStore } from 'jotai';
 import { QueryClient } from '@tanstack/react-query';
+import { createStore } from 'jotai';
 
 import { SelectEntry } from '@centreon/ui';
 

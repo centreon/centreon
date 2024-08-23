@@ -1,5 +1,5 @@
-import { useTheme } from '@mui/material';
 import IconEvent from '@mui/icons-material/Event';
+import { useTheme } from '@mui/material';
 
 import Chip from '../../../../Chip';
 

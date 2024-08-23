@@ -1,23 +1,23 @@
 import {
-  labelCriticalStatusServices,
-  labelWarningStatusServices,
-  labelUnknownStatusServices,
-  labelOkStatusServices,
-  labelCritical,
   labelAll,
+  labelCritical,
+  labelCriticalStatusServices,
   labelOk,
+  labelOkStatusServices,
   labelPending,
+  labelServices,
   labelUnknown,
+  labelUnknownStatusServices,
   labelWarning,
-  labelServices
+  labelWarningStatusServices
 } from '../Resources/Service/translatedLabels';
 
 import {
   initialize,
+  openSubMenu,
   submenuShouldBeClosed,
-  submenuShouldBeOpened,
-  openSubMenu
-} from './Header.testUtils';
+  submenuShouldBeOpened
+} from './Header.utils';
 
 const getElements = (): void => {
   cy.findByRole('button', { name: labelServices, timeout: 5000 }).as(
@@ -225,7 +225,7 @@ export default (): void =>
         initialize({ servicesStatus: serviceStubs });
         openSubMenu(labelServices);
 
-        cy.get(`#Services-menu`).within(() => {
+        cy.get('#Services-menu').within(() => {
           cy.findAllByRole('menuitem').as('items').should('have.length', 6);
 
           const expectedOrderAndContent = [
@@ -261,8 +261,8 @@ export default (): void =>
             }
           ];
 
-          cy.get('@items').each(($el, index) => {
-            cy.wrap($el)
+          cy.get('@items').each((el, index) => {
+            cy.wrap(el)
               .should('contain.text', expectedOrderAndContent[index].label)
               .should('contain.text', expectedOrderAndContent[index].count)
               .should('have.attr', 'href', expectedOrderAndContent[index].href);

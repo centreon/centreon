@@ -5,12 +5,12 @@ import { equals } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { ForceDimension, PanelOptions } from './models';
-import { useClockStyles } from './Clock.styles';
-import CustomFluidTypography from './CustomFluidTypography';
-import ClockInformation from './ClockInformation';
-import { useGetLocaleAndTimezone } from './useGetLocaleAndTimezone';
 import BackgroundColor from './BackgroundColor';
+import { useClockStyles } from './Clock.styles';
+import ClockInformation from './ClockInformation';
+import CustomFluidTypography from './CustomFluidTypography';
+import { ForceDimension, PanelOptions } from './models';
+import { useGetLocaleAndTimezone } from './useGetLocaleAndTimezone';
 
 const Clock = ({
   timezone,

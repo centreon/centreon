@@ -2,8 +2,8 @@ import { Grid } from '@mui/material';
 
 import { DisplayType as DisplayTypeEnum } from '../models';
 
-import ResourceActions from './ResourceActions';
 import DisplayType from './DisplayType';
+import ResourceActions from './ResourceActions';
 
 interface Props {
   displayType: DisplayTypeEnum;

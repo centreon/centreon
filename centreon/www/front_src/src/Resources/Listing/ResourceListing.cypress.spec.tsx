@@ -1,8 +1,5 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { Provider, createStore, useAtomValue } from 'jotai';
-import * as Ramda from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
@@ -48,6 +45,22 @@ import {
 } from './testUtils';
 import useLoadDetails from './useLoadResources/useLoadDetails';
 
+import {
+  __,
+  filter,
+  find,
+  head,
+  includes,
+  isNil,
+  map,
+  partition,
+  pipe,
+  prop,
+  propEq,
+  reject,
+  split,
+  where
+} from 'ramda';
 import Listing from '.';
 
 const pageNavigationCalls = [
@@ -188,13 +201,13 @@ const mountResourcePage = (): void => {
   interceptRequest({
     alias: 'listingRequest',
     dataPath: 'resources/resourceListing.json',
-    path: `./api/latest/monitoring/resources?*`
+    path: './api/latest/monitoring/resources?*'
   });
 
   interceptRequest({
     alias: 'detailsRequest',
     dataPath: 'resources/anomalyDetectionDetails.json',
-    path: `./api/latest/monitoring/resources/anomaly-detection/1`
+    path: './api/latest/monitoring/resources/anomaly-detection/1'
   });
 
   cy.mount({
@@ -269,21 +282,15 @@ describe('Resource Listing', () => {
 
   it('displays first part of information when multiple (split by \n) are available', () => {
     interceptRequestsAndMountBeforeEach();
-    const [resourcesWithMultipleLines, resourcesWithSingleLines] =
-      Ramda.partition(
-        Ramda.where({ information: Ramda.includes('\n') }),
-        retrievedListing.result
-      );
+    const [resourcesWithMultipleLines, resourcesWithSingleLines] = partition(
+      where({ information: includes('\n') }),
+      retrievedListing.result
+    );
     cy.waitFiltersAndListingRequests();
 
     resourcesWithMultipleLines.forEach(({ information }) =>
       cy
-        .contains(
-          Ramda.pipe(
-            Ramda.split('\n'),
-            Ramda.head
-          )(information as string) as string
-        )
+        .contains(pipe(split('\n'), head)(information as string) as string)
         .should('exist')
     );
     resourcesWithSingleLines.forEach(({ information }) => {
@@ -541,7 +548,7 @@ describe('column sorting', () => {
     cy.adjustViewport();
     columnToSort.forEach(() => {
       cy.interceptAPIRequest({
-        alias: `dataToListingTable`,
+        alias: 'dataToListingTable',
         method: Method.GET,
         path: './api/latest/monitoring**',
         response: retrievedListing
@@ -570,11 +577,11 @@ describe('column sorting', () => {
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTable`);
+      cy.waitForRequest('@dataToListingTable');
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTable`);
+      cy.waitForRequest('@dataToListingTable');
 
       cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
 
@@ -591,7 +598,7 @@ describe('Listing request', () => {
   it('executes a listing request with an updated page param when a change page action is clicked', () => {
     cy.waitFiltersAndListingRequests();
 
-    cy.findByLabelText(`Next page`)
+    cy.findByLabelText('Next page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -599,7 +606,7 @@ describe('Listing request', () => {
 
     cy.waitForRequest('@dataToListingTable');
 
-    cy.findByLabelText(`Previous page`)
+    cy.findByLabelText('Previous page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -607,7 +614,7 @@ describe('Listing request', () => {
 
     cy.waitForRequest('@dataToListingTable');
 
-    cy.findByLabelText(`Last page`)
+    cy.findByLabelText('Last page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -615,7 +622,7 @@ describe('Listing request', () => {
 
     cy.waitForRequest('@dataToListingTable');
 
-    cy.findByLabelText(`First page`)
+    cy.findByLabelText('First page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -627,10 +634,7 @@ describe('Listing request', () => {
       expect(calls).to.have.length(6);
       pageNavigationCalls.forEach(({ param, expectedCall }) => {
         expect(
-          Ramda.filter(
-            (call) => Ramda.includes(param, call.request.url.search),
-            calls
-          )
+          filter((call) => includes(param, call.request.url.search), calls)
         ).to.have.length(expectedCall);
       });
     });
@@ -645,7 +649,7 @@ describe('Listing request', () => {
     cy.contains(/^30$/).click({ force: true });
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('&limit=30', request.url.search)).to.be.true;
+      expect(includes('&limit=30', request.url.search)).to.be.true;
     });
 
     cy.makeSnapshot();
@@ -710,7 +714,7 @@ describe('Display additional columns', () => {
 
     cy.waitForRequest('@downtimeRequest').then(({ request }) => {
       expect(
-        Ramda.includes(
+        includes(
           request.url.pathname,
           entityInDowntime?.links?.endpoints.downtime as string
         )
@@ -745,7 +749,7 @@ describe('Display additional columns', () => {
 
     cy.waitForRequest('@acknowledgeRequest').then(({ request }) => {
       expect(
-        Ramda.includes(
+        includes(
           request.url.pathname,
           acknowledgedEntity?.links?.endpoints.acknowledgement as string
         )
@@ -761,10 +765,10 @@ describe('Display additional columns', () => {
     cy.makeSnapshot();
   });
 
-  const columnIds = Ramda.map(Ramda.prop('id'), columns);
+  const columnIds = map(prop('id'), columns);
 
-  const additionalIds = Ramda.reject(
-    Ramda.includes(Ramda.__, [...defaultSelectedColumnIds, 'state']),
+  const additionalIds = reject(
+    includes(__, [...defaultSelectedColumnIds, 'state']),
     columnIds
   );
 
@@ -774,12 +778,12 @@ describe('Display additional columns', () => {
 
       cy.findByLabelText('Add columns').click();
 
-      const column = Ramda.find(Ramda.propEq(columnId, 'id'), columns);
+      const column = find(propEq(columnId, 'id'), columns);
       const columnLabel = column?.label as string;
 
       const columnShortLabel = column?.shortLabel as string;
 
-      const hasShortLabel = !Ramda.isNil(columnShortLabel);
+      const hasShortLabel = !isNil(columnShortLabel);
 
       const columnDisplayLabel = hasShortLabel
         ? `${columnLabel} (${columnShortLabel})`

@@ -25,6 +25,7 @@ namespace Core\TimePeriod\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\TimePeriod\Domain\Rules\TimePeriodRuleStrategyInterface;
 
 class TimePeriod
 {
@@ -191,5 +192,28 @@ class TimePeriod
         foreach ($days as $day) {
             $this->addDay($day);
         }
+    }
+
+    /**
+     * @param \DateTimeInterface $dateTime
+     * @param TimePeriodRuleStrategyInterface[] $strategies
+     *
+     * @return bool
+     */
+    public function isDateTimeIncludedInPeriod(\DateTimeInterface $dateTime, array $strategies): bool
+    {
+        foreach ($strategies as $strategy) {
+            foreach ($this->getDays() as $day) {
+                $ranges = $day->getTimeRange()->getRanges();
+                if (
+                    $strategy->supports($ranges)
+                    && $strategy->isIncluded($dateTime, $day->getDay(), $ranges)
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

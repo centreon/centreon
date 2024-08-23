@@ -1,4 +1,4 @@
-import { User, ThemeMode, ListingVariant } from './types';
+import { ListingVariant, ThemeMode, User } from './types';
 
 const defaultUser: User = {
   alias: '',

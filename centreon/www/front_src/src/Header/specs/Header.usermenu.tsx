@@ -5,7 +5,7 @@ import {
   labelLogout
 } from '../UserMenu/translatedLabels';
 
-import { initialize } from './Header.testUtils';
+import { initialize } from './Header.utils';
 
 export default (): void => {
   describe('User Menu', () => {

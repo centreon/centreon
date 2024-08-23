@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { dec, equals, isEmpty } from 'ramda';
 import dayjs from 'dayjs';
+import { dec, equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -20,15 +20,15 @@ import {
   usePluralizedTranslation
 } from '@centreon/ui';
 
+import { Resource } from '../../../../models';
+import { useHostTooltipContentStyles } from '../../StatusGridStandard/StatusGrid.styles';
+import { getColor } from '../../StatusGridStandard/utils';
 import {
-  labelBusinessActivity,
   labelAreWorkingFine,
+  labelBusinessActivity,
   labelNoResourceFoundWithThisStatus,
   labelStatus
 } from '../translatedLabels';
-import { useHostTooltipContentStyles } from '../../StatusGridStandard/StatusGrid.styles';
-import { getColor } from '../../StatusGridStandard/utils';
-import { Resource } from '../../../../models';
 
 import { useLoadResources } from './useLoadResources';
 

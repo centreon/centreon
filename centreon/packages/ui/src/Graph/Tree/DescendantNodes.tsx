@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { HierarchyPointNode } from '@visx/hierarchy/lib/types';
 import { Group } from '@visx/group';
+import { HierarchyPointNode } from '@visx/hierarchy/lib/types';
 import { gt, isNil, pluck } from 'ramda';
 
 import { BaseProp, Node, TreeProps } from './models';

@@ -5,8 +5,8 @@ import type { ListingModel } from '@centreon/ui';
 
 import { listResources } from '../../../Listing/api';
 import { Resource } from '../../../models';
-import { detailsAtom, selectResourceDerivedAtom } from '../../detailsAtoms';
 import InfiniteScroll from '../../InfiniteScroll';
+import { detailsAtom, selectResourceDerivedAtom } from '../../detailsAtoms';
 
 import ServiceList from './List';
 import LoadingSkeleton from './LoadingSkeleton';

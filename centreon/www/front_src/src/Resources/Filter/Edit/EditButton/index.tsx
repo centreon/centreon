@@ -12,6 +12,8 @@ import {
   labelEditFilters,
   labelFilterCreated
 } from '../../../translatedLabels';
+import CreateFilterDialog from '../../Save/CreateFilterDialog';
+import { createFilter } from '../../api';
 import {
   currentFilterAtom,
   customFiltersAtom,
@@ -19,8 +21,6 @@ import {
   sendingFilterAtom
 } from '../../filterAtoms';
 import { Filter } from '../../models';
-import { createFilter } from '../../api';
-import CreateFilterDialog from '../../Save/CreateFilterDialog';
 
 import useActionFilter from './useActionFilter';
 

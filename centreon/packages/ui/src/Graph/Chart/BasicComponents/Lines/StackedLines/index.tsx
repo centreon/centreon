@@ -1,16 +1,16 @@
 import { Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { all, equals, isNil, map, not, nth, path, pipe, prop } from 'ramda';
+import { path, all, equals, isNil, map, not, nth, pipe, prop } from 'ramda';
 
+import { getDates, getTime } from '../../../../common/timeSeries';
+import { Line, TimeValue } from '../../../../common/timeSeries/models';
+import { getPointRadius, getStrokeDashArray } from '../../../../common/utils';
 import StackedAnchorPoint, {
   getYAnchorPoint
 } from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
 import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
 import { getCurveFactory, getFillColor } from '../../../common';
-import { getDates, getTime } from '../../../../common/timeSeries';
-import { Line, TimeValue } from '../../../../common/timeSeries/models';
 import Point from '../Point';
-import { getPointRadius, getStrokeDashArray } from '../../../../common/utils';
 
 interface Props {
   areaTransparency?: number;

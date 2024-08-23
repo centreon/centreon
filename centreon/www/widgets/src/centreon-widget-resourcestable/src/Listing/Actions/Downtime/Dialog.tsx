@@ -1,23 +1,24 @@
-import { useTranslation } from 'react-i18next';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
+  Alert,
   Checkbox,
   FormControlLabel,
   FormHelperText,
-  Alert,
   Stack
 } from '@mui/material';
 import { Box } from '@mui/system';
 
 import {
+  DateTimePickerInput,
   Dialog,
-  TextField,
   SelectField,
-  DateTimePickerInput
+  TextField
 } from '@centreon/ui';
 
+import { Resource } from '../../models';
 import {
   labelCancel,
   labelComment,
@@ -32,7 +33,6 @@ import {
   labelTo,
   labelUnit
 } from '../../translatedLabels';
-import { Resource } from '../../models';
 import useAclQuery from '../aclQuery';
 
 import { DowntimeFormValues } from '.';

@@ -1,52 +1,52 @@
 import { useCallback, useEffect } from 'react';
 
-import { useCookies } from 'react-cookie';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
-import { useAtom, useSetAtom, useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
+  path,
+  equals,
   filter,
   isEmpty,
   isNil,
   not,
+  prop,
   propEq,
-  reject,
-  equals,
-  path,
-  prop
+  reject
 } from 'ramda';
+import { useCookies } from 'react-cookie';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useSnackbar, useFetchQuery, ResponseError } from '@centreon/ui';
+import { ResponseError, useFetchQuery, useSnackbar } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
+import useInitializeTranslation from '../Main/useInitializeTranslation';
 import useUser from '../Main/useUser';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
-import routeMap from '../reactRoutes/routeMap';
-import useInitializeTranslation from '../Main/useInitializeTranslation';
+import { PlatformInstallationStatus } from '../api/models';
 import centreonLogo from '../assets/logo-centreon-colors.svg';
+import routeMap from '../reactRoutes/routeMap';
 
 import {
   loginPageCustomisationDecoder,
   providersConfigurationDecoder
 } from './api/decoder';
 import {
-  labelLoginSucceeded,
-  labelPasswordHasExpired
-} from './translatedLabels';
-import {
   loginPageCustomisationEndpoint,
   providersConfigurationEndpoint
 } from './api/endpoint';
 import {
   LoginFormValues,
-  Redirect,
-  RedirectAPI,
+  LoginPageCustomisation,
   ProviderConfiguration,
-  LoginPageCustomisation
+  Redirect,
+  RedirectAPI
 } from './models';
+import {
+  labelLoginSucceeded,
+  labelPasswordHasExpired
+} from './translatedLabels';
 import usePostLogin from './usePostLogin';
 import useWallpaper from './useWallpaper';
 

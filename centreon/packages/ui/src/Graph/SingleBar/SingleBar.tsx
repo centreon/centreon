@@ -1,7 +1,7 @@
 import { ParentSize } from '../..';
 
-import { SingleBarProps } from './models';
 import ResponsiveSingleBar from './ResponsiveSingleBar';
+import { SingleBarProps } from './models';
 
 const SingleBar = ({ data, ...props }: SingleBarProps): JSX.Element | null => {
   if (!data) {

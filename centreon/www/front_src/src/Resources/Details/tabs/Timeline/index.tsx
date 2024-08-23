@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { isEmpty, isNil, path, prop } from 'ramda';
+import { path, isEmpty, isNil, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -20,8 +20,8 @@ import {
 import { labelEvent } from '../../../translatedLabels';
 import InfiniteScroll from '../../InfiniteScroll';
 
-import AddCommentArea from './Addcomment/AddCommentArea';
 import AddCommentButton from './Addcomment';
+import AddCommentArea from './Addcomment/AddCommentArea';
 import { types } from './Event';
 import Events from './Events';
 import ExportToCsv from './ExportToCsv';

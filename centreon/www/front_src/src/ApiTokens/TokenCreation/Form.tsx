@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import {
   Dialog,
@@ -27,12 +27,12 @@ import {
   labelUser
 } from '../translatedLabels';
 
+import InputCalendar from './InputCalendar/inputCalendar';
 import Title from './Title';
 import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
 import { useStyles } from './tokenCreation.styles';
 import useCreateTokenFormValues from './useTokenFormValues';
-import InputCalendar from './InputCalendar/inputCalendar';
 
 interface Props {
   closeDialog: () => void;

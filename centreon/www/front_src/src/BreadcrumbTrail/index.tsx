@@ -4,14 +4,14 @@ import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Breadcrumbs as MuiBreadcrumbs } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { Breadcrumbs as MuiBreadcrumbs } from '@mui/material';
 
 import navigationAtom from '../Navigation/navigationAtoms';
 
-import { Breadcrumb as BreadcrumbModel, BreadcrumbsByPath } from './models';
 import Breadcrumb from './Breadcrumb';
 import getBreadcrumbsByPath from './getBreadcrumbsByPath';
+import { Breadcrumb as BreadcrumbModel, BreadcrumbsByPath } from './models';
 
 const useStyles = makeStyles()((theme) => ({
   item: {

@@ -26,7 +26,7 @@ const findFirstUrl = (item): string | undefined => {
   if (item.groups) {
     const groupWithUrl = item.groups.find(findFirstUrl);
 
-    return groupWithUrl && groupWithUrl.children
+    return groupWithUrl?.children
       ? getFirstUrlInChildren(groupWithUrl)
       : undefined;
   }
