@@ -152,7 +152,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ steps.title.outputs.replaced }}
           dynamicCodeCoveragesFilePath: /tmp/baseCodeCoverages.json
-          generateNewCodeCoverages: true
+          generateNewCodeCoverages: ${{ github.ref_name == 'develop' && github.event.inputs.is_nightly == 'false' }}
 
       - name: Send new dynamic code coverages
         shell: bash
