@@ -1,7 +1,7 @@
 import { Module } from '@centreon/ui';
 
-import { ResourcesTableProps } from './models';
 import ResourcesTable from './ResourcesTable';
+import { ResourcesTableProps } from './models';
 
 const Widget = ({
   store,

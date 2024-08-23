@@ -1,14 +1,14 @@
+import { HierarchyPointLink } from '@visx/hierarchy/lib/types';
 import {
   LinkHorizontal,
-  LinkHorizontalStep,
-  LinkHorizontalLine
+  LinkHorizontalLine,
+  LinkHorizontalStep
 } from '@visx/shape';
-import { HierarchyPointLink } from '@visx/hierarchy/lib/types';
-import { always, cond, equals, T } from 'ramda';
+import { T, always, cond, equals } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
-import { TreeProps, Node, BaseProp } from './models';
+import { BaseProp, Node, TreeProps } from './models';
 
 interface Props<TData> extends Pick<TreeProps<TData>, 'treeLink'> {
   links: Array<HierarchyPointLink<Node<TData>>>;

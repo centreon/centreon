@@ -4,14 +4,14 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
+import Subtitle from '../../../../components/Subtitle';
 import { labelDisplayAs } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-import Subtitle from '../../../../components/Subtitle';
 import { useResourceStyles } from '../Inputs.styles';
 
-import useDisplayType from './useDisplayType';
-import Option from './Option';
 import { useStyles } from './DisplayType.styles';
+import Option from './Option';
+import useDisplayType from './useDisplayType';
 
 const DisplayType = ({
   options,

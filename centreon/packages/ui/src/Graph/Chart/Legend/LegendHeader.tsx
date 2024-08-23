@@ -5,12 +5,12 @@ import {
   formatMetricName,
   formatMetricValue
 } from '../../..';
-import { Line } from '../../common/timeSeries/models';
 import { Tooltip } from '../../../components';
+import { Line } from '../../common/timeSeries/models';
 
 import { useLegendHeaderStyles } from './Legend.styles';
-import { LegendDisplayMode } from './models';
 import LegendContent from './LegendContent';
+import { LegendDisplayMode } from './models';
 
 interface Props {
   color: string;

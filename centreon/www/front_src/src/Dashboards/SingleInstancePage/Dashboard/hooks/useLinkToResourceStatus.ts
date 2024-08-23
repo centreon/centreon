@@ -1,21 +1,21 @@
-import { all, equals, has, isNil, pluck } from 'ramda';
 import { useSetAtom } from 'jotai';
+import { all, equals, has, isNil, pluck } from 'ramda';
 
-import {
-  getResourcesUrlForMetricsWidgets,
-  getUrlForResourcesOnlyWidgets
-} from '../utils';
 import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
-import { Visualization } from '../../../../Resources/models';
-import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
 import {
-  defaultSelectedColumnIdsforViewByHost,
-  defaultSelectedColumnIds
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost
 } from '../../../../Resources/Listing/columns';
+import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
+import { Visualization } from '../../../../Resources/models';
 import {
   labelBusinessActivity,
   labelResourcesStatus
 } from '../translatedLabels';
+import {
+  getResourcesUrlForMetricsWidgets,
+  getUrlForResourcesOnlyWidgets
+} from '../utils';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;

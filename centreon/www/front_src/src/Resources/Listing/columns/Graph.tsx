@@ -1,7 +1,7 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { isNil, not, path } from 'ramda';
+import { path, isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import IconGraph from '@mui/icons-material/BarChart';

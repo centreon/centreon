@@ -33,9 +33,16 @@ use Core\Infrastructure\Common\Presenter\{JsonFormatter, PresenterFormatterInter
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\{FindTimePeriods, FindTimePeriodsResponse};
-use Core\TimePeriod\Domain\Model\{Template, ExtraTimePeriod, TimePeriod, Day, TimeRange};
+use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
+use Core\TimePeriod\Domain\Rules\Strategies\SimpleDayTimeRangeRuleStrategy;
 
 beforeEach(function (): void {
+
+    $this->strategies = [];
+    foreach ([SimpleDayTimeRangeRuleStrategy::class] as $className) {
+        $this->strategies[] = new $className();
+    }
+
     $this->repository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->requestParameter = $this->createMock(RequestParameters::class);
@@ -59,7 +66,13 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->with($this->requestParameter)
         ->willThrowException(new \Exception());
 
-    $useCase = new FindTimePeriods($this->repository, $this->requestParameter, $this->user);
+    $useCase = new FindTimePeriods(
+        $this->repository,
+        $this->requestParameter,
+        $this->user,
+        new \ArrayObject($this->strategies)
+    );
+
     $presenter = new DefaultPresenter(
         $this->createMock(JsonFormatter::class)
     );
@@ -81,7 +94,12 @@ it('should present an ForbiddenResponse when an user has no rights', function ()
             ]
         );
 
-    $useCase = new FindTimePeriods($this->repository, $this->requestParameter, $this->user);
+    $useCase = new FindTimePeriods(
+        $this->repository,
+        $this->requestParameter,
+        $this->user,
+        new \ArrayObject($this->strategies)
+    );
     $presenter = new DefaultPresenter(
         $this->createMock(JsonFormatter::class)
     );
@@ -92,8 +110,14 @@ it('should present an ForbiddenResponse when an user has no rights', function ()
         ->toBe(TimePeriodException::accessNotAllowed()->getMessage());
 });
 
+
 it('should present a FindTimePeriodsResponse when user has read only rights', function (): void {
-    $useCase = new FindTimePeriods($this->repository, $this->requestParameter, $this->user);
+    $useCase = new FindTimePeriods(
+        $this->repository,
+        $this->requestParameter,
+        $this->user,
+        new \ArrayObject($this->strategies)
+    );
 
     $timePeriod = new TimePeriod(
         1,
@@ -166,14 +190,21 @@ it('should present a FindTimePeriodsResponse when user has read only rights', fu
                         'day_range' => $timePeriod->getExtraTimePeriods()[0]->getDayRange(),
                         'time_range' => (string) $timePeriod->getExtraTimePeriods()[0]->getTimeRange()
                     ]
-                ]
+                ],
+                'in_period' => $timePeriod->isDateTimeIncludedInPeriod(new \DateTimeImmutable(), $this->strategies)
             ]
         );
 });
 
 
+
 it('should present a FindTimePeriodsResponse when user has read-write rights', function (): void {
-    $useCase = new FindTimePeriods($this->repository, $this->requestParameter, $this->user);
+    $useCase = new FindTimePeriods(
+        $this->repository,
+        $this->requestParameter,
+        $this->user,
+        new \ArrayObject($this->strategies)
+    );
 
     $timePeriod = new TimePeriod(
         1,
@@ -246,7 +277,8 @@ it('should present a FindTimePeriodsResponse when user has read-write rights', f
                         'day_range' => $timePeriod->getExtraTimePeriods()[0]->getDayRange(),
                         'time_range' => (string) $timePeriod->getExtraTimePeriods()[0]->getTimeRange()
                     ]
-                ]
+                ],
+                'in_period' => $timePeriod->isDateTimeIncludedInPeriod(new \DateTimeImmutable(), $this->strategies)
             ]
         );
 });

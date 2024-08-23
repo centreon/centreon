@@ -1,13 +1,13 @@
 import { isNil, map, pluck, prop } from 'ramda';
 
-type _Resource = {
+type Resource = {
   [key: string]: number | string | boolean | null | undefined;
   id: number;
 };
 
-type _Dataset = {
+type Dataset = {
   resourceType: string;
-  resources: Array<_Resource>;
+  resources: Array<Resource>;
 };
 
 type ODataset = {
@@ -21,15 +21,15 @@ type ODatasetFilter = {
   type: string;
 };
 
-const adaptResources = (resources: Array<_Resource>): Array<number> =>
+const adaptResources = (resources: Array<Resource>): Array<number> =>
   pluck('id', resources);
 
-const adaptDataset = ({ resourceType, resources }: _Dataset): ODataset => ({
+const adaptDataset = ({ resourceType, resources }: Dataset): ODataset => ({
   resources: adaptResources(resources),
   type: resourceType
 });
 
-const adaptDatasetFilter = (datasetFilter: Array<_Dataset>): Array<ODataset> =>
+const adaptDatasetFilter = (datasetFilter: Array<Dataset>): Array<ODataset> =>
   datasetFilter.map((dataset) => adaptDataset(dataset));
 
 const arrayToNestedObject = (items: Array<ODataset>): ODatasetFilter => {
@@ -51,7 +51,7 @@ const arrayToNestedObject = (items: Array<ODataset>): ODatasetFilter => {
 };
 
 const adaptDatasetFilters = (
-  datasetFilters: Array<Array<_Dataset>>
+  datasetFilters: Array<Array<Dataset>>
 ): Array<ODatasetFilter> =>
   datasetFilters.map((datasetFilter) =>
     arrayToNestedObject(adaptDatasetFilter(datasetFilter))

@@ -1,9 +1,9 @@
-import { equals } from 'ramda';
 import { ScaleLinear } from 'd3-scale';
+import { equals } from 'ramda';
 
+import { Thresholds as ThresholdsModel } from '../models';
 import { getUnits, getYScale } from '../timeSeries';
 import { Line } from '../timeSeries/models';
-import { Thresholds as ThresholdsModel } from '../models';
 
 import { ThresholdLine } from './ThresholdLine';
 

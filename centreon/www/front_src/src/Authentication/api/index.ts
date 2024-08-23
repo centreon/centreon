@@ -9,8 +9,8 @@ import {
 } from '../Local/models';
 import { Provider } from '../models';
 
-import { authenticationProvidersEndpoint } from './endpoints';
 import { adaptPasswordSecurityPolicyToAPI } from './adapters';
+import { authenticationProvidersEndpoint } from './endpoints';
 
 export const getPasswordPasswordSecurityPolicy =
   (cancelToken: CancelToken) => (): Promise<PasswordSecurityPolicy> =>

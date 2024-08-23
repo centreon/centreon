@@ -1,23 +1,23 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
+import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
-import dayjs from 'dayjs';
 
 import { SelectEntry } from '@centreon/ui';
 
 import {
-  labelLast12Months,
-  labelLast7Days,
-  labelLast24Hours,
-  labelLast30Days,
-  labelLast3Months,
-  labelLast6Months,
-  labelLastHour,
   labelCustomize,
   labelLast3Hours,
+  labelLast3Months,
   labelLast6Hours,
-  labelLast12Hours
+  labelLast6Months,
+  labelLast7Days,
+  labelLast12Hours,
+  labelLast12Months,
+  labelLast24Hours,
+  labelLast30Days,
+  labelLastHour
 } from '../../../../translatedLabels';
 import { Widget } from '../../../models';
 import { getProperty } from '../utils';

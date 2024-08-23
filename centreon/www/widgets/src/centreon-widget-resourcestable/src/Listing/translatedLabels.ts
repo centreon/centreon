@@ -69,7 +69,8 @@ export const labelInvalidFormat = 'Invalid format';
 export const labelMaxDuration1Year = 'The duration must be less than a year';
 export const labelForcedCheckDescription =
   'Check selected resources even outside configured check period';
-export const labelCheckDescription = `Check selected resources only within configured check period`;
+export const labelCheckDescription =
+  'Check selected resources only within configured check period';
 export const labelCheck = 'Check';
 export const labelOpenTicket = 'Open ticket';
 export const labelOpenTicketForHost = 'Open ticket for host';

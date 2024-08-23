@@ -1,8 +1,8 @@
 import { ScaleLinear } from 'd3-scale';
 import { equals, reject } from 'ramda';
 
-import { GlobalAreaLines, ThresholdType } from '../../../models';
 import { Line, TimeValue } from '../../../../common/timeSeries/models';
+import { GlobalAreaLines, ThresholdType } from '../../../models';
 
 export interface Data {
   lineColor: string;

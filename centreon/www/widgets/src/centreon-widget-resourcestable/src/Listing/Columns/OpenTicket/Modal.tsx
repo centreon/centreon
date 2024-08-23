@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Modal } from '@centreon/ui/components';
 import { useSnackbar } from '@centreon/ui';
+import { Modal } from '@centreon/ui/components';
 
 import { Ticket } from '../../models';
 import { labelCreateticket } from '../../translatedLabels';

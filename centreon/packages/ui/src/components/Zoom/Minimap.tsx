@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 
 import { scaleLinear } from '@visx/scale';
 
+import { useZoomStyles } from './Zoom.styles';
 import { minimapScale, radius } from './constants';
 import { UseMinimapProps, useMinimap } from './useMinimap';
-import { useZoomStyles } from './Zoom.styles';
 
 interface Props extends Omit<UseMinimapProps, 'minimapScale' | 'scale'> {
   children: JSX.Element;

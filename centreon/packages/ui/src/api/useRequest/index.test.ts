@@ -1,5 +1,5 @@
+import { RenderHookResult, act, renderHook } from '@testing-library/react';
 import axios from 'axios';
-import { RenderHookResult, renderHook, act } from '@testing-library/react';
 
 import useRequest, { RequestResult, RequestParams } from '.';
 

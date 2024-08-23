@@ -6,10 +6,10 @@ import { TextField, useDebounce, useMemoComponent } from '@centreon/ui';
 
 import { SearchableFields } from '../../../Criterias/searchQueryLanguage/models';
 import { searchAtom } from '../../../filterAtoms';
-import useSearchInputDataByField from '../../useSearchInputDataByField';
-import { replaceValueFromSearchInput } from '../../utils';
 import { useStyles } from '../../criterias.style';
 import { informationLabel } from '../../translatedLabels';
+import useSearchInputDataByField from '../../useSearchInputDataByField';
+import { replaceValueFromSearchInput } from '../../utils';
 
 import useFilterSearchValue from './useFilterSearch';
 

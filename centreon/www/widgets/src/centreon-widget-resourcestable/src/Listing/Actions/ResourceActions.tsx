@@ -8,24 +8,24 @@ import IconAcknowledge from '@mui/icons-material/Person';
 import { SeverityCode, useSnackbar } from '@centreon/ui';
 
 import {
-  labelAcknowledge,
-  labelSetDowntime,
-  labelCheckDescription,
-  labelForcedCheckDescription,
-  labelCheckCommandSent,
-  labelForcedCheckCommandSent
-} from '../translatedLabels';
-import {
   resourcesToAcknowledgeAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../../atom';
 import IconDowntime from '../Columns/Icons/Downtime';
+import {
+  labelAcknowledge,
+  labelCheckCommandSent,
+  labelCheckDescription,
+  labelForcedCheckCommandSent,
+  labelForcedCheckDescription,
+  labelSetDowntime
+} from '../translatedLabels';
 
-import { Action, CheckActionModel } from './model';
-import useAclQuery from './aclQuery';
 import CheckActionButton from './Check';
 import ResourceActionButton from './ResourceActionButton';
+import useAclQuery from './aclQuery';
+import { Action, CheckActionModel } from './model';
 
 const useStyles = makeStyles()((theme) => ({
   action: {

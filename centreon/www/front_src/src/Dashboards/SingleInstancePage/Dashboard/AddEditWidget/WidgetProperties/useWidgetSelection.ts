@@ -1,5 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 
+import { useFormikContext } from 'formik';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   equals,
   filter,
@@ -12,26 +14,24 @@ import {
   reduce,
   toPairs
 } from 'ramda';
-import { useFormikContext } from 'formik';
-import { useAtomValue, useSetAtom } from 'jotai';
 
 import { SelectEntry } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import {
   FederatedModule,
   FederatedWidgetOption,
   FederatedWidgetProperties
 } from '../../../../../federatedModules/models';
-import { Widget } from '../models';
-import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
+import { isGenericText } from '../../utils';
 import {
   customBaseColorAtom,
-  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
+  singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import { isGenericText } from '../../utils';
+import { Widget } from '../models';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -52,24 +52,27 @@ export const getDefaultValues = (
     return {};
   }
 
-  return Object.entries(options).reduce((acc, [key, value]) => {
-    if (!has('when', value.defaultValue)) {
+  return Object.entries(options?.elements ?? options).reduce(
+    (acc, [key, value]) => {
+      if (!has('when', value.defaultValue)) {
+        return {
+          ...acc,
+          [key]: value.defaultValue
+        };
+      }
+
       return {
         ...acc,
-        [key]: value.defaultValue
+        [key]: equals(
+          options[value.defaultValue.when].defaultValue,
+          value.defaultValue.is
+        )
+          ? value.defaultValue.then
+          : value.defaultValue.otherwise
       };
-    }
-
-    return {
-      ...acc,
-      [key]: equals(
-        options[value.defaultValue.when].defaultValue,
-        value.defaultValue.is
-      )
-        ? value.defaultValue.then
-        : value.defaultValue.otherwise
-    };
-  }, {});
+    },
+    {}
+  );
 };
 
 const useWidgetSelection = (): UseWidgetSelectionState => {
