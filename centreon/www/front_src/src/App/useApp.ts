@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, not, pathEq, path } from 'ramda';
+import { path, equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -12,14 +12,14 @@ import {
   aclAtom,
   downtimeAtom,
   platformNameAtom,
-  refreshIntervalAtom,
-  platformVersionsAtom
+  platformVersionsAtom,
+  refreshIntervalAtom
 } from '@centreon/ui-context';
 
-import { logoutEndpoint } from '../api/endpoint';
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
+import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
@@ -97,7 +97,7 @@ const useApp = (): UseAppState => {
     })
       .then((retrievedParameters) => {
         setDowntime({
-          duration: parseInt(
+          duration: Number.parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
             10
           ),
@@ -106,7 +106,10 @@ const useApp = (): UseAppState => {
             retrievedParameters.monitoring_default_downtime_with_services
         });
         setRefreshInterval(
-          parseInt(retrievedParameters.monitoring_default_refresh_interval, 10)
+          Number.parseInt(
+            retrievedParameters.monitoring_default_refresh_interval,
+            10
+          )
         );
         setAcknowledgement({
           force_active_checks:

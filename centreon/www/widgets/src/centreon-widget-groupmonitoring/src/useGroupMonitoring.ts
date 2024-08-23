@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-import { inc, isEmpty, pluck } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { inc, isEmpty, pluck } from 'ramda';
 
 import {
   ListingModel,
@@ -15,9 +15,9 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { SortOrder } from '../../models';
 import { getWidgetEndpoint } from '../../utils';
 
-import { FormattedGroup, Group, WidgetProps } from './models';
-import { getEndpoint } from './api/endpoints';
 import { groupsDecoder } from './api/decoders';
+import { getEndpoint } from './api/endpoints';
+import { FormattedGroup, Group, WidgetProps } from './models';
 import { getResourceTypeName } from './utils';
 
 interface UseGroupMonitoringState {

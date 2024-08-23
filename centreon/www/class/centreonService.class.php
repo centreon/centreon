@@ -88,6 +88,7 @@ class CentreonService
      *  Constructor
      *
      * @param CentreonDB $db
+     * @throws PDOException
      */
     public function __construct(protected $db, $dbMon = null)
     {

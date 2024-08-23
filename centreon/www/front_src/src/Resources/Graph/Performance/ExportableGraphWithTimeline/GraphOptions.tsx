@@ -1,17 +1,17 @@
+import { useAtomValue, useSetAtom } from 'jotai';
 import { pluck, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import { FormControlLabel, FormGroup, Switch, Typography } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { GraphOption, GraphOptions } from '../../../Details/models';
 import {
   setGraphTabParametersDerivedAtom,
   tabParametersAtom
 } from '../../../Details/detailsAtoms';
+import { GraphOption, GraphOptions } from '../../../Details/models';
 
 import {
   changeGraphOptionsDerivedAtom,

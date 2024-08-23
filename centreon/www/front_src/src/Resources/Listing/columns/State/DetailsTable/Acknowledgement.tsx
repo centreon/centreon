@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-unused-prop-types */
 
-import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 

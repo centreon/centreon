@@ -7,8 +7,8 @@ import {
   MemoizedChildSectionWrapper,
   SectionType
 } from '../../model';
-import { selectedStatusByResourceTypeAtom } from '../atoms';
 import { findData } from '../../utils';
+import { selectedStatusByResourceTypeAtom } from '../atoms';
 import CheckBoxSection from '../checkBox';
 
 const MemoizedStatus = ({

@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 
 import { EllipsisTypography } from '@centreon/ui';
 
-import { RowProps } from '../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
+import { RowProps } from '../models';
 
 import { useStatusesColumnStyles } from './Columns.styles';
 

@@ -1,32 +1,32 @@
 import { useEffect } from 'react';
 
-import { isNil, ifElse, pathEq, always, pathOr } from 'ramda';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { always, ifElse, isNil, pathEq, pathOr } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
-import { useRequest, getData } from '@centreon/ui';
+import { getData, useRequest } from '@centreon/ui';
 
-import {
-  labelNoResourceFound,
-  labelSomethingWentWrong
-} from '../translatedLabels';
-import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
 import {
   customTimePeriodAtom,
   getNewCustomTimePeriod,
   resourceDetailsUpdatedAtom,
   selectedTimePeriodAtom
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
+import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
 import { resourceDetailsDecoder } from '../decoders';
+import {
+  labelNoResourceFound,
+  labelSomethingWentWrong
+} from '../translatedLabels';
 
-import { ResourceDetails } from './models';
 import {
   clearSelectedResourceDerivedAtom,
   detailsAtom,
   selectedResourceDetailsEndpointDerivedAtom,
-  selectedResourcesDetailsAtom,
-  selectedResourceUuidAtom
+  selectedResourceUuidAtom,
+  selectedResourcesDetailsAtom
 } from './detailsAtoms';
+import { ResourceDetails } from './models';
 import { ChangeCustomTimePeriodProps } from './tabs/Graph/models';
 
 export interface DetailsState {

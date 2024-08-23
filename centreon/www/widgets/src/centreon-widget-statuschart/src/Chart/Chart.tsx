@@ -1,20 +1,20 @@
+import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
-import { PieChart, BarStack } from '@centreon/ui';
+import { BarStack, PieChart } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { ChartType, DisplayType } from '../models';
-import useLoadResources from '../useLoadResources';
-import { goToUrl } from '../../../utils';
-import Legend from '../Legend/Legend';
-import TooltipContent from '../Tooltip/Tooltip';
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
   labelNoHostsFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
+import { goToUrl } from '../../../utils';
+import Legend from '../Legend/Legend';
+import TooltipContent from '../Tooltip/Tooltip';
+import { ChartType, DisplayType } from '../models';
+import useLoadResources from '../useLoadResources';
 
 import { useStyles } from './Chart.styles';
 import ChartSkeleton from './LoadingSkeleton';

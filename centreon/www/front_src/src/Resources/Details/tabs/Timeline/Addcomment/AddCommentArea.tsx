@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   SaveButton as Button,

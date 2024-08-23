@@ -1,5 +1,4 @@
 import {
-  isEmpty,
   T,
   always,
   cond,
@@ -8,10 +7,11 @@ import {
   groupBy,
   identity,
   includes,
-  pipe,
+  isEmpty,
   map,
-  toPairs,
-  pluck
+  pipe,
+  pluck,
+  toPairs
 } from 'ramda';
 
 import { SeverityCode, centreonBaseURL } from '@centreon/ui';
@@ -409,7 +409,7 @@ export const getResourcesSearchQueryParameters = (
   resourcesSearchConditions: Array<{
     field;
     values: {
-      $rg: string;
+      [operator: string]: string;
     };
   }>;
 } => {
