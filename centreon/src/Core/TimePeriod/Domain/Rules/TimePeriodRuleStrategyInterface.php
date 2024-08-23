@@ -21,20 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Application\UseCase\FindTimePeriods;
+namespace Core\TimePeriod\Domain\Rules;
 
-final class FindTimePeriodsResponse
+use DateTimeInterface;
+
+interface TimePeriodRuleStrategyInterface
 {
     /**
-     * @var array<array{
-     *     id: int,
-     *     name: string,
-     *     alias: string,
-     *     days: array<array{day: int, time_range: string}>,
-     *     templates: array<array{id: int, alias: string}>,
-     *     exceptions: array<array{id: int, day_range: string, time_range: string}>,
-     *     in_period: boolean
-     * }>
+     * @param DateTimeInterface $dateTime
+     * @param int $dayRule
+     * @param array{start: string, end: string}|array<array{start: string, end: string}> $ranges
+     *
+     * @return bool
      */
-    public array $timePeriods = [];
+    public function isIncluded(DateTimeInterface $dateTime, int $dayRule, array $ranges): bool;
+
+    /**
+     * @param mixed $data
+     *
+     * @return bool
+     */
+    public function supports(mixed $data): bool;
 }
