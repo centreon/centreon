@@ -476,7 +476,14 @@ INSERT INTO `cb_log` (`id`, `name`) VALUES
 (7, 'tcp'),
 (8, 'tls'),
 (9, 'lua'),
-(10, 'bam');
+(10, 'bam'),
+(11, 'neb'),
+(12, 'rrd'),
+(13, 'grpc'),
+(14, 'influxdb'),
+(15, 'graphite'),
+(16, 'victoria_metrics'),
+(17, 'stats');
 
 --
 -- Contenu de la table `cb_log_level`

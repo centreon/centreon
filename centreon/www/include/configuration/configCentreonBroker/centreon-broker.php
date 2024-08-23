@@ -38,6 +38,15 @@ if (!isset($centreon)) {
     exit();
 }
 
+const ADD_BROKER_CONFIGURATION = 'a';
+const WATCH_BROKER_CONFIGURATION = 'w';
+const MODIFY_BROKER_CONFIGURATION = 'c';
+const ACTIVATE_BROKER_CONFIGURATION = 's';
+const DEACTIVATE_BROKER_CONFIGURATION = 'u';
+const DUPLICATE_BROKER_CONFIGURATIONS = 'm';
+const DELETE_BROKER_CONFIGURATIONS = 'd';
+const LISTING_FILE = '/listCentreonBroker.php';
+const FORM_FILE = '/formCentreonBroker.php';
 
 isset($_GET["id"]) ? $cG = $_GET["id"] : $cG = null;
 isset($_POST["id"]) ? $cP = $_POST["id"] : $cP = null;
@@ -56,19 +65,19 @@ require_once './class/centreonConfigCentreonBroker.php';
 /*
  * Path to the configuration dir
  */
-$path = "./include/configuration/configCentreonBroker/";
+//$path = "./include/configuration/configCentreonBroker/";
 
 /*
  * PHP functions
  */
-require_once $path . "DB-Func.php";
+require_once __DIR__ . "/DB-Func.php";
 require_once "./include/common/common-Func.php";
 
 /**
  *  Page forbidden if server is a remote
  */
 if ($isRemote) {
-    require_once($path . "../../core/errors/alt_error.php");
+    require_once(__DIR__ . "/../../core/errors/alt_error.php");
     exit();
 }
 
@@ -89,19 +98,12 @@ if ($serverString != "''" && !empty($serverString)) {
     }
 }
 switch ($o) {
-    case "a":
-        require_once($path . "formCentreonBroker.php");
-        break; // Add CentreonBroker
-
-    case "w":
-        require_once($path . "formCentreonBroker.php");
-        break; // Watch CentreonBroker
-
-    case "c":
-        require_once($path . "formCentreonBroker.php");
-        break; // modify CentreonBroker
-
-    case "s":
+    case ADD_BROKER_CONFIGURATION:
+    case WATCH_BROKER_CONFIGURATION:
+    case MODIFY_BROKER_CONFIGURATION:
+        require_once(__DIR__ . FORM_FILE);
+        break;
+    case ACTIVATE_BROKER_CONFIGURATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -109,10 +111,10 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listCentreonBroker.php");
+        require_once(__DIR__ . LISTING_FILE);
         break; // Activate a CentreonBroker CFG
 
-    case "u":
+    case DEACTIVATE_BROKER_CONFIGURATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -120,10 +122,10 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listCentreonBroker.php");
+        require_once(__DIR__ . LISTING_FILE);
         break; // Desactivate a CentreonBroker CFG
 
-    case "m":
+    case DUPLICATE_BROKER_CONFIGURATIONS:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -131,10 +133,10 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listCentreonBroker.php");
+        require_once(__DIR__ . LISTING_FILE);
         break; // Duplicate n CentreonBroker CFGs
 
-    case "d":
+    case DELETE_BROKER_CONFIGURATIONS:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -142,10 +144,10 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listCentreonBroker.php");
+        require_once(__DIR__ . LISTING_FILE);
         break; // Delete n CentreonBroker CFG
 
     default:
-        require_once($path . "listCentreonBroker.php");
+        require_once(__DIR__ . LISTING_FILE);
         break;
 }

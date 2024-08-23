@@ -121,7 +121,7 @@ if ($o == "a") {
  * Smarty template Init
  */
 $tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+$tpl = initSmartyTpl(__DIR__, $tpl);
 
 /*
  * TAB 1 - General informations
@@ -309,7 +309,7 @@ if ($form->validate()) {
     $valid = true;
 }
 if ($valid) {
-    require_once($path."listCentreonBroker.php");
+    require_once(__DIR__ . LISTING_FILE);
 } else {
     /*
      * Apply a template definition
