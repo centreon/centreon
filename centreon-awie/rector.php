@@ -10,6 +10,7 @@ use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
 use Rector\EarlyReturn\Rector\If_\ChangeAndIfToEarlyReturnRector;
 use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
 use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
+use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
 use Rector\Php73\Rector\String_\SensitiveHereNowDocRector;
@@ -46,7 +47,8 @@ return RectorConfig::configure()
         ChangeAndIfToEarlyReturnRector::class,
         RemoveUnusedVariableInCatchRector::class,
         SensitiveConstantNameRector::class,
-        RemoveExtraParametersRector::class
+        RemoveExtraParametersRector::class,
+        BinaryOpBetweenNumberAndStringRector::class
     ])
     ->withRules([
         AddVoidReturnTypeWhereNoReturnRector::class,
