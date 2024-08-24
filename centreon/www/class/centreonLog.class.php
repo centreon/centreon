@@ -183,6 +183,7 @@ class CentreonLog
         return new CentreonLog($customLogs);
     }
 
+
     /**
      * @param int $id TYPE_* constants
      * @param string $str
