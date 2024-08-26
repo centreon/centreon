@@ -283,10 +283,10 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
                 WHERE TABLE_NAME = 'contact' AND COLUMN_NAME = 'contact_theme'
                 SQL
         );
-        if (!($statement !== false)) {
+        if (! ($statement !== false)) {
             return [];
         }
-        if (!($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        if (! ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
             return [];
         }
         /**

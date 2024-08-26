@@ -145,6 +145,7 @@ final class FindRealTimeServiceStatusesCount
         if ($this->user->isAdmin()) {
             return true;
         }
+
         return $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)
         || $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RW);
     }

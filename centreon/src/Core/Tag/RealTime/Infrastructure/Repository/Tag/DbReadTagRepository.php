@@ -146,45 +146,45 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
 
         $aclJoins = match ($typeId) {
             Tag::HOST_CATEGORY_TYPE_ID => <<<'SQL'
-                    INNER JOIN `:db`.acl_resources_hc_relations arhr
-                        ON tags.id = arhr.hc_id
-                    INNER JOIN `:db`.acl_resources res
-                        ON arhr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON res.acl_res_id = argr.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON argr.acl_group_id = ag.acl_group_id
-                    SQL,
+                INNER JOIN `:db`.acl_resources_hc_relations arhr
+                    ON tags.id = arhr.hc_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL,
             Tag::SERVICE_CATEGORY_TYPE_ID => <<<'SQL'
-                    INNER JOIN `:db`.acl_resources_sc_relations arsr
-                        ON tags.id = arsr.sc_id
-                    INNER JOIN `:db`.acl_resources res
-                        ON arsr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON res.acl_res_id = argr.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON argr.acl_group_id = ag.acl_group_id
-                    SQL,
+                INNER JOIN `:db`.acl_resources_sc_relations arsr
+                    ON tags.id = arsr.sc_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arsr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL,
             Tag::HOST_GROUP_TYPE_ID => <<<'SQL'
-                    INNER JOIN `:db`.acl_resources_hg_relations arhr
-                        ON hg.hg_id = arhr.hg_hg_id
-                    INNER JOIN `:db`.acl_resources res
-                        ON arhr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON res.acl_res_id = argr.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON argr.acl_group_id = ag.acl_group_id
-                    SQL,
+                INNER JOIN `:db`.acl_resources_hg_relations arhr
+                    ON hg.hg_id = arhr.hg_hg_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL,
             Tag::SERVICE_GROUP_TYPE_ID => <<<'SQL'
-                    INNER JOIN `:db`.acl_resources_sg_relations arsr
-                        ON sg.sg_id = arsr.sg_id
-                    INNER JOIN `:db`.acl_resources res
-                        ON arsr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON res.acl_res_id = argr.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON argr.acl_group_id = ag.acl_group_id
-                    SQL,
+                INNER JOIN `:db`.acl_resources_sg_relations arsr
+                    ON sg.sg_id = arsr.sg_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arsr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL,
             default => throw new \Exception('Unknown tag type'),
         };
 

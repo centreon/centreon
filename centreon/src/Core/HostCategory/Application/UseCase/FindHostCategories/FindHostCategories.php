@@ -170,6 +170,7 @@ final class FindHostCategories
         if ($this->user->isAdmin()) {
             return true;
         }
+
         return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
         || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE);
     }

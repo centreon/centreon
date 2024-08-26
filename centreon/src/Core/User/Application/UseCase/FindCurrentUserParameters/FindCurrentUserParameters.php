@@ -95,6 +95,7 @@ final class FindCurrentUserParameters
         if ($user->isAdmin()) {
             return true;
         }
+
         return $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION);
     }
 
@@ -108,6 +109,7 @@ final class FindCurrentUserParameters
         if ($user->isAdmin()) {
             return true;
         }
+
         return $user->hasRole(Contact::ROLE_MANAGE_TOKENS);
     }
 }

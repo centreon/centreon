@@ -45,6 +45,7 @@ class DashboardRights
         if ($this->hasAdminRole()) {
             return true;
         }
+
         return $this->hasCreatorRole();
     }
 
@@ -93,6 +94,7 @@ class DashboardRights
         if ($this->contact->hasTopologyRole(self::ROLE_ADMIN)) {
             return true;
         }
+
         return $this->contact->hasTopologyRole(self::ROLE_CREATOR);
     }
 
@@ -104,6 +106,7 @@ class DashboardRights
         if ($this->contact->hasTopologyRole(self::ROLE_CREATOR)) {
             return true;
         }
+
         return $this->contact->hasTopologyRole(self::ROLE_VIEWER);
     }
 

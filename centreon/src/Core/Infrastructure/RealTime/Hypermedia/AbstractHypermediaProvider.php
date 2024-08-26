@@ -113,6 +113,7 @@ abstract class AbstractHypermediaProvider
         if ($contact->isAdmin()) {
             return true;
         }
+
         return $this->hasTopologyAccess($contact, $topologyRoles);
     }
 

@@ -167,15 +167,13 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                  */
                 public function normalize($valueToNormalize)
                 {
-                    $code = match (mb_strtoupper((string) $valueToNormalize)) {
+                    return match (mb_strtoupper((string) $valueToNormalize)) {
                         'UP' => HostStatusesCount::STATUS_UP,
                         'DOWN' => HostStatusesCount::STATUS_DOWN,
                         'UNREACHABLE' => HostStatusesCount::STATUS_UNREACHABLE,
                         'PENDING' => HostStatusesCount::STATUS_PENDING,
                         default => throw new RequestParametersTranslatorException('Status provided not handled'),
                     };
-
-                    return $code;
                 }
             }
         );

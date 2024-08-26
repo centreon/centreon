@@ -119,6 +119,7 @@ final class FindHosts
         if ($this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_READ)) {
             return true;
         }
+
         return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE);
     }
 

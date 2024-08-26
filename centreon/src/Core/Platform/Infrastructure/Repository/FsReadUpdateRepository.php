@@ -73,10 +73,10 @@ class FsReadUpdateRepository implements ReadUpdateRepositoryInterface
                 ->name($fileNameVersionRegex);
 
             foreach ($files as $file) {
-                if (!preg_match($fileNameVersionRegex, $file->getFilename(), $matches)) {
+                if (! preg_match($fileNameVersionRegex, $file->getFilename(), $matches)) {
                     continue;
                 }
-                if (!version_compare($matches['version'], $currentVersion, '>')) {
+                if (! version_compare($matches['version'], $currentVersion, '>')) {
                     continue;
                 }
                 $updates[] = $matches['version'];

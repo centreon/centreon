@@ -119,6 +119,7 @@ class FindContactGroups
         if ($this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE)) {
             return true;
         }
+
         return $this->isCloudPlatform === true;
     }
 }

@@ -172,6 +172,7 @@ final class FindServiceGroups
         if ($this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_READ)) {
             return true;
         }
+
         return $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_READ_WRITE);
     }
 

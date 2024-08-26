@@ -559,6 +559,7 @@ final class UpdateRule
         if ($current->doesApplyToAllContactGroups() !== $updateRequest->applyToAllContactGroups) {
             return true;
         }
+
         return $current->doesApplyToAllContacts() !== $updateRequest->applyToAllContacts;
     }
 

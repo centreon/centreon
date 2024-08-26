@@ -134,6 +134,7 @@ final class FindUsers
         if ($this->user->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_ADMIN)) {
             return true;
         }
+
         return $this->isCloudPlatform && in_array('customer_admin_acl', $accessGroupNames, true);
     }
 }

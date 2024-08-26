@@ -172,6 +172,7 @@ final class FindHostGroups
         if ($this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ)) {
             return true;
         }
+
         return $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE);
     }
 

@@ -269,7 +269,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                  */
                 public function normalize($valueToNormalize)
                 {
-                    $code = match (mb_strtoupper((string) $valueToNormalize)) {
+                    return match (mb_strtoupper((string) $valueToNormalize)) {
                         'OK' => ServiceStatusesCount::STATUS_OK,
                         'WARNING' => ServiceStatusesCount::STATUS_WARNING,
                         'CRITICAL' => ServiceStatusesCount::STATUS_CRITICAL,
@@ -277,8 +277,6 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                         'PENDING' => ServiceStatusesCount::STATUS_PENDING,
                         default => throw new RequestParametersTranslatorException('Status provided not handled'),
                     };
-
-                    return $code;
                 }
             }
         );
