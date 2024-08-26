@@ -52,7 +52,7 @@ runs:
         working-dir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
 
-    - uses: mongolyy/reviewdog-action-biome@v1
+    - uses: mongolyy/reviewdog-action-biome@6b01155716493e5cc365df64aa0946ec9adc53c2 # v1.6.1
       with:
         workdir: ${{ inputs.frontend_directory }}
         github_token: ${{ inputs.pat }}
