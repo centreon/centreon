@@ -56,7 +56,7 @@ runs:
       with:
         workdir: ${{ inputs.frontend_directory }}
         github_token: ${{ inputs.pat }}
-        reporter: github-pr-check
+        reporter: github-pr-review
         fail_on_error: true
         level: 'error'
         biome_flags: ${{ inputs.lint_path }}

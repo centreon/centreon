@@ -52,9 +52,10 @@ const Main = (): JSX.Element => {
   );
   const setIsOnPublicPageAtom = useSetAtom(isOnPublicPageAtom);
 
-  const navigateTo = (path: string): string => {
+  const navigateTo = (path: string): void => {
     navigate(path);
     window.location.reload();
+    return 'string';
   };
 
   console.log('hello darkness my old friend');
