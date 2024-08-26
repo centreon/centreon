@@ -3,6 +3,11 @@ name: centreon-ui-context-beta
 on:
   workflow_dispatch:
   pull_request:
+    paths:
+      - "centreon/packages/ui-context/**"
+      - '.github/workflows/ui-context.yml'
+    branches:
+      - develop
   pull_request_target:
     paths:
       - "centreon/packages/ui-context/**"

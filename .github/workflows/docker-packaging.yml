@@ -13,6 +13,8 @@ on:
     paths:
       - ".github/docker/Dockerfile.packaging-*"
   pull_request:
+    paths:
+      - ".github/docker/Dockerfile.packaging-*"
   pull_request_target:
     paths:
       - ".github/docker/Dockerfile.packaging-*"

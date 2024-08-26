@@ -11,6 +11,15 @@ on:
     paths:
       - "centreon/packages/ui/**"
       - '.github/workflows/ui-beta.yml'
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    paths:
+      - "centreon/packages/ui/**"
+      - '.github/workflows/ui-beta.yml'
 
 env:
   directory: "centreon/packages/ui"
