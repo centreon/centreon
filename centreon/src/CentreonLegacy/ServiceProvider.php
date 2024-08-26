@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -80,7 +80,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         return 0;
     }
 
-    protected function registerConfiguration(Container $pimple)
+    protected function registerConfiguration(Container $pimple): void
     {
         $pimple[static::CONFIGURATION] = function (Container $container): Core\Configuration\Configuration {
             global $conf_centreon, $centreon_path;
@@ -96,7 +96,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     /**
      * @param Container $pimple
      */
-    protected function registerRestHttp(Container $pimple)
+    protected function registerRestHttp(Container $pimple): void
     {
         $pimple[static::CENTREON_REST_HTTP] = fn(Container $container) => function ($contentType = 'application/json', $logFile = null) {
             // @codeCoverageIgnoreStart
@@ -104,7 +104,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         };
     }
 
-    protected function registerModule(Container $pimple)
+    protected function registerModule(Container $pimple): void
     {
         $pimple[static::CENTREON_LEGACY_MODULE_HEALTHCHECK] = function (Container $container): Module\Healthcheck {
             $services = [
@@ -139,9 +139,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = fn($moduleName): Module\Installer => new Module\Installer($locator, null, $moduleName);
 
-            return $service;
+            return fn($moduleName): Module\Installer => new Module\Installer($locator, null, $moduleName);
         });
 
         $pimple[static::CENTREON_LEGACY_MODULE_UPGRADER] = $pimple->factory(function (Container $container) {
@@ -154,9 +153,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = fn($moduleName, $moduleId): Module\Upgrader => new Module\Upgrader($locator, null, $moduleName, null, $moduleId);
 
-            return $service;
+            return fn($moduleName, $moduleId): Module\Upgrader => new Module\Upgrader($locator, null, $moduleName, null, $moduleId);
         });
 
         $pimple[static::CENTREON_LEGACY_MODULE_REMOVER] = $pimple->factory(function (Container $container) {
@@ -168,9 +166,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = fn($moduleName, $moduleId): Module\Remover => new Module\Remover($locator, null, $moduleName, null, $moduleId);
 
-            return $service;
+            return fn($moduleName, $moduleId): Module\Remover => new Module\Remover($locator, null, $moduleName, null, $moduleId);
         });
 
         $pimple[static::CENTREON_LEGACY_MODULE_LICENSE] = $pimple->factory(function (Container $container) {
@@ -187,7 +184,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         $pimple[static::CENTREON_LEGACY_LICENSE] = fn(Container $container): License => $container[ServiceProvider::CENTREON_LEGACY_MODULE_LICENSE];
     }
 
-    protected function registerWidget(Container $pimple)
+    protected function registerWidget(Container $pimple): void
     {
         $pimple[static::CENTREON_LEGACY_WIDGET_INFORMATION] = function (Container $container): Widget\Information {
             $services = [
@@ -210,9 +207,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = fn($widgetDirectory): Widget\Installer => new Widget\Installer($locator, null, $widgetDirectory, null);
 
-            return $service;
+            return fn($widgetDirectory): Widget\Installer => new Widget\Installer($locator, null, $widgetDirectory, null);
         });
 
         $pimple[static::CENTREON_LEGACY_WIDGET_UPGRADER] = $pimple->factory(function (Container $container) {
@@ -223,9 +219,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = fn($widgetDirectory): Widget\Upgrader => new Widget\Upgrader($locator, null, $widgetDirectory, null);
 
-            return $service;
+            return fn($widgetDirectory): Widget\Upgrader => new Widget\Upgrader($locator, null, $widgetDirectory, null);
         });
 
         $pimple[static::CENTREON_LEGACY_WIDGET_REMOVER] = $pimple->factory(function (Container $container) {
@@ -236,9 +231,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = fn($widgetDirectory): Widget\Remover => new Widget\Remover($locator, null, $widgetDirectory, null);
 
-            return $service;
+            return fn($widgetDirectory): Widget\Remover => new Widget\Remover($locator, null, $widgetDirectory, null);
         });
     }
 }

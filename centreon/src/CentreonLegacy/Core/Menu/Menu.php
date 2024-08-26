@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -98,16 +98,16 @@ class Menu
         $currentLevelTwo = null;
         $currentLevelThree = null;
         if (! is_null($this->currentPage)) {
-            $currentLevelOne = substr($this->currentPage, 0, 1);
-            $currentLevelTwo = substr($this->currentPage, 1, 2);
-            $currentLevelThree = substr($this->currentPage, 2, 2);
+            $currentLevelOne = mb_substr($this->currentPage, 0, 1);
+            $currentLevelTwo = mb_substr($this->currentPage, 1, 2);
+            $currentLevelThree = mb_substr($this->currentPage, 2, 2);
         }
 
         $menu = [];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $active = false;
             if (preg_match('/^(\d)$/', (string) $row['topology_page'], $matches)) { // level 1
-                if (! is_null($currentLevelOne) && $currentLevelOne == $row['topology_page']) {
+                if (! is_null($currentLevelOne) && $currentLevelOne === $row['topology_page']) {
                     $active = true;
                 }
                 $menu['p' . $row['topology_page']] = [
@@ -121,7 +121,7 @@ class Menu
                     'is_react' => $row['is_react'],
                 ];
             } elseif (preg_match('/^(\d)(\d\d)$/', (string) $row['topology_page'], $matches)) { // level 2
-                if (! is_null($currentLevelTwo) && $currentLevelTwo == $row['topology_page']) {
+                if (! is_null($currentLevelTwo) && $currentLevelTwo === $row['topology_page']) {
                     $active = true;
                 }
                 /**
@@ -138,7 +138,7 @@ class Menu
                     'is_react' => $row['is_react'],
                 ];
             } elseif (preg_match('/^(\d)(\d\d)(\d\d)$/', (string) $row['topology_page'], $matches)) { // level 3
-                if (! is_null($currentLevelThree) && $currentLevelThree == $row['topology_page']) {
+                if (! is_null($currentLevelThree) && $currentLevelThree === $row['topology_page']) {
                     $active = true;
                 }
                 $levelTwo = $matches[1] . $matches[2];
@@ -203,7 +203,7 @@ class Menu
      */
     public function getColor($pageId)
     {
-        $color = match ((int) $pageId) {
+        return match ((int) $pageId) {
             1 => '#2B9E93',
             2 => '#85B446',
             3 => '#E4932C',
@@ -211,7 +211,5 @@ class Menu
             6 => '#319ED5',
             default => '#319ED5',
         };
-
-        return $color;
     }
 }

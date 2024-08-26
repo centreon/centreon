@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -76,7 +76,7 @@ class Installer extends Widget
      *
      * @throws \Exception
      */
-    protected function installPreferences($id)
+    protected function installPreferences($id): void
     {
         if (! isset($this->widgetConfiguration['preferences'])) {
             return;
@@ -100,7 +100,7 @@ class Installer extends Widget
                 }
                 $attr['requirePermission'] ??= 0;
                 $attr['defaultValue'] ??= '';
-                $attr['header'] = (isset($attr['header']) && $attr['header'] != '') ? $attr['header'] : null;
+                $attr['header'] = (isset($attr['header']) && $attr['header'] !== '') ? $attr['header'] : null;
                 $attr['order'] = $order;
                 $attr['type'] = $types[$attr['type']];
 
@@ -115,7 +115,7 @@ class Installer extends Widget
      * @param array $parameters
      * @param array $preference
      */
-    protected function installParameters($id, $parameters, $preference)
+    protected function installParameters($id, $parameters, $preference): void
     {
         $query = 'INSERT INTO widget_parameters '
             . '(widget_model_id, field_type_id, parameter_name, parameter_code_name, '
@@ -154,7 +154,7 @@ class Installer extends Widget
      * @param int $paramId
      * @param array $preference
      */
-    protected function installMultipleOption($paramId, $preference)
+    protected function installMultipleOption($paramId, $preference): void
     {
         if (! isset($preference['option'])) {
             return;
@@ -185,7 +185,7 @@ class Installer extends Widget
      * @param int $paramId
      * @param array $parameters
      */
-    protected function installRangeOption($paramId, $parameters)
+    protected function installRangeOption($paramId, $parameters): void
     {
         $query = 'INSERT INTO widget_parameters_range (parameter_id, min_range, max_range, step) '
             . 'VALUES (:parameter_id, :min_range, :max_range, :step) ';

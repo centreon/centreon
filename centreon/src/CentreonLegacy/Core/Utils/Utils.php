@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -50,11 +50,11 @@ class Utils
     {
         $configuration = [];
 
-        if ($type == 'install') {
+        if ($type === 'install') {
             $module_conf = [];
             require $configurationFile;
             $configuration = $module_conf;
-        } elseif ($type == 'upgrade') {
+        } elseif ($type === 'upgrade') {
             $upgrade_conf = [];
             require $configurationFile;
             $configuration = $upgrade_conf;
@@ -85,7 +85,7 @@ class Utils
         while (! feof($file)) {
             $line = fgets($file);
             if (! preg_match('/^(--|#)/', $line)) {
-                $pos = strrpos($line, ';');
+                $pos = mb_strrpos($line, ';');
                 $str .= $line;
                 if ($pos !== false) {
                     $str = rtrim($this->replaceMacros($str, $customMacros));
@@ -167,7 +167,7 @@ class Utils
                 if (is_object($value) || is_array($value)) {
                     $value = self::objectIntoArray($value, $skippedKeys);
                 }
-                if (in_array($index, $skippedKeys)) {
+                if (in_array($index, $skippedKeys, true)) {
                     continue;
                 }
                 $arrData[$index] = $value;

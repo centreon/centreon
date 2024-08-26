@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -96,7 +96,7 @@ class Information
             return $row['name'];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -269,7 +269,7 @@ class Information
         
         $compare = version_compare($availableVersion, $installedVersion);
         
-        if ($compare == 1) {
+        if ($compare === 1) {
             return true;
         }
         

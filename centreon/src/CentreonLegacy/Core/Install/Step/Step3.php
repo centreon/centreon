@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -47,12 +47,12 @@ class Step3 extends AbstractStep
 
         $parameters = [];
         foreach ($lines as $line) {
-            if (! $line || $line[0] == '#') {
+            if (! $line || $line[0] === '#') {
                 continue;
             }
             [$key, $label, $required, $paramType, $default] = explode(';', $line);
             $val = $default;
-            $configurationKey = strtolower(str_replace(' ', '_', $key));
+            $configurationKey = mb_strtolower(str_replace(' ', '_', $key));
             if (isset($engineConfiguration[$configurationKey])) {
                 $val = $engineConfiguration[$configurationKey];
             } elseif (isset($configuration[$configurationKey])) {

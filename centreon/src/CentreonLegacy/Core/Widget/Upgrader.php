@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -91,7 +91,7 @@ class Upgrader extends Installer
      * @param array $parameters
      * @param array $preference
      */
-    protected function updateParameters($id, $parameters, $preference)
+    protected function updateParameters($id, $parameters, $preference): void
     {
         $query = 'UPDATE widget_parameters SET '
             . 'field_type_id = :field_type_id, '
@@ -133,7 +133,7 @@ class Upgrader extends Installer
     /**
      * @param int $id
      */
-    protected function deleteParameter($id)
+    protected function deleteParameter($id): void
     {
         $query = 'DELETE FROM widget_parameters '
             . 'WHERE parameter_id = :id ';
@@ -148,7 +148,7 @@ class Upgrader extends Installer
     /**
      * @param int $id
      */
-    protected function deleteParameterOptions($id)
+    protected function deleteParameterOptions($id): void
     {
         $query = 'DELETE FROM widget_parameters_multiple_options '
             . 'WHERE parameter_id = :id ';
@@ -201,7 +201,7 @@ class Upgrader extends Installer
                 }
                 $attr['requirePermission'] ??= 0;
                 $attr['defaultValue'] ??= '';
-                $attr['header'] = (isset($attr['header']) && $attr['header'] != '') ? $attr['header'] : null;
+                $attr['header'] = (isset($attr['header']) && $attr['header'] !== '') ? $attr['header'] : null;
                 $attr['order'] = $order;
                 $attr['type'] = $types[$attr['type']];
                 if (! isset($existingParams[$attr['name']])) {
@@ -215,7 +215,7 @@ class Upgrader extends Installer
         }
 
         foreach ($existingParams as $name => $attributes) {
-            if (! in_array($name, $insertedParameters)) {
+            if (! in_array($name, $insertedParameters, true)) {
                 $this->deleteParameter($attributes['parameter_id']);
             }
         }

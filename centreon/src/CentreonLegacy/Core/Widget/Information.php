@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -129,7 +129,7 @@ class Information
             return $row['parameter_id'];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -175,7 +175,7 @@ class Information
             return $row['widget_model_id'];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -194,7 +194,7 @@ class Information
 
         foreach ($widgets as $widget) {
             $widgetDirectory = $widget->getBasename();
-            if (! empty($search) && ! stristr((string) $widgetDirectory, $search)) {
+            if (! empty($search) && ! mb_stristr((string) $widgetDirectory, $search)) {
                 continue;
             }
 
@@ -204,7 +204,7 @@ class Information
             }
 
             // we use lowercase to avoid problems if directory name have some letters in uppercase
-            $widgetsConf[strtolower((string) $widgetDirectory)] = $this->getConfiguration($widgetDirectory);
+            $widgetsConf[mb_strtolower((string) $widgetDirectory)] = $this->getConfiguration($widgetDirectory);
         }
 
         return $widgetsConf;
@@ -330,8 +330,8 @@ class Information
         $installedWidgets = [];
         foreach ($widgets as $widget) {
             // we use lowercase to avoid problems if directory name have some letters in uppercase
-            $installedWidgets[strtolower((string) $widget['directory'])] = $widget;
-            $installedWidgets[strtolower((string) $widget['directory'])]['is_internal'] = $widget['is_internal'] === 1;
+            $installedWidgets[mb_strtolower((string) $widget['directory'])] = $widget;
+            $installedWidgets[mb_strtolower((string) $widget['directory'])]['is_internal'] = $widget['is_internal'] === 1;
         }
 
         return $installedWidgets;
@@ -347,6 +347,6 @@ class Information
     {
         $compare = version_compare($availableVersion, $installedVersion);
 
-        return (bool) ($compare == 1);
+        return (bool) ($compare === 1);
     }
 }

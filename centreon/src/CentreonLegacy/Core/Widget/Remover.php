@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -36,10 +36,6 @@ class Remover extends Widget
 
         $sth->bindParam(':directory', $this->widgetName, \PDO::PARAM_STR);
 
-        if ($sth->execute()) {
-            return true;
-        }
-
-        return false;
+        return (bool) ($sth->execute());
     }
 }

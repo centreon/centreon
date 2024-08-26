@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -217,12 +217,12 @@ class Healthcheck
         &$warning,
         &$critical,
         &$licenseExpiration
-    ) {
+    ): void {
         global $centreon_path;
         require_once $checklistDir . 'requirements.php';
     }
 
-    protected function setMessages(array $messages)
+    protected function setMessages(array $messages): void
     {
         foreach ($messages as $errorMessage) {
             $this->messages = [
@@ -232,7 +232,7 @@ class Healthcheck
         }
     }
 
-    protected function setCustomAction(?array $customAction = null)
+    protected function setCustomAction(?array $customAction = null): void
     {
         if ($customAction !== null) {
             $this->customAction = [
