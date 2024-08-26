@@ -38,11 +38,11 @@ final class ExportCommitment
     /**
      * Construct.
      *
-     * @param int $remote
+     * @param int|null $remote
      * @param int[] $pollers
      * @param array<mixed> $meta
-     * @param ExportParserInterface $parser
-     * @param string $path
+     * @param ExportParserInterface|null $parser
+     * @param string|null $path
      * @param array<int,string> $exporters
      */
     public function __construct(
@@ -64,6 +64,8 @@ final class ExportCommitment
         if ($this->path === null) {
             $this->path = _CENTREON_CACHEDIR_ . '/config/export/' . $this->remote;
         }
+
+        $this->parser = $parser ?? new ExportParserJson();
     }
 
     public function getRemote(): int
