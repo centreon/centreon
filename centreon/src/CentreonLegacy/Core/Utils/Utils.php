@@ -154,7 +154,7 @@ class Utils
      *
      * @return string|array
      */
-    public function objectIntoArray($arrObjData, $skippedKeys = []): array | string
+    public function objectIntoArray($arrObjData, $skippedKeys = []): array|string
     {
         $arrData = [];
 

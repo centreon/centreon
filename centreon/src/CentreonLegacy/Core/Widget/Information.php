@@ -129,7 +129,7 @@ class Information
             return $row['parameter_id'];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -175,7 +175,7 @@ class Information
             return $row['widget_model_id'];
         }
 
-        return null;
+        return;
     }
 
     /**
