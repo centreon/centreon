@@ -1,0 +1,10 @@
+{
+  "federatedComponentsConfiguration": [
+    {
+      "path": "/widgets/webpage",
+      "federatedComponents": ["./webpage"]
+    }
+  ],
+  "moduleFederationName": "widgetwebpage",
+  "moduleName": "centreon-widget-webpage"
+}
