@@ -170,12 +170,14 @@ class CentreonModuleService
         usort($list, function ($a, $b) {
             $aVal = $a->getName();
             $bVal = $b->getName();
+
             return $aVal <=> $bVal;
         });
         usort($list, function ($a, $b) {
             $sortByName = function ($a, $b) {
                 $aVal = $a->isInstalled();
                 $bVal = $b->isInstalled();
+
                 return $aVal <=> $bVal;
             };
 
