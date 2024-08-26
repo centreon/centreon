@@ -1,10 +1,13 @@
-const WebPage = (): JSX.Element => {
+const WebPage = ({ panelOptions }): JSX.Element => {
+  const { url } = panelOptions;
+
   return (
-    <div style={{ marginTop: '20px' }}>
+    <div style={{ height: '100%', width: '100%' }}>
       <iframe
-        src="https://driouchcity.net/"
-        style={{ width: '100%', height: '600px', border: 'none' }}
+        src={url}
+        style={{ width: '100%', height: '100%', border: 'none' }}
         title="Webpage Display"
+        test-id="Webpage Display"
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo } from 'react';
+import { type ChangeEvent, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { clamp, equals } from 'ramda';
@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { TextField } from '@centreon/ui';
 
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
-import { Widget, WidgetPropertyProps } from '../../models';
+import type { Widget, WidgetPropertyProps } from '../../models';
 
 import { getProperty } from './utils';
 

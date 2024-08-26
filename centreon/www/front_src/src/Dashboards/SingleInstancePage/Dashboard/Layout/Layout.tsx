@@ -1,11 +1,11 @@
 import { isEmpty, isNil, lte } from 'ramda';
-import { Layout } from 'react-grid-layout';
+import type { Layout } from 'react-grid-layout';
 
 import { DashboardLayout } from '@centreon/ui';
 
 import { AddWidgetPanel } from '../AddEditWidget';
 import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
-import { Panel } from '../models';
+import type { Panel } from '../models';
 
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';

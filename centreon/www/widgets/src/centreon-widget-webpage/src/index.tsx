@@ -1,15 +1,17 @@
 import { Module } from '@centreon/ui';
 
-// import ResourcesTable from './ResourcesTable';
-// import { ResourcesTableProps } from './models';
-
 import Webpage from './WebPage';
+import type { WebPageProps } from './models';
 
-const Widget = ({ store, queryClient, ...props }): JSX.Element => (
+const Widget = ({
+  store,
+  queryClient,
+  ...props
+}: WebPageProps): JSX.Element => (
   <Module
     maxSnackbars={1}
     queryClient={queryClient}
-    seedName="widget-resourcetable"
+    seedName="widget-webpage"
     store={store}
   >
     <Webpage {...props} />
