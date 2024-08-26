@@ -18,6 +18,7 @@
 /usr/libexec/sudo
 /usr/lib64/perl5/vendor_perl
 /var/www/html
+/var/log/httpd
 /usr/lib64/httpd/modules
 /var/lib/php/session
 /usr/share/centreon

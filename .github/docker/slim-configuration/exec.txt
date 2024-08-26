@@ -1,5 +1,8 @@
 sleep 5
 
+curl -s https://api.imp.centreon.com/api/pluginpack/pluginpack
+curl -s -x http://localhost:80 https://api.imp.centreon.com/api/pluginpack/pluginpack
+
 su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
 
 timeout 20 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost/centreon/api/latest/platform/versions)" != "200" ]]; do sleep 5; done'
