@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useMemo } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -83,6 +83,7 @@ interface UseResourcesState {
   isLastResourceInTree: boolean;
   singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
+  isValidatingResources: boolean;
 }
 
 export const resourceTypeBaseEndpoints = {
@@ -195,6 +196,8 @@ const useResources = ({
   | 'required'
   | 'useAdditionalResources'
 >): UseResourcesState => {
+  const [isValidatingResources, setIsValidatingResources] = useState(false);
+
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
@@ -254,6 +257,7 @@ const useResources = ({
       );
       setFieldTouched(`data.${propertyName}`, true, false);
 
+      setIsValidatingResources(true);
       validateNextResource({ index, parentResources: selectedResources });
     };
 
@@ -265,6 +269,7 @@ const useResources = ({
     ]);
     setFieldTouched(`data.${propertyName}`, true, false);
 
+    setIsValidatingResources(true);
     validateNextResource({ index, parentResources: [selectedResource] });
   };
 
@@ -292,60 +297,71 @@ const useResources = ({
     setFieldValue(`data.${propertyName}.${index}.resources`, newResource);
     setFieldTouched(`data.${propertyName}`, true, false);
 
+    setIsValidatingResources(true);
     validateNextResource({ index, parentResources: newResource });
   };
 
-  const validateNextResource = ({ index, parentResources }) => {
-    const nextResourceIndex = index + 1;
-    const nextResourceType = value?.[nextResourceIndex]?.resourceType;
-    const nextResources = value?.[nextResourceIndex]?.resources;
+  const validateNextResource = useCallback(
+    ({ index, parentResources }) => {
+      const nextResourceIndex = index + 1;
+      const nextResourceType = value?.[nextResourceIndex]?.resourceType;
+      const nextResources = value?.[nextResourceIndex]?.resources;
 
-    if (
-      gte(nextResourceIndex, value?.length) ||
-      isNil(nextResourceType) ||
-      isEmpty(nextResources)
-    ) {
-      return;
-    }
+      if (
+        gte(nextResourceIndex, value?.length) ||
+        isNil(nextResourceType) ||
+        isEmpty(nextResources)
+      ) {
+        setIsValidatingResources(false);
+        return;
+      }
 
-    if (isEmpty(parentResources)) {
-      setFieldValue(`data.${propertyName}.${nextResourceIndex}.resources`, []);
-      validateNextResource({ index: nextResourceIndex, parentResources: [] });
-      return;
-    }
-    fetch(
-      getResourceResourceBaseEndpoint({
-        index: nextResourceIndex,
-        resourceType: nextResourceType,
-        resourcesToSearch: pluck('name', nextResources),
-        parentResources
-      })({})
-    )
-      .then((response) => response.ok && response.json())
-      .then((body) => {
-        if (isNil(body.result)) {
-          setFieldValue(
-            `data.${propertyName}.${nextResourceIndex}.resources`,
-            []
-          );
-          return;
-        }
-        const retrievedResourceNames = pluck('name', body.result);
-        const includedResources = filter(
-          ({ name }) => includes(name, retrievedResourceNames),
-          nextResources
-        );
-
+      if (isEmpty(parentResources)) {
         setFieldValue(
           `data.${propertyName}.${nextResourceIndex}.resources`,
-          includedResources
+          []
         );
-        validateNextResource({
+        validateNextResource({ index: nextResourceIndex, parentResources: [] });
+        return;
+      }
+
+      fetch(
+        getResourceResourceBaseEndpoint({
           index: nextResourceIndex,
-          parentResources: project(['id', 'name'], includedResources)
+          resourceType: nextResourceType,
+          resourcesToSearch: pluck('name', nextResources),
+          parentResources
+        })({})
+      )
+        .then((response) => response.ok && response.json())
+        .then((body) => {
+          if (isNil(body.result)) {
+            setFieldValue(
+              `data.${propertyName}.${nextResourceIndex}.resources`,
+              []
+            );
+
+            setIsValidatingResources(false);
+            return;
+          }
+          const retrievedResourceNames = pluck('name', body.result);
+          const includedResources = filter(
+            ({ name }) => includes(name, retrievedResourceNames),
+            nextResources
+          );
+
+          setFieldValue(
+            `data.${propertyName}.${nextResourceIndex}.resources`,
+            includedResources
+          );
+          validateNextResource({
+            index: nextResourceIndex,
+            parentResources: project(['id', 'name'], includedResources)
+          });
         });
-      });
-  };
+    },
+    [value, propertyName]
+  );
 
   const getQueryParameters = (
     index: number,
@@ -620,7 +636,8 @@ const useResources = ({
     hasSelectedHostForSingleMetricwidget,
     isLastResourceInTree,
     singleResourceSelection: widgetProperties?.singleResourceSelection,
-    value: value || []
+    value: value || [],
+    isValidatingResources
   };
 };
 
