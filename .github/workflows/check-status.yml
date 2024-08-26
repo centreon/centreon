@@ -26,6 +26,11 @@ jobs:
   check-status:
     runs-on: ubuntu-24.04
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       - name: Check workflow statuses and display token usage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
