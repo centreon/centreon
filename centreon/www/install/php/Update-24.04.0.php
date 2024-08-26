@@ -54,7 +54,7 @@ $installCoreWidgets = function(): void {
     $moduleService = \Centreon\LegacyContainer::getInstance()[\CentreonModule\ServiceProvider::CENTREON_MODULE];
     $widgets = $moduleService->getList(null, false, null, ['widget']);
     foreach ($widgets['widget'] as $widget) {
-        if ($widget->isInternal() && ! $widget->isInstalled()) {
+        if ($widget->isInternal()) {
             $moduleService->install($widget->getId(), 'widget');
         }
     }
