@@ -55,7 +55,7 @@ runs:
     - uses: mongolyy/reviewdog-action-biome@v1
       with:
         workdir: ${{ inputs.frontend_directory }}
-        github_token: ${{ secrets.github_token }}
+        github_token: ${{ inputs.pat }}
         reporter: github-pr-review
         fail_on_error: true
         level: 'error'
