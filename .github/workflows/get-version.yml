@@ -113,6 +113,16 @@ jobs:
 
           echo "BRANCHNAME is: $BRANCHNAME"
 
+          # Check if pull_request is internal or contribution
+          IS_EXTERNAL_CONTRIBUTION=""
+          if [ "${{ github.repository }}" != "${{ github.event.pull_request.head.repo.full_name }}" ]; then
+            echo "Detected external contribution, setting IS_CONTRIBUTION value to yes."
+            IS_EXTERNAL_CONTRIBUTION="yes"
+          else
+            echo "Detected internal contribution, setting IS_CONTRIBUTION value to no."
+            IS_EXTERNAL_CONTRIBUTION="no"
+          fi
+
           # Set default release values
           GITHUB_RELEASE_CLOUD=0
           GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
@@ -179,8 +189,17 @@ jobs:
             *)
               # Any branch name
               echo "Github repository context var: $GITHUB_REPOSITORY"
-              # GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
-              # GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+              if [[ "$IS_EXTERNAL_CONTRIBUTION" == "no" ]]; then
+                echo "Internal contribution."
+                GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+                GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+              elif [[ "$IS_EXTERNAL_CONTRIBUTION" == "yes" ]]; then
+                echo "External contribution."
+                CONTRIB_PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head ${{ github.head_ref }} --json number)
+                GITHUB_BRANCH_PR_STATE="$(gh pr view $CONTRIB_PR_NUMBER -q .state --json headRefName,baseRefName,state)"
+              else
+                echo "Invalid value for IS_EXTERNAL_CONTRIBUTION : $IS_EXTERNAL_CONTRIBUTION ."
+              fi
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
 
               # Check if pull request branch targeting develop
