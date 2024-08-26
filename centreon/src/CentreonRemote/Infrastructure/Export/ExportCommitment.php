@@ -49,7 +49,7 @@ final class ExportCommitment
         ?int $remote = null,
         ?array $pollers = null,
         private ?array $meta = null,
-        private ExportParserInterface $parser = new ExportParserJson(),
+        private ?ExportParserInterface $parser = null,
         private ?string $path = null,
         ?array $exporters = null
     ) {
