@@ -125,11 +125,13 @@ class Information
         }
 
         $sth->execute();
+
+        $id = null;
         if ($row = $sth->fetch()) {
-            return $row['parameter_id'];
+            $id = $row['parameter_id'];
         }
 
-        return;
+        return $id;
     }
 
     /**
@@ -158,7 +160,7 @@ class Information
     /**
      * @param string $name
      *
-     * @return null|int
+     * @return int
      */
     public function getIdByName($name)
     {
@@ -171,11 +173,13 @@ class Information
         $sth->bindParam(':directory', $name, \PDO::PARAM_STR);
 
         $sth->execute();
+
+        $id = null;
         if ($row = $sth->fetch()) {
-            return $row['widget_model_id'];
+            $id = $row['widget_model_id'];
         }
 
-        return;
+        return $id;
     }
 
     /**
