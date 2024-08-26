@@ -61,6 +61,10 @@ on:
         type: string
         description: The package files cache key
         required: true
+      distrib:
+        type: string
+        description: The os distribution
+        required: true
     secrets:
       registry_username:
         required: true
@@ -78,7 +82,8 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      # node16 el7 eol on gha runners
 
       - uses: ./.github/actions/package
         with:
@@ -98,6 +103,7 @@ jobs:
           minor_version: ${{ inputs.minor_version }}
           release: ${{ inputs.release }}
           cache_key: unsigned-${{ inputs.cache_key }}
+          distrib: ${{ inputs.distrib }}
 
       - if: ${{ inputs.package_extension == 'deb' }}
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
