@@ -203,12 +203,12 @@ class Menu
      */
     public function getColor($pageId)
     {
-        $color = match ($pageId) {
-            '1' => '#2B9E93',
-            '2' => '#85B446',
-            '3' => '#E4932C',
-            '5' => '#17387B',
-            '6' => '#319ED5',
+        $color = match ((int) $pageId) {
+            1 => '#2B9E93',
+            2 => '#85B446',
+            3 => '#E4932C',
+            5 => '#17387B',
+            6 => '#319ED5',
             default => '#319ED5',
         };
 
