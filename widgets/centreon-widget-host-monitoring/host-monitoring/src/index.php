@@ -36,7 +36,6 @@
 
 use App\Kernel;
 use Centreon\Application\Controller\MonitoringResourceController;
-use Centreon\Domain\Log\Logger;
 
 require_once '../../require.php';
 require_once './DB-Func.php';
@@ -77,8 +76,6 @@ $template = initSmartyTplForPopup($path, $template, './', $centreon_path);
 $centreon = $_SESSION['centreon'];
 
 $kernel = Kernel::createForWeb();
-/** @var Logger $logger */
-$logger = $kernel->getContainer()->get(Logger::class);
 
 /**
  * true: URIs will correspond to deprecated pages
@@ -502,18 +499,4 @@ if ($preferences['more_views']) {
 }
 
 $template->assign('more_views', $bMoreViews);
-
-try {
-    $template->display('table.ihtml');
-} catch (Exception $e) {
-    $logger->error(
-        "Error while displaying the host monitoring custom view",
-        [
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'exception_type' => get_class($e),
-            'exception_message' => $e->getMessage()
-        ]
-    );
-    throw $e;
-}
+$template->display('table.ihtml');
