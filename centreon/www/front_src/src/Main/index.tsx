@@ -55,10 +55,7 @@ const Main = (): JSX.Element => {
   const navigateTo = (path: string): void => {
     navigate(path);
     window.location.reload();
-    return 'string';
   };
-
-  console.log('hello darkness my old friend');
 
   startTransition(() => {
     setIsOnPublicPageAtom(hasReachedAPublicPage);
