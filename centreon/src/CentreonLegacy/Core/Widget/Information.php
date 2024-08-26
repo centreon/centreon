@@ -129,7 +129,7 @@ class Information
             return $row['parameter_id'];
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -158,7 +158,7 @@ class Information
     /**
      * @param string $name
      *
-     * @return int
+     * @return null|int
      */
     public function getIdByName($name)
     {
@@ -175,7 +175,7 @@ class Information
             return $row['widget_model_id'];
         }
 
-        return;
+        return null;
     }
 
     /**

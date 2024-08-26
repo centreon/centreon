@@ -278,6 +278,5 @@ class Validator implements JsonValidatorInterface
             return ($data[$firstKeyToFind]) ? 'true' : 'false';
         }
         return (string) $data[$firstKeyToFind];
-        return null;
     }
 }

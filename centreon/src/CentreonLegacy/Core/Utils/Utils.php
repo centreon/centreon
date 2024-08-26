@@ -152,9 +152,9 @@ class Utils
      * @param array|object $arrObjData
      * @param array $skippedKeys
      *
-     * @return string
+     * @return string|array
      */
-    public function objectIntoArray($arrObjData, $skippedKeys = [])
+    public function objectIntoArray($arrObjData, $skippedKeys = []): array | string
     {
         $arrData = [];
 
