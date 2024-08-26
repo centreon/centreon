@@ -28,6 +28,7 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 24.09.0: ';
 $errorMessage = '';
 
+// ADDITIONAL CONNECTOR CONFIGURATION
 $createAcc = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to create table additional_connector_configuration';
         $pearDB->executeQuery(
@@ -90,6 +91,7 @@ $insertIntoTopology = function(CentreonDB $pearDB) use(&$errorMessage): void {
     }
 };
 
+// CLOCK WIDGET
 $insertClockWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to select data into table dashboard_widgets';
     $statement = $pearDB->executeQuery(
@@ -109,8 +111,97 @@ $insertClockWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     }
 };
 
+// BROKER LOGS
+$addCentreonBrokerForeignKeyOnBrokerLogTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $constraintStatement = $pearDB->prepareQuery(
+        <<<SQL
+            SELECT 1 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_NAME='cfg_centreonbroker_log_ibfk_01'
+            AND TABLE_SCHEMA = :db_name
+            AND TABLE_NAME = 'cfg_centreonbroker_log'
+            SQL
+    );
+
+    $pearDB->executePreparedQuery($constraintStatement, ['db_name' => db]);
+
+    if ($constraintStatement->rowCount() === 0) {
+        // Clean no more existings broker configuration in log table
+        $errorMessage = 'Unable to delete no more existing Broker Configuration';
+        $pearDB->executeQuery(
+            <<<SQL
+            DELETE FROM `cfg_centreonbroker_log`
+            WHERE `id_centreonbroker` NOT IN (
+                SELECT `config_id`
+                FROM `cfg_centreonbroker`
+            )
+            SQL
+        );
+
+        // Add Foreign Key.
+        $errorMessage = 'Unable to add foreign key on cfg_centreonbroker_log table';
+        $pearDB->executeQuery(
+            <<<'SQL'
+            ALTER TABLE `cfg_centreonbroker_log`
+            ADD CONSTRAINT `cfg_centreonbroker_log_ibfk_01` 
+            FOREIGN KEY (`id_centreonbroker`) 
+            REFERENCES `cfg_centreonbroker` (`config_id`) 
+            ON DELETE CASCADE
+            SQL
+        );
+    }
+};
+
+$insertNewBrokerLogs = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to insert new logs in cfg_centreonbroker_log table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            INSERT INTO `cb_log`
+            VALUES
+                (11, 'neb'),
+                (12, 'rrd'),
+                (13, 'grpc'),
+                (14, 'influxdb'),
+                (15, 'graphite'),
+                (16, 'victoria_metrics'),
+                (17, 'stats')
+            ON DUPLICATE KEY UPDATE `name` = `name`
+            SQL
+    );
+};
+
+$insertNewBrokersLogsRelations = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to find config_id in cfg_centreonbroker table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT `config_id`
+            FROM `cfg_centreonbroker`
+            SQL
+    );
+    $configIds = [];
+    while(($configId = $statement->fetchColumn()) !== false){
+        $configIds[] = $configId;
+    }
+    $insertSubQuery = '';
+
+    // Logs 11 to 17 are new logs, 3 is the default "error" level
+    foreach ($configIds as $configId) {
+        for( $logId = 11; $logId <= 17; $logId++){
+            $insertSubQuery .= "({$configId},{$logId},3),";
+        }
+    }
+    $insertSubQuery = rtrim($insertSubQuery, ',');
+    $errorMessage = 'Unable to insert new logs in cfg_centreonbroker_log table';
+    $pearDB->executeQuery(
+        <<<SQL
+            INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
+            VALUES {$insertSubQuery}
+            SQL
+    );
+};
+
 try {
     $createAcc($pearDB);
+    $addCentreonBrokerForeignKeyOnBrokerLogTable($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
@@ -118,6 +209,8 @@ try {
     }
     $insertIntoTopology($pearDB);
     $insertClockWidget($pearDB);
+    $insertNewBrokerLogs($pearDB);
+    $insertNewBrokersLogsRelations($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
