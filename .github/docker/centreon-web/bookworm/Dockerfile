@@ -6,7 +6,7 @@ FROM ${REGISTRY_URL}/centreon-web-dependencies-bookworm:${VERSION}
 ARG VERSION
 ARG MYDUMPER_VERSION
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 COPY *.deb /tmp/debs-centreon/
 

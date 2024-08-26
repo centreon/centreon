@@ -54,7 +54,7 @@ $dbResult->closeCursor();
 
 // Smarty template Init
 $tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+$tpl = initSmartyTpl(__DIR__, $tpl);
 
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';

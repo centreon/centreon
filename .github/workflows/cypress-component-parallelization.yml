@@ -10,6 +10,10 @@ on:
       specs_path:
         required: true
         type: string
+      spec_extension:
+        required: false
+        type: string
+        default: ".cypress.spec.tsx"
       dependencies_lock_file:
         required: true
         type: string
@@ -22,7 +26,7 @@ on:
 
 jobs:
   cypress-component-test-list:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       specs: ${{ steps.list-specs.outputs.specs }}
 
@@ -34,11 +38,11 @@ jobs:
         id: list-specs
         run: |
           cd ${{ inputs.module_name }}
-          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*${{ inputs.spec_extension }}" -exec basename {} \; | sed -e "s/${{ inputs.spec_extension }}//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -48,19 +52,69 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - name: Cypress component testing
-        uses: ./.github/actions/web-frontend-component-test
-        with:
-          module: ${{ inputs.module_name }}
-          spec_file_path: ${{ inputs.specs_path }}/${{ matrix.spec }}
-          dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
 
-      - name: Upload components tests Results
-        if: failure()
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          version: 8
+          run_install: false
+
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ inputs.module_name }}
+        shell: bash
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+      - name: Install Cypress binary
+        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        with:
+          timeout_seconds: 120
+          max_attempts: 10
+          retry_wait_seconds: 30
+          retry_on: error
+          command: cd ${{ inputs.module_name }} && pnpm cypress install --force
+
+      - name: Cypress web component testing
+        uses: cypress-io/github-action@1b70233146622b69e789ccdd4f9452adc638d25a # v6.6.1
+        with:
+          browser: chrome
+          component: true
+          install: false
+          cache-key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
+          working-directory: ${{ inputs.module_name }}
+          spec: ./**/${{ matrix.spec }}${{ inputs.spec_extension }}
+          publish-summary: false
+          env: codeCoverageTasksRegistered=true
+
+      - name: Clean up code coverage results
+        shell: bash
+        run: node centreon/packages/js-config/cypress/component/excludeNodeModulesFromCoverage.js ${{ inputs.module_name }}/.nyc_output/out.json
+
+      - name: Archive test results
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        if: ${{ failure() }}
+        with:
+          name: ${{ inputs.name }}-component-test-results-${{ matrix.spec }}
+          path: |
+            ${{ inputs.module_name }}/cypress/results/videos
+            ${{ inputs.module_name }}/cypress/screenshots
+            ${{ inputs.module_name }}/cypress/visual-testing-snapshots/**/*.diff.png
+          retention-days: 1
+
+      - name: Archive test reports
+        if: ${{ failure() }}
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: ${{ inputs.name }}-test-reports-${{ matrix.spec }}
-          path: centreon/cypress/results/*.json
+          name: ${{ inputs.name }}-component-test-reports-${{ matrix.spec }}
+          path: ${{ inputs.module_name }}/cypress/results/*.json
           retention-days: 1
 
       - name: Change coverage report name
@@ -70,14 +124,14 @@ jobs:
       - name: Archive test coverage
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: ${{ inputs.name }}-test-coverage-${{ matrix.spec }}
+          name: ${{ inputs.name }}-component-test-coverage-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
           retention-days: 1
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -89,7 +143,7 @@ jobs:
       - name: Download coverage reports
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:
-          pattern: ${{ inputs.name }}-test-coverage-*
+          pattern: ${{ inputs.name }}-component-test-coverage-*
           path: .nyc_output/
           merge-multiple: true
 
@@ -146,24 +200,24 @@ jobs:
 
       - name: Check Code coverage
         uses: ./.github/actions/code-coverage-gate-keeper
-        if: ${{ github.event_name == 'pull_request' || github.ref_name == 'develop' }}
+        if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop') || github.ref_name == 'develop' }}
         with:
           module_path: ${{ inputs.module_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ steps.title.outputs.replaced }}
           dynamicCodeCoveragesFilePath: /tmp/baseCodeCoverages.json
-          generateNewCodeCoverages: ${{ github.ref_name == 'develop' }}
+          generateNewCodeCoverages: ${{ github.ref_name == 'develop' && github.event.inputs.is_nightly == 'false' }}
 
       - name: Send new dynamic code coverages
-        shell: bash
-        if: ${{ github.ref_name == 'develop' }}
+        if: ${{ github.ref_name == 'develop' && github.event.inputs.is_nightly == 'false' }}
         run: |
           aws s3 cp /tmp/newBaseCodeCoverages.json s3://centreon-lighthouse-report/baseCodeCoverages.json
+        shell: bash
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
     if: failure()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -175,7 +229,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:
-          pattern: ${{ inputs.name }}-test-reports-*
+          pattern: ${{ inputs.name }}-component-test-reports-*
           path: ${{ inputs.name }}-json-reports
           merge-multiple: true
 
@@ -195,7 +249,7 @@ jobs:
   regroup-artifacts:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -205,13 +259,14 @@ jobs:
         uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
         with:
-          name: ${{ inputs.name }}-${{ matrix.type_of_report }}
-          pattern: ${{ inputs.name }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
           retention-days: 1
 
       - name: Delete merged artifacts
+        if: ${{ matrix.type_of_report != 'test-coverage' || needs.cypress-component-test-run.result == 'success' }}
         uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
         with:
-          name: ${{ inputs.name }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           failOnError: false
