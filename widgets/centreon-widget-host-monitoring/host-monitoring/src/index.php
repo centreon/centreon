@@ -328,8 +328,8 @@ try {
     throw $e;
 }
 
-$gmt = new CentreonGMT($db);
-$gmt->getMyGMTFromSession(session_id(), $db);
+$gmt = new CentreonGMT();
+$gmt->getMyGMTFromSession(session_id());
 $allowedActionProtocols = ['http[s]?', '//', 'ssh', 'rdp', 'ftp', 'sftp'];
 $allowedProtocolsRegex = '#(^' . implode(')|(^', $allowedActionProtocols) . ')#';
 // String starting with one of these protocols
