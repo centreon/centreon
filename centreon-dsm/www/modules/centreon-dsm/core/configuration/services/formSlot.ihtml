@@ -55,6 +55,7 @@
         <p class="oreonbutton">{$form.change.html}</p>
     {/if}
     </div>
+
     {$form.hidden}
 </form>
 {$helptext}
