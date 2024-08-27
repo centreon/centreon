@@ -11,7 +11,7 @@ import {
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { featureFlagsDerivedAtom, userAtom } from '@centreon/ui-context';
 
 import { userEndpoint } from '../../App/endpoint';
 import Actions from '../Actions';
@@ -88,6 +88,7 @@ const ResourceListing = (): JSX.Element => {
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
   const visualization = useAtomValue(selectedVisualizationAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
 
   const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
   const setLimit = useSetAtom(limitAtom);
@@ -177,6 +178,7 @@ const ResourceListing = (): JSX.Element => {
         setResourcesToSetDowntime([resource]);
       }
     },
+    featureFlags,
     t,
     visualization
   });
