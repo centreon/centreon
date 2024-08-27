@@ -24,6 +24,27 @@ use ConfigGenerateRemote\Abstracts\AbstractObject;
 
 class MacroHost extends AbstractObject
 {
+    private array $macroHostCache = [];
+
+    private bool $hasCache = false;
+
+    private \CentreonDB $databaseConnection;
+
+    /**
+     * Constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     */
+    public function __construct(\Pimple\Container $dependencyInjector)
+    {
+        parent::__construct($dependencyInjector);
+        if (!isset($this->backendInstance->db)) {
+            throw new \Exception('Database connection is not set');
+        }
+        $this->databaseConnection = $this->backendInstance->db;
+        $this->buildCache();
+    }
+
     protected $table = 'on_demand_macro_host';
     protected $generateFilename = 'on_demand_macro_host.infile';
     protected $attributesWrite = [
@@ -35,18 +56,113 @@ class MacroHost extends AbstractObject
     ];
 
     /**
-     * Add relation
+     * Get host macro from host id
      *
-     * @param array $object
-     * @param integer $hostId
-     * @return void
+     * @param integer $host
+     * @return null|array
      */
-    public function add(array $object, int $hostId)
+    public function getHostMacroByHostId(int $hostId)
     {
-        if ($this->checkGenerate($hostId)) {
+        // Get from the cache
+        if (isset($this->macroHostCache[$hostId])) {
+            $this->writeMacrosHost($hostId);
+
+            return $this->macroHostCache[$hostId];
+        }
+        if ($this->hasCache === true) {
             return null;
         }
 
-        $this->generateObjectInFile($object, $hostId);
+        try {
+            $statement = $this->databaseConnection->prepareQuery(
+                <<<SQL
+                SELECT host_macro_id, host_host_id, host_macro_name, host_macro_value, is_password, description
+                FROM on_demand_macro_host
+                WHERE host_host_id = :hostId
+                SQL
+            );
+
+            $this->databaseConnection->executePreparedQuery($statement, ['hostId' => $hostId]);
+            $this->macroHostCache[$hostId] = [];
+            while ($macro = $statement->fetch(PDO::FETCH_ASSOC)) {
+                $this->macroServiceCache[$macro[$hostId]][$macro['host_macro_id']] = [
+                    'host_host_id' => $macro['host_host_id'],
+                    'host_macro_name' => $macro['host_macro_name'],
+                    'host_macro_value' => $macro['host_macro_value'],
+                    'is_password' => $macro['is_password'] ?? 0,
+                    'description' => $macro['description'],
+                ];
+            }
+
+            $this->writeMacrosHost($hostId);
+
+            return $this->macroHostCache[$hostId];
+        } catch(\CentreonDbException) {
+            return null;
+        }
+    }
+
+    /**
+     * Build cache
+     *
+     * @return void
+     */
+    private function buildCache()
+    {
+        if ($this->hasCache === true) {
+            return;
+        }
+
+        $this->cacheMacroHost();
+        $this->hasCache = true;
+    }
+
+    /**
+     * Build cache of service macros
+     *
+     * @return void
+     */
+    private function cacheMacroHost()
+    {
+        try {
+            $statement = $this->databaseConnection->executeQuery(
+                <<<SQL
+                SELECT host_macro_id, host_host_id, host_macro_name, host_macro_value, is_password, description
+                FROM on_demand_macro_host
+                SQL
+            );
+
+            while (($macro = $statement->fetch(PDO::FETCH_ASSOC))) {
+                if (! isset($this->macroServiceCache[$macro['host_host_id']])) {
+                    $this->macroServiceCache[$macro['host_host_id']] = [];
+                }
+                $this->macroServiceCache[$macro['host_host_id']][$macro['host_macro_id']] = [
+                    'host_host_id' => $macro['host_host_id'],
+                    'host_macro_name' => $macro['host_macro_name'],
+                    'host_macro_value' => $macro['host_macro_value'],
+                    'is_password' => $macro['is_password'] ?? 0,
+                    'description' => $macro['description'],
+                ];
+            }
+        } catch(\CentreonDbException) {
+
+        }
+    }
+
+    /**
+     * Generate host macros
+     *
+     * @param int $hostId
+     * @return void
+     */
+    private function writeMacrosHost(int $hostId): void
+    {
+        if ($this->checkGenerate($hostId)) {
+            return;
+        }
+
+        foreach ($this->macroHostCache[$hostId] as $value) {
+            $this->generateObjectInFile($value, $hostId);
+        }
     }
 }
