@@ -123,15 +123,15 @@ Then(
       command: 'sh -c "cd /var/cache/centreon/backup && ls"',
       name: 'web'
     }).then((lsResult) => {
-      cy.log(lsResult.stdout);
+      cy.log('Backup files:', lsResult.stdout);
+      const files = lsResult.stdout.trim().split('\n');
       const todayDate = new Date().toISOString().split('T')[0];
       const expectedFiles = [
         `${todayDate}-centreon_storage.sql.gz`,
         `${todayDate}-centreon.sql.gz`
       ];
-
       expectedFiles.forEach((file) => {
-        expect(lsResult.stdout).to.contain(file);
+        expect(files).to.include(file);
       });
     });
   }
