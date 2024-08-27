@@ -11,10 +11,12 @@ import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelAddFilter,
   labelDelete,
+  labelHost,
   labelHostCategory,
   labelHostGroup,
   labelResourceType,
   labelSelectAResource,
+  labelService,
   labelServiceCategory,
   labelServiceGroup
 } from '../../../../translatedLabels';
@@ -403,5 +405,37 @@ describe('Resources tree', () => {
     cy.contains(labelAddFilter).should('be.disabled');
 
     cy.makeSnapshot();
+  });
+
+  it.only('revalidates subsequents resourcess when a resource is changed', () => {
+    initialize({});
+
+    cy.findByTestId(labelResourceType).parent().click();
+    cy.contains(labelHostGroup).click();
+    cy.findByTestId(labelSelectAResource).click();
+    cy.contains('Host Group 0').click();
+    cy.contains(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.findByLabelText(labelHost).click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains('Host 0').click();
+    cy.contains(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(2).parent().click();
+    cy.findByLabelText(labelService).click();
+    cy.findAllByTestId(labelSelectAResource).eq(2).click();
+    cy.contains('Service 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host Group 1').click();
+
+    cy.waitForRequest('@getHosts').then(() => {
+      cy.getRequestCalls('@getHosts').then((calls) => {
+        expect(calls).to.have.length(2);
+      });
+    });
+    cy.waitForRequest('@getServices').then(() => {
+      cy.getRequestCalls('@getServices').then((calls) => {
+        expect(calls).to.have.length(2);
+      });
+    });
   });
 });
