@@ -114,53 +114,25 @@ Then('after the scheduled cron job has run', () => {
     command: `/usr/share/centreon/cron/centreon-backup.pl`,
     name: 'web'
   });
-  // cy.exec('docker ps --format "{{.Names}}"').then((result) => {
-  //   cy.log(result.stdout);
-
-  //   const containerNames = result.stdout.split('\n');
-  //   const targetContainer = containerNames.find((name) =>
-  //     name.includes('docker-web-1')
-  //   );
-
-  //   expect(targetContainer).to.exist;
-
-  //   if (targetContainer) {
-  //     cy.exec(
-  //       `docker exec ${targetContainer} /usr/share/centreon/cron/centreon-backup.pl`
-  //     ).then(() => {});
-  //   }
-  // });
 });
 
 Then(
   'the database backups and configuration files should be present in the backup directory',
   () => {
-    cy.exec('docker ps --format "{{.Names}}"').then((result) => {
-      cy.log(result.stdout);
+    cy.execInContainer({
+      command: 'sh -c "cd /var/cache/centreon/backup && ls"',
+      name: 'web'
+    }).then((lsResult) => {
+      cy.log(lsResult.stdout);
+      const todayDate = new Date().toISOString().split('T')[0];
+      const expectedFiles = [
+        `${todayDate}-centreon_storage.sql.gz`,
+        `${todayDate}-centreon.sql.gz`
+      ];
 
-      const containerNames = result.stdout.split('\n');
-      const targetContainer = containerNames.find((name) =>
-        name.includes('docker-web-1')
-      );
-
-      expect(targetContainer).to.exist;
-
-      if (targetContainer) {
-        cy.exec(
-          `docker exec ${targetContainer} sh -c "cd /var/cache/centreon/backup && ls"`
-        ).then((lsResult) => {
-          cy.log(lsResult.stdout);
-          const todayDate = new Date().toISOString().split('T')[0];
-          const expectedFiles = [
-            `${todayDate}-centreon_storage.sql.gz`,
-            `${todayDate}-centreon.sql.gz`
-          ];
-
-          expectedFiles.forEach((file) => {
-            expect(lsResult.stdout).to.contain(file);
-          });
-        });
-      }
+      expectedFiles.forEach((file) => {
+        expect(lsResult.stdout).to.contain(file);
+      });
     });
   }
 );
