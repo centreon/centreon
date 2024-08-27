@@ -1,4 +1,4 @@
-Feature: Clapi
+Feature: ClapiZZZZ
   As a Centreon admin
   I want to configure my centreon by command line
   To industrialize it
