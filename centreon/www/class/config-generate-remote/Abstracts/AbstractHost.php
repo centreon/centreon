@@ -164,10 +164,8 @@ abstract class AbstractHost extends AbstractObject
         if (isset($host['macros'])) {
             return 1;
         }
-        file_put_contents('/tmp/macros', 'here' . PHP_EOL);
         $host['macros'] = MacroHost::getInstance($this->dependencyInjector)
             ->getHostMacroByHostId($host['host_id']);
-        file_put_contents('/tmp/macros', 'after write', FILE_APPEND);
         return 0;
     }
 
