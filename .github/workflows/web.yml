@@ -236,6 +236,7 @@ jobs:
           module_name: centreon
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: ./www/front_src/
 
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
