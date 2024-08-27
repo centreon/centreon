@@ -2,18 +2,6 @@
 name: Release
 
 on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - master
-      - "[2-9][0-9].[0-9][0-9].x"
-    paths:
-      - "centreon-awie/**"
-      - "centreon-dsm/**"
-      - "centreon-ha/**"
-      - "centreon-open-tickets/**"
-      - "centreon/**"
   pull_request_target:
     types:
       - closed

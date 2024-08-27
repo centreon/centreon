@@ -6,9 +6,6 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - ".github/docker/keycloak/**"
   pull_request_target:
     paths:
       - ".github/docker/keycloak/**"
