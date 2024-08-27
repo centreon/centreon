@@ -49,7 +49,7 @@ jobs:
       - uses: shivammathur/setup-php@2e947f1f6932d141d076ca441d0e1e881775e95b # v2.31.0
         if: ${{ endsWith(inputs.version_file, '.php') }}
         with:
-          php-version: 8.1
+          php-version: 8.2
           extensions: none
           tools: none
 
