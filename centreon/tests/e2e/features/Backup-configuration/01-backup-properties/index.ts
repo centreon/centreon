@@ -123,16 +123,16 @@ Then(
       command: 'sh -c "cd /var/cache/centreon/backup && ls"',
       name: 'web'
     }).then((lsResult) => {
-      // Ensure lsResult and lsResult.stdout are defined and handle them correctly
-      cy.wrap(lsResult.stdout).then((stdout) => {
-        // Convert stdout to a plain string if it's not already
-        const output = stdout.toString().trim();
+      // Unwrap the stdout value to access the string
+      cy.wrap(lsResult).its('stdout').then((output) => {
+        // Log the output to debug
+        cy.log('Raw output:', output);
 
-        // Log the result of the ls command
-        cy.log('Backup files:', output);
+        // Ensure the output is properly trimmed and handled
+        const trimmedOutput = output.trim();
 
         // Split the output into an array of file names
-        const files = output.split('\n');
+        const files = trimmedOutput.split('\n');
 
         // Log the array of files to debug
         cy.log('Files:', files);
