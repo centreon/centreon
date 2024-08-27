@@ -123,31 +123,22 @@ Then(
       command: 'sh -c "cd /var/cache/centreon/backup && ls"',
       name: 'web'
     }).then((lsResult) => {
-      // Unwrap the stdout value to access the string
-      cy.wrap(lsResult).its('stdout').then((output) => {
-        // Log the output to debug
-        cy.log('Raw output:', output);
+      // Log the result of the ls command
+      cy.log('Backup files:', lsResult.output);
 
-        // Ensure the output is properly trimmed and handled
-        const trimmedOutput = output.trim();
+      // Use the output property instead of stdout
+      const files = lsResult.output.trim().split('\n');
 
-        // Split the output into an array of file names
-        const files = trimmedOutput.split('\n');
+      // Get today's date in the format yyyy-mm-dd
+      const todayDate = new Date().toISOString().split('T')[0];
+      const expectedFiles = [
+        `${todayDate}-centreon_storage.sql.gz`,
+        `${todayDate}-centreon.sql.gz`
+      ];
 
-        // Log the array of files to debug
-        cy.log('Files:', files);
-
-        // Get today's date in the format yyyy-mm-dd
-        const todayDate = new Date().toISOString().split('T')[0];
-        const expectedFiles = [
-          `${todayDate}-centreon_storage.sql.gz`,
-          `${todayDate}-centreon.sql.gz`
-        ];
-
-        // Check that each expected file is present in the list of files
-        expectedFiles.forEach((file) => {
-          expect(files).to.include(file);
-        });
+      // Check that each expected file is present in the list of files
+      expectedFiles.forEach((file) => {
+        expect(files).to.include(file);
       });
     });
   }
