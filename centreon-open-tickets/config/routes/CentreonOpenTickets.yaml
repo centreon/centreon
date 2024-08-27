@@ -1,0 +1,8 @@
+open_tickets:
+    prefix: "/{base_uri}api/{version}/open-tickets"
+    resource: '../../www/modules/centreon-open-tickets/routes/CentreonOpenTickets.yaml'
+    defaults:
+        base_uri: "centreon/"
+        version: "latest"
+    requirements:
+        base_uri: "(.+/)|.{0}"

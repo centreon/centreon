@@ -1,25 +1,24 @@
+import { map, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { prop, map } from 'ramda';
 
-import { ColumnType, Column } from '@centreon/ui';
+import { Column, ColumnType } from '@centreon/ui';
 
 import {
   labelActions,
   labelCreationDate,
   labelCreator,
   labelDescription,
+  labelLastUpdate,
   labelName,
   labelRole,
-  labelShares,
-  labelLastUpdate
+  labelShares
 } from '../translatedLabels';
 import useIsViewerUser from '../useIsViewerUser';
 
 import Actions from './Actions/Actions';
 import Description from './Decription';
-import Name from './Name';
-import Share from './Share';
 import Role from './Role';
+import Share from './Share';
 
 const useColumns = (): {
   columns: Array<Column>;
@@ -30,14 +29,13 @@ const useColumns = (): {
 
   const columns = [
     {
-      Component: Name,
-      clickable: true,
       disablePadding: false,
+      getFormattedString: ({ name, shares }) => shares && name,
       id: 'name',
       label: t(labelName),
       sortField: 'name',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.string
     },
     ...(isViewer
       ? []

@@ -29,6 +29,9 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboard;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardRequest;
+use Core\Dashboard\Application\UseCase\AddDashboard\LayoutRequest;
+use Core\Dashboard\Application\UseCase\AddDashboard\PanelRequest;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -54,18 +57,8 @@ final class AddDashboardController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
-            /** @var array{
-             *     name: string,
-             *     description?: ?string
-             * } $dataSent
-             */
-            $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddDashboardSchema.json');
-
-            $dto = new AddDashboardRequest();
-            $dto->name = $dataSent['name'];
-            $dto->description = $dataSent['description'] ?? '';
-
-            $useCase($dto, $presenter);
+            $addDashboardRequest = $this->createAddDashboardRequest($request);
+            $useCase($addDashboardRequest, $presenter);
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
@@ -75,5 +68,58 @@ final class AddDashboardController extends AbstractController
         }
 
         return $presenter->show();
+    }
+
+    private function createAddDashboardRequest(Request $request): AddDashboardRequest
+    {
+        /** @var array{
+         *     name: string,
+         *     description: ?string,
+         *     panels: array<array{
+         *         name: string,
+         *         layout: array{
+         *             x: int,
+         *             y: int,
+         *             width: int,
+         *             height: int,
+         *             min_width: int,
+         *             min_height: int
+         *         },
+         *         widget_type: string,
+         *         widget_settings: array<mixed>,
+         *     }>,
+         *     refresh: array{
+         *         type: string,
+         *         interval: int|null
+         *     }
+         * } $dataSent
+         */
+        $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddDashboardSchema.json');
+
+        $addDashboardRequest = new AddDashboardRequest();
+        $addDashboardRequest->name = $dataSent['name'];
+        $addDashboardRequest->description = $dataSent['description'];
+        $addDashboardRequest->panels = [];
+        foreach ($dataSent['panels'] as $panelArray) {
+            $layout = new LayoutRequest();
+            $layout->xAxis = $panelArray['layout']['x'];
+            $layout->yAxis = $panelArray['layout']['y'];
+            $layout->width = $panelArray['layout']['width'];
+            $layout->height = $panelArray['layout']['height'];
+            $layout->minWidth = $panelArray['layout']['min_width'];
+            $layout->minHeight = $panelArray['layout']['min_height'];
+
+            $addDashboardRequestPanel = new PanelRequest($layout);
+            $addDashboardRequestPanel->name = $panelArray['name'];
+            $addDashboardRequestPanel->widgetType = $panelArray['widget_type'];
+            $addDashboardRequestPanel->widgetSettings = $panelArray['widget_settings'];
+            $addDashboardRequest->panels[] = $addDashboardRequestPanel;
+        }
+        $addDashboardRequest->refresh = [
+            'type' => RefreshTypeConverter::fromString($dataSent['refresh']['type']),
+            'interval' => $dataSent['refresh']['interval'],
+        ];
+
+        return $addDashboardRequest;
     }
 }

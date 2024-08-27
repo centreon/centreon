@@ -7,6 +7,9 @@ on:
       module_name:
         required: true
         type: string
+      database_image:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
@@ -16,6 +19,10 @@ on:
       features_path:
         required: true
         type: string
+      test_tags:
+        required: false
+        type: string
+        default: "not @ignore"
       config_file:
         required: false
         type: string
@@ -32,19 +39,33 @@ jobs:
   behat-test-list:
     runs-on: ubuntu-22.04
     outputs:
+      test_tags: ${{ steps.list-features.outputs.test_tags }}
       features: ${{ steps.list-features.outputs.features }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          version: 8
+          run_install: false
+          standalone: true
 
       - name: List features
         id: list-features
         run: |
+          pnpm add -g @cucumber/cucumber@10.8.0
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
+          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+          # Update test tags format for behat compatibility
+          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
   behat-test-run:
+    if: ${{ needs.behat-test-list.outputs.features != '' && toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]' }}
     needs: [behat-test-list]
     runs-on: ubuntu-22.04
     strategy:
@@ -59,17 +80,17 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Login to registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
           php-version: 8.1
           coverage: none
@@ -83,7 +104,7 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
 
       - if: ${{ contains(matrix.feature, 'RestApi') }}
-        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: 20
 
@@ -93,7 +114,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -112,40 +133,46 @@ jobs:
       - name: Behat acceptance testing
         env:
           PANTHER_CHROME_BINARY: /usr/bin/google-chrome
+          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          MYSQL_IMAGE: ${{ inputs.database_image }}
         run: |
-          WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
-          sed \
-            -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
-            -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-${{ inputs.os }}:${{ env.IMAGE_TAG }}#g" \
-            ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.test_tags }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
         run: find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | xargs -r rm
 
-      - if: failure()
-        name: Display logs
+      - name: Replace / with - in the feature path
+        id: feature-path
+        if: always()
+        run: |
+          feature_name="${{ matrix.feature }}"
+          feature_name_with_dash="${feature_name//\//-}"
+          echo "Modified Feature Name: $feature_name_with_dash"
+          echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
+
+      - name: Display logs
+        if: failure()
         run: find ./acceptance-logs -type f | grep '.txt' | xargs -r more | cat
         shell: bash
 
-      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         if: failure()
         name: Upload acceptance test logs
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: acceptance-logs
           retention-days: 1
 
       - name: Upload Test Results
         if: failure()
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: xunit-reports
           retention-days: 1
 
@@ -155,15 +182,39 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Download Artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-test-reports-*
           path: ${{ inputs.name }}-xunit-reports
+          merge-multiple: true
 
       - uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-tests-report
-          path: "${{ inputs.name }}-xunit-reports/**/*.xml"
+          path: '${{ inputs.name }}-xunit-reports/**/*.xml'
+
+  regroup-artifacts:
+    needs: [behat-test-run, behat-test-report]
+    if: always()
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type_of_report: [test-logs, test-reports]
+    steps:
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        if: ${{ contains(needs.behat-test-run.result, 'failure') }}
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          retention-days: 1
+
+      - name: Delete merged artifacts
+        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          failOnError: false

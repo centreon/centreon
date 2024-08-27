@@ -5,6 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
 
+import { useFullscreen } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
 import FederatedComponent from '../components/FederatedComponents';
@@ -20,6 +21,9 @@ export const isDarkMode = (theme: Theme): boolean =>
 export const headerHeight = 7;
 
 const useStyles = makeStyles()((theme) => ({
+  fullscreenActivated: {
+    display: 'none'
+  },
   header: {
     alignItems: 'center',
     backgroundColor: isDarkMode(theme)
@@ -64,11 +68,19 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const Header = (): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const headerRef = useRef<HTMLElement>(null);
 
+  const { isFullscreenActivated } = useFullscreen();
+
   return (
-    <header className={classes.header} ref={headerRef}>
+    <header
+      className={cx(
+        classes.header,
+        isFullscreenActivated && classes.fullscreenActivated
+      )}
+      ref={headerRef}
+    >
       <div className={classes.leftContainer}>
         <div className={classes.item}>
           <Poller />
@@ -91,7 +103,6 @@ const Header = (): JSX.Element => {
         <div className={classes.platformName}>
           <FederatedComponent path="/it-edition-extensions/header/platformName" />
         </div>
-
         <UserMenu headerRef={headerRef} />
       </div>
     </header>

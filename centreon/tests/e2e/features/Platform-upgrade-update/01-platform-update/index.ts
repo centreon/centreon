@@ -64,10 +64,11 @@ beforeEach(() => {
 
     return cy
       .startContainer({
+        command: 'tail -f /dev/null',
         image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
           'WEB_IMAGE_OS'
         )}:${major_version}`,
-        name: Cypress.env('dockerName'),
+        name: 'web',
         portBindings: [
           {
             destination: 4000,
@@ -97,7 +98,7 @@ Given(
           `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
         );
 
-        return cy.wrap('skipped');
+        return cy.stopContainer({ name: 'web' }).wrap('skipped');
       }
 
       return getCentreonStableMinorVersions(major_version).then(
@@ -105,7 +106,7 @@ Given(
           if (stable_minor_versions.length === 0) {
             cy.log(`centreon web is currently not available as stable`);
 
-            return cy.wrap('skipped');
+            return cy.stopContainer({ name: 'web' }).wrap('skipped');
           }
           let minor_version_index = 0;
           if (version_from_expression === 'first minor') {
@@ -114,6 +115,12 @@ Given(
             switch (version_from_expression) {
               case 'last stable':
                 minor_version_index = stable_minor_versions.length - 1;
+                if (
+                  stable_minor_versions[minor_version_index] ===
+                  Cypress.env('lastStableMinorVersion')
+                ) {
+                  return cy.stopContainer({ name: 'web' }).wrap('skipped');
+                }
                 break;
               case 'penultimate stable':
                 minor_version_index = stable_minor_versions.length - 2;
@@ -127,20 +134,22 @@ Given(
             if (minor_version_index <= 0) {
               cy.log(`Not needed to test ${version_from_expression} version.`);
 
-              return cy.wrap('skipped');
+              return cy.stopContainer({ name: 'web' }).wrap('skipped');
             }
           }
 
           cy.log(
-            `${version_from_expression} version is ${minor_version_index}`
+            `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
           );
 
-          return installCentreon(
-            `${major_version}.${stable_minor_versions[minor_version_index]}`
-          ).then(() => {
-            return checkPlatformVersion(
-              `${major_version}.${stable_minor_versions[minor_version_index]}`
-            ).then(() => cy.visit('/'));
+          const installed_version = `${major_version}.${stable_minor_versions[minor_version_index]}`;
+          Cypress.env('installed_version', installed_version);
+          cy.log('installed_version', installed_version);
+
+          return installCentreon(installed_version).then(() => {
+            return checkPlatformVersion(installed_version).then(() =>
+              cy.visit('/')
+            );
           });
         }
       );
@@ -149,5 +158,5 @@ Given(
 );
 
 afterEach(() => {
-  cy.visitEmptyPage().stopContainer({ name: Cypress.env('dockerName') });
+  cy.visitEmptyPage().stopContainer({ name: 'web' });
 });

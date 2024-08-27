@@ -1,27 +1,30 @@
-import { useEffect, Suspense } from 'react';
+import { Suspense, startTransition, useEffect } from 'react';
 
 import 'dayjs/locale/en';
 import 'dayjs/locale/pt';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/es';
+import 'dayjs/locale/de';
 import dayjs from 'dayjs';
-import timezonePlugin from 'dayjs/plugin/timezone';
-import utcPlugin from 'dayjs/plugin/utc';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import isToday from 'dayjs/plugin/isToday';
-import isYesterday from 'dayjs/plugin/isYesterday';
-import weekday from 'dayjs/plugin/weekday';
+import duration from 'dayjs/plugin/duration';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import duration from 'dayjs/plugin/duration';
+import isToday from 'dayjs/plugin/isToday';
+import isYesterday from 'dayjs/plugin/isYesterday';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import weekday from 'dayjs/plugin/weekday';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, isNil, not } from 'ramda';
 import { Outlet, useLocation } from 'react-router-dom';
-import { useAtomValue, useAtom } from 'jotai';
+
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import reactRoutes from '../reactRoutes/routeMap';
 
-import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import { MainLoaderWithoutTranslation } from './MainLoader';
+import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import useMain, { router } from './useMain';
 import { areUserParametersLoadedAtom } from './useUser';
 
@@ -39,17 +42,24 @@ const Main = (): JSX.Element => {
   const navigate = router.useNavigate();
   const { pathname } = useLocation();
 
-  useMain();
+  const hasReachedAPublicPage = !!pathname.match(/^\/public\//);
+
+  useMain(hasReachedAPublicPage);
 
   const [areUserParametersLoaded] = useAtom(areUserParametersLoadedAtom);
   const platformInstallationStatus = useAtomValue(
     platformInstallationStatusAtom
   );
+  const setIsOnPublicPageAtom = useSetAtom(isOnPublicPageAtom);
 
   const navigateTo = (path: string): void => {
     navigate(path);
     window.location.reload();
   };
+
+  startTransition(() => {
+    setIsOnPublicPageAtom(hasReachedAPublicPage);
+  });
 
   useEffect(() => {
     if (isNil(platformInstallationStatus) || isNil(areUserParametersLoaded)) {
@@ -76,13 +86,14 @@ const Main = (): JSX.Element => {
     if (
       not(areUserParametersLoaded) &&
       !equals(pathname, reactRoutes.authenticationDenied) &&
-      !equals(pathname, reactRoutes.logout)
+      !equals(pathname, reactRoutes.logout) &&
+      !equals(pathname, reactRoutes.login)
     ) {
       navigate(reactRoutes.login);
     }
   }, [platformInstallationStatus, areUserParametersLoaded]);
 
-  if (isNil(platformInstallationStatus)) {
+  if (!hasReachedAPublicPage && isNil(platformInstallationStatus)) {
     return <MainLoaderWithoutTranslation />;
   }
 

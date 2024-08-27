@@ -4,10 +4,15 @@ import {
   useQueryClient
 } from '@tanstack/react-query';
 
-import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+import {
+  Method,
+  ResponseError,
+  useMutationQuery,
+  useSnackbar
+} from '@centreon/ui';
 
-import { CreateDashboardDto, Dashboard, resource } from './models';
 import { dashboardsEndpoint } from './endpoints';
+import { CreateDashboardDto, Dashboard, resource } from './models';
 
 type UseCreateDashboard<
   TData extends Dashboard = Dashboard,
@@ -23,7 +28,18 @@ type UseCreateDashboard<
   'mutate' | 'mutateAsync'
 >;
 
-const useCreateDashboard = (): UseCreateDashboard => {
+interface Labels {
+  labelFailure: string;
+  labelSuccess: string;
+}
+
+interface Props {
+  labels?: Labels;
+}
+
+const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
+  const { showSuccessMessage, showErrorMessage } = useSnackbar();
+
   const {
     mutateAsync,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -31,8 +47,15 @@ const useCreateDashboard = (): UseCreateDashboard => {
     ...mutationData
   } = useMutationQuery<Omit<Dashboard, 'globalRefreshInterval'>, unknown>({
     getEndpoint: () => dashboardsEndpoint,
+    httpCodesBypassErrorSnackbar: [400, 500],
     method: Method.POST,
-    mutationKey: [resource.dashboards, 'create']
+    mutationKey: [resource.dashboards, 'create'],
+    ...(labels?.labelFailure
+      ? { onError: () => showErrorMessage(labels?.labelFailure) }
+      : {}),
+    ...(labels?.labelSuccess
+      ? { onSuccess: () => showSuccessMessage(labels?.labelSuccess) }
+      : {})
   });
 
   const queryClient = useQueryClient();
@@ -56,10 +79,15 @@ const useCreateDashboard = (): UseCreateDashboard => {
       onSettled?.(data, error, vars, undefined);
     };
 
-    return mutateAsync(variables, {
-      onSettled: onSettledWithInvalidateQueries,
-      ...restOptions
-    });
+    return mutateAsync(
+      {
+        payload: variables
+      },
+      {
+        onSettled: onSettledWithInvalidateQueries,
+        ...restOptions
+      }
+    );
   };
 
   return {

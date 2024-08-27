@@ -2,15 +2,20 @@ import { useCallback, useEffect } from 'react';
 
 import { useAtom } from 'jotai';
 
-import { getData, useRequest, useDeepCompare } from '@centreon/ui';
+import { getData, useDeepCompare, useRequest } from '@centreon/ui';
+import { federatedModulesAtom } from '@centreon/ui-context';
 
+import { store } from '../Main/Provider';
 import usePlatformVersions from '../Main/usePlatformVersions';
 
-import { federatedModulesAtom } from './atoms';
 import { FederatedModule } from './models';
+import { loadScript } from './utils';
 
-export const getFederatedModule = (moduleName: string): string =>
-  `./modules/${moduleName}/static/moduleFederation.json`;
+export const getFederatedModuleFolder = (moduleName: string): string =>
+  `./modules/${moduleName}/static`;
+
+export const getFederatedModuleFederationFile = (moduleName: string): string =>
+  `${getFederatedModuleFolder(moduleName)}/moduleFederation.json`;
 
 interface UseFederatedModulesState {
   federatedModules: Array<FederatedModule> | null;
@@ -31,11 +36,26 @@ const useFederatedModules = (): UseFederatedModulesState => {
       return;
     }
 
+    const timestamp = `?t=${new Date().getTime()}`;
+
     Promise.all(
       modules?.map((moduleName) =>
-        sendRequest({ endpoint: getFederatedModule(moduleName) })
+        sendRequest({
+          endpoint: `${getFederatedModuleFederationFile(moduleName)}${timestamp}`
+        })
       ) || []
-    ).then(setFederatedModules);
+    ).then((federatedModuleConfigs: Array<FederatedModule>): void => {
+      setFederatedModules(federatedModuleConfigs);
+
+      federatedModuleConfigs
+        .filter(({ preloadScript }) => preloadScript)
+        .forEach(({ preloadScript, moduleName }) => {
+          loadScript({
+            scriptPath: `${getFederatedModuleFolder(moduleName)}/${preloadScript}`,
+            store
+          });
+        });
+    });
   }, [modules]);
 
   useEffect(

@@ -145,7 +145,7 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
      *
      * @param int $providerConfigurationId
      *
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return ContactGroupRelation[]
      */

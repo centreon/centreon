@@ -1,52 +1,94 @@
-import { equals, includes } from 'ramda';
 import { useSetAtom } from 'jotai';
+import { all, equals, has, isNil, pluck } from 'ramda';
 
+import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost
+} from '../../../../Resources/Listing/columns';
+import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
+import { Visualization } from '../../../../Resources/models';
+import {
+  labelBusinessActivity,
+  labelResourcesStatus
+} from '../translatedLabels';
 import {
   getResourcesUrlForMetricsWidgets,
-  getUrlForResourcesOnlyWidgets,
-  resourceBasedWidgets
+  getUrlForResourcesOnlyWidgets
 } from '../utils';
-import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
-import { Visualization } from '../../../../Resources/models';
-import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
-import {
-  defaultSelectedColumnIdsforViewByHost,
-  defaultSelectedColumnIds
-} from '../../../../Resources/Listing/columns';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
-  getLinkToResourceStatusPage: (data, name, options) => string;
+  getLinkToResourceStatusPage: (data, name) => string;
+  getPageType: (data) => string | null;
 }
 
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
-
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   const getLinkToResourceStatusPage = (data, name, options): string => {
-    if (!includes(name, resourceBasedWidgets)) {
+    const resourcesInput = Object.entries(data).find(
+      ([, value]) =>
+        has('resourceType', value?.[0]) && has('resources', value?.[0])
+    );
+    const resourcesInputKey = resourcesInput?.[0];
+    if (!resourcesInputKey || !data?.[resourcesInputKey]) {
       return '';
     }
 
-    if (options?.statuses && options?.states && data?.resources) {
-      const { statuses, states } = options;
+    const resources = data[resourcesInputKey];
+    // TO FIX when Resources Status will handle BA/BV properly
+    const resourceTypes = pluck('resourceType', resources);
+    const hasOnlyBA = all(equals('business-activity'), resourceTypes);
 
-      const type = options?.displayType || options?.resourceType;
+    if (hasOnlyBA) {
+      return `/main.php?p=20701&o=d&ba_id=${resources[0].resources[0].id}`;
+    }
 
-      const { resources } = data;
+    if (data?.resources && isNil(data?.metrics)) {
+      const { statuses } = options;
 
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
-        resources,
-        states,
+        resources: data.resources,
+        states: options?.states || [],
         statuses,
-        type
+        type:
+          options?.resourceTypes ||
+          options?.resourceType ||
+          options?.displayType ||
+          options?.type
       });
 
       return linkToResourceStatus;
     }
 
     return getResourcesUrlForMetricsWidgets({ data, widgetName: name });
+  };
+
+  const getPageType = (data): string | null => {
+    if (isNil(data)) {
+      return null;
+    }
+    const resourcesInput = Object.entries(data).find(
+      ([, value]) =>
+        has('resourceType', value?.[0]) && has('resources', value?.[0])
+    );
+    const resourcesInputKey = resourcesInput?.[0];
+    if (!resourcesInputKey || !data?.[resourcesInputKey]) {
+      return null;
+    }
+
+    const resources = data[resourcesInputKey];
+    // TO FIX when Resources Status will handle BA/BV properly
+    const resourceTypes = pluck('resourceType', resources);
+    const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+
+    if (hasOnlyBA) {
+      return labelBusinessActivity;
+    }
+
+    return labelResourcesStatus;
   };
 
   const changeViewMode = (displayType): void => {
@@ -73,7 +115,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     }
   };
 
-  return { changeViewMode, getLinkToResourceStatusPage };
+  return { changeViewMode, getLinkToResourceStatusPage, getPageType };
 };
 
 export default useLinkToResourceStatus;

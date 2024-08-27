@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 });
 
 beforeEach(() => {
@@ -55,5 +55,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

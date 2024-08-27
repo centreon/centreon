@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import { useAtomValue } from 'jotai';
 
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
@@ -7,15 +5,15 @@ import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 import {
   limitAtom,
   pageAtom,
+  searchAtom,
   sortFieldAtom,
-  sortOrderAtom,
-  searchAtom
+  sortOrderAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
 
-import { Dashboard, resource } from './models';
-import { dashboardsEndpoint } from './endpoints';
 import { dashboardListDecoder } from './decoders';
+import { dashboardsEndpoint } from './endpoints';
 import { List } from './meta.models';
+import { Dashboard, resource } from './models';
 
 type UseListDashboards = {
   data?: List<Omit<Dashboard, 'refresh'>>;
@@ -23,8 +21,6 @@ type UseListDashboards = {
 };
 
 const useListDashboards = (): UseListDashboards => {
-  const isMounted = useRef(true);
-
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
   const sortField = useAtomValue(sortFieldAtom);
@@ -63,13 +59,9 @@ const useListDashboards = (): UseListDashboards => {
       search
     ],
     queryOptions: {
-      suspense: isMounted.current
+      suspense: false
     }
   });
-
-  if (isMounted) {
-    isMounted.current = false;
-  }
 
   return {
     data,

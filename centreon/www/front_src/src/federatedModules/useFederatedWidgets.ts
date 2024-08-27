@@ -2,19 +2,25 @@ import { useCallback, useEffect } from 'react';
 
 import { useAtom } from 'jotai';
 
-import { getData, useRequest, useDeepCompare } from '@centreon/ui';
+import { getData, useDeepCompare, useRequest } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
+import { store } from '../Main/Provider';
 import usePlatformVersions from '../Main/usePlatformVersions';
 
-import { federatedWidgetsAtom, federatedWidgetsPropertiesAtom } from './atoms';
+import { federatedWidgetsPropertiesAtom } from './atoms';
 import { FederatedModule, FederatedWidgetProperties } from './models';
+import { loadScript } from './utils';
+
+const getFederatedWidgetFolder = (moduleName: string): string =>
+  `./widgets/${moduleName}/static`;
 
 export const getFederatedWidget = (moduleName: string): string => {
-  return `./widgets/${moduleName}/static/moduleFederation.json`;
+  return `${getFederatedWidgetFolder(moduleName)}/moduleFederation.json`;
 };
 
 export const getFederatedWidgetProperties = (moduleName: string): string => {
-  return `./widgets/${moduleName}/static/properties.json`;
+  return `${getFederatedWidgetFolder(moduleName)}/properties.json`;
 };
 
 interface UseFederatedModulesState {
@@ -44,16 +50,31 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
       return;
     }
 
+    const timestamp = `?t=${new Date().getTime()}`;
+
     Promise.all(
       widgets?.map((moduleName) =>
-        sendRequest({ endpoint: getFederatedWidget(moduleName) })
+        sendRequest({
+          endpoint: `${getFederatedWidget(moduleName)}${timestamp}`
+        })
       ) || []
-    ).then(setFederatedWidgets);
+    ).then((federatedWidgetConfigs: Array<FederatedModule>): void => {
+      setFederatedWidgets(federatedWidgetConfigs);
+
+      federatedWidgetConfigs
+        .filter(({ preloadScript }) => preloadScript)
+        .forEach(({ preloadScript, moduleName }) => {
+          loadScript({
+            scriptPath: `${getFederatedWidgetFolder(moduleName)}/${preloadScript}`,
+            store
+          });
+        });
+    });
 
     Promise.all(
       widgets?.map((moduleName) =>
         sendRequestProperties({
-          endpoint: getFederatedWidgetProperties(moduleName)
+          endpoint: `${getFederatedWidgetProperties(moduleName)}${timestamp}`
         })
       ) || []
     ).then(setFederatedWidgetsProperties);

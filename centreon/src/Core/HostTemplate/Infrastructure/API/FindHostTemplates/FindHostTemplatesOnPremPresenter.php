@@ -57,7 +57,6 @@ class FindHostTemplatesOnPremPresenter extends AbstractPresenter implements Find
                     'name' => $hostTemplate['name'],
                     'alias' => $hostTemplate['alias'],
                     'snmp_version' => $hostTemplate['snmpVersion'],
-                    'snmp_community' => $this->emptyStringAsNull($hostTemplate['snmpCommunity']),
                     'timezone_id' => $hostTemplate['timezoneId'],
                     'severity_id' => $hostTemplate['severityId'],
                     'check_command_id' => $hostTemplate['checkCommandId'],

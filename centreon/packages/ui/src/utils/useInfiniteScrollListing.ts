@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { equals, gte, isNil, reduce } from 'ramda';
 import { PrimitiveAtom, useAtom } from 'jotai';
+import { equals, gte, isNil, reduce } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 import {
@@ -11,8 +11,8 @@ import {
   useIntersectionObserver
 } from '@centreon/ui';
 
-import type { Listing } from '../api/models';
 import { Parameters } from '../api/buildListingEndpoint/models';
+import type { Listing } from '../api/models';
 
 interface UseInfiniteScrollListing<T> {
   elementRef: (node) => void;
@@ -24,6 +24,7 @@ interface UseInfiniteScrollListing<T> {
 interface UseInfiniteScrollListingProps<T> {
   customQueryParameters?: Array<QueryParameter>;
   decoder?: JsonDecoder.Decoder<Listing<T>>;
+  enabled?: boolean;
   endpoint: string;
   limit?: number;
   pageAtom: PrimitiveAtom<number>;
@@ -40,7 +41,8 @@ export const useInfiniteScrollListing = <T>({
   suspense = true,
   parameters,
   customQueryParameters,
-  limit = 100
+  limit = 100,
+  enabled = true
 }: UseInfiniteScrollListingProps<T>): UseInfiniteScrollListing<T> => {
   const [maxPage, setMaxPage] = useState(1);
 
@@ -58,9 +60,15 @@ export const useInfiniteScrollListing = <T>({
         customQueryParameters,
         parameters: { limit, page: params?.page || page, ...parameters }
       }),
-    getQueryKey: () => [queryKeyName, page],
+    getQueryKey: () => [
+      queryKeyName,
+      page,
+      JSON.stringify(parameters),
+      JSON.stringify(customQueryParameters)
+    ],
     isPaginated: true,
     queryOptions: {
+      enabled,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       suspense: suspense && equals(page, 1)
@@ -103,7 +111,7 @@ export const useInfiniteScrollListing = <T>({
     }
 
     prefetchNextPage({
-      getPrefetchQueryKey: (newPage) => [`dashboards`, newPage],
+      getPrefetchQueryKey: (newPage) => ['dashboards', newPage],
       page
     });
   }, [data]);

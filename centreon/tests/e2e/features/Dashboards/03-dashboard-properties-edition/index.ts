@@ -3,7 +3,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
@@ -11,7 +11,7 @@ before(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 beforeEach(() => {
@@ -40,16 +40,13 @@ afterEach(() => {
 Given(
   'a user with update rights on a dashboard featured in the dashboards library',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
   }
 );
 
 When('the user selects the properties of the dashboard', () => {
-  const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
-  cy.contains(dashboardToEdit.name)
-    .parent()
-    .find('button[aria-label="edit"]')
-    .click();
+  cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
+  cy.getByLabel({ label: 'Edit properties' }).click();
 });
 
 Then(
@@ -76,21 +73,27 @@ Then(
 When(
   'the user fills in the name and description fields with new compliant values',
   () => {
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      '{selectall}{backspace}dashboard-edited'
-    );
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      '{selectall}{backspace}dashboard-edited'
-    );
+    cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+      cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+        '{selectall}{backspace}dashboard-edited'
+      );
+      cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+        '{selectall}{backspace}dashboard-edited'
+      );
+    });
   }
 );
 
 Then('the user is allowed to update the dashboard', () => {
-  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+  cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+  });
 });
 
 When('the user saves the dashboard with its new values', () => {
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.contains('div.MuiDialog-container', 'Update dashboard').within(() => {
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  });
 });
 
 Then(
@@ -108,12 +111,10 @@ Then(
 Given(
   'a user with dashboard update rights who is about to update a dashboard with new values',
   () => {
-    const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
-    cy.visit('/centreon/home/dashboards');
-    cy.contains(dashboardToEdit.name)
-      .parent()
-      .find('button[aria-label="edit"]')
-      .click();
+    cy.visitDashboards();
+
+    cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
+    cy.getByLabel({ label: 'Edit properties' }).click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
       '{selectall}{backspace}dashboard-cancel-update-changes'
     );
@@ -130,18 +131,14 @@ When('the user leaves the update form without saving', () => {
 Then('the dashboard has not been edited and features its former values', () => {
   const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
   cy.contains('dashboard-cancel-update-changes').should('not.exist');
-  cy.contains(dashboardToEdit.name).parent().should('exist');
-  cy.contains(dashboardToEdit.description).parent().should('exist');
+  cy.contains(dashboardToEdit.name).should('be.visible');
 });
 
 When(
   'the user opens the form to update the dashboard for the second time',
   () => {
-    const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
-    cy.contains(dashboardToEdit.name)
-      .parent()
-      .find('button[aria-label="edit"]')
-      .click();
+    cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
+    cy.getByLabel({ label: 'Edit properties' }).click();
   }
 );
 
@@ -160,13 +157,10 @@ Then(
 );
 
 Given('a user with dashboard update rights in a dashboard update form', () => {
-  const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
+  cy.visitDashboards();
 
-  cy.visit('/centreon/home/dashboards');
-  cy.contains(dashboardToEdit.name)
-    .parent()
-    .find('button[aria-label="edit"]')
-    .click();
+  cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
+  cy.getByLabel({ label: 'Edit properties' }).click();
 });
 
 When('the user sets an empty name for this dashboard', () => {
@@ -188,12 +182,10 @@ Then('the user can now save the dashboard', () => {
 Given(
   'a user with dashboard update rights in the update form of a dashboard with description',
   () => {
-    const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
-    cy.visit('/centreon/home/dashboards');
-    cy.contains(dashboardToEdit.name)
-      .parent()
-      .find('button[aria-label="edit"]')
-      .click();
+    cy.visitDashboards();
+
+    cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
+    cy.getByLabel({ label: 'Edit properties' }).click();
   }
 );
 
@@ -216,6 +208,5 @@ Then(
     cy.contains('Dashboards').should('be.visible');
     cy.contains('Update dashboard').should('not.exist');
     cy.contains(dashboardToEdit.name).should('exist');
-    cy.contains(dashboardToEdit.description).should('not.exist');
   }
 );

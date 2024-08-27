@@ -1,33 +1,81 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../models';
+import {
+  DatasetFilter,
+  GetResourceAccessRule,
+  NamedEntity,
+  ResourceTypeEnum
+} from '../../models';
 
-const datasets = JsonDecoder.object<Dataset>(
-  {
-    resourceType: JsonDecoder.enumeration(ResourceTypeEnum, 'resourceType'),
-    resources: JsonDecoder.array(JsonDecoder.number, 'Dataset')
-  },
-  'Datasets',
-  {
-    resourceType: 'type'
-  }
-);
+const datasetFilter: JsonDecoder.Decoder<DatasetFilter> =
+  JsonDecoder.object<DatasetFilter>(
+    {
+      datasetFilter: JsonDecoder.oneOf(
+        [JsonDecoder.isNull(null), JsonDecoder.lazy(() => datasetFilter)],
+        'Dataset filter'
+      ),
+      resourceType: JsonDecoder.enumeration(ResourceTypeEnum, 'Resource type'),
+      resources: JsonDecoder.array(
+        JsonDecoder.object<NamedEntity>(
+          {
+            id: JsonDecoder.number,
+            name: JsonDecoder.string
+          },
+          'Resource'
+        ),
+        'Resources'
+      )
+    },
+    'Dataset filter',
+    {
+      datasetFilter: 'dataset_filter',
+      resourceType: 'type'
+    }
+  );
 
-const datasetsFilters = JsonDecoder.array(datasets, 'Dataset filters');
-
-export const resourceAccessRuleDecoder = JsonDecoder.object<ResourceAccessRule>(
+const contactGroups = JsonDecoder.object<NamedEntity>(
   {
-    contactGroups: JsonDecoder.array(JsonDecoder.number, 'Contact groups'),
-    contacts: JsonDecoder.array(JsonDecoder.number, 'Contacts'),
-    datasetFilters: JsonDecoder.array(datasetsFilters, 'Datasets filters'),
-    description: JsonDecoder.string,
     id: JsonDecoder.number,
-    isActivated: JsonDecoder.boolean,
     name: JsonDecoder.string
   },
-  'Resource access rule',
-  {
-    datasetFilters: 'datasets_filters',
-    isActivated: 'is_enabled'
-  }
+  'Contact group'
 );
+
+const contacts = JsonDecoder.object<NamedEntity>(
+  {
+    id: JsonDecoder.number,
+    name: JsonDecoder.string
+  },
+  'Contact'
+);
+
+export const resourceAccessRuleDecoder =
+  JsonDecoder.object<GetResourceAccessRule>(
+    {
+      contactGroups: JsonDecoder.object(
+        {
+          all: JsonDecoder.boolean,
+          values: JsonDecoder.array(contactGroups, 'Contact group values')
+        },
+        'Contact groups'
+      ),
+      contacts: JsonDecoder.object(
+        {
+          all: JsonDecoder.boolean,
+          values: JsonDecoder.array(contacts, 'Contact values')
+        },
+        'Contacts'
+      ),
+      datasetFilters: JsonDecoder.array(datasetFilter, 'Datasets filters'),
+      description: JsonDecoder.string,
+      id: JsonDecoder.number,
+      isActivated: JsonDecoder.boolean,
+      name: JsonDecoder.string
+    },
+    'Resource access rule',
+    {
+      contactGroups: 'contact_groups',
+      datasetFilters: 'dataset_filters',
+      isActivated: 'is_enabled'
+    }
+  );

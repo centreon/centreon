@@ -1,0 +1,25 @@
+name: 'Get Latest NPM Branch Version'
+
+description: 'Get the latest version of a package based on the branch'
+
+inputs:
+  module_path:
+    description: 'The path of the current module'
+    required: true
+  github_token:
+    description: 'The github token'
+    required: true
+  name:
+    description: 'The name for display purpose'
+    required: true
+  dynamicCodeCoveragesFilePath:
+    required: true
+    description: 'The path to the dynamic code coverages file'
+  generateNewCodeCoverages:
+    required: false
+    default: 'false'
+    description: 'Generates new code coverages bas stats or not'
+
+runs:
+  using: 'node20'
+  main: 'index.js'

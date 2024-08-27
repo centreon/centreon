@@ -63,7 +63,7 @@ trait DependenciesTrait
      *
      * @param \Pimple\Container $di
      */
-    public function setDi(Container $di)
+    public function setDi(Container $di): void
     {
         $this->services = new ServiceLocator($di, static::dependencies());
     }

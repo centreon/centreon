@@ -1,12 +1,12 @@
 {
-  "federatedComponentsConfiguration": [{
-    "path": "/widgets/graph",
-    "federatedComponents": [
-      "./graph"
-    ],
-    "panelMinHeight": 4,
-    "panelMinWidth": 6
-  }],
+  "federatedComponentsConfiguration": [
+    {
+      "path": "/widgets/graph",
+      "federatedComponents": ["./graph"],
+      "panelMinHeight": 3,
+      "panelMinWidth": 4
+    }
+  ],
   "moduleFederationName": "widgetgraph",
   "moduleName": "centreon-widget-graph"
 }

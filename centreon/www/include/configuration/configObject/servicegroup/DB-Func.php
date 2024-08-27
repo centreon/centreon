@@ -114,12 +114,13 @@ function removeRelationLastServicegroupDependency(int $servicegroupId): void
     $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
               FROM dependency_servicegroupParent_relation
               WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
-                                         WHERE servicegroup_sg_id =  ' . $servicegroupId . ')';
+                                         WHERE servicegroup_sg_id =  ' . $servicegroupId . ')
+              GROUP BY dependency_dep_id';
     $dbResult = $pearDB->query($query);
     $result = $dbResult->fetch();
 
     //is last parent
-    if ($result['nb_dependency'] == 1) {
+    if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
         $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
     }
 }
@@ -290,43 +291,264 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
     $centreon->user->access->updateACL();
 }
 
-function insertServiceGroupInDB($ret = [])
+function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = []): void
 {
-    global $centreon;
+    global $pearDB;
 
-    $sgId = insertServiceGroup($ret);
-    updateServiceGroupServices($sgId, $ret);
+    $ruleIds = $submittedValues['resource_access_rules'];
 
-    signalConfigurationChange('servicegroup', $sgId);
-    $centreon->user->access->updateACL();
-    return $sgId;
+    foreach ($ruleIds as $ruleId) {
+        $datasets = findDatasetsByRuleId($ruleId);
+
+        /**
+         * see if at least a dataset filter saved is of type servicegroup
+         * if so then add the new servicegroup to the dataset
+         * otherwise create a new dataset for this servicegroup
+         */
+        $serviceGroupDatasetFilters = array_values(
+            array_filter(
+                $datasets,
+                fn (array $dataset) => $dataset['dataset_filter_type'] === 'servicegroup'
+            )
+        );
+
+        // No dataset_filter of type service group found. Create a new one
+        if ($serviceGroupDatasetFilters === []) {
+            // get the dataset with the highest ID (last one added) which is the first element of the datasets array
+            $lastDatasetAdded = $datasets[0];
+
+            preg_match('/dataset_for_rule_\d+_(\d+)/', $lastDatasetAdded['dataset_name'], $matches);
+
+            // calculate the new dataset_name
+            $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . (int) $matches[1] + 1;
+
+            if ($pearDB->beginTransaction()) {
+                try {
+                    $datasetId = createNewDataset(datasetName: $newDatasetName);
+                    linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
+                    linkServiceGroupToDataset(datasetId: $datasetId, serviceGroupId: $serviceGroupId);
+                    createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, serviceGroupId: $serviceGroupId);
+                    $pearDB->commit();
+                } catch (\Throwable $exception) {
+                    $pearDB->rollBack();
+                    throw $exception;
+                }
+            }
+        } else {
+            if ($pearDB->beginTransaction()) {
+                try {
+                    linkServiceGroupToDataset(datasetId: $serviceGroupDatasetFilters[0]['dataset_id'], serviceGroupId: $serviceGroupId);
+                    // Expend the existing hostgroup dataset_filter
+                    $expendedResourceIds = $serviceGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $serviceGroupId;
+
+                    updateDatasetFiltersResourceIds(
+                        datasetFilterId: $serviceGroupDatasetFilters[0]['dataset_filter_id'],
+                        resourceIds: $expendedResourceIds
+                    );
+                    $pearDB->commit();
+                } catch (\Throwable $exception) {
+                    $pearDB->rollBack();
+                    throw $exception;
+                }
+            }
+        }
+    }
 }
 
-function updateServiceGroupInDB($sgId = null, $ret = [], $increment = false)
+/**
+ * @param int $datasetFilterId
+ * @param string $resourceIds
+ */
+function updateDatasetFiltersResourceIds(int $datasetFilterId, string $resourceIds): void
 {
-    global $centreon;
+    global $pearDB;
 
-    if (!$sgId) {
+    $request = <<<'SQL'
+        UPDATE dataset_filters SET resource_ids = :resourceIds WHERE `id` = :datasetFilterId
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':datasetFilterId', $datasetFilterId, \PDO::PARAM_INT);
+    $statement->bindValue(':resourceIds', $resourceIds, \PDO::PARAM_STR);
+    $statement->execute();
+}
+
+/**
+ * @param int $datasetId
+ * @param int $serviceGroupId
+ */
+function linkServiceGroupToDataset(int $datasetId, int $serviceGroupId): void
+{
+    global $pearDB;
+
+    $query = <<<SQL
+        INSERT INTO acl_resources_sg_relations (sg_id, acl_res_id) VALUES (:serviceGroupId, :datasetId)
+    SQL;
+
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
+    $statement->bindValue(':serviceGroupId', $serviceGroupId, \PDO::PARAM_INT);
+    $statement->execute();
+}
+
+/**
+ * @param int $datasetId
+ * @param int $ruleId
+ * @param int $serviceGroupId
+ */
+function createNewDatasetFilter(int $datasetId, int $ruleId, int $serviceGroupId): void
+{
+    global $pearDB;
+
+    $query = <<<SQL
+        INSERT INTO dataset_filters (`type`, acl_resource_id, acl_group_id, resource_ids)
+        VALUES ('servicegroup', :datasetId, :ruleId, :serviceGroupId)
+    SQL;
+
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
+    $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+    $statement->bindValue(':serviceGroupId', $serviceGroupId, \PDO::PARAM_STR);
+
+    $statement->execute();
+}
+
+/**
+ * @param string $datasetName
+ * @return int
+ */
+function createNewDataset(string $datasetName): int
+{
+    global $pearDB;
+    // create new dataset
+    $query = <<<'SQL'
+        INSERT INTO acl_resources (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, acl_res_activate, changed, cloud_specific)
+        VALUES (:name, '0', '0', '0', '1', 1, 1)
+    SQL;
+
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':name', $datasetName, \PDO::PARAM_STR);
+    $statement->execute();
+
+    return $pearDB->lastInsertId();
+}
+
+/**
+ * @param int $ruleId
+ *
+ * @throws \PDOException
+ *
+ * @return list<array{
+ *     dataset_name: string,
+ *     dataset_filter_id: int,
+ *     dataset_filter_parent_id: int|null,
+ *     dataset_filter_type: string,
+ *     dataset_filter_resources: string,
+ *     dataset_id: int,
+ *     rule_id: int
+ * }>|array{} */
+function findDatasetsByRuleId(int $ruleId): array
+{
+    global $pearDB;
+
+    $request = <<<'SQL'
+        SELECT
+            dataset.acl_res_name AS dataset_name,
+            id AS dataset_filter_id,
+            parent_id AS dataset_filter_parent_id,
+            type AS dataset_filter_type,
+            resource_ids AS dataset_filter_resources,
+            acl_resource_id AS dataset_id,
+            acl_group_id AS rule_id
+        FROM dataset_filters
+        INNER JOIN acl_resources AS dataset
+            ON dataset.acl_res_id = dataset_filters.acl_resource_id
+        WHERE dataset_filters.acl_group_id = :ruleId
+        ORDER BY dataset_id DESC
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+    $statement->execute();
+
+    if ($record = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
+        return $record;
+    }
+
+    return [];
+}
+
+function insertServiceGroupInDB(bool $isCloudPlatform = false, array $submittedValues = [])
+{
+    global $centreon, $form;
+
+    $submittedValues = $submittedValues ?: $form->getSubmitValues();
+
+    $serviceGroupId = insertServiceGroup($submittedValues);
+    updateServiceGroupServices($serviceGroupId, $submittedValues);
+
+    // Only apply ACL for cloud context
+    if ($isCloudPlatform) {
+        updateServiceGroupAcl(serviceGroupId: $serviceGroupId, submittedValues: $submittedValues);
+    }
+
+    signalConfigurationChange('servicegroup', $serviceGroupId);
+    $centreon->user->access->updateACL();
+    return $serviceGroupId;
+}
+
+/**
+ * @param int $datasetId
+ * @param int $ruleId
+ */
+function linkDatasetToRule(int $datasetId, int $ruleId): void
+{
+    global $pearDB;
+
+    // link dataset to the rule
+    $query = <<<SQL
+        INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id) VALUES (:datasetId, :ruleId)
+    SQL;
+
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+    $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
+    $statement->execute();
+}
+
+function updateServiceGroupInDB(
+    bool $isCloudPlatform = false,
+    $serviceGroupId = null,
+    $submittedValues = [],
+    $increment = false
+) {
+    global $centreon, $form;
+
+    if (! $serviceGroupId) {
         return;
     }
 
-    $previousPollerIds = getPollersForConfigChangeFlagFromServiceGroupId($sgId);
+    $submittedValues = $submittedValues ?: $form->getSubmitValues();
 
-    updateServiceGroup($sgId, $ret);
-    updateServiceGroupServices($sgId, $ret, $increment);
+    $previousPollerIds = getPollersForConfigChangeFlagFromServiceGroupId($serviceGroupId);
 
-    signalConfigurationChange('servicegroup', $sgId, $previousPollerIds);
+    updateServiceGroup($serviceGroupId, $submittedValues);
+    updateServiceGroupServices($serviceGroupId, $submittedValues, $increment);
+
+    if ($isCloudPlatform) {
+        updateServiceGroupAcl(serviceGroupId: $serviceGroupId, submittedValues: $submittedValues);
+    }
+
+    signalConfigurationChange('servicegroup', $serviceGroupId, $previousPollerIds);
     $centreon->user->access->updateACL();
 }
 
-function insertServiceGroup($ret = [])
+function insertServiceGroup($submittedValues = [])
 {
-    global $form, $pearDB, $centreon;
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
-    }
+    global $pearDB, $centreon;
+
     $bindParams = [];
-    foreach ($ret as $key => $value) {
+    foreach ($submittedValues as $key => $value) {
         switch ($key) {
             case 'sg_name':
                 $value = \HtmlAnalyzer::sanitizeAndRemoveTags($value);
@@ -376,11 +598,11 @@ function insertServiceGroup($ret = [])
     $dbResult->closeCursor();
 
     /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
+    $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
         "servicegroup",
         $sgId["MAX(sg_id)"],
-        htmlentities($ret["sg_name"], ENT_QUOTES, "UTF-8"),
+        htmlentities($submittedValues["sg_name"], ENT_QUOTES, "UTF-8"),
         "a",
         $fields
     );
@@ -388,22 +610,18 @@ function insertServiceGroup($ret = [])
     return ($sgId["MAX(sg_id)"]);
 }
 
-function updateServiceGroup($sgId, $ret = [])
+function updateServiceGroup($serviceGroupId, $submittedValues = [])
 {
-    global $form, $pearDB, $centreon;
+    global $pearDB, $centreon;
 
-    if (!$sgId) {
+    if (! $serviceGroupId) {
         return;
     }
 
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
-    }
-
     $bindParams = [];
-    $sgId = filter_var($sgId, FILTER_VALIDATE_INT);
-    $bindParams[':sg_id'] = [\PDO::PARAM_INT => $sgId];
-    foreach ($ret as $key => $value) {
+    $serviceGroupId = filter_var($serviceGroupId, FILTER_VALIDATE_INT);
+    $bindParams[':sg_id'] = [\PDO::PARAM_INT => $serviceGroupId];
+    foreach ($submittedValues as $key => $value) {
         switch ($key) {
             case 'sg_name':
                 $value = \HtmlAnalyzer::sanitizeAndRemoveTags($value);
@@ -437,15 +655,17 @@ function updateServiceGroup($sgId, $ret = [])
         }
     }
 
-    $statement = $pearDB->prepare("
+    $statement = $pearDB->prepare(<<<'SQL'
         UPDATE servicegroup SET
-        sg_name = :sg_name,
-        sg_alias = :sg_alias,
-        sg_comment = :sg_comment,
-        geo_coords = :geo_coords,
-        sg_activate = :sg_activate
+            sg_name = :sg_name,
+            sg_alias = :sg_alias,
+            sg_comment = :sg_comment,
+            geo_coords = :geo_coords,
+            sg_activate = :sg_activate
         WHERE sg_id = :sg_id
-    ");
+        SQL
+    );
+
     foreach ($bindParams as $token => $bindValues) {
         foreach ($bindValues as $paramType => $value) {
             $statement->bindValue($token, $value, $paramType);
@@ -454,11 +674,11 @@ function updateServiceGroup($sgId, $ret = [])
     $statement->execute();
 
     /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
+    $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
         "servicegroup",
-        $sgId,
-        htmlentities($ret["sg_name"], ENT_QUOTES, "UTF-8"),
+        $serviceGroupId,
+        htmlentities($submittedValues["sg_name"], ENT_QUOTES, "UTF-8"),
         "c",
         $fields
     );

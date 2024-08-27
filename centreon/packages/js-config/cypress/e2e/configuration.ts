@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
 
@@ -13,7 +14,6 @@ import tasks from './tasks';
 
 interface ConfigurationOptions {
   cypressFolder?: string;
-  dockerName?: string;
   env?: Record<string, unknown>;
   envFile?: string;
   isDevelopment?: boolean;
@@ -24,7 +24,6 @@ export default ({
   specPattern,
   cypressFolder,
   isDevelopment,
-  dockerName,
   env,
   envFile
 }: ConfigurationOptions): Cypress.ConfigOptions => {
@@ -40,7 +39,8 @@ export default ({
 
   return defineConfig({
     chromeWebSecurity: false,
-    defaultCommandTimeout: 6000,
+    defaultCommandTimeout: 20000,
+    downloadsFolder: `${resultsFolder}/downloads`,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
       fixturesFolder: 'fixtures',
@@ -48,7 +48,8 @@ export default ({
       reporterOptions: {
         configFile: `${__dirname}/reporter-config.js`
       },
-      setupNodeEvents: async (on, config) => {
+      setupNodeEvents: async (cypressOn, config) => {
+        const on = require('cypress-on-fix')(cypressOn)
         installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
         tasks(on);
@@ -60,17 +61,24 @@ export default ({
     },
     env: {
       ...env,
+      DATABASE_IMAGE: 'bitnami/mariadb:10.11',
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
+      SAML_IMAGE_VERSION: process.env.MAJOR || '24.04',
+      STABILITY: 'unstable',
       WEB_IMAGE_OS: 'alma9',
-      WEB_IMAGE_VERSION: webImageVersion,
-      dockerName: dockerName || 'centreon-dev'
+      WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
-    requestTimeout: 10000,
-    retries: 0,
+    requestTimeout: 20000,
+    retries: {
+      openMode: 0,
+      runMode: 2
+    },
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: true,
+    video: isDevelopment,
     videoCompression: 0,
-    videosFolder: `${resultsFolder}/videos`
+    videosFolder: `${resultsFolder}/videos`,
+    viewportHeight: 1080,
+    viewportWidth: 1920
   });
 };

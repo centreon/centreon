@@ -1,22 +1,22 @@
-import { FormikValues } from 'formik';
-import { useTranslation } from 'react-i18next';
-import { isEmpty, isNil, pick, pipe, values, or, all, not } from 'ramda';
 import { useQueryClient } from '@tanstack/react-query';
+import { FormikValues } from 'formik';
+import { all, isEmpty, isNil, not, or, pick, pipe, values } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { useSnackbar, Form, Method, useMutationQuery } from '@centreon/ui';
+import { Form, Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import useValidationSchema from '../useValidationSchema';
+import FormButtons from '../../FormButtons';
+import { adaptOpenidConfigurationToAPI } from '../../api/adapters';
+import { authenticationProvidersEndpoint } from '../../api/endpoints';
+import { groups } from '../../groups';
+import { Provider } from '../../models';
+import { OpenidConfiguration, OpenidConfigurationToAPI } from '../models';
 import {
   labelFailedToSaveOpenidConfiguration,
   labelOpenIDConnectConfigurationSaved,
   labelRequired
 } from '../translatedLabels';
-import { OpenidConfiguration, OpenidConfigurationToAPI } from '../models';
-import FormButtons from '../../FormButtons';
-import { groups } from '../../groups';
-import { Provider } from '../../models';
-import { adaptOpenidConfigurationToAPI } from '../../api/adapters';
-import { authenticationProvidersEndpoint } from '../../api/endpoints';
+import useValidationSchema from '../useValidationSchema';
 
 import { inputs } from './inputs';
 
@@ -52,7 +52,9 @@ const OpenidForm = ({
     formikValues: OpenidConfiguration,
     { setSubmitting }
   ): Promise<void> =>
-    mutateAsync(adaptOpenidConfigurationToAPI(formikValues))
+    mutateAsync({
+      payload: adaptOpenidConfigurationToAPI(formikValues)
+    })
       .then(() => {
         queryClient.invalidateQueries({ queryKey: [Provider.Openid] });
         loadOpenidConfiguration();

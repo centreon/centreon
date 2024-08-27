@@ -611,7 +611,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         $request .= $search !== null
             ? ' AND h.host_register = \'1\''
             : ' WHERE h.host_register = \'1\'';
-        $request .= ' GROUP BY h.host_id';
+        $request .= ' GROUP BY h.host_id, ns.id, ns.name';
 
         // Sort
         $sortRequest = $sqlTranslator->translateSortParameterToSql();
@@ -653,6 +653,83 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         foreach ($statement as $data) {
             /** @var _TinyHost $data */
             $hosts[] = SmallHostFactory::createFromDb($data);
+        }
+
+        return $hosts;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAll(): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    h.host_id,
+                    nsr.nagios_server_id as monitoring_server_id,
+                    h.host_name,
+                    h.host_address,
+                    h.host_alias,
+                    h.host_snmp_version,
+                    h.host_snmp_community,
+                    h.geo_coords,
+                    h.host_location,
+                    h.command_command_id,
+                    h.command_command_id_arg1,
+                    h.timeperiod_tp_id,
+                    h.host_max_check_attempts,
+                    h.host_check_interval,
+                    h.host_retry_check_interval,
+                    h.host_active_checks_enabled,
+                    h.host_passive_checks_enabled,
+                    h.host_notifications_enabled,
+                    h.host_notification_options,
+                    h.host_notification_interval,
+                    h.timeperiod_tp_id2,
+                    h.cg_additive_inheritance,
+                    h.contact_additive_inheritance,
+                    h.host_first_notification_delay,
+                    h.host_recovery_notification_delay,
+                    h.host_acknowledgement_timeout,
+                    h.host_check_freshness,
+                    h.host_freshness_threshold,
+                    h.host_flap_detection_enabled,
+                    h.host_low_flap_threshold,
+                    h.host_high_flap_threshold,
+                    h.host_event_handler_enabled,
+                    h.command_command_id2,
+                    h.command_command_id_arg2,
+                    h.host_comment,
+                    h.host_activate,
+                    ehi.ehi_notes_url,
+                    ehi.ehi_notes,
+                    ehi.ehi_action_url,
+                    ehi.ehi_icon_image,
+                    ehi.ehi_icon_image_alt,
+                    hc.hc_id as severity_id
+                FROM `:db`.host h
+                LEFT JOIN `:db`.extended_host_information ehi
+                    ON h.host_id = ehi.host_host_id
+                LEFT JOIN `:db`.ns_host_relation nsr
+                    ON nsr.host_host_id = h.host_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = h.host_id
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NOT NULL
+                WHERE h.host_register = :hostType
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostType', HostType::Host->value, \PDO::PARAM_STR);
+        $statement->execute();
+
+        $hosts = [];
+
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _Host $result */
+            $hosts[] = $this->createHostFromArray($result);
         }
 
         return $hosts;

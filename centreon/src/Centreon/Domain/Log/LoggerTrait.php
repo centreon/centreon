@@ -39,9 +39,8 @@ trait LoggerTrait
 
     /**
      * @param ContactInterface $loggerContact
-     *
-     * @required
      */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setLoggerContact(ContactInterface $loggerContact): void
     {
         $this->loggerContact = $loggerContact;
@@ -49,9 +48,8 @@ trait LoggerTrait
 
     /**
      * @param ContactForDebug $loggerContactForDebug
-     *
-     * @required
      */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setLoggerContactForDebug(ContactForDebug $loggerContactForDebug): void
     {
         $this->loggerContactForDebug = $loggerContactForDebug;
@@ -59,9 +57,8 @@ trait LoggerTrait
 
     /**
      * @param LoggerInterface $centreonLogger
-     *
-     * @required
      */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setLogger(LoggerInterface $centreonLogger): void
     {
         $this->logger = $centreonLogger;

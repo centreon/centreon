@@ -4,3 +4,4 @@ export const labelPasswordWillExpireIn = 'Your password will expire in';
 export const labelEditProfile = 'Edit profile';
 export const labelCopyAutologinLink = 'Copy autologin link';
 export const labelLogout = 'Logout';
+export const labelFullscreen = 'Fullscreen (F)';

@@ -1,0 +1,64 @@
+{
+    "uuid": "h14",
+    "id": 14,
+    "name": "Centreon-Server",
+    "monitoring_server_name": "Central",
+    "type": "host",
+    "short_type": "h",
+    "fqdn": "127.0.0.1",
+    "alias": "Monitoring Server",
+    "status":{
+        "name":"Critical",
+        "severity_code":1
+     },
+    "in_downtime": false,
+    "acknowledged": false,
+    "flapping": false,
+    "performance_data": "rta=0.816ms;3000.000;5000.000;0; pl=0%;80;100;0;100 rtmax=0.816ms;;;; rtmin=0.816ms;;;; ",
+    "information": "OK - 127.0.0.1 rta 0.816ms lost 0%\n",
+    "command_line": "/usr/lib64/nagios/plugins/check_icmp -H 127.0.0.1 -w 3000.0,80% -c 5000.0,100% -p 1",
+    "notification_number": 0,
+    "latency": 0.265,
+    "percent_state_change": 0,
+    "passive_checks": false,
+    "execution_time": 0.080832,
+    "active_checks": true,
+    "parent": null,
+    "icon": {
+      "id": null,
+      "name": "",
+      "url": ""
+    },
+    "groups": [
+      {
+        "id": 53,
+        "name": "Linux-Servers",
+        "configuration_uri": "/centreon/main.php?p=60102&o=c&hg_id=53"
+      }
+    ],
+    "categories": [],
+    "severity": null,
+    "acknowledgement": null,
+    "downtimes": [],
+    "timezone": null,
+    "duration": "1h 16m",
+    "next_check": "2024-05-27T17:48:07+02:00",
+    "last_check": "2024-05-27T17:43:07+02:00",
+    "last_time_with_no_issue": "2024-05-27T17:43:09+02:00",
+    "last_status_change": "2024-05-27T16:29:29+02:00",
+    "last_notification": null,
+    "tries": "1/5(H)",
+    "links": {
+      "endpoints": {
+        "notification_policy": "/centreon/api/latest/configuration/hosts/14/notification-policy",
+        "timeline": "/centreon/api/latest/monitoring/hosts/14/timeline",
+        "timeline_download": "/centreon/api/latest/monitoring/hosts/14/timeline/download",
+        "details": "/centreon/api/latest/monitoring/resources/hosts/14"
+      },
+      "uris": {
+        "configuration": "/centreon/main.php?p=60101&o=c&host_id=14",
+        "logs": "/centreon/main.php?p=20301&h=14",
+        "reporting": "/centreon/main.php?p=307&host=14"
+      }
+    }
+  }

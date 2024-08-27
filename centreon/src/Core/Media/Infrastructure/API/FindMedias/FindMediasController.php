@@ -26,12 +26,11 @@ namespace Core\Media\Infrastructure\API\FindMedias;
 use Centreon\Application\Controller\AbstractController;
 use Core\Media\Application\UseCase\FindMedias\FindMedias;
 use Core\Media\Application\UseCase\FindMedias\FindMediasPresenterInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 final class FindMediasController extends AbstractController
 {
-    public function __invoke(Request $request, FindMedias $useCase, FindMediasPresenterInterface $presenter): Response
+    public function __invoke(FindMedias $useCase, FindMediasPresenterInterface $presenter): Response
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

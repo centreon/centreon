@@ -55,7 +55,6 @@ class AddHostSaasPresenter extends AbstractPresenter implements AddHostPresenter
                         'geo_coords' => $response->geoCoords,
                         'icon_id' => $response->iconId,
                         'alias' => $this->emptyStringAsNull($response->alias),
-                        'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'max_check_attempts' => $response->maxCheckAttempts,
                         'normal_check_interval' => $response->normalCheckInterval,
                         'retry_check_interval' => $response->retryCheckInterval,

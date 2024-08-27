@@ -1,24 +1,24 @@
 import { MouseEvent, useEffect, useRef, useState } from 'react';
 
-import { useNavigate, useLocation } from 'react-router-dom';
-import { equals, flatten, isEmpty, isNil, length } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, flatten, isEmpty, isNil, length } from 'ramda';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
 
-import List from '@mui/material/List';
 import { ListItem, useTheme } from '@mui/material';
+import List from '@mui/material/List';
 
 import { useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { Page } from '../../models';
+import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
+import { closedDrawerWidth, openDrawerWidth } from '../index';
 import {
-  selectedNavigationItemsAtom,
   hoveredNavigationItemsAtom,
+  selectedNavigationItemsAtom,
   setHoveredNavigationItemsDerivedAtom
 } from '../sideBarAtoms';
-import { closedDrawerWidth, openDrawerWidth } from '../index';
-import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
 
 import CollapsibleItems from './CollapsibleItems';
 import MenuItems from './MenuItems';

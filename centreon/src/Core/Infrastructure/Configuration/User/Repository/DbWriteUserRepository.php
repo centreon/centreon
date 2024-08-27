@@ -75,11 +75,36 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
-                'INSERT INTO `:db`.contact
-                    (contact_name, contact_alias, contact_email, contact_template_id,
-                    contact_admin, contact_theme, user_interface_density, contact_activate, contact_oreon)
-                    VALUES (:contactName, :contactAlias, :contactEmail, :contactTemplateId,
-                    :isAdmin, :contactTheme, :userInterfaceDensity, :isActivate, :userCanReachFrontend)'
+                <<<'SQL'
+                    INSERT INTO `:db`.contact
+                    (
+                        contact_name,
+                        contact_alias,
+                        contact_email,
+                        contact_template_id,
+                        contact_admin,
+                        contact_theme,
+                        user_interface_density,
+                        contact_activate,
+                        contact_oreon,
+                        reach_api_rt,
+                        reach_api
+                    )
+                    VALUES
+                    (
+                        :contactName,
+                        :contactAlias,
+                        :contactEmail,
+                        :contactTemplateId,
+                        :isAdmin,
+                        :contactTheme,
+                        :userInterfaceDensity,
+                        :isActivate,
+                        :userCanReachFrontend,
+                        :userCanReachRealtimeApi,
+                        :userCanReachConfigurationApi
+                    )
+                    SQL
             )
         );
         $statement->bindValue(':contactName', $user->getName(), \PDO::PARAM_STR);
@@ -91,6 +116,8 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
         $statement->bindValue(':userInterfaceDensity', $user->getUserInterfaceDensity(), \PDO::PARAM_STR);
         $statement->bindValue(':isActivate', $user->isActivate() ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':userCanReachFrontend', $user->canReachFrontend() ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':userCanReachRealtimeApi', $user->canReachRealtimeApi() ? 1 : 0, \PDO::PARAM_INT);
+        $statement->bindValue(':userCanReachConfigurationApi', $user->canReachConfigurationApi() ? 1 : 0, \PDO::PARAM_INT);
         $statement->execute();
     }
 }

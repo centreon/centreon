@@ -36,7 +36,6 @@ beforeEach(function (): void {
         return new Dashboard(
             $fields['id'] ?? 1,
             $fields['name'] ?? 'dashboard-name',
-            $fields['description'] ?? 'dashboard-description',
             \array_key_exists('created_by', $fields) ? $fields['created_by'] : 2,
             \array_key_exists('updated_by', $fields) ? $fields['updated_by'] : 3,
             $this->testedCreatedAt,
@@ -51,7 +50,7 @@ it('should return properly set dashboard instance', function (): void {
 
     expect($dashboard->getId())->toBe(1)
         ->and($dashboard->getName())->toBe('dashboard-name')
-        ->and($dashboard->getDescription())->toBe('dashboard-description')
+        ->and($dashboard->getDescription())->toBe(null)
         ->and($dashboard->getUpdatedAt()->getTimestamp())->toBe($this->testedUpdatedAt->getTimestamp())
         ->and($dashboard->getCreatedAt()->getTimestamp())->toBe($this->testedCreatedAt->getTimestamp())
         ->and($dashboard->getCreatedBy())->toBe(2)
@@ -70,23 +69,33 @@ it(
 );
 
 // string field trimmed
-
-foreach (
-    [
-        'name',
-        'description',
-    ] as $field
-) {
-    it(
-        "should return trim the field {$field} after construct",
-        function () use ($field): void {
-            $dashboard = ($this->createDashboard)([$field => '  abcd ']);
-            $valueFromGetter = $dashboard->{'get' . $field}();
-
-            expect($valueFromGetter)->toBe('abcd');
-        }
+it("should return trim the field name after construct", function (): void {
+    $dashboard = new Dashboard(
+        1,
+        ' abcd ',
+        1,
+        1,
+        new \DateTimeImmutable(),
+        new \DateTimeImmutable(),
+        new Refresh(RefreshType::Global, null)
     );
-}
+
+    expect($dashboard->getName())->toBe('abcd');
+});
+
+it("should return trim the field description", function (): void {
+    $dashboard = (new Dashboard(
+        1,
+        'abcd',
+        1,
+        1,
+        new \DateTimeImmutable(),
+        new \DateTimeImmutable(),
+        new Refresh(RefreshType::Global, null)
+    ))->setDescription(' abcd ');
+
+    expect($dashboard->getDescription())->toBe('abcd');
+});
 
 // updatedAt change
 

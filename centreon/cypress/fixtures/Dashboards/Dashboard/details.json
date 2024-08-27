@@ -74,6 +74,28 @@
             }
           }
         }
+      },
+      {
+        "id": 3,
+        "name": "centreon-widget-text",
+        "widget_type": "/widgets/text",
+        "layout": {
+          "x": 6,
+          "y": 0,
+          "width": 3,
+          "height": 3,
+          "min_width": 3,
+          "min_height": 3
+        },
+        "widget_settings": {
+          "options": {
+            "name": null,
+            "description": {
+              "enabled": true,
+              "content": null
+            }
+          }
+        }
       }
     ],
     "own_role": "viewer",

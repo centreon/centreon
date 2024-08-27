@@ -1,0 +1,130 @@
+type: object
+allOf:
+  - properties:
+      id:
+        type: integer
+        description: "Service template ID."
+        example: 1
+      is_locked:
+        type: boolean
+        description: "Indicates whether the configuration is locked for editing or not"
+        example: true
+      name:
+        type: string
+        description: "Service template name."
+        example: "generic-service"
+      alias:
+        type: string
+        description: "Service template alias."
+        example: "generic-service"
+      service_template_id:
+        type: integer
+        description: "Template ID of the service template."
+        minimum: 1
+        nullable: true
+        example: null
+      check_timeperiod_id:
+        type: integer
+        description: "Time period ID of the check command."
+        minimum: 1
+        nullable: true
+        example: null
+      max_check_attempts:
+        type: integer
+        description: "Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state."
+        nullable: true
+      normal_check_interval:
+        type: integer
+        description: |
+          Define the number of 'time units' between regularly scheduled checks of the service.
+
+          With the default time unit of 60s, this number will mean multiples of 1 minute.
+        nullable: true
+      retry_check_interval:
+        type: integer
+        description: |
+          Define the number of "time units" to wait before scheduling a re-check for this service after a non-OK state was detected.
+
+          With the default time unit of 60s, this number will mean multiples of 1 minute.
+
+          Once the service has been retried max_check_attempts times without a change in its status,
+          it will revert to being scheduled at its "normal" check interval rate.
+        nullable: true
+      note:
+        type: string
+        description: "Define an optional note."
+        nullable: true
+        maxLength: 65535
+      note_url:
+        type: string
+        description: "Define an optional URL that can be used to provide more information about the service."
+        maxLength: 65535
+        nullable: true
+      action_url:
+        type: string
+        description: "Define an optional URL that can be used to specify actions to be performed on the service."
+        nullable: true
+        maxLength: 65535
+      icon_id:
+        type: integer
+        description: "Define the image ID that should be associated with this service template."
+        minimum: 1
+        nullable: true
+        example: null
+      severity_id:
+        type: integer
+        description: "Severity ID."
+        minimum: 1
+        nullable: true
+      host_templates:
+        type: array
+        description: "IDs of host templates linked to this service template."
+        items:
+          type: integer
+          description: "Host template ID"
+        example: [ 1, 2 ]
+      categories:
+        type: array
+        description: "Service categories associated with this service template"
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: "Define a service category ID that is associated with this service template"
+              example: 1
+            name:
+              type: string
+              description: "Define a service category name that is associated with this service template"
+              example: 'service-category-name'
+      groups:
+        type: array
+        items:
+          type: object
+          description: "Service groups associated with this service template"
+          properties:
+            id:
+              type: integer
+              description: "Define a service group ID that is associated with this service template"
+              example: 1
+            name:
+              type: string
+              description: "Define a service group name that is associated with this service template"
+              example: 'host-group-name'
+            host_template_id:
+              type: integer
+              description: "Define a host template ID that is associated with this service group for this service template"
+              example: 1
+            host_template_name:
+              type: string
+              description: "Define a host template name that is associated with this service group for this service template"
+              example: 'host-template-name'
+      macros:
+        type: array
+        description: |
+          Macros defined for the service (directly or through a template or command inheritance)
+
+          If multiple macros are defined with the same name, only the last one will be saved.
+        items:
+          $ref: 'macro.yaml'
+

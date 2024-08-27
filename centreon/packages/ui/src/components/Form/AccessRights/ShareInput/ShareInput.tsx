@@ -1,16 +1,16 @@
-import { useTranslation } from 'react-i18next';
 import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 import { IconButton } from '../../..';
-import { Endpoints, Labels } from '../models';
 import { SelectEntry, SingleConnectedAutocompleteField } from '../../../..';
 import RoleSelectField from '../common/RoleSelectField';
+import { Endpoints, Labels } from '../models';
 
 import ContactSwitch from './ContactSwitch';
-import useShareInput from './useShareInput';
 import { useShareInputStyles } from './ShareInput.styles';
+import useShareInput from './useShareInput';
 
 interface Props {
   endpoints: Endpoints;
@@ -52,6 +52,7 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
               ? t(labels.autocompleteContactGroup)
               : t(labels.autocompleteContact)
           )}
+          queryKey={isContactGroup ? labels.contactGroup : labels.contact}
           renderOption={renderOption}
           value={selectedContact}
           onChange={selectContact}
@@ -67,6 +68,7 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
           data-testid="add"
           disabled={isNil(selectedContact)}
           icon={<AddCircleIcon />}
+          size="small"
           onClick={add}
         />
       </div>

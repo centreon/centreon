@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { useFormikContext } from 'formik';
 import {
   equals,
   gt,
@@ -10,12 +11,11 @@ import {
   remove,
   update
 } from 'ramda';
-import { useFormikContext } from 'formik';
 
-import { ListItem, Typography, Radio, Checkbox } from '@mui/material';
+import { Checkbox, ListItem, Radio, Typography } from '@mui/material';
 
-import { CollapsibleItem } from '@centreon/ui/components';
 import { useDeepCompare } from '@centreon/ui';
+import { CollapsibleItem } from '@centreon/ui/components';
 
 import { FormMetric, ServiceMetric } from '../../../models';
 
@@ -327,7 +327,7 @@ export const useRenderOptions = ({
   };
 
   const renderOptionsForMultipleMetricsAndResources = (
-    _,
+    props,
     option: FormMetric
   ): JSX.Element => {
     const resources = getResourcesByMetricName(option.name);
@@ -356,11 +356,14 @@ export const useRenderOptions = ({
                 className={classes.radioCheckbox}
                 data-checked={isMetricChecked}
                 data-testid={option.name}
+                disabled={props['aria-disabled']}
                 indeterminate={isMetricIndeterminate}
                 size="small"
                 onChange={selectMetricsWithAllResources(option)}
               />
-              <Typography>{`${option.name} (${option.unit})`}</Typography>
+              <Typography
+                color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}
+              >{`${option.name} (${option.unit})`}</Typography>
             </div>
           }
         >
@@ -390,10 +393,13 @@ export const useRenderOptions = ({
                     })
                   }
                   data-testid={`${option.name}_${parentName}:${name}`}
+                  disabled={props['aria-disabled']}
                   size="small"
                   onChange={resourceChange({ metric: option, metricId })}
                 />
-                <Typography>
+                <Typography
+                  color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}
+                >
                   {parentName}:{name}
                 </Typography>
               </div>

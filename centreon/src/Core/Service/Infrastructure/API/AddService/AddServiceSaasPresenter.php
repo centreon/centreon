@@ -71,7 +71,7 @@ class AddServiceSaasPresenter extends AbstractPresenter implements AddServicePre
                         ], $response->groups),
                         'macros' => array_map(fn(MacroDto $macro): array => [
                             'name' => $macro->name,
-                            'value' => $macro->value,
+                            'value' => $macro->isPassword ? null : $macro->value,
                             'is_password' => $macro->isPassword,
                             'description' => $macro->description,
                         ], $response->macros),

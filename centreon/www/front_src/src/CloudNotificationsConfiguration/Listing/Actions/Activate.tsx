@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { styled } from '@mui/material/styles';
 import { Switch as MUISwitch } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 import {
-  Method,
   type ComponentColumnProps,
-  useMutationQuery,
-  ResponseError
+  Method,
+  ResponseError,
+  useMutationQuery
 } from '@centreon/ui';
 
 import { notificationEndpoint } from '../../Panel/api/endpoints';
@@ -49,7 +49,9 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
     const value = event.target.checked;
     setChecked(value);
 
-    mutateAsync({ is_activated: value }).then((response) => {
+    mutateAsync({
+      payload: { is_activated: value }
+    }).then((response) => {
       if ((response as ResponseError).isError) {
         setChecked(!value);
 

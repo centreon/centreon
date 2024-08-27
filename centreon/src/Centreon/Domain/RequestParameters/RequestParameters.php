@@ -219,7 +219,7 @@ class RequestParameters implements RequestParametersInterface
      *
      * @throws \Exception
      */
-    private function fixSchema()
+    private function fixSchema(): void
     {
         $search = $this->search;
 
@@ -258,7 +258,7 @@ class RequestParameters implements RequestParametersInterface
     /**
      * @inheritDoc
      */
-    public function unsetSearchParameter(string $parameterToExtract)
+    public function unsetSearchParameter(string $parameterToExtract): void
     {
         $parameters = $this->search;
 

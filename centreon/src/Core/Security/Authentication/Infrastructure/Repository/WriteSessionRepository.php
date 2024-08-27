@@ -27,26 +27,23 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class WriteSessionRepository implements WriteSessionRepositoryInterface
 {
     use LoggerTrait;
 
     /**
-     * @param SessionInterface $session
+     * @param RequestStack $requestStack
      * @param WriteSessionTokenRepositoryInterface $writeSessionTokenRepository
-     * @param WriteTokenRepositoryInterface $writeTokenRepository
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
     public function __construct(
-        private readonly SessionInterface $session,
+        private readonly RequestStack $requestStack,
         private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
-        private readonly WriteTokenRepositoryInterface $writeTokenRepository,
         private readonly ProviderAuthenticationFactoryInterface $providerFactory
     ) {
     }
@@ -56,10 +53,9 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      */
     public function invalidate(): void
     {
-        $this->writeTokenRepository->deleteExpiredSecurityTokens();
-        $this->writeSessionTokenRepository->deleteSession($this->session->getId());
-        $centreon = $this->session->get('centreon');
-        $this->session->invalidate();
+        $this->writeSessionTokenRepository->deleteSession($this->requestStack->getSession()->getId());
+        $centreon = $this->requestStack->getSession()->get('centreon');
+        $this->requestStack->getSession()->invalidate();
 
         if ($centreon && $centreon->user->authType === Provider::SAML) {
             /** @var SAML $provider */
@@ -86,16 +82,16 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      */
     public function start(\Centreon $legacySession): bool
     {
-        if ($this->session->isStarted()) {
+        if ($this->requestStack->getSession()->isStarted()) {
             return true;
         }
 
         $this->info('[AUTHENTICATE] Starting Centreon Session');
-        $this->session->start();
-        $this->session->set('centreon', $legacySession);
+        $this->requestStack->getSession()->start();
+        $this->requestStack->getSession()->set('centreon', $legacySession);
         $_SESSION['centreon'] = $legacySession;
 
-        $isSessionStarted = $this->session->isStarted();
+        $isSessionStarted = $this->requestStack->getSession()->isStarted();
         if ($isSessionStarted === false) {
             $this->invalidate();
         }

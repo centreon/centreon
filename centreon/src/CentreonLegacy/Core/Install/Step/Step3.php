@@ -70,7 +70,7 @@ class Step3 extends AbstractStep
         return $parameters;
     }
 
-    public function setEngineConfiguration($parameters)
+    public function setEngineConfiguration($parameters): void
     {
         $configurationFile = __DIR__ . '/../../../../../www/install/tmp/engine.json';
         file_put_contents($configurationFile, json_encode($parameters));

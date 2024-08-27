@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 
 import { SelectEntry } from '@centreon/ui';
 
+import { SubInput } from '../../../../federatedModules/models';
 import { PanelConfiguration, WidgetOptions } from '../models';
 
 export interface Widget {
@@ -12,13 +13,6 @@ export interface Widget {
   panelConfiguration: PanelConfiguration | null;
 }
 
-export interface ConditionalOptions<T> {
-  is: unknown;
-  otherwise: T;
-  then: T;
-  when: string;
-}
-
 export interface ShowInput {
   contains?: Array<{ key: string; value: unknown }>;
   notContains?: Array<{ key: string; value: unknown }>;
@@ -26,28 +20,49 @@ export interface ShowInput {
 }
 
 export interface WidgetPropertyProps {
+  baseEndpoint: string;
   className?: string;
-  defaultValue?: unknown | ConditionalOptions<unknown>;
+  datePicker?: {
+    maxDays?: number;
+  };
+  defaultValue?: unknown;
   disabled?: boolean;
   disabledCondition?: (values: Widget) => boolean;
   endAdornment?: ReactNode;
+  excludedResourceTypes?: Array<string>;
+  isInGroup: boolean;
+  isSingleAutocomplete: boolean;
+  keepOneOptionSelected?: boolean;
   label: string;
-  options?: Array<SelectEntry> | ConditionalOptions<Array<SelectEntry>>;
+  options?: Array<SelectEntry>;
   propertyName: string;
+  requireResourceType?: boolean;
   required?: boolean;
+  restrictedResourceTypes?: Array<string>;
   secondaryLabel?: Array<string> | string;
   show?: ShowInput;
+  singleResourceType?: boolean;
+  slider?: {
+    max: number;
+    min: number;
+    unit?: string;
+  };
+  subInputs?: Array<SubInput>;
   text?: {
     autoSize?: boolean;
+    max?: number;
+    min?: number;
     multiline?: boolean;
     size?: string;
     step?: string;
     type?: string;
   };
+  type: string;
+  useAdditionalResources?: boolean;
 }
 
 export interface WidgetDataResource {
-  resourceType: 'host-group' | 'host-category' | 'host' | 'service';
+  resourceType: WidgetResourceType;
   resources: Array<SelectEntry>;
 }
 export interface WidgetDataMetric {
@@ -85,6 +100,7 @@ export enum WidgetResourceType {
   host = 'host',
   hostCategory = 'host-category',
   hostGroup = 'host-group',
+  metaService = 'meta-service',
   service = 'service',
   serviceCategory = 'service-category',
   serviceGroup = 'service-group'

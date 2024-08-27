@@ -94,7 +94,7 @@ class AutoloadServiceProviderTest extends TestCase
             }));
     }
 
-    public function testRegister()
+    public function testRegister(): void
     {
         $this->checkPoint
             ->add('finder.getIterator')
@@ -141,7 +141,7 @@ class AutoloadServiceProviderTest extends TestCase
     /**
      * Test service register with duplicated files loaded
      */
-    public function testRegisterWithException()
+    public function testRegisterWithException(): void
     {
         $this->finder->method('getIterator')
             ->will($this->returnCallback(function () {

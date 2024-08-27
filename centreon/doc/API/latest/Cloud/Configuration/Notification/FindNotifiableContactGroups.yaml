@@ -1,0 +1,26 @@
+get:
+  tags:
+    - Notification
+  summary: "List notifiable contact groups."
+  description: "List notifiable contact groups for Cloud notification rules configuration."
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/NotifiableContactGroups.Listing.yaml'
+                meta:
+                  $ref: '../../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+

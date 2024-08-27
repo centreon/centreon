@@ -42,6 +42,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final class FindHosts
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /** @var list<AccessGroup> */
     private array $accessGroups = [];
@@ -54,6 +55,7 @@ final class FindHosts
      * @param ReadHostCategoryRepositoryInterface $categoryRepository
      * @param ReadHostTemplateRepositoryInterface $hostTemplateRepository
      * @param ReadHostGroupRepositoryInterface $groupRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
@@ -63,6 +65,7 @@ final class FindHosts
         private readonly ReadHostCategoryRepositoryInterface $categoryRepository,
         private readonly ReadHostTemplateRepositoryInterface $hostTemplateRepository,
         private readonly ReadHostGroupRepositoryInterface $groupRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -82,13 +85,12 @@ final class FindHosts
                 return;
             }
             $hosts = [];
-            if ($this->user->isAdmin()) {
+            if ($this->isUserAdmin()) {
                 $this->info('Find hosts as admin');
                 $this->debug('Find host as admin', ['request_parameter' => $this->requestParameters]);
                 $hosts = $this->hostRepository->findByRequestParameters($this->requestParameters);
             } else {
                 $this->info('Find hosts as non-admin');
-                $this->accessGroups = $this->accessGroupRepository->findByContact($this->user);
                 if ($this->accessGroups !== []) {
                     $this->debug('Find hosts as non-admin', [
                         'request_parameter' => $this->requestParameters,
@@ -116,6 +118,33 @@ final class FindHosts
     {
         return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_READ)
             || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE);
+    }
+
+    private function setUsersAccessGroups(): void
+    {
+        $this->accessGroups = $this->accessGroupRepository->findByContact($this->user);
+    }
+
+    /**
+     * Indicates if the current user is admin or not (cloud + onPremise context).
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
+        $this->setUsersAccessGroups();
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->accessGroups
+        );
+
+        return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
+            && $this->isCloudPlatform;
     }
 
     /**

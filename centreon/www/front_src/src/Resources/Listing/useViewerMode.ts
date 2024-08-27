@@ -3,7 +3,7 @@ import { useTransition } from 'react';
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
 
-import { userAtom, ListingVariant } from '@centreon/ui-context';
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 interface ViewerMode {
   isPending: boolean;

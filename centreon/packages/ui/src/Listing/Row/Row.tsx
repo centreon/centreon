@@ -1,18 +1,18 @@
 /* eslint-disable react/no-unused-prop-types */
 
-import { memo, useRef, useEffect } from 'react';
+import { memo, useEffect, useRef } from 'react';
 
 import { equals, gte, lt, not, pluck } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { TableRowProps, TableRow, useTheme } from '@mui/material';
+import { TableRow, TableRowProps, useTheme } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { useViewportIntersection } from '../../utils/useViewportIntersection';
 import LoadingSkeleton from '../../LoadingSkeleton';
-import { Column, ColumnConfiguration, RowColorCondition } from '../models';
+import { useViewportIntersection } from '../../utils/useViewportIntersection';
 import { performanceRowsLimit } from '../index';
+import { Column, ColumnConfiguration, RowColorCondition } from '../models';
 
 const useStyles = makeStyles()((theme) => {
   return {
@@ -97,7 +97,6 @@ const Row = memo<RowProps>(
       <TableRow
         className={classes.row}
         component="div"
-        role={undefined}
         tabIndex={tabIndex}
         onClick={onClick}
         onFocus={onFocus}
@@ -197,7 +196,7 @@ const Row = memo<RowProps>(
   }
 );
 
-const IntersectionRow = (props: Props): JSX.Element => {
+const IntersectionRow = ({ isHovered, ...rest }: Props): JSX.Element => {
   const rowRef = useRef<HTMLDivElement | null>(null);
   const theme = useTheme();
   const { isInViewport, setElement } = useViewportIntersection({
@@ -214,8 +213,12 @@ const IntersectionRow = (props: Props): JSX.Element => {
   }, [getFirstCellElement()]);
 
   return (
-    <div className={classes.intersectionRow} ref={rowRef}>
-      <Row {...props} isInViewport={isInViewport} />
+    <div
+      className={classes.intersectionRow}
+      data-isHovered={isHovered}
+      ref={rowRef}
+    >
+      <Row {...rest} isHovered={isHovered} isInViewport={isInViewport} />
     </div>
   );
 };

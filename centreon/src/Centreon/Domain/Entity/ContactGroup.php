@@ -35,17 +35,17 @@ class ContactGroup
     public const ENTITY_IDENTIFICATOR_COLUMN = 'cg_id';
 
     /**
-     * @Serializer\SerializedName("id")
-     * @Serializer\Groups({ContactGroup::SERIALIZER_GROUP_LIST})
      * @var int|null
      */
+    #[Serializer\SerializedName('id')]
+    #[Serializer\Groups([ContactGroup::SERIALIZER_GROUP_LIST])]
     private $cg_id;
 
     /**
-     * @Serializer\SerializedName("name")
-     * @Serializer\Groups({ContactGroup::SERIALIZER_GROUP_LIST})
      * @var string|null
      */
+    #[Serializer\SerializedName('name')]
+    #[Serializer\Groups([ContactGroup::SERIALIZER_GROUP_LIST])]
     private $cg_name;
 
     /**
@@ -74,10 +74,10 @@ class ContactGroup
     private $ar_id;
 
     /**
-     * @Serializer\SerializedName("activate")
-     * @Serializer\Groups({ContactGroup::SERIALIZER_GROUP_LIST})
      * @var string|null
      */
+    #[Serializer\SerializedName('activate')]
+    #[Serializer\Groups([ContactGroup::SERIALIZER_GROUP_LIST])]
     private $cg_activate;
 
     /**

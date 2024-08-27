@@ -113,7 +113,7 @@ if (count($aMacroDescription) > 0) {
  * Resource Macro
  */
 $resource = array();
-$query = "SELECT DISTINCT `resource_name`, `resource_comment` FROM `cfg_resource` ORDER BY `resource_line`";
+$query = "SELECT DISTINCT `resource_name`, `resource_comment` FROM `cfg_resource` ORDER BY `resource_name`";
 $DBRESULT = $pearDB->query($query);
 while ($row = $DBRESULT->fetchRow()) {
     $resource[$row["resource_name"]] = $row["resource_name"];
@@ -178,7 +178,7 @@ if ($o == "a") {
 /*
  * Command information
  */
-if ($type !== false && isset($tabCommandType[$type])) {
+if ($type !== false && isset($tabCommandType[$type]) && $isCloudPlatform === false) {
     $form->addElement('header', 'information', $tabCommandType[$type]);
 } else {
     $form->addElement('header', 'information', _("Information"));
@@ -186,23 +186,26 @@ if ($type !== false && isset($tabCommandType[$type])) {
 
 $form->addElement('header', 'furtherInfos', _("Additional Information"));
 
-foreach ($tabCommandType as $id => $name) {
-    $cmdType[] = $form->createElement(
-        'radio',
-        'command_type',
-        null,
-        $name,
-        $id,
-        'onChange=checkType(this.value);'
-    );
-}
+// possibility to change the type of command is only possible out of the Cloud context
+if (! $isCloudPlatform) {
+    foreach ($tabCommandType as $id => $name) {
+        $cmdType[] = $form->createElement(
+            'radio',
+            'command_type',
+            null,
+            $name,
+            $id,
+            'onChange=checkType(this.value);'
+        );
+    }
 
-$form->addGroup($cmdType, 'command_type', _("Command Type"), '&nbsp;&nbsp;');
+    $form->addGroup($cmdType, 'command_type', _("Command Type"), '&nbsp;&nbsp;');
 
-if ($type !== false) {
-    $form->setDefaults(array('command_type' => $type));
-} else {
-    $form->setDefaults(array('command_type' => '2'));
+    if ($type !== false) {
+        $form->setDefaults(array('command_type' => $type));
+    } else {
+        $form->setDefaults(array('command_type' => '2'));
+    }
 }
 
 if (isset($cmd['connector_id']) && is_numeric($cmd['connector_id'])) {
@@ -312,6 +315,7 @@ if ($o == "w") {
 
 $tpl->assign('msg', array("comment" => _("Commands definitions can contain Macros but they have to be valid.")));
 $tpl->assign('cmd_help', _("Plugin Help"));
+$tpl->assign("is_cloud_platform", $isCloudPlatform);
 
 $valid = false;
 if ($form->validate()) {

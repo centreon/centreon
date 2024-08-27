@@ -2,21 +2,26 @@ import { equals } from 'ramda';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
+import NoResources from '../../NoResources';
 import {
+  CommonWidgetProps,
   FormThreshold,
   GlobalRefreshInterval,
   Metric,
   Resource
 } from '../../models';
-import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 
-import { TopBottomSettings } from './models';
-import useTopBottom from './useTopBottom';
 import MetricTop from './MetricTop';
 import { useTopBottomStyles } from './TopBottom.styles';
+import { TopBottomSettings } from './models';
+import useTopBottom from './useTopBottom';
 
-interface TopBottomProps {
+interface TopBottomProps
+  extends Pick<
+    CommonWidgetProps<object>,
+    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery'
+  > {
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview?: boolean;
   metrics: Array<Metric>;
@@ -39,20 +44,28 @@ const TopBottom = ({
   valueFormat,
   threshold,
   refreshCount,
-  isFromPreview
+  isFromPreview,
+  id,
+  dashboardId,
+  playlistHash,
+  widgetPrefixQuery
 }: TopBottomProps): JSX.Element => {
   const { classes } = useTopBottomStyles();
 
   const areResourcesOk = areResourcesFullfilled(resources);
 
   const { isLoading, metricsTop, isMetricEmpty } = useTopBottom({
+    dashboardId,
     globalRefreshInterval,
+    id,
     metrics,
+    playlistHash,
     refreshCount,
     refreshInterval,
     refreshIntervalCustom,
     resources,
-    topBottomSettings
+    topBottomSettings,
+    widgetPrefixQuery
   });
 
   if (!areResourcesOk || isMetricEmpty) {

@@ -40,7 +40,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const ComponentColumn = ({ row, isSelected }): JSX.Element => (
-  <>
+  <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
     <span>
       {'I am '}
       <b>{`${isSelected ? 'selected' : 'not selected'}`}</b>
@@ -50,7 +50,7 @@ const ComponentColumn = ({ row, isSelected }): JSX.Element => (
       {'I am '}
       <b>{`${row.active ? 'active' : 'not active'}`}</b>
     </span>
-  </>
+  </div>
 );
 
 const ButtonColumn = ({ row }): JSX.Element => (
@@ -331,7 +331,7 @@ const listingWithSubItems = [...tenElements].map((_, index) => ({
   selected: false,
   subItems:
     index % 2 === 0
-      ? [...tenElements].map((__, subIndex) => ({
+      ? [...tenElements].map((_, subIndex) => ({
           active: false,
           description: `Sub item ${subIndex + (index + 10) * 10} description`,
           disableCheckbox: false,
@@ -391,6 +391,29 @@ export const ListingWithSubItems = {
       labelCollapse: 'Collapse',
       labelExpand: 'Expand'
     },
+    totalRows: 10
+  },
+  render: TemplateSubItems
+};
+
+export const ListingWithResponsive = {
+  args: {
+    checkable: true,
+    columns: [
+      ...defaultColumns,
+      {
+        Component: ComponentColumn,
+        id: '##',
+        label: 'Responsive',
+        type: ColumnType.component,
+        width: '140px'
+      }
+    ],
+    currentPage: 1,
+    isResponsive: true,
+    limit: 10,
+    loading: false,
+    rows: listingWithSubItems,
     totalRows: 10
   },
   render: TemplateSubItems

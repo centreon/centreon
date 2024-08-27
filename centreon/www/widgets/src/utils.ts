@@ -1,5 +1,4 @@
 import {
-  isEmpty,
   T,
   always,
   cond,
@@ -8,13 +7,16 @@ import {
   groupBy,
   identity,
   includes,
+  isEmpty,
+  map,
   pipe,
-  map
+  pluck,
+  toPairs
 } from 'ramda';
 
-import { centreonBaseURL } from '@centreon/ui';
+import { SeverityCode, centreonBaseURL } from '@centreon/ui';
 
-import { Resource } from './models';
+import { Resource, SeverityStatus } from './models';
 
 export const areResourcesFullfilled = (
   resourcesDataset: Array<Resource>
@@ -22,7 +24,7 @@ export const areResourcesFullfilled = (
   !isEmpty(resourcesDataset) &&
   resourcesDataset?.every(
     ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources)
+      !isEmpty(resourceType) && !isEmpty(resources.filter((v) => v))
   );
 
 const serviceCriteria = {
@@ -33,18 +35,44 @@ const serviceCriteria = {
 interface GetResourcesUrlProps {
   allResources: Array<Resource>;
   isForOneResource: boolean;
-  resource;
+  resource?;
   states: Array<string>;
   statuses: Array<string>;
   type: string;
 }
 
-export const getDetailsPanelQueriers = ({ resource }): object => {
-  const { id, parentId, uuid, type } = resource;
+const getResourceStatusDetailsEndpoint = ({
+  resourceType,
+  id,
+  parentId
+}): string =>
+  cond([
+    [
+      equals('host'),
+      always(`${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`)
+    ],
+    [
+      equals('service'),
+      always(
+        `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`
+      )
+    ],
+    [
+      equals('metaservice'),
+      always(
+        `${centreonBaseURL}/api/latest/monitoring/resources/metaservices/${id}`
+      )
+    ]
+  ])(resourceType);
 
-  const resourcesDetailsEndpoint = equals(type, 'host')
-    ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
-    : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+export const getDetailsPanelQueriers = ({ resource }): object => {
+  const { id, parentId, uuid, type: resourceType } = resource;
+
+  const resourcesDetailsEndpoint = getResourceStatusDetailsEndpoint({
+    id,
+    parentId,
+    resourceType
+  });
 
   const queryParameters = {
     id,
@@ -71,22 +99,19 @@ export const getResourcesUrl = ({
         name: 'resource_types',
         value: [
           { id: 'service', name: 'Service' },
-          { id: 'host', name: 'Host' }
+          { id: 'host', name: 'Host' },
+          { id: 'metaservice', name: 'Meta service' }
         ]
       }
     : {
         name: 'resource_types',
         value: [
-          { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
+          {
+            id: type,
+            name: `${type?.charAt(0).toUpperCase()}${type?.slice(1)}`
+          }
         ]
       };
-
-  const formatStatusFilter = cond([
-    [equals('success'), always(['ok', 'up'])],
-    [equals('problem'), always(['down', 'critical'])],
-    [equals('undefined'), always(['unreachable', 'unknown'])],
-    [T, identity]
-  ]);
 
   const formattedStatuses = pipe(
     map((status) => formatStatusFilter(status)),
@@ -94,7 +119,7 @@ export const getResourcesUrl = ({
     map((status: string) => {
       return {
         id: status.toLocaleUpperCase(),
-        name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
+        name: `${status?.charAt(0).toUpperCase()}${status?.slice(1)}`
       };
     })
   )(statuses);
@@ -102,7 +127,7 @@ export const getResourcesUrl = ({
   const formattedStates = states.map((state) => {
     return {
       id: state,
-      name: `${state.charAt(0).toUpperCase()}${state.slice(1)}`
+      name: `${state?.charAt(0).toUpperCase()}${state?.slice(1)}`
     };
   });
 
@@ -116,6 +141,7 @@ export const getResourcesUrl = ({
       const name = cond<Array<string>, string>([
         [equals('host'), always('parent_name')],
         [equals('service'), always('name')],
+        [equals('meta-service'), always('name')],
         [T, identity]
       ])(resourceType);
 
@@ -153,7 +179,7 @@ export const getResourcesUrl = ({
     return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
-  const detailsPanelQueriers = getDetailsPanelQueriers({ resource });
+  const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
 
   const encodedDetailsParams = encodeURIComponent(
     JSON.stringify(detailsPanelQueriers)
@@ -217,4 +243,205 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
   );
 
   return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+};
+
+export const formatStatusFilter = cond([
+  [equals(SeverityStatus.Success), always(['ok', 'up'])],
+  [equals(SeverityStatus.Warning), always(['warning'])],
+  [equals(SeverityStatus.Problem), always(['down', 'critical'])],
+  [equals(SeverityStatus.Undefined), always(['unreachable', 'unknown'])],
+  [equals(SeverityStatus.Pending), always(['pending'])],
+  [T, identity]
+]) as (b: SeverityStatus) => Array<string>;
+
+export const formatBAStatusFilter = cond([
+  [equals(SeverityStatus.Success), always('ok')],
+  [equals(SeverityStatus.Warning), always('warning')],
+  [equals(SeverityStatus.Problem), always('critical')],
+  [equals(SeverityStatus.Undefined), always('unknown')],
+  [equals(SeverityStatus.Pending), always('pending')],
+  [T, identity]
+]) as (b: SeverityStatus) => string;
+
+export const formatStatus = pipe(
+  map(formatStatusFilter),
+  flatten,
+  map((status) => status.toLocaleUpperCase())
+);
+
+export const formatBAStatus = pipe(
+  map(formatBAStatusFilter),
+  map((status) => status.toLocaleUpperCase())
+);
+
+export const goToUrl = (url) => (): void => {
+  window?.open(`${centreonBaseURL}${url}`, '_blank,noopener,noreferrer');
+};
+
+const isTypeHost = equals('host');
+
+interface GetStatusNameByStatusSeverityandResourceTypeProps {
+  resourceType: string;
+  status: SeverityStatus;
+}
+
+export const getStatusNameByStatusSeverityandResourceType = ({
+  resourceType,
+  status
+}: GetStatusNameByStatusSeverityandResourceTypeProps): string =>
+  cond([
+    [
+      equals(SeverityStatus.Success),
+      always(isTypeHost(resourceType) ? 'up' : 'ok')
+    ],
+    [equals(SeverityStatus.Warning), always('warning')],
+    [
+      equals(SeverityStatus.Problem),
+      always(isTypeHost(resourceType) ? 'down' : 'critical')
+    ],
+    [
+      equals(SeverityStatus.Undefined),
+      always(isTypeHost(resourceType) ? 'unreachable' : 'unknown')
+    ],
+    [equals(SeverityStatus.Pending), always('pending')]
+  ])(status);
+
+export const severityCodeBySeverityStatus = {
+  [SeverityStatus.Problem]: SeverityCode.High,
+  [SeverityStatus.Warning]: SeverityCode.Medium,
+  [SeverityStatus.Success]: SeverityCode.OK,
+  [SeverityStatus.Undefined]: SeverityCode.None,
+  [SeverityStatus.Pending]: SeverityCode.Pending
+};
+
+export const severityStatusBySeverityCode = {
+  [SeverityCode.High]: SeverityStatus.Problem,
+  [SeverityCode.Medium]: SeverityStatus.Warning,
+  [SeverityCode.OK]: SeverityStatus.Success,
+  [SeverityCode.None]: SeverityStatus.Undefined,
+  [SeverityCode.Pending]: SeverityStatus.Pending
+};
+
+interface GetPublicWidgetEndpointProps {
+  dashboardId: number | string;
+  extraQueryParameters?: string;
+  playlistHash?: string;
+  widgetId: string;
+}
+
+export const getPublicWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  extraQueryParameters = ''
+}: GetPublicWidgetEndpointProps): string =>
+  `/it-edition-extensions/monitoring/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
+
+export const getWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  isOnPublicPage,
+  defaultEndpoint,
+  extraQueryParameters
+}: Omit<GetPublicWidgetEndpointProps, 'extraQueryParameters'> & {
+  defaultEndpoint: string;
+  extraQueryParameters?: Record<string, string | number | object>;
+  isOnPublicPage: boolean;
+}): string => {
+  if (isOnPublicPage && playlistHash) {
+    const extraqueryParametersStringified = extraQueryParameters
+      ? toPairs(extraQueryParameters).reduce(
+          (acc, [key, value]) =>
+            `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
+          '?'
+        )
+      : '';
+
+    return getPublicWidgetEndpoint({
+      dashboardId,
+      extraQueryParameters: extraqueryParametersStringified,
+      playlistHash,
+      widgetId
+    });
+  }
+
+  return defaultEndpoint;
+};
+
+export const getBAStatusBySeverityCode = {
+  [SeverityCode.High]: 'critical',
+  [SeverityCode.Medium]: 'warning',
+  [SeverityCode.OK]: 'ok',
+  [SeverityCode.None]: 'unknown',
+  [SeverityCode.Pending]: 'pending'
+};
+
+export const getBAsURL = (severityCode: number): string => {
+  const status = getBAStatusBySeverityCode[severityCode];
+
+  return `/main.php?p=20701&status=${status}`;
+};
+
+export const indicatorsURL = '/main.php?p=62606';
+
+const resourceTypesCustomParameters = [
+  'host-group',
+  'host-category',
+  'service-group',
+  'service-category'
+];
+const resourcesSearchMapping = {
+  host: 'parent_name',
+  'meta-service': 'name',
+  service: 'name'
+};
+const resourceTypesSearchParameters = ['host', 'service', 'meta-service'];
+const categories = ['host-category', 'service-category'];
+
+export const getResourcesSearchQueryParameters = (
+  resources: Array<Resource> = []
+): {
+  resourcesCustomParameters: Array<{
+    name: string;
+    value: Array<string>;
+  }>;
+  resourcesSearchConditions: Array<{
+    field;
+    values: {
+      [operator: string]: string;
+    };
+  }>;
+} => {
+  const resourcesToApplyToCustomParameters = resources.filter(
+    ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
+  );
+  const resourcesToApplyToSearchParameters = resources.filter(
+    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+  );
+
+  const resourcesSearchConditions = resourcesToApplyToSearchParameters.map(
+    ({ resourceType, resources: resourcesToApply }) => {
+      return resourcesToApply.map((resource) => ({
+        field: resourcesSearchMapping[resourceType],
+        values: {
+          $rg: `^${resource.name}$`
+        }
+      }));
+    }
+  );
+
+  const resourcesCustomParameters = resourcesToApplyToCustomParameters.map(
+    ({ resourceType, resources: resourcesToApply }) => ({
+      name: includes(resourceType, categories)
+        ? `${resourceType.replace('-', '_')}_names`
+        : `${resourceType.replace('-', '')}_names`,
+      value: pluck('name', resourcesToApply)
+    })
+  );
+
+  return {
+    resourcesCustomParameters,
+    resourcesSearchConditions: flatten(resourcesSearchConditions)
+  };
 };

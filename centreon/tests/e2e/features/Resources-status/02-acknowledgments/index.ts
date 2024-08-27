@@ -42,16 +42,15 @@ beforeEach(() => {
   cy.intercept('/centreon/api/latest/monitoring/resources*').as(
     'monitoringEndpoint'
   );
-});
 
-Given('the user has the necessary rights to page Resource Status', () => {
-  cy.startWebContainer();
-
+  cy.startContainers();
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
   });
+});
 
+Given('the user has the necessary rights to page Resource Status', () => {
   cy.get(searchInput).should('exist');
 });
 
@@ -116,7 +115,7 @@ When(
 );
 
 When('the user applies the acknowledgement', () => {
-  cy.get('button').contains('Acknowledge').click();
+  cy.get('button[data-testid="Confirm"]').contains('Acknowledge').click();
 });
 
 Then(
@@ -177,12 +176,6 @@ Then(
       .trigger('mouseover');
 
     cy.get('div[role="tooltip"]').should('be.visible');
-
-    cy.logout();
-
-    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
-
-    cy.stopWebContainer();
   }
 );
 
@@ -277,8 +270,6 @@ Then(
       .trigger('mouseover');
 
     cy.get('div[role="tooltip"]').should('be.visible');
-
-    cy.stopWebContainer();
   }
 );
 
@@ -452,8 +443,6 @@ When(
 
 Then('no notification are sent to the users', () => {
   checkIfNotificationsAreNotBeingSent();
-
-  cy.stopWebContainer();
 });
 
 Given(
@@ -467,7 +456,7 @@ Given(
 
     cy.getByLabel({ label: 'Acknowledge' }).last().click();
 
-    cy.get('button').contains('Acknowledge').click();
+    cy.getByTestId({tag:'button', testId:'Confirm'}).contains('Acknowledge').click();
 
     cy.wait('@postAcknowledgments').then(() => {
       cy.contains('Acknowledge command sent').should('have.length', 1);
@@ -538,7 +527,10 @@ Given(
 );
 
 Then('the acknowledgement is removed', () => {
+  cy.refreshListing();
+
   typeToSearchInput('type:host h.name:test_host');
+
   cy.waitUntil(
     () => {
       return cy
@@ -558,6 +550,8 @@ Then('the acknowledgement is removed', () => {
 Then(
   'the resource is not marked as acknowledged after listing is refreshed with the criteria "state: acknowledged"',
   () => {
+    cy.refreshListing();
+
     typeToSearchInput('state:acknowledged');
 
     cy.wait('@monitoringEndpoint');
@@ -566,6 +560,6 @@ Then(
   }
 );
 
-after(() => {
-  cy.stopWebContainer();
+afterEach(() => {
+  cy.stopContainers();
 });

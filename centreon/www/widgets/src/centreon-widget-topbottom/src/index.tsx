@@ -1,15 +1,11 @@
-import { createStore } from 'jotai';
-
 import { Module } from '@centreon/ui';
 
-import { Data, FormThreshold, GlobalRefreshInterval } from '../../models';
+import { CommonWidgetProps, Data, FormThreshold } from '../../models';
 
-import { ValueFormat, TopBottomSettings } from './models';
 import TopBottom from './TopBottom';
+import { TopBottomSettings, ValueFormat } from './models';
 
-interface Props {
-  globalRefreshInterval: GlobalRefreshInterval;
-  isFromPreview?: boolean;
+interface Props extends CommonWidgetProps<object> {
   panelData: Data;
   panelOptions: {
     refreshInterval: 'default' | 'custom';
@@ -18,32 +14,46 @@ interface Props {
     topBottomSettings: TopBottomSettings;
     valueFormat: ValueFormat;
   };
-  refreshCount: number;
-  store: ReturnType<typeof createStore>;
 }
 
-const Widget = ({
-  store,
+export const TopBottomWrapper = ({
+  dashboardId,
   globalRefreshInterval,
+  id,
+  isFromPreview,
   panelData,
   panelOptions,
+  playlistHash,
   refreshCount,
-  isFromPreview
-}: Props): JSX.Element => {
+  widgetPrefixQuery
+}: Omit<Props, 'store' | 'queryClient'>): JSX.Element => (
+  <TopBottom
+    dashboardId={dashboardId}
+    globalRefreshInterval={globalRefreshInterval}
+    id={id}
+    isFromPreview={isFromPreview}
+    metrics={panelData.metrics}
+    playlistHash={playlistHash}
+    refreshCount={refreshCount}
+    refreshInterval={panelOptions.refreshInterval}
+    refreshIntervalCustom={panelOptions.refreshIntervalCustom}
+    resources={panelData.resources}
+    threshold={panelOptions.threshold}
+    topBottomSettings={panelOptions.topBottomSettings}
+    valueFormat={panelOptions.valueFormat}
+    widgetPrefixQuery={widgetPrefixQuery}
+  />
+);
+
+const Widget = ({ store, queryClient, ...props }: Props): JSX.Element => {
   return (
-    <Module maxSnackbars={1} seedName="topbottom" store={store}>
-      <TopBottom
-        globalRefreshInterval={globalRefreshInterval}
-        isFromPreview={isFromPreview}
-        metrics={panelData.metrics}
-        refreshCount={refreshCount}
-        refreshInterval={panelOptions.refreshInterval}
-        refreshIntervalCustom={panelOptions.refreshIntervalCustom}
-        resources={panelData.resources}
-        threshold={panelOptions.threshold}
-        topBottomSettings={panelOptions.topBottomSettings}
-        valueFormat={panelOptions.valueFormat}
-      />
+    <Module
+      maxSnackbars={1}
+      queryClient={queryClient}
+      seedName="topbottom"
+      store={store}
+    >
+      <TopBottomWrapper {...props} />
     </Module>
   );
 };

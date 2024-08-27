@@ -3,8 +3,11 @@ ARG VERSION
 FROM almalinux:8
 
 ARG VERSION
+ARG RELEASE_CLOUD
 
-RUN bash -e <<EOF
+RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
+    --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
+    bash -e <<EOF
 
 ######################################
 # install and configure repositories #
@@ -16,7 +19,12 @@ dnf config-manager --set-enabled powertools
 
 dnf install -y epel-release
 
-dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
+if [[ ${RELEASE_CLOUD} -eq 1 ]]; then
+  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/24.07/el8/centreon-24.07-internal.repo
+  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-24.07-internal.repo
+else
+  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
+fi
 dnf config-manager --set-enabled 'centreon*'
 
 #############################
@@ -52,7 +60,7 @@ dnf install -y \
 #############################
 
 dnf install -y \
-  perl \
+  perl-interpreter \
   perl-DBD-MySQL \
   perl-DBD-SQLite \
   perl-DBI \

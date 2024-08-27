@@ -45,7 +45,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
             $this->present([
                 'id' => $data->id,
                 'name' => $data->name,
-                'description' => $this->emptyStringAsNull($data->description),
+                'description' => $data->description,
                 'created_by' => $this->userToOptionalArray($data->createdBy),
                 'updated_by' => $this->userToOptionalArray($data->updatedBy),
                 'created_at' => $this->formatDateToIso8601($data->createdAt),

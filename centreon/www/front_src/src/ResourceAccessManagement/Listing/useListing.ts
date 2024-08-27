@@ -1,19 +1,23 @@
 import { useEffect, useState } from 'react';
 
-import { prop } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, prop } from 'ramda';
 
-import { useFetchQuery } from '@centreon/ui';
+import { Column, useFetchQuery } from '@centreon/ui';
 
+import { resourceAccessRuleDecoder } from '../AddEditResourceAccessRule/api/decoders';
+import { resourceAccessRuleEndpoint } from '../AddEditResourceAccessRule/api/endpoints';
 import {
+  editedResourceAccessRuleIdAtom,
+  modalStateAtom,
   resourceAccessManagementSearchAtom,
-  selectedRowsAtom,
-  resourceAccessRulesNamesAtom
+  resourceAccessRulesNamesAtom,
+  selectedRowsAtom
 } from '../atom';
 import {
-  Listing,
-  ResourceAccessRuleType,
-  ResourceAccessRuleListingType
+  ModalMode,
+  ResourceAccessRuleListingType,
+  ResourceAccessRuleType
 } from '../models';
 import type { SortOrder } from '../models';
 
@@ -21,7 +25,35 @@ import { listingDecoder } from './api/decoders';
 import { buildResourceAccessRulesEndpoint } from './api/endpoints';
 import useListingColumns from './columns';
 
-const useListing = (): Listing => {
+type UseListingState = {
+  changePage: (page: number) => void;
+  changeSort: ({
+    sortField,
+    sortOrder
+  }: {
+    sortField: string;
+    sortOrder: SortOrder;
+  }) => void;
+  columns: Array<Column>;
+  data?: ResourceAccessRuleListingType;
+  loading: boolean;
+  onRowClick: (row: ResourceAccessRuleType) => void;
+  page: number | undefined;
+  predefinedRowsSelection: Array<{
+    label: string;
+    rowCondition: (row: ResourceAccessRuleType) => boolean;
+  }>;
+  resetColumns: () => void;
+  selectedColumnIds: Array<string>;
+  selectedRows: Array<ResourceAccessRuleType>;
+  setLimit: (limit: number | undefined) => void;
+  setSelectedColumnIds: (selectedColumnIds: Array<string>) => void;
+  setSelectedRows: (selectedRows: Array<ResourceAccessRuleType>) => void;
+  sortF: string;
+  sortO: SortOrder;
+};
+
+const useListing = (): UseListingState => {
   const columns = useListingColumns();
   const [selectedColumnIds, setSelectedColumnIds] = useState(
     columns.map(prop('id'))
@@ -35,8 +67,11 @@ const useListing = (): Listing => {
   const [sortF, setSortF] = useState<string>('name');
   const [sortO, setSortO] = useState<SortOrder>('asc');
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
+  const [editRuleId, setEditedRuleId] = useAtom(editedResourceAccessRuleIdAtom);
   const searchValue = useAtomValue(resourceAccessManagementSearchAtom);
+  const modalState = useAtomValue(modalStateAtom);
   const setResourceAccessRulesNames = useSetAtom(resourceAccessRulesNamesAtom);
+  const setModalState = useSetAtom(modalStateAtom);
 
   const sort = { [sortF]: sortO };
   const search = {
@@ -114,12 +149,29 @@ const useListing = (): Listing => {
     }
   ];
 
+  const { fetchQuery } = useFetchQuery({
+    decoder: resourceAccessRuleDecoder,
+    getEndpoint: () => resourceAccessRuleEndpoint({ id: editRuleId }),
+    getQueryKey: () => ['resource-access-rule', editRuleId],
+    queryOptions: {
+      enabled: equals(modalState.mode, ModalMode.Edit),
+      suspense: false
+    }
+  });
+
+  const onRowClick = (row: ResourceAccessRuleType): void => {
+    setEditedRuleId(row.id);
+    setModalState({ isOpen: true, mode: ModalMode.Edit });
+    fetchQuery();
+  };
+
   return {
     changePage,
     changeSort,
     columns,
     data,
     loading,
+    onRowClick,
     page,
     predefinedRowsSelection,
     resetColumns,

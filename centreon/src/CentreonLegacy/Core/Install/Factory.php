@@ -35,7 +35,7 @@ class Factory
     }
 
     /**
-     * @return \CentreonLegacy\Core\Install\Information
+     * @return Information
      */
     public function newInformation()
     {

@@ -25,7 +25,7 @@
           }
     ],
     "checked":true,
-    "command_line":"base_host_alive",
+    "command_line":"base_host_alive --test 2 -n 1 -w 3000,80 -c 5000,100 -t host --test2=\"ok\"",
     "downtimes":[
        {
           "author_name":"admin",

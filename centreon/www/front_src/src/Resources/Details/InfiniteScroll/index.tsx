@@ -1,21 +1,22 @@
 import { RefObject, useEffect, useRef, useState } from 'react';
 
+import { useAtomValue } from 'jotai';
 import {
-  always,
-  isNil,
-  isEmpty,
-  cond,
   T,
+  always,
   concat,
-  gt,
+  cond,
   equals,
-  not,
-  length
+  gt,
+  isEmpty,
+  isNil,
+  length,
+  not
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   CircularProgress,
   Fab,
@@ -23,14 +24,13 @@ import {
   LinearProgress,
   Tooltip
 } from '@mui/material';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import { useIntersectionObserver } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
 
-import NoResultsMessage from '../NoResultsMessage';
 import memoizeComponent from '../../memoizedComponent';
 import { labelScrollToTop } from '../../translatedLabels';
+import NoResultsMessage from '../NoResultsMessage';
 import { selectedResourcesDetailsAtom } from '../detailsAtoms';
 import { ResourceDetails } from '../models';
 
@@ -246,10 +246,7 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
             {cond([
               [always(isNil(entities)), always(loadingSkeleton)],
               [isEmpty, always(<NoResultsMessage />)],
-              [
-                T,
-                always(<>{children({ entities, infiniteScrollTriggerRef })}</>)
-              ]
+              [T, always(children({ entities, infiniteScrollTriggerRef }))]
             ])(entities)}
           </div>
           <div className={classes.fab}>

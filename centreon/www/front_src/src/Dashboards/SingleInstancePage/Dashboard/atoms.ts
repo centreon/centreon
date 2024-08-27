@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import {
   collectBy,
   equals,
@@ -15,13 +16,12 @@ import {
   reject,
   set
 } from 'ramda';
-import { atomWithStorage } from 'jotai/utils';
 
-import { getColumnsFromScreenSize } from '@centreon/ui';
+import { SelectEntry, getColumnsFromScreenSize } from '@centreon/ui';
 
 import {
-  Panel,
   Dashboard,
+  Panel,
   PanelConfiguration,
   QuitWithoutSavedDashboard,
   WidgetOptions
@@ -34,6 +34,8 @@ export const dashboardAtom = atom<Dashboard>({
 });
 
 export const isEditingAtom = atom(false);
+export const widgetToDeleteAtom = atom<Partial<SelectEntry> | null>(null);
+export const isRedirectionBlockedAtom = atom(false);
 
 export const hasEditPermissionAtom = atom(false);
 export const dashboardRefreshIntervalAtom = atom<
@@ -47,7 +49,7 @@ export const dashboardRefreshIntervalAtom = atom<
 export const setLayoutModeDerivedAtom = atom(
   null,
   (get, setAtom, isEditing: boolean) => {
-    setAtom(isEditingAtom, isEditing);
+    setAtom(isEditingAtom, () => isEditing);
 
     const dashboard = get(dashboardAtom);
 
@@ -84,6 +86,9 @@ const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
 
 export const panelsLengthAtom = atom(0);
 
+const strictMinWidgetSize = 2;
+const preferredWidgetSize = 3;
+
 export const addPanelDerivedAtom = atom(
   null,
   (
@@ -111,21 +116,23 @@ export const addPanelDerivedAtom = atom(
       )}_${increasedPanelsLength}`;
 
     const columnsFromScreenSize = getColumnsFromScreenSize();
-    const maxColumns = equals(columnsFromScreenSize, 1)
-      ? 3
+    const maxPanelWidth = equals(columnsFromScreenSize, 1)
+      ? preferredWidgetSize
       : columnsFromScreenSize;
 
-    const panelWidth = width || panelConfiguration?.panelMinWidth || maxColumns;
+    const panelWidth =
+      width || panelConfiguration?.panelMinWidth || maxPanelWidth;
 
     const widgetHeight =
-      height || Math.max(panelConfiguration?.panelMinHeight || 1, 3);
+      height ||
+      Math.max(panelConfiguration?.panelMinHeight || 1, preferredWidgetSize);
 
     const basePanelLayout = {
       data,
       h: widgetHeight,
       i: id,
-      minH: panelConfiguration?.panelMinHeight || 3,
-      minW: panelConfiguration?.panelMinWidth || 3,
+      minH: panelConfiguration?.panelMinHeight || strictMinWidgetSize,
+      minW: panelConfiguration?.panelMinWidth || strictMinWidgetSize,
       name: moduleName,
       options,
       panelConfiguration,
@@ -142,7 +149,7 @@ export const addPanelDerivedAtom = atom(
           panels
         );
 
-        return lte(widthsCumulated + panelWidth, maxColumns);
+        return lte(widthsCumulated + panelWidth, maxPanelWidth);
       }
     );
 
@@ -274,7 +281,7 @@ export const duplicatePanelDerivedAtom = atom(
 export const switchPanelsEditionModeDerivedAtom = atom(
   null,
   (_, setAtom, isEditing: boolean) => {
-    setAtom(isEditingAtom, isEditing);
+    setAtom(isEditingAtom, () => isEditing);
     setAtom(dashboardAtom, (currentDashboard): Dashboard => {
       const newLayout = map<Panel, Panel>(
         set(lensProp('static'), !isEditing),

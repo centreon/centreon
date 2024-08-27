@@ -41,7 +41,6 @@ use Security\Encryption;
 
 beforeEach(function () {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
-    $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
@@ -55,55 +54,20 @@ it('should present Forbidden Response when user is not admin', function () {
     $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new FindVaultConfiguration(
         $this->readVaultConfigurationRepository,
-        $this->readVaultRepository,
         $this->user
     );
 
-    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
-
-    $useCase($presenter, $findVaultConfigurationRequest);
+    $useCase($presenter);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
-});
-
-it('should present NotFound Response when vault provider does not exist', function () {
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-
-    $this->readVaultRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(false);
-
-    $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
-    $useCase = new FindVaultConfiguration(
-        $this->readVaultConfigurationRepository,
-        $this->readVaultRepository,
-        $this->user
-    );
-
-    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
-
-    $useCase($presenter, $findVaultConfigurationRequest);
-
-    expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        (new NotFoundResponse('Vault provider'))->getMessage()
-    );
+    expect($presenter->getResponseStatus()?->getMessage())
+        ->toBe(VaultConfigurationException::onlyForAdmin()->getMessage());
 });
 
 it('should present NotFound Response when vault configuration does not exist for a given id', function () {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
-        ->willReturn(true);
-
-    $this->readVaultRepository
-        ->expects($this->once())
-        ->method('exists')
         ->willReturn(true);
 
     $this->readVaultConfigurationRepository
@@ -114,13 +78,10 @@ it('should present NotFound Response when vault configuration does not exist for
     $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new FindVaultConfiguration(
         $this->readVaultConfigurationRepository,
-        $this->readVaultRepository,
         $this->user
     );
 
-    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
-
-    $useCase($presenter, $findVaultConfigurationRequest);
+    $useCase($presenter);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
@@ -134,7 +95,7 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
         ->method('isAdmin')
         ->willReturn(true);
 
-    $this->readVaultRepository
+    $this->readVaultConfigurationRepository
         ->expects($this->once())
         ->method('exists')
         ->willThrowException(new \Exception());
@@ -142,13 +103,10 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
     $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new FindVaultConfiguration(
         $this->readVaultConfigurationRepository,
-        $this->readVaultRepository,
         $this->user
     );
 
-    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
-
-    $useCase($presenter, $findVaultConfigurationRequest);
+    $useCase($presenter);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
@@ -162,16 +120,12 @@ it('should present FindVaultConfigurationResponse', function () {
         ->method('isAdmin')
         ->willReturn(true);
 
-    $vault = new Vault(1, 'myVaultProvider');
-
     $encryption = new Encryption();
     $encryption->setFirstKey("myFirstKey");
 
     $vaultConfiguration = new VaultConfiguration(
         $encryption,
-        1,
         'myVaultConfiguration',
-        $vault,
         '127.0.0.1',
         8200,
         'myStorageFolder',
@@ -180,45 +134,31 @@ it('should present FindVaultConfigurationResponse', function () {
         'myEncryptedSecretId'
     );
 
-    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
-    $findVaultConfigurationRequest->vaultConfigurationId = $vaultConfiguration->getId();
-    $findVaultConfigurationRequest->vaultId = $vaultConfiguration->getVault()->getId();
 
-    $this->readVaultRepository
+    $this->readVaultConfigurationRepository
         ->expects($this->once())
         ->method('exists')
         ->willReturn(true);
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('exists')
-        ->with($findVaultConfigurationRequest->vaultConfigurationId)
-        ->willReturn(true);
-
-    $this->readVaultConfigurationRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->with($findVaultConfigurationRequest->vaultConfigurationId)
+        ->method('find')
         ->willReturn($vaultConfiguration);
 
     $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new FindVaultConfiguration(
         $this->readVaultConfigurationRepository,
-        $this->readVaultRepository,
         $this->user
     );
 
     $findVaultConfigurationResponse = new FindVaultConfigurationResponse();
     $findVaultConfigurationResponse->vaultConfiguration = [
-        'id' => $vaultConfiguration->getId(),
-        'name' => $vaultConfiguration->getName(),
-        'vault_id' => $vaultConfiguration->getVault()->getId(),
         'url' => $vaultConfiguration->getAddress(),
         'port' => $vaultConfiguration->getPort(),
         'root_path' => $vaultConfiguration->getRootPath()
     ];
 
-    $useCase($presenter, $findVaultConfigurationRequest);
+    $useCase($presenter);
 
     expect($presenter->response)->toBeInstanceOf(FindVaultConfigurationResponse::class);
     expect($presenter->response->vaultConfiguration)->toBe($findVaultConfigurationResponse->vaultConfiguration);

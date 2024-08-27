@@ -36,7 +36,7 @@ class ExportService
      */
     private $pathExportedData;
 
-    /** @var \CentreonRemote\Infrastructure\Service\ExporterService */
+    /** @var ExporterService */
     private $exporter;
 
     /** @var \CentreonClapi\CentreonACL */
@@ -51,7 +51,7 @@ class ExportService
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {
@@ -73,7 +73,7 @@ class ExportService
     /**
      * Export all that is registered in exporter.
      *
-     * @param \CentreonRemote\Infrastructure\Export\ExportCommitment $commitment
+     * @param ExportCommitment $commitment
      *
      * @throws \Exception
      *
@@ -102,7 +102,7 @@ class ExportService
     /**
      * Import.
      *
-     * @param \CentreonRemote\Infrastructure\Export\ExportCommitment $commitment
+     * @param ExportCommitment $commitment
      *
      * @throws \Exception
      */

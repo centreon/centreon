@@ -7,8 +7,6 @@ import {
   groupBy,
   identity,
   includes,
-  map,
-  pipe,
   uniq
 } from 'ramda';
 
@@ -32,7 +30,7 @@ export const getDetailsPanelQueriers = (data): object => {
   const resourcesDetailsEndpoint = `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
 
   const queryParameters = {
-    id: parseInt(serviceId, 10),
+    id: Number.parseInt(serviceId, 10),
     resourcesDetailsEndpoint,
     selectedTimePeriodId: 'last_24_h',
     tab: 'graph',
@@ -49,7 +47,8 @@ const resourcesCriteriasMapping = {
   [WidgetResourceType.hostGroup]: 'host_groups',
   [WidgetResourceType.service]: 'name',
   [WidgetResourceType.serviceCategory]: 'service_categories',
-  [WidgetResourceType.serviceGroup]: 'service_groups'
+  [WidgetResourceType.serviceGroup]: 'service_groups',
+  [WidgetResourceType.metaService]: 'name'
 };
 
 export const getResourcesUrlForMetricsWidgets = ({
@@ -58,9 +57,11 @@ export const getResourcesUrlForMetricsWidgets = ({
 }): string => {
   const filters = data?.resources.map(({ resourceType, resources }) => {
     if (
-      [WidgetResourceType.host, WidgetResourceType.service].includes(
-        resourceType
-      )
+      [
+        WidgetResourceType.host,
+        WidgetResourceType.service,
+        WidgetResourceType.metaService
+      ].includes(resourceType)
     ) {
       return {
         name: resourcesCriteriasMapping[resourceType],
@@ -92,12 +93,13 @@ export const getResourcesUrlForMetricsWidgets = ({
   const filterQueryParameter = {
     criterias: [serviceCriteria, ...filters, { name: 'search', value: '' }]
   };
+
   const encodedFilterParams = encodeURIComponent(
     JSON.stringify(filterQueryParameter)
   );
 
   if (!equals(widgetName, 'centreon-widget-singlemetric')) {
-    return `/monitoring/resources?&filter=${encodedFilterParams}&fromTopCounter=true`;
+    return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
   const detailsPanelQueriers = getDetailsPanelQueriers(data);
@@ -108,44 +110,44 @@ export const getResourcesUrlForMetricsWidgets = ({
   return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
+const formatStatusFilter = cond([
+  [equals('success'), always(['ok', 'up'])],
+  [equals('warning'), always(['warning'])],
+  [equals('problem'), always(['down', 'critical'])],
+  [equals('undefined'), always(['unreachable', 'unknown'])],
+  [equals('pending'), always(['pending'])],
+  [equals('5'), always(['ok', 'up'])],
+  [equals('2'), always(['warning'])],
+  [equals('1'), always(['down', 'critical'])],
+  [equals('6'), always(['unreachable', 'unknown'])],
+  [equals('4'), always(['pending'])],
+
+  [T, identity]
+]) as (b: string) => Array<string>;
+
 export const getUrlForResourcesOnlyWidgets = ({
   type,
   statuses,
   states,
   resources
 }): string => {
-  const resourcesCriterias = equals(type, 'all')
-    ? {
-        name: 'resource_types',
-        value: [
-          { id: 'service', name: 'Service' },
-          { id: 'host', name: 'Host' }
-        ]
-      }
-    : {
-        name: 'resource_types',
-        value: [
-          { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
-        ]
-      };
-
-  const formatStatusFilter = cond([
-    [equals('success'), always(['ok', 'up'])],
-    [equals('problem'), always(['down', 'critical'])],
-    [equals('undefined'), always(['unreachable', 'unknown'])],
-    [T, identity]
-  ]);
-
-  const formattedStatuses = pipe(
-    map((status) => formatStatusFilter(status)),
-    flatten,
-    map((status: string) => {
-      return {
-        id: status.toLocaleUpperCase(),
-        name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
-      };
+  const typeCriterias = ['host', 'service']
+    .filter((resourceType) => {
+      return type?.includes(resourceType);
     })
-  )(statuses);
+    .map((resourceType) => ({
+      id: resourceType,
+      name: `${resourceType.charAt(0).toUpperCase()}${resourceType.substring(1)}`
+    }));
+
+  const mappedStatuses = flatten(statuses?.map(formatStatusFilter) || []);
+
+  const formattedStatuses = mappedStatuses?.map((status) => {
+    return {
+      id: status.toLocaleUpperCase(),
+      name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
+    };
+  });
 
   const formattedStates = states?.map((state) => {
     return {
@@ -164,6 +166,7 @@ export const getUrlForResourcesOnlyWidgets = ({
       const name = cond<Array<string>, string>([
         [equals('host'), always('parent_name')],
         [equals('service'), always('name')],
+        [equals('meta-service'), always('name')],
         [T, identity]
       ])(resourceType);
 
@@ -182,10 +185,12 @@ export const getUrlForResourcesOnlyWidgets = ({
       };
     }
   );
-
   const filterQueryParameter = {
     criterias: [
-      resourcesCriterias,
+      {
+        name: 'resource_types',
+        value: typeCriterias
+      },
       { name: 'statuses', value: formattedStatuses },
       { name: 'states', value: formattedStates },
       ...resourcesFilters,
@@ -193,15 +198,7 @@ export const getUrlForResourcesOnlyWidgets = ({
     ]
   };
 
-  return `/monitoring/resources?filter=${JSON.stringify(
-    filterQueryParameter
+  return `/monitoring/resources?filter=${encodeURIComponent(
+    JSON.stringify(filterQueryParameter)
   )}&fromTopCounter=true`;
 };
-
-export const resourceBasedWidgets = [
-  'centreon-widget-singlemetric',
-  'centreon-widget-statusgrid',
-  'centreon-widget-topbottom',
-  'centreon-widget-graph',
-  'centreon-widget-resourcestable'
-];

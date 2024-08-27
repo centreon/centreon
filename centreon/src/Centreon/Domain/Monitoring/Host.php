@@ -1099,7 +1099,7 @@ class Host implements EntityDescriptorMetadataInterface
     /**
      * @param Service $service
      */
-    public function addService(Service $service)
+    public function addService(Service $service): void
     {
         $this->services[] = $service;
     }

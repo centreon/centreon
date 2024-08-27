@@ -1,17 +1,20 @@
-import { createStore } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
-import { Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { Data, FormThreshold } from '../../models';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
+import { getPublicWidgetEndpoint } from '../../utils';
 
 import { metricsTopEndpoint } from './api/endpoint';
 import { TopBottomSettings } from './models';
 
-import Widget from '.';
+import Widget, { TopBottomWrapper } from '.';
 
 interface Props {
+  isPublic?: boolean;
   topBottomSettings?: TopBottomSettings;
 }
 
@@ -25,7 +28,7 @@ const data: Data = {
   metrics: [
     {
       id: 2,
-      name: 'rta',
+      name: 'C:#storage',
       unit: 'B'
     }
   ],
@@ -63,9 +66,11 @@ const linkToResourcePing1 =
   '/monitoring/resources?details=%7B%22id%22%3A%221%22%2C%22resourcesDetailsEndpoint%22%3A%22%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fhosts%2F1%2Fservices%2F1%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22details%22%2C%22tabParameters%22%3A%7B%7D%2C%22uuid%22%3A%22h1-s1%22%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbPing_1%5C%5Cb%22%2C%22name%22%3A%22Ping_1%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbCentreon_server%5C%5Cb%22%2C%22name%22%3A%22Centreon_server%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true';
 
 const initializeComponent = ({
-  topBottomSettings = defaultSettings
+  topBottomSettings = defaultSettings,
+  isPublic = false
 }: Props): void => {
   const store = createStore();
+  store.set(isOnPublicPageAtom, isPublic);
 
   cy.viewport('macbook-13');
 
@@ -76,29 +81,46 @@ const initializeComponent = ({
       path: `${metricsTopEndpoint}**`,
       response: topBottom
     });
+
+    cy.interceptAPIRequest({
+      alias: 'getPublicWidget',
+      method: Method.GET,
+      path: `./api/latest${getPublicWidgetEndpoint({
+        dashboardId: 1,
+        playlistHash: 'hash',
+        widgetId: '1'
+      })}`,
+      response: data
+    });
   });
 
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
-        <BrowserRouter>
-          <Widget
-            globalRefreshInterval={{
-              interval: 30,
-              type: 'global'
-            }}
-            panelData={data}
-            panelOptions={{
-              refreshInterval: 'custom',
-              refreshIntervalCustom: 30,
-              threshold: defaultThreshold,
-              topBottomSettings,
-              valueFormat: 'human'
-            }}
-            refreshCount={0}
-            store={store}
-          />
-        </BrowserRouter>
+        <TestQueryProvider>
+          <Provider store={store}>
+            <BrowserRouter>
+              <TopBottomWrapper
+                dashboardId={1}
+                globalRefreshInterval={{
+                  interval: 30,
+                  type: 'global'
+                }}
+                id="1"
+                panelData={data}
+                panelOptions={{
+                  refreshInterval: 'custom',
+                  refreshIntervalCustom: 30,
+                  threshold: defaultThreshold,
+                  topBottomSettings,
+                  valueFormat: 'human'
+                }}
+                playlistHash="hash"
+                refreshCount={0}
+              />
+            </BrowserRouter>
+          </Provider>
+        </TestQueryProvider>
       </div>
     )
   });
@@ -135,6 +157,14 @@ const initializeEmptyComponent = (): void => {
   });
 };
 
+describe('Public widget', () => {
+  it('sends a request to the public API when the widget is displayed in a public page', () => {
+    initializeComponent({ isPublic: true });
+
+    cy.waitForRequest('@getPublicWidget');
+  });
+});
+
 describe('TopBottom', () => {
   it('displays a message when the dataset is empty', () => {
     initializeEmptyComponent();
@@ -148,7 +178,7 @@ describe('TopBottom', () => {
 
     cy.waitForRequest('@getTop').then(({ request }) => {
       expect(request.url.search).to.equal(
-        '?limit=10&sort_by=%7B%22current_value%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%2C%7B%22host.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D&metric_name=rta'
+        '?limit=10&sort_by=%7B%22current_value%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%2C%7B%22host.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D&metric_name=C%3A%23storage'
       );
     });
 
@@ -176,7 +206,7 @@ describe('TopBottom', () => {
 
     cy.waitForRequest('@getTop').then(({ request }) => {
       expect(request.url.search).to.equal(
-        '?limit=5&sort_by=%7B%22current_value%22%3A%22DESC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%2C%7B%22host.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D&metric_name=rta'
+        '?limit=5&sort_by=%7B%22current_value%22%3A%22DESC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%2C%7B%22host.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D&metric_name=C%3A%23storage'
       );
     });
   });

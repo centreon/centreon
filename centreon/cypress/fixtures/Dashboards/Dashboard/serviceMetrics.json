@@ -1,58 +1,67 @@
 {
   "result": [
-      {
-        "id": 1,
-        "name": "Ping",
-        "parent_name": "Centreon-1",
-        "uuid": "h1-s1",
-        "metrics": [
-            {
-              "id": 1,
-              "name": "rtmax",
-              "unit": "ms",
-              "warning_high_threshold": null,
-              "critical_high_threshold": 1000,
-              "warning_low_threshold": null,
-              "critical_low_threshold": null
-            },
-            {
-              "id": 2,
-              "name": "pl",
-              "unit": "%",
-              "warning_high_threshold": null,
-              "critical_high_threshold": 1000,
-              "warning_low_threshold": null,
-              "critical_low_threshold": null
-            }
-        ]
-      },
-      {
-        "id": 2,
-        "name": "Ping",
-        "parent_name": "Centreon-2",
-        "uuid": "h1-s2",
-        "metrics": [
-            {
-              "id": 3,
-              "name": "rtmax",
-              "unit": "ms",
-              "warning_high_threshold": null,
-              "critical_high_threshold": 1000,
-              "warning_low_threshold": null,
-              "critical_low_threshold": null
-            },
-            {
-              "id": 4,
-              "name": "pl",
-              "unit": "%",
-              "warning_high_threshold": null,
-              "critical_high_threshold": 1000,
-              "warning_low_threshold": null,
-              "critical_low_threshold": null
-            }
-        ]
-      }
-    ],
+    {
+      "id": 1,
+      "name": "Ping",
+      "parent_name": "Centreon-1",
+      "uuid": "h1-s1",
+      "metrics": [
+        {
+          "id": 1,
+          "name": "rtmax",
+          "unit": "ms",
+          "warning_high_threshold": null,
+          "critical_high_threshold": 1000,
+          "warning_low_threshold": null,
+          "critical_low_threshold": null
+        },
+        {
+          "id": 2,
+          "name": "pl",
+          "unit": "%",
+          "warning_high_threshold": null,
+          "critical_high_threshold": 1000,
+          "warning_low_threshold": null,
+          "critical_low_threshold": null
+        },
+        {
+          "id": 5,
+          "name": "rtmin",
+          "unit": "B",
+          "warning_high_threshold": null,
+          "critical_high_threshold": 1000,
+          "warning_low_threshold": null,
+          "critical_low_threshold": null
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Ping",
+      "parent_name": "Centreon-2",
+      "uuid": "h1-s2",
+      "metrics": [
+        {
+          "id": 3,
+          "name": "rtmax",
+          "unit": "ms",
+          "warning_high_threshold": null,
+          "critical_high_threshold": 1000,
+          "warning_low_threshold": null,
+          "critical_low_threshold": null
+        },
+        {
+          "id": 4,
+          "name": "pl",
+          "unit": "%",
+          "warning_high_threshold": null,
+          "critical_high_threshold": 1000,
+          "warning_low_threshold": null,
+          "critical_low_threshold": null
+        }
+      ]
+    }
+  ],
   "meta": {
     "total": 4,
     "page": 1,

@@ -1,0 +1,7 @@
+{
+  "centreonbroker_etc": "\/etc\/centreon-broker",
+  "centreonbroker_cbmod": "\/usr\/lib64\/nagios\/cbmod.so",
+  "centreonbroker_log": "\/var\/log\/centreon-broker",
+  "centreonbroker_varlib": "\/var\/lib\/centreon-broker",
+  "centreonbroker_lib": "\/usr\/share\/centreon\/lib\/centreon-broker"
+}

@@ -1,0 +1,8 @@
+in: path
+name: host_template_id
+required: true
+description: "Host template ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

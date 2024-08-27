@@ -46,9 +46,16 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
-                'DELETE FROM acl_group_contacts_relations WHERE contact_contact_id = :userId'
+                <<<'SQL'
+                    DELETE FROM `:db`.`acl_group_contacts_relations`
+                    WHERE acl_group_contacts_relations.contact_contact_id = :userId
+                        AND acl_group_contacts_relations.acl_group_id NOT IN (
+                            SELECT acl_group_id FROM `:db`.acl_groups WHERE cloud_specific = 1
+                        )
+                    SQL
             )
         );
+
         $statement->bindValue(':userId', $user->getId(), \PDO::PARAM_INT);
         $statement->execute();
     }

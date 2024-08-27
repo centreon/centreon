@@ -49,6 +49,7 @@ beforeEach(function () {
     $this->metricRepositoryLegacy = $this->createMock(MetricRepositoryInterface::class);
     $this->metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
+    $this->isCloudPlatform = false;
 });
 
 it('should present a ForbiddenResponse when the user does not has sufficient rights', function () {
@@ -61,7 +62,8 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
@@ -87,7 +89,8 @@ it('should present an ErrorResponse when an error occurs', function () {
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
@@ -117,7 +120,8 @@ it('should get the metrics with access group management when the user is not adm
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
@@ -142,7 +146,34 @@ it('should get the metrics without access group management when the user is admi
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
+    );
+
+    $this->rights
+        ->expects($this->once())
+        ->method('hasAdminRole')
+        ->willReturn(true);
+
+    $this->metricRepository
+        ->expects($this->once())
+        ->method('findServicesByMetricNamesAndRequestParameters');
+
+    $useCase($presenter, $request);
+});
+
+it('should take account of access groups to retrieve metrics when the user is not admin', function () {
+    $presenter = new FindPerformanceMetricsDataPresenterStub();
+    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
+    $request->metricNames = ["rta","pl"];
+    $useCase = new FindPerformanceMetricsData(
+        $this->adminUser,
+        $this->requestParameters,
+        $this->metricRepositoryLegacy,
+        $this->metricRepository,
+        $this->accessGroupRepository,
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
@@ -152,7 +183,7 @@ it('should get the metrics without access group management when the user is admi
 
     $this->metricRepository
         ->expects($this->once())
-        ->method('findServicesByMetricNamesAndRequestParameters');
+        ->method('findServicesByMetricNamesAndAccessGroupsAndRequestParameters');
 
     $useCase($presenter, $request);
 });
@@ -167,7 +198,8 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
     $service = (new Service())
         ->setId(1)
@@ -177,7 +209,7 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
 
     $this->rights
         ->expects($this->once())
-        ->method('canAccess')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->metricRepository
@@ -198,7 +230,8 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
             [
                 'global' => [
                     'base' => 1000,
-                    'title' => 'Ping graph on myHost'
+                    'title' => 'Ping graph on myHost',
+                    'host_name' => 'myHost'
                 ],
                 'metrics' => [
                     [

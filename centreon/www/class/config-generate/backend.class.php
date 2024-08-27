@@ -98,11 +98,13 @@ class Backend
                 if (!is_dir($dir)) {
                     throw new Exception("Generation path '" . $dir . "' is not a directory.");
                 }
+                if (posix_getuid() === fileowner($dir)) {
+                    chmod($dir, 0770);
+                }
             } else {
                 if (!mkdir($dir, 0770, true)) {
                     throw new Exception("Cannot create directory '" . $dir . "'");
                 }
-                chmod($dir, 0770);
             }
         }
 
@@ -132,11 +134,12 @@ class Backend
         }
         $this->tmp_file = basename(tempnam($this->full_path, TMP_DIR_PREFIX));
         $this->tmp_dir = $this->tmp_file . TMP_DIR_SUFFIX;
-        if (!mkdir($this->full_path . '/' . $this->tmp_dir, 0770, true)) {
-            throw new Exception("Cannot create directory '" . $dir . "'");
-        }
-        chmod($this->full_path . '/' . $this->tmp_dir, 0770);
         $this->full_path .= '/' . $this->tmp_dir;
+        if (! mkdir($this->full_path)) {
+            throw new Exception("Cannot create directory '" . $this->full_path . "'");
+        }
+        // rights cannot be set in mkdir function (2nd argument) because current sgid bit on parent directory override it
+        chmod($this->full_path, 0770);
     }
 
     public function getPath()

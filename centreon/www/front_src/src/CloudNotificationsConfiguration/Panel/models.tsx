@@ -2,7 +2,7 @@
 
 import { SvgIconComponent } from '@mui/icons-material';
 
-import { ResourcesTypeEnum, ChannelsEnum, TimeperiodType } from '../models';
+import { ChannelsEnum, ResourcesTypeEnum, TimeperiodType } from '../models';
 
 export enum PanelMode {
   Create = 'create',

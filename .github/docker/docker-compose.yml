@@ -1,14 +1,46 @@
-version: "3.2"
 services:
   web:
-    image: "@WEB_IMAGE@"
-    ports: ["80", "3306"]
-    profiles: ["web"]
+    env_file:
+      - .env
+    image: "${WEB_IMAGE}"
+    ports: ["4000:80"]
+    depends_on:
+      - db
+    environment:
+      MYSQL_HOST: db
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+      interval: 1s
+      retries: 120
+      timeout: 5s
 
-  web-fresh:
-    image: "@WEB_FRESH_IMAGE@"
-    ports: ["80", "3306"]
-    profiles: ["web-fresh"]
+  db:
+    env_file:
+      - .env
+    image: "${MYSQL_IMAGE}"
+    ports: ["3306"]
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 100M
+
+  openid:
+    env_file:
+      - .env
+    image: "${OPENID_IMAGE}"
+    ports: ["8080:8080"]
+    profiles: ["openid"]
+
+  saml:
+    env_file:
+      - .env
+    image: "${SAML_IMAGE}"
+    ports: ["8080:8080"]
+    profiles: ["saml"]
 
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest

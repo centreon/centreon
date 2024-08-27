@@ -36,6 +36,8 @@ use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
@@ -61,6 +63,7 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use phpDocumentor\Reflection\Types\This;
 use Tests\Core\Host\Infrastructure\API\AddHost\AddHostPresenterStub;
 
 beforeEach(function (): void {
@@ -85,6 +88,8 @@ beforeEach(function (): void {
         optionService: $this->optionService = $this->createMock(OptionService::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         validation: $this->validation = $this->createMock(AddHostValidation::class),
+        writeVaultRepository: $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -643,7 +648,7 @@ it('should return created object on success (with admin user)', function (): voi
         ->method('notifyConfigurationChange');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
     $this->readHostRepository
@@ -850,7 +855,7 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('notifyConfigurationChange');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
     $this->readHostRepository
@@ -858,7 +863,7 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('findById')
         ->willReturn($this->host);
     $this->readAccessGroupRepository
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('findByContact');
     $this->readHostCategoryRepository
         ->expects($this->once())

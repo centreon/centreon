@@ -1,22 +1,24 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { Box, FormControlLabel, Typography } from '@mui/material';
 
 import { Switch } from '@centreon/ui/components';
 
-import { Widget, WidgetPropertyProps } from '../../models';
+import Subtitle from '../../../components/Subtitle';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
+import { Widget, WidgetPropertyProps } from '../../models';
 
-import { getProperty } from './utils';
 import { useSwitchStyles } from './Inputs.styles';
+import { getProperty } from './utils';
 
 const WidgetSwitch = ({
   propertyName,
   label,
-  endAdornment
+  endAdornment,
+  secondaryLabel
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useSwitchStyles();
@@ -35,24 +37,27 @@ const WidgetSwitch = ({
   };
 
   return (
-    <FormControlLabel
-      control={
-        <Switch
-          checked={value}
-          inputProps={{
-            'aria-label': t(label) || ''
-          }}
-          onChange={changeSwitchValue}
-        />
-      }
-      disabled={!canEditField}
-      label={
-        <Box className={classes.switch}>
-          <Typography>{t(label)}</Typography>
-          {endAdornment}
-        </Box>
-      }
-    />
+    <>
+      {secondaryLabel && <Subtitle>{t(secondaryLabel)}</Subtitle>}
+      <FormControlLabel
+        control={
+          <Switch
+            checked={value}
+            inputProps={{
+              'aria-label': t(label) || ''
+            }}
+            onChange={changeSwitchValue}
+          />
+        }
+        disabled={!canEditField}
+        label={
+          <Box className={classes.switch}>
+            <Typography>{t(label)}</Typography>
+            {endAdornment}
+          </Box>
+        }
+      />
+    </>
   );
 };
 

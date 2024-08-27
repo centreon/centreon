@@ -5,7 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Chip, ChipProps } from '@mui/material';
 
-import { getStatusColors, SeverityCode } from '../utils/statuses';
+import { SeverityCode, getStatusColors } from '../utils/statuses';
 
 export type Props = {
   clickable?: boolean;

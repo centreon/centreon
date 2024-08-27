@@ -1,16 +1,19 @@
-import { createStore } from 'jotai';
-
 import { Module } from '@centreon/ui';
 
-import { ResourcesTableProps } from './models';
 import ResourcesTable from './ResourcesTable';
+import { ResourcesTableProps } from './models';
 
-interface Props extends ResourcesTableProps {
-  store: ReturnType<typeof createStore>;
-}
-
-const Widget = ({ store, ...props }: Props): JSX.Element => (
-  <Module maxSnackbars={1} seedName="widget-statusgrid" store={store}>
+const Widget = ({
+  store,
+  queryClient,
+  ...props
+}: ResourcesTableProps): JSX.Element => (
+  <Module
+    maxSnackbars={1}
+    queryClient={queryClient}
+    seedName="widget-resourcetable"
+    store={store}
+  >
     <ResourcesTable {...props} />
   </Module>
 );

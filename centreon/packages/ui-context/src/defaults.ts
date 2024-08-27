@@ -1,9 +1,11 @@
-import { User, ThemeMode, ListingVariant } from './types';
+import { ListingVariant, ThemeMode, User } from './types';
 
 const defaultUser: User = {
   alias: '',
+  canManageApiTokens: false,
   default_page: '/monitoring/resources',
   id: undefined,
+  isAdmin: undefined,
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',

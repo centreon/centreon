@@ -29,7 +29,9 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
@@ -38,11 +40,14 @@ use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Tests\Core\ServiceTemplate\Infrastructure\API\DeleteServiceTemplate\DeleteServiceTemplatePresenterStub;
 
 beforeEach(closure: function (): void {
-    $this->readRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class);
-    $this->writeRepository = $this->createMock(WriteServiceTemplateRepositoryInterface::class);
-    $this->user = $this->createMock(ContactInterface::class);
     $this->presenter = new DeleteServiceTemplatePresenterStub($this->createMock(PresenterFormatterInterface::class));
-    $this->useCase = new DeleteServiceTemplate($this->readRepository, $this->writeRepository, $this->user);
+    $this->useCase = new DeleteServiceTemplate(
+        $this->readRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
+        $this->writeRepository = $this->createMock(WriteServiceTemplateRepositoryInterface::class),
+        $this->user = $this->createMock(ContactInterface::class),
+        $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
+    );
     $this->serviceTemplateLockedFound = new ServiceTemplate(
         1,
         'fake_name',

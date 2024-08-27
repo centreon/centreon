@@ -36,6 +36,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
 use Security\Domain\Authentication\Model\AuthenticationTokens;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Security\Domain\Authentication\Exceptions\ProviderException;
@@ -65,6 +66,7 @@ use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryI
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 beforeEach(function () {
@@ -72,21 +74,7 @@ beforeEach(function () {
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
     $this->legacyProvider = $this->createMock(OpenIdProviderInterface::class);
     $this->legacyProviderService = $this->createMock(ProviderServiceInterface::class);
-    $this->session = $this->createMock(SessionInterface::class);
-    $this->session
-        ->expects($this->any())
-        ->method('getId')
-        ->willReturn('session_abcd');
-    $this->request = $this->createMock(Request::class);
-    $this->request
-        ->expects($this->any())
-        ->method('getSession')
-        ->willReturn($this->session);
     $this->requestStack = $this->createMock(RequestStack::class);
-    $this->requestStack
-        ->expects($this->any())
-        ->method('getCurrentRequest')
-        ->willReturn($this->request);
     $this->centreonDB = $this->createMock(CentreonDB::class);
     $this->dependencyInjector = new Container(['configuration_db' => $this->centreonDB]);
     $this->authenticationService = $this->createMock(AuthenticationServiceInterface::class);
@@ -163,9 +151,16 @@ it('expects to return an error message in presenter when no provider configurati
         ->with('unknown provider')
         ->will($this->throwException(ProviderException::providerConfigurationNotFound('unknown provider')));
 
+    $session = new Session(new MockArraySessionStorage());
+    $session->setId('session_abcd');
+    $this->requestStack
+        ->expects($this->any())
+        ->method('getSession')
+        ->willReturn($session);
+
     $useCase = new Login(
         $this->providerFactory,
-        $this->session,
+        $this->requestStack,
         $this->dataStorageEngine,
         $this->writeSessionRepository,
         $this->readTokenRepository,
@@ -195,7 +190,7 @@ it('expects to execute authenticateOrFail method from OpenIdProvider', function 
 
     $useCase = new Login(
         $this->providerFactory,
-        $this->session,
+        $this->requestStack,
         $this->dataStorageEngine,
         $this->writeSessionRepository,
         $this->readTokenRepository,
@@ -238,7 +233,7 @@ it(
 
         $useCase = new Login(
             $this->providerFactory,
-            $this->session,
+            $this->requestStack,
             $this->dataStorageEngine,
             $this->writeSessionRepository,
             $this->readTokenRepository,
@@ -285,7 +280,7 @@ it(
 
         $useCase = new Login(
             $this->providerFactory,
-            $this->session,
+            $this->requestStack,
             $this->dataStorageEngine,
             $this->writeSessionRepository,
             $this->readTokenRepository,
@@ -336,7 +331,7 @@ it('should update access groups for the authenticated user', function () {
 
     $useCase = new Login(
         $this->providerFactory,
-        $this->session,
+        $this->requestStack,
         $this->dataStorageEngine,
         $this->writeSessionRepository,
         $this->readTokenRepository,

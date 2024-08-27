@@ -23,47 +23,24 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformInformation\UseCase\V20;
 
-use Centreon\Domain\Proxy\Proxy;
-use Centreon\Domain\RemoteServer\RemoteServerException;
-use Centreon\Domain\PlatformInformation\Model\Information;
-use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
-use Centreon\Domain\PlatformInformation\Model\InformationFactory;
-use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
-use Centreon\Domain\PlatformInformation\Interfaces\DtoValidatorInterface;
-use Centreon\Domain\PlatformInformation\Model\PlatformInformationFactory;
-use Centreon\Domain\RemoteServer\Interfaces\RemoteServerServiceInterface;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface;
+use Centreon\Domain\PlatformInformation\Interfaces\DtoValidatorInterface;
 use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationReadRepositoryInterface;
 use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationWriteRepositoryInterface;
+use Centreon\Domain\PlatformInformation\Model\Information;
+use Centreon\Domain\PlatformInformation\Model\InformationFactory;
+use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
+use Centreon\Domain\PlatformInformation\Model\PlatformInformationFactory;
+use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface;
+use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
+use Centreon\Domain\Proxy\Proxy;
+use Centreon\Domain\RemoteServer\Interfaces\RemoteServerServiceInterface;
+use Centreon\Domain\RemoteServer\RemoteServerException;
 
 class UpdatePartiallyPlatformInformation
 {
-    /**
-     * @var PlatformInformationWriteRepositoryInterface
-     */
-    private $writeRepository;
-
-    /**
-     * @var PlatformInformationReadRepositoryInterface
-     */
-    private $readRepository;
-
-    /**
-     * @var ProxyServiceInterface
-     */
-    private $proxyService;
-
-    /**
-     * @var RemoteServerServiceInterface
-     */
-    private $remoteServerService;
-
-    /**
-     * @var PlatformTopologyServiceInterface
-     */
-    private $platformTopologyService;
-
     /**
      * Array of all available validators for this use case.
      *
@@ -71,17 +48,16 @@ class UpdatePartiallyPlatformInformation
      */
     private $validators = [];
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $encryptionFirstKey;
 
     public function __construct(
-        PlatformInformationWriteRepositoryInterface $writeRepository,
-        PlatformInformationReadRepositoryInterface $readRepository,
-        ProxyServiceInterface $proxyService,
-        RemoteServerServiceInterface $remoteServerService,
-        PlatformTopologyServiceInterface $platformTopologyService
+        private PlatformInformationWriteRepositoryInterface $writeRepository,
+        private PlatformInformationReadRepositoryInterface $readRepository,
+        private ProxyServiceInterface $proxyService,
+        private RemoteServerServiceInterface $remoteServerService,
+        private PlatformTopologyServiceInterface $platformTopologyService,
+        private ContactInterface $user,
     ) {
         $this->writeRepository = $writeRepository;
         $this->readRepository = $readRepository;
@@ -117,10 +93,22 @@ class UpdatePartiallyPlatformInformation
      * Execute the use case for which this class was designed.
      *
      * @param array<string,mixed> $request
-     * @throws \Throwable
+     *
+     * @throws \Throwable|PlatformInformationException
      */
     public function execute(array $request): void
     {
+        if (
+            ! $this->user->isAdmin()
+            && ! (
+                $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
+                && $this->user->hasRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG)
+            )
+        ) {
+            throw PlatformInformationException::noRights();
+        }
+
+
         foreach ($this->validators as $validator) {
             $validator->validateOrFail($request);
         }

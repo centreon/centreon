@@ -1,24 +1,27 @@
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 
-import { Routes, Route, useLocation, useParams } from 'react-router-dom';
-import { flatten, isNil, not } from 'ramda';
-import { useAtomValue } from 'jotai';
 import { animated, useTransition } from '@react-spring/web';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
+import { flatten, isNil, not } from 'ramda';
+import { Route, Routes, useLocation, useParams } from 'react-router-dom';
 
 import { styled } from '@mui/material';
 
-import { featureFlagsDerivedAtom } from '@centreon/ui-context';
-import { PageSkeleton, useMemoComponent } from '@centreon/ui';
+import { PageSkeleton, client, useMemoComponent } from '@centreon/ui';
+import {
+  featureFlagsDerivedAtom,
+  federatedModulesAtom
+} from '@centreon/ui-context';
 
-import internalPagesRoutes from '../../reactRoutes';
 import BreadcrumbTrail from '../../BreadcrumbTrail';
 import useNavigation from '../../Navigation/useNavigation';
-import { federatedModulesAtom } from '../../federatedModules/atoms';
-import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
-import routeMap from '../../reactRoutes/routeMap';
-import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
 import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
+import { FederatedModule } from '../../federatedModules/models';
+import internalPagesRoutes from '../../reactRoutes';
+import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
+import routeMap from '../../reactRoutes/routeMap';
 
 import DeprecatedRoute from './DeprecatedRoute';
 
@@ -65,8 +68,8 @@ interface GetExternalPageRoutesProps {
 }
 
 const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
-  flatten(allowedPages || []).some(
-    (allowedPage) => path?.includes(allowedPage)
+  flatten(allowedPages || []).some((allowedPage) =>
+    path?.includes(allowedPage)
   );
 
 const getExternalPageRoutes = ({
@@ -159,48 +162,50 @@ const ReactRouterContent = ({
   return useMemoComponent({
     Component: (
       <Suspense fallback={<PageSkeleton />}>
-        <Routes location={pathname}>
-          {...deprecatedRoutes
-            .filter((route) => !route.ignoreWhen?.(pathname))
-            .map(({ deprecatedRoute, newRoute }) => (
-              <Route
-                element={<DeprecatedRoute newRoute={newRoute} />}
-                key={deprecatedRoute.path}
-                path={deprecatedRoute.path}
-              />
-            ))}
-          {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
-            const isLogoutPage = path === routeMap.logout;
-            const isAllowed =
-              isLogoutPage || isAllowedPage({ allowedPages, path });
+        <QueryClientProvider client={client}>
+          <Routes location={pathname}>
+            {...deprecatedRoutes
+              .filter((route) => !route.ignoreWhen?.(pathname))
+              .map(({ deprecatedRoute, newRoute }) => (
+                <Route
+                  element={<DeprecatedRoute newRoute={newRoute} />}
+                  key={deprecatedRoute.path}
+                  path={deprecatedRoute.path}
+                />
+              ))}
+            {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
+              const isLogoutPage = path === routeMap.logout;
+              const isAllowed =
+                isLogoutPage || isAllowedPage({ allowedPages, path });
 
-            return (
-              <Route
-                element={
-                  isAllowed ? (
-                    <PageContainer>
-                      <BreadcrumbTrail path={path} />
-                      <Comp />
-                    </PageContainer>
-                  ) : (
-                    <NotAllowedPage />
-                  )
-                }
-                key={path}
-                path={path}
-                {...rest}
-              />
-            );
-          })}
-          {getExternalPageRoutes({
-            allowedPages,
-            featureFlags,
-            federatedModules
-          })}
-          {externalPagesFetched && (
-            <Route element={<NotFoundPage />} path="*" />
-          )}
-        </Routes>
+              return (
+                <Route
+                  element={
+                    isAllowed ? (
+                      <PageContainer>
+                        <BreadcrumbTrail path={path} />
+                        <Comp />
+                      </PageContainer>
+                    ) : (
+                      <NotAllowedPage />
+                    )
+                  }
+                  key={path}
+                  path={path}
+                  {...rest}
+                />
+              );
+            })}
+            {getExternalPageRoutes({
+              allowedPages,
+              featureFlags,
+              federatedModules
+            })}
+            {externalPagesFetched && (
+              <Route element={<NotFoundPage />} path="*" />
+            )}
+          </Routes>
+        </QueryClientProvider>
       </Suspense>
     ),
     memoProps: [

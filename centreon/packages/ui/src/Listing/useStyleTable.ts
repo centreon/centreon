@@ -53,6 +53,7 @@ const useStyleTable = ({
     const checkbox = checkable ? 'fit-content(1rem) ' : ''; // SelectAction (checkbox) cell adjusts to content
 
     const columnTemplate = currentVisibleColumns
+      ?.filter((column) => column)
       ?.map(({ width, shortLabel }) => {
         if (!isNil(shortLabel)) {
           return 'min-content';

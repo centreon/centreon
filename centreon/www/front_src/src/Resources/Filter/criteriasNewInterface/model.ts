@@ -2,14 +2,14 @@ import { SelectEntry } from '@centreon/ui';
 
 import { ResourceType } from '../../models';
 import {
-  labelPending,
-  labelUp,
-  labelDown,
-  labelUnreachable,
-  labelOk,
-  labelWarning,
   labelCritical,
-  labelUnknown
+  labelDown,
+  labelOk,
+  labelPending,
+  labelUnknown,
+  labelUnreachable,
+  labelUp,
+  labelWarning
 } from '../../translatedLabels';
 import {
   Criteria,
@@ -40,29 +40,19 @@ export enum ExtendedCriteria {
   serviceSeverityLevels = CriteriaNames.serviceSeverityLevels,
   hostSeverityLevels = CriteriaNames.hostSeverityLevels
 }
-export enum categoryHostStatus {
+export enum CategoryHostStatus {
   UP = labelUp,
   DOWN = labelDown,
   PENDING = labelPending,
   UNREACHABLE = labelUnreachable
 }
 
-export enum categoryServiceStatus {
+export enum CategoryServiceStatus {
   OK = labelOk,
   WARNING = labelWarning,
   CRITICAL = labelCritical,
   UNKNOWN = labelUnknown,
   PENDING = labelPending
-}
-
-export enum BasicCriteriaResourceType {
-  host = ResourceType.host,
-  service = ResourceType.service
-}
-
-export enum ExtendedCriteriaResourceType {
-  anomalyDetection = ResourceType.anomalyDetection,
-  metaservice = ResourceType.metaservice
 }
 
 export enum CategoryFilter {
@@ -108,15 +98,16 @@ export interface ChangedCriteriaParams {
 }
 
 export interface MemoizedChild {
-  basicData: Array<Criteria & CriteriaDisplayProps>;
   changeCriteria: (data: ChangedCriteriaParams) => void;
+  data: Array<Criteria & CriteriaDisplayProps>;
+  filterName: BasicCriteria | ExtendedCriteria;
   searchData?: SearchDataPropsCriterias;
+  title?: string;
 }
 
 export interface MemoizedChildSectionWrapper extends MemoizedChild {
-  filterName: string;
   searchData?: SearchDataPropsCriterias;
-  sectionType: SectionType;
+  sectionType?: SectionType;
 }
 
 export interface DeactivateProps {
@@ -125,7 +116,7 @@ export interface DeactivateProps {
 
 export interface FindData {
   data: Array<Criteria & CriteriaDisplayProps>;
-  filterName: string;
+  filterName: BasicCriteria | ExtendedCriteria;
   findBy?: string;
 }
 

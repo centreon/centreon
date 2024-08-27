@@ -14,8 +14,8 @@ import {
 } from '../models';
 import useStyleTable from '../useStyleTable';
 
-import EllipsisTypography from './EllipsisTypography';
 import { useStyles } from './DataCell.styles';
+import EllipsisTypography from './EllipsisTypography';
 
 import Cell from '.';
 
@@ -46,7 +46,7 @@ const DataCell = ({
   labelCollapse,
   labelExpand
 }: Props): JSX.Element | null => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const { dataStyle } = useStyleTable({ listingVariant });
 
   const commonCellProps = {
@@ -64,7 +64,7 @@ const DataCell = ({
 
   const cellByColumnType = {
     [ColumnType.string]: (): JSX.Element => {
-      const { getFormattedString, isTruncated, getColSpan } = column;
+      const { getFormattedString, isTruncated, getColSpan, align } = column;
 
       const colSpan = getColSpan?.(isRowSelected);
 
@@ -87,6 +87,7 @@ const DataCell = ({
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
           style={{
+            alignItems: align,
             gridColumn
           }}
           {...commonCellProps}
@@ -99,7 +100,7 @@ const DataCell = ({
       );
     },
     [ColumnType.component]: (): JSX.Element | null => {
-      const { getHiddenCondition, clickable } = column;
+      const { getHiddenCondition, clickable, align } = column;
       const Component = column.Component as (
         props: ComponentColumnProps
       ) => JSX.Element;
@@ -126,9 +127,12 @@ const DataCell = ({
 
       return (
         <Cell
-          className={classes.cell}
+          className={cx(classes.cell, clickable && classes.clickable)}
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
+          style={{
+            alignItems: align
+          }}
           onClick={(e): void => {
             if (!clickable) {
               return;
@@ -276,4 +280,4 @@ const MemoizedDataCell = memo<Props>(
 );
 
 export default MemoizedDataCell;
-export { useStyles, Props };
+export { useStyles, type Props };

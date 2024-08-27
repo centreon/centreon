@@ -1,25 +1,25 @@
 import { FormikHelpers, FormikValues } from 'formik';
+import { useAtomValue } from 'jotai';
 import { equals, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import * as Yup from 'yup';
-import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 
 import { putData, useRequest, useSnackbar } from '@centreon/ui';
 
-import useUser from '../Main/useUser';
 import { labelLoginSucceeded } from '../Login/translatedLabels';
 import usePostLogin from '../Login/usePostLogin';
+import useUser from '../Main/useUser';
 
+import { object, string } from 'yup';
+import { getResetPasswordEndpoint } from './api/endpoint';
 import { ResetPasswordValues } from './models';
+import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
 import {
   labelNewPasswordsMustMatch,
   labelPasswordRenewed,
   labelRequired,
   labelTheNewPasswordIstheSameAsTheOldPassword
 } from './translatedLabels';
-import { getResetPasswordEndpoint } from './api/endpoint';
-import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
 
 interface UseResetPasswordState {
   submitResetPassword: (
@@ -71,8 +71,10 @@ const useResetPassword = (): UseResetPasswordState => {
       .then(() => {
         showSuccessMessage(t(labelPasswordRenewed));
         sendLogin({
-          login: passwordResetInformations?.alias as string,
-          password: values.newPassword
+          payload: {
+            login: passwordResetInformations?.alias as string,
+            password: values.newPassword
+          }
         }).then(({ redirectUri }) => {
           showSuccessMessage(t(labelLoginSucceeded));
           loadUser()?.then(() => navigate(redirectUri));
@@ -83,18 +85,18 @@ const useResetPassword = (): UseResetPasswordState => {
       });
   };
 
-  const validationSchema = Yup.object().shape({
-    newPassword: Yup.string()
+  const validationSchema = object().shape({
+    newPassword: string()
       .test(
         'match',
         t(labelTheNewPasswordIstheSameAsTheOldPassword),
         differentPasswords
       )
       .required(t(labelRequired)),
-    newPasswordConfirmation: Yup.string()
+    newPasswordConfirmation: string()
       .test('match', t(labelNewPasswordsMustMatch), matchNewPasswords)
       .required(t(labelRequired)),
-    oldPassword: Yup.string().required(t(labelRequired))
+    oldPassword: string().required(t(labelRequired))
   });
 
   return {

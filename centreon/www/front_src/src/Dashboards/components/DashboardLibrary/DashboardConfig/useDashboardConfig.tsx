@@ -1,22 +1,22 @@
 import { useEffect } from 'react';
 
 import { atom, useAtom, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
 import {
   createSearchParams,
   generatePath,
   useNavigate
 } from 'react-router-dom';
-import { equals } from 'ramda';
 
 import { useSnackbar } from '@centreon/ui';
 
+import routeMap from '../../../../reactRoutes/routeMap';
+import { resetDashboardDerivedAtom } from '../../../SingleInstancePage/Dashboard/atoms';
 import { Dashboard, isDashboard } from '../../../api/models';
 import { useCreateDashboard } from '../../../api/useCreateDashboard';
-import routeMap from '../../../../reactRoutes/routeMap';
 import { useUpdateDashboard } from '../../../api/useUpdateDashboard';
-import { labelDashboardUpdated } from '../../../translatedLabels';
-import { resetDashboardDerivedAtom } from '../../../SingleInstancePage/Dashboard/atoms';
 import { DashboardLayout } from '../../../models';
+import { labelDashboardUpdated } from '../../../translatedLabels';
 
 const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
@@ -50,7 +50,7 @@ const useDashboardConfig = (): UseDashboardConfig => {
     mutate: createDashboardMutation,
     reset: resetCreateMutation,
     status: statusCreateMutation
-  } = useCreateDashboard();
+  } = useCreateDashboard({});
 
   const {
     mutate: updateDashboardMutation,
@@ -97,9 +97,14 @@ const useDashboardConfig = (): UseDashboardConfig => {
       isOpen: false
     }));
 
+    const dashboardPayloadForCreation = {
+      ...dashboard,
+      panels: [],
+      refresh: { interval: null, type: 'global' }
+    };
     const data =
       dialogState.variant === 'create'
-        ? await createDashboardMutation(dashboard)
+        ? await createDashboardMutation(dashboardPayloadForCreation)
         : await updateDashboardMutation(dashboard);
 
     if (equals(dialogState.variant, 'create')) {

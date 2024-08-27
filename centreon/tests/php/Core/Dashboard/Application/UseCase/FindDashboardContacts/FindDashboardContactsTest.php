@@ -47,6 +47,7 @@ beforeEach(function (): void {
         $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
+        $this->isCloudPlatform = false
     );
 });
 
@@ -77,8 +78,8 @@ it(
 it(
     'should present a FindDashboardContactsResponse if the contact is allowed',
     function (): void {
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(true);
+
         $this->readDashboardShareRepository->expects($this->once())->method(
             'findContactsWithAccessRightByRequestParameters'
         )->willReturn([]);
@@ -93,7 +94,7 @@ it(
     'should present a FindDashboardContactsResponse if the contact is allowed and non admin',
     function (): void {
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
+        $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
         $this->readDashboardShareRepository->expects($this->once())->method(
             'findContactsWithAccessRightByACLGroupsAndRequestParameters'
         )->willReturn([]);

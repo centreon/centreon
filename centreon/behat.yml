@@ -6,26 +6,14 @@ default:
         default:
           selenium2: ~
     Centreon\Test\Behat\Extensions\ContainerExtension:
-      log_directory: ../acceptance-logs
-      docker_compose_web: docker-compose.yml
+      log_directory: "%paths.base%/../acceptance-logs"
+      docker_compose_web: "%paths.base%/../.github/docker/docker-compose.yml"
   gherkin:
     cache: ~
   suites:
     configuration_warnings:
       paths: [ "%paths.base%/features/ConfigurationWarnings.feature" ]
       contexts: [ ConfigurationWarningsContext ]
-
-    pagination_select2:
-      paths: [ "%paths.base%/features/PaginationSelect2.feature" ]
-      contexts: [ PaginationSelect2Context ]
-
-    save_search_select2:
-      paths: [ "%paths.base%/features/SaveSearchSelect2.feature" ]
-      contexts: [ SaveSearchSelect2Context ]
-
-    select_all_select2:
-      paths: [ "%paths.base%/features/SelectAllSelect2.feature" ]
-      contexts: [ SelectAllSelect2Context ]
 
     generate_service_contact_configuration:
       paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
@@ -71,10 +59,6 @@ default:
       paths: [ "%paths.base%/features/SaveSearchFilter.feature" ]
       contexts: [ SaveSearchFilterContext ]
 
-    timezone_display_host_monitoring:
-      paths: [ "%paths.base%/features/TimezoneInMonitoring.feature" ]
-      contexts: [ TimezoneInMonitoringContext ]
-
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
       contexts: [ DowntimeStartAndStopContext ]
@@ -102,14 +86,6 @@ default:
     autologin_options:
       paths: [ "%paths.base%/features/AutologinOptions.feature" ]
       contexts: [ AutologinOptionsContext ]
-
-    broker:
-      paths: [ "%paths.base%/features/Broker.feature" ]
-      contexts: [ BrokerContext ]
-
-    broker_configuration:
-      paths: [ "%paths.base%/features/BrokerConfiguration.feature" ]
-      contexts: [ BrokerConfigurationContext ]
 
     ldap:
       paths: [ "%paths.base%/features/Ldap.feature" ]
@@ -163,11 +139,6 @@ default:
       paths: [ "%paths.base%/features/HostTemplateBasicsOperations.feature" ]
       contexts: [ HostTemplateBasicsOperationsContext ]
 
-    language_selection_feature:
-      paths: [ "%paths.base%/features/LanguageSelection.feature" ]
-      contexts:
-        - LanguageSelectionContext
-
     ldap_configuration:
       paths: [ "%paths.base%/features/LdapConfiguration.feature" ]
       contexts: [ LdapConfigurationContext ]
@@ -184,25 +155,9 @@ default:
       paths: [ "%paths.base%/features/ModifyDefaultPageConnection.feature" ]
       contexts: [ ModifyDefaultPageConnectionContext ]
 
-    acl_access_groups:
-      paths: [ "%paths.base%/features/AclAccessGroups.feature" ]
-      contexts: [ AclAccessGroupsContext ]
-
-    acl_menus_access:
-      paths: [ "%paths.base%/features/ACLMenusAccess.feature" ]
-      contexts: [ ACLMenusAccessContext ]
-
-    acl_resources_access:
-      paths: [ "%paths.base%/features/ACLResourcesAccess.feature" ]
-      contexts: [ ACLResourcesAccessContext ]
-
     non_admin_contact_creation:
       paths: [ "%paths.base%/features/NonAdminContactCreation.feature" ]
       contexts: [ NonAdminContactCreationContext ]
-
-    acl_actions_access:
-      paths: [ "%paths.base%/features/ACLActionsAccess.feature" ]
-      contexts: [ ACLActionsAccessContext ]
 
     time_period_configuration:
       paths: [ "%paths.base%/features/TimePeriodConfiguration.feature" ]

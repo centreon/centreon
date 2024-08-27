@@ -62,7 +62,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
         $concatenator = new SqlConcatenator();
         $concatenator->defineSelect(
             <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
+                SELECT DISTINCT SQL_CALC_FOUND_ROWS
                     contact_id,
                     contact_alias,
                     contact_name,
@@ -88,6 +88,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             'name' => 'contact_name',
             'email' => 'contact_email',
             'provider_name' => 'contact_auth_type',
+            'is_admin' => 'contact_admin',
         ]);
         $sqlTranslator->translateForConcatenator($concatenator);
 
@@ -129,7 +130,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
         $concatenator = new SqlConcatenator();
         $concatenator->defineSelect(
             <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
+                SELECT DISTINCT SQL_CALC_FOUND_ROWS
                     contact_id,
                     contact_alias,
                     contact_name,
@@ -165,6 +166,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             'name' => 'contact_name',
             'email' => 'contact_email',
             'provider_name' => 'contact_auth_type',
+            'is_admin' => 'contact_admin',
         ]);
         $sqlTranslator->translateForConcatenator($concatenator);
 
@@ -185,6 +187,41 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
         }
 
         return $users;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function find(int $userId): ?User
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    contact_id,
+                    contact_alias,
+                    contact_name,
+                    contact_email,
+                    contact_admin,
+                    contact_theme,
+                    user_interface_density,
+                    contact_oreon AS `user_can_reach_frontend`
+                FROM `:db`.contact
+                WHERE contact.contact_register = '1'
+                AND contact_id = :userId
+                SQL
+        ));
+
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        /** @var false|_UserRecord $result */
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result === false) {
+            return null;
+        }
+
+        return $this->createFromRecord($result);
     }
 
     /**

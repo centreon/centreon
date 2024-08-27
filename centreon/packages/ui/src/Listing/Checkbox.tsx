@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { Checkbox as MuiCheckbox, CheckboxProps } from '@mui/material';
+import { CheckboxProps, Checkbox as MuiCheckbox } from '@mui/material';
 
 const useStyles = makeStyles()({
   container: {

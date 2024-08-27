@@ -174,7 +174,7 @@ class Upgrader extends Installer
      *
      * @throws \Exception
      */
-    private function upgradePreferences($widgetId)
+    private function upgradePreferences($widgetId): void
     {
         if (! isset($this->widgetConfiguration['preferences'])) {
             return;

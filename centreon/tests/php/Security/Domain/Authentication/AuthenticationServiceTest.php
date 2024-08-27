@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tests\Security\Domain\Authentication;
 
+use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
@@ -33,8 +34,6 @@ use Security\Domain\Authentication\AuthenticationService;
 use Security\Domain\Authentication\Exceptions\ProviderException;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
-use Centreon\Domain\Authentication\Exception\AuthenticationException;
 
 /**
  * @package Tests\Security\Domain\Authentication
@@ -50,11 +49,6 @@ class AuthenticationServiceTest extends TestCase
      * @var SessionRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private $sessionRepository;
-
-    /**
-     * @var WriteTokenRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $writeTokenRepository;
 
     /**
      * @var ProviderAuthenticationInterface|\PHPUnit\Framework\MockObject\MockObject
@@ -95,7 +89,6 @@ class AuthenticationServiceTest extends TestCase
     {
         $this->authenticationRepository = $this->createMock(AuthenticationRepositoryInterface::class);
         $this->sessionRepository = $this->createMock(SessionRepositoryInterface::class);
-        $this->writeTokenRepository = $this->createMock(WriteTokenRepositoryInterface::class);
         $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
         $this->authenticationTokens = $this->createMock(AuthenticationTokens::class);
         $this->providerToken = $this->createMock(ProviderToken::class);
@@ -313,38 +306,6 @@ class AuthenticationServiceTest extends TestCase
     }
 
     /**
-     * test deleteExpiredSecurityTokens on failure
-     */
-    public function testDeleteExpiredSecurityTokensFailed(): void
-    {
-        $authenticationService = $this->createAuthenticationService();
-
-        $this->writeTokenRepository
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens')
-            ->willThrowException(new \Exception());
-
-        $this->expectException(AuthenticationException::class);
-        $this->expectExceptionMessage('Error while deleting expired token');
-
-        $authenticationService->deleteExpiredSecurityTokens();
-    }
-
-    /**
-     * test deleteExpiredSecurityTokens on success
-     */
-    public function testDeleteExpiredSecurityTokensSucceed(): void
-    {
-        $authenticationService = $this->createAuthenticationService();
-
-        $this->writeTokenRepository
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
-
-        $authenticationService->deleteExpiredSecurityTokens();
-    }
-
-    /**
      * test findAuthenticationTokensByToken on failure
      */
     public function testFindAuthenticationTokensByTokenFailed(): void
@@ -420,7 +381,6 @@ class AuthenticationServiceTest extends TestCase
         return new AuthenticationService(
             $this->authenticationRepository,
             $this->sessionRepository,
-            $this->writeTokenRepository,
             $this->readConfigurationFactory,
             $this->providerFactory,
             $this->readTokenRepository

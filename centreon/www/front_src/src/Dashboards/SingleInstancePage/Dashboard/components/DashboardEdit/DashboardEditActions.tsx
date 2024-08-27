@@ -1,13 +1,14 @@
 import { ReactElement, useCallback, useEffect } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
-import { equals } from 'ramda';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 import { Button } from '@centreon/ui/components';
 
 import { Dashboard, DashboardPanel } from '../../../../api/models';
@@ -17,18 +18,17 @@ import {
   switchPanelsEditionModeDerivedAtom
 } from '../../atoms';
 import {
-  labelEditDashboard,
-  labelCancel,
-  labelSave
-} from '../../translatedLabels';
-import { federatedWidgetsAtom } from '../../../../../federatedModules/atoms';
-import {
   formatPanel,
   getPanels,
   routerParams
 } from '../../hooks/useDashboardDetails';
 import useDashboardDirty from '../../hooks/useDashboardDirty';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
+import {
+  labelCancel,
+  labelEditDashboard,
+  labelSave
+} from '../../translatedLabels';
 
 import { useDashboardEditActionsStyles } from './DashboardEditActions.styles';
 

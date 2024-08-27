@@ -1,17 +1,8 @@
-import { T, always, cond, equals, map } from 'ramda';
+import { cond, equals, map } from 'ramda';
 
 import { SeverityCode } from '@centreon/ui';
 
-import { ResourceListing, DisplayType } from './models';
-
-export const formatStatusFilter = cond([
-  [equals('success'), always(['ok', 'up'])],
-  [equals('warning'), always(['warning'])],
-  [equals('problem'), always(['down', 'critical'])],
-  [equals('undefined'), always(['unreachable', 'unknown'])],
-  [equals('pending'), always(['pending'])],
-  [T, always([])]
-]);
+import { DisplayType, ResourceListing } from './models';
 
 interface FormatRessourcesProps {
   data?: ResourceListing;
@@ -25,17 +16,14 @@ export const formatRessources = ({
     return data as ResourceListing;
   }
 
-  const result = map(
-    (item) => {
-      return {
-        ...item,
-        isHeadRow: true,
-        parent_resource: item?.children?.resources,
-        resourceCount: item?.children?.status_count
-      };
-    },
-    data?.result || []
-  );
+  const result = map((item) => {
+    return {
+      ...item,
+      isHeadRow: true,
+      parent_resource: item?.children?.resources,
+      resourceCount: item?.children?.status_count
+    };
+  }, data?.result || []);
 
   const hostsResponse = { ...data, result } as ResourceListing;
 

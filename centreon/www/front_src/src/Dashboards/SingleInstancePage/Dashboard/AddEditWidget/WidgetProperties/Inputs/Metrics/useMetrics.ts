@@ -1,30 +1,36 @@
-import { useMemo, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import {
   equals,
   identity,
   innerJoin,
   isEmpty,
   isNil,
+  map,
   omit,
+  pick,
   pluck,
   propEq,
   reject
 } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
+import {
+  resourcesInputKeyDerivedAtom,
+  widgetPropertiesAtom
+} from '../../../atoms';
 import {
   FormMetric,
   Metric,
   ServiceMetric,
   Widget,
-  WidgetDataResource
+  WidgetDataResource,
+  WidgetResourceType
 } from '../../../models';
 import { getDataProperty } from '../utils';
-import { singleHostPerMetricAtom } from '../../../atoms';
 
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
@@ -36,8 +42,9 @@ interface UseMetricsOnlyState {
   error?: string;
   getOptionLabel: (metric: FormMetric) => string;
   getTagLabel: (metric: FormMetric) => string;
+  hasMetaService: boolean;
+  hasMultipleUnitsSelected: boolean;
   hasNoResources: () => boolean;
-  hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   isTouched?: boolean;
@@ -57,9 +64,20 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   const { values, setFieldValue, setFieldTouched, errors, touched } =
     useFormikContext<Widget>();
 
-  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
+  const widgetProperties = useAtomValue(widgetPropertiesAtom);
+  const resourcesInputKey = useAtomValue(resourcesInputKeyDerivedAtom);
 
-  const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
+  const resources = (
+    resourcesInputKey ? values.data?.[resourcesInputKey] : []
+  ) as Array<WidgetDataResource>;
+
+  const hasMetaService = useMemo(
+    () =>
+      resources.some(({ resourceType }) =>
+        equals(resourceType, WidgetResourceType.metaService)
+      ),
+    [resources]
+  );
 
   const value = useMemo<Array<FormMetric> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -77,7 +95,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   );
 
   const {
-    hasReachedTheLimitOfUnits,
+    hasMultipleUnitsSelected,
     hasTooManyMetrics,
     isLoadingMetrics,
     metrics,
@@ -214,13 +232,13 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
 
   const metricWithSeveralResources = useMemo(
     () =>
-      singleHostPerMetric &&
+      widgetProperties?.singleResourceSelection &&
       value?.some(
         ({ name }) => getNumberOfResourcesRelatedToTheMetric(name) > 1
       ) &&
       getFirstUsedResourceForMetric(value[0].name),
     useDeepCompare([
-      singleHostPerMetric,
+      widgetProperties?.singleResourceSelection,
       value,
       getNumberOfResourcesRelatedToTheMetric,
       getFirstUsedResourceForMetric
@@ -233,7 +251,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
         return;
       }
 
-      if (isEmpty(resources)) {
+      if (isEmpty(resources) || hasMetaService) {
         setFieldValue(`data.${propertyName}`, []);
 
         return;
@@ -283,8 +301,17 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
           : intersectionFilteredExcludedMetrics
       );
     },
-    useDeepCompare([servicesMetrics, resources])
+    useDeepCompare([servicesMetrics, resources, hasMetaService])
   );
+
+  useEffect(() => {
+    const services = map(
+      pick(['uuid', 'id', 'name', 'parentName']),
+      servicesMetrics?.result || []
+    );
+
+    setFieldValue('data.services', services);
+  }, [values?.data?.[propertyName]]);
 
   return {
     changeMetric,
@@ -293,8 +320,9 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     error,
     getOptionLabel,
     getTagLabel,
+    hasMetaService,
+    hasMultipleUnitsSelected,
     hasNoResources,
-    hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
     isLoadingMetrics,
     isTouched,

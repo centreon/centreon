@@ -51,7 +51,6 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'name' => $response->name,
                         'alias' => $response->alias,
                         'snmp_version' => $response->snmpVersion,
-                        'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'timezone_id' => $response->timezoneId,
                         'severity_id' => $response->severityId,
                         'check_timeperiod_id' => $response->checkTimeperiodId,

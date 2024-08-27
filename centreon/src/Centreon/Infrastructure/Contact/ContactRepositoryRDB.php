@@ -192,23 +192,26 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
-                "SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-                t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
-                FROM `:db`.contact
-                LEFT JOIN `:db`.contact as template
-                    ON contact.contact_template_id = template.contact_id
-                LEFT JOIN `:db`.contact_password cp
-                    ON cp.contact_id = contact.contact_id
-                LEFT JOIN `:db`.timezone tz
-                    ON tz.timezone_id = contact.contact_location
-                LEFT JOIN `:db`.topology t
-                    ON t.topology_page = COALESCE(contact.default_page, template.default_page)
-                INNER JOIN `:db`.security_authentication_tokens sat
-                    ON sat.user_id = contact.contact_id
-                INNER JOIN `:db`.security_token st
-                    ON st.id = sat.provider_token_id
-                WHERE (sat.token = :token OR st.token = :token)
-                ORDER BY cp.creation_date DESC LIMIT 1"
+                <<<'SQL'
+                    SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
+                    t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
+                    FROM `:db`.contact
+                    LEFT JOIN `:db`.contact as template
+                        ON contact.contact_template_id = template.contact_id
+                    LEFT JOIN `:db`.contact_password cp
+                        ON cp.contact_id = contact.contact_id
+                    LEFT JOIN `:db`.timezone tz
+                        ON tz.timezone_id = contact.contact_location
+                    LEFT JOIN `:db`.topology t
+                        ON t.topology_page = COALESCE(contact.default_page, template.default_page)
+                    INNER JOIN `:db`.security_authentication_tokens sat
+                        ON sat.user_id = contact.contact_id
+                    INNER JOIN `:db`.security_token st
+                        ON st.id = sat.provider_token_id
+                    WHERE (sat.token = :token OR st.token = :token)
+                        AND sat.is_revoked = 0
+                    ORDER BY cp.creation_date DESC LIMIT 1
+                    SQL
             )
         );
         $statement->bindValue(':token', $token, \PDO::PARAM_STR);
@@ -564,6 +567,11 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 break;
             case 'manage_tokens':
                 $contact->addRole(Contact::ROLE_MANAGE_TOKENS);
+            case 'create_edit_poller_cfg':
+                $contact->addRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG);
+                break;
+            case 'delete_poller_cfg':
+                $contact->addRole(Contact::ROLE_DELETE_POLLER_CFG);
                 break;
         }
     }

@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Update partially the resource access rule",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "description": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "is_enabled": {
+            "type": "boolean"
+        }
+    }
+}
+
+

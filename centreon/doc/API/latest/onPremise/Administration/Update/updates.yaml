@@ -1,0 +1,15 @@
+---
+post:
+  tags:
+    - Platform
+  summary: "Fully update the platform"
+  description: |
+    Update Centreon web component and installed modules / widgets
+  requestBody:
+    required: false
+  responses:
+    204:
+      description: "Platform updated"
+    500:
+      $ref: "../../Common/Response/InternalServerError.yaml"
+...

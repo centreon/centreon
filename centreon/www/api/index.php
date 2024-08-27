@@ -91,11 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     } else {
         CentreonWebService::sendResult('Invalid credentials', 401);
     }
-} else { // Purge old tokens
-    $authenticationService = $kernel->getContainer()->get(
-        \Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface::class
-    );
-    $authenticationService->deleteExpiredSecurityTokens();
 }
 
 /* Test authentication */

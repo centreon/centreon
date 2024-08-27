@@ -2,10 +2,10 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { PersonalInformation, Token } from '../TokenListing/models';
 import { CreatedToken } from '../TokenCreation/models';
+import { PersonalInformation, Token } from '../TokenListing/models';
 
-const personalInformationDecoder = (
+const getPersonalInformationDecoder = (
   decoderName = 'personalInformation'
 ): JsonDecoder.Decoder<PersonalInformation> =>
   JsonDecoder.object<PersonalInformation>(
@@ -19,11 +19,11 @@ const personalInformationDecoder = (
 const tokenDecoder = JsonDecoder.object<Token>(
   {
     creationDate: JsonDecoder.string,
-    creator: personalInformationDecoder('creator'),
+    creator: getPersonalInformationDecoder('creator'),
     expirationDate: JsonDecoder.string,
     isRevoked: JsonDecoder.boolean,
     name: JsonDecoder.string,
-    user: personalInformationDecoder('user')
+    user: getPersonalInformationDecoder('user')
   },
   'ListedToken',
   {
@@ -42,12 +42,12 @@ export const listTokensDecoder = buildListingDecoder<Token>({
 export const createdTokenDecoder = JsonDecoder.object<CreatedToken>(
   {
     creationDate: JsonDecoder.string,
-    creator: personalInformationDecoder('creator'),
+    creator: getPersonalInformationDecoder('creator'),
     expirationDate: JsonDecoder.string,
     isRevoked: JsonDecoder.boolean,
     name: JsonDecoder.string,
     token: JsonDecoder.string,
-    user: personalInformationDecoder('user')
+    user: getPersonalInformationDecoder('user')
   },
   'CreatedToken',
   {
@@ -56,3 +56,18 @@ export const createdTokenDecoder = JsonDecoder.object<CreatedToken>(
     isRevoked: 'is_revoked'
   }
 );
+
+const personalInformationDecoder = JsonDecoder.object<PersonalInformation>(
+  {
+    id: JsonDecoder.number,
+    name: JsonDecoder.string
+  },
+  'PersonalInformation'
+);
+
+export const PersonalInformationDecoder =
+  buildListingDecoder<PersonalInformation>({
+    entityDecoder: personalInformationDecoder,
+    entityDecoderName: 'PersonalInformationn',
+    listingDecoderName: 'listPersonalInformation'
+  });

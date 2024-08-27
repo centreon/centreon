@@ -1,15 +1,16 @@
-import { useEffect } from 'react';
+import { useRef } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { unstable_useBlocker } from 'react-router-dom';
 import { equals } from 'ramda';
+import { useBlocker } from 'react-router-dom';
 
-import { NamedEntity } from '../../../api/models';
-import {
-  dashboardAtom,
-  isEditingAtom,
-  quitWithoutSavedDashboardAtom
-} from '../atoms';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
+
+import { DashboardPanel } from '../../../api/models';
+import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
+
+import { formatPanel } from './useDashboardDetails';
+import useDashboardDirty from './useDashboardDirty';
 
 export interface UseDashboardSaveBlockerState {
   blockNavigation?: () => void;
@@ -17,45 +18,46 @@ export interface UseDashboardSaveBlockerState {
   proceedNavigation?: () => void;
 }
 
-export const router = {
-  useBlocker: unstable_useBlocker
+export const saveBlockerHooks = {
+  useBlocker
 };
 
 const useDashboardSaveBlocker = (
-  dashboard: Partial<NamedEntity>
+  panels?: Array<DashboardPanel>
 ): UseDashboardSaveBlockerState => {
   const isEditing = useAtomValue(isEditingAtom);
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
+  const setIsRedirectionBlockedAtom = useSetAtom(isRedirectionBlockedAtom);
 
-  const blocker = router.useBlocker(isEditing);
+  const dirty = useDashboardDirty(
+    (panels || []).map((panel) =>
+      formatPanel({ federatedWidgets, panel, staticPanel: false })
+    )
+  );
 
-  const { layout } = useAtomValue(dashboardAtom);
-  const quitWithoutSavedDashboard = useSetAtom(quitWithoutSavedDashboardAtom);
+  const blocker = saveBlockerHooks.useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isEditing &&
+      dirty &&
+      !equals(currentLocation.pathname, nextLocation.pathname)
+  );
 
-  const storeQuitWithoutSavedDashboard = (): void => {
-    if (!isEditing) {
-      return;
-    }
-    localStorage.setItem(
-      'centreon-quit-without-saved-dashboard',
-      JSON.stringify({
-        ...dashboard,
-        date: new Date().toISOString(),
-        layout
-      })
-    );
-  };
+  const previousBlockedStateRef = useRef({
+    blocked: equals(blocker.state, 'blocked'),
+    isEditing
+  });
 
-  useEffect(() => {
-    quitWithoutSavedDashboard(null);
-    window.addEventListener('beforeunload', storeQuitWithoutSavedDashboard);
+  const currentBlockedState = equals(blocker.state, 'blocked');
 
-    return () => {
-      window.removeEventListener(
-        'beforeunload',
-        storeQuitWithoutSavedDashboard
-      );
-    };
-  }, [isEditing, layout]);
+  if (
+    (!equals(previousBlockedStateRef.current.blocked, currentBlockedState) ||
+      !equals(previousBlockedStateRef.current.isEditing, isEditing)) &&
+    dirty
+  ) {
+    previousBlockedStateRef.current.blocked = currentBlockedState;
+    previousBlockedStateRef.current.isEditing = isEditing;
+    setIsRedirectionBlockedAtom(equals(blocker.state, 'blocked'));
+  }
 
   return {
     blockNavigation: blocker.reset,

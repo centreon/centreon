@@ -27,13 +27,13 @@ use Psr\Container\ContainerInterface;
 
 class Information
 {
-    /** @var \CentreonLegacy\Core\Module\License */
+    /** @var License */
     protected $licenseObj;
 
-    /** @var \Psr\Container\ContainerInterface */
+    /** @var ContainerInterface */
     protected $services;
 
-    /** @var \CentreonLegacy\Core\Utils\Utils */
+    /** @var Utils */
     protected $utils;
 
     /** @var array */
@@ -46,9 +46,9 @@ class Information
     protected $hasModulesForInstallation = false;
 
     /**
-     * @param \Psr\Container\ContainerInterface $services
-     * @param \CentreonLegacy\Core\Module\License $licenseObj
-     * @param \CentreonLegacy\Core\Utils\Utils $utils
+     * @param ContainerInterface $services
+     * @param License $licenseObj
+     * @param Utils $utils
      */
     public function __construct(
         ContainerInterface $services,

@@ -24,8 +24,11 @@ declare(strict_types=1);
 namespace Centreon\Application\Controller\Administration;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Used to get global parameters
@@ -34,10 +37,6 @@ use FOS\RestBundle\View\View;
  */
 class ParametersController extends AbstractController
 {
-    /**
-     * @var OptionServiceInterface
-     */
-    private $optionService;
 
     private const DEFAULT_DOWNTIME_DURATION = 'monitoring_dwt_duration',
                   DEFAULT_DOWNTIME_DURATION_SCALE = 'monitoring_dwt_duration_scale',
@@ -65,14 +64,10 @@ class ParametersController extends AbstractController
         self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services'
     ];
 
-    /**
-     * Parameters constructor.
-     *
-     * @param OptionServiceInterface $optionService
-     */
-    public function __construct(OptionServiceInterface $optionService)
-    {
-        $this->optionService = $optionService;
+    public function __construct(
+        private OptionServiceInterface $optionService,
+        private ContactInterface $user
+    ) {
     }
 
     /**
@@ -82,6 +77,10 @@ class ParametersController extends AbstractController
      */
     public function getParameters(): View
     {
+        if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_MONITORING_RW)) {
+            return $this->view(null, Response::HTTP_FORBIDDEN);
+        }
+
         $parameters = [];
         $downtimeDuration = '';
         $downtimeScale = '';

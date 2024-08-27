@@ -46,15 +46,18 @@ class DbReadVersionRepository extends AbstractRepositoryDRB implements ReadVersi
      */
     public function findCurrentVersion(): ?string
     {
-        $currentVersion = null;
-
         $statement = $this->db->query(
-            "SELECT `value` FROM `informations` WHERE `key` = 'version'"
+            <<<'SQL'
+                    SELECT `value`
+                    FROM `informations`
+                    WHERE `key` = 'version'
+                SQL
         );
-        if ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $currentVersion = $result['value'];
+
+        if ($statement !== false) {
+            return (string) $statement->fetchColumn();
         }
 
-        return $currentVersion;
+        return null;
     }
 }

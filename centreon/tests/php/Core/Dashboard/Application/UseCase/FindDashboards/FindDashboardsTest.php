@@ -37,6 +37,7 @@ use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new FindDashboardsPresenterStub();
@@ -46,13 +47,14 @@ beforeEach(function (): void {
         $this->createMock(RequestParametersInterface::class),
         $this->createMock(ReadContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
-        $this->contact = $this->createMock(ContactInterface::class)
+        $this->contact = $this->createMock(ContactInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->iscloudPlatform = false
     );
 
     $this->testedDashboard = new Dashboard(
         $this->testedDashboardId = 1,
         $this->testedDashboardName = 'dashboard-name',
-        $this->testedDashboardDescription = 'dashboard-description',
         $this->testedDashboardCreatedBy = 2,
         $this->testedDashboardUpdatedBy = 3,
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
@@ -112,7 +114,7 @@ it(
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
             ->and($dashboard->id ?? null)->toBe($this->testedDashboardId)
             ->and($dashboard->name ?? null)->toBe($this->testedDashboardName)
-            ->and($dashboard->description ?? null)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and(($dashboard->createdAt ?? null)?->getTimestamp())->toBe(
                 $this->testedDashboardCreatedAt->getTimestamp()
             )
@@ -139,7 +141,7 @@ it(
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
             ->and($dashboard->id ?? null)->toBe($this->testedDashboardId)
             ->and($dashboard->name ?? null)->toBe($this->testedDashboardName)
-            ->and($dashboard->description ?? null)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and(($dashboard->createdAt ?? null)?->getTimestamp())
             ->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and(($dashboard->updatedAt ?? null)?->getTimestamp())
@@ -165,7 +167,7 @@ it(
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
             ->and($dashboard->id ?? null)->toBe($this->testedDashboardId)
             ->and($dashboard->name ?? null)->toBe($this->testedDashboardName)
-            ->and($dashboard->description ?? null)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and(($dashboard->createdAt ?? null)?->getTimestamp())
             ->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and(($dashboard->updatedAt ?? null)?->getTimestamp())

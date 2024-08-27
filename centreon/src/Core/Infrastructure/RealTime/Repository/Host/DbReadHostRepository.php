@@ -112,7 +112,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
                 h.alias,
                 h.timezone,
                 h.flapping,
-                h.scheduled_downtime_depth AS `in_downtime`,
+                h.scheduled_downtime_depth AS `nb_downtime`,
                 h.acknowledged,
                 i.name AS `monitoring_server_name`,
                 h.state AS `status_code`,

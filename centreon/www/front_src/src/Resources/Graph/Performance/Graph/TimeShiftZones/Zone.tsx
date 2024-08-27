@@ -1,12 +1,15 @@
 import { Shape } from '@visx/visx';
+import { useSetAtom } from 'jotai';
 import { equals, negate } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { alpha, useTheme } from '@mui/material';
 
-import { useMemoComponent } from '@centreon/ui';
+import { useMemoComponent, useTimeShiftZones } from '@centreon/ui';
 
-import { useTimeShiftContext, TimeShiftDirection } from '.';
+import { updatedGraphIntervalAtom } from '../../ExportableGraphWithTimeline/atoms';
+
+import { TimeShiftDirection, useTimeShiftContext } from '.';
 
 export const timeShiftZoneWidth = 50;
 
@@ -30,8 +33,19 @@ const TimeShiftZone = ({
   const theme = useTheme();
   const { classes } = useStyles();
 
-  const { graphHeight, graphWidth, marginLeft, marginTop, shiftTime } =
+  const { graphHeight, graphWidth, marginLeft, marginTop, end, start } =
     useTimeShiftContext();
+
+  const { end: newEnd, start: newStart } = useTimeShiftZones({
+    direction,
+    graphInterval: { end, start }
+  });
+
+  const setGraphInterval = useSetAtom(updatedGraphIntervalAtom);
+
+  const getNewInterval = (): void => {
+    setGraphInterval({ end: newEnd, start: newStart });
+  };
 
   return useMemoComponent({
     Component: (
@@ -50,7 +64,7 @@ const TimeShiftZone = ({
             : graphWidth) + marginLeft
         }
         y={marginTop}
-        onClick={(): void => shiftTime?.(direction)}
+        onClick={getNewInterval}
         onMouseLeave={onDirectionHover(null)}
         onMouseOver={onDirectionHover(direction)}
       />

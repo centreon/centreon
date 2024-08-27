@@ -1,18 +1,26 @@
 {
     "fromAdminUser": {
       "name": "dashboard-from-admin-user",
-      "description": "created by admin"
+      "description": "created by admin",
+      "panels": [],
+      "refresh": {"type":"global","interval":null}
     },
     "fromDashboardAdministratorUser": {
       "name": "dashboard-from-dashboard-administrator-user",
-      "description": "created by user-dashboard-administrator"
+      "description": "created by user-dashboard-administrator",
+      "panels": [],
+      "refresh": {"type":"global","interval":null}
     },
     "fromDashboardCreatorUser": {
       "name": "dashboard-from-dashboard-creator-user",
-      "description": "created by user-dashboard-creator"
+      "description": "created by user-dashboard-creator",
+      "panels": [],
+      "refresh": {"type":"global","interval":null}
     },
     "fromCurrentUser": {
       "name": "dashboard-created-by-current-user",
-      "description": null
+      "description": null,
+      "panels": [],
+      "refresh": {"type":"global","interval":null}
     }
   }

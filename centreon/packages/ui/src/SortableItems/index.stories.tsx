@@ -1,19 +1,18 @@
-import * as React from 'react';
-
-import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { DraggableSyntheticListeners, rectIntersection } from '@dnd-kit/core';
 import {
+  SortingStrategy,
   horizontalListSortingStrategy,
   rectSortingStrategy,
-  SortingStrategy,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
+import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper, Typography, Grid, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Grid, IconButton, Paper, Typography } from '@mui/material';
 
+import { RefObject } from 'react';
 import SortableItems, { RootComponentProps } from '.';
 
 export default {
@@ -89,7 +88,7 @@ const useContentStyles = makeStyles<StylesProps>()((theme, { isDragging }) => ({
 interface ContentProps extends Entity {
   attributes;
   isDragging: boolean;
-  itemRef: React.RefObject<HTMLDivElement>;
+  itemRef: RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
   style;
 }

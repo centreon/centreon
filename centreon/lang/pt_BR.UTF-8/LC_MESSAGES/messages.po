@@ -16730,7 +16730,7 @@ msgstr ""
 # msgid "Widget type"
 # msgstr ""
 
-# msgid "Display type"
+# msgid "Display as"
 # msgstr ""
 
 # msgid "Text"
@@ -16841,7 +16841,22 @@ msgstr ""
 # msgid "View widget properties"
 # msgstr ""
 
-# msgid "Dashboard library"
+# msgid "Create dashboard"
+# msgstr ""
+
+# msgid "Create a dashboard"
+# msgstr ""
+
+# msgid "Update dashboard"
+# msgstr ""
+
+# msgid "Dashboard updated"
+# msgstr ""
+
+# msgid "Manage access rights"
+# msgstr ""
+
+# msgid "Select a widget type to activate the preview."
 # msgstr ""
 
 # msgid "Welcome to the Dashboards interface!"
@@ -17042,10 +17057,10 @@ msgstr ""
 # msgid "Status grid"
 # msgstr ""
 
-# msgid "Displays a status overview for selected resources."
+# msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 # msgstr ""
 
-# msgid "Display with this resource type"
+# msgid "Display resources with this type"
 # msgstr ""
 
 # msgid "Display resources with this status"
@@ -17207,6 +17222,18 @@ msgstr ""
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Delete token"
+# msgstr ""
+
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Delete token"
+# msgstr ""
+
 # msgid "Failed to copy link"
 # msgstr ""
 
@@ -17302,6 +17329,7 @@ msgstr ""
 
 # msgid "Select resource type"
 # msgstr ""
+
 # msgid "Your comment has been saved."
 # msgstr ""
 
@@ -17319,3 +17347,787 @@ msgstr ""
 
 # msgid "Resource table"
 # msgstr ""
+
+# msgid "Fullscreen (F)"
+# msgstr ""
+
+# msgid "Displays a detailed view of the current status for selected resources as a chart."
+# msgstr ""
+
+# msgid "Status chart"
+# msgstr ""
+
+# msgid "Show value on chart"
+# msgstr ""
+
+# msgid "Number"
+# msgstr ""
+
+# msgid "Show legend"
+# msgstr ""
+
+# msgid "Percentage"
+# msgstr ""
+
+# msgid  "Horizontal bar chart"
+# msgstr ""
+
+# msgid  "Vertical bar chart"
+# msgstr ""
+
+# msgid  "Pie chart"
+# msgstr ""
+
+# msgid  "Donut chart"
+# msgstr ""
+
+# msgid "are working fine"
+# msgstr ""
+
+# msgid "No {{resourcesType}} found with this status"
+# msgstr ""
+
+# msgid "No host found"
+# msgstr ""
+
+# msgid "No service found"
+# msgstr ""
+
+# msgid "are working fine."
+# msgstr ""
+
+# msgid "down"
+# msgstr ""
+
+# msgid "pending"
+# msgstr ""
+
+# msgid "warning"
+# msgstr ""
+
+# msgid "critical"
+# msgstr ""
+
+# msgid "unknown"
+# msgstr ""
+
+# msgid "up"
+# msgstr ""
+
+# msgid "unreachable"
+# msgstr ""
+
+# msgid "Expiration date"
+# msgstr ""
+
+# msgid "Clear"
+# msgstr ""
+
+# msgid "The {{name}} widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The {{name}} dashboard will be permanently deleted."
+# msgstr ""
+
+# msgid "The {{name}} dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to."
+# msgstr ""
+
+#  msgid "Invalid page name. Valid page names are: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to access the Resources Status page"
+#  msgstr ""
+
+# msgid "Clear"
+# msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
+
+# msgid "Display resources with this unit"
+# msgstr ""
+
+# msgid "Delete rule"
+# msgstr ""
+
+# msgid "is used to allow users to access resources."
+# msgstr ""
+
+# msgid "It will be permanently deleted and users will no longer have this permission"
+# msgstr ""
+
+# msgid "Failed to delete resource access rule"
+# msgstr ""
+
+# msgid "The resource access rule was successfully deleted"
+# msgstr ""
+
+#  msgid "Error while adding a Broker input/output"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a broker configuration"
+#  msgstr ""
+
+#  msgid "Broker configuration #%d not found"
+#  msgstr ""
+
+#  msgid "Missing input/output parameter: %s"
+#  msgstr ""
+
+#  msgid "Parameter '%s' (%s) is invalid"
+#  msgstr ""
+
+#  msgid "Parameter '%s' of type %s is invalid"
+#  msgstr ""
+
+#  msgid "Input/Output #%d not found for Broker configuration #%d"
+#  msgstr ""
+
+# msgid "Rules are used to allow users to access resources."
+# msgstr ""
+
+# msgid "They will be permanently deleted and users will no longer have these permissions."
+# msgstr ""
+
+# msgid "Delete rules"
+# msgstr ""
+
+# msgid "Delete multiple resource access rules"
+# msgstr ""
+
+# msgid "Failed to delete the selected resource access rules"
+# msgstr ""
+
+# msgid "The selected resource access rules have been deleted successfully"
+# msgstr ""
+
+# msgid "Failed to duplicate the resource access rule"
+# msgstr ""
+
+# msgid "The resource access rule has been successfully duplicated"
+# msgstr ""
+
+# msgid "Resource access rule name"
+# msgstr ""
+
+# msgid "Please enter a name for the resource access rule to duplicate"
+# msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
+
+# msgid "Duplicate dashboard"
+# msgstr ""
+
+# msgid "Delete dashboard"
+# msgstr ""
+
+# msgid "Dashboard deleted"
+# msgstr
+
+# msgid "Dashboard duplicated"
+# msgstr ""
+
+# msgid "Share with contacts"
+# msgstr ""
+
+# msgid "Failed to duplicate the dashboard"
+# msgstr ""
+
+# msgid "All resources"
+# msgstr ""
+
+# msgid "All resources selected"
+# msgstr ""
+
+#  msgid "Error while updating a Broker input/output"
+#  msgstr ""
+
+#  msgid "Action not permitted for output of type '%s'"
+#  msgstr ""
+
+#  msgid "Content is not a valid JSON string"
+#  msgstr ""
+
+#  msgid "An error occurred while creating the file '%s'"
+#  msgstr ""
+
+#  msgid "An error occurred while deleting the file '%s'"
+#  msgstr ""
+
+# msgid "Until"
+# msgstr ""
+
+#  msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+#  msgstr ""
+
+#  msgid "Group monitoring"
+#  msgstr ""
+
+#  msgid "Display with this view"
+#  msgstr ""
+
+#  msgid "Standard"
+#  msgstr ""
+
+#  msgid "Condensed"
+#  msgstr ""
+
+#  msgid "Success (OK/Up)"
+#  msgstr ""
+
+# msgid "Business Activity Diagram"
+# msgstr ""
+
+# msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+# msgstr ""
+
+# msgid "Display the diagram with this status"
+# msgstr ""
+
+# msgid "Problem (Critical)"
+# msgstr ""
+
+# msgid "Warning"
+# msgstr ""
+
+# msgid "Success (OK)"
+# msgstr ""
+
+# msgid "Link types"
+# msgstr ""
+
+# msgid "Curve"
+# msgstr ""
+
+# msgid "Line"
+# msgstr ""
+
+# msgid "Step"
+# msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
+
+# msgid "All hosts selected"
+# msgstr ""
+
+# msgid "All host groups selected"
+# msgstr ""
+
+# msgid "All service groups selected"
+# msgstr ""
+
+# msgid "All hosts"
+# msgstr ""
+
+# msgid "All host groups"
+# msgstr ""
+
+# msgid "All service groups"
+# msgstr ""
+
+# msgid "All contacts"
+# msgstr ""
+
+# msgid "All contacts selected"
+# msgstr ""
+
+# msgid "All contact groups"
+# msgstr ""
+
+# msgid "All contact groups selected"
+# msgstr ""
+
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
+# msgid "Business view"
+# msgstr ""
+
+# msgid "All business views"
+# msgstr ""
+
+# msgid "All business views selected"
+# msgstr ""
+
+# msgid "You are not allowed to list contact templates"
+# msgstr ""
+
+# msgid "Graph style"
+# msgstr ""
+
+# msgid "Curve type"
+# msgstr ""
+
+# msgid "Linear"
+# msgstr ""
+
+# msgid "Natural"
+# msgstr ""
+
+# msgid "Error while partially updating the token"
+# msgstr ""
+
+# msgid "You are not allowed to partially update the token"
+# msgstr ""
+
+# msgid "Active/Revoked"
+# msgstr ""
+
+# msgid "Value sorting"
+# msgstr ""
+
+# msgid "By name"
+# msgstr "Par nom"
+
+# msgid "Tooltip display""
+# msgstr ""
+
+# msgid "All"
+# msgstr ""
+
+# msgid "Single"
+# msgstr ""
+
+# msgid "Hidden"
+# msgstr ""
+
+# msgid "Hide"
+# msgstr ""
+
+# msgid "Line width"
+# msgstr ""
+
+# msgid "Auto"
+# msgstr ""
+
+# msgid "Show area"
+# msgstr ""
+
+# msgid "Show"
+# msgstr "Afficher"
+
+# msgid "Display curve points"
+# msgstr ""
+
+# msgid "Show axis border"
+# msgstr ""
+
+# msgid "Y-axis tick label rotation"
+# msgstr ""
+
+# msgid "The Auto value corresponds to the value defined in the Curves configuration in Centreon."
+# msgstr ""
+
+# msgid "Position"
+# msgstr ""
+
+# msgid "Display mode"
+# msgstr ""
+
+# msgid "Grid"
+# msgstr ""
+
+# msgid "List"
+# msgstr ""
+
+# msgid "Scale"
+# msgstr ""
+
+# msgid "Linear"
+# msgstr ""
+
+# msgid "Logarithmic"
+# msgstr ""
+
+# msgid "Zero-centered"
+# msgstr ""
+
+# msgid "Solid"
+# msgstr ""
+
+# msgid "Dashed"
+# msgstr ""
+
+# msgid "Dotted"
+# msgstr ""
+
+# msgid "Graph style"
+# msgstr ""
+
+# msgid "Display type"
+# msgstr ""
+
+# msgid "Display settings"
+# msgstr ""
+
+# msgid "Fill opacity"
+# msgstr ""
+
+# msgid "Line style"
+# msgstr ""
+
+# msgid "Dash width"
+# msgstr ""
+
+# msgid "Space"
+# msgstr ""
+
+# msgid "Show grid lines"
+# msgstr ""
+
+# msgid "Horizontal"
+# msgstr ""
+
+# msgid "Vertical"
+# msgstr ""
+
+# msgid "Both"
+# msgstr ""
+
+# msgid "Base 2"
+# msgstr ""
+
+# msgid "Base 10"
+# msgstr ""
+
+# msgid "Left"
+# msgstr ""
+
+# msgid "Right"
+# msgstr ""
+
+# msgid "Axis"
+# msgstr ""
+
+# msgid "Tooltip"
+# msgstr ""
+
+# msgid "Add filter"
+# msgstr ""
+
+# msgid "Add resource dataset"
+# msgstr ""
+
+# msgid "Line"
+# msgstr ""
+
+# msgid "Bar"
+# msgstr ""
+
+# msgid "Stacked bar"
+# msgstr ""
+
+# msgid "Orientation"
+# msgstr ""
+
+# msgid "Bar radius"
+# msgstr ""
+
+# msgid "Bar background opacity"
+# msgstr ""
+
+# msgid "Check command sent!"
+# msgstr ""
+
+# msgid "Forced check command sent!"
+# msgstr ""
+
+# msgid "Open ticket"
+# msgstr ""
+
+# msgid "Open ticket for host"
+# msgstr ""
+
+# msgid "Open ticket for service"
+# msgstr ""
+
+# msgid "Host severities"
+# msgstr ""
+
+# msgid "Service severities"
+# msgstr ""
+
+# msgid "Select service severities"
+# msgstr ""
+
+# msgid "Select host severities"
+# msgstr ""
+
+# msgid "Enable Open Tickets"
+# msgstr ""
+
+# msgid "Ticket provider"
+# msgstr ""
+
+# msgid "Select a provider"
+# msgstr ""
+
+# msgid "Display resources"
+# msgstr ""
+
+# msgid "Resources linked to a ticket"
+# msgstr ""
+
+# msgid "Resources with no ticket"
+# msgstr ""
+
+# msgid "Hide services with Down host"
+# msgstr ""
+
+# msgstr "hide services with Unreachable host"
+# msgstr ""
+
+# msgstr "Ticket ID"
+# msgstr ""
+
+# msgstr "Ticket subject"
+# msgstr ""
+
+# msgstr "Opened on"
+# msgstr ""
+
+# msgid "Create a ticket"
+# msgstr ""
+
+# msgid "Rule (ticket provider)"
+# msgstr ""
+
+# msgid "Select rule (ticket provider)"
+# msgstr ""
+
+# msgid "Display resources with these status types"
+# msgstr ""
+
+# msgid  "All KPIs on this Business Activity are working fine."
+# msgstr ""
+
+# msgid  "are working fine."
+# msgstr ""
+
+# msgid  "See more information in the geoview"
+# msgstr ""
+
+# msgid  "Calculation method"
+# msgstr ""
+
+# msgid  "State information"
+# msgstr ""
+
+# msgid  "Warning threshold"
+# msgstr ""
+
+# msgid  "Critical threshold"
+# msgstr ""
+
+# msgid "Expression in"
+# msgstr ""
+
+# msgid "Impact applied when:"
+# msgstr ""
+
+# msgid "true"
+# msgstr ""
+
+# msgid "false"
+# msgstr ""
+
+# msgid "Click here for details"
+# msgstr ""
+
+# msgid "No KPI found"
+# msgstr ""
+
+# msgid "No Business Activity found"
+# msgstr ""
+
+# msgid "business activity"
+# msgstr ""
+
+# msgid "Health"
+# msgstr ""
+
+# msgid "Critical KPIs"
+# msgstr ""
+
+# msgid "Additional connector configurations"
+# msgstr ""
+
+# msgid "Types"
+# msgstr ""
+
+# msgid "Updated by"
+# msgstr ""
+
+# msgid "Edit connector configuration"
+# msgstr ""
+
+# msgid "More filters"
+# msgstr ""
+
+# msgid "Pollers"
+# msgstr ""
+
+# msgid "Delete additional connector configuration"
+# msgstr ""
+
+# msgid "The {{name}} additional connector configuration will be permanently deleted."
+# msgstr ""
+
+# msgid "The corresponding connectors will not work anymore."
+# msgstr ""
+
+# msgid "Additional connector configuration deleted"
+# msgstr ""
+
+# msgid "Additional connector configuration duplicated"
+# msgstr ""
+
+# msgid "Additional connector configuration created"
+# msgstr ""
+
+# msgid "Additional connector configuration updated"
+# msgstr ""
+
+# msgid "Duplicate connector configuration"
+# msgstr ""
+
+# msgid "The name can be at most 50 characters long"
+# msgstr ""
+
+# msgid "The name should be at least 3 characters long"
+# msgstr ""
+
+# msgid "Create additional connector configuration"
+# msgstr ""
+
+# msgid "Update additional connector configuration"
+# msgstr ""
+
+# msgid "Select poller(s)"
+# msgstr ""
+
+# msgid "Password"
+# msgstr ""
+
+# msgid "Add parameter"
+# msgstr ""
+
+# msgid "Url"
+# msgstr ""
+
+# msgid "Username"
+# msgstr ""
+
+# msgid "Add vCenter/ESX"
+# msgstr ""
+
+# msgid "Remove vCenter/ESX"
+# msgstr ""
+
+# msgid "At least one poller is required"
+# msgstr ""
+
+# msgid "At least one vCenter is required"
+# msgstr ""
+
+# msgid "Please enter a valid URL or IP address"
+# msgstr ""
+
+# msgid "Invalid port number"
+# msgstr ""
+
+# msgid "The name of the vCenter should be unique"
+# msgstr ""
+
+# msgid "vCenter name"
+# msgstr ""
+
+# msgid "Do you want to quit without saving the changes?"
+# msgstr ""
+
+# msgid "Your form has unsaved changes"
+# msgstr ""
+
+
+# msgid "Error while adding an additional connector configuration"
+# msgstr ""
+
+# msgid "You are not allowed to access additional connector configurations"
+# msgstr ""
+
+# msgid "An additional connector configuration configuration of type '%s' is already associated with poller ID(s) '%s'"
+# msgstr ""
+
+# msgid "Duplicates not allowed for property '%s'"
+# msgstr ""
+
+# msgid "'%s' must contain at least one element"
+# msgstr ""
+
+# msgid "Error while retrieving an additional connector configuration"
+# msgstr ""
+
+# msgid "The additional connector configuration name '%s' already exists"
+# msgstr ""
+
+# msgid "Error while deleting an additional connector configuration"
+# msgstr ""
+
+#  msgid "You don't have sufficient permissions for this action"
+#  msgstr ""
+
+#  msgid "Error while searching for additional connector configurations"
+#  msgstr ""
+
+#  msgid "Error while searching for available pollers for type '%s'"
+#  msgstr ""
+
+# msgid "Select time zone"
+# msgstr ""
+
+# msgid "Select time format"
+# msgstr ""
+
+# msgid "12 hours"
+# msgstr ""
+
+# msgid "24 hours"
+# msgstr ""
+
+# msgid "Ends at"
+# msgstr ""
+
+# msgid "Time zone"
+# msgstr ""
+
+# msgid "Date format"
+# msgstr ""
+
+# msgid "Time format"
+# msgstr ""
+
+# msgid "Countdown"
+# msgstr ""
+
+# msgid "Timer"
+# msgstr ""
+
+# msgid "Show time zone"
+# msgstr ""
+
+# msgid "Show date"
+# msgstr ""
+
+#  msgid "Error while updating an additional connector configuration"
+#  msgstr ""
+
+#  msgid "Changing type of an existing additional connector configuration is not allowed"
+#  msgstr ""

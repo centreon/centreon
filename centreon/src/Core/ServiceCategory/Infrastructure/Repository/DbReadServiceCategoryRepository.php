@@ -29,10 +29,12 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceCategory\Domain\Model\ServiceCategoryNamesById;
+use Core\ServiceGroup\Infrastructure\Repository\ServiceGroupRepositoryTrait;
 use Utility\SqlConcatenator;
 
 /**
@@ -45,7 +47,7 @@ use Utility\SqlConcatenator;
  */
 class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements ReadServiceCategoryRepositoryInterface
 {
-    use LoggerTrait;
+    use LoggerTrait, ServiceGroupRepositoryTrait, SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -180,15 +182,9 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     {
         $this->info('Getting all service categories');
 
-        $concatenator = new SqlConcatenator();
-        $concatenator->withCalcFoundRows(true);
-        $concatenator->defineSelect(<<<'SQL'
-            SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
-            FROM `:db`.service_categories sc
-            SQL
-        );
+        $concatenators = $this->findServiceCategoriesRequest($requestParameters);
 
-        return $this->retrieveServiceCategories($concatenator, $requestParameters);
+        return $this->retrieveServiceCategories($concatenators, $requestParameters);
     }
 
     /**
@@ -218,24 +214,30 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             return $this->findByRequestParameter($requestParameters);
         }
 
-        $concatenator = new SqlConcatenator();
-        $concatenator->withCalcFoundRows(true);
-        $concatenator->defineSelect(
-            'SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
-            FROM `:db`.service_categories sc
-            INNER JOIN `:db`.acl_resources_sc_relations arhr
-                ON sc.sc_id = arhr.sc_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id'
-        );
-        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
-            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+        $concatenators = $this->findServiceCategoriesRequest($requestParameters, $accessGroupIds);
 
-        return $this->retrieveServiceCategories($concatenator, $requestParameters);
+        foreach ($concatenators as $concatenator) {
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    INNER JOIN `:db`.acl_resources_sc_relations arscr
+                        ON arscr.sc_id = sc.sc_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON res.acl_res_id = arscr.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON argr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON ag.acl_group_id = argr.acl_group_id
+                    SQL
+            );
+            $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+                ->appendWhere(
+                    <<<'SQL'
+                        ag.acl_group_id IN (:access_group_ids)
+                        SQL
+                );
+        }
+
+        return $this->retrieveServiceCategories($concatenators, $requestParameters);
     }
 
     /**
@@ -342,6 +344,13 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             static fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
+
+        // if service categories are not filtered in ACLs, then user has access to ALL service categories
+        if (! $this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
+            $this->info('Service categories access not filtered');
+
+            return $this->findByService($serviceId);
+        }
 
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect(
@@ -472,64 +481,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
-     * @param _ServiceCategory $result
-     *
-     * @return ServiceCategory
-     */
-    private function createServiceCategoryFromArray(array $result): ServiceCategory
-    {
-        $serviceCategory = new ServiceCategory(
-            $result['sc_id'],
-            $result['sc_name'],
-            $result['sc_description']
-        );
-        $serviceCategory->setActivated((bool) $result['sc_activate']);
-
-        return $serviceCategory;
-    }
-
-    /**
-     * @param SqlConcatenator $concatenator
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @return ServiceCategory[]
-     */
-    private function retrieveServiceCategories(
-        SqlConcatenator $concatenator,
-        RequestParametersInterface $requestParameters
-    ): array {
-        // Exclude severities from the results
-        $concatenator->appendWhere('sc.level IS NULL');
-
-        // Settup for search, pagination, order
-        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->setConcordanceArray([
-            'id' => 'sc.sc_id',
-            'name' => 'sc.sc_name',
-            'alias' => 'sc.sc_description',
-            'is_activated' => 'sc.sc_activate',
-        ]);
-        $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
-        $sqlTranslator->translateForConcatenator($concatenator);
-
-        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
-
-        $sqlTranslator->bindSearchValues($statement);
-        $concatenator->bindValuesToStatement($statement);
-        $statement->execute();
-
-        $sqlTranslator->calculateNumberOfRows($this->db);
-
-        $serviceCategories = [];
-        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /** @var _ServiceCategory $result */
-            $serviceCategories[] = $this->createServiceCategoryFromArray($result);
-        }
-
-        return $serviceCategories;
-    }
-
-    /**
      * Determine if service categories are filtered for given access group ids
      * true: accessible service categories are filtered (only specified are accessible)
      * false: accessible service categories are not filtered (all are accessible).
@@ -540,7 +491,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
      *
      * @return bool
      */
-    private function hasRestrictedAccessToServiceCategories(array $accessGroupIds): bool
+    public function hasRestrictedAccessToServiceCategories(array $accessGroupIds): bool
     {
         $concatenator = new SqlConcatenator();
 
@@ -561,6 +512,458 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
 
         $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @param _ServiceCategory $result
+     *
+     * @return ServiceCategory
+     */
+    private function createServiceCategoryFromArray(array $result): ServiceCategory
+    {
+        $serviceCategory = new ServiceCategory(
+            $result['sc_id'],
+            $result['sc_name'],
+            $result['sc_description']
+        );
+        $serviceCategory->setActivated((bool) $result['sc_activate']);
+
+        return $serviceCategory;
+    }
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     * @param int[] $accessGroupIds
+     *
+     * @return array<SqlConcatenator>
+     */
+    private function findServiceCategoriesRequest(RequestParametersInterface $requestParameters, array $accessGroupIds = []): array
+    {
+        $hostAcls = '';
+        $hostGroupAcls = '';
+        $hostCategoryAcls = '';
+        $serviceGroupAcls = '';
+        if ([] !== $accessGroupIds) {
+            if (! $this->hasAccessToAllHosts($accessGroupIds)) {
+                $hostAcls = <<<'SQL'
+                    AND hsr.host_host_id IN (
+                        SELECT arhr.host_host_id
+                        FROM `:db`.acl_resources_host_relations arhr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+
+            if (! $this->hasAccessToAllHostGroups($accessGroupIds)) {
+                $hostGroupAcls = <<<'SQL'
+                    AND hr.hostgroup_hg_id IN (
+                        SELECT arhgr.hg_hg_id
+                        FROM `:db`.acl_resources_hg_relations arhgr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhgr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+
+            if ($this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
+                $hostCategoryAcls = <<<'SQL'
+                    AND hcr.hostcategories_hc_id IN (
+                        SELECT arhcr.hc_id
+                        FROM `:db`.acl_resources_hc_relations arhcr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhcr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+
+            if (! $this->hasAccessToAllServiceGroups($accessGroupIds)) {
+                $serviceGroupAcls = <<<'SQL'
+                        AND sgr.servicegroup_sg_id IN (
+                            SELECT arsgr.sg_id
+                            FROM `:db`.acl_resources_sg_relations arsgr
+                            INNER JOIN `:db`.acl_resources res
+                                ON res.acl_res_id = arsgr.acl_res_id
+                            INNER JOIN `:db`.acl_res_group_relations argr
+                                ON arsgr.acl_res_id = res.acl_res_id
+                            INNER JOIN `:db`.acl_groups ag
+                                ON ag.acl_group_id = argr.acl_group_id
+                            WHERE ag.acl_group_id IN (:access_group_ids)
+
+                        )
+                    SQL;
+            }
+        }
+
+        $searchAsString = $requestParameters->getSearchAsString();
+        \preg_match_all('/\{"(?<object>\w+)\.\w+"/', $searchAsString, $matches);
+
+        $findCategoryByServiceConcatenator = new SqlConcatenator();
+        $findCategoryByServiceConcatenator->defineSelect(
+            <<<'SQL'
+                SELECT sc.sc_id,
+                    sc.sc_name,
+                    sc.sc_description,
+                    sc.sc_activate
+                FROM `:db`.service_categories sc
+                SQL
+        );
+
+        $findCategoryByServiceTemplateConcatenator = new SqlConcatenator();
+        $findCategoryByServiceTemplateConcatenator->defineSelect(
+            <<<'SQL'
+                SELECT sc.sc_id,
+                    sc.sc_name,
+                    sc.sc_description,
+                    sc.sc_activate
+                FROM `:db`.service_categories sc
+                SQL
+        );
+
+        if (\in_array('hostcategory', $matches['object'], true)) {
+            $findCategoryByServiceConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = scr.service_service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    LEFT JOIN `:db`.hostgroup_relation hr
+                        ON hr.host_host_id = host.host_id
+                        {$hostGroupAcls}
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hr.hostgroup_hg_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON hcr.host_host_id = host.host_id
+                        {$hostCategoryAcls}
+                    LEFT JOIN `:db`.hostcategories
+                        ON hostcategories.hc_id = hcr.hostcategories_hc_id
+                    SQL
+            );
+
+            $findCategoryByServiceTemplateConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.service s
+                        ON s.service_template_model_stm_id = scr.service_service_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = s.service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    LEFT JOIN `:db`.hostgroup_relation hr
+                        ON hr.host_host_id = host.host_id
+                        {$hostGroupAcls}
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hr.hostgroup_hg_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON hcr.host_host_id = host.host_id
+                        {$hostCategoryAcls}
+                    LEFT JOIN `:db`.hostcategories
+                        ON hostcategories.hc_id = hcr.hostcategories_hc_id
+                    SQL
+            );
+        } else if (\in_array('hostgroup', $matches['object'], true)) {
+            $findCategoryByServiceConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = scr.service_service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    LEFT JOIN `:db`.hostgroup_relation hr
+                        ON hr.host_host_id = host.host_id
+                        {$hostGroupAcls}
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hr.hostgroup_hg_id
+                    SQL
+            );
+
+            $findCategoryByServiceTemplateConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.service s
+                        ON s.service_template_model_stm_id = scr.service_service_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = s.service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    LEFT JOIN `:db`.hostgroup_relation hr
+                        ON hr.host_host_id = host.host_id
+                        {$hostGroupAcls}
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hr.hostgroup_hg_id
+                    SQL
+            );
+        } else if (\in_array('host', $matches['object'], true)) {
+            $findCategoryByServiceConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = scr.service_service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    SQL
+            );
+
+            $findCategoryByServiceTemplateConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.service s
+                        ON s.service_template_model_stm_id = scr.service_service_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = s.service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    SQL
+            );
+        } else if (\in_array('servicegroup', $matches['object'], true)) {
+            $findCategoryByServiceConcatenator->appendJoins(
+                <<<SQL
+                        LEFT JOIN `:db`.service_categories_relation scr
+                            ON scr.sc_id = sc.sc_id
+                        LEFT JOIN `:db`.service s
+                            ON s.service_id = scr.service_service_id
+                        LEFT JOIN `:db`.servicegroup_relation sgr
+                            ON sgr.service_service_id = s.service_id
+                            {$serviceGroupAcls}
+                        LEFT JOIN `:db`.servicegroup
+                            ON sgr.servicegroup_sg_id = servicegroup.sg_id
+                    SQL
+            );
+
+            $findCategoryByServiceTemplateConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.service s
+                        ON s.service_template_model_stm_id = scr.service_service_id
+                    LEFT JOIN `:db`.servicegroup_relation sgr
+                        ON sgr.service_service_id = s.service_id
+                        {$serviceGroupAcls}
+                    LEFT JOIN `:db`.servicegroup
+                        ON sgr.servicegroup_sg_id = servicegroup.sg_id
+                    SQL
+            );
+        }
+
+        return [$findCategoryByServiceConcatenator, $findCategoryByServiceTemplateConcatenator];
+    }
+
+    /**
+     * @param array<SqlConcatenator> $concatenators
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @return ServiceCategory[]
+     */
+    private function retrieveServiceCategories(
+        array $concatenators,
+        RequestParametersInterface $requestParameters
+    ): array {
+        $concatenatorsAsString = [];
+        // Settup for search, pagination, order
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'sc.sc_id',
+            'name' => 'sc.sc_name',
+            'alias' => 'sc.sc_description',
+            'is_activated' => 'sc.sc_activate',
+            'host.id' => 'host.host_id',
+            'host.name' => 'host.host_name',
+            'hostgroup.id' => 'hostgroup.hg_id',
+            'hostgroup.name' => 'hostgroup.hg_name',
+            'hostcategory.id' => 'hostcategories.hc_id',
+            'hostcategory.name' => 'hostcategories.hc_name',
+            'servicegroup.id' => 'servicegroup.sg_id',
+            'servicegroup.name' => 'servicegroup.sg_name',
+        ]);
+
+        foreach ($concatenators as $concatenator) {
+            // Exclude severities from the results
+            $concatenator->appendWhere('sc.level IS NULL');
+
+            $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
+            $sqlTranslator->translateForConcatenator($concatenator);
+            $concatenator->withCalcFoundRows(false);
+            $concatenatorsAsString[] = $concatenator->concatForUnion();
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator->withCalcFoundRows(true);
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT *
+                SQL
+        )->defineFrom('(' . \implode(' UNION ', $concatenatorsAsString) . ') AS union_table');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $sqlTranslator->bindSearchValues($statement);
+        foreach ($concatenators as $concatenator) {
+            $concatenator->bindValuesToStatement($statement);
+        }
+        $statement->execute();
+
+        $sqlTranslator->calculateNumberOfRows($this->db);
+
+        $serviceCategories = [];
+        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _ServiceCategory $result */
+            $serviceCategories[] = $this->createServiceCategoryFromArray($result);
+        }
+
+        return $serviceCategories;
+    }
+
+    /**
+     * Determines if access groups give access to all host groups
+     * true: all host groups are accessible
+     * false: all host groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $accessGroupId) {
+            $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+        }
+        $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT res.all_hostgroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE ag.acl_group_id IN ({$bindParamsAsString})
+                SQL
+        ));
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determines if access groups give access to all hosts
+     * true: all hosts are accessible
+     * false: all hosts are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHosts(array $accessGroupIds): bool
+    {
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $accessGroupId) {
+            $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+        }
+        $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT res.all_hosts
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE ag.acl_group_id IN ({$bindParamsAsString})
+                SQL
+        ));
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determines if host categories are filtered for given access group ids
+     * true: accessible host categories are filtered (only specified are accessible)
+     * false: accessible host categories are NOT filtered (all are accessible).
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
+    {
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $accessGroupId) {
+            $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+        }
+        $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.acl_resources_hc_relations arhcr
+                INNER JOIN `:db`.acl_resources res
+                    ON res.acl_res_id = arhcr.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE ag.acl_group_id IN ({$bindParamsAsString})
+                SQL
+        ));
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         return (bool) $statement->fetchColumn();

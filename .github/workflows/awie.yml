@@ -7,8 +7,17 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     paths:
       - "centreon-awie/**"
+      - "!centreon-awie/features/**"
+      - "!centreon-awie/behat.yml"
+      - "!centreon-awie/veracode.json"
+      - "!centreon-awie/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -17,6 +26,10 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-awie/**"
+      - "!centreon-awie/features/**"
+      - "!centreon-awie/behat.yml"
+      - "!centreon-awie/veracode.json"
+      - "!centreon-awie/.veracode-exclusions"
 
 env:
   module: awie
@@ -49,10 +62,10 @@ jobs:
     needs: [get-version]
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
           php-version: 8.1
           coverage: none
@@ -102,7 +115,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Package
         uses: ./.github/actions/package-nfpm
@@ -128,7 +141,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -152,7 +165,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -163,10 +176,12 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
-  delivery-deb:
+  deliver-deb:
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ !needs.get-version.outputs.release_cloud && contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -176,7 +191,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -187,6 +202,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
     needs: [get-version]
@@ -198,7 +215,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
@@ -209,4 +226,6 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
-          github_base_ref: ${{ github.base_ref }}
+          github_ref_name: ${{ github.ref_name }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}

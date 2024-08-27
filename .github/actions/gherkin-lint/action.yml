@@ -1,8 +1,9 @@
 name: gherkin-lint
+description: Gherkin linter
 
 inputs:
   features_path:
-    description: The path to the feature files
+    description: "The path to the feature files"
     required: true
 
 runs:

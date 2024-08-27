@@ -1,4 +1,4 @@
-import { renderHook, waitFor, RenderHookResult } from '@testing-library/react';
+import { RenderHookResult, renderHook, waitFor } from '@testing-library/react';
 import fetchMock from 'jest-fetch-mock';
 
 import TestQueryProvider from '../TestQueryProvider';
@@ -48,7 +48,7 @@ describe('useFetchQuery', () => {
       method: Method.POST
     });
 
-    result.current.mutate(user);
+    result.current.mutate({ payload: user });
 
     await waitFor(() => {
       expect(result.current?.isError).toEqual(false);
@@ -64,7 +64,7 @@ describe('useFetchQuery', () => {
       method: Method.POST
     });
 
-    result.current.mutate(user);
+    result.current.mutate({ payload: user });
 
     await waitFor(() => {
       expect(result.current?.isError).toEqual(true);
@@ -85,7 +85,7 @@ describe('useFetchQuery', () => {
       method: Method.POST
     });
 
-    result.current.mutate(user);
+    result.current.mutate({ payload: user });
 
     await waitFor(() => {
       expect(result.current?.isError).toEqual(true);
@@ -109,7 +109,7 @@ describe('useFetchQuery', () => {
       method: Method.POST
     });
 
-    result.current.mutate(user);
+    result.current.mutate({ payload: user });
 
     await waitFor(() => {
       expect(mockedShowErrorMessage).not.toHaveBeenCalled();

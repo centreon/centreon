@@ -7,3 +7,7 @@ export const labelValueDefinedByMetric = 'Value defined by {{metric}} metric';
 export const labelCustomValue = 'Custom value';
 export const labelPreviewRemainsEmpty =
   'Select a dataset to display the preview.';
+export const labelNoHostsFound = 'No host found';
+export const labelNoServicesFound = 'No service found';
+export const labelNoKPIFound = 'No KPI found';
+export const labelNoBAFound = 'No Business Activity found';

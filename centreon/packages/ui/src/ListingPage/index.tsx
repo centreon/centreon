@@ -4,9 +4,9 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Box } from '@mui/material';
 
-import { useMemoComponent } from '../utils';
-import WithPanel from '../Panel/WithPanel';
 import { ParentSize } from '..';
+import WithPanel from '../Panel/WithPanel';
+import { useMemoComponent } from '../utils';
 
 import FilterSkeleton from './FilterSkeleton';
 import ListingSkeleton from './ListingSkeleton';

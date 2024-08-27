@@ -23,7 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Domain\RealTime\Model\IndexData;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use DateTimeImmutable;
 use Core\Metric\Domain\Model\MetricValue;
 use Core\Metric\Domain\Model\PerformanceMetric;
@@ -34,6 +39,7 @@ use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerforman
 use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetrics;
 use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricRequest;
 use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricResponse;
+use Tests\Core\Metric\Infrastructure\API\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenterStub;
 
 beforeEach(function () {
     $this->hostId = 1;
@@ -41,9 +47,40 @@ beforeEach(function () {
     $this->indexId = 15;
 });
 
+it('returns an error response if the user does not have access to the correct topology', function () {
+    $indexDataRepository = $this->createMock(ReadIndexDataRepositoryInterface::class);
+    $metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
+    $performanceDataRepository = $this->createMock(ReadPerformanceDataRepositoryInterface::class);
+    $readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class);
+    $contact = $this->createMock(ContactInterface::class);
+    $contact->expects($this->any())
+        ->method('hasTopologyRole')
+        ->willReturn(false);
+
+    $useCase = new DownloadPerformanceMetrics(
+        $indexDataRepository,
+        $metricRepository,
+        $performanceDataRepository,
+        $readAccessGroupRepository,
+        $readServiceRepository,
+        $contact,
+    );
+    $performanceMetricRequest = new DownloadPerformanceMetricRequest(
+            $this->hostId,
+            $this->serviceId,
+            new DateTimeImmutable('2022-01-01'),
+            new DateTimeImmutable('2023-01-01')
+        );
+    $presenter = new DownloadPerformanceMetricsPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $useCase($performanceMetricRequest, $presenter);
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(ForbiddenResponse::class);
+});
+
 it(
     'download file name is properly generated',
-    function (string $hostName, string $serviceDescription, string $expectedFileName) {
+    function (string $hostName, string $serviceDescription, string $expectedFileName): void {
         $indexData = new IndexData($hostName, $serviceDescription);
 
         $indexDataRepository = $this->createMock(ReadIndexDataRepositoryInterface::class);
@@ -64,6 +101,17 @@ it(
         $metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
         $performanceDataRepository = $this->createMock(ReadPerformanceDataRepositoryInterface::class);
         $presenter = $this->createMock(DownloadPerformanceMetricPresenterInterface::class);
+        $readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+        $readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class);
+        $contact = $this->createMock(ContactInterface::class);
+        $contact->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $contact
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
 
         $performanceMetricRequest = new DownloadPerformanceMetricRequest(
             $this->hostId,
@@ -72,16 +120,23 @@ it(
             new DateTimeImmutable('2023-01-01')
         );
 
-        $sut = new DownloadPerformanceMetrics($indexDataRepository, $metricRepository, $performanceDataRepository);
+        $useCase = new DownloadPerformanceMetrics(
+            $indexDataRepository,
+            $metricRepository,
+            $performanceDataRepository,
+            $readAccessGroupRepository,
+            $readServiceRepository,
+            $contact,
+        );
 
-        $sut($performanceMetricRequest, $presenter);
-    }
-)->with([
-    ['Centreon-Server', 'Ping', 'Centreon-Server_Ping'],
-    ['',                'Ping', '15'],
-    ['Centreon-Server', '',     '15'],
-    ['',                '',     '15'],
-]);
+        $useCase($performanceMetricRequest, $presenter);
+    })->with([
+        ['Centreon-Server', 'Ping', 'Centreon-Server_Ping'],
+        ['',                'Ping', '15'],
+        ['Centreon-Server', '',     '15'],
+        ['',                '',     '15'],
+        ]
+);;
 
 it(
     'validate presenter response',
@@ -108,6 +163,18 @@ it(
             ->willReturn($performanceData);
 
         $presenter = $this->createMock(DownloadPerformanceMetricPresenterInterface::class);
+        $readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+        $readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class);
+        $contact = $this->createMock(ContactInterface::class);
+        $contact->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $contact
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+
         $presenter
             ->expects($this->once())
             ->method('present')
@@ -120,8 +187,15 @@ it(
             new DateTimeImmutable('2023-01-01')
         );
 
-        $sut = new DownloadPerformanceMetrics($indexDataRepository, $metricRepository, $performanceDataRepository);
-        $sut($performanceMetricRequest, $presenter);
+        $useCase = new DownloadPerformanceMetrics(
+            $indexDataRepository,
+            $metricRepository,
+            $performanceDataRepository,
+            $readAccessGroupRepository,
+            $readServiceRepository,
+            $contact,
+        );
+        $useCase($performanceMetricRequest, $presenter);
     }
 )->with([
     [

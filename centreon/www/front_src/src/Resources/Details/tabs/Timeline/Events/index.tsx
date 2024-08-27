@@ -1,12 +1,11 @@
 import { RefObject } from 'react';
 
-import { equals, last, not, isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { Dayjs } from 'dayjs';
 import { useAtomValue } from 'jotai';
+import { equals, isEmpty, last, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography, Paper, Divider } from '@mui/material';
 import {
   Timeline,
   TimelineContent,
@@ -14,18 +13,19 @@ import {
   TimelineItem,
   TimelineSeparator
 } from '@mui/lab';
+import { Divider, Paper, Typography } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { labelFrom, labelTo } from '../../../../translatedLabels';
-import { TimelineEvent } from '../models';
 import {
-  eventsByDateDivisions,
   TimelineEventByType,
   TimelineIconByType,
+  eventsByDateDivisions,
   sortEventsByDate
 } from '../Event';
+import { TimelineEvent } from '../models';
 
 const useStyles = makeStyles()((theme) => ({
   contentContainer: {

@@ -1,16 +1,17 @@
 /* eslint-disable react/no-array-index-key */
 import { ReactElement } from 'react';
 
-import { equals, flatten, isEmpty } from 'ramda';
+import { equals, flatten, isEmpty, last } from 'ramda';
 
-import useDatasetFilters from '../hooks/useDatasetFilters';
+import { Divider } from '@mui/material';
+
 import { Dataset } from '../../../models';
+import useDatasetFilters from '../hooks/useDatasetFilters';
 import { useDatasetFiltersStyles } from '../styles/DatasetFilters.styles';
 
-import DatasetFilter from './DatasetFilter';
 import AddDatasetButton from './AddDatasetButton';
+import DatasetFilter from './DatasetFilter';
 import DeleteDatasetButton from './DeleteDatasetButton';
-import DatasetFilterDivider from './DatasetFilterDivider';
 
 const DatasetFilters = (): ReactElement => {
   const { classes } = useDatasetFiltersStyles();
@@ -18,17 +19,19 @@ const DatasetFilters = (): ReactElement => {
     useDatasetFilters();
 
   const areResourcesFilled = (datasets: Array<Dataset>): boolean =>
-    datasets?.every(
-      ({ resourceType, resources }) =>
-        !isEmpty(resourceType) && !isEmpty(resources)
-    );
+    (!isEmpty(last(datasets)?.resourceType) &&
+      !isEmpty(last(datasets)?.resources)) ||
+    (last(datasets)?.allOfResourceType as boolean);
 
   return (
     <div>
       {datasetFilters.map((datasetFilter, index) => (
         <div
           className={classes.datasetFiltersContainer}
-          key={`${index}-datasetFilter`}
+          key={`${
+            // biome-ignore lint/suspicious/noArrayIndexKey:
+            index
+          }-datasetFilter`}
         >
           <div className={classes.datasetFiltersComposition}>
             <DatasetFilter
@@ -41,7 +44,10 @@ const DatasetFilters = (): ReactElement => {
             )}
           </div>
           {!equals(datasetFilters.length - 1, index) && (
-            <DatasetFilterDivider />
+            <Divider
+              className={classes.datasetFiltersDivider}
+              variant="middle"
+            />
           )}
         </div>
       ))}
@@ -50,7 +56,8 @@ const DatasetFilters = (): ReactElement => {
           !isEmpty(
             flatten(datasetFilters).filter(
               (dataset) =>
-                isEmpty(dataset.resourceType) || isEmpty(dataset.resources)
+                !dataset.allOfResourceType &&
+                (isEmpty(dataset.resourceType) || isEmpty(dataset.resources))
             )
           )
         }

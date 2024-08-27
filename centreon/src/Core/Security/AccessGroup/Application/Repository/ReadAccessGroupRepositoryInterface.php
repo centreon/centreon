@@ -67,4 +67,15 @@ interface ReadAccessGroupRepositoryInterface
      * @return AccessGroup[]
      */
     public function findByIds(array $accessGroupIds): array;
+
+    /**
+     * Deterimne if any of the accessGroup are linked to an ACLResourcesGroup.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function hasAccessToResources(array $accessGroupIds): bool;
 }

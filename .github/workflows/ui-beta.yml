@@ -1,11 +1,16 @@
 name: centreon-ui-beta
 
 on:
+  workflow_dispatch:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     paths:
       - "centreon/packages/ui/**"
       - '.github/workflows/ui-beta.yml'
-  workflow_dispatch:
 
 env:
   directory: "centreon/packages/ui"
@@ -17,16 +22,20 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: ./.github/actions/frontend-lint
         with:
           frontend_directory: ${{ env.directory }}
           module_name: centreon-ui
           dependencies_lock_file: centreon/pnpm-lock.yaml
+          pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   cypress-component-testing:
     uses: ./.github/workflows/cypress-component-parallelization.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
     with:
       name: component
       module_name: centreon/packages/ui
@@ -37,9 +46,9 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 8
 
@@ -56,7 +65,7 @@ jobs:
     needs: [lint, unit-test, cypress-component-testing]
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           ref: ${{ github.head_ref }}
 

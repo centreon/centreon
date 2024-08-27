@@ -3,25 +3,23 @@ import { useTranslation } from 'react-i18next';
 import { Divider, Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
-import { InputProps, Group, InputType } from '@centreon/ui';
+import { Group, InputProps, InputType } from '@centreon/ui';
 
 import {
+  labelAddResourceDatasets,
   labelContactGroups,
   labelContacts,
   labelContactsAndContactGroups,
   labelDescription,
   labelName,
-  labelResourceSelection,
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
-import {
-  findContactGroupsEndpoint,
-  findContactsEndpoint
-} from '../api/endpoints';
 
 import { useFormInputStyles } from './FormInputs.styles';
 import ActivateSwitch from './components/ActivateSwitch';
+import ContactGroupsSelector from './components/ContactGroupsSelector';
+import ContactsSelector from './components/ContactsSelector';
 import ResourceSelection from './components/ResourceSelection';
 
 interface UseFormInputsState {
@@ -45,7 +43,7 @@ const useFormInputs = (): UseFormInputsState => {
       titleAttributes
     },
     {
-      name: t(labelResourceSelection),
+      name: t(labelAddResourceDatasets),
       order: 2,
       titleAttributes
     },
@@ -117,7 +115,7 @@ const useFormInputs = (): UseFormInputsState => {
               className: classes.resourceSelection,
               columns: [
                 {
-                  dataTestId: t(labelResourceSelection),
+                  dataTestId: t(labelAddResourceDatasets),
                   fieldName: 'resourceSelection',
                   grid: {
                     alignItems: 'left',
@@ -127,14 +125,14 @@ const useFormInputs = (): UseFormInputsState => {
                         custom: {
                           Component: () => <ResourceSelection />
                         },
-                        dataTestId: t(labelResourceSelection),
+                        dataTestId: t(labelAddResourceDatasets),
                         fieldName: 'datasetFilters',
-                        label: t(labelResourceSelection),
+                        label: t(labelAddResourceDatasets),
                         type: InputType.Custom
                       }
                     ]
                   },
-                  label: t(labelResourceSelection),
+                  label: t(labelAddResourceDatasets),
                   type: InputType.Grid
                 },
                 {
@@ -164,28 +162,26 @@ const useFormInputs = (): UseFormInputsState => {
                         type: InputType.Custom
                       },
                       {
-                        connectedAutocomplete: {
-                          additionalConditionParameters: [],
-                          endpoint: findContactsEndpoint
+                        custom: {
+                          Component: () => <ContactsSelector />
                         },
                         dataTestId: t(labelContacts),
                         disableSortedOptions: true,
                         fieldName: 'contacts',
                         label: t(labelContacts),
                         required: true,
-                        type: InputType.MultiConnectedAutocomplete
+                        type: InputType.Custom
                       },
                       {
-                        connectedAutocomplete: {
-                          additionalConditionParameters: [],
-                          endpoint: findContactGroupsEndpoint
+                        custom: {
+                          Component: () => <ContactGroupsSelector />
                         },
                         dataTestId: t(labelContactGroups),
                         disableSortedOptions: true,
                         fieldName: 'contactGroups',
                         label: t(labelContactGroups),
                         required: true,
-                        type: InputType.MultiConnectedAutocomplete
+                        type: InputType.Custom
                       }
                     ]
                   },

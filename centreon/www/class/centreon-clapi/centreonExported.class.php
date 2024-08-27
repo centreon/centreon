@@ -90,6 +90,12 @@ class CentreonExported
         }
     }
 
+    public function setExported(string $object, int $id): void
+    {
+        $this->exported[$object][$id] = 1;
+    }
+
+
     private function checkAriane($object, $id, $name)
     {
         if (!is_null($this->filter_ariane)) {

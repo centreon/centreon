@@ -66,6 +66,8 @@ final class DownloadPerformanceMetricsController extends AbstractController
      *
      * @param int $hostId
      * @param int $serviceId
+     *
+     * @throws \Exception
      */
     private function createPerformanceMetricRequest(int $hostId, int $serviceId): void
     {

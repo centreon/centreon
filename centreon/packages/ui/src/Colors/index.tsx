@@ -1,7 +1,7 @@
-import { makeStyles } from 'tss-react/mui';
 import { includes, toPairs } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Stack, Box, useTheme, Typography, Divider, Grid } from '@mui/material';
+import { Box, Divider, Grid, Stack, Typography, useTheme } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
 
@@ -90,7 +90,11 @@ const GroupedColorStatus = (): JSX.Element => {
             key={status}
             keyTheme={status}
           />
-          <Divider className={classes.divider} variant="middle" />
+          <Divider
+            className={classes.divider}
+            variant="middle"
+            key={`${status}-divider`}
+          />
         </>
       ))}
     </>

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { labelResourceSelection } from '../../../translatedLabels';
+import { labelAddResourceDatasets } from '../../../translatedLabels';
 import { useResourceSelectionStyles } from '../styles/ResourceSelection.styles';
 
 import DatasetFilters from './DatasetFilters';
@@ -17,7 +17,7 @@ const ResourceSelection = (): ReactElement => {
     <div className={classes.resourceSelectionContainter}>
       <div>
         <Typography className={classes.resourceSelectionTitle}>
-          {t(labelResourceSelection)}
+          {t(labelAddResourceDatasets)}
         </Typography>
       </div>
       <DatasetFilters />

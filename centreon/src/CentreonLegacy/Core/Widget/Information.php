@@ -27,10 +27,10 @@ use Psr\Container\ContainerInterface;
 
 class Information
 {
-    /** @var \Psr\Container\ContainerInterface */
+    /** @var ContainerInterface */
     protected $services;
     
-    /** @var \CentreonLegacy\Core\Utils\Utils */
+    /** @var Utils */
     protected $utils;
 
     /** @var array */
@@ -45,8 +45,8 @@ class Information
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
-     * @param \CentreonLegacy\Core\Utils\Utils $utils
+     * @param ContainerInterface $services
+     * @param Utils $utils
      */
     public function __construct(ContainerInterface $services, ?Utils $utils = null)
     {

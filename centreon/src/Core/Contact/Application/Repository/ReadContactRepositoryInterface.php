@@ -82,6 +82,15 @@ interface ReadContactRepositoryInterface
     public function existInAccessGroups(int $contactId, array $accessGroupIds): bool;
 
     /**
+     * Find contact IDs member of given access groups.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @return int[]
+     */
+    public function findContactIdsByAccessGroups(array $accessGroupIds): array;
+
+    /**
      * @param RequestParametersInterface $requestParameters
      *
      * @throws \Throwable
@@ -89,4 +98,15 @@ interface ReadContactRepositoryInterface
      * @return Contact[]
      */
     public function findAdminWithRequestParameters(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Retrieve admins based on given IDs.
+     *
+     * @param int[] $contactIds
+     *
+     * @throws \Throwable
+     *
+     * @return Contact[]
+     */
+    public function findAdminsByIds(array $contactIds): array;
 }

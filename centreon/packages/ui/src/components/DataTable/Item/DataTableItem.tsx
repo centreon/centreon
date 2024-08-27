@@ -7,32 +7,15 @@ import {
   CardContent as MuiCardContent,
   Typography as MuiTypography
 } from '@mui/material';
-import {
-  Delete as DeleteIcon,
-  Settings as SettingsIcon,
-  Share as ShareIcon
-} from '@mui/icons-material';
-
-import { IconButton } from '../../Button';
-import { ConfirmationTooltip } from '../../Tooltip/ConfirmationTooltip';
 
 import { useStyles } from './DataTableItem.styles';
 
 export interface DataTableItemProps {
+  Actions?: JSX.Element;
   description?: string;
   hasActions?: boolean;
   hasCardAction?: boolean;
-  labelsDelete?: {
-    cancel: string;
-    confirm: {
-      label: string;
-      secondaryLabel?: string;
-    };
-  };
   onClick?: () => void;
-  onDelete?: () => void;
-  onEdit?: () => void;
-  onEditAccessRights?: () => void;
   title: string;
 }
 
@@ -44,10 +27,7 @@ const DataTableItem = forwardRef(
       hasCardAction = false,
       hasActions = false,
       onClick,
-      onEdit,
-      onDelete,
-      onEditAccessRights,
-      labelsDelete
+      Actions
     }: DataTableItemProps,
     ref
   ): ReactElement => {
@@ -75,44 +55,8 @@ const DataTableItem = forwardRef(
         </ActionArea>
         {hasActions && (
           <MuiCardActions>
-            <span>
-              {onDelete && labelsDelete && (
-                <ConfirmationTooltip
-                  confirmVariant="error"
-                  labels={labelsDelete}
-                  onConfirm={onDelete}
-                >
-                  {({ toggleTooltip }) => (
-                    <IconButton
-                      aria-label="delete"
-                      data-testid="delete"
-                      icon={<DeleteIcon />}
-                      size="small"
-                      variant="ghost"
-                      onClick={toggleTooltip}
-                    />
-                  )}
-                </ConfirmationTooltip>
-              )}
-            </span>
-            <span>
-              <IconButton
-                aria-label="edit access rights"
-                data-testid="edit-access-rights"
-                icon={<ShareIcon />}
-                size="small"
-                variant="primary"
-                onClick={() => onEditAccessRights?.()}
-              />
-              <IconButton
-                aria-label="edit"
-                data-testid="edit"
-                icon={<SettingsIcon />}
-                size="small"
-                variant="primary"
-                onClick={() => onEdit?.()}
-              />
-            </span>
+            <span />
+            <span>{Actions}</span>
           </MuiCardActions>
         )}
       </MuiCard>

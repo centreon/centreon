@@ -1,0 +1,20 @@
+{
+    "meta":{
+        "limit": 10,
+        "page": 1,
+        "search": {},
+        "sort_by": {},
+        "total": 1
+      },
+    "result":[
+        {
+            "id": 0,
+            "name": "Linux-servers"
+          },
+          {
+            "id": 1,
+            "name": "Firewall"
+          }
+    ]
+
+}

@@ -54,3 +54,4 @@ $help["geo_coords"] = dgettext(
     "Geographical coordinates use by Centreon Map module to position element on map. Define \"Latitude,Longitude\", " .
     "for example for Paris coordinates set \"48.51,2.20\""
 );
+$help['resource_access_rules'] = dgettext('help', 'Resource access rule to which the service group should be linked');

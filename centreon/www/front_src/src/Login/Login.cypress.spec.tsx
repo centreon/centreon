@@ -1,15 +1,15 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
-import { replace } from 'ramda';
 import i18next from 'i18next';
+import { Provider, createStore } from 'jotai';
+import { replace } from 'ramda';
 import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router-dom';
 
-import { SnackbarProvider, TestQueryProvider, Method } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { areUserParametersLoadedAtom } from '../Main/useUser';
-import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 import { externalTranslationEndpoint } from '../App/endpoint';
+import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
+import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { userEndpoint } from '../api/endpoint';
 
 import {
@@ -19,6 +19,7 @@ import {
 } from './api/endpoint';
 import {
   labelAlias,
+  labelAnErrorOccurredDuringAuthentication,
   labelCentreonLogo,
   labelCentreonWallpaper,
   labelConnect,
@@ -89,6 +90,24 @@ const retrievedProvidersConfiguration = [
     id: 3,
     is_active: false,
     name: 'ldap'
+  }
+];
+
+const retrievedForcedProvidersConfiguration = [
+  {
+    authentication_uri:
+      '/centreon/authentication/providers/configurations/local',
+    id: 1,
+    is_active: true,
+    name: 'local'
+  },
+  {
+    authentication_uri:
+      '/centreon/authentication/providers/configurations/openid',
+    id: 2,
+    is_active: true,
+    is_forced: true,
+    name: 'openid'
   }
 ];
 
@@ -381,6 +400,26 @@ describe('Login Page', () => {
       });
 
     cy.findByLabelText(labelAlias).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a fallback page when a provider is forced and an error occurred during authentication', () => {
+    mountComponentAndStubs();
+    cy.stub(router, 'useSearchParams').returns([
+      new Map([['authenticationError', 'An error occurred']])
+    ]);
+    cy.interceptAPIRequest({
+      alias: 'getProvidersConfiguration',
+      method: Method.GET,
+      path: `${replace('./', '**', providersConfigurationEndpoint)}`,
+      response: retrievedForcedProvidersConfiguration
+    });
+
+    cy.waitForRequest('@getProvidersConfiguration');
+
+    cy.contains(labelAnErrorOccurredDuringAuthentication).should('be.visible');
+    cy.contains('An error occurred').should('be.visible');
 
     cy.makeSnapshot();
   });

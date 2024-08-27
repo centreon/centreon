@@ -12,6 +12,23 @@
         "warningType": "default"
       },
       "label": "threshold"
+    },
+    "sortBy": {
+      "type": "radio",
+      "label": "Sort by",
+      "options": [
+        {
+          "id": "name",
+          "name": "Name"
+        }
+      ],
+      "defaultValue": "name",
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.threshold.enabled",
+        "method": "equals",
+        "matches": false
+      }
     }
   },
   "data": {
@@ -22,6 +39,108 @@
     "metrics": {
       "type": "metrics",
       "defaultValue": []
+    }
+  },
+  "categories": {
+    "General properties": {
+      "groups": [
+        {
+          "id": "group",
+          "name": "Group name"
+        }
+      ],
+      "elements": {
+        "select": {
+          "group": "group",
+          "type": "select",
+          "label": "Select field",
+          "defaultValue": "option1",
+          "options": [
+            {
+              "id": "option1",
+              "name": "Option 1"
+            },
+            {
+              "id": "option2",
+              "name": "Option 2"
+            }
+          ]
+        },
+        "radio": {
+          "type": "radio",
+          "label": "Radio",
+          "options": [
+            {
+              "id": "name",
+              "name": "Name"
+            }
+          ],
+          "defaultValue": "name"
+        },
+        "buttonGroup": {
+          "group": "group",
+          "type": "button-group",
+          "label": "Group",
+          "options": [
+            {
+              "id": "button1",
+              "name": "Button 1"
+            },
+            {
+              "id": "button2",
+              "name": "Button 2"
+            },
+            {
+              "id": "button3",
+              "name": "Button 3"
+            },
+            {
+              "id": "button4",
+              "name": "Button 4"
+            }
+          ],
+          "defaultValue": "button1",
+          "subInputs": [
+            {
+              "displayValue": "button3",
+              "input": {
+                "defaultValue": "sample",
+                "label": "Sub input 1",
+                "type": "textfield"
+              },
+              "name": "sub1"
+            },
+            {
+              "displayValue": "button3",
+              "input": {
+                "defaultValue": "text",
+                "label": "Sub input 2",
+                "type": "textfield"
+              },
+              "name": "sub2"
+            },
+            {
+              "displayValue": "button4",
+              "input": {
+                "defaultValue": "radio1",
+                "label": "Sub input 3",
+                "options": [
+                  {
+                    "id": "radio1",
+                    "name": "Radio 1"
+                  },
+                  {
+                    "id": "radio2",
+                    "name": "Radio 2"
+                  }
+                ],
+                "type": "radio"
+              },
+              "name": "sub3"
+            }
+          ]
+        }
+      }
     }
   },
   "moduleName": "centreon-widget-data"

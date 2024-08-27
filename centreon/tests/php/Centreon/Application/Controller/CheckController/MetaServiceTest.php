@@ -27,6 +27,7 @@ use Centreon\Application\Controller\CheckController;
 use Centreon\Domain\Check\Check;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Entity\EntityValidator;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\Exception\ValidationFailedException;
 
@@ -88,7 +89,9 @@ class MetaServiceTest extends ResourceTestCase
         $service->method('filterByContact')->with($this->equalTo($contact))->willReturn($service);
         $service->method('checkMetaService')->with($this->equalTo($check));
 
-        $sut = new CheckController($service);
+        $readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+
+        $sut = new CheckController($service, $readAccessGroupRepository);
         $sut->setContainer($container);
         $methodUnderTest = static::METHOD_UNDER_TEST;
 

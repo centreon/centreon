@@ -1,8 +1,8 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2020 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -34,35 +34,47 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-isset($_GET["hg_id"]) ? $hG = $_GET["hg_id"] : $hG = null;
-isset($_POST["hg_id"]) ? $hP = $_POST["hg_id"] : $hP = null;
-$hG ? $hg_id = (int)$hG : $hg_id = (int)$hP;
+const HOST_GROUP_ADD = 'a';
+const HOST_GROUP_WATCH = 'w';
+const HOST_GROUP_MODIFY = 'c';
+const HOST_GROUP_ACTIVATION = 's';
+const HOST_GROUP_MASSIVE_ACTIVATION = 'ms';
+const HOST_GROUP_DEACTIVATION = 'u';
+const HOST_GROUP_MASSIVE_DEACTIVATION = 'mu';
+const HOST_GROUP_DUPLICATION = 'm';
+const HOST_GROUP_DELETION = 'd';
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$hostGroupId = filter_var(
+    $_GET['hg_id'] ?? $_POST['hg_id'] ?? null,
+    FILTER_VALIDATE_INT
+);
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$select = filter_var_array(
+    getSelectOption(),
+    FILTER_VALIDATE_INT
+);
+$dupNbr = filter_var_array(
+    getDuplicateNumberOption(),
+    FILTER_VALIDATE_INT
+);
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/hostgroup/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/hostgroup/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+global $isCloudPlatform;
+
+$isCloudPlatform = isCloudPlatform();
+
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] !== '' && $p !== $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
@@ -71,89 +83,83 @@ $dbmon = new CentreonDB('centstorage');
 $aclDbName = $acl->getNameDBAcl();
 $hgs = $acl->getHostGroupAclConf(null, 'broker');
 
-function mywrap($el)
-{
-    return "'" . $el . "'";
-}
-
-$hgString = implode(',', array_map('mywrap', array_keys($hgs)));
+$hostGroupIds = array_keys($hgs);
 $hoststring = $acl->getHostsString('ID', $dbmon);
 
 switch ($o) {
-    case "a":
-        require_once($path . "formHostGroup.php");
-        break; #Add a Hostgroup
-    case "w":
-        require_once($path . "formHostGroup.php");
-        break; #Watch a Hostgroup
-    case "c":
-        require_once($path . "formHostGroup.php");
-        break; #Modify a Hostgroup
-    case "s":
+    case HOST_GROUP_ADD:
+        require_once $path . 'formHostGroup.php';
+        break; // Add a Hostgroup
+    case HOST_GROUP_WATCH:
+        require_once $path . 'formHostGroup.php';
+        break; // Watch a Hostgroup
+    case HOST_GROUP_MODIFY:
+        require_once $path . 'formHostGroup.php';
+        break; // Modify a Hostgroup
+    case HOST_GROUP_ACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableHostGroupInDB($hg_id);
+            enableHostGroupInDB($hostGroupId);
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listHostGroup.php");
-        break; #Activate a Hostgroup
-    case "ms":
+        require_once $path . 'listHostGroup.php';
+        break; // Activate a Hostgroup
+    case HOST_GROUP_MASSIVE_ACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableHostGroupInDB(null, isset($select) ? $select : array());
+            enableHostGroupInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listHostGroup.php");
+        require_once $path . 'listHostGroup.php';
         break;
-    case "u":
+    case HOST_GROUP_DEACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableHostGroupInDB($hg_id);
+            disableHostGroupInDB($hostGroupId);
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listHostGroup.php");
-        break; #Desactivate a Hostgroup
-    case "mu":
+        require_once $path . 'listHostGroup.php';
+        break; // Desactivate a Hostgroup
+    case HOST_GROUP_MASSIVE_DEACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableHostGroupInDB(null, isset($select) ? $select : array());
+            disableHostGroupInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listHostGroup.php");
+        require_once $path . 'listHostGroup.php';
         break;
-    case "m":
+    case HOST_GROUP_DUPLICATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleHostGroupInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleHostGroupInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
         $acl = $centreon->user->access;
         $hgs = $acl->getHostGroupAclConf(null, 'broker');
-        $hgString = implode(',', array_map('mywrap', array_keys($hgs)));
         $hoststring = $acl->getHostsString('ID', $dbmon);
-        require_once($path . "listHostGroup.php");
-        break; #Duplicate n Host grou
-    case "d":
+        require_once $path . 'listHostGroup.php';
+        break; // Duplicate n Host Groups
+    case HOST_GROUP_DELETION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostGroupInDB(isset($select) ? $select : array());
+            deleteHostGroupInDB($isCloudPlatform, $select ?? []);
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listHostGroup.php");
-        break; #Delete n Host group
+        require_once $path . 'listHostGroup.php';
+        break; // Delete n Host group
     default:
-        require_once($path . "listHostGroup.php");
+        require_once $path . 'listHostGroup.php';
         break;
 }

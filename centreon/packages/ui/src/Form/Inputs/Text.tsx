@@ -1,16 +1,16 @@
 import { ChangeEvent, useCallback, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { useFormikContext, FormikValues } from 'formik';
+import { FormikValues, useFormikContext } from 'formik';
 import {
+  path,
   equals,
   gt,
   isEmpty,
   not,
-  path,
   split,
   type as variableType
 } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { InputAdornment } from '@mui/material';
 
@@ -29,7 +29,8 @@ const Text = ({
   getRequired,
   change,
   additionalMemoProps,
-  text
+  text,
+  autoFocus
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -50,7 +51,7 @@ const Text = ({
 
     const formattedValue =
       equals(text?.type, 'number') && !isEmpty(value)
-        ? parseInt(value, 10)
+        ? Number.parseInt(value, 10)
         : value;
 
     setFieldValue(fieldName, formattedValue);
@@ -109,6 +110,7 @@ const Text = ({
         fullWidth
         EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
+        autoFocus={autoFocus}
         dataTestId={dataTestId || ''}
         disabled={disabled}
         error={error as string | undefined}

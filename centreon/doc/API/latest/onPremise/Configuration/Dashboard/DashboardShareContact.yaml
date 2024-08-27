@@ -1,0 +1,16 @@
+delete:
+  tags:
+    - Dashboard
+  summary: "Delete the contact access right of a dashboard"
+  description: |
+    Delete the contact access right of a dashboard.
+    
+    `Since Centreon web 23.10`
+  parameters:
+    - $ref: 'QueryParameter/DashboardId.yaml'
+    - $ref: 'QueryParameter/ContactId.yaml'
+  responses:
+    '204': { description: "OK" }
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

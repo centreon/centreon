@@ -34,10 +34,10 @@ class ExportManifestTest extends TestCase
 {
     use TestCaseExtensionTrait;
 
-    /** @var \CentreonRemote\Infrastructure\Export\ExportCommitment */
+    /** @var ExportCommitment */
     protected $commitment;
 
-    /** @var \CentreonRemote\Infrastructure\Export\ExportManifest */
+    /** @var ExportManifest */
     protected $manifest;
 
     /** @var string */

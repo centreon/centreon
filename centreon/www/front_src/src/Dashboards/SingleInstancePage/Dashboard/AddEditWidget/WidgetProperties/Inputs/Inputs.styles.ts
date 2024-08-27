@@ -2,13 +2,6 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useResourceStyles = makeStyles()((theme) => ({
   resourceComposition: {
-    [theme.breakpoints.down('xl')]: {
-      height: '21vh'
-    },
-    [theme.breakpoints.down('lg')]: {
-      height: '20vh'
-    },
-    height: '27vh',
     overflow: 'auto',
     paddingTop: theme.spacing(1),
     width: '100%'
@@ -42,6 +35,9 @@ export const useResourceStyles = makeStyles()((theme) => ({
   resourcesHeaderDivider: {
     alignSelf: 'center',
     flexGrow: 1
+  },
+  subtitle: {
+    marginBottom: theme.spacing(0.5)
   },
   warningText: {
     color: theme.palette.warning.main

@@ -4,13 +4,27 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
   container: {
     display: 'grid',
     gap: theme.spacing(2),
-    gridTemplateColumns: '1fr 2fr'
+    gridTemplateColumns: 'minmax(320px, 1fr) 2fr'
   },
   preview: {
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
-    minHeight: theme.spacing(45)
+    [theme.breakpoints.up('sm')]: {
+      minHeight: theme.spacing(45)
+    },
+    [theme.breakpoints.down('sm')]: {
+      height: '200px'
+    }
+  },
+  smallContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2)
+  },
+  smallWidgetProperties: {
+    maxHeight: theme.spacing(45),
+    overflow: 'auto'
   },
   widgetAvatar: {
     backgroundColor: theme.palette.common.black,
@@ -19,21 +33,21 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
   widgetProperties: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2)
+    gap: theme.spacing(2),
+    height: '100%'
   },
   widgetPropertiesContent: {
-    backgroundColor: theme.palette.background.default,
-    borderRadius: theme.shape.borderRadius,
     bottom: 0,
-    height: '68vh',
+    height: '100%',
     left: 0,
+    minHeight: '65vh',
     overflow: 'auto',
-    padding: theme.spacing(1),
     position: 'absolute',
     right: 0,
     top: 0
   },
   widgetPropertiesContentContainer: {
+    height: '100%',
     position: 'relative'
   }
 }));

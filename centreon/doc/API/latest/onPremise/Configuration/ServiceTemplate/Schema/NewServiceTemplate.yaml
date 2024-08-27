@@ -1,0 +1,285 @@
+type: object
+properties:
+  name:
+    type: string
+    description: "Service template name."
+    example: "generic-service"
+  alias:
+    type: string
+    description: "Service template alias."
+    example: "generic-service"
+  comment:
+    type: string
+    description: "Service template comment."
+    nullable: true
+  service_template_id:
+    type: integer
+    description: "Template ID of the service template."
+    minimum: 1
+    nullable: true
+    example: null
+  check_command_id:
+    type: integer
+    description: "Check command ID."
+    minimum: 1
+    nullable: true
+    example: null
+  check_command_args:
+    type: array
+    items:
+      type: string
+      description: "Arguments of the check command."
+    example: ["80", "90"]
+  check_timeperiod_id:
+    type: integer
+    description: "Time period ID of the check command."
+    minimum: 1
+    nullable: true
+    example: null
+  max_check_attempts:
+    type: integer
+    description: "Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state."
+    nullable: true
+  normal_normal_check_interval:
+    type: integer
+    description: |
+      Define the number of 'time units' between regularly scheduled checks of the service.
+
+      With the default time unit of 60s, this number will mean multiples of 1 minute.
+    nullable: true
+  retry_check_interval:
+    type: integer
+    description: |
+      Define the number of "time units" to wait before scheduling a re-check for this service after a non-OK state was detected.
+
+      With the default time unit of 60s, this number will mean multiples of 1 minute.
+
+      Once the service has been retried max_check_attempts times without a change in its status,
+      it will revert to being scheduled at its "normal" check interval rate.
+    nullable: true
+  active_check_enabled:
+    type: integer
+    description: |
+      Indicates whether active checks are enabled or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+    example: 2
+  passive_check_enabled:
+    type: integer
+    description: |
+      Indicates whether passive checks are enabled or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+    example: 2
+  volatility_enabled:
+    type: integer
+    description: |
+      Indicates whether the service is "volatile" or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+    example: 2
+  notification_enabled:
+    type: integer
+    description: |
+      Specify whether notifications are enabled or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+    example: 2
+  is_contact_additive_inheritance:
+    type: boolean
+    description: |
+      Only used when notification inheritance for hosts and services is set to vertical inheritance only.
+
+      When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
+  is_contact_group_additive_inheritance:
+    type: boolean
+    description: |
+      Only used when notification inheritance for hosts and services is set to vertical inheritance only.
+
+      When enabled, the contact definition will not override the definitions on template levels, it will be appended instead.
+  notification_interval:
+    type: integer
+    nullable: true
+    description: |
+      Define the number of "time units" to wait before re-notifying a contact that this service is still down or unreachable.
+
+      With the default time unit of 60s, this number will mean multiples of 1 minute.
+
+      A value of 0 disables re-notifications of contacts about problems for this service - only one problem notification will be sent out.
+  notification_timeperiod_id:
+    type: integer
+    description: "Notification timeperiod ID."
+    minimum: 1
+    nullable: true
+    example: 1
+  notification_type:
+    type: integer
+    description: |
+      Define the states of the service for which notifications should be sent out.
+
+      The value is the sum of all the values of the selected options.
+
+      * `0` - NONE
+      * `1` - WARNING
+      * `2` - UNKNOWN
+      * `4` - CRITICAL
+      * `8` - RECOVERY
+      * `16` - FLAPPING
+      * `32` - DOWNTIME_SCHEDULED
+      * NULL - (inheritance of its parent's value. If there is no parent,
+      the value will be assumed to be: WARNING|UNKNOWN|CRITICAL|RECOVERY|FLAPPING|DOWNTIME_SCHEDULED)
+
+      example: A value equal to 5 corresponds to the selected options WARNING and CRITICAL
+    example: 5
+  first_notification_delay:
+    type: integer
+    nullable: true
+    description: |
+      Define the number of "time units" to wait before sending out the first problem notification when this service enters a non-OK state.
+
+      With the default time unit of 60s, this number will mean multiples of 1 minute.
+  recovery_notification_delay:
+    type: integer
+    nullable: true
+    description: |
+      Define the number of "time units" to wait before sending out the recovery notification when this service enters an OK state.
+
+      With the default time unit of 60s, this number will mean multiples of 1 minute.
+  acknowledgement_timeout:
+    type: integer
+    description: "Specify a duration of acknowledgement for this service template."
+    nullable: true
+  freshness_checked:
+    type: integer
+    description: |
+      Indicates whether freshness is checked or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+    example: 2
+  freshness_threshold:
+    type: integer
+    description: "Specify the freshness threshold (in seconds) for this service."
+    nullable: true
+  flap_detection_enabled:
+    type: integer
+    description: |
+      Indicates whether the flap detection is enabled or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+    example: 2
+  low_flap_threshold:
+    type: integer
+    description: "Specify the low state change threshold used in flap detection for this service."
+    nullable: true
+  high_flap_threshold:
+    type: integer
+    description: "Specify the high state change threshold used in flap detection for this service."
+    nullable: true
+  event_handler_enabled:
+    type: integer
+    description: |
+      Indicates whether the event handler is enabled or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+    example: 2
+  event_handler_command_id:
+    type: integer
+    description: "Event handler command ID."
+    minimum: 1
+    nullable: true
+    example: 1
+  event_handler_command_args:
+    type: array
+    items:
+      type: string
+      description: "Command arguments of the event handler."
+    example: [ "80", "90" ]
+  graph_template_id:
+    type: integer
+    description: "ID of the default graph template that will be used for this service."
+    minimum: 1
+    nullable: true
+    example: null
+  note:
+    type: string
+    description: "Define an optional note."
+    nullable: true
+    maxLength: 65535
+  note_url:
+    type: string
+    description: "Define an optional URL that can be used to provide more information about the service."
+    maxLength: 65535
+    nullable: true
+  action_url:
+    type: string
+    description: "Define an optional URL that can be used to specify actions to be performed on the service."
+    nullable: true
+    maxLength: 65535
+  icon_id:
+    type: integer
+    description: "Define the image ID that should be associated with this service template."
+    minimum: 1
+    nullable: true
+    example: null
+  icon_alternative:
+    type: string
+    description: "Define an optional string that is used as an alternative description for the icon."
+    nullable: true
+    maxLength: 200
+  severity_id:
+    type: integer
+    description: "Severity ID."
+    minimum: 1
+    nullable: true
+  host_templates:
+    type: array
+    descriptions: "IDs of host templates linked to this service template."
+    items:
+      type: integer
+      description: "Host template ID"
+    example: [ 1, 2 ]
+  service_categories:
+    type: array
+    descriptions: "IDs of service categories linked to this service template."
+    items:
+      type: integer
+      description: "Service category ID"
+    example: [ 1, 2 ]
+  service_groups:
+    type: array
+    descriptions: "Service group / host template associations to be linked to this service template."
+    items:
+      type: object
+      properties:
+        service_group_id:
+          type: integer
+          description: "Service group ID"
+          example: 1
+        host_template_id:
+          type: integer
+          description: |
+            Host template ID to be paired with the service template for the service group / template association.
+            The host template ID must be defined in the host_templates list.
+          example: 2
+  macros:
+    type: array
+    description: |
+      Macros defined for the service (directly or through a template or command inheritance)
+
+      If multiple macros are defined with the same name, only the last one will be saved.
+    items:
+      $ref: 'macro.yaml'

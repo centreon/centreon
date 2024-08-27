@@ -887,18 +887,6 @@ msgstr "Nom de l'objet configuré"
 msgid "The type of block configuration"
 msgstr "Le type du bloc de configuration"
 
-#: centreon-web/www/class/centreonLogAction.class.php:308
-#: centreon-web/www/include/reporting/dashboard/initReport.php:166
-#: centreon-web/www/include/monitoring/status/Hosts/host.php:135
-#: centreon-web/www/include/monitoring/status/Services/serviceGrid.php:73
-#: centreon-web/www/include/monitoring/status/Services/service.php:340
-#: centreon-web/www/include/monitoring/status/ServicesHostGroups/serviceSummaryByHG.php:66
-#: centreon-web/www/include/monitoring/status/ServicesHostGroups/serviceGridByHG.php:59
-#: centreon-web/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php:67
-#: centreon-web/www/include/monitoring/status/ServicesServiceGroups/serviceGridBySG.php:67
-msgid "All"
-msgstr "Tous"
-
 #: centreon-web/www/class/centreon-knowledge/procedures_DB_Connector.class.php:61
 msgid ""
 "Connection to Wiki database failed, please contact your administrator or "
@@ -984,10 +972,6 @@ msgstr "ici"
 #: centreon-web/www/install/centreon_broker_translation.php:39
 msgid "it's required"
 msgstr "Requis"
-
-#: centreon-web/www/install/centreon_broker_translation.php:47
-msgid "Auto"
-msgstr "Automatique"
 
 #: centreon-web/www/install/centreon_broker_translation.php:55
 msgid "Filter category"
@@ -1143,13 +1127,6 @@ msgstr "Localisation du fichier"
 #: centreon-web/www/include/configuration/configObject/meta_service/formMetaService.php:222
 msgid "Data Source Type"
 msgstr "Type de source de données"
-
-#: centreon-web/www/install/smarty_translate.php:30
-#: centreon-web/www/include/Administration/performance/viewMetrics.php:215
-#: centreon-web/www/include/Administration/performance/viewData.php:304
-#: centreon-web/www/include/views/virtualMetrics/listVirtualMetrics.php:72
-msgid "Hidden"
-msgstr "Caché"
 
 #: centreon-web/www/install/smarty_translate.php:33
 #: centreon-web/www/include/Administration/performance/viewMetrics.php:216
@@ -1775,7 +1752,7 @@ msgstr "Auteur"
 
 #: centreon-web/www/install/smarty_translate.php:327
 msgid "Expiration date"
-msgstr "Date de fin de licence"
+msgstr "Date d'expiration"
 
 #: centreon-web/www/install/smarty_translate.php:330
 #: centreon-web/www/include/options/oreon/modules/formModule.php:57
@@ -1933,10 +1910,6 @@ msgstr "Modèle de graphique"
 #: centreon-web/www/install/smarty_translate.php:381
 msgid "Virtual metrics"
 msgstr "Métriques/courbes virtuelles"
-
-#: centreon-web/www/install/smarty_translate.php:390
-msgid "Curve"
-msgstr "Courbes"
 
 #: centreon-web/www/install/smarty_translate.php:396
 #: centreon-web/www/install/smarty_translate.php:399
@@ -2710,6 +2683,9 @@ msgstr "Mot de passe de l'utilisateur de la base de données"
 #: centreon-web/www/install/steps/step6.php:123
 msgid "Confirm user password"
 msgstr "Confirmer le mot de passe de l'utilisateur"
+
+msgid "Use a vault to store sensitive data"
+msgstr "Utiliser un coffre fort pour stocker les données sensibles"
 
 #: centreon-web/www/install/steps/functions.php:140
 msgid "File not found"
@@ -6423,11 +6399,6 @@ msgstr "ACL rechargées"
 #: centreon-web/www/include/options/accessLists/reloadACL/reloadACL.php:125
 msgid "Connected users"
 msgstr "Utilisateurs connectés"
-
-#: centreon-web/www/include/options/accessLists/reloadACL/reloadACL.php:126
-#: centreon-web/www/include/options/session/connected_user.php:98
-msgid "Position"
-msgstr "Page"
 
 #: centreon-web/www/include/options/accessLists/reloadACL/reloadACL.php:128
 #: centreon-web/www/include/options/session/connected_user.php:100
@@ -16841,8 +16812,8 @@ msgstr "Se connecter avec"
 msgid "Can't resolve username from login claim using configured regular expression"
 msgstr "Impossible de résoudre le nom d'utilisateur à partir de la déclaration de connexion en utilisant l'expression régulière configurée"
 
-msgid "Impossible to get contact templates from data storage"
-msgstr "Impossible d'obtenir les modèles de contact depuis le stockage de données"
+msgid "Error while searching for contact templates"
+msgstr "Erreur lors de la recherche de modèles de contact"
 
 msgid "Enable auto import"
 msgstr "Activer l'importation automatique"
@@ -17953,10 +17924,10 @@ msgid "Show thresholds"
 msgstr "Afficher les seuils"
 
 msgid "Custom"
-msgstr "Personnalisé"
+msgstr "Personnalisée"
 
-msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
-msgstr "Les seuils sont automatiquement masqués dès que vous sélectionnez 2 unités métriques."
+msgid "Thresholds are automatically hidden when you select several metrics with different units."
+msgstr "Les seuils sont automatiquement masqués lorsque vous sélectionnez des métriques aux unités différentes."
 
 msgid "Show description"
 msgstr "Afficher la description"
@@ -17989,7 +17960,7 @@ msgid "Your widget has been created successfully!"
 msgstr "Votre widget a été créé avec succès !"
 
 msgid "Value settings"
-msgstr "Paramètres de valeur"
+msgstr "Paramètres des valeurs"
 
 msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
 msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
@@ -18030,14 +18001,14 @@ msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
 msgid "'%s' service name already exists for host ID %d"
 msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 
-msgid "Manage the organization's authentication tokens"
-msgstr "Gérer les jetons d'authentification de l'organisation"
+msgid "Manage API tokens"
+msgstr "Gérer les jetons d’API"
 
 msgid "Widget type"
 msgstr "Type de widget"
 
-msgid "Display type"
-msgstr "Type d'affichage"
+msgid "Display as"
+msgstr "Afficher sous forme de"
 
 msgid "Text"
 msgstr "Texte"
@@ -18048,8 +18019,8 @@ msgstr "Jauge"
 msgid "Bar chart"
 msgstr "Diagramme à barres"
 
-msgid "The default value is the value defined for the first metric used."
-msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée."
+msgid "The default value is the value defined for the first selected metric."
+msgstr "La valeur par défaut est la valeur définie pour la première métrique sélectionnée."
 
 msgid "Raw value"
 msgstr "Valeur brute"
@@ -18112,7 +18083,7 @@ msgid "Top"
 msgstr "Top"
 
 msgid "Bottom"
-msgstr "Bottom"
+msgstr "Bas"
 
 msgid "Includes {{count}} resources"
 msgstr "Inclut {{count}} ressources"
@@ -18141,8 +18112,23 @@ msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 msgid "View widget properties"
 msgstr "Voir les propriétés du widget"
 
-msgid "Dashboard library"
-msgstr "Bibliothèque de tableaux de bord"
+msgid "Create dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Create a dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Update dashboard"
+msgstr "Mettre à jour le tableau de bord"
+
+msgid "Dashboard updated"
+msgstr "Tableau de bord mis à jour"
+
+msgid "Manage access rights"
+msgstr "Gérer les droits d'accès"
+
+msgid "Select a widget type to activate the preview."
+msgstr "Sélectionnez un type de widget pour activer l'aperçu."
 
 msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
@@ -18187,8 +18173,8 @@ msgstr "Seuils"
 msgid "Value format"
 msgstr "Format de la valeur"
 
-msgid "Time period"
-msgstr "Période temporelle"
+msgid "Time range"
+msgstr "Plage temporelle"
 
 msgid "Last hour"
 msgstr "La dernière heure"
@@ -18349,11 +18335,8 @@ msgstr "Nom de la métrique"
 msgid "Status grid"
 msgstr "Grille de statut"
 
-msgid "Displays a status overview for selected resources."
-msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées."
-
-msgid "Display with this resource type"
-msgstr "Afficher avec ce type de ressource"
+msgid "Displays a status overview for selected resources, grouped by hosts or by services."
+msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées, groupées par hôtes ou par services."
 
 msgid "Display resources with this status"
 msgstr "Afficher les ressources avec ce statut"
@@ -18550,6 +18533,12 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
+msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette action est <br> irréversible. Si vous le supprimez, toutes les requêtes effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le jeton ?"
+
+msgid "Delete token"
+msgstr "Supprimer le jeton"
+
 msgid "Failed to copy link"
 msgstr "Échec de la copie du lien"
 
@@ -18653,6 +18642,9 @@ msgstr "Sélectionnez un type de ressource"
 msgid "Displays data on resource status and events, centralized in a table."
 msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
 
+msgid "Success (OK/Up)"
+msgstr "Succès (OK/Disponible)"
+
 msgid "Problem (Down/Critical)"
 msgstr "Problème (Indisponible/Critique)"
 
@@ -18664,3 +18656,764 @@ msgstr "Ajouter des colonnes"
 
 msgid "Resource table"
 msgstr "Tableau des ressources"
+
+msgid "Displays a detailed view of the current status for selected resources as a chart."
+msgstr "Affiche une vue détaillée du statut actuel des ressources sélectionnées sous la forme d'un graphique."
+
+msgid "Status chart"
+msgstr "Graphique de statut"
+
+msgid "Show value on chart"
+msgstr "Afficher la valeur sur le graphique"
+
+msgid "Number"
+msgstr "Numérique"
+
+msgid "Show legend"
+msgstr "Afficher la légende"
+
+msgid "Percentage"
+msgstr "Pourcentage"
+
+msgid "Display resources with this type"
+msgstr "Afficher les ressources avec ce type"
+
+msgid  "Horizontal bar chart"
+msgstr "Diagramme à barres horizontales"
+
+msgid  "Vertical bar chart"
+msgstr "Diagramme à barres verticales"
+
+msgid  "Pie chart"
+msgstr "Camembert"
+
+msgid  "Donut chart"
+msgstr "Donut"
+
+msgid "Status:"
+msgstr "Statut :"
+
+msgid "No {{resourcesType}} found with this status"
+msgstr "Aucun {{resourcesType}} trouvé avec ce statut"
+
+msgid "No host found"
+msgstr "Aucun hôte trouvé"
+
+msgid "No service found"
+msgstr "Aucun service trouvé"
+
+msgid "are working fine."
+msgstr "fonctionnent correctement."
+
+msgid "down"
+msgstr "indisponible"
+
+msgid "pending"
+msgstr "en attente"
+
+msgid "warning"
+msgstr "alerte"
+
+msgid "critical"
+msgstr "critique"
+
+msgid "unknown"
+msgstr "inconnu"
+
+msgid "up"
+msgstr "disponible"
+
+msgid "unreachable"
+msgstr "injoignable"
+
+msgid "Fullscreen (F)"
+msgstr "Plein écran (F)"
+
+msgid "No data available"
+msgstr "Aucune donnée disponible"
+
+msgid "The {{name}} widget will be permanently deleted."
+msgstr "Le widget {{name}} sera définitivement supprimé."
+
+msgid "The widget will be permanently deleted."
+msgstr "Le widget sera définitivement supprimé."
+
+msgid "The {{name}} dashboard will be permanently deleted."
+msgstr "Le tableau de bord {{name}} sera définitivement supprimé."
+
+msgid "The {{name}} dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to."
+msgstr "Le tableau de bord {{name}} fait partie d'une ou plusieurs listes de diffusion. Il sera définitivement supprimé des listes de diffusion auxquelles il appartient."
+
+msgid "No Data Available"
+msgstr "Pas de données disponibles"
+
+msgid "Invalid page name. Valid page names are: %s"
+msgstr "Nom de page invalide. Les noms de page valident sont: %s"
+
+msgid "You are not allowed to access the Resources Status page"
+msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
+
+msgid "Error while retrieving the number of hosts by status"
+msgstr "Erreur lors de la récupération du nombre d'hôtes par statut"
+
+msgid "Delete rule"
+msgstr "Supprimer la règle"
+
+msgid "is used to allow users to access resources."
+msgstr "est utilisée pour permettre aux utilisateurs d'accéder aux resources."
+
+msgid "It will be permanently deleted and users will no longer have this permission"
+msgstr "Elle sera définitivement supprimée et les utilisateurs n'auront plus ces accès"
+
+msgid "Failed to delete resource access rule"
+msgstr "Échec de la suppression de la règle d'accès aux ressources"
+
+msgid "The resource access rule was successfully deleted"
+msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
+
+msgid "Error while retrieving the number of services by status"
+msgstr "Erreur lors de la récupération du nombre de services par statut"
+
+msgid "Error while adding a Broker input/output"
+msgstr "Erreur lors de l'ajout d'une entrée/sortie Centreon Broker"
+
+msgid "You are not allowed to edit a broker configuration"
+msgstr "Vous n'êtes pas autorisé à éditer une configuration Broker"
+
+msgid "Broker configuration #%d not found"
+msgstr "Configuration Broker #%d introuvable"
+
+msgid "Missing input/output parameter: %s"
+msgstr "Paramètre d'entrée/sortie manquant : %s"
+
+msgid "Parameter '%s' (%s) is invalid"
+msgstr "Le paramètre '%s' (%s) est invalide"
+
+msgid "Parameter '%s' of type %s is invalid"
+msgstr "Le paramètre '%s' de type %s est invalide"
+
+msgid "Input/Output #%d not found for Broker configuration #%d"
+msgstr "Entrée/sortie #%d introuvable pour la configuration Broker #%d"
+
+msgid "Display resources with this unit"
+msgstr "Afficher les ressources avec cette unité"
+
+msgid "Rules are used to allow users to access resources."
+msgstr "Les règles sont utilisées pour permettre aux utilisateurs d'accéder aux ressources."
+
+msgid "They will be permanently deleted and users will no longer have these permissions."
+msgstr "Elles seront définitivement supprimées et les utilisateurs n'auront plus ces accès."
+
+msgid "Delete rules"
+msgstr "Supprimer les règles"
+
+msgid "Delete multiple resource access rules"
+msgstr "Supprimer plusieurs règles d'accès aux ressources"
+
+msgid "Failed to delete the selected resource access rules"
+msgstr "Échec de la suppression des règles d'accès aux ressources sélectionnées"
+
+msgid "The selected resource access rules have been deleted successfully"
+msgstr "Les règles d'accès aux ressources sélectionnées ont été supprimées avec succès"
+
+msgid "Failed to duplicate the resource access rule"
+msgstr "Échec de la duplication de la règle d'accès aux ressources"
+
+msgid "The resource access rule has been successfully duplicated"
+msgstr "La règle d'accès aux ressources a été dupliquée avec succès"
+
+msgid "Resource access rule name"
+msgstr "Nom de la règle d'accès aux ressources"
+
+msgid "Please enter a name for the resource access rule to duplicate"
+msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
+
+msgid "An error occurred during authentication"
+msgstr "Une erreur est survenue durant l'authentification"
+
+msgid "Duplicate dashboard"
+msgstr "Dupliquer le tableau de bord"
+
+msgid "Delete dashboard"
+msgstr "Supprimer le tableau de bord"
+
+msgid "Dashboard deleted"
+msgstr "Tableau de bord supprimé"
+
+msgid "Dashboard duplicated"
+msgstr "Tableau de bord dupliqué"
+
+msgid "Failed to duplicate the dashboard"
+msgstr "Échec de la duplication du tableau de bord"
+
+msgid "Share with contacts"
+msgstr "Partager avec des contacts"
+
+msgid "All resources"
+msgstr "Toutes les ressources"
+
+msgid "All resources selected"
+msgstr "Toutes les ressources sont sélectionnées"
+
+msgid "Error while updating a Broker input/output"
+msgstr "Erreur lors de la mise à jour d'une entrée/sortie Centreon Broker"
+
+msgid "Action not permitted for output of type '%s'"
+msgstr "Action non autorisée pour une sortie de type '%s'"
+
+msgid "Content is not a valid JSON string"
+msgstr "Le contenu n'est pas une chaîne de caractères JSON valide"
+
+msgid "An error occurred while creating the file '%s'"
+msgstr "Une erreur est survenue lors de la création du fichier '%s'"
+
+msgid "An error occurred while deleting the file '%s'"
+msgstr "Une erreur est survenue lors de la suppression du fichier '%s'"
+
+msgid "Until"
+msgstr "Jusqu'à"
+
+msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+msgstr "Affiche la répartition des statuts actuels pour les groupes de ressources sélectionnés, sous forme de tableau."
+
+msgid "Group monitoring"
+msgstr "Group monitoring"
+
+msgid "Display with this view"
+msgstr "Afficher avec cette vue"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Condensed"
+msgstr "Condensé"
+
+msgid "Business Activity Diagram"
+msgstr "Diagramme d'activité métier"
+
+msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+msgstr "Affiche graphiquement et permet la navigation dans la hiérarchie d'une activité métier."
+
+msgid "Display the diagram with this status"
+msgstr "Afficher le diagramme avec ce statut"
+
+msgid "Problem (Critical)"
+msgstr "Problème (Critique)"
+
+msgid "Success (OK)"
+msgstr "Succès (OK)"
+
+msgid "Link types"
+msgstr "Types de lien"
+
+msgid "Curve"
+msgstr "Courbe"
+
+msgid "Line"
+msgstr "Ligne"
+
+msgid "All hosts selected"
+msgstr "Tous les hôtes sont sélectionnés"
+
+msgid "All host groups selected"
+msgstr "Tous les groupes d'hôtes sont sélectionnés"
+
+msgid "All service groups selected"
+msgstr "Tous les groupes de services sont sélectionnés"
+
+msgid "All hosts"
+msgstr "Tous les hôtes"
+
+msgid "All host groups"
+msgstr "Tous les groupes d'hôtes"
+
+msgid "All service groups"
+msgstr "Tous les groupes de services"
+
+msgid "All contacts"
+msgstr "Tous les contacts"
+
+msgid "All contacts selected"
+msgstr "Tous les contacts sont sélectionnés"
+
+msgid "All contact groups"
+msgstr "Tous les groupes de contacts"
+
+msgid "All contact groups selected"
+msgstr "Tous les groupes de contacts sont sélectionnés"
+
+msgid "Downloading the performance metrics is not allowed"
+msgstr "Le téléchargement des métriques de performance n'est pas autorisé"
+
+msgid "Business view"
+msgstr "Vue métier"
+
+msgid "All business views"
+msgstr "Toutes les vues métier"
+
+msgid "All business views selected"
+msgstr "Toutes les vues métier sont sélectionnées"
+
+msgid "You are not allowed to list contact templates"
+msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
+
+msgid "Curve type"
+msgstr "Type de courbe"
+
+msgid "Linear"
+msgstr "Linéaire"
+
+msgid "Smooth"
+msgstr "Arrondie"
+
+msgid "Error while partially updating the token"
+msgstr "Erreur lors de la mise à jour partielle du jeton"
+
+msgid "You are not allowed to partially update the token"
+msgstr "Vous n'êtes pas autorisé à mettre à jour partiellement le jeton"
+
+msgid "Active/Revoked"
+msgstr "Actif/Révoqué"
+
+msgid "Unable to migrate passwords"
+msgstr "Impossible de migrer les mots de passe"
+
+msgid "No vault configured"
+msgstr "Aucun coffre configuré"
+
+msgid "You are not allowed to access hosts in the real time context"
+msgstr "Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps réel"
+
+msgid "You are not allowed to access services in the real time context"
+msgstr "Vous n'êtes pas autorisé à accéder aux services dans le cadre du temps réel"
+
+msgid "Value sort order"
+msgstr "Tri des valeurs"
+
+msgid "By name"
+msgstr "Par nom"
+
+msgid "All"
+msgstr "Toutes"
+
+msgid "Only one"
+msgstr "Une seule"
+
+msgid "Hidden"
+msgstr "Masquées"
+
+msgid "Hide"
+msgstr "Masquer"
+
+msgid "Line width"
+msgstr "Largeur de la ligne"
+
+msgid "Auto"
+msgstr "Auto"
+
+msgid "Area"
+msgstr "Aire"
+
+msgid "Show"
+msgstr "Afficher"
+
+msgid "Display curve points"
+msgstr "Afficher les points de la courbe"
+
+msgid "Show axis borders"
+msgstr "Afficher les bordures de l'axe"
+
+msgid "Y-axis label rotation"
+msgstr "Rotation des étiquettes de l'axe Y"
+
+msgid "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves)."
+msgstr "Auto : Valeur par défaut définie dans le modèle de courbe correspondant (Supervision > Informations de performance > Courbes)."
+
+msgid "Position"
+msgstr "Position"
+
+msgid "Display mode"
+msgstr "Afficher en mode"
+
+msgid "Grid"
+msgstr "Grille"
+
+msgid "Scale"
+msgstr "Échelle"
+
+msgid "Logarithmic"
+msgstr "Logarithmique"
+
+msgid "Zero-centered"
+msgstr "Centré sur zéro"
+
+msgid "Solid"
+msgstr "Uni"
+
+msgid "Dashes"
+msgstr "Tirets"
+
+msgid "Dots"
+msgstr "Pointillés"
+
+msgid "Graph style"
+msgstr "Style de graphe"
+
+msgid "Display type"
+msgstr "Type d'affichage"
+
+msgid "Graph settings"
+msgstr "Paramètres de graphe"
+
+msgid "Fill opacity"
+msgstr "Opacité du remplissage"
+
+msgid "Line style"
+msgstr "Style de la ligne"
+
+msgid "Dash width"
+msgstr "Largeur du tiret"
+
+msgid "Space"
+msgstr "Espacement"
+
+msgid "Show gridlines"
+msgstr "Afficher le quadrillage"
+
+msgid "Gridline type"
+msgstr "Type de quadrillage"
+
+msgid "Horizontal"
+msgstr "Horizontal"
+
+msgid "Vertical"
+msgstr "Vertical"
+
+msgid "Both"
+msgstr "Les deux"
+
+msgid "Base 2"
+msgstr "Base 2"
+
+msgid "Base 10"
+msgstr "Base 10"
+
+msgid "Left"
+msgstr "Gauche"
+
+msgid "Right"
+msgstr "Droite"
+
+msgid "Axes"
+msgstr "Axes"
+
+msgid "Tooltips"
+msgstr "Infobulles"
+
+msgid "Unable to retrieve credentials ['%s'] from vault"
+msgstr "Impossible de récupérer les informations d'identification ['%s'] du coffre"
+
+msgid "Unknown provider type: %s"
+msgstr "Type de fournisseur inconnu : %s"
+
+msgid "Add filter"
+msgstr "Ajouter un filtre"
+
+msgid "Add resource dataset"
+msgstr "Ajouter un jeu de données de ressources"
+
+msgid "Bar"
+msgstr "Barre"
+
+msgid "Stacked bar"
+msgstr "Barre empilée"
+
+msgid "Orientation"
+msgstr "Orientation"
+
+msgid "Bar radius"
+msgstr "Radius de la barre"
+
+msgid "Bar opacity"
+msgstr "Opacité de la barre"
+
+msgid "Check command sent!"
+msgstr "Commande de vérification envoyée !"
+
+msgid "Forced check command sent!"
+msgstr "Commande de vérification forcée envoyée !"
+
+msgid "Open ticket"
+msgstr "Ouvrir un ticket"
+
+msgid "Open ticket for host"
+msgstr "Ouvrir un ticket pour l'hôte"
+
+msgid "Open ticket for service"
+msgstr "Ouvrir un ticket pour le service"
+
+msgid "Host severities"
+msgstr "Sévérités des hôtes"
+
+msgid "Service severities"
+msgstr "Sévérités des services"
+
+msgid "Select service severities"
+msgstr "Sélectionner les sévérités des services"
+
+msgid "Select host severities"
+msgstr "Sélectionner les sévérités des hôtes"
+
+msgid "Enable Open Tickets"
+msgstr "Activer Open Tickets"
+
+msgid "Ticket provider"
+msgstr "Fournisseur de tickets"
+
+msgid "Select a provider"
+msgstr "Sélectionner un fournisseur"
+
+msgid "Display resources"
+msgstr "Afficher les ressources"
+
+msgid "Resources linked to a ticket"
+msgstr "Ressources liées à un ticket"
+
+msgid "Resources with no ticket"
+msgstr "Ressources sans ticket"
+
+msgid "Hide services with Down host"
+msgstr "Masquer les services dont l'hôte est Indisponible"
+
+msgid "Hide services with Unreachable host"
+msgstr "Masquer les services dont l'hôte est Injoignable"
+
+msgid "Ticket ID"
+msgstr "ID du ticket"
+
+msgid "Ticket subject"
+msgstr "Sujet du ticket"
+
+msgid "Opened on"
+msgstr "Date d'ouverture"
+
+msgid "Create a ticket"
+msgstr "Créer un ticket"
+
+msgid "Rule (ticket provider)"
+msgstr "Règle (fournisseur de tickets)"
+
+msgid "Select rule (ticket provider)"
+msgstr "Sélectionner la règle (fournisseur de tickets)"
+
+msgid "Display resources with these status types"
+msgstr "Afficher les ressources avec ces types de statuts"
+
+msgid  "All KPIs on this Business Activity are working fine."
+msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
+
+msgid  "See more information in the geoview"
+msgstr "Voir plus d'informations dans la vue géographique"
+
+msgid  "Calculation method"
+msgstr "Méthode de calcul"
+
+msgid  "State information"
+msgstr "Information de l'état"
+
+msgid  "Warning threshold"
+msgstr "Seuil d'alerte"
+
+msgid  "Critical threshold"
+msgstr "Seuil critique"
+
+msgid "Click here for details"
+msgstr "Cliquez ici pour les détails"
+
+msgid "Expression in"
+msgstr "Expression en"
+
+msgid "Impact applied when:"
+msgstr "Impact appliqué quand :"
+
+msgid "true"
+msgstr "vrai"
+
+msgid "false"
+msgstr "faux"
+
+msgid "No KPI found"
+msgstr "Aucun KPI trouvé"
+
+msgid "No Business Activity found"
+msgstr "Aucune activité métier trouvée"
+
+msgid "business activity"
+msgstr "activité métier"
+
+msgid "Health"
+msgstr "Santé"
+
+msgid "Critical KPIs"
+msgstr "Indicateurs critiques"
+
+msgid "Additional connector configurations"
+msgstr "Configuration supplémentaire de connecteurs"
+
+msgid "Types"
+msgstr "Types"
+
+msgid "Updated by"
+msgstr "Mis à jour par"
+
+msgid "Edit connector configuration"
+msgstr "Modifier la configuration de connecteur"
+
+msgid "More filters"
+msgstr "Plus de filtres"
+
+msgid "Delete additional connector configuration"
+msgstr "Supprimer la configuration supplémentaire de connecteur"
+
+msgid "The {{name}} additional connector configuration will be permanently deleted."
+msgstr "La configuration supplémentaire de connecteur {{name}} sera définitivement supprimée."
+
+msgid "The corresponding connectors will not work anymore."
+msgstr "Les connecteurs correspondants ne fonctionneront plus."
+
+msgid "Additional connector configuration deleted"
+msgstr "Configuration supplémentaire de connecteur supprimée"
+
+msgid "Additional connector configuration duplicated"
+msgstr "Configuration supplémentaire de connecteur dupliquée"
+
+msgid "Additional connector configuration created"
+msgstr "Configuration supplémentaire de connecteur créée"
+
+msgid "Additional connector configuration updated"
+msgstr "Configuration supplémentaire de connecteur mise à jour"
+
+msgid "Duplicate connector configuration"
+msgstr "Dupliquer la configuration de connecteur"
+
+msgid "The name can be at most 50 characters long"
+msgstr "Le nom peut comporter au maximum 50 caractères"
+
+msgid "The name should be at least 3 characters long"
+msgstr "Le nom doit comporter au moins 3 caractères"
+
+msgid "Create additional connector configuration"
+msgstr "Créer une configuration supplémentaire de connecteur"
+
+msgid "Update additional connector configuration"
+msgstr "Mettre à jour la configuration supplémentaire de connecteur"
+
+msgid "Select poller(s)"
+msgstr "Sélectionner le(s) collecteur(s)"
+
+msgid "Add parameter"
+msgstr "Ajouter un paramètre"
+
+msgid "Add vCenter/ESX"
+msgstr "Ajouter vCenter/ESX"
+
+msgid "Remove vCenter/ESX"
+msgstr "Supprimer vCenter/ESX"
+
+msgid "At least one poller is required"
+msgstr "Au moins un collecteur est requis"
+
+msgid "At least one vCenter is required"
+msgstr "Au moins un vCenter est requis"
+
+msgid "Please enter a valid URL or IP address"
+msgstr "Entrez une URL ou une adresse IP valide"
+
+msgid "Invalid port number"
+msgstr "Numéro de port invalide"
+
+msgid "The name of the vCenter should be unique"
+msgstr "Le nom du vCenter doit être unique"
+
+msgid "vCenter name"
+msgstr "Nom du vCenter"
+
+msgid "Do you want to quit without saving the changes?"
+msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
+
+
+msgid "Error while adding an additional connector configuration"
+msgstr "Erreur lors de l'ajout d'une configuration additionnelle de connecteur"
+
+msgid "You are not allowed to access additional connector configurations"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations additionnelles de connecteurs"
+
+msgid "An additional connector configuration of type %s is already associated with poller ID(s) '%s'"
+msgstr "Une configuration additionnelle de connecteur de type %s est déjà associée au(x) ID(s) de collecteur(s) '%s'"
+
+msgid "Duplicates not allowed for property '%s'"
+msgstr "Doublons non autorisés pour la propriété '%'"
+
+msgid "'%s' must contain at least one element"
+msgstr "'%s' doit contenir au moins un élément"
+
+msgid "Error while retrieving an additional connector configuration"
+msgstr "Erreur durant la récupération d'une configuration additionnelle de connecteur"
+
+msgid "The additional connector configuration name '%s' already exists"
+msgstr "Le nom de configuration additionnelle de connecteur '%s' existe déjà"
+
+msgid "Error while deleting an additional connector configuration"
+msgstr "Erreur lors de la suppression d'une configuration additionelle de connecteur"
+
+msgid "You don't have sufficient permissions for this action"
+msgstr "Vous ne disposez pas de droits suffisants pour cette action"
+
+msgid "Error while searching for additional connector configurations"
+msgstr "Erreur lors de la recherche de configurations additionnelles de connecteurs"
+
+msgid "Error while searching for available pollers for type '%s'"
+msgstr "Erreur lors de la recherche de collecteurs disponibles pour le type '%s'"
+
+msgid "Error while updating an additional connector configuration"
+msgstr "Erreur lors de la mise à jour d'une configuration additionnelle de connecteur"
+
+msgid "Changing type of an existing additional connector configuration is not allowed"
+msgstr "Changer le type d'une configuration additionnelle de connecteur existante n'est pas autorisé"
+
+msgid "Select time zone"
+msgstr "Sélectionner un fuseau horaire"
+
+msgid "Select time format"
+msgstr "Sélectionner un format d'heure"
+
+msgid "12 hours"
+msgstr "12 heures"
+
+msgid "24 hours"
+msgstr "24 heures"
+
+msgid "Ends at"
+msgstr "Se termine à"
+
+msgid "Time zone"
+msgstr "Fuseau horaire"
+
+msgid "Date format"
+msgstr "Format de date"
+
+msgid "Time format"
+msgstr "Format d'heure"
+
+msgid "Countdown"
+msgstr "Compte à rebours"
+
+msgid "Timer"
+msgstr "Minuteur"
+
+msgid "Show time zone"
+msgstr "Afficher le fuseau horaire"
+
+msgid "Show date"
+msgstr "Afficher la date"
+

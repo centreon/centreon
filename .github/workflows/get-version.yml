@@ -20,9 +20,16 @@ on:
       environment:
         description: "environment deployed"
         value: ${{ jobs.get-version.outputs.environment }}
-      dockerize_matrix:
-        description: "matrix to use for dockerize job"
-        value: ${{ jobs.get-version.outputs.dockerize_matrix }}
+      os_and_database_matrix:
+        description: "matrix to use for dockerize and test jobs"
+        value: ${{ jobs.get-version.outputs.os_and_database_matrix }}
+      release_type:
+        description: "type of release (hotfix, release)"
+        value: ${{ jobs.get-version.outputs.release_type }}
+      release_cloud:
+        description: "context of release (cloud or not cloud)"
+        value: ${{ jobs.get-version.outputs.release_cloud }}
+
 jobs:
   get-version:
     runs-on: ubuntu-22.04
@@ -32,12 +39,14 @@ jobs:
       release: ${{ steps.get_version.outputs.release }}
       stability: ${{ steps.get_version.outputs.stability }}
       environment: ${{ steps.get_version.outputs.env }}
-      dockerize_matrix: ${{ steps.get_version.outputs.dockerize_matrix }}
+      os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
+      release_type: ${{ steps.get_version.outputs.release_type }}
+      release_cloud: ${{ steps.get_version.outputs.release_cloud}}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+      - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         if: ${{ endsWith(inputs.version_file, '.php') }}
         with:
           php-version: 8.1
@@ -61,6 +70,7 @@ jobs:
 
       - id: get_version
         run: |
+          set -x
           if [[ "${{ inputs.version_file }}" == */.version ]]; then
             . .version
             . ${{ inputs.version_file }}
@@ -103,25 +113,83 @@ jobs:
 
           echo "BRANCHNAME is: $BRANCHNAME"
 
+          # Set default release values
+          GITHUB_RELEASE_CLOUD=0
+          GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
+
           case "$BRANCHNAME" in
-            master | [2-9][0-9].[0-9][0-9].x)
+            master)
               echo "release=1" >> $GITHUB_OUTPUT
+              echo "release_cloud=1" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              ;;
+            [2-9][0-9].[0-9][0-9].x)
+              echo "release=1" >> $GITHUB_OUTPUT
+              echo "release_cloud=0" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              ;;
+            develop)
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              echo "release_cloud=1" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              ;;
+            dev-[2-9][0-9].[0-9][0-9].x)
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              echo "release_cloud=0" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             release* | hotfix*)
-              # Handle workflow_dispatch run triggers
+              # Handle workflow_dispatch run triggers and run a dispatch ONLY for cloud release
               GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
               echo "GITHUB_RELEASE_BRANCH_BASE_REF_NAME is: $GITHUB_RELEASE_BRANCH_BASE_REF_NAME"
               GITHUB_RELEASE_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
               echo "GITHUB_RELEASE_BRANCH_PR_STATE is: $GITHUB_RELEASE_BRANCH_PR_STATE"
+
+              # Check if the release context (cloud and hotfix or cloud and release)
               if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
-              # This case is specific to cloud release
+                # Get release pull request ID
+                GITHUB_RELEASE_BRANCH_PR_NUMBER="$(gh pr view $BRANCHNAME -q .[] --json number)"
+                # Set release cloud to 1 (0=not-cloud, 1=cloud)
+                GITHUB_RELEASE_CLOUD=1
+                # Debug
+                echo "GITHUB_RELEASE_TYPE is: $GITHUB_RELEASE_TYPE"
+                echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER" # We do leave this here as a debug help.
+                echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
+                # Github ouputs
                 echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               else
                 echo "release=1" >> $GITHUB_OUTPUT
+                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               fi
               ;;
-            *)
+            prepare-release-cloud*)
+              # Set release cloud to 1 (0=not-cloud, 1=cloud)
+              GITHUB_RELEASE_CLOUD=1
+              # Debug
+              echo "GITHUB_RELEASE_TYPE is: $GITHUB_RELEASE_TYPE"
+              echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
+              # Github ouputs
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              # Any branch name
+              GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+              GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+
+              # Check if pull request branch targeting develop
+              if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
+                echo "release_cloud=1" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              else
+                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              fi
               ;;
           esac
 
@@ -149,12 +217,49 @@ jobs:
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
           echo "env=$MAJOR-$ENV" >> $GITHUB_OUTPUT
-
-          DOCKERIZE_MATRIX='["bookworm"]'
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            DOCKERIZE_MATRIX='["alma8","alma9","bullseye"]'
-          fi
-          echo "dockerize_matrix=$DOCKERIZE_MATRIX" >> $GITHUB_OUTPUT
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        id: get_os_database_matrix
+        with:
+          script: |
+            const alma9_mariadb = {
+              "operating_system": "alma9",
+              "database": "mariadb:10.11",
+              "test_tags": "not @ignore"
+            };
+            const alma8_mariadb = {
+              "operating_system": "alma8",
+              "database": "mariadb:10.11",
+              "test_tags": "not @ignore and @system"
+            };
+            const bookworm_mysql = {
+              "operating_system": "bookworm",
+              "database": "mysql:8.3",
+              "test_tags": "not @ignore"
+            };
+            const bullseye_mysql = {
+              "operating_system": "bullseye",
+              "database": "mysql:8.3",
+              "test_tags": "not @ignore and @system"
+            };
+
+            let matrix = {
+              "main": [alma9_mariadb],
+              "operating_systems": [alma9_mariadb],
+              "databases": [alma9_mariadb],
+            };
+
+            if (context.eventName === 'schedule') {
+              matrix = {
+                "main": [alma9_mariadb],
+                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql, bullseye_mysql],
+                "databases": [alma9_mariadb, bookworm_mysql],
+              };
+            }
+
+            console.log(matrix);
+
+            return matrix;

@@ -31,3 +31,7 @@ services:
         calls:
         - method: setTimeOut
           arguments: [ '%curl.timeout%' ]
+
+    Core\Command\Infrastructure\Command\MigrateAllCommands\MigrateAllCommandsCommand:
+      arguments:
+        $curlTimeout: '%curl.timeout%'

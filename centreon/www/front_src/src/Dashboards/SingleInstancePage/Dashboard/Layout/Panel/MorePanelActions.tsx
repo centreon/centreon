@@ -1,50 +1,42 @@
-import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
-import { Menu } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { Menu } from '@mui/material';
 
-import {
-  ActionsList,
-  ActionsListActions,
-  ActionsListActionDivider
-} from '@centreon/ui';
-import { ConfirmationTooltip } from '@centreon/ui/components';
+import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
 
+import useWidgetForm from '../../AddEditWidget/useWidgetModal';
 import {
-  labelCancel,
-  labelDelete,
+  dashboardAtom,
+  switchPanelsEditionModeDerivedAtom,
+  widgetToDeleteAtom
+} from '../../atoms';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
+import { Panel } from '../../models';
+import {
   labelDeleteWidget,
-  labelDoYouWantToDeleteThisWidget,
   labelDuplicate,
   labelEditWidget,
-  labelRefresh,
   labelViewProperties
 } from '../../translatedLabels';
-import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
-import useWidgetForm from '../../AddEditWidget/useWidgetModal';
-import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
-import useDeleteWidgetModal from '../../hooks/useDeleteWidget';
 
 interface Props {
   anchor: HTMLElement | null;
   close: () => void;
   duplicate: (event) => void;
   id: string;
-  setRefreshCount?: (id) => void;
 }
 
 const MorePanelActions = ({
   anchor,
   close,
   id,
-  setRefreshCount,
   duplicate
 }: Props): JSX.Element => {
   const { t } = useTranslation();
@@ -55,8 +47,7 @@ const MorePanelActions = ({
   const switchPanelsEditionMode = useSetAtom(
     switchPanelsEditionModeDerivedAtom
   );
-
-  const { deleteWidget } = useDeleteWidgetModal();
+  const setWidgetToDelete = useSetAtom(widgetToDeleteAtom);
 
   const { canEdit } = useCanEditProperties();
 
@@ -72,25 +63,26 @@ const MorePanelActions = ({
     setSearchParams(searchParams);
   };
 
-  const refresh = (): void => {
-    setRefreshCount?.(id);
-    close();
+  const openDeleteModal = (): void => {
+    const panelToDelete = dashboard.layout.find((panel) =>
+      equals(panel.i, id)
+    ) as Panel;
+
+    setWidgetToDelete({
+      id,
+      name: panelToDelete.options?.name
+    });
   };
 
   const displayEditButtons = canEdit;
 
-  const editActions = (openConfirmationTooltip): ActionsListActions => [
+  const editActions = [
     {
       Icon: EditIcon,
       label: t(labelEditWidget),
       onClick: edit
     },
     ActionsListActionDivider.divider,
-    {
-      Icon: RefreshIcon,
-      label: t(labelRefresh),
-      onClick: refresh
-    },
     {
       Icon: ContentCopyIcon,
       label: t(labelDuplicate),
@@ -100,17 +92,12 @@ const MorePanelActions = ({
     {
       Icon: DeleteIcon,
       label: t(labelDeleteWidget),
-      onClick: openConfirmationTooltip
+      onClick: openDeleteModal,
+      variant: 'error'
     }
   ];
 
   const viewActions = [
-    {
-      Icon: RefreshIcon,
-      label: t(labelRefresh),
-      onClick: refresh
-    },
-    ActionsListActionDivider.divider,
     {
       Icon: VisibilityOutlinedIcon,
       label: t(labelViewProperties),
@@ -118,29 +105,9 @@ const MorePanelActions = ({
     }
   ];
 
-  const confirmationLabels = {
-    cancel: t(labelCancel),
-    confirm: {
-      label: t(labelDelete),
-      secondaryLabel: t(labelDoYouWantToDeleteThisWidget)
-    }
-  };
-
   return (
     <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
-      <ConfirmationTooltip
-        confirmVariant="error"
-        labels={confirmationLabels}
-        onConfirm={deleteWidget(id)}
-      >
-        {({ toggleTooltip }) => (
-          <ActionsList
-            actions={
-              displayEditButtons ? editActions(toggleTooltip) : viewActions
-            }
-          />
-        )}
-      </ConfirmationTooltip>
+      <ActionsList actions={displayEditButtons ? editActions : viewActions} />
     </Menu>
   );
 };

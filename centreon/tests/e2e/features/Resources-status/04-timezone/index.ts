@@ -5,7 +5,10 @@ import {
   When
 } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import { actionBackgroundColors } from '../common';
 
 const serviceInDtName = 'service_downtime_1';
@@ -40,7 +43,7 @@ const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
 };
 
 beforeEach(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 
   cy.intercept({
     method: 'GET',
@@ -141,6 +144,13 @@ Given('the platform is configured with at least one resource', () => {
     },
     {
       name: serviceInAcknowledgementName
+    }
+  ]);
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
     }
   ]);
 
@@ -279,7 +289,23 @@ When('the user creates a downtime on a resource', () => {
 Then(
   'date and time fields should be based on the custom timezone of the user',
   () => {
-    cy.contains(serviceInDtName).parent().click();
+    cy.waitUntil(() => {
+      cy.contains(serviceInDtName).parent().click();
+      cy.get('button#Close').click();
+      cy.contains(serviceInDtName).parent().click();
+
+      return cy
+        .get('#panel-content :contains("Status information")')
+        .then(($el) => {
+          if ($el.find(':contains("Downtime duration")').length === 0) {
+            cy.get('button#Close').click();
+
+            return false;
+          }
+
+          return true;
+        });
+    });
 
     cy.get('p[data-testid="From_date"]').then(($toDate) => {
       cy.getTimeFromHeader().then((localTime: string) => {
@@ -544,5 +570,5 @@ Then(
 );
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

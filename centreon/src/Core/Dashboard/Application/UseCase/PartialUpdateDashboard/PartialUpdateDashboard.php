@@ -42,10 +42,13 @@ use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class PartialUpdateDashboard
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
@@ -55,7 +58,9 @@ final class PartialUpdateDashboard
         private readonly WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -70,7 +75,7 @@ final class PartialUpdateDashboard
         PartialUpdateDashboardPresenterInterface $presenter
     ): void {
         try {
-            if ($this->rights->hasAdminRole()) {
+            if ($this->isUserAdmin()) {
                 $response = $this->partialUpdateDashboardAsAdmin($dashboardId, $request);
             } elseif ($this->rights->canCreate()) {
                 $response = $this->partialUpdateDashboardAsContact($dashboardId, $request);
@@ -207,10 +212,9 @@ final class PartialUpdateDashboard
      */
     private function getUpdatedDashboard(Dashboard $dashboard, PartialUpdateDashboardRequest $request): Dashboard
     {
-        return new Dashboard(
+        return (new Dashboard(
             id: $dashboard->getId(),
             name: NoValue::coalesce($request->name, $dashboard->getName()),
-            description: NoValue::coalesce($request->description, $dashboard->getDescription()),
             createdBy: $dashboard->getCreatedBy(),
             updatedBy: $this->contact->getId(),
             createdAt: $dashboard->getCreatedAt(),
@@ -221,6 +225,31 @@ final class PartialUpdateDashboard
                     $dashboard->getRefresh()->getRefreshInterval()
                 )
                 : new Refresh($request->refresh->refreshType, $request->refresh->refreshInterval)
+        ))->setDescription(
+            NoValue::coalesce(
+                $request->description !== '' ? $request->description : null,
+                $dashboard->getDescription(),
+            ),
         );
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

@@ -1,0 +1,52 @@
+---
+name: Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - "centreon-awie/**"
+      - "centreon-dsm/**"
+      - "centreon-ha/**"
+      - "centreon-open-tickets/**"
+      - "centreon/**"
+  workflow_dispatch:
+
+jobs:
+  release:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check base_ref
+        run: |
+          set -eu
+
+          # Check if github.base_ref is either master or any of the supported version ones
+          # This must never run on any other than master and supported version base_ref
+          if [[ "${{ github.base_ref }}" == 'master' || "${{ github.base_ref }}" =~ ^[2-9][0-9].[0-9][0-9].x ]];then
+            echo "[DEBUG] base_ref is valid: ${{ github.base_ref }}"
+          else
+            echo "::error::base_ref is not valid (${{ github.base_ref }}), exiting."
+            exit 1
+          fi
+        shell: bash
+
+      - name: Checkout sources
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
+
+      - name: Release
+        id: release
+        uses: ./.github/actions/release
+        with:
+          github_ref_name: ${{ github.base_ref }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_webhook_url: ${{ secrets.JIRA_RELEASE_WEBHOOK }}

@@ -51,14 +51,15 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required" : true
+      "required": true,
+      "excludedResourceTypes": ["meta-service"]
     },
     "metrics": {
       "type": "metrics",
       "defaultValue": []
     }
   },
-  "singleHostPerMetric": true,
+  "singleResourceSelection": true,
   "singleMetricSelection": true,
   "customBaseColor": true,
   "moduleName": "centreon-widget-singlemetric"

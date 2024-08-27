@@ -1,0 +1,44 @@
+delete:
+  tags:
+    - Service
+  summary: "Delete a service"
+  description: "Delete a service configuration"
+  parameters:
+    - $ref: 'QueryParameter/ServiceId.yaml'
+  responses:
+    '204':
+      $ref: '../../Common/Response/NoContent.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+patch:
+  tags:
+    - Service
+  summary: "Partial update of a service"
+  description: |
+    Partial update of a service configuration
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
+  parameters:
+    - $ref: 'QueryParameter/ServiceId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/PartialUpdateServiceRequest.yaml'
+  responses:
+    '204':
+      $ref: '../../Common/Response/NoContent.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

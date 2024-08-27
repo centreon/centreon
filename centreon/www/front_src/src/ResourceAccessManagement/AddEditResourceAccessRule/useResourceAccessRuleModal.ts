@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 
-import { ModalMode } from '../models';
 import { modalStateAtom } from '../atom';
+import { ModalMode } from '../models';
 
 type UseResourceAccessRuleConfig = {
   closeModal: () => void;
@@ -14,7 +14,7 @@ const useResourceAccessRuleConfig = (): UseResourceAccessRuleConfig => {
   const [modalState, setModalState] = useAtom(modalStateAtom);
 
   const closeModal = (): void => {
-    setModalState({ ...modalState, isOpen: false });
+    setModalState({ isOpen: false, mode: ModalMode.Create });
   };
 
   const createResourceAccessRule = (): void => {

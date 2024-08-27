@@ -25,6 +25,11 @@ namespace Core\ResourceAccess\Domain\Model\DatasetFilter;
 
 class DatasetFilterValidator
 {
+    public const ALL_RESOURCES_FILTER = 'all';
+
+    /** @var DatasetFilterTypeInterface[] */
+    private array $filterTypes = [];
+
     /** @var array<string, array<string>> */
     private array $hiearchy = [];
 
@@ -33,13 +38,41 @@ class DatasetFilterValidator
      */
     public function __construct(\Traversable $datasetFilterTypes)
     {
-        foreach (iterator_to_array($datasetFilterTypes) as $datasetFilterType) {
-            $this->hiearchy[$datasetFilterType->getName()] = $datasetFilterType->getPossibleChildren();
+        $this->filterTypes = iterator_to_array($datasetFilterTypes);
+
+        foreach ($this->filterTypes as $filterType) {
+            $this->hiearchy[$filterType->getName()] = $filterType->getPossibleChildren();
         }
 
         if ([] === $this->hiearchy) {
             throw new \InvalidArgumentException('You must add at least one dataset filter type provider');
         }
+
+        // Add special case of all resources filter type
+        $this->hiearchy[self::ALL_RESOURCES_FILTER] = [];
+    }
+
+    /**
+     * This method indicates for a given type if the resourceIds array can be empty.
+     * If it is empty is means 'ALL' (of the given resource type that is allowed to).
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function canResourceIdsBeEmpty(string $type): bool
+    {
+        if ($type === self::ALL_RESOURCES_FILTER) {
+            return true;
+        }
+
+        foreach ($this->filterTypes as $filterType) {
+            if ($filterType->isValidFor($type)) {
+                return $filterType->canResourceIdsBeEmpty();
+            }
+        }
+
+        return false;
     }
 
     /**

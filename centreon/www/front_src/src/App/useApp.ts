@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, not, pathEq, path } from 'ramda';
+import { path, equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -12,15 +12,15 @@ import {
   aclAtom,
   downtimeAtom,
   platformNameAtom,
+  platformVersionsAtom,
   refreshIntervalAtom
 } from '@centreon/ui-context';
 
-import { logoutEndpoint } from '../api/endpoint';
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
+import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
@@ -50,6 +50,7 @@ const useApp = (): UseAppState => {
     request: getData
   });
   const { sendRequest: getParameters } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
     request: getData
   });
   const { sendRequest: getAcl } = useRequest<Actions>({
@@ -62,7 +63,7 @@ const useApp = (): UseAppState => {
 
   const { sendRequest: getCustomPlatformRequest } =
     useRequest<CustomLoginPlatform>({
-      httpCodesBypassErrorSnackbar: [404],
+      httpCodesBypassErrorSnackbar: [404, 401],
       request: getData
     });
 
@@ -91,17 +92,12 @@ const useApp = (): UseAppState => {
   useEffect(() => {
     getNavigation();
 
-    Promise.all([
-      getParameters({
-        endpoint: parametersEndpoint
-      }),
-      getAcl({
-        endpoint: aclEndpoint
-      })
-    ])
-      .then(([retrievedParameters, retrievedAcl]) => {
+    getParameters({
+      endpoint: parametersEndpoint
+    })
+      .then((retrievedParameters) => {
         setDowntime({
-          duration: parseInt(
+          duration: Number.parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
             10
           ),
@@ -110,9 +106,11 @@ const useApp = (): UseAppState => {
             retrievedParameters.monitoring_default_downtime_with_services
         });
         setRefreshInterval(
-          parseInt(retrievedParameters.monitoring_default_refresh_interval, 10)
+          Number.parseInt(
+            retrievedParameters.monitoring_default_refresh_interval,
+            10
+          )
         );
-        setAcl({ actions: retrievedAcl });
         setAcknowledgement({
           force_active_checks:
             retrievedParameters.monitoring_default_acknowledgement_force_active_checks,
@@ -129,6 +127,19 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
+
+    getAcl({
+      endpoint: aclEndpoint
+    })
+      .then((retrievedAcl) => {
+        setAcl({ actions: retrievedAcl });
+      })
+      .catch((error) => {
+        if (pathEq(401, ['response', 'status'])(error)) {
+          logout();
+        }
+      });
+
     if (path(['modules', 'centreon-it-edition-extensions'], platformVersion)) {
       getCustomPlatformRequest({
         endpoint: loginPageCustomisationEndpoint

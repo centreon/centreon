@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
+import { equals, includes, isNil, replace } from 'ramda';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { equals, isNil, replace } from 'ramda';
 
-import { PageSkeleton } from '@centreon/ui';
+import { PageSkeleton, useFullscreen } from '@centreon/ui';
 
 const LegacyRoute = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const { toggleFullscreen } = useFullscreen();
 
   const handleHref = (event): void => {
     const { href } = event.detail;
@@ -49,11 +51,33 @@ const LegacyRoute = (): JSX.Element => {
     });
   };
 
+  const toggle = (event: KeyboardEvent): void => {
+    if (
+      includes(window.frames[0].document.activeElement?.tagName, [
+        'INPUT',
+        'TEXTAREA'
+      ]) ||
+      equals(
+        window.frames[0].document.activeElement?.getAttribute(
+          'contenteditable'
+        ),
+        'true'
+      ) ||
+      !equals(event.code, 'KeyF')
+    ) {
+      return;
+    }
+
+    toggleFullscreen(document.querySelector('body'));
+  };
+
   useEffect(() => {
     window.addEventListener('react.href.update', handleHref, false);
+    window.frames[0].addEventListener('keypress', toggle, false);
 
     return () => {
       window.removeEventListener('react.href.update', handleHref);
+      window.frames[0]?.removeEventListener('keypress', toggle);
     };
   }, []);
 

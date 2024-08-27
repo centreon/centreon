@@ -19,6 +19,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace CentreonModule\Infrastructure\Source;
 
 use CentreonLegacy\ServiceProvider as ServiceProviderLegacy;
@@ -39,7 +41,7 @@ class ModuleSource extends SourceAbstract
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {
@@ -283,7 +285,7 @@ class ModuleSource extends SourceAbstract
         }
 
         // if module requires a license, use License Manager to get information
-        $dependencyInjector = loadDependencyInjector();
+        $dependencyInjector = \Centreon\LegacyContainer::getInstance();
         $license = $dependencyInjector['lm.license'];
         $license->setProductForModule($slug);
         $licenseInFileData = $license->getData();
@@ -293,7 +295,7 @@ class ModuleSource extends SourceAbstract
             'expiration_date' => $this->license->getLicenseExpiration($slug),
             'host_usage' => $this->getHostUsage(),
             'is_valid' => $license->validate(),
-            'host_limit' => $licenseInFileData['licensing']['hosts'],
+            'host_limit' => $licenseInFileData['licensing']['hosts'] ?? -1,
         ];
     }
 
@@ -367,7 +369,7 @@ class ModuleSource extends SourceAbstract
     ) {
         $dependencies = [];
 
-        if (in_array($moduleId, $alreadyProcessed)) {
+        if (in_array($moduleId, $alreadyProcessed, true)) {
             return $dependencies;
         }
 
@@ -406,7 +408,7 @@ class ModuleSource extends SourceAbstract
 
         $modules = $this->getList();
         foreach ($modules as $module) {
-            if ($module->isInstalled() && in_array($moduleId, $module->getDependencies())) {
+            if ($module->isInstalled() && in_array($moduleId, $module->getDependencies(), true)) {
                 $dependenciesToRemove[] = $module->getName();
             }
         }

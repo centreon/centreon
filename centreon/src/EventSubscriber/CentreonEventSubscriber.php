@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace EventSubscriber;
 
+use \Symfony\Bundle\SecurityBundle\Security;
 use Centreon\Application\ApiPlatform;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
@@ -33,21 +34,22 @@ use Centreon\Domain\RequestParameters\{
     Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
 };
 use Centreon\Domain\VersionHelper;
-use JMS\Serializer\Exception\ValidationFailedException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\{
     ExceptionEvent, RequestEvent, ResponseEvent
 };
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\{
-    Exception\AccessDeniedException, Security, User\UserInterface
+    Exception\AccessDeniedException
 };
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * We defined an event subscriber on the kernel event request to create a
@@ -60,12 +62,6 @@ use Symfony\Component\Security\Core\{
 class CentreonEventSubscriber implements EventSubscriberInterface
 {
     /**
-     * If no version has been defined in the configuration,
-     * this version will be used by default.
-     */
-    public const DEFAULT_API_VERSION = '21.10';
-
-    /**
      * If no API header name has been defined in the configuration,
      * this name will be used by default.
      */
@@ -73,19 +69,23 @@ class CentreonEventSubscriber implements EventSubscriberInterface
 
     /**
      * @param RequestParametersInterface $requestParameters
-     * @param ContainerInterface $container
      * @param Security $security
      * @param ApiPlatform $apiPlatform
      * @param ContactInterface $contact
      * @param LoggerInterface $logger
+     * @param string $apiVersionLatest
+     * @param string $apiHeaderName
+     * @param string $translationPath
      */
     public function __construct(
-        private RequestParametersInterface $requestParameters,
-        private ContainerInterface $container,
-        private Security $security,
-        private ApiPlatform $apiPlatform,
-        private ContactInterface $contact,
-        private LoggerInterface $logger
+        readonly private RequestParametersInterface $requestParameters,
+        readonly private Security $security,
+        readonly private ApiPlatform $apiPlatform,
+        readonly private ContactInterface $contact,
+        readonly private LoggerInterface $logger,
+        readonly private string $apiVersionLatest,
+        readonly private string $apiHeaderName,
+        readonly private string $translationPath,
     ) {
     }
 
@@ -116,20 +116,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      *
      * @param ResponseEvent $event
      *
-     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function addApiVersion(ResponseEvent $event): void
     {
-        $defaultApiVersion = self::DEFAULT_API_VERSION;
-        $defaultApiHeaderName = self::DEFAULT_API_HEADER_NAME;
-
-        if ($this->container->hasParameter('api.version.latest')) {
-            $defaultApiVersion = $this->container->getParameter('api.version.latest');
-        }
-        if ($this->container->hasParameter('api.header')) {
-            $defaultApiHeaderName = $this->container->getParameter('api.header');
-        }
-        $event->getResponse()->headers->add([$defaultApiHeaderName => $defaultApiVersion]);
+        $event->getResponse()->headers->add([$this->apiHeaderName => $this->apiVersionLatest]);
     }
 
     /**
@@ -231,16 +222,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      *
      * @param RequestEvent $event
      *
-     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function defineApiVersionInAttributes(RequestEvent $event): void
     {
-        if ($this->container->hasParameter('api.version.latest')) {
-            $latestVersion = $this->container->getParameter('api.version.latest');
-        } else {
-            $latestVersion = self::DEFAULT_API_VERSION;
-        }
-        $event->getRequest()->attributes->set('version.latest', $latestVersion);
+        $event->getRequest()->attributes->set('version.latest', $this->apiVersionLatest);
         $event->getRequest()->attributes->set('version.is_latest', false);
 
         $event->getRequest()->attributes->set('version.is_beta', false);
@@ -259,10 +245,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
 
             if (
                 $requestApiVersion === 'latest'
-                || VersionHelper::compare($requestApiVersion, $latestVersion, VersionHelper::EQUAL)
+                || VersionHelper::compare($requestApiVersion, $this->apiVersionLatest, VersionHelper::EQUAL)
             ) {
                 $event->getRequest()->attributes->set('version.is_latest', true);
-                $requestApiVersion = $latestVersion;
+                $requestApiVersion = $this->apiVersionLatest;
             }
             if ($requestApiVersion === 'beta') {
                 $event->getRequest()->attributes->set('version.is_beta', true);
@@ -307,12 +293,13 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             }
         }
 
-        /*
+        /**
          * If Yes and exception code !== 403 (Forbidden access),
          * we create a custom error message.
          * If we don't do that, an HTML error will appear.
          */
         if ($errorIsBeforeController) {
+            $message = $event->getThrowable()->getMessage();
             if ($event->getThrowable()->getCode() >= Response::HTTP_INTERNAL_SERVER_ERROR) {
                 $errorCode = $event->getThrowable()->getCode();
                 $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
@@ -325,6 +312,19 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             ) {
                 $errorCode = Response::HTTP_NOT_FOUND;
                 $statusCode = Response::HTTP_NOT_FOUND;
+            } elseif ($event->getThrowable()->getPrevious() instanceof ValidationFailedException) {
+
+                $message = '';
+                foreach ($event->getThrowable()->getPrevious()->getViolations() as $violation) {
+                    $message .= $violation->getPropertyPath() . ': ' . $violation->getMessage() . "\n";
+                }
+                if ($event->getThrowable() instanceof HttpException) {
+                    $errorCode = $event->getThrowable()->getStatusCode();
+                    $statusCode = $event->getThrowable()->getStatusCode();
+                } else {
+                    $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+                    $errorCode = $statusCode;
+                }
             } else {
                 $errorCode = $event->getThrowable()->getCode();
                 $statusCode = $event->getThrowable()->getCode()
@@ -336,9 +336,9 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                 new Response(
                     json_encode([
                         'code' => $errorCode,
-                        'message' => $event->getThrowable()->getMessage(),
+                        'message' => $message,
                     ]),
-                    $statusCode
+                    (int) $statusCode
                 )
             );
         } else {
@@ -346,7 +346,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                 ? $event->getThrowable()->getCode()
                 : Response::HTTP_INTERNAL_SERVER_ERROR;
             $httpCode = ($event->getThrowable()->getCode() >= 100 && $event->getThrowable()->getCode() < 600)
-                ? $event->getThrowable()->getCode()
+                ? (int) $event->getThrowable()->getCode()
                 : Response::HTTP_INTERNAL_SERVER_ERROR;
 
             if ($event->getThrowable() instanceof EntityNotFoundException) {
@@ -355,7 +355,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     'message' => $event->getThrowable()->getMessage(),
                 ]);
                 $httpCode = Response::HTTP_NOT_FOUND;
-            } elseif ($event->getThrowable() instanceof ValidationFailedException) {
+            } elseif ($event->getThrowable() instanceof \JMS\Serializer\Exception\ValidationFailedException) {
                 $errorMessage = json_encode([
                     'code' => $errorCode,
                     'message' => EntityValidator::formatErrors(
@@ -369,7 +369,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     'message' => 'An error has occurred in a repository',
                 ]);
             } elseif ($event->getThrowable() instanceof AccessDeniedException) {
-                $errorMessage = null;
+                $errorCode = $event->getThrowable()->getCode();
+                $errorMessage = json_encode([
+                    'code' => $errorCode,
+                    'message' => $event->getThrowable()->getMessage(),
+                ]);
             } elseif (get_class($event->getThrowable()) === \Exception::class) {
                 $errorMessage = json_encode([
                     'code' => $errorCode,
@@ -383,7 +387,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             }
             $this->logException($event->getThrowable());
             $event->setResponse(
-                new Response($errorMessage, $httpCode)
+                new Response($errorMessage, (int) $httpCode)
             );
         }
     }
@@ -432,7 +436,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
 
         putenv('LANG=' . $lang);
         setlocale(LC_ALL, $lang);
-        bindtextdomain('messages', $this->container->getParameter('translation_path'));
+        bindtextdomain('messages', $this->translationPath);
         bind_textdomain_codeset('messages', Contact::DEFAULT_CHARSET);
         textdomain('messages');
     }
@@ -480,7 +484,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             ->setTimezoneId($user->getTimezoneId())
             ->setDefaultPage($user->getDefaultPage())
             ->setUseDeprecatedPages($user->isUsingDeprecatedPages())
-            ->setTheme($user->getTheme())
+            ->setTheme($user->getTheme() ?? 'light')
             ->setUserInterfaceDensity($user->getUserInterfaceDensity());
     }
 }

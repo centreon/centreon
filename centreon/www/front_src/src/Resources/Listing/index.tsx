@@ -11,12 +11,11 @@ import {
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
-import { userAtom, featureFlagsDerivedAtom } from '@centreon/ui-context';
+import { featureFlagsDerivedAtom, userAtom } from '@centreon/ui-context';
 
 import { userEndpoint } from '../../App/endpoint';
 import Actions from '../Actions';
 import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
-import VisualizationActions from '../Actions/Visualization';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToSetDowntimeAtom,
@@ -154,7 +153,9 @@ const ResourceListing = (): JSX.Element => {
 
   const onForcedCheck = (): void => {
     checkResource({
-      is_forced: true
+      payload: {
+        is_forced: true
+      }
     }).then(() => {
       showSuccessMessage(t(labelForcedCheckCommandSent));
     });
@@ -226,15 +227,13 @@ const ResourceListing = (): JSX.Element => {
   const changeViewModeTableResources = (): void => {
     updateUser();
     mutateAsync({
-      user_interface_density: viewerMode
+      payload: {
+        user_interface_density: viewerMode
+      }
     });
   };
 
   const areColumnsSortable = equals(visualization, Visualization.All);
-
-  const visualizationActions = featureFlags?.resourceStatusTreeView ? (
-    <VisualizationActions />
-  ) : undefined;
 
   return (
     <Listing
@@ -290,7 +289,6 @@ const ResourceListing = (): JSX.Element => {
         onClick: changeViewModeTableResources,
         title: user_interface_density
       }}
-      visualizationActions={visualizationActions}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}

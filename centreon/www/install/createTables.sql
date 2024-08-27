@@ -82,6 +82,8 @@ CREATE TABLE `acl_groups` (
   `acl_group_activate` enum('0','1','2') DEFAULT NULL,
   `cloud_description` TEXT DEFAULT NULL,
   `cloud_specific` boolean NOT NULL DEFAULT 0,
+  `all_contacts` TINYINT DEFAULT 0 NOT NULL,
+  `all_contact_groups` TINYINT DEFAULT 0 NOT NULL,
   PRIMARY KEY (`acl_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -120,10 +122,10 @@ CREATE TABLE `acl_resources` (
 CREATE TABLE `dataset_filters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent_id` int(11) DEFAULT NULL,
-  `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
+  `type` VARCHAR(255) DEFAULT NULL,
   `acl_resource_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
-  `resource_ids` varchar(255) DEFAULT NULL,
+  `resource_ids` TEXT DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
@@ -444,16 +446,6 @@ CREATE TABLE `cb_log_level` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `cfg_centreonbroker_log` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `id_centreonbroker` int(11) NOT NULL,
-  `id_log` int(11) NOT NULL,
-  `id_level` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cfg_centreonbroker` (
   `config_id` int(11) NOT NULL AUTO_INCREMENT,
   `config_name` varchar(100) NOT NULL,
@@ -475,6 +467,17 @@ CREATE TABLE `cfg_centreonbroker` (
   `bbdo_version` varchar(50) DEFAULT '3.0.1',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `cfg_centreonbroker_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_centreonbroker` int(11) NOT NULL,
+  `id_log` int(11) NOT NULL,
+  `id_level` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `cfg_centreonbroker_log_ibfk_01` FOREIGN KEY (`id_centreonbroker`) REFERENCES `cfg_centreonbroker` (`config_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -583,7 +586,7 @@ CREATE TABLE `cfg_nagios` (
   `cfg_file` varchar(255) NOT NULL DEFAULT 'centengine.cfg',
   `log_pid` enum('0','1') DEFAULT '1',
   `enable_macros_filter` enum('0', '1') DEFAULT '0',
-  `macros_filter` TEXT DEFAULT '',
+  `macros_filter` TEXT DEFAULT (''),
   `logger_version` enum('log_v2_enabled', 'log_legacy_enabled') DEFAULT 'log_v2_enabled',
   PRIMARY KEY (`nagios_id`),
   KEY `cmd1_index` (`global_host_event_handler`),
@@ -614,6 +617,7 @@ CREATE TABLE `cfg_resource` (
   `resource_line` varchar(255) DEFAULT NULL,
   `resource_comment` varchar(255) DEFAULT NULL,
   `resource_activate` enum('0','1') DEFAULT NULL,
+  `is_password` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`resource_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2322,7 +2326,7 @@ CREATE TABLE IF NOT EXISTS `task` (
   `status` VARCHAR(40) NOT NULL,
   `parent_id` INT(11) NULL,
   `params` BLOB NULL,
-  `created_at` TIMESTAMP NOT NULL
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create user_filter table
@@ -2477,31 +2481,6 @@ CREATE TABLE `security_provider_contact_group_relation` (
     REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `vault` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `vault` (`name`) VALUES ('hashicorp');
-
-CREATE TABLE IF NOT EXISTS `vault_configuration` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(50) NOT NULL,
-  `vault_id` INT UNSIGNED NOT NULL,
-  `url` VARCHAR(1024) NOT NULL,
-  `port` SMALLINT UNSIGNED NOT NULL,
-  `root_path` VARCHAR(50) NOT NULL,
-  `role_id` VARCHAR(255) NOT NULL,
-  `secret_id` VARCHAR(255) NOT NULL,
-  `salt` CHAR(128) NOT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `vault_configuration_vault_id`
-    FOREIGN KEY (`vault_id`)
-    REFERENCES `vault` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `notification` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(250) NOT NULL,
@@ -2650,6 +2629,38 @@ CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6',
+  `name` varchar(255) NOT NULL,
+  `description` text,
+  `parameters` JSON NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `created_at` int(11) NOT NULL,
+  `updated_at` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`),
+  CONSTRAINT `acc_contact_created_by`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
+  CONSTRAINT `acc_contact_updated_by`
+    FOREIGN KEY (`updated_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
+  `acc_id` INT UNSIGNED NOT NULL,
+  `poller_id` INT(11) NOT NULL,
+  UNIQUE KEY `name_unique` (`acc_id`, `poller_id`),
+  CONSTRAINT `acc_id_contraint`
+    FOREIGN KEY (`acc_id`)
+    REFERENCES `additional_connector_configuration` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `poller_id_contraint`
+    FOREIGN KEY (`poller_id`)
+    REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

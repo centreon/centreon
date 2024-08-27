@@ -1,23 +1,26 @@
 /* eslint-disable react/no-array-index-key */
 import { ReactElement } from 'react';
 
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
+import AddIcon from '@mui/icons-material/Add';
 import { FormHelperText } from '@mui/material';
-import FilterIcon from '@mui/icons-material/Tune';
 
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
 
-import { Dataset } from '../../../models';
+import { Dataset, ResourceTypeEnum } from '../../../models';
 import {
-  labelDelete,
   labelAddFilter,
+  labelDelete,
   labelSelectResource,
   labelSelectResourceType
 } from '../../../translatedLabels';
 import useDatasetFilter from '../hooks/useDatasetFilter';
 import { useDatasetFilterStyles } from '../styles/DatasetFilter.styles';
+
+import AllOfResourceTypeCheckbox from './AllOfResourceTypeCheckbox';
 
 type Props = {
   areResourcesFilled: (datasets: Array<Dataset>) => boolean;
@@ -37,21 +40,22 @@ const DatasetFilter = ({
     addResource,
     changeResourceType,
     changeResources,
+    deleteButtonHidden,
     deleteResource,
     deleteResourceItem,
+    displayAllOfResourceTypeCheckbox,
     error,
+    getLabelForSelectedResources,
     getResourceBaseEndpoint,
     getResourceTypeOptions,
     getSearchField,
     lowestResourceTypeReached
   } = useDatasetFilter(datasetFilter, datasetFilterIndex);
 
-  const deleteButtonHidden = datasetFilter.length <= 1;
-
   return (
     <div className={classes.resourceComposition}>
       <ItemComposition
-        IconAdd={<FilterIcon />}
+        IconAdd={<AddIcon />}
         addbuttonDisabled={
           !areResourcesFilled(datasetFilter) || lowestResourceTypeReached()
         }
@@ -59,44 +63,68 @@ const DatasetFilter = ({
         onAddItem={addResource}
       >
         {datasetFilter.map((resource, resourceIndex) => (
-          <ItemComposition.Item
+          <div
             className={classes.resourceCompositionItem}
-            deleteButtonHidden={deleteButtonHidden}
             key={`${resourceIndex}${resource.resources[0]}`}
-            labelDelete={t(labelDelete)}
-            onDeleteItem={deleteResource(resourceIndex)}
           >
-            <SelectField
-              aria-label={`${labelSelectResourceType}`}
-              className={classes.resourceType}
-              label={t(labelSelectResourceType) as string}
-              options={getResourceTypeOptions(resourceIndex)}
-              selectedOptionId={resource.resourceType}
-              onChange={changeResourceType(resourceIndex)}
-            />
-            <MultiConnectedAutocompleteField
-              allowUniqOption
-              chipProps={{
-                color: 'primary',
-                onDelete: (_, option): void =>
-                  deleteResourceItem({
-                    index: resourceIndex,
-                    option,
-                    resources: resource.resources
-                  })
-              }}
-              className={classes.resources}
-              dataTestId={labelSelectResource}
-              disabled={!resource.resourceType}
-              field={getSearchField(resource.resourceType)}
-              getEndpoint={getResourceBaseEndpoint(resource.resourceType)}
-              label={t(labelSelectResource) as string}
-              limitTags={5}
-              queryKey={`${resource.resourceType}-${resourceIndex}`}
-              value={resource.resources || []}
-              onChange={changeResources(resourceIndex)}
-            />
-          </ItemComposition.Item>
+            <ItemComposition.Item
+              className={classes.resourceDataset}
+              deleteButtonHidden={deleteButtonHidden}
+              key={`${resourceIndex}${resource.resources[0]}`}
+              labelDelete={t(labelDelete)}
+              onDeleteItem={deleteResource(resourceIndex)}
+            >
+              <SelectField
+                aria-label={`${labelSelectResourceType}`}
+                className={classes.resourceType}
+                label={t(labelSelectResourceType) as string}
+                options={getResourceTypeOptions(resourceIndex)}
+                selectedOptionId={resource.resourceType}
+                onChange={changeResourceType(resourceIndex)}
+              />
+              <MultiConnectedAutocompleteField
+                allowUniqOption
+                chipProps={{
+                  color: 'primary',
+                  onDelete: (_, option): void =>
+                    deleteResourceItem({
+                      index: resourceIndex,
+                      option,
+                      resources: resource.resources
+                    })
+                }}
+                className={classes.resources}
+                dataTestId={labelSelectResource}
+                disabled={
+                  datasetFilter[resourceIndex].allOfResourceType ||
+                  !resource.resourceType ||
+                  equals(resource.resourceType, ResourceTypeEnum.All)
+                }
+                field={getSearchField(resource.resourceType)}
+                getEndpoint={getResourceBaseEndpoint(
+                  resourceIndex,
+                  resource.resourceType
+                )}
+                label={t(getLabelForSelectedResources(resourceIndex))}
+                limitTags={5}
+                queryKey={`${resource.resourceType}-${resourceIndex}`}
+                value={
+                  datasetFilter[resourceIndex].allOfResourceType
+                    ? []
+                    : resource.resources || []
+                }
+                onChange={changeResources(resourceIndex)}
+              />
+            </ItemComposition.Item>
+            {displayAllOfResourceTypeCheckbox(resource.resourceType) && (
+              <AllOfResourceTypeCheckbox
+                datasetFilter={datasetFilter}
+                datasetFilterIndex={datasetFilterIndex}
+                datasetIndex={resourceIndex}
+                resourceType={resource.resourceType}
+              />
+            )}
+          </div>
         ))}
       </ItemComposition>
       {error && <FormHelperText error>{t(error)}</FormHelperText>}

@@ -1,10 +1,10 @@
 {
-  "federatedComponentsConfiguration": [{
-    "path": "/widgets/singlemetric",
-    "federatedComponents": [
-      "./singlemetric"
-    ]
-  }],
+  "federatedComponentsConfiguration": [
+    {
+      "path": "/widgets/singlemetric",
+      "federatedComponents": ["./singlemetric"]
+    }
+  ],
   "moduleFederationName": "widgetsinglemetric",
   "moduleName": "centreon-widget-singlemetric"
 }

@@ -1,10 +1,10 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\ServiceConfigurationPage;
-use Centreon\Test\Behat\Configuration\ServiceConfigurationListingPage;
 use Centreon\Test\Behat\Configuration\HostConfigurationPage;
 use Centreon\Test\Behat\Configuration\ServiceCategoryConfigurationPage;
+use Centreon\Test\Behat\Configuration\ServiceConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\ServiceConfigurationPage;
 use Centreon\Test\Behat\Configuration\ServiceGroupConfigurationPage;
 
 class ServiceConfigurationContext extends CentreonContext
@@ -14,7 +14,7 @@ class ServiceConfigurationContext extends CentreonContext
     protected $host = array(
         'name' => 'hostName',
         'alias' => 'hostAlias',
-        'address' => 'host@localhost'
+        'address' => '1.2.3.4'
     );
 
     protected $serviceCategory1 = array(

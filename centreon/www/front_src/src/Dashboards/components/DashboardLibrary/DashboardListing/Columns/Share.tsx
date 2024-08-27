@@ -1,19 +1,19 @@
-import { useTranslation } from 'react-i18next';
 import { equals, isNil } from 'ramda';
 
 import Icon from '@mui/icons-material/People';
 import { Box } from '@mui/material';
 
-import { ComponentColumnProps } from '@centreon/ui';
+import { ComponentColumnProps, usePluralizedTranslation } from '@centreon/ui';
 
-import { DashboardRole, ContactType } from '../../../../api/models';
+import { ContactType, DashboardRole } from '../../../../api/models';
 import { labelShares } from '../translatedLabels';
 
 import { useColumnStyles } from './useColumnStyles';
 
 const Share = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useColumnStyles();
-  const { t } = useTranslation();
+  const { pluralizedT } = usePluralizedTranslation();
+
   const { shares, role, name, type, ownRole } = row;
 
   if (equals(ownRole, DashboardRole.viewer)) {
@@ -22,10 +22,17 @@ const Share = ({ row }: ComponentColumnProps): JSX.Element => {
 
   const isNestedRow = !isNil(role);
 
-  const sharesNubmer = shares?.length;
+  const sharesCount = shares?.length || 0;
 
   if (!isNestedRow) {
-    return <Box>{`${sharesNubmer} ${t(labelShares.toLowerCase())}`}</Box>;
+    return (
+      <Box>
+        {`${sharesCount} ${pluralizedT({
+          count: sharesCount,
+          label: labelShares
+        }).toLowerCase()}`}
+      </Box>
+    );
   }
 
   if (equals(type, ContactType.contactGroup)) {

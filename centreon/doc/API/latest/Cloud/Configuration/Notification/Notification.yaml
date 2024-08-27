@@ -1,0 +1,86 @@
+get:
+  tags:
+    - Notification
+  summary: "Get the details of a notification"
+  description: |
+    Get the details of a notification
+
+    This endpoint is accessible for SaaS platforms only
+  parameters:
+    - $ref: 'QueryParameter/NotificationId.yaml'
+  responses:
+    '200':
+      $ref: 'Schema/Notification.Details.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+put:
+  tags:
+      - Notification
+  summary: "Update the details of a notification"
+  description: |
+    Update the details of a notification
+
+    This endpoint is accessible for SaaS platforms only
+  parameters:
+    - $ref: 'QueryParameter/NotificationId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "Schema/Notification.Add.yaml"
+  responses:
+    '204':
+      $ref: '../../../Common/Response/NoContent.yaml'
+    '400':
+      $ref: '../../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+patch:
+  tags:
+    - Notification
+  summary: "Partial update of a notification definition"
+  description: |
+    Partial update of a notification definition
+
+    This endpoint does not handle all notification properties.
+
+    The following notification properties are supported in version 23.10 and above:
+      - is_activated
+  parameters:
+    - $ref: 'QueryParameter/NotificationId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/PartialUpdateNotificationRequest.yaml'
+  responses:
+    '204': { $ref: '../../../Common/Response/NoContent.yaml' }
+    '400': { $ref: '../../../Common/Response/BadRequest.yaml' }
+    '403': { $ref: '../../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../../Common/Response/InternalServerError.yaml' }
+
+delete:
+  tags:
+    - Notification
+  summary: "Delete a notification"
+  description: |
+    Delete a notification
+    This endpoint is accessible for SaaS platforms only
+  parameters:
+    - $ref: 'QueryParameter/NotificationId.yaml'
+  responses:
+    '204': { $ref: '../../../Common/Response/NoContent.yaml' }
+    '403': { $ref: '../../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../../Common/Response/InternalServerError.yaml' }

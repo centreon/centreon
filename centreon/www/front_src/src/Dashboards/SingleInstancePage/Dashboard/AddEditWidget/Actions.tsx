@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 
-import { labelCancel, labelSave } from '../translatedLabels';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
+import { labelCancel, labelSave } from '../translatedLabels';
 
 interface Props {
   closeModal: (shouldAskForClosingConfirmation: boolean) => void;
@@ -13,7 +13,7 @@ interface Props {
 const Actions = ({ closeModal }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const { handleSubmit, isValid, dirty } = useFormikContext();
+  const { handleSubmit, isValid, dirty, isSubmitting } = useFormikContext();
 
   const { canEdit, canEditField } = useCanEditProperties();
 
@@ -21,7 +21,7 @@ const Actions = ({ closeModal }: Props): JSX.Element | null => {
     return null;
   }
 
-  const isDisabled = !dirty || !isValid;
+  const isDisabled = isSubmitting || !dirty || !isValid;
 
   return (
     <Modal.Actions

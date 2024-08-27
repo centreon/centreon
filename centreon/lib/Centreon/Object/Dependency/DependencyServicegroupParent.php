@@ -32,14 +32,15 @@ class Centreon_Object_DependencyServicegroupParent extends Centreon_Object
 
     public function removeRelationLastServicegroupDependency(int $servicegroupId): void
     {
-        $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id 
-              FROM dependency_servicegroupParent_relation 
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation 
-                                         WHERE servicegroup_sg_id = ?)';
+        $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+              FROM dependency_servicegroupParent_relation
+              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
+                                         WHERE servicegroup_sg_id = ?)
+              GROUP BY dependency_dep_id';
         $result = $this->getResult($query, array($servicegroupId), "fetch");
 
         //is last parent
-        if ($result['nb_dependency'] == 1) {
+        if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
             $this->db->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
         }
     }

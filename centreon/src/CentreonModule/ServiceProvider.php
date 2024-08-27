@@ -34,7 +34,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     /**
      * Register services.
      *
-     * @param \Pimple\Container $pimple
+     * @param Container $pimple
      */
     public function register(Container $pimple): void
     {

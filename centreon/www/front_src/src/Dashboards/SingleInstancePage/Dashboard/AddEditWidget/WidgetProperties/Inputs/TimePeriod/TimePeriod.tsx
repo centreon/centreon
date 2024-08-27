@@ -1,20 +1,26 @@
-import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
+import { useMemo } from 'react';
+
 import dayjs from 'dayjs';
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
 import { SelectField, SimpleCustomTimePeriod } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { labelTimePeriod } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
-import useTimePeriod from './useTimePeriod';
 import { useTimePeriodStyles } from './TimePeriod.styles';
+import useTimePeriod from './useTimePeriod';
 
-const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
+const TimePeriod = ({
+  propertyName,
+  isInGroup
+}: WidgetPropertyProps): JSX.Element => {
   const { classes } = useTimePeriodStyles();
   const { t } = useTranslation();
 
@@ -35,11 +41,11 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     name: t(name)
   }));
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div className={classes.container}>
-      <Typography>
-        <strong>{t(labelTimePeriod)}</strong>
-      </Typography>
+      <Label>{t(labelTimePeriod)}</Label>
       <SelectField
         dataTestId={labelTimePeriod}
         disabled={!canEditField}

@@ -1274,12 +1274,12 @@ class CentreonCustomView
             $queryValue[] = (int)$k;
         }
         $cgString = rtrim($cgString, ',');
-        $query = 'SELECT c1.custom_view_id, c1.user_id as owner_id, c2.usergroup_id ' .
+        $query = 'SELECT c1.custom_view_id, c1.user_id as owner_id ' .
             'FROM custom_view_user_relation c1, custom_view_user_relation c2 ' .
             'WHERE c1.custom_view_id = c2.custom_view_id ' .
             'AND c1.is_owner = 1 ' .
             'AND c2.usergroup_id in (' . $cgString . ') ' .
-            'GROUP BY custom_view_id';
+            'GROUP BY c1.custom_view_id, c1.user_id';
         $stmt = $db->prepare($query);
         $dbResult = $stmt->execute($queryValue);
         if (!$dbResult) {

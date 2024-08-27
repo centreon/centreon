@@ -1,5 +1,5 @@
-import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 
 const Comment =
   (classes) =>

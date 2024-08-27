@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\Repository;
 
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Role\TinyRole;
 
 interface WriteDashboardShareRepositoryInterface
 {
@@ -98,4 +99,53 @@ interface WriteDashboardShareRepositoryInterface
      * @return bool
      */
     public function updateContactGroupShare(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): bool;
+
+    /**
+     * Delete all the contact and contactgroups shared on a dashboard.
+     *
+     * @param int $dashboardId
+     *
+     * @throws \Throwable
+     */
+    public function deleteDashboardShares(int $dashboardId): void;
+
+    /**
+     * Delete given contacts shared on a dashboard.
+     *
+     * @param int $dashboardId
+     * @param int[] $contactIds
+     *
+     * @throws \Throwable
+     */
+    public function deleteDashboardSharesByContactIds(int $dashboardId, array $contactIds): void;
+
+    /**
+     * Delete given contact groups shared on a dashboard.
+     *
+     * @param int $dashboardId
+     * @param int[] $contactGroupIds
+     *
+     * @throws \Throwable
+     */
+    public function deleteDashboardSharesByContactGroupIds(int $dashboardId, array $contactGroupIds): void;
+
+    /**
+     * Add multiple contact shares on a dashboard.
+     *
+     * @param int $dashboardId
+     * @param TinyRole[] $contactGroupRoles
+     *
+     * @throws \Throwable
+     */
+    public function addDashboardContactGroupShares(int $dashboardId, array $contactGroupRoles): void;
+
+    /**
+     * Add multiple contact group shares on a dashboard.
+     *
+     * @param int $dashboardId
+     * @param TinyRole[] $contactRoles
+     *
+     * @throws \Throwable
+     */
+    public function addDashboardContactShares(int $dashboardId, array $contactRoles): void;
 }

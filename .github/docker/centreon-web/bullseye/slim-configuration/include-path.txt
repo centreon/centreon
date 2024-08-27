@@ -38,6 +38,7 @@
 /usr/lib/centreon/plugins
 /usr/share/perl
 /usr/share/perl5
+/usr/share/centreon-broker
 /etc/apt
 /usr/share/dpkg
 /var/lib/apt

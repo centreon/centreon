@@ -27,6 +27,12 @@ centreon_security_update_provider_configuration_openid:
     controller: 'Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\UpdateOpenIdConfiguration\UpdateOpenIdConfigurationController'
     condition: "request.attributes.get('version') >= 22.04"
 
+centreon_security_partial_update_provider_configuration_openid:
+    methods: PATCH
+    path: /administration/authentication/providers/openid
+    controller: 'Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\PartialUpdateOpenIdConfiguration\PartialUpdateOpenIdConfigurationController'
+    condition: "request.attributes.get('version') >= 24.04"
+
 centreon_security_find_provider_configuration_openid:
     methods: GET
     path: /administration/authentication/providers/openid

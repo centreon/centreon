@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { find, isNil, pipe, propEq, reject } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import IconReset from '@mui/icons-material/RotateLeft';
 import {
   Button,
   ClickAwayListener,
@@ -13,11 +14,10 @@ import {
   PopperPlacementType,
   useTheme
 } from '@mui/material';
-import IconReset from '@mui/icons-material/RotateLeft';
 
+import { SelectEntry } from '..';
 import { IconButton } from '../../..';
 import Option from '../Option';
-import { SelectEntry } from '..';
 
 import { labelReset } from './translatedLabels';
 

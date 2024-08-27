@@ -1,25 +1,26 @@
 import { useRef } from 'react';
 
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
-import { Typography } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Typography } from '@mui/material';
 
 import { RichTextEditor } from '@centreon/ui';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
-import { Widget } from '../models';
+import { dashboardRefreshIntervalAtom } from '../../atoms';
+import DescriptionWrapper from '../../components/DescriptionWrapper';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import {
   labelPleaseChooseAWidgetToActivatePreview,
   labelPleaseContactYourAdministrator,
   labelYourRightsOnlyAllowToView
 } from '../../translatedLabels';
 import { isGenericText } from '../../utils';
-import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
-import { dashboardRefreshIntervalAtom } from '../../atoms';
+import { Widget } from '../models';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
@@ -45,8 +46,10 @@ const Preview = (): JSX.Element | null => {
 
   const isGenericTextWidget = isGenericText(values.panelConfiguration?.path);
 
-  const changePanelOptions = (field, value): void => {
-    setFieldValue(`options.${field}`, value);
+  const changePanelOptions = (partialOptions: object): void => {
+    Object.entries(partialOptions).forEach(([key, value]) => {
+      setFieldValue(`options.${key}`, value, false);
+    });
   };
 
   return (
@@ -66,29 +69,29 @@ const Preview = (): JSX.Element | null => {
           {values.options?.name}
         </Typography>
         {values.options?.description?.enabled && (
-          <RichTextEditor
-            disabled
-            contentClassName={cx(
-              classes.previewHeading,
-              classes.previewDescription
-            )}
-            editable={false}
-            editorState={
-              values.options?.description?.enabled
-                ? values.options?.description?.content || undefined
-                : undefined
-            }
-          />
+          <DescriptionWrapper>
+            <RichTextEditor
+              disabled
+              contentClassName={classes.previewHeading}
+              editable={false}
+              editorState={
+                values.options?.description?.enabled
+                  ? values.options?.description?.content || undefined
+                  : undefined
+              }
+            />
+          </DescriptionWrapper>
         )}
         {!isGenericTextWidget && (
           <div
             style={{
               height: `${
                 (previewRef.current?.getBoundingClientRect().height || 0) -
-                16 -
+                36 -
                 46
               }px`,
-              overflow: 'auto'
+              overflow: 'auto',
+              position: 'relative'
             }}
           >
             <FederatedComponent

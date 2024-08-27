@@ -36,6 +36,7 @@ use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Exception;
 
 beforeEach(function () {
@@ -47,7 +48,8 @@ beforeEach(function () {
         $this->hostCategoryRepository,
         $this->accessGroupRepository,
         $this->requestParameters,
-        $this->user
+        $this->user,
+        false
     );
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
     $this->hostCategoryName = 'hc-name';
@@ -62,13 +64,16 @@ beforeEach(function () {
         'is_activated' => true,
         'comment' => $this->hostCategoryComment,
     ];
+
+    $this->accessGroups = [new AccessGroup(1, 'ag-1', 'ag-1-alias')];
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
+
     $this->hostCategoryRepository
         ->expects($this->once())
         ->method('findAll')
@@ -84,7 +89,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 
 it('should present a ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
     $this->user
@@ -107,7 +112,7 @@ it('should present a ForbiddenResponse when a non-admin user has unsufficient ri
 
 it('should present a FindHostGroupsResponse when a non-admin user has read only rights', function (): void {
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
     $this->user
@@ -119,9 +124,20 @@ it('should present a FindHostGroupsResponse when a non-admin user has read only 
                 [Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE, false],
             ]
         );
+
+    $this->accessGroupRepository
+        ->expects($this->any())
+        ->method('findByContact')
+        ->willReturn($this->accessGroups);
+
     $this->hostCategoryRepository
         ->expects($this->once())
-        ->method('findAllByAccessGroups')
+        ->method('hasRestrictedAccessToHostCategories')
+        ->willReturn(true);
+
+    $this->hostCategoryRepository
+        ->expects($this->once())
+        ->method('findAllByAccessGroupIds')
         ->willReturn([$this->hostCategory]);
 
     ($this->usecase)($this->presenter);
@@ -134,7 +150,7 @@ it('should present a FindHostGroupsResponse when a non-admin user has read only 
 
 it('should present a FindHostGroupsResponse when a non-admin user has read/write rights', function (): void {
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
     $this->user
@@ -146,9 +162,20 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
                 [Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE, true],
             ]
         );
+
+    $this->accessGroupRepository
+        ->expects($this->any())
+        ->method('findByContact')
+        ->willReturn($this->accessGroups);
+
     $this->hostCategoryRepository
         ->expects($this->once())
-        ->method('findAllByAccessGroups')
+        ->method('hasRestrictedAccessToHostCategories')
+        ->willReturn(true);
+
+    $this->hostCategoryRepository
+        ->expects($this->once())
+        ->method('findAllByAccessGroupIds')
         ->willReturn([$this->hostCategory]);
 
     ($this->usecase)($this->presenter);
@@ -162,7 +189,7 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
 
 it('should present a FindHostCategoriesResponse with admin user', function () {
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
     $this->hostCategoryRepository

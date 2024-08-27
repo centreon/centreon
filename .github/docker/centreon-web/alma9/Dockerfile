@@ -1,36 +1,34 @@
 ARG REGISTRY_URL
 ARG VERSION
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${VERSION} AS web_fresh
+FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${VERSION}
 
 ARG VERSION
+ARG MYDUMPER_VERSION
 
 COPY *.rpm /tmp/rpms-centreon/
 
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /tmp/entrypoint
+COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /tmp/configuration
+
+COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
+
 RUN bash -e <<EOF
 
-rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
-dnf install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
+rm -f /tmp/rpms-centreon/centreon{,-central,-mariadb,-mysql}-${VERSION}*.rpm
+dnf install -y /tmp/rpms-centreon/centreon-*.rpm
+
+mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
+mv /tmp/entrypoint/container.d /usr/share/centreon/container.d
+chmod -R 755 /usr/share/centreon/container.*
+
+mv /tmp/configuration/* /usr/share/centreon/www/install/tmp/
+chown -R apache:apache /usr/share/centreon/www/install/tmp
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
-
-dnf clean all --enablerepo=*
-
-systemctl stop centreon
-systemctl stop httpd
-systemctl stop php-fpm
-
-EOF
-
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.d/* /usr/share/centreon/container.d/
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp/
-
-RUN bash -e <<EOF
 
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
@@ -47,12 +45,34 @@ su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-service mysql stop
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+
+dnf install -y https://github.com/mydumper/mydumper/releases/download/v${MYDUMPER_VERSION}/mydumper-${MYDUMPER_VERSION}.el9.x86_64.rpm zstd
+mkdir -p /usr/local/src/sql/databases
+mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
+mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon_storage -B centreon_storage
+sed -i -e 's/NO_AUTO_CREATE_USER//g' -e "s#text DEFAULT ''#text DEFAULT ('')#" /usr/local/src/sql/databases/centreon/*
+sed -i -e 's/NO_AUTO_CREATE_USER//g' /usr/local/src/sql/databases/centreon_storage/*
+
+systemctl stop gorgoned
+systemctl stop centengine
+systemctl stop cbd
+systemctl stop httpd
+systemctl stop php-fpm
+
+service mysql stop
+
+dnf remove -y mariadb-server galera-4
+rm -rf /var/lib/mysql
+
+sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
+sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+
+dnf clean all
 
 EOF
 
@@ -60,17 +80,4 @@ EXPOSE 80 3306
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
-FROM web_fresh AS web_standard
-
-COPY ./.github/docker/centreon-web/sql /tmp/sql
-
-RUN bash -e <<EOF
-
-service mysql start
-mysql centreon < /tmp/sql/standard.sql
-mysql centreon < /tmp/sql/media.sql
-mysql centreon < /tmp/sql/openldap.sql
-centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-service mysql stop
-
-EOF
+ENV CENTREON_DATASET="1"

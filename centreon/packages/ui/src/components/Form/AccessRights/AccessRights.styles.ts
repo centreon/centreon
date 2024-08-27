@@ -5,6 +5,6 @@ export const useAccessRightsStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(3),
-    maxWidth: '520px'
+    width: '100%'
   }
 }));

@@ -117,19 +117,24 @@ $sqlFilterCase = match((int) $status) {
 $searchFilterQuery = '';
 if (isset($search) && !empty($search)) {
     $search = str_replace('_', "\_", $search);
-    $mainQueryParameters[':search_string'] = "%{$search}%";
-    $searchFilterQuery = '(h.host_name LIKE :search_string
-                        OR host_alias LIKE :search_string
-                        OR host_address LIKE :search_string) AND ';
+    $mainQueryParameters[':search_string'] = [\PDO::PARAM_STR => "%{$search}%"];
+    $searchFilterQuery = <<<'SQL'
+        (
+            h.host_name LIKE :search_string
+            OR host_alias LIKE :search_string
+            OR host_address LIKE :search_string
+        ) AND
+        SQL;
 }
 
+$templateFROM = '';
 if ($template) {
-    $templateFROM = ', host_template_relation htr ';
-    $templateWHERE = " htr.host_host_id = h.host_id "
-        . "AND htr.host_tpl_id = " . CentreonUtils::quote($template) . " AND ";
-} else {
-    $templateFROM = '';
-    $templateWHERE = '';
+    $templateFROM = <<<'SQL'
+        INNER JOIN host_template_relation htr
+            ON htr.host_host_id = h.host_id
+            AND htr.host_tpl_id = :host_tpl_id
+        SQL;
+    $mainQueryParameters[':host_tpl_id'] = [\PDO::PARAM_INT => $template];
 }
 
 // Smarty template Init
@@ -244,58 +249,110 @@ $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 
 //Select hosts
 $aclFrom = '';
-$aclCond = '';
 if (!$centreon->user->admin) {
-    $aclFrom = ", `{$aclDbName}`.centreon_acl acl";
-    $aclGroupIds = $acl->getAccessGroupsString('ID');
-    $aclCond
-        = ' AND h.host_id = acl.host_id AND acl.service_id IS NULL '
-        . 'AND acl.group_id IN (' . ($aclGroupIds ?: '0') . ') ';
+    $aclGroupIds = array_keys($acl->getAccessGroups());
+    $preparedValueNames = [];
+    foreach ($aclGroupIds as $index => $groupId) {
+        $preparedValueName = ':acl_group_id' . $index;
+        $preparedValueNames[] = $preparedValueName;
+        $mainQueryParameters[$preparedValueName] = [\PDO::PARAM_INT => $groupId];
+    }
+    $aclSubRequest = implode(',', $preparedValueNames) ?: 0;
+    $aclFrom = <<<SQL
+        INNER JOIN `$aclDbName`.centreon_acl acl
+            ON acl.host_id = h.host_id
+            AND acl.service_id IS NULL
+            AND acl.group_id IN ($aclSubRequest)
+        SQL;
 }
 
 if ($hostgroup) {
+    $mainQueryParameters[':host_group_id'] = [\PDO::PARAM_INT => $hostgroup];
+
     if ($poller) {
-        $dbResult = $pearDB->prepare(
-            "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
-            host_address, host_activate, host_template_model_htm_id
-            FROM host h, ns_host_relation, hostgroup_relation hr $templateFROM $aclFrom
-            WHERE $searchFilterQuery $templateWHERE host_register = '1'
-            AND h.host_id = ns_host_relation.host_host_id
-            AND ns_host_relation.nagios_server_id = " . CentreonUtils::quote($poller) . "
-            AND h.host_id = hr.host_host_id
-            AND hr.hostgroup_hg_id = " . CentreonUtils::quote($hostgroup) . " $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
+        $mainQueryParameters[':poller_id'] = [\PDO::PARAM_INT => $poller];
+
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT 
+                h.host_id, h.host_name, host_alias, host_address, host_activate, host_template_model_htm_id
+            FROM host h
+            INNER JOIN ns_host_relation nshr
+                ON nshr.host_host_id = h.host_id
+                AND nshr.nagios_server_id = :poller_id
+            INNER JOIN hostgroup_relation hr
+                ON hr.host_host_id = h.host_id
+                AND hr.hostgroup_hg_id = :host_group_id
+            $templateFROM
+            $aclFrom
+            WHERE $searchFilterQuery
+                h.host_register = '1'
+                $sqlFilterCase
+            ORDER BY h.host_name
+            LIMIT :offset, :limit
+            SQL;
     } else {
-        $dbResult = $pearDB->prepare(
-            "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
-            host_address, host_activate, host_template_model_htm_id
-            FROM host h, hostgroup_relation hr $templateFROM $aclFrom
-            WHERE $searchFilterQuery $templateWHERE host_register = '1'
-            AND h.host_id = hr.host_host_id
-            AND hr.hostgroup_hg_id = " . CentreonUtils::quote($hostgroup) . " $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                h.host_id, h.host_name, host_alias, host_address, host_activate, host_template_model_htm_id
+            FROM host h
+            INNER JOIN hostgroup_relation hr
+                ON hr.host_host_id = h.host_id
+                AND hr.hostgroup_hg_id = :host_group_id
+            $templateFROM
+            $aclFrom
+            WHERE $searchFilterQuery
+                h.host_register = '1'
+                $sqlFilterCase
+            ORDER BY h.host_name
+            LIMIT :offset, :limit
+            SQL;
     }
 } else {
     if ($poller) {
-        $dbResult = $pearDB->prepare(
-            "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
-            host_address, host_activate, host_template_model_htm_id
-            FROM host h, ns_host_relation $templateFROM $aclFrom
-            WHERE $searchFilterQuery $templateWHERE host_register = '1'
-            AND h.host_id = ns_host_relation.host_host_id
-            AND ns_host_relation.nagios_server_id = " . CentreonUtils::quote($poller) . " $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
-    } else {
-        $request = "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
-            host_address, host_activate, host_template_model_htm_id
-            FROM host h $templateFROM $aclFrom
-            WHERE $searchFilterQuery $templateWHERE host_register = '1' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit;
+        $mainQueryParameters[':poller_id'] = [\PDO::PARAM_INT => $poller];
 
-        $dbResult = $pearDB->prepare($request);
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                h.host_id, h.host_name, host_alias, host_address, host_activate, host_template_model_htm_id
+            FROM host h
+            INNER JOIN ns_host_relation nshr
+                ON nshr.host_host_id = h.host_id
+                AND nshr.nagios_server_id = :poller_id
+            $templateFROM
+            $aclFrom
+            WHERE $searchFilterQuery
+                h.host_register = '1'
+                $sqlFilterCase
+            ORDER BY h.host_name
+            LIMIT :offset, :limit 
+            SQL;
+    } else {
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                h.host_id, h.host_name, host_alias, host_address, host_activate, host_template_model_htm_id
+            FROM host h
+            $templateFROM
+            $aclFrom
+            WHERE $searchFilterQuery
+                host_register = '1'
+                $sqlFilterCase
+            ORDER BY h.host_name
+            LIMIT :offset, :limit 
+            SQL;
     }
 }
-$dbResult->execute($mainQueryParameters);
+$dbResult = $pearDB->prepare($request);
+
+$mainQueryParameters[':offset'] = [\PDO::PARAM_INT => (int) ($num * $limit)];
+$mainQueryParameters[':limit'] = [\PDO::PARAM_INT => (int) $limit];
+
+foreach ($mainQueryParameters as $parameterName => $data) {
+    $type = key($data);
+    $value = $data[$type];
+    $dbResult->bindValue($parameterName, $value, $type);
+}
+
+$dbResult->execute();
 
 $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 include './include/common/checkPagination.php';

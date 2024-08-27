@@ -30,7 +30,10 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
+use Centreon\Domain\Option\Option;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\Exception\ValidationFailedException;
@@ -48,17 +51,18 @@ class AcknowledgementController extends AbstractController
     private const DISACKNOWLEDGE_RESOURCES_PAYLOAD_VALIDATION_FILE
         = __DIR__ . '/../../../../config/json_validator/latest/Centreon/Acknowledgement/DisacknowledgeResources.json';
 
-    /** @var AcknowledgementServiceInterface */
-    private AcknowledgementServiceInterface $acknowledgementService;
+    private const
+        DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky',
+        DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent',
+        DEFAULT_ACKNOWLEDGEMENT_NOTIFY = 'monitoring_ack_notify',
+        DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES = 'monitoring_ack_svc',
+        DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS = 'monitoring_ack_active_checks';
 
-    /**
-     * AcknowledgementController constructor.
-     *
-     * @param AcknowledgementServiceInterface $acknowledgementService
-     */
-    public function __construct(AcknowledgementServiceInterface $acknowledgementService)
-    {
-        $this->acknowledgementService = $acknowledgementService;
+    public function __construct(
+        private AcknowledgementServiceInterface $acknowledgementService,
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private OptionServiceInterface $optionService,
+    ) {
     }
 
     /**
@@ -618,7 +622,7 @@ class AcknowledgementController extends AbstractController
 
             return $this->view($acknowledgement)->setContext($context);
         }
-  
+
             return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 
@@ -634,6 +638,22 @@ class AcknowledgementController extends AbstractController
     public function findAcknowledgements(RequestParametersInterface $requestParameters): View
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
+
+        /** @var Contact $user */
+        $user = $this->getUser();
+
+        if (false === $user->isAdmin()) {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($user);
+            $accessGroupIds = array_map(
+                fn($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+                return $this->view(null, Response::HTTP_FORBIDDEN);
+            }
+        }
+
         $acknowledgements = $this->acknowledgementService
             ->filterByContact($this->getUser())
             ->findAcknowledgements();
@@ -659,19 +679,29 @@ class AcknowledgementController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+        /** @var Contact $contact */
+        $contact = $this->getUser();
+
+        if (false === $contact->isAdmin()) {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
+            $accessGroupIds = array_map(
+                fn($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+                return $this->view(null, Response::HTTP_FORBIDDEN);
+            }
+        }
+
         /**
          * Validate POST data for disacknowledge resources.
          */
         $payload = $this->validateAndRetrieveDataSent($request, self::DISACKNOWLEDGE_RESOURCES_PAYLOAD_VALIDATION_FILE);
 
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
         $this->acknowledgementService->filterByContact($contact);
 
-        $disacknowledgement = $this->createDisacknowledgementFromPayload($payload); 
+        $disacknowledgement = $this->createDisacknowledgementFromPayload($payload);
 
         foreach ($payload['resources'] as $resourcePayload) {
             $resource = $this->createResourceFromPayload($resourcePayload);
@@ -710,16 +740,26 @@ class AcknowledgementController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+        /** @var Contact $contact */
+        $contact = $this->getUser();
+
+        if (false === $contact->isAdmin()) {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
+            $accessGroupIds = array_map(
+                fn($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+                return $this->view(null, Response::HTTP_FORBIDDEN);
+            }
+        }
+
         /**
          * Validate POST data for acknowledge resources.
          */
         $payload = $this->validateAndRetrieveDataSent($request, self::ACKNOWLEDGE_RESOURCES_PAYLOAD_VALIDATION_FILE);
         $acknowledgement = $this->createAcknowledgementFromPayload($payload);
-
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
 
         $this->acknowledgementService->filterByContact($contact);
 
@@ -773,7 +813,7 @@ class AcknowledgementController extends AbstractController
      * @param array<string, mixed> $payload
      *
      * @return Acknowledgement
-     */ 
+     */
     private function createAcknowledgementFromPayload(array $payload): Acknowledgement
     {
         $acknowledgement = new Acknowledgement();
@@ -782,25 +822,60 @@ class AcknowledgementController extends AbstractController
             $acknowledgement->setComment($payload['acknowledgement']['comment']);
         }
 
-        if (isset($payload['acknowledgement']['with_services'])) {
-            $acknowledgement->setWithServices($payload['acknowledgement']['with_services']);
+        $options = $this->optionService->findSelectedOptions([
+            self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT,
+            self::DEFAULT_ACKNOWLEDGEMENT_STICKY,
+            self::DEFAULT_ACKNOWLEDGEMENT_NOTIFY,
+            self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES,
+            self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS
+        ]);
+
+        $isAcknowledgementPersistent = $acknowledgement->isPersistentComment();
+        $isAcknowledgementSticky = $acknowledgement->isSticky();
+        $isAcknowledgementNotify = $acknowledgement->isNotifyContacts();
+        $isAcknowledgementWithServices = $acknowledgement->isWithServices();
+        $isAcknowledgementForceActiveChecks = $acknowledgement->doesForceActiveChecks();
+        foreach ($options as $option) {
+            switch ($option->getName()) {
+                case self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT:
+                    $isAcknowledgementPersistent = (int) $option->getValue() === 1;
+                    break;
+                case self::DEFAULT_ACKNOWLEDGEMENT_STICKY:
+                    $isAcknowledgementSticky = (int) $option->getValue() === 1;
+                    break;
+                case self::DEFAULT_ACKNOWLEDGEMENT_NOTIFY:
+                    $isAcknowledgementNotify = (int) $option->getValue() === 1;
+                    break;
+                case self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES:
+                    $isAcknowledgementWithServices = (int) $option->getValue() === 1;
+                    break;
+                case self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS:
+                    $isAcknowledgementForceActiveChecks = (int) $option->getValue() === 1;
+                    break;
+                default:
+                    break;
+            }
         }
 
-        if (isset($payload['acknowledgement']['force_active_checks'])) {
-            $acknowledgement->setForceActiveChecks($payload['acknowledgement']['force_active_checks']);
-        }
+        isset($payload['acknowledgement']['with_services'])
+            ? $acknowledgement->setWithServices($payload['acknowledgement']['with_services'])
+            : $acknowledgement->setWithServices($isAcknowledgementWithServices);
 
-        if (isset($payload['acknowledgement']['is_notify_contacts'])) {
-            $acknowledgement->setNotifyContacts($payload['acknowledgement']['is_notify_contacts']);
-        }
+        isset($payload['acknowledgement']['force_active_checks'])
+            ? $acknowledgement->setForceActiveChecks($payload['acknowledgement']['force_active_checks'])
+            : $acknowledgement->setForceActiveChecks($isAcknowledgementForceActiveChecks);
 
-        if (isset($payload['acknowledgement']['is_persistent_comment'])) {
-            $acknowledgement->setPersistentComment($payload['acknowledgement']['is_persistent_comment']);
-        }
+        isset($payload['acknowledgement']['is_notify_contacts'])
+            ? $acknowledgement->setNotifyContacts($payload['acknowledgement']['is_notify_contacts'])
+            : $acknowledgement->setNotifyContacts($isAcknowledgementNotify);
 
-        if (isset($payload['acknowledgement']['is_sticky'])) {
-            $acknowledgement->setSticky($payload['acknowledgement']['is_sticky']);
-        }
+        isset($payload['acknowledgement']['is_persistent_comment'])
+            ? $acknowledgement->setPersistentComment($payload['acknowledgement']['is_persistent_comment'])
+            : $acknowledgement->setPersistentComment($isAcknowledgementPersistent);
+
+        isset($payload['acknowledgement']['is_sticky'])
+            ? $acknowledgement->setSticky($payload['acknowledgement']['is_sticky'])
+            : $acknowledgement->setSticky($isAcknowledgementSticky);
 
         return $acknowledgement;
     }
@@ -809,7 +884,7 @@ class AcknowledgementController extends AbstractController
      * @param array<string, mixed> $payload
      *
      * @return Acknowledgement
-     */ 
+     */
     private function createDisacknowledgementFromPayload(array $payload): Acknowledgement
     {
         $disacknowledgement = new Acknowledgement();

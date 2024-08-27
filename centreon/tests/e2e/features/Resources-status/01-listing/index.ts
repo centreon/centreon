@@ -28,7 +28,7 @@ beforeEach(() => {
     'monitoringEndpoint'
   );
 
-  cy.startWebContainer();
+  cy.startContainers();
 
   cy.loginByTypeOfUser({
     jsonName: 'admin',
@@ -186,5 +186,5 @@ Then(
 );
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

@@ -1,0 +1,28 @@
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    Core\Security\Vault\:
+        resource: '../../../../../Core/Security/Vault/*'
+
+    _instanceof:
+        Core\Security\Vault\Application\UseCase\MigrateAllCredentials\Migrator\AccCredentialMigratorInterface:
+          tags: ['additional_connector_configuration.migrators']
+
+    Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface:
+      class: Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository
+      public: true
+      arguments:
+          $configurationFile: '%vault_conf_path%'
+
+    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
+      class: Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository
+      public: true
+      arguments:
+          $configurationFile: '%vault_conf_path%'
+
+    Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentials:
+      arguments:
+          $accCredentialMigrators: !tagged_iterator 'additional_connector_configuration.migrators'

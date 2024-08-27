@@ -133,5 +133,10 @@
         "action": "SETCONTACT",
         "object": "ACLGROUP",
         "values": "name-viewer-ACLGROUP;user-dashboard-viewer;"
+    },
+    {
+        "action": "SETCONTACTGROUP",
+        "object": "ACLGROUP",
+        "values": "name-viewer-ACLGROUP;contactgroupdashboard;"
     }
 ]

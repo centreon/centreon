@@ -41,6 +41,19 @@ if (!isset($centreon)) {
 require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
+require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
+
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Infrastructure\Common\Api\Router;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Host\Application\Converter\HostEventConverter;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Quickform rule that checks whether or not monitoring server can be set
@@ -357,7 +370,18 @@ function deleteHostInDB($hosts = array())
 {
     global $pearDB, $centreon;
 
-    foreach (array_keys($hosts) as $hostId) {
+    $hostIds = array_keys($hosts);
+    $kernel = Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    if ($vaultConfiguration !== null) {
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        deleteResourceSecretsInVault($writeVaultRepository, $hostIds, []);
+    }
+    foreach ($hostIds as $hostId) {
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
 
         removeRelationLastHostDependency((int) $hostId);
@@ -411,7 +435,14 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
 {
     global $pearDB, $path, $centreon, $is_admin;
 
-    $hostAcl = array();
+    $hostAcl = [];
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     foreach ($hosts as $key => $value) {
         $dbResult = $pearDB->query("SELECT * FROM host WHERE host_id = '" . (int)$key . "' LIMIT 1");
         $row = $dbResult->fetch();
@@ -673,6 +704,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                    VALUES (:host_host_id, :host_macro_name, :host_macro_value,
                                            :is_password)";
                     $statement = $pearDB->prepare($mTpRq2);
+                    $macroPasswords = [];
                     while ($hst = $dbResult3->fetch()) {
                         $macName = str_replace("\$", "", $hst["host_macro_name"]);
                         $macVal = $hst['host_macro_value'];
@@ -685,6 +717,16 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                         $statement->bindValue(':is_password', (int) $hst["is_password"], \PDO::PARAM_INT);
                         $statement->execute();
                         $fields["_" . strtoupper($macName) . "_"] = $macVal;
+                        if ($hst['is_password'] === 1) {
+                            $maxIdStatement = $pearDB->query(
+                                "SELECT MAX(host_macro_id) from on_demand_macro_host WHERE is_password = 1"
+                            );
+                            $resultMacro = $maxIdStatement->fetch();
+                            $macroPasswords[$resultMacro['MAX(host_macro_id)']] = [
+                                'macroName' => $macName,
+                                'macroValue' => $macVal
+                            ];
+                        }
                     }
 
                     /*
@@ -698,6 +740,41 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                     $statement->bindValue(':max_host_id', (int) $maxId["MAX(host_id)"], \PDO::PARAM_INT);
                     $statement->bindValue(':host_id', (int) $key, \PDO::PARAM_INT);
                     $statement->execute();
+
+                    /**
+                     * The value should be duplicated in vault if it's a password and is already in vault
+                     * The pattern secret:: define that the value is store in vault.
+                     */
+                    if (
+                        ! empty($row['host_snmp_community'])
+                        && str_starts_with(VaultConfiguration::VAULT_PATH_PATTERN, $row['host_snmp_community'])
+                        || ! empty($macroPasswords)
+                    ) {
+                        if ($vaultConfiguration !== null) {
+                            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+                            $readVaultRepository = $kernel->getContainer()->get(
+                                ReadVaultRepositoryInterface::class
+                            );
+                            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+                            $writeVaultRepository = $kernel->getContainer()->get(
+                                WriteVaultRepositoryInterface::class
+                            );
+                            $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
+                            try {
+                                duplicateHostSecretsInVault(
+                                    $readVaultRepository,
+                                    $writeVaultRepository,
+                                    $logger,
+                                    $row['host_snmp_community'],
+                                    $macroPasswords,
+                                    $key,
+                                    (int) $maxId["MAX(host_id)"]
+                                );
+                            } catch (\Throwable $ex) {
+                                error_log((string) $ex);
+                            }
+                        }
+                    }
 
                     signalConfigurationChange('host', (int) $maxId["MAX(host_id)"]);
                     $centreon->CentreonLogAction->insertLog("host", $maxId["MAX(host_id)"], $hostName, "a", $fields);
@@ -991,55 +1068,6 @@ function updateHostInDB($hostId = null, $isMassiveChange = false, $configuration
     return ($hostId);
 }
 
-function insertHostInDB($ret = array(), $onDemandMacro = null)
-{
-    global $centreon, $form, $isCloudPlatform;
-
-    isset($ret["nagios_server_id"])
-        ? $nagiosServerId = $ret["nagios_server_id"]
-        : $nagiosServerId = $form->getSubmitValue("nagios_server_id");
-    if (!isset($nagiosServerId) || $nagiosServerId == "" || $nagiosServerId == 0) {
-        $nagiosServerId = null;
-    }
-
-    $hostId = insertHost($ret, $onDemandMacro, $nagiosServerId);
-
-    if (! $isCloudPlatform) {
-        updateHostHostParent($hostId, $ret);
-        updateHostHostChild($hostId);
-        updateHostContactGroup($hostId, $ret);
-        updateHostContact($hostId, $ret);
-        updateHostNotifs($hostId, $ret);
-        updateHostNotifOptionInterval($hostId, $ret);
-        updateHostNotifOptionTimeperiod($hostId, $ret);
-        updateHostNotifOptionFirstNotificationDelay($hostId, $ret);
-    }
-
-    updateHostHostGroup($hostId, $ret);
-    updateHostHostCategory($hostId, $ret);
-    updateHostTemplateService($hostId);
-    updateNagiosServerRelation($hostId, $ret);
-
-    $ret = $form->getSubmitValues();
-
-    if (
-        ! empty($ret['dupSvTplAssoc']['dupSvTplAssoc'])
-        || $isCloudPlatform === true
-    ) {
-        createHostTemplateService($hostId);
-    }
-
-    signalConfigurationChange('host', $hostId);
-    $centreon->user->access->updateACL([
-        'type' => 'HOST',
-        'id' => $hostId,
-        'action' => 'ADD',
-        'access_grp_id' => (isset($ret['acl_groups']) ? $ret['acl_groups'] : null),
-    ]);
-    insertHostExtInfos($hostId, $ret);
-    return ($hostId);
-}
-
 /**
  * @param array<string,<int,string|int|null>> $bindParams
  * @param bool $isTemplate
@@ -1121,270 +1149,6 @@ function resetUnwantedParameters(array $bindParams): array
     }
 
     return $bindParams;
-}
-
-function insertHost($ret, $macro_on_demand = null, $server_id = null)
-{
-    global $form, $pearDB, $centreon, $is_admin, $isCloudPlatform;
-
-    $hostObj = new CentreonHost($pearDB);
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
-    }
-
-    $host = new CentreonHost($pearDB);
-
-    if (! $isCloudPlatform) {
-        if (isset($ret['command_command_id_arg1']) && $ret['command_command_id_arg1'] != null) {
-            $ret['command_command_id_arg1'] = str_replace('\n', '#BR#', $ret['command_command_id_arg1']);
-            $ret['command_command_id_arg1'] = str_replace('\t', '#T#', $ret['command_command_id_arg1']);
-            $ret['command_command_id_arg1'] = str_replace('\r', '#R#', $ret['command_command_id_arg1']);
-        }
-        if (isset($ret['command_command_id_arg2']) && $ret['command_command_id_arg2'] != null) {
-            $ret['command_command_id_arg2'] = str_replace('\n', '#BR#', $ret['command_command_id_arg2']);
-            $ret['command_command_id_arg2'] = str_replace('\t', '#T#', $ret['command_command_id_arg2']);
-            $ret['command_command_id_arg2'] = str_replace('\r', '#R#', $ret['command_command_id_arg2']);
-        }
-    }
-
-    // For Centreon 2, we no longer need "host_template_model_htm_id" in Nagios 3
-    // but we try to keep it compatible with Nagios 2 which needs "host_template_model_htm_id"
-    if (isset($_POST['nbOfSelect'])) {
-        $dbResult = $pearDB->query("SELECT host_id FROM `host` WHERE host_register='0' LIMIT 1");
-        $result = $dbResult->fetch();
-        $ret["host_template_model_htm_id"] = $result["host_id"];
-        $dbResult->closeCursor();
-    }
-
-    $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
-
-    $bindParams = sanitizeFormHostParameters($ret);
-
-    if ($isCloudPlatform) {
-        $bindParams = resetUnwantedParameters($bindParams);
-        $bindParams = resetHostTypeSpecificParams(
-            $bindParams,
-            isset($ret['host_register']) && $ret['host_register'] === '0' ? true : false
-        );
-    }
-
-    $params = [];
-    foreach (array_keys($bindParams) as $token) {
-        $params[] = ltrim($token, ':');
-    }
-
-    $rq = "INSERT INTO `host` ( " . implode(', ', $params) . ")
-           VALUES (" . implode(", ", array_keys($bindParams)) . " )";
-    $stmt = $pearDB->prepare($rq);
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $stmt->bindValue($token, $value, $paramType);
-        }
-    }
-
-    $stmt->execute();
-    $dbResult = $pearDB->query("SELECT MAX(host_id) FROM host");
-    $host_id = $dbResult->fetch();
-
-    /*
-     *  Insert multiple templates
-     */
-    $multiTP_logStr = "";
-    if (isset($ret["use"]) && $ret["use"]) {
-        $already_stored = array();
-        $tplTab = preg_split("/\,/", $ret["use"]);
-        $j = 0;
-        $rq = "INSERT INTO host_template_relation (`host_host_id`, `host_tpl_id`, `order`)
-               VALUES (:host_host_id, :host_tpl_id, :order)";
-        $statement = $pearDB->prepare($rq);
-        foreach ($tplTab as $val) {
-            $tplId = getMyHostID($val);
-            if (
-                !isset($already_stored[$tplId])
-                && $tplId && hasNoInfiniteLoop($host_id['MAX(host_id)'], $tplId) === true
-            ) {
-                $statement->bindValue(':host_host_id', (int) $host_id['MAX(host_id)'], \PDO::PARAM_INT);
-                $statement->bindValue(':host_tpl_id', (int) $tplId, \PDO::PARAM_INT);
-                $statement->bindValue(':order', $j, \PDO::PARAM_INT);
-                $statement->execute();
-                $multiTP_logStr .= $tplId . ",";
-                $j++;
-                $already_stored[$tplId] = 1;
-            }
-        }
-    } elseif (isset($_REQUEST['tpSelect'])) {
-        $hostObj->setTemplates($host_id['MAX(host_id)'], $_REQUEST['tpSelect']);
-    }
-
-    /*
-     * Insert on demand macros
-     * Keeping it just in case it could used somewhere else
-     */
-
-    if (isset($macro_on_demand)) {
-        $my_tab = $macro_on_demand;
-        if (isset($my_tab['nbOfMacro'])) {
-            $already_stored = array();
-            $rq = "INSERT INTO on_demand_macro_host (`host_macro_name`, `host_macro_value`, `description`,
-                                                     `host_host_id`, `macro_order`)
-                   VALUES (:host_macro_name, :host_macro_value, :host_host_id, :macro_order)";
-            $statement = $pearDB->prepare($rq);
-            for ($i = 0; $i <= $my_tab['nbOfMacro']; $i++) {
-                $macInput = "macroInput_" . $i;
-                $macValue = "macroValue_" . $i;
-                if (
-                    isset($my_tab[$macInput])
-                    && !isset($already_stored[strtolower($my_tab[$macInput])]) && $my_tab[$macInput]
-                ) {
-                    $my_tab[$macInput] = str_replace("\$_HOST", "", $my_tab[$macInput]);
-                    $my_tab[$macInput] = str_replace("\$", "", $my_tab[$macInput]);
-                    $macName = $my_tab[$macInput];
-                    $macVal = $my_tab[$macValue];
-                    $statement->bindValue(':host_macro_name', '$_HOST' . strtoupper($macName) . '$', \PDO::PARAM_STR);
-                    $statement->bindValue(':host_macro_value', $macVal, \PDO::PARAM_STR);
-                    $statement->bindValue(':host_host_id', (int) $host_id['MAX(host_id)'], \PDO::PARAM_INT);
-                    $statement->bindValue(':macro_order', $i, \PDO::PARAM_INT);
-                    $statement->execute();
-                    $fields["_" . strtoupper($my_tab[$macInput]) . "_"] = $my_tab[$macValue];
-                    $already_stored[strtolower($my_tab[$macInput])] = 1;
-                }
-            }
-        }
-    } elseif (
-        isset($_REQUEST['macroInput'])
-        && isset($_REQUEST['macroValue'])
-    ) {
-        $macroDescription = array();
-        foreach ($_REQUEST as $nam => $ele) {
-            if (preg_match_all("/macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
-                foreach ($matches as $match) {
-                    $macroDescription[$match[1]] = $ele;
-                }
-            }
-        }
-        $hostObj->insertMacro(
-            $host_id['MAX(host_id)'],
-            $_REQUEST['macroInput'],
-            $_REQUEST['macroValue'],
-            $_REQUEST['macroPassword'] ?? [],
-            $macroDescription,
-            false,
-            $ret["command_command_id"] ?? false
-        );
-    }
-
-    if (isset($ret['criticality_id'])) {
-        setHostCriticality($host_id['MAX(host_id)'], $ret['criticality_id']);
-    }
-
-    if ($isCloudPlatform) {
-        $stmt = $pearDB->prepare("DELETE FROM acl_resources_host_relations where host_host_id = :hostId");
-        $stmt->bindValue(':hostId', $host_id['MAX(host_id)'], \PDO::PARAM_INT);
-        $stmt->execute();
-    } else {
-        if (isset($ret['acl_groups']) && count($ret['acl_groups'])) {
-            foreach ($ret['acl_groups'] as $groupId) {
-                $sql = "SELECT acl_res_id FROM acl_res_group_relations WHERE acl_group_id = " . $groupId;
-                $res = $pearDB->query($sql);
-
-                $query = "INSERT INTO acl_resources_host_relations (acl_res_id, host_host_id) VALUES ";
-                $first = true;
-
-                while ($aclRes = $res->fetch()) {
-                    if (!$first) {
-                        $query .= ", ";
-                    } else {
-                        $first = false;
-                    }
-                    $query .= "(" . $aclRes['acl_res_id'] . ", " . $pearDB->escape($host_id['MAX(host_id)']) . ")";
-                }
-
-                if (!$first) {
-                    $pearDB->query($query);
-                }
-            }
-        }
-    }
-    /*
-     *  Logs
-     */
-
-    /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog(
-        "host",
-        $host_id["MAX(host_id)"],
-        CentreonDB::escape($ret["host_name"]),
-        "a",
-        $fields
-    );
-
-    return ($host_id["MAX(host_id)"]);
-}
-
-/**
- * @global HTML_QuickFormCustom $form
- * @global CentreonDB $pearDB
- * @param int $host_id
- * @param array $ret
- */
-function insertHostExtInfos($host_id, $ret)
-{
-    global $form, $pearDB;
-
-    if (!$host_id) {
-        return;
-    }
-
-    if (empty($ret)) {
-        $ret = $form->getSubmitValues();
-    }
-
-    /*
-     * Check if image selected isn't a directory
-     */
-    if (isset($ret["ehi_icon_image"]) && strrchr("REP_", $ret["ehi_icon_image"])) {
-        $ret["ehi_icon_image"] = null;
-    }
-    if (isset($ret["ehi_statusmap_image"]) && strrchr("REP_", $ret["ehi_statusmap_image"])) {
-        $ret["ehi_statusmap_image"] = null;
-    }
-    /*
-     *
-     */
-    $rq = "INSERT INTO `extended_host_information` " .
-        "( `ehi_id` , `host_host_id` , `ehi_notes` , `ehi_notes_url` , " .
-        "`ehi_action_url` , `ehi_icon_image` , `ehi_icon_image_alt` , " .
-        "`ehi_statusmap_image` , `ehi_2d_coords` , " .
-        "`ehi_3d_coords` )" .
-        "VALUES ( ";
-    $rq .= "NULL, " . $host_id . ", ";
-    isset($ret["ehi_notes"]) && $ret["ehi_notes"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["ehi_notes"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["ehi_notes_url"]) && $ret["ehi_notes_url"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["ehi_notes_url"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["ehi_action_url"]) && $ret["ehi_action_url"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["ehi_action_url"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["ehi_icon_image"]) && $ret["ehi_icon_image"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["ehi_icon_image"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["ehi_icon_image_alt"]) && $ret["ehi_icon_image_alt"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["ehi_icon_image_alt"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["ehi_statusmap_image"]) && $ret["ehi_statusmap_image"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["ehi_statusmap_image"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["ehi_2d_coords"]) && $ret["ehi_2d_coords"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["ehi_2d_coords"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["ehi_3d_coords"]) && $ret["ehi_3d_coords"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["ehi_3d_coords"]) . "' "
-        : $rq .= "NULL ";
-    $rq .= ")";
-    $dbResult = $pearDB->query($rq);
 }
 
 /*
@@ -1559,6 +1323,20 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         $ret = $configuration;
     }
 
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+
+    //Retrieve UUID for vault path before updating values in database.
+    $vaultPath = null;
+    if ($vaultConfiguration !== null ){
+        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
+    }
+
     if (! $isCloudPlatform) {
         if (! isset($ret['contact_additive_inheritance'])) {
             $ret['contact_additive_inheritance'] = '0';
@@ -1590,6 +1368,9 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     }
 
     $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
+    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        unset($ret['host_snmp_community']);
+    }
     $bindParams = sanitizeFormHostParameters($ret);
 
     if ($isCloudPlatform) {
@@ -1700,6 +1481,29 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         setHostCriticality($hostId, $ret['criticality_id']);
     }
 
+    //If there is a vault configuration write into vault
+    if ($vaultConfiguration !== null) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
+        try {
+            updateHostSecretsInVault(
+                $readVaultRepository,
+                $writeVaultRepository,
+                $logger,
+                $vaultPath,
+                (int) $hostId,
+                $hostObj->getFormattedMacros(),
+                $bindParams[':host_snmp_community'][\PDO::PARAM_STR] ?? null
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
+    }
+
     /*
      *  Logs
      */
@@ -1719,7 +1523,20 @@ function updateHost_MC($hostId = null)
         return;
     }
 
-    $submittedValues = [];
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+
+    //Retrieve UUID for vault path before updating values in database.
+    $vaultPath = null;
+    if ($vaultConfiguration !== null ){
+        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
+    }
+
     $submittedValues = $form->getSubmitValues();
 
     if (! $isCloudPlatform) {
@@ -1817,6 +1634,34 @@ function updateHost_MC($hostId = null)
 
     if (isset($submittedValues['criticality_id']) && $submittedValues['criticality_id']) {
         setHostCriticality($hostId, $submittedValues['criticality_id']);
+    }
+
+    // If there is a vault configuration write into vault.
+    if ($vaultConfiguration !== null) {
+        try {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
+
+            $updatedPasswordMacros = array_filter($hostObj->getFormattedMacros(), function ($macro) {
+                return $macro['macroPassword'] === '1'
+                    && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+            });
+            updateHostSecretsInVaultFromMC(
+                $readVaultRepository,
+                $writeVaultRepository,
+                $logger,
+                $vaultPath,
+                $hostId,
+                $updatedPasswordMacros,
+                $submittedValues['host_snmp_community'] ?? null
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
     }
 
     $dbResultX = $pearDB->query("SELECT host_name FROM `host` WHERE host_id='" . $hostId . "' LIMIT 1");
@@ -2815,7 +2660,6 @@ function testCg($list)
     return CentreonContactgroup::verifiedExists($list);
 }
 
-
 /**
  * Apply template in order to deploy services
  *
@@ -2956,4 +2800,449 @@ function sanitizeFormHostParameters(array $ret): array
         }
     }
     return $bindParams;
+}
+
+/**
+ * Create a new host from formData.
+ *
+ * @param array<mixed> $ret
+ *
+ * @return int|null
+ */
+function insertHostInAPI(array $ret = []): int|null
+{
+    global $centreon, $form, $isCloudPlatform, $basePath;
+
+    /** @var array<string,int|string|null> $formData */
+    $formData = !count($ret) ? $form->getSubmitValues() : $ret;
+
+    try {
+        $hostId = insertHostByApi($formData, $isCloudPlatform, $basePath);
+
+        if ((int) $formData['host_register'] === 0) {
+            updateHostTemplateService($hostId);
+        }
+
+        if (! $isCloudPlatform) {
+            if ((int) $formData['host_register'] !== 0) {
+                updateHostHostParent($hostId, $formData);
+                updateHostHostChild($hostId);
+            }
+            updateHostContactGroup($hostId, $formData);
+            updateHostContact($hostId, $formData);
+        }
+
+        if (
+            ! empty($formData['dupSvTplAssoc']['dupSvTplAssoc'])
+            || $isCloudPlatform === true
+        ) {
+            createHostTemplateService($hostId);
+        }
+
+        // Update conf change flag for poller
+        signalConfigurationChange('host', $hostId);
+        // Update host ACLs
+        $centreon->user->access->updateACL([
+            'type' => 'HOST',
+            'id' => $hostId,
+            'action' => 'ADD',
+            'access_grp_id' => (isset($formData['acl_groups']) ? $formData['acl_groups'] : null),
+        ]);
+        // Insert change logs
+        $fields = CentreonLogAction::prepareChanges($formData);
+        $centreon->CentreonLogAction->insertLog(
+            "host",
+            $hostId,
+            CentreonDB::escape($formData["host_name"]),
+            "a",
+            $fields
+        );
+
+        return ($hostId);
+    } catch (\Throwable $th) {
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . "</div>";
+
+        return (null);
+    }
+}
+
+/**
+ * Make the API request to create a new host and return the new ID.
+ *
+ * @param array $formData
+ * @param bool $isCloudPlatform
+ * @param string $basePath
+ *
+ * @throws \LogicException
+ * @throws \Exception
+ *
+ * @return int
+ */
+function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePath): int
+{
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class)
+        ?? throw new LogicException('Router not found in container');
+    $client = new CurlHttpClient();
+
+    if ((int) $formData['host_register'] === 0) {
+        // is template
+        $payload = getPayloadForHostTemplate($isCloudPlatform, $formData);
+
+        $url = $router->generate(
+            'AddHostTemplate',
+            $basePath ? ['base_uri' => $basePath] : [],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+    } else {
+        // is regular host
+        $payload = getPayloadForHost($isCloudPlatform, $formData);
+
+        $url = $router->generate(
+            'AddHost',
+            $basePath ? ['base_uri' => $basePath] : [],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+    }
+
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+    ];
+    $response = $client->request(
+        'POST',
+        $url,
+        [
+            'headers' => $headers,
+            'body' => json_encode($payload),
+        ],
+    );
+
+    if ($response->getStatusCode() !== 201) {
+        $content = json_decode($response->getContent(false));
+
+        throw new \Exception($content->message ?? 'Unexpected return status');
+    }
+
+    $data = $response->toArray();
+
+    /** @var array{id:int} $data */
+    return $data['id'];
+}
+
+/**
+ * @param bool $isCloudPlatform
+ * @param array<mixed> $formData
+ * @return array<string,mixed>
+ */
+function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): array
+{
+    if ($isCloudPlatform === true) {
+        return [
+            'name' => $formData['host_name'],
+            'alias' => $formData['host_alias'] ?: null,
+            'snmp_version' => $formData['host_snmp_version'] ?: null,
+            'snmp_community' => $formData['host_snmp_community'] ?: null,
+            'note_url' => $formData['ehi_notes_url'] ?: null,
+            'note' => $formData['ehi_notes'] ?: null,
+            'action_url' => $formData['ehi_action_url'] ?: null,
+            'icon_id' => '' !== $formData['ehi_icon_image']
+                ? (int) $formData['ehi_icon_image']
+                : null,
+            'timezone_id' => '' !== $formData['host_location']
+                ? (int) $formData['host_location']
+                : null,
+            'severity_id' => '' !== $formData['criticality_id']
+                ? (int) $formData['criticality_id']
+                : null,
+            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+                ? (int) $formData['timeperiod_tp_id']
+                : null,
+            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+                ? (int) $formData['host_max_check_attempts']
+                : null,
+            'normal_check_interval' => '' !== $formData['host_check_interval']
+                ? (int) $formData['host_check_interval']
+                : null,
+            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+                ? (int) $formData['host_retry_check_interval']
+                : null,
+            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
+            'macros' => array_map(
+                static function (int $key, string $name, string $value) use ($formData): array {
+                    return [
+                        'name' => $name,
+                        'value' => $value,
+                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
+                        'description' => $formData["macroDescription_{$key}"],
+                    ];
+                },
+                array_keys($formData['macroInput'] ?? []),
+                $formData['macroInput'] ?? [],
+                $formData['macroValue'] ?? []
+            ),
+        ];
+    } else {
+        return [
+            'name' => $formData['host_name'],
+            'alias' => $formData['host_alias'] ?: null,
+            'snmp_version' => $formData['host_snmp_version'] ?: null,
+            'snmp_community' => $formData['host_snmp_community'] ?: null,
+            'note_url' => $formData['ehi_notes_url'] ?: null,
+            'note' => $formData['ehi_notes'] ?: null,
+            'action_url' => $formData['ehi_action_url'] ?: null,
+            'icon_id' => '' !== $formData['ehi_icon_image']
+                ? (int) $formData['ehi_icon_image']
+                : null,
+            'icon_alternative' => $formData['ehi_icon_image_alt'] ?: null,
+            'comment' => $formData['host_comment'] ?: null,
+            'timezone_id' => '' !== $formData['host_location']
+                ? (int) $formData['host_location']
+                : null,
+            'severity_id' => '' !== $formData['criticality_id']
+                ? (int) $formData['criticality_id']
+                : null,
+            'check_command_id' => '' !== $formData['command_command_id']
+                ? (int) $formData['command_command_id']
+                : null,
+            'check_command_args' => array_values(array_filter(
+                explode('!', $formData['command_command_id_arg1']),
+                static fn(string $elem): bool => $elem !== ""
+            )),
+            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+                ? (int) $formData['timeperiod_tp_id']
+                : null,
+            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+                ? (int) $formData['host_max_check_attempts']
+                : null,
+            'normal_check_interval' => '' !== $formData['host_check_interval']
+                ? (int) $formData['host_check_interval']
+                : null,
+            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+                ? (int) $formData['host_retry_check_interval']
+                : null,
+            'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
+            'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
+            'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
+                ? (int) $formData['host_low_flap_threshold']
+                : null,
+            'high_flap_threshold' => '' !== $formData['host_high_flap_threshold']
+                ? (int) $formData['host_high_flap_threshold']
+                : null,
+            'freshness_checked' => (int) $formData['host_check_freshness']['host_check_freshness'],
+            'freshness_threshold' => '' !== $formData['host_freshness_threshold']
+                ? (int) $formData['host_freshness_threshold']
+                : null,
+            'acknowledgement_timeout' => '' !== $formData['host_acknowledgement_timeout']
+                ? (int) $formData['host_acknowledgement_timeout']
+                : null,
+            'flap_detection_enabled' => (int) $formData['host_flap_detection_enabled']['host_flap_detection_enabled'],
+            'event_handler_enabled' => (int) $formData['host_event_handler_enabled']['host_event_handler_enabled'],
+            'event_handler_command_id' => '' !== $formData['command_command_id2']
+                ? (int) $formData['command_command_id2']
+                : null,
+            'event_handler_command_args' => array_values(array_filter(
+                explode('!', $formData['command_command_id_arg2']),
+                static fn(string $elem): bool => $elem !== ""
+            )),
+            'notification_enabled' => (int) $formData['host_notifications_enabled']['host_notifications_enabled'],
+            'notification_interval' => '' !== $formData['host_notification_interval'] ?
+                 (int) $formData['host_notification_interval']
+                 : null,
+            'notification_timeperiod_id' => '' !== $formData['timeperiod_tp_id2']
+                ? (int) $formData['timeperiod_tp_id2']
+                : null,
+            'notification_options' => HostEventConverter::toBitFlag(HostEventConverter::fromString(
+                implode(',', array_keys($formData['host_notifOpts'] ?? []))
+            )),
+            'first_notification_delay' => '' !== $formData['host_first_notification_delay']
+                ? (int) $formData['host_first_notification_delay']
+                : null,
+            'recovery_notification_delay' => '' !== $formData['host_recovery_notification_delay']
+                ? (int) $formData['host_recovery_notification_delay']
+                : null,
+            'add_inherited_contact_group' => (bool) ($formData['cg_additive_inheritance'] ?? false),
+            'add_inherited_contact' => (bool) ($formData['contact_additive_inheritance'] ?? false),
+            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
+            'macros' => array_map(
+                static function (int $key, string $name, string $value) use ($formData): array {
+                    return [
+                        'name' => $name,
+                        'value' => $value,
+                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
+                        'description' => $formData["macroDescription_{$key}"],
+                    ];
+                },
+                array_keys($formData['macroInput'] ?? []),
+                $formData['macroInput'] ?? [],
+                $formData['macroValue'] ?? []
+            ),
+        ];
+    }
+}
+
+/**
+ * @param bool $isCloudPlatform
+ * @param array $formData
+ * @return array<string,mixed>
+ */
+function getPayloadForHost(bool $isCloudPlatform, array $formData): array
+{
+    if ($isCloudPlatform === true) {
+        return [
+            'name' => $formData['host_name'],
+            'address' => $formData['host_address'],
+            'monitoring_server_id' => (int) $formData['nagios_server_id'] ?: null,
+            'alias' => $formData['host_alias'] ?: null,
+            'snmp_version' => $formData['host_snmp_version'] ?: null,
+            'snmp_community' => $formData['host_snmp_community'] ?: null,
+            'note_url' => $formData['ehi_notes_url'] ?: null,
+            'note' => $formData['ehi_notes'] ?: null,
+            'action_url' => $formData['ehi_action_url'] ?: null,
+            'icon_id' => '' !== $formData['ehi_icon_image']
+                ? (int) $formData['ehi_icon_image']
+                : null,
+            'geo_coords' => $formData['geo_coords'] ?: null,
+            'timezone_id' => '' !== $formData['host_location']
+                ? (int) $formData['host_location']
+                : null,
+            'severity_id' => '' !== $formData['criticality_id']
+                ? (int) $formData['criticality_id']
+                : null,
+            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+                ? (int) $formData['timeperiod_tp_id']
+                : null,
+            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+                ? (int) $formData['host_max_check_attempts']
+                : null,
+            'normal_check_interval' => '' !== $formData['host_check_interval']
+                ? (int) $formData['host_check_interval']
+                : null,
+            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+                ? (int) $formData['host_retry_check_interval']
+                : null,
+            'is_activated' => (bool) ($formData['host_activate']['host_activate'] ?: false),
+            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
+            'groups' => array_map(static fn(string $id): int => (int) $id, $formData['host_hgs'] ?? []),
+            'macros' => array_map(
+                static function (int|string $key, string $name, string $value) use ($formData): array {
+                    return [
+                        'name' => $name,
+                        'value' => $value,
+                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
+                        'description' => $formData["macroDescription_{$key}"],
+                    ];
+                },
+                array_keys($formData['macroInput'] ?? []),
+                $formData['macroInput'] ?? [],
+                $formData['macroValue'] ?? []
+            ),
+        ];
+    } else {
+        return [
+            'name' => $formData['host_name'],
+            'address' => $formData['host_address'],
+            'monitoring_server_id' => (int) $formData['nagios_server_id'] ?: null,
+            'alias' => $formData['host_alias'] ?: null,
+            'snmp_version' => $formData['host_snmp_version'] ?: null,
+            'snmp_community' => $formData['host_snmp_community'] ?: null,
+            'note_url' => $formData['ehi_notes_url'] ?: null,
+            'note' => $formData['ehi_notes'] ?: null,
+            'action_url' => $formData['ehi_action_url'] ?: null,
+            'icon_id' => '' !== $formData['ehi_icon_image']
+                ? (int) $formData['ehi_icon_image']
+                : null,
+            'icon_alternative' => $formData['ehi_icon_image_alt'] ?: null,
+            'comment' => $formData['host_comment'] ?: null,
+            'geo_coords' => $formData['geo_coords'] ?: null,
+            'timezone_id' => '' !== $formData['host_location']
+                ? (int) $formData['host_location']
+                : null,
+            'severity_id' => '' !== $formData['criticality_id']
+                ? (int) $formData['criticality_id']
+                : null,
+            'check_command_id' => '' !== $formData['command_command_id']
+                ? (int) $formData['command_command_id']
+                : null,
+            'check_command_args' => array_values(array_filter(
+                explode('!', $formData['command_command_id_arg1']),
+                static fn(string $elem): bool => $elem !== ""
+            )),
+            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+                ? (int) $formData['timeperiod_tp_id']
+                : null,
+            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+                ? (int) $formData['host_max_check_attempts']
+                : null,
+            'normal_check_interval' => '' !== $formData['host_check_interval']
+                ? (int) $formData['host_check_interval']
+                : null,
+            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+                ? (int) $formData['host_retry_check_interval']
+                : null,
+            'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
+            'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
+            'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
+                ? (int) $formData['host_low_flap_threshold']
+                : null,
+            'high_flap_threshold' => '' !== $formData['host_high_flap_threshold']
+                ? (int) $formData['host_high_flap_threshold']
+                : null,
+            'freshness_checked' => (int) $formData['host_check_freshness']['host_check_freshness'],
+            'freshness_threshold' => '' !== $formData['host_freshness_threshold']
+                ? (int) $formData['host_freshness_threshold']
+                : null,
+            'acknowledgement_timeout' => '' !== $formData['host_acknowledgement_timeout']
+                ? (int) $formData['host_acknowledgement_timeout']
+                : null,
+            'flap_detection_enabled' => (int) $formData['host_flap_detection_enabled']['host_flap_detection_enabled'],
+            'event_handler_enabled' => (int) $formData['host_event_handler_enabled']['host_event_handler_enabled'],
+            'event_handler_command_id' => '' !== $formData['command_command_id2']
+                ? (int) $formData['command_command_id2']
+                : null,
+            'event_handler_command_args' => array_values(array_filter(
+                explode('!', $formData['command_command_id_arg2']),
+                static fn(string $elem): bool => $elem !== ""
+            )),
+            'notification_enabled' => (int) $formData['host_notifications_enabled']['host_notifications_enabled'],
+            'notification_interval' => '' !== $formData['host_notification_interval']
+                ? (int) $formData['host_notification_interval']
+                : null,
+            'notification_timeperiod_id' => '' !== $formData['timeperiod_tp_id2']
+                ? (int) $formData['timeperiod_tp_id2']
+                : null,
+            'notification_options' => HostEventConverter::toBitFlag(HostEventConverter::fromString(
+                implode(',', array_keys($formData['host_notifOpts'] ?? []))
+            )),
+            'first_notification_delay' => '' !== $formData['host_first_notification_delay']
+                ? (int) $formData['host_first_notification_delay']
+                : null,
+            'recovery_notification_delay' => '' !== $formData['host_recovery_notification_delay']
+                ? (int) $formData['host_recovery_notification_delay']
+                : null,
+            'add_inherited_contact_group' => (bool) ($formData['cg_additive_inheritance'] ?? false),
+            'add_inherited_contact' => (bool) ($formData['contact_additive_inheritance'] ?? false),
+            'is_activated' => (bool) ($formData['host_activate']['host_activate'] ?: false),
+            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
+            'groups' => array_map(static fn(string $id): int => (int) $id, $formData['host_hgs'] ?? []),
+            'macros' => array_map(
+                static function (int|string $key, string $name, string $value) use ($formData): array {
+                    return [
+                        'name' => $name,
+                        'value' => $value,
+                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
+                        'description' => $formData["macroDescription_{$key}"],
+                    ];
+                },
+                array_keys($formData['macroInput'] ?? []),
+                $formData['macroInput'] ?? [],
+                $formData['macroValue'] ?? []
+            ),
+        ];
+    }
 }

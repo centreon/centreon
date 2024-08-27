@@ -23,25 +23,28 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformTopology;
 
+use Centreon\Domain\Broker\Interfaces\BrokerRepositoryInterface;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Engine\EngineException;
+use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
+use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
+use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
+use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
+use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationServiceInterface;
+use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
+use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformInterface;
+use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRegisterRepositoryInterface;
+use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryExceptionInterface;
+use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryInterface;
+use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
 use Centreon\Domain\PlatformTopology\Model\PlatformRelation;
-use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
-use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
-use Centreon\Domain\Broker\Interfaces\BrokerRepositoryInterface;
-use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
-use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
 use Centreon\Domain\RemoteServer\Interfaces\RemoteServerRepositoryInterface;
-use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
-use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryInterface;
-use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationServiceInterface;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRegisterRepositoryInterface;
-use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryExceptionInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Service intended to register a new server to the platform topology
@@ -51,80 +54,24 @@ use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryExcept
 class PlatformTopologyService implements PlatformTopologyServiceInterface
 {
     /**
-     * @var PlatformTopologyRepositoryInterface
-     */
-    private $platformTopologyRepository;
-
-    /**
-     * @var PlatformInformationServiceInterface
-     */
-    private $platformInformationService;
-
-    /**
-     * @var ProxyServiceInterface
-     */
-    private $proxyService;
-
-    /**
-     * @var EngineConfigurationServiceInterface
-     */
-    private $engineConfigurationService;
-
-    /**
-     * @var MonitoringServerServiceInterface
-     */
-    private $monitoringServerService;
-
-    /**
-     * @var PlatformTopologyRegisterRepositoryInterface
-     */
-    private $platformTopologyRegisterRepository;
-
-    /**
-     * @var BrokerRepositoryInterface
-     */
-    private $brokerRepository;
-
-    /**
-     * @var RemoteServerRepositoryInterface
-     */
-    private $remoteServerRepository;
-
-    /**
      * Broker Retention Parameter
      */
     public const BROKER_PEER_RETENTION = "one_peer_retention_mode";
 
     /**
      * PlatformTopologyService constructor.
-     *
-     * @param PlatformTopologyRepositoryInterface $platformTopologyRepository
-     * @param PlatformInformationServiceInterface $platformInformationService
-     * @param ProxyServiceInterface $proxyService
-     * @param EngineConfigurationServiceInterface $engineConfigurationService
-     * @param MonitoringServerServiceInterface $monitoringServerService
-     * @param BrokerRepositoryInterface $brokerRepository
-     * @param PlatformTopologyRegisterRepositoryInterface $platformTopologyRegisterRepository
-     * @param RemoteServerRepositoryInterface $remoteServerRepository
      */
     public function __construct(
-        PlatformTopologyRepositoryInterface $platformTopologyRepository,
-        PlatformInformationServiceInterface $platformInformationService,
-        ProxyServiceInterface $proxyService,
-        EngineConfigurationServiceInterface $engineConfigurationService,
-        MonitoringServerServiceInterface $monitoringServerService,
-        BrokerRepositoryInterface $brokerRepository,
-        PlatformTopologyRegisterRepositoryInterface $platformTopologyRegisterRepository,
-        RemoteServerRepositoryInterface $remoteServerRepository
+        private PlatformTopologyRepositoryInterface $platformTopologyRepository,
+        private PlatformInformationServiceInterface $platformInformationService,
+        private ProxyServiceInterface $proxyService,
+        private EngineConfigurationServiceInterface $engineConfigurationService,
+        private MonitoringServerServiceInterface $monitoringServerService,
+        private BrokerRepositoryInterface $brokerRepository,
+        private PlatformTopologyRegisterRepositoryInterface $platformTopologyRegisterRepository,
+        private RemoteServerRepositoryInterface $remoteServerRepository,
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
-        $this->platformTopologyRepository = $platformTopologyRepository;
-        $this->platformInformationService = $platformInformationService;
-        $this->proxyService = $proxyService;
-        $this->engineConfigurationService = $engineConfigurationService;
-        $this->monitoringServerService = $monitoringServerService;
-        $this->brokerRepository = $brokerRepository;
-        $this->platformTopologyRegisterRepository = $platformTopologyRegisterRepository;
-        $this->remoteServerRepository = $remoteServerRepository;
     }
 
     /**
@@ -587,6 +534,56 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
     /**
      * @inheritDoc
      */
+    public function getPlatformTopologyForUser(ContactInterface $user): array
+    {
+        $accessGroupIds = array_map(
+            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
+            $this->readAccessGroupRepository->findByContact($user)
+        );
+
+        $platformTopology = $this->platformTopologyRepository->getPlatformTopologyByAccessGroupIds($accessGroupIds);
+
+        if (empty($platformTopology)) {
+            throw new EntityNotFoundException(_('No Platform Topology found.'));
+        }
+
+        foreach ($platformTopology as $platform) {
+            //Set the parent address if the platform is not the top level
+            if ($platform->getParentId() !== null) {
+                $platformParent = $this->platformTopologyRepository->findPlatform(
+                    $platform->getParentId()
+                );
+                if (null !== $platformParent) {
+                    $platform->setParentAddress($platformParent->getAddress());
+                    $platform->setParentId($platformParent->getId());
+                }
+            }
+
+            //Set the broker relation type if the platform is completely registered
+            if ($platform->getServerId() !== null) {
+                $brokerConfigurations = $this->brokerRepository->findByMonitoringServerAndParameterName(
+                    $platform->getServerId(),
+                    self::BROKER_PEER_RETENTION
+                );
+
+                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
+                foreach ($brokerConfigurations as $brokerConfiguration) {
+                    if ($brokerConfiguration->getConfigurationValue() === "yes") {
+                        $platform->setRelation(PlatformRelation::PEER_RETENTION_RELATION);
+                        break;
+                    }
+                }
+            } else {
+                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
+            }
+        }
+
+        return $platformTopology;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function deletePlatformAndReallocateChildren(int $serverId): void
     {
         try {
@@ -653,5 +650,36 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
     public function findTopLevelPlatform(): ?PlatformInterface
     {
         return $this->platformTopologyRepository->findTopLevelPlatform();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isValidPlatform(ContactInterface $user, int $platformId): bool
+    {
+        if (! ($platform = $this->platformTopologyRepository->findPlatform($platformId))) {
+            return false;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $accessGroupIds = array_map(
+            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
+            $this->readAccessGroupRepository->findByContact($user)
+        );
+
+        if (
+            (
+                null !== $platform->getServerId()
+                && $this->platformTopologyRepository->hasAccessToPlatform($accessGroupIds, $platform->getServerId())
+            )
+            || ! $this->platformTopologyRepository->hasRestrictedAccessToPlatforms($accessGroupIds)
+        ) {
+            return true;
+        }
+
+        return  false;
     }
 }

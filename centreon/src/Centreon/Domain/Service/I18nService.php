@@ -81,7 +81,7 @@ class I18nService
      *
      * @return void
      */
-    private function initLang()
+    private function initLang(): void
     {
         $this->lang = getenv('LANG');
 

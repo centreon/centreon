@@ -12,7 +12,7 @@ import IconAcknowledge from '@mui/icons-material/Person';
 import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
-import IconDowntime from '../../icons/Downtime';
+import Downtime from '../../icons/Downtime';
 import { Resource } from '../../models';
 import {
   labelAcknowledge,
@@ -31,17 +31,18 @@ import {
   Action,
   CheckActionModel,
   ExtraActionsInformation,
+  MoreSecondaryActions,
   ResourceActions
 } from '../model';
 
 import AcknowledgeForm from './Acknowledge';
-import useAclQuery from './aclQuery';
 import ActionMenuItem from './ActionMenuItem';
 import CheckActionButton from './Check';
 import DisacknowledgeForm from './Disacknowledge';
 import DowntimeForm from './Downtime';
 import ResourceActionButton from './ResourceActionButton';
 import SubmitStatusForm from './SubmitStatus';
+import useAclQuery from './aclQuery';
 
 const useStyles = makeStyles()((theme) => ({
   action: {
@@ -53,13 +54,14 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const ResourceActions = ({
+const ResourceActionsButtons = ({
   resources,
   success,
   mainActions,
   secondaryActions,
-  displayCondensed = false
-}: ResourceActions): JSX.Element => {
+  displayCondensed = false,
+  renderMoreSecondaryActions
+}: ResourceActions & MoreSecondaryActions): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const { cancel } = useCancelTokenSource();
@@ -284,7 +286,7 @@ const ResourceActions = ({
             <ResourceActionButton
               disabled={disableDowntime}
               displayCondensed={displayCondensed}
-              icon={<IconDowntime />}
+              icon={<Downtime />}
               label={t(labelSetDowntime)}
               permitted={isDowntimePermitted}
               testId="mainSetDowntime"
@@ -293,7 +295,7 @@ const ResourceActions = ({
           </div>
         )}
         {displayCheck && (
-          <div className={classes.action}>
+          <div className={cx({ [classes.action]: !displayCondensed })}>
             <CheckActionButton
               displayCondensed={displayCondensed}
               resources={resources}
@@ -379,6 +381,7 @@ const ResourceActions = ({
                   prepareToAddComment();
                 }}
               />
+              {renderMoreSecondaryActions?.({ close })}
             </>
           )}
         </PopoverMenu>
@@ -387,4 +390,4 @@ const ResourceActions = ({
   );
 };
 
-export default ResourceActions;
+export default ResourceActionsButtons;

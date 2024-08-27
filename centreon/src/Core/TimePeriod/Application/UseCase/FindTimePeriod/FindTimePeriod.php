@@ -26,17 +26,12 @@ namespace Core\TimePeriod\Application\UseCase\FindTimePeriod;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{
-    ErrorResponse,
+use Core\Application\Common\UseCase\{ErrorResponse,
     ForbiddenResponse,
     NotFoundResponse,
-    PresenterInterface,
-};
+    ResponseStatusInterface};
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\{
-    Day, ExtraTimePeriod, Template, TimePeriod
-};
 
 final class FindTimePeriod
 {
@@ -54,9 +49,10 @@ final class FindTimePeriod
 
     /**
      * @param int $timePeriodId
-     * @param PresenterInterface $presenter
+     *
+     * @return FindTimePeriodResponse|ResponseStatusInterface
      */
-    public function __invoke(int $timePeriodId, PresenterInterface $presenter): void
+    public function __invoke(int $timePeriodId): FindTimePeriodResponse|ResponseStatusInterface
     {
         try {
             if (
@@ -66,63 +62,25 @@ final class FindTimePeriod
                 $this->error('User doesn\'t have sufficient rights to see time periods', [
                     'user_id' => $this->user->getId(),
                 ]);
-                $presenter->setResponseStatus(
-                    new ForbiddenResponse(TimeperiodException::accessNotAllowed()->getMessage())
-                );
 
-                return;
+                return new ForbiddenResponse(TimePeriodException::accessNotAllowed()->getMessage());
             }
             $this->info('Find a time period', ['id' => $timePeriodId]);
             $timePeriod = $this->readTimePeriodRepository->findById($timePeriodId);
             if ($timePeriod === null) {
                 $this->error('Time period not found', ['id' => $timePeriodId]);
-                $presenter->setResponseStatus(new NotFoundResponse('Time period'));
 
-                return;
+                return new NotFoundResponse('Time period');
             }
-            $presenter->present($this->createResponse($timePeriod));
+
+            return new FindTimePeriodResponse($timePeriod);
         } catch (\Throwable $ex) {
             $this->error(
                 'Error when searching for the time period',
                 ['id' => $timePeriodId, 'message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
-            $presenter->setResponseStatus(
-                new ErrorResponse(TimePeriodException::errorWhenSearchingForTimePeriod($timePeriodId)->getMessage())
-            );
+
+            return new ErrorResponse(TimePeriodException::errorWhenSearchingForTimePeriod($timePeriodId)->getMessage());
         }
-    }
-
-    /**
-     * @param TimePeriod $timePeriod
-     *
-     * @return FindTimePeriodResponse
-     */
-    private function createResponse(TimePeriod $timePeriod): FindTimePeriodResponse
-    {
-        $response = new FindTimePeriodResponse();
-        $response->id = $timePeriod->getId();
-        $response->name = $timePeriod->getName();
-        $response->alias = $timePeriod->getAlias();
-        $response->days = array_map(function (Day $day) {
-            return [
-                'day' => $day->getDay(),
-                'time_range' => (string) $day->getTimeRange(),
-            ];
-        }, $timePeriod->getDays());
-        $response->templates = array_map(function (Template $template) {
-            return [
-                'id' => $template->getId(),
-                'alias' => $template->getAlias(),
-            ];
-        }, $timePeriod->getTemplates());
-        $response->exceptions = array_map(function (ExtraTimePeriod $exception) {
-            return [
-                'id' => $exception->getId(),
-                'day_range' => $exception->getDayRange(),
-                'time_range' => (string) $exception->getTimeRange(),
-            ];
-        }, $timePeriod->getExtraTimePeriods());
-
-        return $response;
     }
 }

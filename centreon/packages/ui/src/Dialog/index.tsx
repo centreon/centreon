@@ -4,12 +4,13 @@ import { makeStyles } from 'tss-react/mui';
 
 import {
   Button,
-  Dialog as MuiDialog,
-  DialogTitle,
-  DialogContent,
+  ButtonProps,
+  CircularProgress,
   DialogActions,
+  DialogContent,
   DialogProps,
-  CircularProgress
+  DialogTitle,
+  Dialog as MuiDialog
 } from '@mui/material';
 
 import { DataTestAttributes } from '../@types/data-attributes';
@@ -48,6 +49,8 @@ export type Props = {
   onClose?: () => void;
   onConfirm: (event, value?) => void;
   open: boolean;
+  restCancelButtonProps?: ButtonProps;
+  restConfirmButtonProps?: ButtonProps;
   submitting?: boolean;
 } & DialogProps &
   DataTestAttributes;
@@ -70,6 +73,8 @@ const Dialog = ({
   dialogContentClassName,
   dialogActionsClassName,
   dialogConfirmButtonClassName,
+  restCancelButtonProps,
+  restConfirmButtonProps,
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ contentWidth });
@@ -101,6 +106,7 @@ const Dialog = ({
             data-testid="Cancel"
             disabled={cancelDisabled}
             onClick={onCancel}
+            {...restCancelButtonProps}
           >
             {labelCancel}
           </Button>
@@ -113,6 +119,7 @@ const Dialog = ({
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}
           onClick={onConfirm}
+          {...restConfirmButtonProps}
         >
           {labelConfirm}
         </Button>

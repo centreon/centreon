@@ -28,13 +28,11 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\{
-    ConflictResponse,
+use Core\Application\Common\UseCase\{ConflictResponse,
     CreatedResponse,
     ErrorResponse,
     InvalidArgumentResponse,
-    PresenterInterface
-};
+    PresenterInterface};
 use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
@@ -62,10 +60,10 @@ final class AddTimePeriod
     }
 
     /**
-     * @param AddTimePeriodRequest $request
+     * @param AddTimePeriodDto $request
      * @param PresenterInterface $presenter
      */
-    public function __invoke(AddTimePeriodRequest $request, PresenterInterface $presenter): void
+    public function __invoke(AddTimePeriodDto $request, PresenterInterface $presenter): void
     {
         try {
             $this->info('Add a new time period', ['request' => $request]);
@@ -75,7 +73,7 @@ final class AddTimePeriod
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(TimeperiodException::editNotAllowed()->getMessage())
+                    new ForbiddenResponse(TimePeriodException::editNotAllowed()->getMessage())
                 );
 
                 return;

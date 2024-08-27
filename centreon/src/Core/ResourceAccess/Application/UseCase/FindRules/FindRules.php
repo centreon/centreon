@@ -46,12 +46,14 @@ final class FindRules
      * @param ReadResourceAccessRepositoryInterface $repository
      * @param RequestParametersInterface $requestParameters
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ContactInterface $user,
         private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -62,8 +64,6 @@ final class FindRules
     {
         $this->info('Finding resource access rules', ['request_parameters' => $this->requestParameters]);
 
-        // check if current user is authorized to perform the action.
-        // Only users linked to AUTHORIZED_ACL_GROUPS and having access in RW to the page are authorized
         if (! $this->isAuthorized()) {
             $this->error(
                 "User doesn't have sufficient rights to list resource access rules",
@@ -115,16 +115,25 @@ final class FindRules
     }
 
     /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
      * @return bool
      */
     private function isAuthorized(): bool
     {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
         $userAccessGroupNames = array_map(
             static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
             $this->accessGroupRepository->findByContact($this->user)
         );
 
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            || $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
+            && $this->isCloudPlatform;
     }
 }

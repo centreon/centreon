@@ -2,15 +2,15 @@ import { isNil, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  Select,
-  MenuItem,
+  Divider,
   FormControl,
-  InputLabel,
-  Theme,
-  SelectProps,
   FormHelperText,
+  InputLabel,
   ListSubheader,
-  Divider
+  MenuItem,
+  Select,
+  SelectProps,
+  Theme
 } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';
@@ -27,6 +27,14 @@ const useStyles = makeStyles()((theme: Theme) => ({
   },
   noLabelInput: {
     padding: theme.spacing(1)
+  },
+  select: {
+    '& .MuiInputLabel-shrink~.MuiInputBase-root fieldset legend': {
+      maxWidth: '100%'
+    },
+    '& fieldset legend': {
+      maxWidth: 0
+    }
   }
 }));
 
@@ -79,7 +87,12 @@ const SelectField = ({
   };
 
   return (
-    <FormControl error={!isNil(error)} fullWidth={fullWidth} size="small">
+    <FormControl
+      className={classes.select}
+      error={!isNil(error)}
+      fullWidth={fullWidth}
+      size="small"
+    >
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         displayEmpty

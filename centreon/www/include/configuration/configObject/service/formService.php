@@ -396,6 +396,25 @@ $form->addElement('static', 'tplText', _('Using a Template exempts you to fill r
 //
 $form->addElement('header', 'check', _('Service State'));
 
+$checkCommandSelect = $form->addElement(
+    'select2',
+    'command_command_id',
+    _('Check Command'),
+    [],
+    $attributes['check_commands']
+);
+if ($o === SERVICE_MASSIVE_CHANGE) {
+    $checkCommandSelect->addJsCallback(
+        'change',
+        'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
+    );
+} else {
+    $checkCommandSelect->addJsCallback('change', 'changeCommand(this.value);');
+}
+
+$form->addElement('text', 'command_command_id_arg', _('Args'), $attrsText);
+
+
 if (! $isCloudPlatform) {
     $serviceIV = [
         $form->createElement('radio', 'service_is_volatile', null, _('Yes'), '1'),
@@ -406,24 +425,6 @@ if (! $isCloudPlatform) {
     if ($o !== SERVICE_MASSIVE_CHANGE) {
         $form->setDefaults(['service_is_volatile' => '2']);
     }
-
-    $checkCommandSelect = $form->addElement(
-        'select2',
-        'command_command_id',
-        _('Check Command'),
-        [],
-        $attributes['check_commands']
-    );
-    if ($o === SERVICE_MASSIVE_CHANGE) {
-        $checkCommandSelect->addJsCallback(
-            'change',
-            'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
-        );
-    } else {
-        $checkCommandSelect->addJsCallback('change', 'changeCommand(this.value);');
-    }
-
-    $form->addElement('text', 'command_command_id_arg', _('Args'), $attrsText);
 
     $serviceEHE = [
         $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
@@ -792,11 +793,12 @@ if ($o === SERVICE_MASSIVE_CHANGE) {
 $sgReadOnly = false;
 if ($form_service_type === 'BYHOST') {
     if ($isCloudPlatform) {
+        $defaultDataset = [];
         if ($service_id !== false) {
             $hostsBounded = findHostsOfService($service_id);
             $defaultDataset = (! empty($hostsBounded))
-            ? ['0' => $hostsBounded[0]]
-            : [];
+                ? ['0' => $hostsBounded[0]]
+                : [];
         };
         $form->addElement(
             'select2',

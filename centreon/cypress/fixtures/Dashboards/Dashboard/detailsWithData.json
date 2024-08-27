@@ -1,0 +1,180 @@
+{
+  "id": 1,
+  "name": "My Dashboard",
+  "description": "my description",
+  "created_at": "",
+  "updated_at": "",
+  "shares": {
+    "contacts": [
+      {
+        "id": 1,
+        "name": "Arnaud",
+        "email": "arnaud@centreon.com",
+        "role": "editor"
+      }
+    ],
+    "contact_groups": [
+      {
+        "id": 1,
+        "name": "Guest",
+        "email": "",
+        "role": "viewer"
+      }
+    ]
+  },
+  "created_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "updated_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "name": "centreon-widget-text",
+      "widget_type": "/widgets/text",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "options": {
+          "name": null,
+          "description": {
+            "enabled": true,
+            "content": null
+          }
+        },
+        "data": {
+          "resources": [
+            {
+              "resourceType": "host",
+              "resources": [
+                {
+                  "id": 1,
+                  "name": "My host"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "centreon-widget-text",
+      "widget_type": "/widgets/text",
+      "layout": {
+        "x": 3,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "options": {
+          "name": null,
+          "description": {
+            "enabled": true,
+            "content": null
+          }
+        },
+        "data": {
+          "resources": [
+            {
+              "resourceType": "business-activity",
+              "resources": [
+                {
+                  "id": 1,
+                  "name": "BA"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "centreon-widget-singlemetric",
+      "widget_type": "/widgets/singlemetric",
+      "layout": {
+        "x": 6,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "data": {
+          "resources": [
+            {
+              "resourceType": "host",
+              "resources": [
+                {
+                  "id": 14,
+                  "name": "Centreon-Server",
+                  "alias": "Monitoring Server"
+                }
+              ]
+            },
+            {
+              "resourceType": "service",
+              "resources": [
+                {
+                  "uuid": "h14-s26",
+                  "id": 26,
+                  "type": "service",
+                  "name": "Ping"
+                }
+              ]
+            }
+          ],
+          "metrics": [
+            {
+              "criticalHighThreshold": 400,
+              "criticalLowThreshold": 0,
+              "id": 1,
+              "name": "rta",
+              "unit": "ms",
+              "warningHighThreshold": 200,
+              "warningLowThreshold": 0,
+              "excludedMetrics": [],
+              "includeAllMetrics": true
+            }
+          ]
+        },
+        "options": {
+          "displayType": "text",
+          "threshold": {
+            "enabled": true,
+            "customCritical": null,
+            "criticalType": "default",
+            "customWarning": null,
+            "warningType": "default",
+            "baseColor": null
+          },
+          "refreshInterval": "default",
+          "valueFormat": "human",
+          "description": {
+            "content": "{\u0022root\u0022:{\u0022children\u0022:[{\u0022children\u0022:[],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022paragraph\u0022,\u0022version\u0022:1}],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022root\u0022,\u0022version\u0022:1}}",
+            "enabled": true
+          }
+        }
+      }
+    }
+  ],
+  "own_role": "viewer",
+  "refresh": {
+    "type": "global",
+    "interval": null
+  }
+}

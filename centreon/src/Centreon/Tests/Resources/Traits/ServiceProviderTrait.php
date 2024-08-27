@@ -56,7 +56,7 @@ trait ServiceProviderTrait
      *
      * @param array $checkList
      */
-    public function checkServices(array $checkList)
+    public function checkServices(array $checkList): void
     {
         // check list of services
         foreach ($checkList as $serviceName => $className) {

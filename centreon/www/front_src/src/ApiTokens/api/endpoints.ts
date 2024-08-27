@@ -1,9 +1,11 @@
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { BuildListEndpoint } from './models';
+import { BuildListEndpoint, TokenEndpoint } from './models';
 
-export const listTokensEndpoint = `/administration/tokens`;
-export const createTokenEndpoint = `/administration/tokens`;
+export const baseTokenEndpoint = '/administration/tokens';
+
+export const listTokensEndpoint = baseTokenEndpoint;
+export const createTokenEndpoint = baseTokenEndpoint;
 export const listConfiguredUser = '/configuration/users';
 
 export const buildListEndpoint = ({
@@ -13,6 +15,23 @@ export const buildListEndpoint = ({
 }: BuildListEndpoint): string =>
   buildListingEndpoint({
     baseEndpoint: endpoint,
-    customQueryParameters,
+    customQueryParameters: customQueryParameters ?? undefined,
     parameters
   });
+
+export const getEndpointConfiguredUser = (dataConfiguredUser): string => {
+  return buildListEndpoint({
+    endpoint: listConfiguredUser,
+    parameters: { ...dataConfiguredUser, limit: 10 }
+  });
+};
+
+export const getEndpointCreatorsToken = (dataCreatorsToken): string => {
+  return buildListEndpoint({
+    endpoint: listTokensEndpoint,
+    parameters: { ...dataCreatorsToken, limit: 10 }
+  });
+};
+
+export const tokenEndpoint = ({ tokenName, userId }: TokenEndpoint): string =>
+  `${baseTokenEndpoint}/${tokenName}/users/${userId}`;

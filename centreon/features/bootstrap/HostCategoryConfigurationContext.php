@@ -1,8 +1,8 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\HostCategoryConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostCategoryConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\HostCategoryConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostTemplateConfigurationPage;
 
@@ -13,13 +13,13 @@ class HostCategoryConfigurationContext extends CentreonContext
     protected $host1 = array(
         'name' => 'host1Name',
         'alias' => 'host1Alias',
-        'address' => 'host1@localhost'
+        'address' => '1.2.3.4'
     );
 
     protected $host2 = array(
         'name' => 'host2Name',
         'alias' => 'host2Alias',
-        'address' => 'host2@localhost'
+        'address' => '2.3.4.5'
     );
 
     protected $hostTemplate1 = array(

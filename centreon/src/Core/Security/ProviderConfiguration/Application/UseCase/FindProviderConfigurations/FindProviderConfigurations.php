@@ -26,26 +26,23 @@ namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderCo
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderResponse\{
-    ProviderResponseInterface
-};
 
 final class FindProviderConfigurations
 {
     use LoggerTrait;
 
-    /** @var ProviderResponseInterface[] */
-    private array $providerResponses;
+    /** @var ProviderConfigurationDtoFactoryInterface[] */
+    private array $providerResponseFactories;
 
     /**
-     * @param \Traversable<ProviderResponseInterface> $providerResponses
-     * @param ReadConfigurationRepositoryInterface $readConfigurationFactory
+     * @param \Traversable<ProviderConfigurationDtoFactoryInterface> $providerDtoFactories
+     * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
      */
     public function __construct(
-        \Traversable $providerResponses,
-        private ReadConfigurationRepositoryInterface $readConfigurationFactory
+        \Traversable $providerDtoFactories,
+        private readonly ReadConfigurationRepositoryInterface $readConfigurationRepository,
     ) {
-        $this->providerResponses = iterator_to_array($providerResponses);
+        $this->providerResponseFactories = iterator_to_array($providerDtoFactories);
     }
 
     /**
@@ -54,28 +51,32 @@ final class FindProviderConfigurations
     public function __invoke(FindProviderConfigurationsPresenterInterface $presenter): void
     {
         try {
-            $configurations = $this->readConfigurationFactory->findConfigurations();
+            $configurations = $this->readConfigurationRepository->findConfigurations();
+
+            /**
+             * match configuration type and factory supporting type to bind automatically corresponding
+             * configuration and Factory.
+             * e.g configuration type 'local' will match LocalProviderDtoFactory,
+             * ProviderConfigurationDtoFactoryInterface::createResponse will take LocalConfiguration.
+             */
+            $responses = [];
+            foreach ($configurations as $configuration) {
+                foreach ($this->providerResponseFactories as $providerFactory) {
+                    if ($providerFactory->supports($configuration->getType())) {
+                        $responses[] = $providerFactory->createResponse($configuration);
+                    }
+                }
+            }
+
+            $response = new FindProviderConfigurationsResponse();
+            $response->providerConfigurations = $responses;
+
+            $presenter->presentResponse($response);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
 
             return;
         }
-
-        /**
-         * match configuration type and response type to bind automatically corresponding configuration and response.
-         * e.g configuration type 'local' will match response type 'local',
-         * LocalProviderResponse::create will take LocalConfiguration.
-         */
-        $responses = [];
-        foreach ($configurations as $configuration) {
-            foreach ($this->providerResponses as $providerResponse) {
-                if ($configuration->getType() === $providerResponse->getType()) {
-                    $responses[] = $providerResponse->create($configuration);
-                }
-            }
-        }
-
-        $presenter->present($responses);
     }
 }

@@ -21,31 +21,32 @@
 
 namespace Tests\Centreon\Domain\PlatformTopology;
 
-use Centreon\Domain\Platform\Interfaces\PlatformRepositoryInterface;
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Broker\BrokerConfiguration;
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Engine\EngineException;
-use PHPUnit\Framework\MockObject\MockObject;
-use Centreon\Domain\Engine\EngineConfiguration;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\MonitoringServer\MonitoringServer;
-use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
-use Centreon\Domain\PlatformTopology\Model\PlatformPending;
-use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
 use Centreon\Domain\Broker\Interfaces\BrokerRepositoryInterface;
-use Centreon\Domain\PlatformTopology\PlatformTopologyService;
-use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
-use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
-use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Engine\EngineConfiguration;
+use Centreon\Domain\Engine\EngineException;
 use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
+use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryInterface;
+use Centreon\Domain\MonitoringServer\MonitoringServer;
+use Centreon\Domain\Platform\Interfaces\PlatformRepositoryInterface;
+use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
 use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationServiceInterface;
+use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRegisterRepositoryInterface;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryExceptionInterface;
+use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryInterface;
+use Centreon\Domain\PlatformTopology\Model\PlatformPending;
+use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
+use Centreon\Domain\PlatformTopology\PlatformTopologyService;
+use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
 use Centreon\Domain\RemoteServer\Interfaces\RemoteServerRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PlatformTopologyServiceTest extends TestCase
 {
@@ -127,6 +128,11 @@ class PlatformTopologyServiceTest extends TestCase
     private $remoteServerRepository;
 
     /**
+     * @var ReadAccessGroupRepositoryInterface&MockObject $readAccessGroupRepository
+     */
+    private $readAccessGroupRepository;
+
+    /**
      * initiate query data
      */
     protected function setUp(): void
@@ -176,6 +182,7 @@ class PlatformTopologyServiceTest extends TestCase
             PlatformTopologyRegisterRepositoryInterface::class
         );
         $this->remoteServerRepository = $this->createMock(RemoteServerRepositoryInterface::class);
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     }
 
     /**
@@ -217,7 +224,8 @@ class PlatformTopologyServiceTest extends TestCase
             $this->monitoringServerService,
             $this->brokerRepository,
             $this->platformTopologyRegisterRepository,
-            $this->remoteServerRepository
+            $this->remoteServerRepository,
+            $this->readAccessGroupRepository,
         );
 
         $this->expectException(PlatformTopologyException::class);
@@ -269,7 +277,8 @@ class PlatformTopologyServiceTest extends TestCase
             $this->monitoringServerService,
             $this->brokerRepository,
             $this->platformTopologyRegisterRepository,
-            $this->remoteServerRepository
+            $this->remoteServerRepository,
+            $this->readAccessGroupRepository,
         );
 
         $this->expectException(EntityNotFoundException::class);
@@ -363,7 +372,8 @@ class PlatformTopologyServiceTest extends TestCase
             $this->monitoringServerService,
             $this->brokerRepository,
             $this->platformTopologyRegisterRepository,
-            $this->remoteServerRepository
+            $this->remoteServerRepository,
+            $this->readAccessGroupRepository,
         );
 
         $this->assertIsArray($platformTopologyService->getPlatformTopology());
@@ -392,7 +402,8 @@ class PlatformTopologyServiceTest extends TestCase
             $this->monitoringServerService,
             $this->brokerRepository,
             $this->platformTopologyRegisterRepository,
-            $this->remoteServerRepository
+            $this->remoteServerRepository,
+            $this->readAccessGroupRepository,
         );
 
         /**
@@ -442,7 +453,8 @@ class PlatformTopologyServiceTest extends TestCase
             $this->monitoringServerService,
             $this->brokerRepository,
             $this->platformTopologyRegisterRepository,
-            $this->remoteServerRepository
+            $this->remoteServerRepository,
+            $this->readAccessGroupRepository,
         );
 
         /**
@@ -483,7 +495,8 @@ class PlatformTopologyServiceTest extends TestCase
             $this->monitoringServerService,
             $this->brokerRepository,
             $this->platformTopologyRegisterRepository,
-            $this->remoteServerRepository
+            $this->remoteServerRepository,
+            $this->readAccessGroupRepository,
         );
         $platformTopologyService->deletePlatformAndReallocateChildren(
             $this->platform->getId()
@@ -505,7 +518,8 @@ class PlatformTopologyServiceTest extends TestCase
             $this->monitoringServerService,
             $this->brokerRepository,
             $this->platformTopologyRegisterRepository,
-            $this->remoteServerRepository
+            $this->remoteServerRepository,
+            $this->readAccessGroupRepository,
         );
 
         $this->expectException(EntityNotFoundException::class);

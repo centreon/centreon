@@ -13,6 +13,10 @@ on:
         type: string
         description: The package extension (deb or rpm)
         required: true
+      distrib:
+        type: string
+        description: The package distribution
+        required: true
       frontend_index_cache_key:
         type: string
         description: The index.html cache key
@@ -91,13 +95,14 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: ./.github/actions/package
         with:
           base_directory: ${{ inputs.base_directory }}
           spec_file: ${{ inputs.spec_file }}
           package_extension: ${{ inputs.package_extension }}
+          distrib: ${{ inputs.distrib }}
           frontend_index_cache_key: ${{ inputs.frontend_index_cache_key }}
           frontend_index_file: ${{ inputs.frontend_index_file }}
           frontend_static_cache_key: ${{ inputs.frontend_static_cache_key }}
@@ -117,7 +122,7 @@ jobs:
           cache_key: unsigned-${{ inputs.cache_key }}
 
       - if: ${{ inputs.package_extension == 'deb' }}
-        uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
@@ -139,9 +144,9 @@ jobs:
           apt-get install -y zstd
         shell: bash
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      - uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ inputs.package_extension }}
           key: unsigned-${{ inputs.cache_key }}
@@ -152,7 +157,7 @@ jobs:
       - run: rpmsign --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
-      - uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      - uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}

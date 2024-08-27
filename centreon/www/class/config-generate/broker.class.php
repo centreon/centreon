@@ -92,6 +92,18 @@ class Broker extends AbstractObjectJSON
     protected $stmt_engine_parameters = null;
     protected $cacheExternalValue = null;
     protected $cacheLogValue = null;
+    protected $readVaultConfigurationRepository = null;
+
+    public function __construct(\Pimple\Container $dependencyInjector)
+    {
+        parent::__construct($dependencyInjector);
+
+        // Get Centeron Vault Storage configuration
+        $kernel = \App\Kernel::createForWeb();
+        $this->readVaultConfigurationRepository = $kernel->getContainer()->get(
+            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        );
+    }
 
     private function getExternalValues()
     {
@@ -357,6 +369,11 @@ class Broker extends AbstractObjectJSON
             // Remove unnecessary element form inputs and output for stream types bbdo
             $object = $this->cleanBbdoStreams($object);
 
+            // Add vault path if vault if defined
+            if ($this->readVaultConfigurationRepository->exists()) {
+                $object['vault_configuration'] = $this->readVaultConfigurationRepository->getLocation();
+            }
+
             // Generate file
             $this->generateFile($object);
             $this->writeFile($this->backend_instance->getPath());
@@ -387,7 +404,7 @@ class Broker extends AbstractObjectJSON
                     unset($config['input'][$key]['compression']);
                     unset($config['input'][$key]['retention']);
 
-                    if ($config['input']['encrypt'] === 'no') {
+                    if ($config['input'][$key]['encryption'] === 'no') {
                         unset($config['input'][$key]['private_key']);
                         unset($config['input'][$key]['certificate']);
                     }
@@ -395,7 +412,7 @@ class Broker extends AbstractObjectJSON
                 if ($inputCfg['type'] === self::STREAM_BBDO_CLIENT) {
                     unset($config['input'][$key]['compression']);
 
-                    if ($config['input'][$key]['encrypt'] === 'no') {
+                    if ($config['input'][$key]['encryption'] === 'no') {
                         unset($config['input'][$key]['ca_certificate']);
                         unset($config['input'][$key]['ca_name']);
                     }

@@ -70,14 +70,14 @@ class UniqueEntityValidatorTest extends TestCase
         $this->validator->initialize($this->executionContext);
     }
 
-    public function testValidateWithDifferentConstraint()
+    public function testValidateWithDifferentConstraint(): void
     {
         $this->expectException(UnexpectedTypeException::class);
 
         $this->validator->validate(null, $this->createMock(Constraint::class));
     }
 
-    public function testValidateWithDifferentTypeOfFields()
+    public function testValidateWithDifferentTypeOfFields(): void
     {
         $constraint = $this->createMock(UniqueEntity::class);
         $constraint->fields = new \stdClass();
@@ -87,7 +87,7 @@ class UniqueEntityValidatorTest extends TestCase
         $this->validator->validate(null, $constraint);
     }
 
-    public function testValidateWithDifferentTypeOfErrorPath()
+    public function testValidateWithDifferentTypeOfErrorPath(): void
     {
         $constraint = $this->createMock(UniqueEntity::class);
         $constraint->errorPath = [];
@@ -97,7 +97,7 @@ class UniqueEntityValidatorTest extends TestCase
         $this->validator->validate(null, $constraint);
     }
 
-    public function testValidateWithEmptyFields()
+    public function testValidateWithEmptyFields(): void
     {
         $constraint = $this->createMock(UniqueEntity::class);
         $constraint->fields = [];
@@ -107,7 +107,7 @@ class UniqueEntityValidatorTest extends TestCase
         $this->validator->validate(null, $constraint);
     }
 
-    public function testValidateWithNullAsEntity()
+    public function testValidateWithNullAsEntity(): void
     {
         $constraint = $this->createMock(UniqueEntity::class);
         $constraint->fields = 'name';
@@ -115,7 +115,7 @@ class UniqueEntityValidatorTest extends TestCase
         $this->assertNull($this->validator->validate(null, $constraint));
     }
 
-    public function testDependencies()
+    public function testDependencies(): void
     {
         $this->assertEquals([
             ServiceProvider::CENTREON_DB_MANAGER,

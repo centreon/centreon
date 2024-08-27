@@ -4,6 +4,11 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
   description: {
     marginBottom: theme.spacing(1)
   },
+  descriptionInput: {
+    overflow: 'hidden',
+    textOverflow: 'clip',
+    whiteSpace: 'nowrap'
+  },
   panelActionsIcons: {
     columnGap: theme.spacing(2),
     display: 'flex',
@@ -11,7 +16,11 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
     marginRight: theme.spacing(1)
   },
   panelContent: {
-    height: `calc(100% - ${theme.spacing(3.5)})`,
+    height: '100%',
+    overflow: 'auto'
+  },
+  panelContentWithDescription: {
+    height: `calc(100% - ${theme.spacing(2.75)})`,
     overflow: 'auto'
   },
   panelHeader: {
@@ -20,8 +29,28 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
       fontWeight: theme.typography.fontWeightMedium,
       lineHeight: 1
     },
-    height: theme.spacing(2),
-    padding: theme.spacing(0)
+    gap: theme.spacing(1),
+    height: theme.spacing(4.5),
+    padding: theme.spacing(0),
+    paddingTop: theme.spacing(1.5)
+  },
+  panelHeaderContent: {
+    width: '45%'
+  },
+  panelHeaderContentWithShrink: {
+    width: '20%'
+  },
+  panelHeaderRefreshButton: {
+    height: 'auto',
+    padding: `1px ${theme.spacing(0.5)}`
+  },
+  panelTitle: {
+    fontSize: '1.3rem',
+    fontWeight: theme.typography.fontWeightBold,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    width: '100%'
   }
 }));
 

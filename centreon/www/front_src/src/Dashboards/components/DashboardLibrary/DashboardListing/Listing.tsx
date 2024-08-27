@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { MemoizedListing, sanitizedHTML } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
 
-import { Dashboard } from '../../../api/models';
 import { List } from '../../../api/meta.models';
+import { Dashboard } from '../../../api/models';
 import {
   labelCancel,
   labelDelete,
@@ -13,10 +13,10 @@ import {
   labelYouAreGoingToDeleteUser
 } from '../../../translatedLabels';
 
-import useColumns from './Columns/useColumns';
 import { Actions } from './Actions';
-import useListing from './useListing';
+import useColumns from './Columns/useColumns';
 import { askBeforeRevokeAtom } from './atom';
+import useListing from './useListing';
 
 interface ListingProp {
   customListingComponent?: JSX.Element;
@@ -44,16 +44,15 @@ const Listing = ({
     page,
     resetColumns,
     selectedColumnIds,
-    selectedRows,
     setLimit,
     setSelectedColumnIds,
-    setSelectedRows,
     sortf,
     sorto,
     getRowProperty,
     formattedRows,
     closeAskRevokeAccessRight,
-    confirmRevokeAccessRight
+    confirmRevokeAccessRight,
+    navigateToDashboard
   } = useListing({ defaultColumnsIds, rows: listingData?.result });
 
   return (
@@ -72,9 +71,8 @@ const Listing = ({
         displayCustomListing={displayCustomListing}
         limit={listingData?.meta.limit}
         loading={loading}
-        memoProps={[columns, page, sorto, sortf, selectedRows]}
+        memoProps={[columns, page, sorto, sortf]}
         rows={formattedRows}
-        selectedRows={selectedRows}
         sortField={sortf}
         sortOrder={sorto}
         subItems={{
@@ -88,8 +86,8 @@ const Listing = ({
         onLimitChange={setLimit}
         onPaginate={changePage}
         onResetColumns={resetColumns}
+        onRowClick={navigateToDashboard}
         onSelectColumns={setSelectedColumnIds}
-        onSelectRows={setSelectedRows}
         onSort={changeSort}
       />
       <Modal open={!!askingBeforRevoke} onClose={closeAskRevokeAccessRight}>

@@ -35,10 +35,13 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindDashboards
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
@@ -46,14 +49,16 @@ final class FindDashboards
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
     public function __invoke(FindDashboardsPresenterInterface $presenter): void
     {
         try {
-            if ($this->rights->hasAdminRole()) {
+            if ($this->isUserAdmin()) {
                 $this->info('Find dashboards', ['request' => $this->requestParameters->toArray()]);
                 $presenter->presentResponse($this->findDashboardAsAdmin());
             } elseif ($this->rights->canAccess()) {
@@ -103,13 +108,24 @@ final class FindDashboards
             $this->requestParameters,
             $this->contact,
         );
-        $contactIds = $this->extractAllContactIdsFromDashboards($dashboards);
+        $editorIds = $this->extractAllContactIdsFromDashboards($dashboards);
+
+        $userAccessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $accessGroupsIds = array_map(
+            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $userAccessGroups
+        );
+
+        $userInCurrentUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups($accessGroupsIds);
 
         return FindDashboardsFactory::createResponse(
             $dashboards,
-            $this->readContactRepository->findNamesByIds(...$contactIds),
+            $this->readContactRepository->findNamesByIds(...$editorIds),
             $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
-            $this->readDashboardShareRepository->findDashboardsContactShares(...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactSharesByContactIds(
+                $userInCurrentUserAccessGroups,
+                ...$dashboards
+            ),
             $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact($this->contact, ...$dashboards),
             DashboardSharingRole::Viewer
         );
@@ -133,5 +149,25 @@ final class FindDashboards
         }
 
         return $contactIds;
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

@@ -1,44 +1,47 @@
 import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 
+import { __, equals, gt, isNil, not } from 'ramda';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { equals, gt, isNil, not, __ } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
+import CheckIcon from '@mui/icons-material/Check';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import LogoutIcon from '@mui/icons-material/Logout';
+import UserIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
-  Box,
   Badge,
-  Tooltip,
+  Box,
+  Fade,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Popper,
-  ListItemButton,
-  Fade
+  Tooltip
 } from '@mui/material';
-import UserIcon from '@mui/icons-material/Person';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import CheckIcon from '@mui/icons-material/Check';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 import {
   MenuSkeleton,
   getData,
-  useRequest,
-  useLocaleDateTimeFormat
+  useFullscreen,
+  useLocaleDateTimeFormat,
+  useRequest
 } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
-import Clock from '../Clock';
 import useNavigation from '../../Navigation/useNavigation';
-import { userEndpoint } from '../api/endpoints';
 import routeMap from '../../reactRoutes/routeMap';
+import Clock from '../Clock';
+import { userEndpoint } from '../api/endpoints';
 
 import SwitchMode from './SwitchThemeMode';
 import {
   labelCopyAutologinLink,
   labelEditProfile,
+  labelFullscreen,
   labelLogout,
   labelPasswordWillExpireIn,
   labelProfile
@@ -163,10 +166,15 @@ interface Props {
   headerRef?: RefObject<HTMLElement>;
 }
 
+export const testUtils = {
+  useNavigate,
+  useNavigation
+};
+
 const UserMenu = ({ headerRef }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
-  const { allowedPages } = useNavigation();
+  const { allowedPages } = testUtils.useNavigation();
 
   const [copied, setCopied] = useState(false);
   const [data, setData] = useState<UserData | null>(null);
@@ -181,8 +189,9 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
     request: getData
   });
 
-  const navigate = useNavigate();
+  const navigate = testUtils.useNavigate();
   const { toHumanizedDuration } = useLocaleDateTimeFormat();
+  const { toggleFullscreen } = useFullscreen();
 
   const loadUserData = (): void => {
     sendRequest({ endpoint: userEndpoint })
@@ -240,7 +249,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
   };
 
   const onCopy = (): void => {
-    if (autologinNode && autologinNode.current) {
+    if (autologinNode?.current) {
       autologinNode.current.select();
       window.document.execCommand('copy');
       setCopied(true);
@@ -308,6 +317,11 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
 
   const primaryTypographyProps = {
     className: classes.text
+  };
+
+  const changeFullscreen = (): void => {
+    setAnchorEl(null);
+    toggleFullscreen(document.querySelector('body'));
   };
 
   return (
@@ -436,7 +450,22 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                   <ListItem className={classes.listItem}>
                     <SwitchMode />
                   </ListItem>
-
+                  <ListItem className={classes.listItem}>
+                    <ListItemButton
+                      className={classes.listItemButton}
+                      onClick={changeFullscreen}
+                    >
+                      <FullscreenIcon
+                        className={classes.icon}
+                        fontSize="small"
+                      />
+                      <ListItemText
+                        primaryTypographyProps={primaryTypographyProps}
+                      >
+                        {t(labelFullscreen)}
+                      </ListItemText>
+                    </ListItemButton>
+                  </ListItem>
                   <ListItem className={classes.listItem}>
                     <ListItemButton
                       className={classes.listItemButton}

@@ -1,0 +1,5343 @@
+{
+	"info": {
+		"_postman_id": "cc107002-de26-4fce-8b84-2e832253d921",
+		"name": "TimePeriod",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-cc107002-de26-4fce-8b84-2e832253d921?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "Log in as Admin        ",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user_with_RW_rights",
+			"item": [
+				{
+					"name": "Add user_with_RW_rights",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"api_login_user_RW\", \"user_with_RW_rights\");\r",
+									"pm.collectionVariables.set(\"api_password_user_RW\", \"Centreon!123\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_RW}};{{api_login_user_RW}};{{api_login_user_RW}}@localhost;{{api_password_user_RW}};0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_RW}};reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api_rt parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_RW}};reach_api_rt;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Group RW_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;RW_ALL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link user to RW_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;{{api_login_user_RW}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link resources to RW_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;All Resources\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Menu RW",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;RW\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Grant RW right",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The Read/Write rights has been successfully.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;1;Configuration\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link RW to RW_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;RW\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user_with_R_rights",
+			"item": [
+				{
+					"name": "Add user_with_R_rights",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"api_login_user_Read\", \"user_with_R_rights\");\r",
+									"pm.collectionVariables.set(\"api_password_user_Read\", \"Centreon!123\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Read}};{{api_login_user_Read}};{{api_login_user_Read}}@localhost;{{api_password_user_Read}};0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Read}};reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api_rt parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Read}};reach_api_rt;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Group RO_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_ALL;RO_ALL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link user to RO_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_ALL;{{api_login_user_Read}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link resources to RO_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_ALL;All Resources\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Menu RO",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RO;RO\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Grant RO right",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The Read Only rights has been successfully.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"grantro\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RO;1;Configuration\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link RO to RO_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_ALL;RO\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user_nothing",
+			"item": [
+				{
+					"name": "Add user_nothing",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"api_login_user_Nothing\", \"user_nothing\");\r",
+									"pm.collectionVariables.set(\"api_password_user_Nothing\", \"Centreon!123\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Nothing}};{{api_login_user_Nothing}};{{api_login_user_Nothing}}@localhost;{{api_password_user_Nothing}};0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Nothing}};reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api_rt parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Nothing}};reach_api_rt;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Group Nothing",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing;Nothing\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link user to Nothing",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing;{{api_login_user_Nothing}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link resources to Nothing",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing;All Resources\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Menu Nothing",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"Nothing;Nothing\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Nothing to Nothing",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing;Nothing\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Time Period By Admin",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods (4)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The 4 time periods retrieved are listed with; name, alias, days and times, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (4)\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none\"}).and.to.include({alias:\"Never\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (never)\r",
+									"    pm.expect(responseJson.result[1].days).to.be.an('array').that.is.empty;\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates and exceptions of the time periods (none)\r",
+									"    for(let count = 0; count < responseJson.result.length; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"        pm.expect(responseJson.result[count].exceptions).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new timeperiod (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period has been successfully created, with name '\" + pm.collectionVariables.get(\"timePeriod1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod1Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new time period\r",
+									"    pm.collectionVariables.set(\"timePeriod1Id\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"timePeriod1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"timePeriod1Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"timePeriod1Alias\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.days[0]).to.include({day: 1, time_range: \"06:30-07:00\"});\r",
+									"    pm.expect(responseJson.days[1]).to.include({day: 7, time_range: \"06:30-07:00,09:00-10:30\"});\r",
+									"    pm.expect(responseJson.templates[0]).to.be.include({\r",
+									"        \"id\": 1,\r",
+									"        \"alias\": \"Always\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.exceptions[0]).to.include({\r",
+									"        \"day_range\": \"monday 1\", \r",
+									"        \"time_range\": \"06:00-07:00\"\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"timePeriod1Name\", \"test_name\");\r",
+									"pm.collectionVariables.set(\"timePeriod1Alias\", \"test_alias\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{timePeriod1Name}}\",\n    \"alias\": \"{{timePeriod1Alias}}\",\n    \"days\": [\n        {\n            \"day\": 1,\n            \"time_range\": \"06:30-07:00\"\n        },\n        {\n            \"day\": 7,\n            \"time_range\": \"06:30-07:00,09:00-10:30\"\n        }\n    ],\n    \"templates\": [\n        1\n    ],\n    \"exceptions\": [\n        {\n            \"day_range\": \"monday 1\",\n            \"time_range\": \"06:00-07:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods after creation (5)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (5)\r",
+									"    pm.expect(responseJson.result.length).to.eql(5);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none\"}).and.to.include({alias:\"Never\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"test_name\"}).and.to.include({alias:\"test_alias\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (never)\r",
+									"    pm.expect(responseJson.result[1].days).to.be.an('array').that.is.empty;\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 1, 06:30-07:00 / day 7, 06:30-07:00,09:00-10:30)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 1, time_range: \"06:30-07:00\"});\r",
+									"    pm.expect(responseJson.result[4].days[1]).to.include({day: 7, time_range: \"06:30-07:00,09:00-10:30\"});\r",
+									"\r",
+									"    // Check the templates and exceptions used in the first four time periods (none)\r",
+									"    for(let count = 0; count < responseJson.result.length-1; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"        pm.expect(responseJson.result[count].exceptions).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates used in the fifth time period (id = 1)\r",
+									"    pm.expect(responseJson.result[4].templates[0].id).to.be.eql(1);\r",
+									"    // Check the exception used in the fifth exception (monday 1, 06:00-07:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"monday 1\", time_range: \"06:00-07:00\"});\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with a duplicate name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod1Name\") + \"' could not be created, due to a conflict with an existing time period.\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
+									"    pm.expect(responseJson.message).to.eql(\"The time period name '\" + pm.collectionVariables.get(\"timePeriod1Name\") + \"' already exists\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test_name\",\n    \"alias\": \"test_alias_duplicated\",\n    \"days\": [\n        {\n            \"day\": 3,\n            \"time_range\": \"00:00-24:00\"\n        }\n    ],\n    \"templates\": [],\n    \"exceptions\": [\n        {\n            \"day_range\": \"4 tuesday in July\",\n            \"time_range\": \"00:00-24:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with a duplicate alias (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod2Alias\") + \"' has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new time period\r",
+									"    pm.collectionVariables.set(\"timePeriod2Id\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"timePeriod2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"timePeriod2Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"timePeriod2Alias\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"    pm.expect(responseJson.templates).to.be.an('array').that.is.empty;\r",
+									"    pm.expect(responseJson.exceptions[0]).to.include({\r",
+									"        \"day_range\": \"4 tuesday in July\", \r",
+									"        \"time_range\": \"00:00-24:00\"\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"timePeriod2Name\", \"tést_name_with_duplicated_al1as!\");\r",
+									"pm.collectionVariables.set(\"timePeriod2Alias\", \"test_alias\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{timePeriod2Name}}\",\n    \"alias\": \"{{timePeriod2Alias}}\",\n    \"days\": [\n        {\n            \"day\": 3,\n            \"time_range\": \"00:00-24:00\"\n        }\n    ],\n    \"templates\": [],\n    \"exceptions\": [\n        {\n            \"day_range\": \"4 tuesday in July\",\n            \"time_range\": \"00:00-24:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with wrong type (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period could not be created, due to a wrong type of value for name and alias.\", function () {\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"name: This value should be of type string.\\nalias: This value should be of type string.\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": 23,\n    \"alias\": true,\n    \"days\": [\n        {\n            \"day\": 3,\n            \"time_range\": \"00:00-24:00\"\n        }\n    ],\n    \"templates\": [],\n    \"exceptions\": [\n        {\n            \"day_range\": \"4 tuesday in July\",\n            \"time_range\": \"00:00-24:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a time period (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod1Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"timePeriod1Name\");\r",
+									"    pm.collectionVariables.unset(\"timePeriod1Alias\");\r",
+									"    pm.collectionVariables.unset(\"timePeriod1Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/{{timePeriod1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"{{timePeriod1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods after creation and deletion (5)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (5)\r",
+									"    pm.expect(responseJson.result.length).to.eql(5);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none\"}).and.to.include({alias:\"Never\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (never)\r",
+									"    pm.expect(responseJson.result[1].days).to.be.an('array').that.is.empty;\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the templates and exceptions of thefirst four time periods (none)\r",
+									"    for(let count = 0; count < responseJson.result.length-1; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"        pm.expect(responseJson.result[count].exceptions).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates of the fifth time periods (none)\r",
+									"    pm.expect(responseJson.result[4].templates).to.be.an('array').that.is.empty;\r",
+									"    // Check the exception for the fifth time period (4 tuesday in July, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a time period (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The time period has been successfully updated, with name 'none_updated' and alias 'Never ever'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"none_updated\",\r\n    \"alias\": \"Never ever\",\r\n    \"days\": [\r\n        {\r\n            \"day\": 7,\r\n            \"time_range\": \"06:30-10:30\"\r\n        }\r\n    ],\r\n    \"templates\": [],\r\n    \"exceptions\": [\r\n        {\r\n            \"day_range\": \"monday 2\",\r\n            \"time_range\": \"06:00-16:00\"\r\n        }\r\n    ]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a new time period with a duplicate name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with name 'nonworkhours' could not be updated, due to a conflict with an existing time period.\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
+									"    pm.expect(responseJson.message).to.eql(\"The time period name 'none_updated' already exists\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"none_updated\",\n    \"alias\": \"test_alias_duplicated\",\n    \"days\": [\n        {\n            \"day\": 3,\n            \"time_range\": \"00:00-24:00\"\n        }\n    ],\n    \"templates\": [],\n    \"exceptions\": [\n        {\n            \"day_range\": \"4 tuesday in July\",\n            \"time_range\": \"00:00-24:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show only one time period",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the name and alias of the time period\r",
+									"    pm.expect(responseJson).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"\r",
+									"    // Check the schedule of the time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"    // Check the templates used in the time periods (none)\r",
+									"    pm.expect(responseJson.templates).to.be.an('array').that.is.empty;\r",
+									"\r",
+									"    // Check the exception of the time periods (monday 2, 06:00-16:00)\r",
+									"    pm.expect(responseJson.exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with a empty name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with an empty name could not be created, due to the name being mandatory.\", function () {\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"name: This value is too short. It should have 1 character or more.\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"alias\": \"test_alias_with_empty_name\",\n    \"days\": [],\n    \"templates\": [],\n    \"exceptions\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with a empty alias (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.\", function () {\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"alias: This value is too short. It should have 1 character or more.\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test_name_with_empty_alias\",\n    \"alias\": \"\",\n    \"days\": [],\n    \"templates\": [],\n    \"exceptions\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods after update (5)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (5)\r",
+									"    pm.expect(responseJson.result.length).to.eql(5);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.result[1].days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the templates of the first four time periods (none)\r",
+									"    for(let count = 0; count < responseJson.result.length; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"\r",
+									"    // Check the exception of the first time period (none)   \r",
+									"    pm.expect(responseJson.result[0].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exception of the second time period (monday 2, 06:00-16:00)   \r",
+									"    pm.expect(responseJson.result[1].exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"    // Check the exception of the third time period (none)   \r",
+									"    pm.expect(responseJson.result[2].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exception of the fourth time period (none)   \r",
+									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exception of the fifth time period (4 tuesday in July, 00:00-24:00)  \r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Time Period By User with Read/Write Right",
+			"item": [
+				{
+					"name": "Login with Read/Write user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_RW'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_RW}}\",\r\n      \"password\": \"{{api_password_user_RW}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods (5)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (5)\r",
+									"    pm.expect(responseJson.result.length).to.eql(5);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.result[1].days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the templates of the time periods (none)\r",
+									"    for(let count = 0; count < responseJson.result.length; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"\r",
+									"    // Check the exceptions of the first time periods (none)\r",
+									"    pm.expect(responseJson.result[0].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the second time periods (monday 2, 06:00-16:00)\r",
+									"    pm.expect(responseJson.result[1].exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"    // Check the exceptions of the third time periods (none)\r",
+									"    pm.expect(responseJson.result[2].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fourth time periods (none)\r",
+									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fifth time periods (4 tuesday in July, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period has been successfully created, with name '\" + pm.collectionVariables.get(\"timePeriod3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod3Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new time period\r",
+									"    pm.collectionVariables.set(\"timePeriod3Id\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"timePeriod3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"timePeriod3Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"timePeriod3Alias\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.days[0]).to.include({day: 2, time_range: \"23:59-24:00\"});\r",
+									"    pm.expect(responseJson.days[1]).to.include({day: 4, time_range: \"00:01-07:02\"});\r",
+									"    pm.expect(responseJson.days[2]).to.include({day: 6, time_range: \"00:01-07:02,23:59-24:00\"});\r",
+									"    pm.expect(responseJson.templates[0]).to.be.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"timePeriod2Id\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"timePeriod2Alias\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.exceptions).to.be.an('array').that.is.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"timePeriod3Name\", \"test_name_by_ûser_RW\");\r",
+									"pm.collectionVariables.set(\"timePeriod3Alias\", \"test_#l1as_by_user_RW\");\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{timePeriod3Name}}\",\n    \"alias\": \"{{timePeriod3Alias}}\",\n    \"days\": [\n        {\n            \"day\": 2,\n            \"time_range\": \"23:59-24:00\"\n        },\n        {\n            \"day\": 4,\n            \"time_range\": \"00:01-07:02\"\n        },\n        {\n            \"day\": 6,\n            \"time_range\": \"00:01-07:02,23:59-24:00\"\n        }\n    ],\n    \"templates\": [\n        {{timePeriod2Id}}\n    ],\n    \"exceptions\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods after creation (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (6)\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"test_name_by_ûser_RW\"}).and.to.include({alias:\"test_#l1as_by_user_RW\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.result[1].days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the schedule of the sixth time period\r",
+									"    // (day 2, 23:59-24:00)\r",
+									"    pm.expect(responseJson.result[5].days[0]).to.include({day: 2, time_range: \"23:59-24:00\"});\r",
+									"    // (day 4, 00:01-07:02)\r",
+									"    pm.expect(responseJson.result[5].days[1]).to.include({day: 4, time_range: \"00:01-07:02\"});\r",
+									"    // (day 6, 00:01-07:02,23:59-24:00)\r",
+									"    pm.expect(responseJson.result[5].days[2]).to.include({day: 6, time_range: \"00:01-07:02,23:59-24:00\"});\r",
+									"\r",
+									"    // Check the templates of the first five time periods (none)\r",
+									"    for(let count = 0; count < responseJson.result.length-1; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"    // Check the templates of the sixth time period (id = TimePeriodDuplicateAliasId)\r",
+									"    pm.expect(responseJson.result[5].templates[0].id).to.be.eql(pm.collectionVariables.get(\"timePeriod2Id\"));\r",
+									"\r",
+									"    // Check the exceptions of the first time period (none)\r",
+									"    pm.expect(responseJson.result[0].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the second time period (monday 2, 06:00-16:00)\r",
+									"    pm.expect(responseJson.result[1].exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"    // Check the exceptions of the third time period (none)\r",
+									"    pm.expect(responseJson.result[2].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fourth time period (none)\r",
+									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fifth time period (4 tuesday in July, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"    // Check the exceptions of the sixth time period (none)\r",
+									"    pm.expect(responseJson.result[5].exceptions).to.be.an('array').that.is.empty;\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with a duplicate name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period could not be created, due to a conflict with an existing time period.\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
+									"    pm.expect(responseJson.message).to.eql(\"The time period name 'test_name_by_user_RW' already exists\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test_name_by_user_RW\",\n    \"alias\": \"test_alias_by_user_RW_duplicated\",\n    \"days\": [\n        {\n            \"day\": 3,\n            \"time_range\": \"00:00-24:00\"\n        }\n    ],\n    \"templates\": [],\n    \"exceptions\": [\n        {\n            \"day_range\": \"4 tuesday in July\",\n            \"time_range\": \"00:00-24:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with a duplicate alias (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod4Alias\") + \"' has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    \r",
+									"    // Creation of a variable with the ID of the new time period\r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"timePeriod4Id\", response.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"timePeriod4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"timePeriod4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"timePeriod4Alias\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"    pm.expect(responseJson.exceptions[0]).to.be.include({\r",
+									"        \"day_range\": \"4 tuesday in July\",\r",
+									"        \"time_range\": \"00:00-24:00\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.templates).to.be.an('array').that.is.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"timePeriod4Name\", \"test_name_duplicated\");\r",
+									"pm.collectionVariables.set(\"timePeriod4Alias\", \"test_alias\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test_name_duplicated\",\n    \"alias\": \"test_alias\",\n    \"days\": [\n        {\n            \"day\": 3,\n            \"time_range\": \"00:00-24:00\"\n        }\n    ],\n    \"templates\": [],\n    \"exceptions\": [\n        {\n            \"day_range\": \"4 tuesday in July\",\n            \"time_range\": \"00:00-24:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with wrong type (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period could not be created, due to a wrong type of value for days, templates and exceptions.\", function () {\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"days[0][day]: This value should be of type integer.\\ndays[0][time_range]: This value should not be null.\\ntemplates[0]: This value should be of type integer.\\nexceptions[0][day_range]: This value should be of type string.\\nexceptions[0][time_range]: This value should be of type string.\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Wrong_type_for_days_templates_and_exceptions\",\n    \"alias\": \"Wrong_type_for_days_templates_and_exceptions\",\n    \"days\": [\n        {\n            \"day\": \"Hola\",\n            \"time_range\": null\n        }\n    ],\n    \"templates\": [\"try\"],\n    \"exceptions\": [\n        {\n            \"day_range\":2,\n            \"time_range\": false\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a time period (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod4Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    \r",
+									"    pm.collectionVariables.unset(\"timePeriod4Name\");\r",
+									"    pm.collectionVariables.unset(\"timePeriod4Alias\");\r",
+									"    pm.collectionVariables.unset(\"timePeriod4Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/{{timePeriod4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"{{timePeriod4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods after creation and deletion (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (6)\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"test_name_by_ûser_RW\"}).and.to.include({alias:\"test_#l1as_by_user_RW\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.result[1].days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the schedule of the sixth time period\r",
+									"    // (day 2, 23:59-24:00)\r",
+									"    pm.expect(responseJson.result[5].days[0]).to.include({day: 2, time_range: \"23:59-24:00\"});\r",
+									"    // (day 4, 00:01-07:02)\r",
+									"    pm.expect(responseJson.result[5].days[1]).to.include({day: 4, time_range: \"00:01-07:02\"});\r",
+									"    // (day 6, 00:01-07:02,23:59-24:00)\r",
+									"    pm.expect(responseJson.result[5].days[2]).to.include({day: 6, time_range: \"00:01-07:02,23:59-24:00\"});\r",
+									"\r",
+									"    // Check the templates and exceptions of the first five time periods (none)\r",
+									"    for(let count = 0; count < responseJson.result.length-1; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"     // Check the templates of the sixth time period (id = TimePeriodDuplicateAliasId)\r",
+									"    pm.expect(responseJson.result[5].templates[0].id).to.be.eql(pm.collectionVariables.get(\"timePeriod2Id\"));\r",
+									"\r",
+									"    // Check the exceptions of the first time period (none)\r",
+									"    pm.expect(responseJson.result[0].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the second time period (monday 2, 06:00-16:00)\r",
+									"    pm.expect(responseJson.result[1].exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"    // Check the exceptions of the third time period (none)\r",
+									"    pm.expect(responseJson.result[2].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fourth time period (none)\r",
+									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fifth time period (4 tuesday in July, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"    // Check the exceptions of the sixth time period (none)\r",
+									"    pm.expect(responseJson.result[5].exceptions).to.be.an('array').that.is.empty;\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a time period (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"The time period has been successfully updated, with name '\" + pm.collectionVariables.get(\"timePeriod3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod3Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"timePeriod3Name\", \"24x7-v2\");\r",
+									"pm.collectionVariables.set(\"timePeriod3Alias\", \"24_Hours_A_Day,_7_Days_A_Week\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"24x7-v2\",\r\n    \"alias\": \"24_Hours_A_Day,_7_Days_A_Week\",\r\n    \"days\": [\r\n        {\r\n            \"day\": 1,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 2,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 3,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 4,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 5,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 6,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 7,\r\n            \"time_range\": \"00:00-24:00\"\r\n        }\r\n    ],\r\n    \"templates\": [1],\r\n    \"exceptions\": [{\r\n            \"day_range\": \"wednesday 4\",\r\n            \"time_range\": \"06:00-17:00\"\r\n        }]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/{{timePeriod3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"{{timePeriod3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show only one time period",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the name and alias of the time period\r",
+									"    pm.expect(responseJson).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"\r",
+									"    // Check the schedule of the time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.days.length; count++) {\r",
+									"        pm.expect(responseJson.days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates and exceptions used in the time periods (none)\r",
+									"    pm.expect(responseJson.templates).to.be.an('array').that.is.empty;\r",
+									"    pm.expect(responseJson.exceptions).to.be.an('array').that.is.empty;\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/4",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with a empty name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with an empty name could not be created, due to the name being mandatory.\", function () {\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"name: This value is too short. It should have 1 character or more.\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"alias\": \"test_alias_with_empty_name\",\n    \"days\": [],\n    \"templates\": [],\n    \"exceptions\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period with a empty alias (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.\", function () {\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.eql(\"alias: This value is too short. It should have 1 character or more.\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test_name_with_empty_alias\",\n    \"alias\": \"\",\n    \"days\": [],\n    \"templates\": [],\n    \"exceptions\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods after update (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (6))\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"24x7-v2\"}).and.to.include({alias:\"24_Hours_A_Day,_7_Days_A_Week\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.result[1].days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the schedule of the sixth time period (everyday, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[5].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[5].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates of the first five time periods\r",
+									"    for(let count = 0; count < responseJson.result.length-1; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"    // Check the templates of the sixth time period (id = 1)\r",
+									"    pm.expect(responseJson.result[5].templates[0].id).to.be.eql(1);\r",
+									"\r",
+									"\r",
+									"    // Check the exceptions of the first time period (none)\r",
+									"    pm.expect(responseJson.result[0].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the second time period (monday 2, 06:00-16:00)\r",
+									"    pm.expect(responseJson.result[1].exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"    // Check the exceptions of the third time period (none)\r",
+									"    pm.expect(responseJson.result[2].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fourth time period (none)\r",
+									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fifth time period (4 tuesday in July, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
+									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from RW user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Time Period By User with Read Only Right",
+			"item": [
+				{
+					"name": "Login with Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_Read'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Read}}\",\r\n      \"password\": \"{{api_password_user_Read}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (6))\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"24x7-v2\"}).and.to.include({alias:\"24_Hours_A_Day,_7_Days_A_Week\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.result[1].days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the schedule of the sixth time period (everyday, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[5].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[5].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates of the first five time periods\r",
+									"    for(let count = 0; count < responseJson.result.length-1; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"    // Check the templates of the sixth time period (id = 1)\r",
+									"    pm.expect(responseJson.result[5].templates[0].id).to.be.eql(1);\r",
+									"\r",
+									"\r",
+									"    // Check the exceptions of the first time period (none)\r",
+									"    pm.expect(responseJson.result[0].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the second time period (monday 2, 06:00-16:00)\r",
+									"    pm.expect(responseJson.result[1].exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"    // Check the exceptions of the third time period (none)\r",
+									"    pm.expect(responseJson.result[2].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fourth time period (none)\r",
+									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fifth time period (4 tuesday in July, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
+									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period has not been  created, because the user does have the corrects rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test_name_by_user_Read\",\n    \"alias\": \"test_alias_by_user_Read\",\n    \"days\": [\n        {\n            \"day\": 2,\n            \"time_range\": \"23:59-24:00\"\n        },\n        {\n            \"day\": 4,\n            \"time_range\": \"00:01-07:02\"\n        },\n        {\n            \"day\": 6,\n            \"time_range\": \"00:01-07:02,23:59-24:00\"\n        }\n    ],\n    \"templates\": [],\n    \"exceptions\": [\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods after creation (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (6))\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"24x7-v2\"}).and.to.include({alias:\"24_Hours_A_Day,_7_Days_A_Week\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.result[1].days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the schedule of the sixth time period (everyday, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[5].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[5].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates of the first five time periods\r",
+									"    for(let count = 0; count < responseJson.result.length-1; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"    // Check the templates of the sixth time period (id = 1)\r",
+									"    pm.expect(responseJson.result[5].templates[0].id).to.be.eql(1);\r",
+									"\r",
+									"\r",
+									"    // Check the exceptions of the first time period (none)\r",
+									"    pm.expect(responseJson.result[0].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the second time period (monday 2, 06:00-16:00)\r",
+									"    pm.expect(responseJson.result[1].exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"    // Check the exceptions of the third time period (none)\r",
+									"    pm.expect(responseJson.result[2].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fourth time period (none)\r",
+									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fifth time period (4 tuesday in July, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
+									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a time period (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with name 'nonworkhours' has not been deleted, because the user does not have the correct rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods after creation and deletion (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (6))\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"24x7-v2\"}).and.to.include({alias:\"24_Hours_A_Day,_7_Days_A_Week\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.result[1].days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the schedule of the sixth time period (everyday, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[5].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[5].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates of the first five time periods\r",
+									"    for(let count = 0; count < responseJson.result.length-1; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"    // Check the templates of the sixth time period (id = 1)\r",
+									"    pm.expect(responseJson.result[5].templates[0].id).to.be.eql(1);\r",
+									"\r",
+									"\r",
+									"    // Check the exceptions of the first time period (none)\r",
+									"    pm.expect(responseJson.result[0].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the second time period (monday 2, 06:00-16:00)\r",
+									"    pm.expect(responseJson.result[1].exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"    // Check the exceptions of the third time period (none)\r",
+									"    pm.expect(responseJson.result[2].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fourth time period (none)\r",
+									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fifth time period (4 tuesday in July, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
+									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a time period (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period has not been updated, because the user does not have the corretcs rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"24x7-v2\",\r\n    \"alias\": \"24_Hours_A_Day,_7_Days_A_Week\",\r\n    \"days\": [\r\n        {\r\n            \"day\": 1,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 2,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 3,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 4,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 5,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 6,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 7,\r\n            \"time_range\": \"00:00-24:00\"\r\n        }\r\n    ],\r\n    \"templates\": [1],\r\n    \"exceptions\": [{\r\n            \"day_range\": \"wednesday 4\",\r\n            \"time_range\": \"06:00-17:00\"\r\n        }]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/{{timePeriod3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"{{timePeriod3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show only one time period",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the name and alias of the time period\r",
+									"    pm.expect(responseJson).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"\r",
+									"    // Check the schedule of the time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.days.length; count++) {\r",
+									"        pm.expect(responseJson.days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates and exceptions of the time period (none)\r",
+									"    pm.expect(responseJson.templates).to.be.an('array').that.is.empty;\r",
+									"    pm.expect(responseJson.exceptions).to.be.an('array').that.is.empty;\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods after update (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time periods are listed with their alias, days, templates and exceptions\", function() {\r",
+									"    // Check the number of time periods (6))\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the name and alias of each time period\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"24x7\"}).and.to.include({alias:\"Always\"});\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"none_updated\"}).and.to.include({alias:\"Never ever\"});\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"nonworkhours\"}).and.to.include({alias:\"Non-Work Hours\"});\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"workhours\"}).and.to.include({alias:\"Work hours\"});\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"tést_name_with_duplicated_al1as!\"}).and.to.include({alias:\"test_alias\"});\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"24x7-v2\"}).and.to.include({alias:\"24_Hours_A_Day,_7_Days_A_Week\"});\r",
+									"\r",
+									"    // Check the schedule of the first time period (every days, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[0].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[0].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the second time period (day 7, 06:30-10:30)\r",
+									"    pm.expect(responseJson.result[1].days[0]).to.include({day: 7, time_range: \"06:30-10:30\"});\r",
+									"\r",
+									"    // Check the schedule of the third time period (non-work hours)\r",
+									"    // (during work days, 00:00-09:00,17:00)\r",
+									"    for(let count = 0; count < responseJson.result[2].days.length-2; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-09:00,17:00-24:00\"});\r",
+									"    }\r",
+									"    // (during weekends, 00:00-24:00)\r",
+									"    for(let count = 5; count < responseJson.result[2].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[2].days[count]).to.eql({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fourth time period (during work days, 09:00-17:00)\r",
+									"    for(let count = 0; count < responseJson.result[3].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[3].days[count]).to.eql({day: count+1, time_range: \"09:00-17:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the schedule of the fifth time period (day 3, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].days[0]).to.include({day: 3, time_range: \"00:00-24:00\"});\r",
+									"\r",
+									"    // Check the schedule of the sixth time period (everyday, 00:00-24:00)\r",
+									"    for(let count = 0; count < responseJson.result[5].days.length; count++) {\r",
+									"        pm.expect(responseJson.result[5].days[count]).to.include({day: count+1, time_range: \"00:00-24:00\"});\r",
+									"    }\r",
+									"\r",
+									"    // Check the templates of the first five time periods\r",
+									"    for(let count = 0; count < responseJson.result.length-1; count++) {\r",
+									"        pm.expect(responseJson.result[count].templates).to.be.an('array').that.is.empty;\r",
+									"    }\r",
+									"    // Check the templates of the sixth time period (id = 1)\r",
+									"    pm.expect(responseJson.result[5].templates[0].id).to.be.eql(1);\r",
+									"\r",
+									"\r",
+									"    // Check the exceptions of the first time period (none)\r",
+									"    pm.expect(responseJson.result[0].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the second time period (monday 2, 06:00-16:00)\r",
+									"    pm.expect(responseJson.result[1].exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
+									"    // Check the exceptions of the third time period (none)\r",
+									"    pm.expect(responseJson.result[2].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fourth time period (none)\r",
+									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
+									"    // Check the exceptions of the fifth time period (4 tuesday in July, 00:00-24:00)\r",
+									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
+									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
+									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Time Period By User with No Access",
+			"item": [
+				{
+					"name": "Login with user with no access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_Nothing'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Nothing}}\",\r\n      \"password\": \"{{api_password_user_Nothing}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new time period (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"The time period has not been  created, because the user does have the corrects rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"timePeriodName\", \"test_name_by_user_RW\");\r",
+									"pm.collectionVariables.set(\"timePeriodAlias\", \"test_alias_by_user_RW\");\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+                                                        {
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test_name_by_user_with_no_access\",\n    \"alias\": \"test_alias_by_user_with_no_access\",\n    \"days\": [\n        {\n            \"day\": 2,\n            \"time_range\": \"23:59-24:00\"\n        },\n        {\n            \"day\": 4,\n            \"time_range\": \"00:01-07:02\"\n        },\n        {\n            \"day\": 6,\n            \"time_range\": \"00:01-07:02,23:59-24:00\"\n        }\n    ],\n    \"templates\": [],\n    \"exceptions\": [\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a time period (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with name 'nonworkhours' has not been deleted, because the user does not have the correct rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a time period (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period has not been updated, because the user does not have the corretcs rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"24x7-v2\",\r\n    \"alias\": \"24_Hours_A_Day,_7_Days_A_Week\",\r\n    \"days\": [\r\n        {\r\n            \"day\": 1,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 2,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 3,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 4,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 5,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 6,\r\n            \"time_range\": \"00:00-24:00\"\r\n        },\r\n        {\r\n            \"day\": 7,\r\n            \"time_range\": \"00:00-24:00\"\r\n        }\r\n    ],\r\n    \"templates\": [1],\r\n    \"exceptions\": [{\r\n            \"day_range\": \"wednesday 4\",\r\n            \"time_range\": \"06:00-17:00\"\r\n        }]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/{{timePeriod3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"{{timePeriod3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time period (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"List of time periods can't be displayed.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access time periods\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available time periods (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"List of time periods can't be displayed.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access time periods\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user with no access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reset",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a time period (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The time period has been successfully updated.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"none\",\r\n    \"alias\": \"Never\",\r\n    \"days\": [],\r\n    \"templates\": [],\r\n    \"exceptions\": []\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a time period (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod2Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"timePeriod2Name\");\r",
+									"    pm.collectionVariables.unset(\"timePeriod2Alias\");\r",
+									"    pm.collectionVariables.unset(\"timePeriod2Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/{{timePeriod2Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"{{timePeriod2Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a time period (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod3Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"timePeriod3Name\");\r",
+									"    pm.collectionVariables.unset(\"timePeriod3Alias\");\r",
+									"    pm.collectionVariables.unset(\"timePeriod3Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/{{timePeriod3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"{{timePeriod3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

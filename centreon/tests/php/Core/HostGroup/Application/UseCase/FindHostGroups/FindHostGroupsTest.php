@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ use Core\HostGroup\Domain\Model\HostGroup;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
     $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class);
@@ -45,9 +46,10 @@ beforeEach(function (): void {
     $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new FindHostGroups(
         $this->readHostGroupRepository,
-        $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->createMock(RequestParametersInterface::class),
-        $this->contact
+        $this->contact,
+        false
     );
 
     $this->testedHostGroup = new HostGroup(
@@ -164,9 +166,17 @@ it(
                     [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE, false],
                 ]
             );
+        $this->readAccessGroupRepository
+            ->expects($this->any())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(id: 1, name: 'testName', alias: 'testAlias')]);
         $this->readHostGroupRepository
             ->expects($this->once())
-            ->method('findAllByAccessGroups')
+            ->method('hasAccessToAllHostGroups')
+            ->willReturn(false);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findAllByAccessGroupIds')
             ->willReturn(new \ArrayIterator([$this->testedHostGroup]));
 
         ($this->useCase)($this->presenter);
@@ -194,9 +204,17 @@ it(
                     [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE, true],
                 ]
             );
+        $this->readAccessGroupRepository
+            ->expects($this->any())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(id: 1, name: 'testName', alias: 'testAlias')]);
         $this->readHostGroupRepository
             ->expects($this->once())
-            ->method('findAllByAccessGroups')
+            ->method('hasAccessToAllHostGroups')
+            ->willReturn(false);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findAllByAccessGroupIds')
             ->willReturn(new \ArrayIterator([$this->testedHostGroup]));
 
         ($this->useCase)($this->presenter);

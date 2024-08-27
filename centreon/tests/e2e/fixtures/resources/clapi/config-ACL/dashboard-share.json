@@ -183,5 +183,15 @@
         "action": "SETCONTACTGROUP",
         "object": "ACLGROUP",
         "values": "name-creator-ACLGROUP;dashboard-contact-group-creator"
-  }
+    },
+    {
+        "action": "addcontactgroup",
+        "object": "ACLGROUP",
+        "values": "name-creator-ACLGROUP;contactgroupdashboard"
+    },
+    {
+        "action": "ADDCONTACT",
+        "object": "ACLGROUP",
+        "values": "name-creator-ACLGROUP;user-dashboard-cg-member-3;"
+    }
 ]

@@ -6,6 +6,8 @@
 
 parameters:
     locale: en
+    api.header: "Api-Version"
+    api.version.latest: "24.07"
     database_host: "%env(hostCentreon)%"
     database_port: "%env(port)%"
     database_db: "%env(db)%"
@@ -16,6 +18,7 @@ parameters:
     validation_path: "%env(_CENTREON_PATH_)%config/packages/validator"
     centreon_path: "%env(_CENTREON_PATH_)%"
     centreon_etc_path: "%env(_CENTREON_ETC_)%"
+    vault_conf_path: "%centreon_var_lib%/vault/vault.json"
     centreon_install_path: "%centreon_path%/www/install"
     translation_path: "%centreon_path%/www/locale"
     log_path: "%env(_CENTREON_LOG_)%"
@@ -74,6 +77,7 @@ services:
     Core\Infrastructure\Common\Api\Router:
         decorates: router
         arguments: ['@.inner']
+        public: true
 
     Symfony\Component\Finder\Finder:
         shared: false
@@ -101,6 +105,23 @@ services:
             $resourceTypes: !tagged_iterator 'monitoring.resource.type'
             $sqlRequestTranslator: '@sqlRequestTranslator'
             $resourceACLProviders: !tagged_iterator 'monitoring.resource.acl'
+            $extraDataProviders: !tagged_iterator 'monitoring.resource.extra.providers'
+
+    Core\Resources\Application\UseCase\FindResources\FindResources:
+        arguments:
+          $extraDataProviders: !tagged_iterator 'monitoring.resource.extra.providers'
+
+    Core\Resources\Application\UseCase\FindResourcesByParent\FindResourcesByParent:
+        arguments:
+          $extraDataProviders: !tagged_iterator 'monitoring.resource.extra.providers'
+
+    Core\Resources\Infrastructure\API\FindResources\FindResourcesPresenter:
+        arguments:
+          $extraDataNormalizers: !tagged_iterator 'monitoring.resource.extra.normalizers'
+
+    Core\Resources\Infrastructure\API\FindResourcesByParent\FindResourcesByParentPresenter:
+        arguments:
+          $extraDataNormalizers: !tagged_iterator 'monitoring.resource.extra.normalizers'
 
     Centreon\Application\Controller\MonitoringResourceController:
         arguments:
@@ -113,3 +134,9 @@ services:
     Core\Security\Authentication\Application\UseCase\Login\Login:
         arguments:
             $defaultRedirectUri: '/monitoring/resources'
+
+    EventSubscriber\CentreonEventSubscriber:
+        arguments:
+            $apiVersionLatest: '%api.version.latest%'
+            $apiHeaderName: '%api.header%'
+            $translationPath: '%translation_path%'

@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Application\Exception\ServiceGroupException;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
@@ -39,12 +40,21 @@ use Core\ServiceGroup\Infrastructure\API\FindServiceGroups\FindServiceGroupsPres
 final class FindServiceGroups
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
+    /**
+     * @param ReadServiceGroupRepositoryInterface $readServiceGroupRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param RequestParametersInterface $requestParameters
+     * @param ContactInterface $contact
+     * @param bool $isCloudPlatform
+     */
     public function __construct(
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -54,12 +64,21 @@ final class FindServiceGroups
     public function __invoke(PresenterInterface $presenter): void
     {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->isUserAdmin()) {
+                $this->info(
+                    'Find service groups as admin',
+                    ['request' => $this->requestParameters->toArray()]
+                );
                 $presenter->present($this->findServiceGroupAsAdmin());
-                $this->info('Find service group', ['request' => $this->requestParameters->toArray()]);
             } elseif ($this->contactCanExecuteThisUseCase()) {
+                $this->info(
+                    'Find service groups as user',
+                    [
+                        'user' => $this->contact->getName(),
+                        'request' => $this->requestParameters->toArray(),
+                    ]
+                );
                 $presenter->present($this->findServiceGroupAsContact());
-                $this->info('Find service group', ['request' => $this->requestParameters->toArray()]);
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to see service groups",
@@ -73,6 +92,26 @@ final class FindServiceGroups
             $presenter->setResponseStatus(new ErrorResponse(ServiceGroupException::errorWhileSearching()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
+    }
+
+    /**
+     * Indicates if the current user is admin or not (cloud + onPremise context).
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->contact->isAdmin()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
+            && $this->isCloudPlatform;
     }
 
     /**
@@ -94,11 +133,33 @@ final class FindServiceGroups
      */
     private function findServiceGroupAsContact(): FindServiceGroupsResponse
     {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $serviceGroups = $this->readServiceGroupRepository->findAllByAccessGroups(
-            $this->requestParameters,
-            $accessGroups
+        $serviceGroups = [];
+
+        $accessGroupIds = array_map(
+            fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
         );
+
+        if ($accessGroupIds === []) {
+            return $this->createResponse($serviceGroups);
+        }
+
+        if ($this->readServiceGroupRepository->hasAccessToAllServiceGroups($accessGroupIds)) {
+            $this->debug(
+                'ACL configuration for user gives access to all service groups',
+                ['user' => $this->contact->getName()]
+            );
+            $serviceGroups = $this->readServiceGroupRepository->findAll($this->requestParameters);
+        } else {
+            $this->debug(
+                'Using users ACL configured on service groups',
+                ['user' => $this->contact->getName()]
+            );
+            $serviceGroups = $this->readServiceGroupRepository->findAllByAccessGroupIds(
+                $this->requestParameters,
+                $accessGroupIds
+            );
+        }
 
         return $this->createResponse($serviceGroups);
     }

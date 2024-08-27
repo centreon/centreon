@@ -37,43 +37,33 @@ class AclGroup implements Mapping\MetadataInterface
     public const TABLE = 'acl_groups';
 
     /**
-     * @Serializer\Groups({
-     *     AclGroup::SERIALIZER_GROUP_LIST
-     * })
      * @var int an identification of entity
      */
+    #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $id;
 
     /**
-     * @Serializer\Groups({
-     *     AclGroup::SERIALIZER_GROUP_LIST
-     * })
      * @var string
      */
+    #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $name;
 
     /**
-     * @Serializer\Groups({
-     *     AclGroup::SERIALIZER_GROUP_LIST
-     * })
      * @var string
      */
+    #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $alias;
 
     /**
-     * @Serializer\Groups({
-     *     AclGroup::SERIALIZER_GROUP_LIST
-     * })
      * @var bool
      */
+    #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $changed;
 
     /**
-     * @Serializer\Groups({
-     *     AclGroup::SERIALIZER_GROUP_LIST
-     * })
      * @var bool
      */
+    #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $activate;
 
     /**

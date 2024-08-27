@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -77,7 +78,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
      */
     public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
     {
-        $parameters['base_uri'] = $this->getBaseUri();
+        $parameters['base_uri'] ??= $this->getBaseUri();
         if (! empty($parameters['base_uri'])) {
             $parameters['base_uri'] .= '/';
         }
@@ -115,7 +116,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     /**
      * @inheritDoc
      */
-    public function getRouteCollection()
+    public function getRouteCollection(): RouteCollection
     {
         return $this->router->getRouteCollection();
     }
@@ -141,7 +142,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @inheritDoc
+     * @param string $cacheDir
+     *
+     * @return string[]
      */
     public function warmUp(string $cacheDir)
     {

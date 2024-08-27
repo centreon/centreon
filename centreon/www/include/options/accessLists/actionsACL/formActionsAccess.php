@@ -201,7 +201,7 @@ echo $ams1->getElementJs(false);
 
 // Administration section
 $form->addElement('header', 'administration', _("Administration"));
-$form->addElement('checkbox', 'manage_tokens', _("Manage the organization's authentication tokens"));
+$form->addElement('checkbox', 'manage_tokens', _("Manage API tokens"));
 
 // Further informations
 $form->addElement('header', 'furtherInfos', _("Additional Information"));

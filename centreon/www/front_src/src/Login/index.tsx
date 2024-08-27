@@ -1,28 +1,29 @@
-import { lazy, memo, Suspense } from 'react';
+import { Suspense, lazy, memo } from 'react';
 
 import { Formik } from 'formik';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { equals, isNil, T } from 'ramda';
+import { T, equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
-import { LoadingSkeleton, WallpaperPage } from '@centreon/ui';
+import { FallbackPage, LoadingSkeleton, WallpaperPage } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
+import { areUserParametersLoadedAtom } from '../Main/useUser';
 
-import useValidationSchema from './validationSchema';
+import CustomText from './CustomText';
 import { LoginFormValues } from './models';
-import useLogin from './useLogin';
 import {
+  labelAnErrorOccurredDuringAuthentication,
   labelCentreonWallpaper,
   labelLogin,
   labelPoweredByCentreon
 } from './translatedLabels';
-import CustomText from './CustomText';
+import useLogin from './useLogin';
+import useValidationSchema from './validationSchema';
 
 const ExternalProviders = lazy(() => import('./ExternalProviders'));
 
@@ -71,14 +72,28 @@ const LoginPage = (): JSX.Element => {
   const { t } = useTranslation();
   const validationSchema = useValidationSchema();
 
-  const { submitLoginForm, providersConfiguration, loginPageCustomisation } =
-    useLogin();
+  const {
+    submitLoginForm,
+    providersConfiguration,
+    loginPageCustomisation,
+    authenticationError,
+    hasForcedProvider
+  } = useLogin();
 
   const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);
 
   if (areUserParametersLoaded || isNil(areUserParametersLoaded)) {
     return <MainLoaderWithoutTranslation />;
+  }
+
+  if (authenticationError && hasForcedProvider) {
+    return (
+      <FallbackPage
+        message={authenticationError}
+        title={t(labelAnErrorOccurredDuringAuthentication)}
+      />
+    );
   }
 
   const hasProvidersConfiguration = !isNil(providersConfiguration);

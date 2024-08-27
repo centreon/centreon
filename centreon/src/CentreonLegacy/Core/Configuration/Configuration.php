@@ -33,7 +33,7 @@ class Configuration
 {
     public const CENTREON_PATH = 'centreon_path';
 
-    /** @var array the global configuration */
+    /** @var array<string,string> the global configuration */
     protected $configuration;
 
     /** @var string the centreon path */
@@ -43,13 +43,13 @@ class Configuration
     protected $finder;
 
     /**
-     * @param array $configuration the global configuration (mainly database)
+     * @param array<string,string> $configuration the global configuration
      * @param string $centreonPath the centreon directory path
      * @param Finder $finder
      */
     public function __construct(array $configuration, string $centreonPath, Finder $finder)
     {
-        $this->configuration = $configuration;
+        $this->configuration = $this->useAppConstantForConfiguration($configuration);
         $this->centreonPath = $centreonPath;
         $this->finder = $finder;
     }
@@ -110,5 +110,47 @@ class Configuration
         }
 
         return $configVars;
+    }
+
+    /**
+     * Use App Constant if defined instead of global values.
+     *
+     * @param array<string,string> $configuration
+     *
+     * @return array<string,string>
+     */
+    private function useAppConstantForConfiguration(array $configuration): array
+    {
+        foreach (array_keys($configuration) as $parameterName) {
+            switch ($parameterName) {
+                case 'user':
+                    $configuration[$parameterName] = defined('user')
+                        ? user
+                        : $configuration[$parameterName];
+                    break;
+                case 'password':
+                    $configuration[$parameterName] = defined('password')
+                        ? password
+                        : $configuration[$parameterName];
+                    break;
+                case 'db':
+                    $configuration[$parameterName] = defined('db')
+                        ? db
+                        : $configuration[$parameterName];
+                    break;
+                case 'dbcstg':
+                    $configuration[$parameterName] = defined('dbcstg')
+                        ? dbcstg
+                        : $configuration[$parameterName];
+                    break;
+                case 'port':
+                    $configuration[$parameterName] = defined('port')
+                        ? port
+                        : $configuration[$parameterName];
+                    break;
+            }
+        }
+
+        return $configuration;
     }
 }

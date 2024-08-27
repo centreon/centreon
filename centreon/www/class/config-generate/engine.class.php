@@ -323,18 +323,16 @@ class Engine extends AbstractObject
         }
     }
 
-    /**
-     * This method indicates if engine notifications needs to be disabled.
-     * conditions: "notification" feature flag AND isCloudPlatform must be true
-     *
-     * @return bool
-     */
-    private function shouldEngineNotificationsBeDisabled(): bool
+    private function setEngineNotificationState(): void
     {
         $kernel = \App\Kernel::createForWeb();
         $featureFlags = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
 
-        return ($featureFlags->isEnabled('notification') === true && $featureFlags->isCloudPlatform() === true);
+        $this->engine['enable_notifications'] =
+            $featureFlags->isEnabled('notification') === false
+            && $this->engine['enable_notifications'] === '1'
+                ? '1'
+                : '0';
     }
 
     private function generate($poller_id)
@@ -351,7 +349,7 @@ class Engine extends AbstractObject
         $result = $this->stmt_engine->fetchAll(PDO::FETCH_ASSOC);
 
         $this->engine = array_pop($result);
-        $this->engine['enable_notifications'] = $this->shouldEngineNotificationsBeDisabled() ? '0' : '1'; 
+        $this->setEngineNotificationState();
 
         if (is_null($this->engine)) {
             throw new Exception(

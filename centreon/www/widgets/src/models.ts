@@ -1,3 +1,6 @@
+import { QueryClient } from '@tanstack/react-query';
+import { createStore } from 'jotai';
+
 import { SelectEntry } from '@centreon/ui';
 
 export interface FormThreshold {
@@ -48,6 +51,11 @@ export interface Metric {
   warningLowThreshold: number | null;
 }
 
+export enum SortOrder {
+  Asc = 'asc',
+  Desc = 'desc'
+}
+
 export interface ServiceMetric extends NamedEntity {
   metrics: Array<Metric>;
 }
@@ -60,3 +68,47 @@ export interface Data {
 export interface DataWithoutMetrics {
   resources: Array<Resource>;
 }
+
+export enum SeverityStatus {
+  Pending = 'pending',
+  Problem = 'problem',
+  Success = 'success',
+  Undefined = 'undefined',
+  Warning = 'warning'
+}
+
+export interface CommonWidgetProps<T extends object> {
+  dashboardId: number | string;
+  globalRefreshInterval: GlobalRefreshInterval;
+  hasDescription: boolean;
+  id: string;
+  isFromPreview?: boolean;
+  playlistHash?: string;
+  queryClient: QueryClient;
+  refreshCount: number;
+  setPanelOptions?: (panelOptions: Partial<T>) => void;
+  store: ReturnType<typeof createStore>;
+  widgetPrefixQuery: string;
+}
+
+export type StatusDetail = {
+  acknowledged: number;
+  in_downtime: number;
+  total: number;
+};
+
+export type Status =
+  | 'critical'
+  | 'warning'
+  | 'unknown'
+  | 'pending'
+  | 'ok'
+  | 'down'
+  | 'unreachable'
+  | 'up';
+
+export type StatusType = {
+  [key in Status]: StatusDetail;
+} & {
+  total: number;
+};

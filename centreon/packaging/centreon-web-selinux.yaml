@@ -16,6 +16,8 @@ license: "Apache-2.0"
 
 depends:
   - policycoreutils
+  - selinux-policy
+  - selinux-policy-targeted
   - centreon-common-selinux = ${VERSION}-${RELEASE}${DIST}
 
 contents:

@@ -1,11 +1,26 @@
 {
   "title": "Status grid",
-  "description": "Displays a status overview for selected resources.",
+  "description": "Displays a status overview for selected resources, grouped by hosts or by services.",
   "icon": "<rect x=\"6.51\" y=\"6\" width=\"22\" height=\"22\" rx=\"4\" ry=\"4\"></rect><rect x=\"6.51\" y=\"32\" width=\"22\" height=\"22\" rx=\"4\" ry=\"4\"></rect><rect x=\"32.51\" y=\"32\" width=\"22\" height=\"22\" rx=\"4\" ry=\"4\"></rect><rect x=\"32.51\" y=\"6\" width=\"22\" height=\"22\" rx=\"4\" ry=\"4\"></rect>",
   "options": {
+    "viewMode": {
+      "type": "radio",
+      "label": "Display with this view",
+      "options": [
+        {
+          "id": "standard",
+          "name": "Standard"
+        },
+        {
+          "id": "condensed",
+          "name": "Condensed"
+        }
+      ],
+      "defaultValue": "standard"
+    },
     "resourceType": {
       "type": "radio",
-      "label": "Display with this resource type",
+      "label": "Display resources with this type",
       "options": [
         {
           "id": "host",
@@ -13,83 +28,44 @@
         },
         {
           "id": "service",
-          "name": "Service" 
+          "name": "Service"
         }
       ],
-      "defaultValue": "host"
+      "defaultValue": "host",
+      "hiddenCondition": {
+        "target": "data",
+        "when": "data.resources",
+        "property": "resourceType",
+        "method": "includes",
+        "matches": ["business-view", "business-activity"]
+      }
     },
     "statuses": {
       "type": "checkbox",
       "label": "Display resources with this status",
-      "options": {
-        "when": "resourceType",
-        "is": "host",
-        "then": [
-          {
-            "id": "up",
-            "name": "Up"
-          },
-          {
-            "id": "down",
-            "name": "Down"
-          },
-          {
-            "id": "unreachable",
-            "name": "Unreachable"
-          },
-          {
-            "id": "pending",
-            "name": "Pending"
-          }
-        ],
-        "otherwise": [
-          {
-            "id": "ok",
-            "name": "Ok"
-          },
-          {
-            "id": "warning",
-            "name": "Warning"
-          },
-          {
-            "id": "critical",
-            "name": "Critical"
-          },
-          {
-            "id": "unknown",
-            "name": "Unknown"
-          },
-          {
-            "id": "pending",
-            "name": "Pending"
-          }
-        ]
-      },
-      "defaultValue": {
-        "when": "resourceType",
-        "is": "host",
-        "then": ["up", "down"],
-        "otherwise": ["ok", "warning", "critical"]
-      }
-    },
-    "states": {
-      "type": "checkbox",
-      "label": "Display resources with this state",
       "options": [
         {
-          "id": "unhandled_problems",
-          "name": "Unhandled"
+          "id": "problem",
+          "name": "Problem (Down/Critical)"
         },
         {
-          "id": "acknowledged",
-          "name": "Acknowledged"
+          "id": "warning",
+          "name": "Warning"
         },
         {
-          "id": "in_downtime",
-          "name": "In downtime"
+          "id": "pending",
+          "name": "Pending"
+        },
+        {
+          "id": "success",
+          "name": "Success (OK/Up)"
+        },
+        {
+          "id": "undefined",
+          "name": "Undefined (Unreachable/Unknown)"
         }
       ],
-      "defaultValue": []
+      "defaultValue": ["warning", "problem"]
     },
     "sortBy": {
       "type": "radio",
@@ -101,14 +77,26 @@
         },
         {
           "id": "name",
-          "name": "Name" 
+          "name": "Name"
         }
       ],
-      "defaultValue": "status_severity_code"
+      "defaultValue": "status_severity_code",
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.viewMode",
+        "method": "equals",
+        "matches": "condensed"
+      }
     },
     "tiles": {
       "type": "tiles",
-      "defaultValue": 100
+      "defaultValue": 100,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.viewMode",
+        "method": "equals",
+        "matches": "condensed"
+      }
     },
     "refreshInterval": {
       "type": "refresh-interval",
@@ -120,7 +108,9 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required" : true
+      "required": false,
+      "useAdditionalResources": true,
+      "excludedResourceTypes": ["meta-service"]
     }
   },
   "moduleName": "centreon-widget-statusgrid"

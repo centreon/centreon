@@ -74,6 +74,14 @@ class VaultConfigurationException extends \Exception
      */
     public static function onlyForAdmin(): self
     {
-        return new self('Only admin user can create vault configuration');
+        return new self('This operation requires an admin user');
+    }
+
+    /**
+     * @return self
+     */
+    public static function invalidConfiguration(): self
+    {
+        return new self('Vault configuration is invalid');
     }
 }

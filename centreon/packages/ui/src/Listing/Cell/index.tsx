@@ -1,25 +1,24 @@
-import * as React from 'react';
-
-import { append, equals, includes, isNil, omit, reject } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-import { CSSObject } from 'tss-react';
 import { useAtom } from 'jotai';
+import { append, equals, includes, isNil, omit, reject } from 'ramda';
+import { CSSObject } from 'tss-react';
+import { makeStyles } from 'tss-react/mui';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  alpha,
   TableCell,
   TableCellBaseProps,
   TableCellProps,
-  Theme
+  Theme,
+  alpha
 } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
 import { IconButton } from '../..';
-import { getTextStyleByViewMode } from '../useStyleTable';
 import { subItemsPivotsAtom } from '../tableAtoms';
+import { getTextStyleByViewMode } from '../useStyleTable';
 
+import { ElementType } from 'react';
 import { Props as DataCellProps } from './DataCell';
 
 interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
@@ -94,9 +93,6 @@ const useStyles = makeStyles<StylesProps>()(
     },
     caretMore: {
       transform: 'rotate3d(0,0,1,180deg)'
-    },
-    fakeCaret: {
-      marginLeft: theme.spacing(3)
     },
     root: {
       alignItems: 'center',
@@ -185,7 +181,7 @@ const Cell = ({
       classes={{
         root: cx(classes.root)
       }}
-      component={'div' as unknown as React.ElementType<TableCellBaseProps>}
+      component={'div' as unknown as ElementType<TableCellBaseProps>}
       {...omit(
         [
           'isRowHovered',
@@ -198,26 +194,23 @@ const Cell = ({
         props
       )}
     >
-      {displaySubItemsCaret &&
-        (hasSubItems ? (
-          <IconButton
-            ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
-              props.row.id
-            }`}
-            size="small"
-            onClick={click}
-          >
-            <ExpandMoreIcon
-              className={cx(
-                classes.caret,
-                isSubItemsExpanded ? classes.caretMore : classes.caretLess
-              )}
-              fontSize="small"
-            />
-          </IconButton>
-        ) : (
-          <div className={classes.fakeCaret} />
-        ))}
+      {displaySubItemsCaret && hasSubItems && (
+        <IconButton
+          ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
+            props.row.id
+          }`}
+          size="small"
+          onClick={click}
+        >
+          <ExpandMoreIcon
+            className={cx(
+              classes.caret,
+              isSubItemsExpanded ? classes.caretMore : classes.caretLess
+            )}
+            fontSize="small"
+          />
+        </IconButton>
+      )}
       {children}
     </TableCell>
   );

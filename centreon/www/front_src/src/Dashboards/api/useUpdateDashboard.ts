@@ -3,8 +3,8 @@ import { pick } from 'ramda';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
-import { Dashboard, resource } from './models';
 import { getDashboardEndpoint } from './endpoints';
+import { Dashboard, resource } from './models';
 
 type UseUpdateDashboard = {
   mutate: (variables: Dashboard) => Promise<Dashboard | ResponseError>;
@@ -39,7 +39,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
       _meta: {
         id: variables.id
       },
-      ...pick(['name', 'description', 'refresh'], variables)
+      payload: pick(['name', 'description', 'refresh'], variables)
     });
 
   return {

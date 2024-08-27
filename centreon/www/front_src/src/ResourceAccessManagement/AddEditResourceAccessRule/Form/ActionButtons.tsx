@@ -1,15 +1,19 @@
 import { ReactElement } from 'react';
 
-import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
+import { useAtom, useSetAtom } from 'jotai';
 import { or } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Button, CircularProgress } from '@mui/material';
 
-import { labelExit, labelSave } from '../../translatedLabels';
-import { modalStateAtom } from '../../atom';
+import {
+  isCloseModalConfirmationDialogOpenAtom,
+  isDirtyAtom,
+  modalStateAtom
+} from '../../atom';
 import { ModalMode } from '../../models';
+import { labelExit, labelSave } from '../../translatedLabels';
 
 import { useActionButtonsStyles } from './Form.styles';
 
@@ -19,13 +23,28 @@ const ActionButtons = (): ReactElement => {
   const exitDataTestId = 'exitForm';
   const submitDataTestId = 'submitForm';
 
+  const [isDirty, setIsDirty] = useAtom(isDirtyAtom);
   const setModalState = useSetAtom(modalStateAtom);
+  const setIsDialogOpen = useSetAtom(isCloseModalConfirmationDialogOpenAtom);
 
   const { isSubmitting, isValid, dirty, submitForm } =
     useFormikContext<FormikValues>();
 
+  setIsDirty(dirty);
+
   const close = (): void =>
     setModalState({ isOpen: false, mode: ModalMode.Create });
+
+  const askBeforeClose = (): void => {
+    if (isDirty) {
+      setIsDialogOpen(true);
+
+      return;
+    }
+
+    setIsDirty(false);
+    close();
+  };
 
   return (
     <div className={classes.buttonContainer}>
@@ -33,7 +52,7 @@ const ActionButtons = (): ReactElement => {
         aria-label={labelExit}
         data-testid={exitDataTestId as string}
         variant="text"
-        onClick={close}
+        onClick={askBeforeClose}
       >
         {t(labelExit)}
       </Button>

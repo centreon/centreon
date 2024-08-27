@@ -1,27 +1,27 @@
-import { useTranslation } from 'react-i18next';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import {
+  Alert,
   Checkbox,
   FormControlLabel,
   FormHelperText,
-  Grid,
-  Alert
+  Grid
 } from '@mui/material';
 
 import { Dialog, TextField } from '@centreon/ui';
 
+import { Resource } from '../../../models';
 import {
-  labelCancel,
   labelAcknowledge,
+  labelAcknowledgeServices,
+  labelCancel,
   labelComment,
   labelNotify,
   labelNotifyHelpCaption,
-  labelAcknowledgeServices,
   labelSticky
 } from '../../../translatedLabels';
-import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
 
 import { AcknowledgeFormValues } from '.';
@@ -88,6 +88,7 @@ const DialogAcknowledge = ({
           <TextField
             fullWidth
             multiline
+            dataTestId={labelComment}
             error={errors?.comment}
             label={t(labelComment)}
             rows={3}

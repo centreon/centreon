@@ -1,5 +1,6 @@
 /* eslint-disable typescript-sort-keys/interface */
 
+import { omit } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
@@ -14,6 +15,7 @@ import {
   DashboardsContact,
   DashboardsContactGroup,
   NamedEntity,
+  PublicDashboard,
   Shares,
   UserRole
 } from './models';
@@ -75,7 +77,9 @@ const userRoleDecoder = JsonDecoder.object<UserRole>(
 export const dashboardEntityDecoder = {
   ...namedEntityDecoder,
   createdAt: JsonDecoder.string,
-  createdBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By'),
+  createdBy: JsonDecoder.nullable(
+    JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By')
+  ),
   description: JsonDecoder.nullable(JsonDecoder.string),
   ownRole: JsonDecoder.enumeration<DashboardRole>(
     DashboardRole,
@@ -95,7 +99,9 @@ export const dashboardEntityDecoder = {
     }
   ),
   updatedAt: JsonDecoder.string,
-  updatedBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
+  updatedBy: JsonDecoder.nullable(
+    JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
+  )
 };
 
 export const dashboardDecoder = JsonDecoder.object<Dashboard>(
@@ -117,6 +123,32 @@ export const dashboardDecoder = JsonDecoder.object<Dashboard>(
     createdAt: 'created_at',
     createdBy: 'created_by',
     ownRole: 'own_role',
+    updatedAt: 'updated_at',
+    updatedBy: 'updated_by'
+  }
+);
+
+export const publicDashboardDecoder = JsonDecoder.object<PublicDashboard>(
+  {
+    ...omit(
+      ['ownRole', 'shares', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'],
+      dashboardEntityDecoder
+    ),
+    refresh: JsonDecoder.object<Dashboard['refresh']>(
+      {
+        interval: JsonDecoder.nullable(JsonDecoder.number),
+        type: JsonDecoder.enumeration<'global' | 'manual'>(
+          ['global', 'manual'],
+          'Refresh interval type'
+        )
+      },
+      'Global refresh interval'
+    )
+  },
+  'Dashboard',
+  {
+    createdAt: 'created_at',
+    createdBy: 'created_by',
     updatedAt: 'updated_at',
     updatedBy: 'updated_by'
   }
@@ -222,4 +254,9 @@ export const dashboardAccessRightsContactGroupListDecoder = buildListingDecoder(
     entityDecoderName: 'Dashboard AccessRights ContactGroup',
     listingDecoderName: 'Dashboard AccessRights ContactGroup List'
   }
+);
+
+export const playlistsByDashboardDecoder = JsonDecoder.array<NamedEntity>(
+  JsonDecoder.object(namedEntityDecoder, 'playlist'),
+  'playlists by dashboard'
 );

@@ -22,3 +22,5 @@ export const findServiceGroupsEndpoint = `${baseEndpoint}/configuration/services
 export const findServiceCategoriesEndpoint = `${baseEndpoint}/configuration/services/categories`;
 export const findServicesEndpoint = `${baseEndpoint}/configuration/services`;
 export const findMetaServicesEndpoint = `${baseEndpoint}/configuration/metaservices`;
+
+export const findBusinessViewsEndpoint = `${baseEndpoint}/bam/configuration/business-views`;

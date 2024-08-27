@@ -21,20 +21,21 @@
 
 namespace Tests\Centreon\Application\Controller\Monitoring;
 
+use Centreon\Application\Controller\Monitoring\CommentController;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Monitoring\Comment\CommentService;
+use Centreon\Domain\Monitoring\MonitoringService;
+use Centreon\Domain\Monitoring\Resource;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use FOS\RestBundle\View\View;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Centreon\Domain\Contact\Contact;
 use Psr\Container\ContainerInterface;
-use Centreon\Domain\Monitoring\Resource;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Centreon\Domain\Monitoring\MonitoringService;
-use Centreon\Domain\Monitoring\Comment\CommentService;
-use Centreon\Application\Controller\Monitoring\CommentController;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class CommentControllerTest extends TestCase
 {
@@ -51,6 +52,7 @@ class CommentControllerTest extends TestCase
     private MonitoringService $monitoringService;
     private ContainerInterface $container;
     private Request&MockObject $request;
+    private ReadAccessGroupRepositoryInterface $readAccessGroupRepository;
 
     protected function setUp(): void
     {
@@ -113,6 +115,10 @@ class CommentControllerTest extends TestCase
 
         $this->commentService = $this->createMock(CommentService::class);
         $this->monitoringService = $this->createMock(MonitoringService::class);
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+
+        $this->readAccessGroupRepository->method('findByContact')->willReturn([]);
+        $this->readAccessGroupRepository->method('hasAccessToResources')->willReturn(true);
 
         $authorizationChecker = $this->createMock(AuthorizationCheckerInterface::class);
         $authorizationChecker->expects($this->once())
@@ -157,7 +163,11 @@ class CommentControllerTest extends TestCase
      */
     public function testaddResourcesCommentBadJsonFormat()
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->once())
@@ -173,7 +183,11 @@ class CommentControllerTest extends TestCase
      */
     public function testCommentResourcesBadJsonProperties()
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -192,7 +206,11 @@ class CommentControllerTest extends TestCase
             ->method('filterByContact')
             ->willReturn($this->commentService);
 
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -208,7 +226,11 @@ class CommentControllerTest extends TestCase
      */
     public function testAddHostCommentBadJsonFormat()
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->once())
@@ -223,7 +245,11 @@ class CommentControllerTest extends TestCase
      */
     public function testAddHostCommentBadJsonProperties()
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -241,7 +267,11 @@ class CommentControllerTest extends TestCase
             ->method('filterByContact')
             ->willReturn($this->commentService);
 
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -258,7 +288,11 @@ class CommentControllerTest extends TestCase
      */
     public function testAddServiceCommentBadJsonFormat()
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->once())
@@ -277,7 +311,11 @@ class CommentControllerTest extends TestCase
      */
     public function testAddServiceCommentBadJsonProperties()
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -299,7 +337,11 @@ class CommentControllerTest extends TestCase
         ->method('filterByContact')
         ->willReturn($this->commentService);
 
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())

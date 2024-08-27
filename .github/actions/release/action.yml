@@ -1,60 +1,260 @@
-name: "tag version"
-description: "Tag package"
+name: "release action"
+description: "Create git release tags, github releases, jira version and push release communication."
 inputs:
-  module_name:
-    description: "The package module name"
+  github_ref_name:
+    description: "Github ref name"
     required: true
-  jira_token:
+  jira_api_token:
     description: "Token to authenticate to Jira"
+    required: true
+  jira_user_email:
+    description: "Email linked to token"
     required: true
   jira_project_id:
     description: "Jira project id to create release"
     required: true
+  jira_webhook_url:
+    description: "Jira release webhook"
+    required: true
+  jira_base_url:
+    description: "Jira base url"
+    required: true
+
 runs:
   using: "composite"
   steps:
-    - name: Publish RPMS to Repositories
+    - name: Checkout sources
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        fetch-depth: 0
+
+    - name: Get released versions for components
       run: |
-        NEW_VERSION=""
-        MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
-        echo "Major version: $MAJOR_VERSION"
-        HOTFIX=$(echo $GITHUB_REF_NAME | grep -oP '(hotfix|)')
-        echo "Hotfix: $HOTFIX"
-        RELEASE_ID=$(git log -1 --pretty=%B | grep -oP '(#[0-9]{4,}#)' | grep -oP '([0-9]+)')
-        echo "Release Id: $RELEASE_ID"
+        set -eux
 
-        OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION.*" | head -n 1)
-        echo "Old version: $OLDV"
+        # Variables
+        COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-ha" "centreon-open-tickets" "centreon-web")
+        CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
+        declare -a TMP_STABLE_TAGS=()
+        declare -a NEW_STABLE_TAGS=()
+        declare -a PREVIOUS_STABLE_TAGS=()
+        SCOPE_VERSION="OSS"
+        MINOR_VERSION_FILE_PATH=".version"
+        RELEASE_CLOUD=0 # (0 = not a release cloud, 1 = release cloud)
+        MAJOR_VERSION=""
+        MINOR_VERSION=""
+        CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
+        COMPONENT_DIR=""
 
+        # Get current stable branch name
+        # If MASTER, use root .version
+        # Else use branch name
+        if [[ "${{ inputs.github_ref_name }}" == "master" ]]; then
+          CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
+          RELEASE_CLOUD=1
+        else
+          CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} | cut -d '.' -f1,2)
+          RELEASE_CLOUD=0
+        fi
+        echo "Current stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
+
+        # Get previous and new version tags for components
+        for component in ${COMPONENTS_OSS[@]}; do
+          if [[ $component == "centreon-web" ]]; then
+            COMPONENT_DIR="centreon"
+          else
+            COMPONENT_DIR=$component
+          fi
+          MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
+          MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
+          # Previous stable tags array
+          if [[ $RELEASE_CLOUD -eq 1 ]]; then
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*-*" | head -n 1))
+          else
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
+          fi
+          # New stable tags array
+          TMP_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
+        done
+
+        echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
+        echo "Temporary new releases are: ${TMP_STABLE_TAGS[*]}"
+
+        # Building final NEW_STABLE_TAGS with the new version tags only
+        # Iterate over elements of TMP_STABLE_TAGS
+        for new_tag in "${TMP_STABLE_TAGS[@]}"; do
+          found=false
+          # Iterate over elements of PREVIOUS_STABLE_TAGS
+          for old_tag in "${PREVIOUS_STABLE_TAGS[@]}"; do
+            # Compare elements
+            if [ "$new_tag" == "$old_tag" ]; then
+              found=true
+              break
+            fi
+          done
+          # If element not found in PREVIOUS_STABLE_TAGS, add it to NEW_STABLE_TAGS
+          if ! $found; then
+            NEW_STABLE_TAGS+=("$new_tag")
+          fi
+        done
+
+        echo "New tags to be published from new release that were not in previous releases:"
+        printf '%s\n' "${NEW_STABLE_TAGS[@]}"
+
+        # Make NEW_STABLE_TAGS available for other steps
+        echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
+        echo "CURRENT_STABLE_BRANCH_MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV"
+        echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
+      shell: bash
+
+    - name: Add new release tags to stable branch
+      run: |
+        set -eux
+
+        # Add new stable tags to stable branch
+        echo "Configuring git."
         git config --global user.email "release@centreon.com"
         git config --global user.name "Centreon"
 
-        if [ -z "$OLDV" ]; then
-          echo "No existing version, starting at $MAJOR_VERSION.0"
-          NEW_VERSION="$MAJOR_VERSION.0"
-          git tag -a "centreon-${{ inputs.module_name }}-$NEW_VERSION" -m "version $NEW_VERSION"
-          git push --follow-tags
+        # Create release tags on git for each release components
+        # Abort if no tags or existing tag
+        echo "Creating release tags."
+        for TAG in ${NEW_STABLE_TAGS[@]}; do
+          if [ -z $(git tag --list "$TAG" | head -n 1) ] && [ -n $TAG ]; then
+            git tag -a "$TAG" -m "$TAG"
+            git push --follow-tags
+            echo "::notice::Tagging stable branch with $TAG."
+          else
+            echo "::error::Release tag $TAG already exists, exiting."
+            exit 1
+          fi
+        done
+      shell: bash
+
+    - name: Create GITHUB releases from new release tags
+      run: |
+        set -eux
+
+        # Install gh cli
+        echo "Installing GH CLI."
+        if ! command -v gh &> /dev/null; then
+          echo "Installing GH CLI."
+          type -p curl >/dev/null || (sudo apt-get update && sudo apt-get install curl -y)
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install gh -y
         else
-          OLD_MINOR_VERSION=$(echo $OLDV | grep -oP '([0-9]+$)')
-          NEW_MINOR_VERSION=$(echo $((OLD_MINOR_VERSION + 1)))
-          NEW_VERSION=$MAJOR_VERSION.$NEW_MINOR_VERSION
-          git tag -a "centreon-${{ inputs.module_name }}-$NEW_VERSION" -m "version $NEW_VERSION"
-          git push --follow-tags
+          echo "GH CLI is already installed."
         fi
 
-        if [ "$HOTFIX" == "hotfix" ]; then
-          TYPE=Hotfix
-        else
-          TYPE=Release
-        fi
+        # Create GITHUB release for each release components
+        # Abort if no tags
+        echo "Creating GITHUB releases."
+        for TAG in ${NEW_STABLE_TAGS[@]}; do
+          if [ -n $TAG ]; then
+            echo "Creating GITHUB release with title $TAG for tag $TAG."
+            gh release create $TAG --target "${{ inputs.github_ref_name }}" --title "$TAG" --verify-tag
+          else
+            echo "::error::Release tag $TAG was empty, exiting."
+            exit 1
+          fi
+        done
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
 
-        VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
+    - name: Create stable JIRA versions from new release tags
+      run: |
+        set -eux
 
-        curl --fail --request POST \
-          --url 'https://centreon.atlassian.net/rest/api/3/version' \
-          --header 'Authorization: Basic ${{ inputs.jira_token }}' \
-          --header 'Accept: application/json' \
-          --header 'Content-Type: application/json' \
-          --data ''$VERSION_DATA''
+        # Call JIRA to provide new jira versions to create
+        # Webhook url
+        JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
+
+        # Rebuild NEW_STABLE_TAGS as an array
+        for i in ${NEW_STABLE_TAGS[@]}; do
+          NEW_RELEASE_TAGS+=("$i")
+        done
+
+        # Create new JIRA versions (old way of doing it)
+        # TODO: add a future capacity to determine whether the release is hotfix or standard (using TYPE)
+        # OR: rely on jira automation to do it (less hassle on github side, and jira knows jira best)
+
+        # Build JSON vars for JIRA_RELEASE_DATA
+        JIRA_RELEASE_ARCHIVED="false"
+        JIRA_RELEASE_DESCRIPTION=""
+        JIRA_RELEASE_DATE="$(date +%Y-%m-%d)"
+        JIRA_RELEASE_NAME=""
+        JIRA_PROJECT_ID="${{ inputs.jira_project_id }}"
+        JIRA_RELEASE_RELEASED="false"
+        JIRA_RELEASE_ID="$(git log |grep -E "Centreon\ next.*\#[0-9]{5,}\#\)" |grep -o -P "(?<=#)[0-9]{5,}(?=#)" |head -n 1)"
+
+        # Create JIRA version for each released component
+        echo "Creating JIRA releases."
+        for TAG in ${NEW_RELEASE_TAGS[@]}; do
+          if [ -n $TAG ]; then
+            echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
+            # Build JSON with release information for JIRA API
+            JIRA_RELEASE_DATA=$(jq -nc \
+              --arg archived "$JIRA_RELEASE_ARCHIVED" \
+              --arg description "$JIRA_RELEASE_ID $TAG" \
+              --arg releaseDate "$JIRA_RELEASE_DATE" \
+              --arg name "$TAG" \
+              --arg projectId "$JIRA_PROJECT_ID" \
+              --arg released "$JIRA_RELEASE_RELEASED" \
+              '$ARGS.named' )
+            # Send to JIRA API release
+            echo "Sending to JIRA API release: $JIRA_RELEASE_DATA"
+            curl --fail --request POST \
+              --url "${{ inputs.jira_base_url }}/rest/api/3/version" \
+              --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
+              --header 'Accept: application/json' \
+              --header 'Content-Type: application/json' \
+              --data "$JIRA_RELEASE_DATA"
+          else
+            echo "::error::Release tag $TAG was empty, exiting."
+            exit 1
+          fi
+        done
+      shell: bash
+
+    - name: Trigger release communication for new releases
+      run: |
+        set -eux
+
+        MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION
+
+        # Webhook url
+        JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
+
+        # Rebuild NEW_STABLE_TAGS as an array (required to build a proper json)
+        for i in ${NEW_STABLE_TAGS[@]}; do
+          if [ -n "$i" ]; then
+            NEW_RELEASE_TAGS+=("$i")
+          else
+            echo "::error::Release tag $i was empty, exiting."
+            exit 1
+          fi
+        done
+
+        # Build JSON structure with released versions
+        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_RELEASE_TAGS[@]}")
+        JSON_VERSION_INFO=$(jq -n --arg majorVersion "$MAJOR_VERSION" --arg scopeVersion "$SCOPE_VERSION" '$ARGS.named' )
+        RELEASE_JSON=$(echo "$JSON_VERSION_INFO" | jq -c --argjson json_tags "$JSON_TAGS" '. += $json_tags')
+
+        # DEBUG
+        echo "JSON_TAGS: \r\n$JSON_TAGS"
+        echo "JSON_VERSION_INFO: $JSON_VERSION_INFO"
+        echo "Sending to JIRA automation: \r\n$RELEASE_JSON"
+
+        # Call jira webhook to trigger the communication workflow
+        # and provide versions data for communication
+        curl \
+          "$JIRA_INCOMING_WEBHOOK" \
+          -X POST \
+          -H 'Content-type: application/json' \
+          --data "$RELEASE_JSON"
 
       shell: bash

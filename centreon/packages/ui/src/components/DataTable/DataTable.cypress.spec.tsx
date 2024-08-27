@@ -1,5 +1,7 @@
+import Delete from '@mui/icons-material/Delete';
 import { Box } from '@mui/material';
 
+import { IconButton } from '../..';
 import { ColumnType } from '../../Listing/models';
 
 import { DataTable } from '.';
@@ -12,29 +14,27 @@ const data = Array(5)
     title: `Entity ${idx}`
   }));
 
-const initializeDataTableGrid = ({
-  hasActions,
-  hasCardAction,
-  canDelete
-}): void => {
+const CardActions = (): JSX.Element => {
+  return (
+    <IconButton ariaLabel="Delete" title="Delete" onClick={cy.stub()}>
+      <Delete fontSize="small" />
+    </IconButton>
+  );
+};
+
+const initializeDataTableGrid = ({ hasActions, hasCardAction }): void => {
   cy.viewport(1200, 590);
   cy.mount({
     Component: (
       <DataTable variant="grid">
         {data.map(({ title, description }) => (
           <DataTable.Item
+            Actions={<CardActions />}
             description={description}
             hasActions={hasActions}
             hasCardAction={hasCardAction}
             key={title}
-            labelsDelete={{
-              cancel: 'Cancel',
-              confirm: {
-                label: 'Delete'
-              }
-            }}
             title={title}
-            onDelete={canDelete ? cy.stub() : undefined}
           />
         ))}
       </DataTable>
@@ -94,7 +94,6 @@ const initializeDataTableListing = (): void => {
 describe('DataTable: Grid', () => {
   it('displays items with title and description only', () => {
     initializeDataTableGrid({
-      canDelete: false,
       hasActions: false,
       hasCardAction: false
     });
@@ -109,32 +108,17 @@ describe('DataTable: Grid', () => {
 
   it('displays items with actions', () => {
     initializeDataTableGrid({
-      canDelete: false,
       hasActions: true,
       hasCardAction: false
     });
 
-    cy.findAllByLabelText('edit access rights').should('have.length', 5);
-    cy.findAllByLabelText('edit').should('have.length', 5);
-
-    cy.makeSnapshot();
-  });
-
-  it('displays items with delete action', () => {
-    initializeDataTableGrid({
-      canDelete: true,
-      hasActions: true,
-      hasCardAction: false
-    });
-
-    cy.findAllByLabelText('delete').should('have.length', 5);
+    cy.findAllByLabelText('Delete').should('have.length', 5);
 
     cy.makeSnapshot();
   });
 
   it('displays items with card action only', () => {
     initializeDataTableGrid({
-      canDelete: false,
       hasActions: false,
       hasCardAction: true
     });
@@ -146,15 +130,12 @@ describe('DataTable: Grid', () => {
 
   it('displays items with card action and bottom actions', () => {
     initializeDataTableGrid({
-      canDelete: true,
       hasActions: true,
       hasCardAction: true
     });
 
     cy.findAllByLabelText('view').should('have.length', 5);
-    cy.findAllByLabelText('delete').should('have.length', 5);
-    cy.findAllByLabelText('edit access rights').should('have.length', 5);
-    cy.findAllByLabelText('edit').should('have.length', 5);
+    cy.findAllByLabelText('Delete').should('have.length', 5);
 
     cy.makeSnapshot();
   });

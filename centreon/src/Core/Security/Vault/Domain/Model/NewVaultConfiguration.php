@@ -39,6 +39,7 @@ class NewVaultConfiguration
     public const MAX_PORT_VALUE = 65535;
     public const SALT_LENGTH = 128;
     public const NAME_VALIDATION_REGEX = '/^[\w+\-\/]+$/';
+    public const DEFAULT_NAME = 'hashicorp_vault';
 
     protected string $encryptedSecretId;
 
@@ -48,26 +49,24 @@ class NewVaultConfiguration
 
     /**
      * @param EncryptionInterface $encryption
-     * @param string $name
-     * @param Vault $vault
      * @param string $address
      * @param int $port
      * @param string $rootPath
-     * @param string $unencryptedRoleId
-     * @param string $unencryptedSecretId
+     * @param string $roleId
+     * @param string $secretId
+     * @param string $name
      *
      * @throws AssertionFailedException
      * @throws \Exception
      */
     public function __construct(
         protected EncryptionInterface $encryption,
-        protected string $name,
-        protected Vault $vault,
         protected string $address,
         protected int $port,
         protected string $rootPath,
-        string $unencryptedRoleId,
-        string $unencryptedSecretId
+        private string $roleId,
+        private string $secretId,
+        protected string $name = self::DEFAULT_NAME
     ) {
         Assertion::minLength($name, self::MIN_LENGTH, 'NewVaultConfiguration::name');
         Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::name');
@@ -79,13 +78,13 @@ class NewVaultConfiguration
         Assertion::minLength($rootPath, self::MIN_LENGTH, 'NewVaultConfiguration::rootPath');
         Assertion::maxLength($rootPath, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::rootPath');
         Assertion::regex($rootPath, self::NAME_VALIDATION_REGEX, 'VaultConfiguration::name');
-        Assertion::minLength($unencryptedRoleId, self::MIN_LENGTH, 'NewVaultConfiguration::roleId');
-        Assertion::maxLength($unencryptedRoleId, self::MAX_LENGTH, 'NewVaultConfiguration::roleId');
-        Assertion::minLength($unencryptedSecretId, self::MIN_LENGTH, 'NewVaultConfiguration::secretId');
-        Assertion::maxLength($unencryptedSecretId, self::MAX_LENGTH, 'NewVaultConfiguration::secretId');
+        Assertion::minLength($this->roleId, self::MIN_LENGTH, 'NewVaultConfiguration::roleId');
+        Assertion::maxLength($this->roleId, self::MAX_LENGTH, 'NewVaultConfiguration::roleId');
+        Assertion::minLength($this->secretId, self::MIN_LENGTH, 'NewVaultConfiguration::secretId');
+        Assertion::maxLength($this->secretId, self::MAX_LENGTH, 'NewVaultConfiguration::secretId');
         $this->salt = $this->encryption->generateRandomString(self::SALT_LENGTH);
-        $this->encryptedSecretId = $this->encrypt($unencryptedSecretId, $this->salt);
-        $this->encryptedRoleId = $this->encrypt($unencryptedRoleId, $this->salt);
+        $this->encryptedSecretId = $this->encrypt($this->secretId, $this->salt);
+        $this->encryptedRoleId = $this->encrypt($this->roleId, $this->salt);
     }
 
     /**
@@ -94,14 +93,6 @@ class NewVaultConfiguration
     public function getName(): string
     {
         return $this->name;
-    }
-
-    /**
-     * @return Vault
-     */
-    public function getVault(): Vault
-    {
-        return $this->vault;
     }
 
     /**
@@ -126,6 +117,26 @@ class NewVaultConfiguration
     public function getRootPath(): string
     {
         return $this->rootPath;
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
+    public function getRoleId(): string
+    {
+        return $this->roleId;
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
+    public function getSecretId(): string
+    {
+        return $this->secretId;
     }
 
     /**

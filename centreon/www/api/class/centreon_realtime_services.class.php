@@ -431,6 +431,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         }
         $tabOrder = array();
         $tabOrder["criticality_id"] = " ORDER BY criticality $q, h.name, s.description ";
+        $tabOrder["service_id"] = " ORDER BY s.service_id $q ";
         $tabOrder["host_name"] = " ORDER BY h.name $q, s.description ";
         $tabOrder["service_description"] = " ORDER BY s.description $q, h.name";
         $tabOrder["current_state"] = " ORDER BY s.state $q, h.name, s.description";

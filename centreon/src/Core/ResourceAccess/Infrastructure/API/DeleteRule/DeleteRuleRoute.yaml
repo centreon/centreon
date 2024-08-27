@@ -1,0 +1,7 @@
+DeleteRule:
+  methods: DELETE
+  path: /administration/resource-access/rules/{ruleId}
+  controller: 'Core\ResourceAccess\Infrastructure\API\DeleteRule\DeleteRuleController'
+  condition: "request.attributes.get('version') >= 24.04 and request.attributes.get('feature.resource_access_management')"
+  requirements:
+    ruleId: '\d+'

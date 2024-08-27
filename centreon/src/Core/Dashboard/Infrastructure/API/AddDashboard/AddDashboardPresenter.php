@@ -28,8 +28,9 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
-use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -63,12 +64,14 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
                     [
                         'id' => $data->id,
                         'name' => $data->name,
-                        'description' => $this->emptyStringAsNull($data->description),
-                        'created_by' => $this->userToOptionalArray($data->createdBy),
-                        'updated_by' => $this->userToOptionalArray($data->updatedBy),
+                        'description' => $data->description,
+                        'created_by' => $data->createdBy,
+                        'updated_by' => $data->updatedBy,
                         'created_at' => $this->formatDateToIso8601($data->createdAt),
                         'updated_at' => $this->formatDateToIso8601($data->updatedAt),
                         'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
+                        'panels' => $data->panels,
+                        'refresh' => $this->formatRefresh($data->refresh),
                     ]
                 )
             );
@@ -91,15 +94,14 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
     }
 
     /**
-     * @param ?UserResponseDto $dto
+     * @param array{type: RefreshType, interval: null|int} $refresh
      *
-     * @return null|array{id: int, name: string}
+     * @return array{type: string, interval: null|int}
      */
-    private function userToOptionalArray(?UserResponseDto $dto): ?array
-    {
-        return $dto ? [
-            'id' => $dto->id,
-            'name' => $dto->name,
-        ] : null;
+    private function formatRefresh(array $refresh): array {
+        return [
+            'type' => RefreshTypeConverter::toString($refresh['type']),
+            'interval' => $refresh['interval'],
+        ];
     }
 }

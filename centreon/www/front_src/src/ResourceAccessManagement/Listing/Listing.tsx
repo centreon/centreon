@@ -1,7 +1,7 @@
 import { MemoizedListing } from '@centreon/ui';
 
-import useListing from './useListing';
 import { HeaderActions } from './Header';
+import useListing from './useListing';
 
 const ResourceAccessRulesListing = (): JSX.Element => {
   const {
@@ -10,6 +10,7 @@ const ResourceAccessRulesListing = (): JSX.Element => {
     columns,
     data,
     loading,
+    onRowClick,
     page,
     predefinedRowsSelection,
     resetColumns,
@@ -51,6 +52,7 @@ const ResourceAccessRulesListing = (): JSX.Element => {
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
+      onRowClick={onRowClick}
       onSelectColumns={setSelectedColumnIds}
       onSelectRows={setSelectedRows}
       onSort={changeSort}

@@ -25,6 +25,7 @@ namespace Centreon\Application\Controller;
 
 use Centreon\Domain\Platform\Interfaces\PlatformServiceInterface;
 use Centreon\Domain\Platform\PlatformException;
+use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
 use Centreon\Domain\PlatformInformation\Model\PlatformInformationDtoValidator;
 use Centreon\Domain\PlatformInformation\UseCase\V20\UpdatePartiallyPlatformInformation;
 use Centreon\Domain\VersionHelper;
@@ -97,7 +98,16 @@ class PlatformController extends AbstractController
             throw new BadRequestHttpException(_('Error when decoding sent data'));
         }
 
-        $updatePartiallyPlatformInformation->execute($request);
+        try {
+            $updatePartiallyPlatformInformation->execute($request);
+        } catch (PlatformInformationException $ex) {
+            return match ($ex->getCode()) {
+                PlatformInformationException::CODE_FORBIDDEN => $this->view(null, Response::HTTP_FORBIDDEN),
+                default => $this->view(null, Response::HTTP_BAD_REQUEST),
+            };
+        } catch (\Throwable $th) {
+           $this->view(null, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
         return $this->view(null, Response::HTTP_NO_CONTENT);
     }

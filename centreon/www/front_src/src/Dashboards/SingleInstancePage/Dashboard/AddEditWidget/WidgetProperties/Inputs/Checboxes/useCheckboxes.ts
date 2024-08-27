@@ -1,27 +1,12 @@
-import { ChangeEvent, useEffect, useMemo, useRef } from 'react';
+import { ChangeEvent, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import {
-  difference,
-  equals,
-  has,
-  includes,
-  isEmpty,
-  isNil,
-  pluck,
-  reject
-} from 'ramda';
+import { difference, equals, includes, isEmpty, pluck, reject } from 'ramda';
 
-import { SelectEntry, useDeepCompare } from '@centreon/ui';
+import { SelectEntry } from '@centreon/ui';
 
-import { ConditionalOptions, Widget } from '../../../models';
+import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
-
-interface UseCheckboxesProps {
-  defaultValue: unknown | ConditionalOptions<Array<SelectEntry>>;
-  options: Array<SelectEntry> | ConditionalOptions<Array<SelectEntry>>;
-  propertyName: string;
-}
 
 interface UseCheckboxesState {
   areAllOptionsSelected: boolean;
@@ -35,39 +20,24 @@ interface UseCheckboxesState {
 export const useCheckboxes = ({
   propertyName,
   options,
-  defaultValue
-}: UseCheckboxesProps): UseCheckboxesState => {
-  const previousDependencyValue = useRef<undefined | unknown>(undefined);
-
+  keepOneOptionSelected
+}: Pick<
+  WidgetPropertyProps,
+  'propertyName' | 'defaultValue' | 'options' | 'keepOneOptionSelected'
+>): UseCheckboxesState => {
   const { values, setFieldValue } = useFormikContext<Widget>();
 
-  const value = useMemo<Array<string> | undefined>(
+  const value = useMemo<Array<string | number> | undefined>(
     () => getProperty({ obj: values, propertyName }),
     [getProperty({ obj: values, propertyName })]
   );
 
-  const dependencyValue = has('when', options)
-    ? values.options[options.when]
-    : undefined;
-
-  const getOptions = (): Array<SelectEntry> => {
-    if (has('when', options)) {
-      return equals(dependencyValue, options.is)
-        ? options.then
-        : options.otherwise;
-    }
-
-    return options;
-  };
-
-  const optionsToDisplay = getOptions();
-
   const areAllOptionsSelected = isEmpty(
-    difference(pluck('id', optionsToDisplay), value || [])
+    difference(pluck('id', options || []), value || [])
   );
 
   const selectAll = (): void => {
-    setFieldValue(`options.${propertyName}`, pluck('id', optionsToDisplay));
+    setFieldValue(`options.${propertyName}`, pluck('id', options || []));
   };
   const unselectAll = (): void => {
     setFieldValue(`options.${propertyName}`, []);
@@ -81,45 +51,22 @@ export const useCheckboxes = ({
       return;
     }
 
-    setFieldValue(
-      `options.${propertyName}`,
-      reject(equals(valueId), value || [])
-    );
+    const filteredOptions = reject(equals(valueId), value || []);
+
+    if (keepOneOptionSelected && isEmpty(filteredOptions)) {
+      return;
+    }
+
+    setFieldValue(`options.${propertyName}`, filteredOptions);
   };
 
   const isChecked = (id: string): boolean => includes(id, value || []);
-
-  useEffect(
-    () => {
-      if (isNil(dependencyValue)) {
-        return;
-      }
-
-      const canApplyDefaultValue = !!previousDependencyValue.current;
-
-      if (!canApplyDefaultValue) {
-        previousDependencyValue.current = dependencyValue;
-
-        return;
-      }
-
-      const { is, then, otherwise } = defaultValue as ConditionalOptions<
-        Array<SelectEntry>
-      >;
-      const defaultValueToApply = equals(is, dependencyValue)
-        ? then
-        : otherwise;
-
-      setFieldValue(`options.${propertyName}`, defaultValueToApply);
-    },
-    useDeepCompare([dependencyValue])
-  );
 
   return {
     areAllOptionsSelected,
     change,
     isChecked,
-    optionsToDisplay,
+    optionsToDisplay: options || [],
     selectAll,
     unselectAll
   };

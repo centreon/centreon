@@ -20,9 +20,11 @@ export interface DashboardRolesAndPermissions {
 
 export interface User {
   alias: string;
+  canManageApiTokens: boolean;
   dashboard?: DashboardRolesAndPermissions | null;
   default_page?: string | null;
   id?: number;
+  isAdmin?: boolean;
   isExportButtonEnabled: boolean;
   locale: string;
   name: string;
@@ -89,10 +91,56 @@ export interface FeatureFlags {
   notification?: boolean;
   resourceStatusFilterRevamp?: boolean;
   resourceStatusTreeView?: boolean;
+  resouresTableOpenTickets: boolean;
   vault?: boolean;
 }
 
 export interface PlatformFeatures {
   featureFlags: FeatureFlags;
   isCloudPlatform: boolean;
+}
+
+export interface AdditionalResource {
+  baseEndpoint: string;
+  defaultMonitoringParameter?: Record<string, boolean | number | string>;
+  label: string;
+  resourceType: string;
+}
+
+interface FederatedComponentsConfiguration {
+  federatedComponents: Array<string>;
+  panelMinHeight?: number;
+  panelMinWidth?: number;
+  path: string;
+  title?: string;
+}
+
+interface PageComponent {
+  children?: string;
+  component: string;
+  featureFlag?: string;
+  route: string;
+}
+
+export interface FederatedModule {
+  federatedComponentsConfiguration: Array<FederatedComponentsConfiguration>;
+  federatedPages: Array<PageComponent>;
+  moduleFederationName: string;
+  moduleName: string;
+  preloadScript?: string;
+  remoteEntry: string;
+  remoteUrl?: string;
+}
+
+interface Version {
+  fix: string;
+  major: string;
+  minor: string;
+  version: string;
+}
+
+export interface PlatformVersions {
+  modules: Record<string, Version>;
+  web: Version;
+  widgets: Record<string, Version | null>;
 }

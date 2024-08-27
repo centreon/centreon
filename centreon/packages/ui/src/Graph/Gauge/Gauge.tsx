@@ -5,7 +5,7 @@ import { Metric } from '../common/timeSeries/models';
 
 import ResponsiveGauge from './ResponsiveGauge';
 
-interface Props {
+export interface Props {
   baseColor?: string;
   data?: LineChartData;
   displayAsRaw?: boolean;

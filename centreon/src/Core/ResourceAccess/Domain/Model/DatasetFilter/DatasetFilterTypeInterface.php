@@ -41,5 +41,10 @@ interface DatasetFilterTypeInterface
      * @return string[]|array{}
      */
     public function getPossibleChildren(): array;
+
+    /**
+     * @return bool
+     */
+    public function canResourceIdsBeEmpty(): bool;
 }
 

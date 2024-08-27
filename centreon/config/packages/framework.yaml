@@ -12,5 +12,13 @@ framework:
         enabled: true
         use_cookies: true
         handler_id: null
-        cookie_secure: 'auto'
-        storage_id: 'session.storage.native'
+        cookie_secure: auto
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.native
+
+    serializer:
+        enabled: true
+        name_converter: 'serializer.name_converter.camel_case_to_snake_case'
+        mapping:
+            paths:
+                - '%kernel.project_dir%/config/symfony_serializer'

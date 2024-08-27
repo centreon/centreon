@@ -73,10 +73,10 @@ if (is_null($open_files_limit)) {
     $open_files_limit = 0;
 }
 if ($open_files_limit < 32000) {
-    $return['msg'] = 'If your operating system is based on systemd (CentOS 7, Debian Jessie), add LimitNOFILE=32000 value on the ' .
-        'service file /etc/systemd/system/mariadb.service and reload systemd (systemctl daemon-reload).<br/>' .
-        'If your operating system is based on SystemV, ' .
-        'add open_files_limit=32000 in my.cnf file under the [mysqld] section and restart MySQL Server.';
+    $return['msg'] = 'Add LimitNOFILE=32000 value in the service file ' .
+        '/etc/systemd/system/<database_service_name>.service.d/centreon.conf ' .
+        '(replace <database_service_name> by mysql, mysqld or mariadb depending on the systemd service name) ' .
+        'and reload systemd : systemctl daemon-reload';
     echo json_encode($return);
     exit;
 }

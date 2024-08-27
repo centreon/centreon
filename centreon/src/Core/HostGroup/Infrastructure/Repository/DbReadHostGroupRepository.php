@@ -34,6 +34,7 @@ use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
+use Core\HostCategory\Infrastructure\Repository\HostCategoryRepositoryTrait;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupNamesById;
@@ -58,7 +59,7 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHostGroupRepositoryInterface
 {
-    use SqlMultipleBindTrait;
+    use SqlMultipleBindTrait, HostCategoryRepositoryTrait, HostGroupRepositoryTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -106,31 +107,186 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function findAll(?RequestParametersInterface $requestParameters = null): \Traversable&\Countable
     {
-        $concatenator = $this->getFindHostGroupConcatenator();
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                hg.hg_id,
+                hg.hg_name,
+                hg.hg_alias,
+                hg.hg_notes,
+                hg.hg_notes_url,
+                hg.hg_action_url,
+                hg.hg_icon_image,
+                hg.hg_map_icon_image,
+                hg.hg_rrd_retention,
+                hg.geo_coords,
+                hg.hg_comment,
+                hg.hg_activate
+            FROM `:db`.`hostgroup` hg
+            SQL;
 
-        return new \ArrayIterator($this->retrieveHostGroups($concatenator, $requestParameters));
+        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
+        $sqlTranslator?->setConcordanceArray([
+            'id' => 'hg.hg_id',
+            'alias' => 'hg.hg_alias',
+            'name' => 'hg.hg_name',
+            'is_activated' => 'hg.hg_activate',
+            'hostcategory.id' => 'hc.hc_id',
+            'hostcategory.name' => 'hc.hc_name',
+        ]);
+        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
+
+        // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
+        $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
+
+        // Only JOIN if search request has been provided...
+        if ($searchRequest !== null) {
+            $request .= <<<'SQL'
+                    LEFT JOIN `:db`.hostgroup_relation hgr
+                        ON hgr.hostgroup_hg_id = hg.hg_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON hcr.host_host_id = hgr.host_host_id
+                    LEFT JOIN `:db`.hostcategories hc
+                        ON hc.hc_id = hcr.hostcategories_hc_id
+                        AND hc.level IS NULL
+                SQL;
+        }
+
+        $request .= $searchRequest;
+
+        // handle sort
+        $sortRequest = $sqlTranslator?->translateSortParameterToSql();
+
+        $request .= $sortRequest !== null
+            ? $sortRequest
+            : ' ORDER BY hg.hg_name ASC';
+
+        // handle pagination
+        $request .= $sqlTranslator?->translatePaginationToSql();
+
+        // Prepare SQL + bind values
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $sqlTranslator?->bindSearchValues($statement);
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Calculate the number of rows for the pagination.
+        $sqlTranslator?->calculateNumberOfRows($this->db);
+
+        $hostGroups = [];
+
+        foreach ($statement as $record) {
+            /** @var HostGroupResultSet $record */
+            $hostGroups[] = $this->createHostGroupFromArray($record);
+        }
+
+        return new \ArrayIterator($hostGroups);
     }
 
     /**
      * @inheritDoc
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups):
-    \Traversable&\Countable
+    public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): \Traversable&\Countable
     {
-        if ([] === $accessGroups) {
+        if ([] === $accessGroupIds) {
             return new \ArrayIterator([]);
         }
 
-        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 
-        if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                hg.hg_id,
+                hg.hg_name,
+                hg.hg_alias,
+                hg.hg_notes,
+                hg.hg_notes_url,
+                hg.hg_action_url,
+                hg.hg_icon_image,
+                hg.hg_map_icon_image,
+                hg.hg_rrd_retention,
+                hg.geo_coords,
+                hg.hg_comment,
+                hg.hg_activate
+            FROM `:db`.`hostgroup` hg
+            INNER JOIN `:db`.acl_resources_hg_relations arhr
+                ON hg.hg_id = arhr.hg_hg_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id
+            SQL;
 
-            return $this->findAll($requestParameters);
+        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
+        $sqlTranslator?->setConcordanceArray([
+            'id' => 'hg.hg_id',
+            'alias' => 'hg.hg_alias',
+            'name' => 'hg.hg_name',
+            'is_activated' => 'hg.hg_activate',
+            'hostcategory.id' => 'hc.hc_id',
+            'hostcategory.name' => 'hc.hc_name',
+        ]);
+        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
+
+        // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
+        $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
+
+        // Only JOIN if search request has been provided...
+        if ($searchRequest !== null) {
+            $hostCategoryAcls = $this->generateHostCategoryAclSubRequest($accessGroupIds);
+            $request .= <<<SQL
+
+                LEFT JOIN `:db`.hostgroup_relation hgr
+                    ON hgr.hostgroup_hg_id = hg.hg_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = hgr.host_host_id
+                    AND hcr.hostcategories_hc_id IN ({$hostCategoryAcls})
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NULL
+                SQL;
         }
 
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $request .= $searchRequest ? $searchRequest . ' AND ' : ' WHERE ';
 
-        return new \ArrayIterator($this->retrieveHostGroups($concatenator, $requestParameters));
+        $request .= <<<SQL
+            ag.acl_group_id IN ({$bindQuery})
+            SQL;
+
+        // handle sort
+        $sortRequest = $sqlTranslator?->translateSortParameterToSql();
+
+        $request .= $sortRequest !== null
+            ? $sortRequest
+            : ' ORDER BY hg.hg_name ASC';
+
+        // handle pagination
+        $request .= $sqlTranslator?->translatePaginationToSql();
+
+        // Prepare SQL + bind values
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $sqlTranslator?->bindSearchValues($statement);
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Calculate the number of rows for the pagination.
+        $sqlTranslator?->calculateNumberOfRows($this->db);
+
+        $hostGroups = [];
+
+        foreach ($statement as $record) {
+            /** @var HostGroupResultSet $record */
+            $hostGroups[] = $this->createHostGroupFromArray($record);
+        }
+
+        return new \ArrayIterator($hostGroups);
     }
 
     /**
@@ -158,7 +314,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
             return $this->findOne($hostGroupId);
         }
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
 
         return $this->retrieveHostgroup($concatenator, $hostGroupId);
     }
@@ -187,7 +343,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
             return $this->existsOne($hostGroupId);
         }
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
 
         return $this->existsHostGroup($concatenator, $hostGroupId);
     }
@@ -216,7 +372,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
             return $this->exist($hostGroupIds);
         }
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
 
         return $this->existHostGroups($concatenator, $hostGroupIds);
     }
@@ -263,7 +419,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
             return $this->findByHost($hostId);
         }
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
 
         return $this->retrieveHostGroupsByHost($concatenator, $hostId);
     }
@@ -314,16 +470,19 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     }
 
     /**
+     * @param ?RequestParametersInterface $requestParameters
      * @param list<int> $accessGroupIds
      *
      * @return SqlConcatenator
      */
-    private function getFindHostGroupConcatenator(array $accessGroupIds = []): SqlConcatenator
-    {
+    private function getFindHostGroupConcatenator(
+        ?RequestParametersInterface $requestParameters = null,
+        array $accessGroupIds = []
+    ): SqlConcatenator {
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT
+                    SELECT DISTINCT
                         hg.hg_id,
                         hg.hg_name,
                         hg.hg_alias,
@@ -350,7 +509,24 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                     SQL
             );
 
+        $hostCategoryAcls = '';
         if ([] !== $accessGroupIds) {
+            if ($this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
+                $hostCategoryAcls = <<<'SQL'
+                    AND hcr.hostcategories_hc_id IN (
+                        SELECT arhcr.hc_id
+                        FROM `:db`.acl_resources_hc_relations arhcr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhcr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:ids)
+                    )
+                    SQL;
+            }
+
             $concatenator
                 ->appendJoins(
                     <<<'SQL'
@@ -372,6 +548,22 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 ->storeBindValueMultiple(':ids', $accessGroupIds, \PDO::PARAM_INT);
         }
 
+        $search = $requestParameters?->getSearchAsString();
+        if ($search !== null && \str_contains($search, 'hostcategory')) {
+            $concatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.hostgroup_relation hgr
+                        ON hgr.hostgroup_hg_id = hg.hg_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON hcr.host_host_id = hgr.host_host_id
+                        {$hostCategoryAcls}
+                    LEFT JOIN `:db`.hostcategories hc
+                        ON hc.hc_id = hcr.hostcategories_hc_id
+                        AND hc.level IS NULL
+                    SQL
+            );
+        }
+
         return $concatenator;
     }
 
@@ -383,58 +575,9 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     private function accessGroupsToIds(array $accessGroups): array
     {
         return array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
-    }
-
-    /**
-     * @param SqlConcatenator $concatenator
-     * @param RequestParametersInterface|null $requestParameters
-     *
-     * @throws InvalidGeoCoordException
-     * @throws RequestParametersTranslatorException
-     * @throws \InvalidArgumentException
-     * @throws \PDOException
-     * @throws AssertionFailedException
-     *
-     * @return list<HostGroup>
-     */
-    private function retrieveHostGroups(
-        SqlConcatenator $concatenator,
-        ?RequestParametersInterface $requestParameters
-    ): array {
-        // If we use RequestParameters
-        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->setConcordanceArray([
-            'id' => 'hg.hg_id',
-            'alias' => 'hg.hg_alias',
-            'name' => 'hg.hg_name',
-            'is_activated' => 'hg.hg_activate',
-        ]);
-        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
-
-        // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
-        $sqlTranslator?->translateForConcatenator($concatenator);
-
-        // Prepare SQL + bind values
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $sqlTranslator?->bindSearchValues($statement);
-        $concatenator->bindValuesToStatement($statement);
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        // Calculate the number of rows for the pagination.
-        $sqlTranslator?->calculateNumberOfRows($this->db);
-
-        // Retrieve data
-        $hostGroups = [];
-        foreach ($statement as $result) {
-            /** @var HostGroupResultSet $result */
-            $hostGroups[] = $this->createHostGroupFromArray($result);
-        }
-
-        return $hostGroups;
     }
 
     /**
@@ -579,47 +722,6 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     }
 
     /**
-     * Determine if accessGroups give access to all hostGroups
-     * true: all host groups are accessible
-     * false: all host groups are NOT accessible.
-     *
-     * @param list<int> $accessGroupIds
-     *
-     * @return bool
-     */
-    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
-    {
-        $concatenator = new SqlConcatenator();
-
-        $concatenator->defineSelect(
-            <<<'SQL'
-                SELECT res.all_hostgroups
-                FROM `:db`.acl_resources res
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON argr.acl_group_id = ag.acl_group_id
-                SQL
-        );
-
-        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
-            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
-
-        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
-
-        $concatenator->bindValuesToStatement($statement);
-        $statement->execute();
-
-        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @param array $result
      *
      * @phpstan-param HostGroupResultSet $result
@@ -648,5 +750,44 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             (string) $result['hg_comment'],
             (bool) $result['hg_activate'],
         );
+    }
+
+    /**
+     * Determines if host categories are filtered for given access group ids
+     * true: accessible host categories are filtered (only specified are accessible)
+     * false: accessible host categories are NOT filtered (all are accessible).
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
+    {
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $accessGroupId) {
+            $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+        }
+        $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.acl_resources_hc_relations arhcr
+                INNER JOIN `:db`.acl_resources res
+                    ON res.acl_res_id = arhcr.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE ag.acl_group_id IN ({$bindParamsAsString})
+                SQL
+        ));
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 }

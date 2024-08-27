@@ -101,6 +101,14 @@ interface ReadContactGroupRepositoryInterface
     public function exists(int $contactGroupId): bool;
 
     /**
+     * @param int $contactGroupId
+     * @param int[] $accessGroupIds
+     *
+     * @return bool
+     */
+    public function existsInAccessGroups(int $contactGroupId, array $accessGroupIds): bool;
+
+    /**
      * Find contact group names by IDs.
      *
      * @param int ...$ids

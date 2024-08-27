@@ -1,47 +1,81 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import { useAtom } from 'jotai';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Column, centreonBaseURL, useSnackbar } from '@centreon/ui';
+import { Column, useSnackbar } from '@centreon/ui';
 
-import { Resource } from '../../../models';
-import { getResourcesUrl } from '../../../utils';
+import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
+import { getResourcesUrl, goToUrl } from '../../../utils';
+import {
+  resourcesToAcknowledgeAtom,
+  resourcesToOpenTicketAtom,
+  resourcesToSetDowntimeAtom,
+  selectedResourcesAtom
+} from '../atom';
+import { PanelOptions } from '../models';
 
+import useColumns from './Columns/useColumns';
+import { DisplayType, NamedEntity, ResourceListing, Ticket } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import { DisplayType, ResourceListing, SortOrder } from './models';
-import { defaultSelectedColumnIds, useColumns } from './Columns';
 import useLoadResources from './useLoadResources';
 
 interface UseListingState {
+  cancelAcknowledge: () => void;
+  cancelSetDowntime: () => void;
   changeLimit: (value) => void;
   changePage: (updatedPage) => void;
   changeSort: ({ sortOrder, sortField }) => void;
   columns: Array<Column>;
+  confirmAcknowledge: () => void;
+  confirmSetDowntime: () => void;
   data: ResourceListing | undefined;
+  defaultSelectedColumnIds: Array<string>;
   goToResourceStatusPage?: (row) => void;
+  hasMetaService: boolean;
   isLoading: boolean;
+  onTicketClose: () => void;
   page: number | undefined;
   resetColumns: () => void;
+  resourcesToAcknowledge;
+  resourcesToOpenTicket: Array<Ticket>;
+  resourcesToSetDowntime;
   selectColumns: (updatedColumnIds: Array<string>) => void;
+  selectedResources;
+  setSelectedResources;
 }
 
-interface UseListingProps {
+interface UseListingProps
+  extends Pick<
+    CommonWidgetProps<PanelOptions>,
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
+  > {
   changeViewMode?: (displayType) => void;
+  displayResources: 'all' | 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
+  hostSeverities: Array<NamedEntity>;
+  isDownHostHidden: boolean;
   isFromPreview?: boolean;
+  isOpenTicketEnabled: boolean;
+  isUnreachableHostHidden: boolean;
   limit?: number;
+  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
-  setPanelOptions?: (field, value) => void;
+  serviceSeverities: Array<NamedEntity>;
+  setPanelOptions?: (partialOptions: object) => void;
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;
+  statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
 }
 
 const useListing = ({
   resources,
+  isOpenTicketEnabled,
   states,
   statuses,
   displayType,
@@ -52,24 +86,60 @@ const useListing = ({
   sortField,
   sortOrder,
   changeViewMode,
-  isFromPreview
+  isFromPreview,
+  id,
+  dashboardId,
+  playlistHash,
+  widgetPrefixQuery,
+  statusTypes,
+  hostSeverities,
+  serviceSeverities,
+  isDownHostHidden,
+  isUnreachableHostHidden,
+  displayResources,
+  provider
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
 
   const [page, setPage] = useState(1);
+  const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
+    resourcesToOpenTicketAtom
+  );
+
+  const [selectedResources, setSelectedResources] = useAtom(
+    selectedResourcesAtom
+  );
+
+  const [resourcesToAcknowledge, setResourcesToAcknowledge] = useAtom(
+    resourcesToAcknowledgeAtom
+  );
+  const [resourcesToSetDowntime, setResourcesToSetDowntime] = useAtom(
+    resourcesToSetDowntimeAtom
+  );
 
   const { data, isLoading } = useLoadResources({
+    dashboardId,
+    displayResources,
     displayType,
+    hostSeverities,
+    id,
+    isDownHostHidden,
+    isUnreachableHostHidden,
     limit,
     page,
+    playlistHash,
+    provider,
     refreshCount,
     refreshIntervalToUse,
     resources,
+    serviceSeverities,
     sortField,
     sortOrder,
     states,
-    statuses
+    statusTypes,
+    statuses,
+    widgetPrefixQuery
   });
 
   const goToResourceStatusPage = (row): void => {
@@ -86,28 +156,35 @@ const useListing = ({
       type: displayType
     });
 
-    const mainUrl = window.location.origin + centreonBaseURL;
-    const url = mainUrl + linkToResourceStatus;
-
     changeViewMode?.(displayType);
-    window.open(url);
+    goToUrl(linkToResourceStatus)();
   };
 
-  const changeSort = ({ sortOrder: sortO, sortField: sortF }): void => {
-    setPanelOptions?.('sortField', sortF);
-    setPanelOptions?.('sortOrder', sortO);
+  const hasMetaService = useMemo(
+    () =>
+      resources.some(({ resourceType }) =>
+        equals(resourceType, 'meta-service')
+      ),
+    [resources]
+  );
+
+  const changeSort = (sortParameters): void => {
+    setPanelOptions?.(sortParameters);
   };
 
   const changeLimit = (value): void => {
-    setPanelOptions?.('limit', value);
+    setPanelOptions?.({ limit: value });
   };
 
   const changePage = (updatedPage): void => {
     setPage(updatedPage + 1);
   };
 
-  const columns = useColumns({
-    displayType
+  const { columns, defaultSelectedColumnIds } = useColumns({
+    displayResources,
+    displayType,
+    isOpenTicketEnabled,
+    provider
   });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
@@ -117,24 +194,68 @@ const useListing = ({
       return;
     }
 
-    setPanelOptions?.('selectedColumnIds', updatedColumnIds);
+    setPanelOptions?.({ selectedColumnIds: updatedColumnIds });
   };
 
   const resetColumns = (): void => {
-    setPanelOptions?.('selectedColumnIds', defaultSelectedColumnIds);
+    setPanelOptions?.({ selectedColumnIds: defaultSelectedColumnIds });
+  };
+
+  useEffect(() => {
+    if (!hasMetaService) {
+      return;
+    }
+
+    setPanelOptions?.({ displayType: DisplayType.All });
+  }, [hasMetaService]);
+
+  const cancelAcknowledge = (): void => {
+    setResourcesToAcknowledge([]);
+  };
+
+  const cancelSetDowntime = (): void => {
+    setResourcesToSetDowntime([]);
+  };
+
+  const confirmSetDowntime = (): void => {
+    setResourcesToSetDowntime([]);
+
+    setSelectedResources([]);
+  };
+
+  const confirmAcknowledge = (): void => {
+    setResourcesToAcknowledge([]);
+
+    setSelectedResources([]);
+  };
+
+  const onTicketClose = (): void => {
+    setResourcesToOpenTicket([]);
   };
 
   return {
+    cancelAcknowledge,
+    cancelSetDowntime,
     changeLimit,
     changePage,
     changeSort,
     columns,
+    confirmAcknowledge,
+    confirmSetDowntime,
     data,
+    defaultSelectedColumnIds,
     goToResourceStatusPage,
+    hasMetaService,
     isLoading,
+    onTicketClose,
     page,
     resetColumns,
-    selectColumns
+    resourcesToAcknowledge,
+    resourcesToOpenTicket,
+    resourcesToSetDowntime,
+    selectColumns,
+    selectedResources,
+    setSelectedResources
   };
 };
 

@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 
+import dayjs from 'dayjs';
 import {
   equals,
   flatten,
@@ -10,7 +11,6 @@ import {
   pipe,
   pluck
 } from 'ramda';
-import dayjs from 'dayjs';
 
 import { LineChartData, buildListingEndpoint, useFetchQuery } from '../..';
 
@@ -24,8 +24,10 @@ interface CustomTimePeriod {
 interface UseMetricsQueryProps {
   baseEndpoint: string;
   bypassMetricsExclusion?: boolean;
+  bypassQueryParams?: boolean;
   includeAllResources?: boolean;
   metrics: Array<Metric>;
+  prefix?: string;
   refreshCount?: number;
   refreshInterval?: number | false;
   resources?: Array<Resource>;
@@ -90,7 +92,9 @@ const useGraphQuery = ({
     timePeriodType: 1
   },
   refreshInterval = false,
-  refreshCount
+  refreshCount,
+  bypassQueryParams = false,
+  prefix
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
@@ -108,12 +112,18 @@ const useGraphQuery = ({
     encodeURIComponent(metric.name)
   );
 
+  const prefixQuery = prefix ? [prefix] : [];
+
   const {
     data: graphData,
     isFetching,
     isLoading
   } = useFetchQuery<PerformanceGraphData>({
     getEndpoint: () => {
+      if (bypassQueryParams) {
+        return baseEndpoint;
+      }
+
       const endpoint = buildListingEndpoint({
         baseEndpoint,
         parameters: {
@@ -133,6 +143,7 @@ const useGraphQuery = ({
       }&metric_names=[${formattedDefinedMetrics.join(',')}]`;
     },
     getQueryKey: () => [
+      ...prefixQuery,
       'graph',
       JSON.stringify(definedMetrics),
       JSON.stringify(resources),
@@ -143,7 +154,8 @@ const useGraphQuery = ({
       enabled: areResourcesFullfilled(resources) && !isEmpty(definedMetrics),
       refetchInterval: refreshInterval,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const data = useRef<PerformanceGraphData | undefined>(undefined);

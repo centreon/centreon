@@ -61,6 +61,10 @@ class NewUser
 
     protected bool $canReachFrontend = true;
 
+    protected bool $canReachRealtimeApi = false;
+
+    protected bool $canReachConfigurationApi = false;
+
     /**
      * @param string $alias
      * @param string $name
@@ -294,5 +298,45 @@ class NewUser
         $this->canReachFrontend = $canReachFrontend;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canReachRealtimeApi(): bool
+    {
+        return $this->canReachRealtimeApi;
+    }
+
+    /**
+     * @param bool $canReachRealtimeApi
+     *
+     * @return self
+     */
+    public function setCanReachRealtimeApi(bool $canReachRealtimeApi): self
+    {
+        $this->canReachRealtimeApi = $canReachRealtimeApi;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $canReachConfigurationApi
+     *
+     * @return self
+     */
+    public function setCanReachConfigurationApi(bool $canReachConfigurationApi): self
+    {
+        $this->canReachConfigurationApi = $canReachConfigurationApi;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canReachConfigurationApi(): bool
+    {
+        return $this->canReachConfigurationApi;
     }
 }

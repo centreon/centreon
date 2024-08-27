@@ -1,105 +1,45 @@
 import axios from 'axios';
 
-import { ListingVariant } from '@centreon/ui-context';
 import {
-  render,
   RenderResult,
-  waitFor,
-  screen
+  render,
+  screen,
+  waitFor
 } from '@centreon/ui/test/testRenderer';
 
+import {
+  aclEndpoint,
+  externalTranslationEndpoint,
+  internalTranslationEndpoint,
+  parametersEndpoint
+} from '../App/endpoint';
+import { labelAuthenticationDenied } from '../FallbackPages/AuthenticationDenied/translatedLabels';
+import { labelConnect } from '../Login/translatedLabels';
+import { retrievedNavigation } from '../Navigation/mocks';
+import { navigationEndpoint } from '../Navigation/useNavigation';
 import {
   platformInstallationStatusEndpoint,
   userEndpoint
 } from '../api/endpoint';
-import { labelConnect } from '../Login/translatedLabels';
-import {
-  aclEndpoint,
-  parametersEndpoint,
-  externalTranslationEndpoint,
-  internalTranslationEndpoint
-} from '../App/endpoint';
-import { retrievedNavigation } from '../Navigation/mocks';
 import { retrievedFederatedModule } from '../federatedModules/mocks';
-import { navigationEndpoint } from '../Navigation/useNavigation';
-import { labelAuthenticationDenied } from '../FallbackPages/AuthenticationDenied/translatedLabels';
 
-import { labelCentreonIsLoading } from './translatedLabels';
 import Provider from './Provider';
+import {
+  retrievedActionsAcl,
+  retrievedLoginConfiguration,
+  retrievedParameters,
+  retrievedProvidersConfiguration,
+  retrievedTranslations,
+  retrievedUser,
+  retrievedWeb
+} from './testUtils';
+import { labelCentreonIsLoading } from './translatedLabels';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const cancelTokenRequestParam = { cancelToken: {} };
 
 jest.mock('../Navigation/Sidebar/Logo/centreon.png');
-
-const retrievedUser = {
-  alias: 'Admin alias',
-  default_page: '/monitoring/resources',
-  is_export_button_enabled: true,
-  locale: 'fr_FR.UTF8',
-  name: 'Admin',
-  timezone: 'Europe/Paris',
-  use_deprecated_pages: false,
-  user_interface_density: ListingVariant.compact
-};
-
-const retrievedParameters = {
-  monitoring_default_acknowledgement_persistent: true,
-  monitoring_default_acknowledgement_sticky: true,
-  monitoring_default_downtime_duration: 3600,
-  monitoring_default_refresh_interval: 15
-};
-
-const retrievedActionsAcl = {
-  host: {
-    acknowledgement: true,
-    check: true,
-    downtime: true,
-    forced_check: true
-  },
-  service: {
-    acknowledgement: true,
-    check: true,
-    downtime: true,
-    forced_check: true
-  }
-};
-
-const retrievedTranslations = {
-  en: {
-    hello: 'Hello'
-  }
-};
-
-const retrievedWeb = {
-  modules: {},
-  web: {
-    fix: '0',
-    major: '23',
-    minor: '04',
-    version: '23.04.1'
-  },
-  widgets: {}
-};
-
-const retrievedLoginConfiguration = {
-  custom_text: 'Custom text',
-  icon_source: 'icon_source',
-  image_source: 'image_source',
-  platform_name: 'Platform name',
-  text_position: null
-};
-
-const retrievedProvidersConfiguration = [
-  {
-    authentication_uri:
-      '/centreon/authentication/providers/configurations/local',
-    id: 1,
-    is_active: true,
-    name: 'local'
-  }
-];
 
 jest.mock('../Header', () => {
   const Header = (): JSX.Element => {
@@ -298,7 +238,7 @@ describe('Main', () => {
     window.history.pushState({}, '', '/');
   });
 
-  // To migrate to Cypress
+  // biome-ignore lint/suspicious/noFocusedTests: To migrate to Cypress
   it.only('displays the login page when the path is "/login" and the user is not connected', async () => {
     window.history.pushState({}, '', '/login');
     mockNotConnectedGetRequests();

@@ -1,5 +1,5 @@
-import { equals } from 'ramda';
 import { useAtom, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Box } from '@mui/material';

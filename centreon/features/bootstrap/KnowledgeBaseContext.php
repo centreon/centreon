@@ -24,7 +24,7 @@ class KnowledgeBaseContext extends CentreonContext
      */
     public function iAmLoggedInACentreonServerWithWikiInstalled()
     {
-        $this->launchCentreonWebContainer('docker_compose_web', ['web', 'webdriver', 'mediawiki']);
+        $this->launchCentreonWebContainer('docker_compose_web', ['mediawiki']);
         $this->container->waitForAvailableUrl(
             'http://' . $this->container->getHost() . ':' .
             $this->container->getPort(80, 'mediawiki') . '/index.php/Main_Page'
