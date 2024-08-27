@@ -407,7 +407,7 @@ describe('Resources tree', () => {
     cy.makeSnapshot();
   });
 
-  it('revalidates subsequents resourcess when a resource is changed', () => {
+  it('revalidates subsequent resources when a resource is changed', () => {
     initialize({});
 
     cy.findByTestId(labelResourceType).parent().click();
