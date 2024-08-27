@@ -195,7 +195,7 @@ jobs:
                 GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
               elif [[ "$IS_EXTERNAL_CONTRIBUTION" == "yes" ]]; then
                 echo "External contribution."
-                CONTRIB_PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head ${{ github.head_ref }} --json number)
+                CONTRIB_PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head ${{ github.head_ref }} -q .[].number --json number)
                 GITHUB_BRANCH_PR_STATE="$(gh pr view $CONTRIB_PR_NUMBER -q .state --json headRefName,baseRefName,state)"
               else
                 echo "Invalid value for IS_EXTERNAL_CONTRIBUTION : $IS_EXTERNAL_CONTRIBUTION ."
