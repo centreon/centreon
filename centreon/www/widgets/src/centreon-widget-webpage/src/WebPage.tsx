@@ -1,11 +1,22 @@
+import Preview from './Preview';
+import { useIframeStyles } from './useWebPage.styles';
+
 const WebPage = ({ panelOptions }): JSX.Element => {
+  const { classes } = useIframeStyles();
+
   const { url } = panelOptions;
 
+  if (!url) {
+    return <Preview />;
+  }
+
+  const iframeSrc = /^http/.test(url) ? url : `http://${url}`;
+
   return (
-    <div style={{ height: '100%', width: '100%' }}>
+    <div className={classes.container}>
       <iframe
-        src={url}
-        style={{ width: '100%', height: '100%', border: 'none' }}
+        src={iframeSrc}
+        className={classes.iframe}
         title="Webpage Display"
         test-id="Webpage Display"
       />
