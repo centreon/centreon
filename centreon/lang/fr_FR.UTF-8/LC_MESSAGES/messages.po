@@ -19417,3 +19417,14 @@ msgstr "Afficher le fuseau horaire"
 msgid "Show date"
 msgstr "Afficher la date"
 
+msgid "Web page"
+msgstr "Page web"
+
+msgid "Displays a web page"
+msgstr "Affiche une page web"
+
+msgid "Please note that domains outside your organization must be authorized in your Apache configuration."
+msgstr "Veuillez noter que les domaines en dehors de votre organisation doivent être autorisés dans votre configuration Apache."
+
+msgid "Web page preview"
+msgstr "Aperçu de la page web"

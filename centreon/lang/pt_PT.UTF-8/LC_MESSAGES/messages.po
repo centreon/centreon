@@ -18111,3 +18111,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Changing type of an existing additional connector configuration is not allowed"
 #  msgstr ""
+
+#  msgid "Web page"
+#  msgstr ""
+
+#  msgid "Displays a web page"
+#  msgstr ""
+
+#  msgid "Please note that domains outside your organization must be authorized in your Apache configuration."
+#  msgstr ""
+
+#  msgid "Web page preview"
+#  msgstr ""
