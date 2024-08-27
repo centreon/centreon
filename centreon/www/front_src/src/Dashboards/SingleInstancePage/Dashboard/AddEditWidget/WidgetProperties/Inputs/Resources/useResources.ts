@@ -366,7 +366,7 @@ const useResources = ({
   const getQueryParameters = (
     index: number,
     resourceType,
-    resourcesToSearch?: string,
+    resourcesToSearch: string | undefined,
     parentResources
   ): {
     customParameters: Array<QueryParameter>;
