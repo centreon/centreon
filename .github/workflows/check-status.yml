@@ -26,6 +26,9 @@ jobs:
   check-status:
     runs-on: ubuntu-24.04
     steps:
+      - name: review state
+        run: echo "review state = ${{ github.event.review.state }}"
+
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
