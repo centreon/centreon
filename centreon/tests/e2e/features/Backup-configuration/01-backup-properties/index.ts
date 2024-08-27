@@ -110,22 +110,26 @@ Then(
 );
 
 Then('after the scheduled cron job has run', () => {
-  cy.exec('docker ps --format "{{.Names}}"').then((result) => {
-    cy.log(result.stdout);
-
-    const containerNames = result.stdout.split('\n');
-    const targetContainer = containerNames.find((name) =>
-      name.includes('docker-web-1')
-    );
-
-    expect(targetContainer).to.exist;
-
-    if (targetContainer) {
-      cy.exec(
-        `docker exec ${targetContainer} /usr/share/centreon/cron/centreon-backup.pl`
-      ).then(() => {});
-    }
+  cy.execInContainer({
+    command: `/usr/share/centreon/cron/centreon-backup.pl`,
+    name: 'web'
   });
+  // cy.exec('docker ps --format "{{.Names}}"').then((result) => {
+  //   cy.log(result.stdout);
+
+  //   const containerNames = result.stdout.split('\n');
+  //   const targetContainer = containerNames.find((name) =>
+  //     name.includes('docker-web-1')
+  //   );
+
+  //   expect(targetContainer).to.exist;
+
+  //   if (targetContainer) {
+  //     cy.exec(
+  //       `docker exec ${targetContainer} /usr/share/centreon/cron/centreon-backup.pl`
+  //     ).then(() => {});
+  //   }
+  // });
 });
 
 Then(
