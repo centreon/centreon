@@ -6,12 +6,12 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "centreon-dsm/**"
-      - "!centreon-dsm/veracode.json"
-      - "!centreon-dsm/.veracode-exclusions"
   pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     paths:
       - "centreon-dsm/**"
       - "!centreon-dsm/veracode.json"

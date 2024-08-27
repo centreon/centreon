@@ -6,9 +6,6 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - '.github/docker/centreon-web/**/Dockerfile.dependencies'
   pull_request_target:
     paths:
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
