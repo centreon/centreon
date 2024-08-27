@@ -808,10 +808,10 @@ describe('Display additional columns', () => {
 });
 
 describe('Notification column', () => {
-  it('displays notification column if the cloud notification feature is enabled', () => {
+  it('displays notification column if the cloud notification feature is disabled', () => {
     store.set(
       platformFeaturesAtom,
-      getPlatformFeatures({ notification: true })
+      getPlatformFeatures({ notification: false })
     );
     interceptRequestsAndMountBeforeEach();
 
@@ -826,10 +826,10 @@ describe('Notification column', () => {
     cy.makeSnapshot();
   });
 
-  it('hides notification column if the cloud notification feature is disabled', () => {
+  it('hides notification column if the cloud notification feature is enabled', () => {
     store.set(
       platformFeaturesAtom,
-      getPlatformFeatures({ notification: false })
+      getPlatformFeatures({ notification: true })
     );
     interceptRequestsAndMountBeforeEach();
 

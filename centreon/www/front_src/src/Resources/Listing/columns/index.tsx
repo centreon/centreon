@@ -279,7 +279,8 @@ export const getColumns = ({
       width: 'max-content'
     },
     ...(featureFlags?.notification
-      ? [
+      ? []
+      : [
           {
             Component: NotificationColumn,
             getRenderComponentOnRowUpdateCondition: T,
@@ -289,8 +290,7 @@ export const getColumns = ({
             shortLabel: 'Notif',
             type: ColumnType.component
           }
-        ]
-      : []),
+        ]),
     {
       Component: ChecksColumn,
       getRenderComponentOnRowUpdateCondition: T,
