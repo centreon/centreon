@@ -6,9 +6,6 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - ".github/workflows/create-repo-yum.yml"
   pull_request_target:
     paths:
       - ".github/workflows/create-repo-yum.yml"
