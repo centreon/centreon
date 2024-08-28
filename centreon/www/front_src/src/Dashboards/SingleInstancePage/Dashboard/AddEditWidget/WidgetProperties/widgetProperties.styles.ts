@@ -105,14 +105,14 @@ export const useWidgetMessageStyles = makeStyles()((theme) => ({
   },
   container: {
     marginTop: theme.spacing(4),
-    display: "flex", 
-    alignItems : "center"
+    display: 'flex',
+    alignItems: 'center'
   },
   icon: {
     fill: theme.palette.primary.main,
     height: theme.spacing(3),
     marginRight: theme.spacing(1),
-    marginTop: theme.spacing(.5),
-    width: theme.spacing(3),
+    marginTop: theme.spacing(0.5),
+    width: theme.spacing(3)
   }
 }));
