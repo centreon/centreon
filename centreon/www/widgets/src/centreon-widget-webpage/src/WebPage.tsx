@@ -18,7 +18,7 @@ const WebPage = ({ panelOptions }): JSX.Element => {
         src={iframeSrc}
         className={classes.iframe}
         title="Webpage Display"
-        test-id="Webpage Display"
+        data-testid="Webpage Display"
       />
     </div>
   );
