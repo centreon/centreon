@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "70afadf4-2394-42c8-bc83-092dde17f688",
+		"_postman_id": "5b8a25cd-1044-4a2e-90d4-89308d45096d",
 		"name": "Notifications",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-70afadf4-2394-42c8-bc83-092dde17f688?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "5258648"
 	},
 	"item": [
 		{
@@ -88,8 +87,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "4a2f1632-e902-4e6b-bc74-090bc91ebb0f"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -139,8 +137,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "1c2425f7-ed58-4058-bb02-c12e8852a70b"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -190,8 +187,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "6c7bdaf2-9b85-4c09-b45a-fdc6beecae8a"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -241,8 +237,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "163c2eeb-5852-4aeb-bd1d-9e472112a2b3"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -292,8 +287,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "d266feb5-b44e-48a7-b4d3-c1b85602fce0"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -343,8 +337,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "7c281e7c-efc1-4630-9626-e3c692033edc"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -394,8 +387,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "57380425-6728-4491-8197-589e6c30a676"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -445,8 +437,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "c28482ad-d36b-44b9-af3d-710433603e94"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -496,8 +487,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "4967f0a8-49b0-49f5-87fd-dc7d7e639531"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -553,8 +543,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "883c5a62-ad5b-4afd-9ddb-8d6e9049c014"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -604,8 +593,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "1deb1537-60a1-475f-af97-563c1abe1010"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -655,8 +643,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "05132bc8-6a7e-40d9-a97f-9fea0512e365"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -706,8 +693,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "5707fd5c-f128-4b2b-af4e-9274ca23aee3"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -757,8 +743,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "25791b2b-10f3-4cd0-af85-89565083beff"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -808,8 +793,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "b7540b73-7ee5-45ff-9a2d-7e7a2b980f25"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -859,8 +843,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "509b6849-320c-4d80-94f6-9afb5144f642"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -910,8 +893,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "80b72885-9c37-4ac2-88a3-b480876dbdfd"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -967,8 +949,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "ed704b9e-cc2f-4bc7-9e45-214bb975e8f3"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1018,8 +999,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "48582feb-4e65-455b-8fd6-a5e35e7601e0"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1069,8 +1049,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "07df7e43-7edf-4f09-8b35-81d58062ecb1"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1120,8 +1099,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "bba039b3-a01e-4eb7-aa83-72207b197978"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1171,8 +1149,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "0bff908e-737f-464e-a6bd-bd05a36c47dc"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1222,8 +1199,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "ca7aff05-8227-4e29-836f-1bb377d57955"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1273,8 +1249,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "a04c4f74-558e-4ab6-87d4-c0aafb19f505"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1324,8 +1299,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "127dfdec-8e3c-4485-8d38-004ce588c2c4"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1430,8 +1404,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "354cfddc-09db-4c70-8f8c-2cf78fcaed08"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1483,8 +1456,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "386999e3-c1f1-4b13-b6cb-876740909fb9"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1545,8 +1517,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "a09bc14d-e8b1-4f87-9d11-55809ac0dfa3"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1598,8 +1569,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "e42dbaa7-f16f-46d4-aad4-0a68351932d8"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1651,8 +1621,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "883fbebf-babd-4a56-b027-3243d438ab63"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1704,8 +1673,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "8bf8f5e9-6039-42b8-90f7-d66fe0462d56"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1757,8 +1725,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "f226fc55-e78e-471a-bf2e-6d54660985cf"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1819,8 +1786,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"uuid": "149b7432-e4de-47b6-9fa8-697842f77e92"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -2228,7 +2194,7 @@
 					"response": []
 				},
 				{
-					"name": "List notification",
+					"name": "List notifications #1",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2410,7 +2376,7 @@
 					"response": []
 				},
 				{
-					"name": "List notifications",
+					"name": "List notifications #2",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2617,7 +2583,7 @@
 					"response": []
 				},
 				{
-					"name": "List notifications",
+					"name": "List notifications #3",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3301,36 +3267,24 @@
 									"    pm.response.to.have.status(200);\r",
 									"\r",
 									"    pm.expect(responseJson.notification_id).to.eql(parseInt(pm.collectionVariables.get(\"Notification1Id\")));\r",
-									"    pm.expect(responseJson.channels).to.eql({\r",
-									"        \"email\": {\r",
-									"            \"subject\": \"Hello world !\",\r",
-									"            \"formatted_message\": \"<p class=\\\"css-1qf631s-paragraph\\\" dir=\\\"ltr\\\"><b><strong class=\\\"css-1jxftah-bold\\\" style=\\\"white-space: pre-wrap;\\\">Centreon notification</strong></b><br><br><span style=\\\"white-space: pre-wrap;\\\">Notification Type: </span><b><strong class=\\\"css-1jxftah-bold\\\" style=\\\"white-space: pre-wrap;\\\">{{NOTIFICATIONTYPE}}</strong></b><br><br><span style=\\\"white-space: pre-wrap;\\\">Resource: {{NAME}}</span><br><br><span style=\\\"white-space: pre-wrap;\\\">State: </span><b><strong class=\\\"css-1jxftah-bold\\\" style=\\\"white-space: pre-wrap;\\\">{{STATE}}</strong></b><br><br><span style=\\\"white-space: pre-wrap;\\\">Date/Time: {{SHORTDATETIME}}</span><br><br><span style=\\\"white-space: pre-wrap;\\\">Additional Info: {{OUTPUT}}</span></p>\",\r",
-									"            \"contacts\": [\r",
-									"                {\r",
-									"                    \"email_address\": \"user1@localhost\",\r",
-									"                    \"full_name\": \"user1\"\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": \"user2@localhost\",\r",
-									"                    \"full_name\": \"user2\"\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": pm.collectionVariables.get('api_login_user_Nothing') + \"@localhost\",\r",
-									"                    \"full_name\": pm.collectionVariables.get('api_login_user_Nothing')\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": pm.collectionVariables.get('api_login_user_RW') + \"@localhost\",\r",
-									"                    \"full_name\": pm.collectionVariables.get('api_login_user_RW')\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": pm.collectionVariables.get('api_login_user_RW_filters') + \"@localhost\",\r",
-									"                    \"full_name\":pm.collectionVariables.get('api_login_user_RW_filters')\r",
-									"                }\r",
-									"            ]\r",
-									"        },\r",
-									"        \"slack\": null,\r",
-									"        \"sms\": null\r",
-									"    });\r",
+									"    const channels = responseJson.channels;\r",
+									"    const email = channels.email;\r",
+									"    pm.expect(email.subject).to.eql(\"Hello world !\");\r",
+									"    pm.expect(email.formatted_message).to.eql(\"<p class=\\\"css-1qf631s-paragraph\\\" dir=\\\"ltr\\\"><b><strong class=\\\"css-1jxftah-bold\\\" style=\\\"white-space: pre-wrap;\\\">Centreon notification</strong></b><br><br><span style=\\\"white-space: pre-wrap;\\\">Notification Type: </span><b><strong class=\\\"css-1jxftah-bold\\\" style=\\\"white-space: pre-wrap;\\\">{{NOTIFICATIONTYPE}}</strong></b><br><br><span style=\\\"white-space: pre-wrap;\\\">Resource: {{NAME}}</span><br><br><span style=\\\"white-space: pre-wrap;\\\">State: </span><b><strong class=\\\"css-1jxftah-bold\\\" style=\\\"white-space: pre-wrap;\\\">{{STATE}}</strong></b><br><br><span style=\\\"white-space: pre-wrap;\\\">Date/Time: {{SHORTDATETIME}}</span><br><br><span style=\\\"white-space: pre-wrap;\\\">Additional Info: {{OUTPUT}}</span></p>\");\r",
+									"    pm.expect(email.contacts).to.eql(\r",
+									"        [\r",
+									"            {\r",
+									"                \"email_address\": \"user1@localhost\",\r",
+									"                \"full_name\": \"user1\"\r",
+									"            },\r",
+									"            {\r",
+									"                \"email_address\": \"user2@localhost\",\r",
+									"                \"full_name\": \"user2\"\r",
+									"            }\r",
+									"        ]\r",
+									"    );\r",
+									"    pm.expect(channels.slack).to.eql(null);\r",
+									"    pm.expect(channels.sms).to.eql(null);\r",
 									"});\r",
 									""
 								],
@@ -3612,7 +3566,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification1Id\")),\r",
 									"        \"is_activated\": true,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification1Name\"),\r",
-									"        \"user_count\": 4,\r",
+									"        \"user_count\": 2,\r",
 									"        \"channels\": [\r",
 									"            \"Email\"\r",
 									"        ],\r",
@@ -3636,7 +3590,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification3Id\")),\r",
 									"        \"is_activated\": false,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification3Name\"),\r",
-									"        \"user_count\": 2,\r",
+									"        \"user_count\": 1,\r",
 									"        \"channels\": [\r",
 									"            \"Slack\"\r",
 									"        ],\r",
@@ -3716,8 +3670,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "b25064e0-0f01-455d-8141-2f58a23c68e9"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -3793,26 +3746,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "75014d0a-1970-428c-90cb-37faf7740e03"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "81d170a9-c81e-4896-9e19-1ab6a3af8b16"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "06571fe3-eed7-4e14-8b57-ee5412bd65e9"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "c04fea43-f614-4028-9882-fb57fb658e9e"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -4015,7 +3964,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification1Id\")),\r",
 									"        \"is_activated\": true,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification1Name\"),\r",
-									"        \"user_count\": 4,\r",
+									"        \"user_count\": 2,\r",
 									"        \"channels\": [\r",
 									"            \"Email\"\r",
 									"        ],\r",
@@ -4039,7 +3988,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification3Id\")),\r",
 									"        \"is_activated\": false,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification3Name\"),\r",
-									"        \"user_count\": 2,\r",
+									"        \"user_count\": 1,\r",
 									"        \"channels\": [\r",
 									"            \"Slack\"\r",
 									"        ],\r",
@@ -4063,7 +4012,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification4Id\")),\r",
 									"        \"is_activated\": true,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification4Name\"),\r",
-									"        \"user_count\": 3,\r",
+									"        \"user_count\": 2,\r",
 									"        \"channels\": [\r",
 									"            \"Email\"\r",
 									"        ],\r",
@@ -4141,24 +4090,12 @@
 									"            \"formatted_message\": \"<p class=\\\"css-1qf631s-paragraph\\\" dir=\\\"ltr\\\"><b><strong class=\\\"css-1jxftah-bold\\\" style=\\\"white-space: pre-wrap;\\\">Centreon notif</strong></b><br><br><span style=\\\"white-space: pre-wrap;\\\">Notification Type: </span><b><strong class=\\\"css-1jxftah-bold\\\" style=\\\"white-space: pre-wrap;\\\">{{NOTIFICATIONTYPE}}</strong></b><br><br><span style=\\\"white-space: pre-wrap;\\\">Resource: {{NAME}}</span><br><br><span style=\\\"white-space: pre-wrap;\\\">State: </span><b><strong class=\\\"css-1jxftah-bold\\\" style=\\\"white-space: pre-wrap;\\\">{{STATE}}</strong></b><br><br><span style=\\\"white-space: pre-wrap;\\\">Date/Time: {{SHORTDATETIME}}</span><br><br><span style=\\\"white-space: pre-wrap;\\\">Additional Info: {{OUTPUT}}</span></p>\",\r",
 									"            \"contacts\": [\r",
 									"                {\r",
-									"                    \"email_address\": \"user1@localhost\",\r",
-									"                    \"full_name\": \"user1\"\r",
+									"                    \"email_address\": pm.collectionVariables.get('api_login_user1') + \"@localhost\",\r",
+									"                    \"full_name\": pm.collectionVariables.get('api_login_user1')\r",
 									"                },\r",
 									"                {\r",
-									"                    \"email_address\": \"user2@localhost\",\r",
-									"                    \"full_name\": \"user2\"\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": pm.collectionVariables.get('api_login_user_Nothing') + \"@localhost\",\r",
-									"                    \"full_name\": pm.collectionVariables.get('api_login_user_Nothing')\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": pm.collectionVariables.get('api_login_user_RW') + \"@localhost\",\r",
-									"                    \"full_name\": pm.collectionVariables.get('api_login_user_RW')\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": pm.collectionVariables.get('api_login_user_RW_filters') + \"@localhost\",\r",
-									"                    \"full_name\":pm.collectionVariables.get('api_login_user_RW_filters')\r",
+									"                    \"email_address\": pm.collectionVariables.get('api_login_user2') + \"@localhost\",\r",
+									"                    \"full_name\": pm.collectionVariables.get('api_login_user2')\r",
 									"                }\r",
 									"            ]\r",
 									"        },\r",
@@ -4438,7 +4375,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification1Id\")),\r",
 									"        \"is_activated\": true,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification1Name\"),\r",
-									"        \"user_count\": 4,\r",
+									"        \"user_count\": 2,\r",
 									"        \"channels\": [\r",
 									"            \"Email\"\r",
 									"        ],\r",
@@ -4462,7 +4399,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification4Id\")),\r",
 									"        \"is_activated\": false,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification4Name\"),\r",
-									"        \"user_count\": 3,\r",
+									"        \"user_count\": 2,\r",
 									"        \"channels\": [\r",
 									"            \"Email\"\r",
 									"        ],\r",
@@ -4567,26 +4504,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "57da3091-4788-4b50-9087-15fb3ffe198e"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "40bc7367-533e-4013-8932-8da834caf85a"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "fff9cec8-4166-4fa7-903c-6475b597c187"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "81f8bd54-c57e-4be7-8acf-97b703c3026c"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -4724,7 +4657,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification1Id\")),\r",
 									"        \"is_activated\": true,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification1Name\"),\r",
-									"        \"user_count\": 4,\r",
+									"        \"user_count\": 2,\r",
 									"        \"channels\": [\r",
 									"            \"Email\"\r",
 									"        ],\r",
@@ -4739,7 +4672,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification4Id\")),\r",
 									"        \"is_activated\": false,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification4Name\"),\r",
-									"        \"user_count\": 3,\r",
+									"        \"user_count\": 2,\r",
 									"        \"channels\": [\r",
 									"            \"Email\"\r",
 									"        ],\r",
@@ -4814,18 +4747,6 @@
 									"                {\r",
 									"                    \"email_address\": \"user2@localhost\",\r",
 									"                    \"full_name\": \"user2\"\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": pm.collectionVariables.get('api_login_user_Nothing') + \"@localhost\",\r",
-									"                    \"full_name\": pm.collectionVariables.get('api_login_user_Nothing')\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": pm.collectionVariables.get('api_login_user_RW') + \"@localhost\",\r",
-									"                    \"full_name\": pm.collectionVariables.get('api_login_user_RW')\r",
-									"                },\r",
-									"                {\r",
-									"                    \"email_address\": pm.collectionVariables.get('api_login_user_RW_filters') + \"@localhost\",\r",
-									"                    \"full_name\":pm.collectionVariables.get('api_login_user_RW_filters')\r",
 									"                }\r",
 									"            ]\r",
 									"        },\r",
@@ -5040,7 +4961,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification1Id\")),\r",
 									"        \"is_activated\": true,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification1Name\"),\r",
-									"        \"user_count\": 4,\r",
+									"        \"user_count\": 2,\r",
 									"        \"channels\": [\r",
 									"            \"Email\"\r",
 									"        ],\r",
@@ -5055,7 +4976,7 @@
 									"        \"id\": parseInt(pm.collectionVariables.get(\"Notification4Id\")),\r",
 									"        \"is_activated\": true,\r",
 									"        \"name\": pm.collectionVariables.get(\"Notification4Name\"),\r",
-									"        \"user_count\": 3,\r",
+									"        \"user_count\": 2,\r",
 									"        \"channels\": [\r",
 									"            \"Email\"\r",
 									"        ],\r",
@@ -5151,26 +5072,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "fe52e34f-6be6-4c18-9ac9-d8909eb071f4"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "38260288-912e-4881-bb66-354c4a1f84e0"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "0f623a65-7e41-43a1-affe-db5b49c39f53"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "8eda9eda-1b6a-410c-97d4-749abaac1c41"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -5654,26 +5571,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "5bd21239-dd93-47b9-b56c-beda36bf0fd9"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "4d72931c-7d29-4d46-9eb6-0d575af1687c"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "8a847ca2-173f-4770-9363-8042fa801543"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "050b7fad-8589-4902-8d4e-8ccd86e7ad03"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -5854,26 +5767,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "19e4f2dd-ad75-4892-952d-e642c021836f"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "1bbd7822-c715-452f-a507-8878ce265504"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "bcb25b36-6a8f-409e-898b-ad448363334c"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "2be632af-8cd1-4469-b98f-daf73a286652"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -5917,6 +5826,120 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_login_user1",
+			"value": ""
+		},
+		{
+			"key": "api_login_user2",
+			"value": ""
+		},
+		{
+			"key": "user1_Id",
+			"value": ""
+		},
+		{
+			"key": "user2_Id",
+			"value": ""
+		},
+		{
+			"key": "Contact_Group_1_Id",
+			"value": ""
+		},
+		{
+			"key": "Contact_Group_2_Id",
+			"value": ""
+		},
+		{
+			"key": "HostGroup1Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup1Id",
+			"value": ""
+		},
+		{
+			"key": "HostGroup2Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup2Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup2Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup2Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup2Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup2Id",
+			"value": ""
+		},
+		{
+			"key": "Notification1Name",
+			"value": ""
+		},
+		{
+			"key": "Notification1Id",
+			"value": ""
+		},
+		{
+			"key": "Notification4Name",
+			"value": ""
+		},
+		{
+			"key": "Notification4Id",
+			"value": ""
 		}
 	]
 }
