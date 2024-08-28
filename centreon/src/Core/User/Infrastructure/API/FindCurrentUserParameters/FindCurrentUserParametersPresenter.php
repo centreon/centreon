@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\User\Infrastructure\API\FindCurrentUserParameters;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Infrastructure\FeatureFlags;
 use Core\Dashboard\Infrastructure\Model\DashboardGlobalRoleConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -36,7 +35,6 @@ use Core\User\Infrastructure\Model\UserThemeConverter;
 class FindCurrentUserParametersPresenter extends DefaultPresenter
 implements FindCurrentUserParametersPresenterInterface
 {
-
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
     ) {
