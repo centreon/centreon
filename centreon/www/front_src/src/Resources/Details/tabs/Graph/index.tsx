@@ -1,23 +1,20 @@
-import { useState } from 'react';
-
-import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
+import { useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import { Theme } from '@mui/material';
+import type { Theme } from '@mui/material';
 
 import { TimePeriods } from '@centreon/ui';
-
-import { TabProps } from '..';
+import type { TabProps } from '..';
 import FederatedComponent from '../../../../components/FederatedComponents';
 import ExportablePerformanceGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
 import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
-import { updatedGraphIntervalAtom } from '../../../Graph/Performance/ExportableGraphWithTimeline/atoms';
 import memoizeComponent from '../../../memoizedComponent';
 import { ResourceType } from '../../../models';
+import ChartGraph from './ChartGraph';
 
 import HostGraph from './HostGraph';
-import { GraphTimeParameters } from './models';
+import type { GraphTimeParameters } from './models';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   container: {
@@ -45,6 +42,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
 const GraphTabContent = ({ details }: TabProps): JSX.Element => {
   const { classes } = useStyles();
 
+  const [updatedGraphInterval, setUpdatedGraphInterval] = useState();
+
   const [graphTimeParameters, setGraphTimeParameters] =
     useState<GraphTimeParameters>();
 
@@ -52,7 +51,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
   const equalsService = equals(ResourceType.service);
   const equalsMetaService = equals(ResourceType.metaservice);
   const equalsAnomalyDetection = equals(ResourceType.anomalyDetection);
-  const updatedGraphInterval = useAtomValue(updatedGraphIntervalAtom);
+  // const updatedGraphInterval = useAtomValue(updatedGraphIntervalAtom);
 
   const isService =
     equalsService(type) ||
@@ -63,18 +62,26 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     setGraphTimeParameters(data);
   };
 
-  const newGraphInterval = updatedGraphInterval
-    ? { end: updatedGraphInterval.end, start: updatedGraphInterval.start }
-    : undefined;
+  // const newGraphInterval = updatedGraphInterval
+  // 	? { end: updatedGraphInterval.end, start: updatedGraphInterval.start }
+  // 	: undefined;
 
   return (
     <div className={classes.container}>
       {isService ? (
         <>
           <TimePeriods
-            adjustTimePeriodData={newGraphInterval}
+            adjustTimePeriodData={updatedGraphInterval}
             getParameters={getTimePeriodsParameters}
             renderExternalComponent={<GraphOptions />}
+          />
+          <div>lola</div>
+
+          <ChartGraph
+            resource={details}
+            graphInterval={graphTimeParameters}
+            // graphEndpoint={graphEndpoint}
+            setUpdatedGraphInterval={setUpdatedGraphInterval}
           />
           {graphTimeParameters && (
             <ExportablePerformanceGraphWithTimeline

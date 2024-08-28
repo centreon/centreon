@@ -1,12 +1,12 @@
-import { RefObject } from 'react';
+import type { RefObject } from 'react';
 
 import { path, equals, isNil, last, not, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import ExportableGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
-import { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
-import { Resource } from '../../../models';
-import { GraphTimeParameters } from '../Graph/models';
+import type { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
+import type { Resource } from '../../../models';
+import type { GraphTimeParameters } from '../Graph/models';
 
 interface Props {
   graphTimeParameters: GraphTimeParameters;
@@ -50,7 +50,7 @@ const ServiceGraphs = ({
         return (
           <div key={id}>
             <ExportableGraphWithTimeline
-              interactWithGraph
+              // interactWithGraph
               limitLegendRows
               graphHeight={120}
               graphTimeParameters={graphTimeParameters}
