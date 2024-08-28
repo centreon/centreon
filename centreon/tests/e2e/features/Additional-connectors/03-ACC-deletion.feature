@@ -3,7 +3,7 @@ Feature: Delete an Additional Connector Configuration
   I want to visit the Specific Connector Configuration page
   To delete additional connector configuration
 
-  Scenario: Delete a configuration file 
+  Scenario: Delete a configuration file
     Given a non-admin user is in the Specific Connector Configuration page
     And an additional connector configuration is already created
     When the user deletes the additional connector configuration
