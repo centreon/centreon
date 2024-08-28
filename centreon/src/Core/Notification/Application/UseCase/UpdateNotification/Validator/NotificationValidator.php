@@ -84,13 +84,16 @@ class NotificationValidator
         $contactIdsToValidate = array_unique($contactIdsToValidate);
 
         if ($this->currentContact->isAdmin()) {
-            $existingContacts = $this->contactRepository->retrieveExistingContactIds($contactIdsToValidate);
+            $existingContactIds = $this->contactRepository->retrieveExistingContactIds($contactIdsToValidate);
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
-            $contacts = $this->contactRepository->findByAccessGroup($accessGroups);
-            $existingContacts = array_map(fn (BasicContact $contact) => $contact->getId(), $contacts);
+            $existingContacts = $this->contactRepository->findByAccessGroupsAndUserAndRequestParameters(
+                $accessGroups,
+                $this->currentContact
+            );
+            $existingContactIds = array_map(fn (BasicContact $contact) => $contact->getId(), $existingContacts);
         }
-        $contactDifference = new BasicDifference($contactIdsToValidate, $existingContacts);
+        $contactDifference = new BasicDifference($contactIdsToValidate, $existingContactIds);
         $missingContact = $contactDifference->getRemoved();
 
         if ([] !== $missingContact) {
@@ -118,7 +121,10 @@ class NotificationValidator
             $contactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
-            $contactGroups = $this->contactGroupRepository->findByAccessGroups($accessGroups);
+            $contactGroups = $this->contactGroupRepository->findByAccessGroupsAndUserAndRequestParameter(
+                $accessGroups,
+                $this->currentContact
+            );
         }
         $existingContactGroups = array_map(fn (ContactGroup $contactGroup) => $contactGroup->getId(), $contactGroups);
         $difference = new BasicDifference($contactGroupIds, $existingContactGroups);

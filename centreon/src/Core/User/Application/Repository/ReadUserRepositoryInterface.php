@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\User\Application\Repository;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\User\Domain\Model\User;
@@ -41,17 +42,21 @@ interface ReadUserRepositoryInterface
     public function findAllByRequestParameters(RequestParametersInterface $requestParameters): array;
 
     /**
-     * Find configured users that belong to given access groups.
+     * Finds all users that the contact can see based on contacts and contact groups
+     * defined in ACL groups filtered by access groups.
+     * As well as all the users in the contact groups to which he belongs.
      *
      * @param AccessGroup[] $accessGroups
+     * @param ContactInterface $user
      * @param RequestParametersInterface|null $requestParameters
      *
      * @throws \Throwable
      *
      * @return User[]
      */
-    public function findByAccessGroupsAndRequestParameters(
+    public function findByAccessGroupsUserAndRequestParameters(
         array $accessGroups,
+        ContactInterface $user,
         ?RequestParametersInterface $requestParameters
     ): array;
 

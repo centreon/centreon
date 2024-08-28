@@ -105,7 +105,10 @@ class NotificationValidator
             $existingContactIds = $this->contactRepository->retrieveExistingContactIds($contactIdsToValidate);
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
-            $existingContacts = $this->contactRepository->findByAccessGroup($accessGroups);
+            $existingContacts = $this->contactRepository->findByAccessGroupsAndUserAndRequestParameters(
+                $accessGroups,
+                $this->currentContact
+            );
             $existingContactIds = array_map(fn (BasicContact $contact) => $contact->getId(), $existingContacts);
         }
 
@@ -136,7 +139,10 @@ class NotificationValidator
             $contactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
-            $contactGroups = $this->contactGroupRepository->findByAccessGroups($accessGroups);
+            $contactGroups = $this->contactGroupRepository->findByAccessGroupsAndUserAndRequestParameter(
+                $accessGroups,
+                $this->currentContact
+            );
         }
         $existingContactGroupIds = array_map(fn (ContactGroup $contactGroup) => $contactGroup->getId(), $contactGroups);
         $difference = new BasicDifference($contactGroupIds, $existingContactGroupIds);

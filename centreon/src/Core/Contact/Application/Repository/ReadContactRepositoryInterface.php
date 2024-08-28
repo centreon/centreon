@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Contact\Application\Repository;
 
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Contact\Domain\Model\BasicContact;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -141,4 +142,23 @@ interface ReadContactRepositoryInterface
      * @return BasicContact[]
      */
     public function findByAccessGroup(array $accessGroups): array;
+
+    /**
+     * Finds all contacts that the contact can see based on contacts and contact groups
+     * defined in ACL groups filtered by access groups.
+     * As well as all the contacts in the contact groups to which he belongs.
+     *
+     * @param AccessGroup[] $accessGroups
+     * @param ContactInterface $user
+     * @param ?RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return BasicContact[]
+     */
+    public function findByAccessGroupsAndUserAndRequestParameters(
+        array $accessGroups,
+        ContactInterface $user,
+        ?RequestParametersInterface $requestParameters = null
+    ): array;
 }

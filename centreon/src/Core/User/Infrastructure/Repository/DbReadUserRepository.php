@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\User\Infrastructure\Repository;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
@@ -117,8 +118,9 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
     /**
      * @inheritDoc
      */
-    public function findByAccessGroupsAndRequestParameters(
+    public function findByAccessGroupsUserAndRequestParameters(
         array $accessGroups,
+        ContactInterface $user,
         ?RequestParametersInterface $requestParameters = null
     ): array {
         if ([] === $accessGroups) {
@@ -132,29 +134,45 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
         [$binValues, $subRequest] = $this->createMultipleBindQuery($accessGroupIds, ':id_');
 
         $request = <<<SQL
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS
-                contact_id,
-                contact_alias,
-                contact_name,
-                contact_email,
-                contact_admin,
-                contact_theme,
-                user_interface_density,
-                contact_oreon AS `user_can_reach_frontend`
+            SELECT SQL_CALC_FOUND_ROWS *
             FROM (
-                SELECT `contact`.* FROM `:db`.`contact`
-                JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
+                SELECT /* Finds associated users in ACL group rules */
+                    contact.contact_id, contact.contact_alias, contact.contact_name,
+                    contact.contact_email, contact.contact_admin, contact.contact_theme,
+                    contact.user_interface_density, contact.contact_oreon AS `user_can_reach_frontend`
+                FROM `:db`.`contact`
+                INNER JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
                     ON acl_c_rel.contact_contact_id = contact.contact_id
+                WHERE contact.contact_register = '1'
                     AND acl_c_rel.acl_group_id IN ({$subRequest})
-                WHERE contact.contact_register = '1'
-                UNION ALL
-                SELECT `contact`.* FROM `:db`.`contact`
-                JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
+                UNION
+                SELECT /* Finds users belonging to associated contact groups in ACL group rules */
+                    contact.contact_id, contact.contact_alias, contact.contact_name,
+                    contact.contact_email, contact.contact_admin, contact.contact_theme,
+                    contact.user_interface_density, contact.contact_oreon AS `user_can_reach_frontend`
+                FROM `:db`.`contact`
+                INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
                     ON c_cg_rel.contact_contact_id = contact.contact_id
-                JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
+                INNER JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
                     ON acl_cg_rel.cg_cg_id = c_cg_rel.contactgroup_cg_id
-                    AND acl_cg_rel.acl_group_id IN ({$subRequest})
                 WHERE contact.contact_register = '1'
+                    AND acl_cg_rel.acl_group_id IN ({$subRequest})
+                UNION
+                SELECT /* Finds users belonging to the same contact groups as the user */
+                    contact2.contact_id, contact2.contact_alias, contact2.contact_name,
+                    contact2.contact_email, contact2.contact_admin, contact2.contact_theme,
+                    contact2.user_interface_density, contact2.contact_oreon AS `user_can_reach_frontend`
+                FROM `:db`.`contact`
+                INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
+                    ON c_cg_rel.contact_contact_id = contact.contact_id
+                INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel2
+                    ON c_cg_rel2.contactgroup_cg_id = c_cg_rel.contactgroup_cg_id
+                INNER JOIN `:db`.`contact` contact2
+                    ON contact2.contact_id = c_cg_rel2.contact_contact_id
+                WHERE c_cg_rel.contact_contact_id  = :user_id
+                    AND contact.contact_register = '1'
+                    AND contact2.contact_register = '1'
+                GROUP BY contact2.contact_id
             ) as contact
             SQL;
 
@@ -170,16 +188,18 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             'is_admin' => 'contact_admin',
         ]);
 
-        $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
-        $request .= $searchRequest;
+        // handle search
+        $request .= $sqlTranslator?->translateSearchParameterToSql();
 
         // handle sort
-        $request .= $sqlTranslator?->translateSortParameterToSql();
+        $request .= $sqlTranslator?->translateSortParameterToSql() ?? ' ORDER BY contact_id ASC';
+
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();
 
         $statement = $this->db->prepare($this->translateDbName($request));
 
+        $statement->bindValue(':user_id', $user->getId(), \PDO::PARAM_INT);
         foreach ($binValues as $key => $value) {
             $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }

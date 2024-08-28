@@ -227,6 +227,7 @@ final class UpdateNotification
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $contactGroups = $this->readNotificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
             $notificationId,
+            $this->user,
             $accessGroups
         );
         if (! empty($contactGroups)) {

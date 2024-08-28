@@ -121,6 +121,7 @@ final class FindNotifications
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             $numberOfUsers = $this->notificationRepository->countContactsByNotificationIdsAndAccessGroup(
                 $notificationsIds,
+                $this->user,
                 $accessGroups
             );
         }

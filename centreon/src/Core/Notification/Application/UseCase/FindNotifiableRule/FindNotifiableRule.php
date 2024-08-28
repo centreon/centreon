@@ -31,7 +31,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Contact\Domain\Model\BasicContact;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
@@ -55,7 +54,6 @@ final class FindNotifiableRule
     public function __construct(
         private readonly ReadNotificationRepositoryInterface $notificationRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly ContactInterface $user,
     ) {
     }
@@ -122,11 +120,11 @@ final class FindNotifiableRule
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
         }
   
-            return $this->notificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
-                $notificationId,
-                $this->findAccessGroupsOfNonAdminUser()
-            );
-        
+        return $this->notificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
+            $notificationId,
+            $this->user,
+            $this->findAccessGroupsOfNonAdminUser()
+        );
     }
 
     /**
@@ -144,6 +142,7 @@ final class FindNotifiableRule
   
             return $this->notificationRepository->findUsersByNotificationIdAndAccessGroups(
                 $notificationId,
+                $this->user,
                 $this->findAccessGroupsOfNonAdminUser()
             );
         
@@ -187,13 +186,8 @@ final class FindNotifiableRule
             static fn(ContactGroup $contactGroup) => $contactGroup->getId(),
             $contactGroups
         );
-        $contactIdsFromContactGroups = $this->readContactRepository->findContactIdsByContactGroups($contactGroupIds);
-        $contactsFromContactGroups = $this->readContactRepository->findByIds($contactIdsFromContactGroups);
 
-        $contactDtos = $this->createContactDto([
-            ...$contactsFromContactGroups,
-            ...$contacts,
-        ]);
+        $contactDtos = $this->createContactDto($contacts);
 
         foreach ($messages as $message) {
             switch ($message->getChannel()) {

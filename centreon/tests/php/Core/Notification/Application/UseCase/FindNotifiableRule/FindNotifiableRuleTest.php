@@ -28,7 +28,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
@@ -46,7 +45,6 @@ beforeEach(function (): void {
     $this->useCase = new FindNotifiableRule(
         $this->notificationRepository = $this->createMock(ReadNotificationRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
         $this->contact = $this->createMock(ContactInterface::class),
     );
 });

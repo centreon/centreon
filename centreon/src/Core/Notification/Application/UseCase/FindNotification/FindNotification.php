@@ -132,6 +132,7 @@ final class FindNotification
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationIdAndAccessGroups(
                 $notificationId,
+                $this->user,
                 $accessGroups
             ));
         }
@@ -179,13 +180,13 @@ final class FindNotification
         if ($this->user->isAdmin()) {
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
         }  
-            $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+        $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
 
-            return $this->notificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
-                $notificationId,
-                $accessGroups
-            );
-        
+        return $this->notificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
+            $notificationId,
+            $this->user,
+            $accessGroups
+        );
     }
 
     /**

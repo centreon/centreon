@@ -81,8 +81,9 @@ final class FindUsers
 
                     return;
                 }
-                $users = $this->readUserRepository->findByAccessGroupsAndRequestParameters(
+                $users = $this->readUserRepository->findByAccessGroupsUserAndRequestParameters(
                     $this->accessGroups,
+                    $this->user,
                     $this->requestParameters
                 );
             }

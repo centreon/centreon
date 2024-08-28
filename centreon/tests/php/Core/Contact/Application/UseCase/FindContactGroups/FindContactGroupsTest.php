@@ -138,8 +138,8 @@ it('should call the method findByAccessGroups if the user is not admin', functio
 
     $this->contactGroupRepository
         ->expects($this->once())
-        ->method('findByAccessGroups')
-        ->with($accessGroupsFound, $this->requestParameters)
+        ->method('findByAccessGroupsAndUserAndRequestParameter')
+        ->with($accessGroupsFound, $this->user, $this->requestParameters)
         ->willReturn([]);
 
     $presenter = new FindContactGroupsPresenterStub($this->presenterFormatter);

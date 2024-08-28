@@ -60,7 +60,11 @@ class FindContactGroups
                 $presenter->present(new FindContactGroupsResponse($contactGroups));
             } elseif ($this->contactCanExecuteThisUseCase()) {
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
-                $contactGroups = $this->contactGroupRepository->findByAccessGroups($accessGroups, $this->requestParameters);
+                $contactGroups = $this->contactGroupRepository->findByAccessGroupsAndUserAndRequestParameter(
+                    $accessGroups,
+                    $this->user,
+                    $this->requestParameters
+                );
                 $presenter->present(new FindContactGroupsResponse($contactGroups));
             } else {
                 $this->error('User doesn\'t have sufficient right to see contact groups', [

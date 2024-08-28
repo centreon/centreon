@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\Repository;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -88,16 +89,21 @@ interface ReadNotificationRepositoryInterface
     public function findUsersByNotificationId(int $notificationId): array;
 
     /**
-     * Find notification users and those defined in contact groups.
+     * Find notification users and those defined in contact groups by access groups and user based on ACL.
      *
      * @param int $notificationId
+     * @param ContactInterface $user
      * @param AccessGroup[] $accessGroups
      *
      * @throws \Throwable
      *
      * @return array<int, Contact>
      */
-    public function findUsersByNotificationIdAndAccessGroups(int $notificationId, array $accessGroups): array;
+    public function findUsersByNotificationIdAndAccessGroups(
+        int $notificationId,
+        ContactInterface $user,
+        array $accessGroups
+    ): array;
 
     /**
      * Find notification users for a list of contact group Ids.
@@ -133,28 +139,38 @@ interface ReadNotificationRepositoryInterface
     public function countContactsByNotificationIds(array $notificationIds): array;
 
     /**
-     * Count notification users for notifications by access groups.
+     * Count notification users for notifications by access groups and current user based on ACL.
      *
      * @param int[] $notificationIds
+     * @param ContactInterface $user
      * @param AccessGroup[] $accessGroups
      *
      * @throws \Throwable
      *
      * @return array<int,int> [notification_id => user_count]
      */
-    public function countContactsByNotificationIdsAndAccessGroup(array $notificationIds, array $accessGroups): array;
+    public function countContactsByNotificationIdsAndAccessGroup(
+        array $notificationIds,
+        ContactInterface $user,
+        array $accessGroups
+    ): array;
 
     /**
      * Find notification Contact Groups linked to a given user for a notification.
      *
      * @param int $notificationId
+     * @param ContactInterface $user
      * @param AccessGroup[] $accessGroups
      *
      * @throws \Throwable
      *
      * @return ContactGroup[]
      */
-    public function findContactGroupsByNotificationIdAndAccessGroups(int $notificationId, array $accessGroups): array;
+    public function findContactGroupsByNotificationIdAndAccessGroups(
+        int $notificationId,
+        ContactInterface $user,
+        array $accessGroups
+    ): array;
 
     /**
      * Tells whether the notification exists.
