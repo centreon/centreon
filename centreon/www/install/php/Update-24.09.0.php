@@ -29,10 +29,10 @@ $versionOfTheUpgrade = 'UPGRADE - 24.09.0: ';
 $errorMessage = '';
 
 // ADDITIONAL CONNECTOR CONFIGURATION
-$createAcc = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$createAcc = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to create table additional_connector_configuration';
-        $pearDB->executeQuery(
-            <<<'SQL'
+    $pearDB->executeQuery(
+        <<<'SQL'
                 CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
                     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
                     `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6',
@@ -53,7 +53,7 @@ $createAcc = function(CentreonDB $pearDB) use(&$errorMessage): void {
                         REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                 SQL
-        );
+    );
 
     $errorMessage = 'Unable to create table acc_poller_relation';
     $pearDB->executeQuery(
@@ -73,7 +73,7 @@ $createAcc = function(CentreonDB $pearDB) use(&$errorMessage): void {
     );
 };
 
-$insertIntoTopology = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$insertIntoTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to insert data into table topology';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
@@ -92,7 +92,7 @@ $insertIntoTopology = function(CentreonDB $pearDB) use(&$errorMessage): void {
 };
 
 // CLOCK WIDGET
-$insertClockWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$insertClockWidget = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to select data into table dashboard_widgets';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
@@ -112,7 +112,7 @@ $insertClockWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
 };
 
 // BROKER LOGS
-$addCentreonBrokerForeignKeyOnBrokerLogTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$addCentreonBrokerForeignKeyOnBrokerLogTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $constraintStatement = $pearDB->prepareQuery(
         <<<SQL
             SELECT 1 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
@@ -169,7 +169,7 @@ $insertNewBrokerLogs = function (CentreonDB $pearDB) use (&$errorMessage): void 
     );
 };
 
-$insertNewBrokersLogsRelations = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$insertNewBrokersLogsRelations = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to find config_id in cfg_centreonbroker table';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
@@ -178,14 +178,14 @@ $insertNewBrokersLogsRelations = function(CentreonDB $pearDB) use(&$errorMessage
             SQL
     );
     $configIds = [];
-    while(($configId = $statement->fetchColumn()) !== false){
+    while (($configId = $statement->fetchColumn()) !== false) {
         $configIds[] = $configId;
     }
     $insertSubQuery = '';
 
     // Logs 11 to 17 are new logs, 3 is the default "error" level
     foreach ($configIds as $configId) {
-        for( $logId = 11; $logId <= 17; $logId++){
+        for ($logId = 11; $logId <= 17; $logId++) {
             $insertSubQuery .= "({$configId},{$logId},3),";
         }
     }
@@ -195,6 +195,15 @@ $insertNewBrokersLogsRelations = function(CentreonDB $pearDB) use(&$errorMessage
         <<<SQL
             INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
             VALUES {$insertSubQuery}
+            SQL
+    );
+};
+
+$removeDashboardFeatureFlagFromTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update topology feature dashboard entries on topology table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE topology SET topology_feature_flag=NULL WHERE topology_feature_flag='dashboard';
             SQL
     );
 };
@@ -222,9 +231,9 @@ try {
     $centreonLog->insertLog(
         4,
         $versionOfTheUpgrade . $errorMessage
-        . ' - Code : ' . (int) $e->getCode()
-        . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString()
+            . ' - Code : ' . (int) $e->getCode()
+            . ' - Error : ' . $e->getMessage()
+            . ' - Trace : ' . $e->getTraceAsString()
     );
 
     throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
