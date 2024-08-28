@@ -37,8 +37,6 @@ class MacroHost extends AbstractObject
     ];
 
     /**
-     * Constructor
-     *
      * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
@@ -62,10 +60,17 @@ class MacroHost extends AbstractObject
     /**
      * Get host macro from host id
      *
-     * @param integer $host
-     * @return null|array
+     * @param int $hostId
+     * @return array<array{
+     *     "host_macro_id":int,
+     *     "host_macro_name":string,
+     *     "host_macro_value":string,
+     *     "is_password":null|int,
+     *     "description":null|string,
+     *     "host_host_id":int
+     * }>
      */
-    public function getHostMacroByHostId(int $hostId)
+    public function getHostMacroByHostId(int $hostId): array
     {
         try {
             $statement = $this->databaseConnection->prepareQuery(
@@ -76,7 +81,11 @@ class MacroHost extends AbstractObject
             $this->databaseConnection->executePreparedQuery($statement, ['host_id' => $hostId]);
             $macros = $statement->fetchAll(\PDO::FETCH_ASSOC);
             $this->writeMacrosHost($hostId, $macros);
-
+            \CentreonLog::create()->info(
+                logTypeId: \CentreonLog::TYPE_BUSINESS_LOG,
+                message: 'Host macros generated',
+                customContext: [$macros]
+            );
             return $macros;
         } catch (\CentreonDbException $ex) {
             \CentreonLog::create()->error(
@@ -92,7 +101,14 @@ class MacroHost extends AbstractObject
      * Generate host macros
      *
      * @param int $hostId
-     * @return void
+     * @param array<array{
+     *      "host_macro_id":int,
+     *      "host_macro_name":string,
+     *      "host_macro_value":string,
+     *      "is_password":null|int,
+     *      "description":null|string,
+     *      "host_host_id":int
+     *  }> $macros
      */
     private function writeMacrosHost(int $hostId, array $macros): void
     {
