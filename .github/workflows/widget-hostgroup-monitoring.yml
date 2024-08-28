@@ -1,4 +1,4 @@
-name: widget-host-monitoring
+name: widget-hostgroup-monitoring
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
