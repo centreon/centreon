@@ -127,7 +127,7 @@ export interface FederatedWidgetProperties {
   singleResourceSelection?: boolean;
   title: string;
   message?: {
-    label : string; 
-    icon ?: string;
-  }
+    label: string;
+    icon?: string;
+  };
 }

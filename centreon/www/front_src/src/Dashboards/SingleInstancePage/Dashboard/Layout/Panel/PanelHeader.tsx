@@ -33,6 +33,7 @@ import {
 
 import MorePanelActions from './MorePanelActions';
 import { usePanelHeaderStyles } from './usePanelStyles';
+import useRefreshWebPageWidget from './useRefreshWebPageWidget';
 
 interface PanelHeaderProps {
   changeViewMode: (displayType) => void;
@@ -43,6 +44,7 @@ interface PanelHeaderProps {
   linkToResourceStatus?: string;
   pageType: string | null;
   setRefreshCount?: (id) => void;
+  name: string;
 }
 
 const PanelHeader = ({
@@ -53,7 +55,8 @@ const PanelHeader = ({
   changeViewMode,
   pageType,
   displayShrinkRefresh,
-  forceDisplayShrinkRefresh
+  forceDisplayShrinkRefresh,
+  name
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
@@ -102,6 +105,11 @@ const PanelHeader = ({
 
   const page = t(pageType || labelResourcesStatus);
 
+  const isWebPageWidget = equals(name, 'centreon-widget-webpage');
+  
+  const refresWebpageWidget = useRefreshWebPageWidget(id);
+
+
   return (
     <CardHeader
       action={
@@ -143,6 +151,7 @@ const PanelHeader = ({
                 )}
               </div>
             )}
+
             {linkToResourceStatus && (
               <Link
                 data-testid={t(labelSeeMore, { page })}
@@ -159,6 +168,18 @@ const PanelHeader = ({
                 </IconButton>
               </Link>
             )}
+
+            {isWebPageWidget && (
+              <IconButton
+                size="small"
+                title={'Refresh the page'}
+                tooltipPlacement="top"
+                onClick={refresWebpageWidget}
+              >
+                <UpdateIcon sx={{ height: 22, width: 22 }} />
+              </IconButton>
+            )}
+
             <IconButton
               ariaLabel={t(labelMoreActions) as string}
               title={t(labelMoreActions) as string}

@@ -75,6 +75,7 @@ const PanelsLayout = ({
                   }
                   pageType={getPageType(data)}
                   setRefreshCount={setRefreshCount}
+                  name={name}
                 />
               ) : undefined
             }
