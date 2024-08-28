@@ -216,7 +216,6 @@ When(
   }
 );
 
-
 When(
   'the dashboard administrator user selects the widget type "Status Chart"',
   () => {

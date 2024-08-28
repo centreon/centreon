@@ -1,9 +1,9 @@
-@REQ_MON-16477
 Feature: Creating a Notification Rule
   As a Centreon admin user,
   I want to verify that the backup settings are properly configured
   So that I can ensure that all necessary backup options are enabled and correctly set.
 
+  @TEST_MON-147112
   Scenario: Verify Backup Configuration in the UI
     Given an admin user is logged in
     When the admin user acces to the backup page
@@ -13,6 +13,7 @@ Feature: Creating a Notification Rule
     And database backup options is set
     And Mysql configuration file path is set
 
+  @TEST_MON-147112
   Scenario: Run the full backup
     Given an admin user is logged in
     When the admin user acces to the backup page
