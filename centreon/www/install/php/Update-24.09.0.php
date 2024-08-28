@@ -203,7 +203,7 @@ $removeDashboardFeatureFlagFromTopology = function (CentreonDB $pearDB) use (&$e
     $errorMessage = 'Unable to update topology feature dashboard entries on topology table';
     $pearDB->executeQuery(
         <<<'SQL'
-            UPDATE topology SET topology_feature_flag=NULL WHERE topology_feature_flag='dashboard';
+            UPDATE topology SET topology_feature_flag=NULL WHERE topology_feature_flag='dashboard'
             SQL
     );
 };
@@ -220,6 +220,7 @@ try {
     $insertClockWidget($pearDB);
     $insertNewBrokerLogs($pearDB);
     $insertNewBrokersLogsRelations($pearDB);
+    $removeDashboardFeatureFlagFromTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
