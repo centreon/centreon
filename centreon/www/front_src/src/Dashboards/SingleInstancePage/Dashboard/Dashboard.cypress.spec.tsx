@@ -474,8 +474,6 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelDuplicate).click();
 
       cy.findAllByText('Widget text').should('have.length', 2);
-
-      cy.makeSnapshot();
     });
   });
 
