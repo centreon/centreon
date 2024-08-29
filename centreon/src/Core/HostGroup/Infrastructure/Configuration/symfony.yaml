@@ -1,18 +1,29 @@
 services:
-    _defaults:
-        public: false
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+  _defaults:
+    public: false
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
 
-    Core\HostGroup\:
-        resource: '../../../../Core/HostGroup/*'
-        bind:
-            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+  Core\HostGroup\:
+    resource: '../../../../Core/HostGroup/*'
+    bind:
+      $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
-    Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface:
-        class: Core\HostGroup\Infrastructure\Repository\DbReadHostGroupRepository
+  Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface:
+    class: Core\HostGroup\Infrastructure\Repository\DbReadHostGroupRepository
 
-    Core\HostGroup\Infrastructure\Repository\ApiReadHostGroupRepository:
-        arguments:
-            $logger: '@Centreon\Domain\Log\Logger'
+  Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface:
+    class: Core\HostGroup\Infrastructure\Repository\DbWriteHostGroupRepository
 
+  Core\HostGroup\Infrastructure\Repository\ApiReadHostGroupRepository:
+    arguments:
+      $logger: '@Centreon\Domain\Log\Logger'
+
+  Core\HostGroup\Infrastructure\Repository\DbWriteHostGroupLogRepository:
+    decorates: Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface
+    arguments:
+      - '@.inner'
+      - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+      - '@Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface'
+      - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+      - '@Centreon\Infrastructure\DatabaseConnection'
