@@ -57,11 +57,11 @@ runs:
           ROOT_REPO_PATH="rpm-standard"
         fi
 
-        ROOT_REPO_PATH="kdu-virtual"
-        SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}"
-
         # Search for testing packages candidate for promote
         for ARCH in "noarch" "x86_64"; do
+
+          ROOT_REPO_PATH="kdu-virtual"
+          SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}"
 
           # Build search path based on release_cloud and release_type values
           # if cloud, search in testing-<release_type> path
