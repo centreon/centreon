@@ -62,7 +62,7 @@ const run = async () => {
 
     console.log(context.payload.pull_request);
 
-    if (!context.payload.pull_request) {
+    if (context.payload.pull_request === null) {
       return;
     }
 
@@ -86,6 +86,7 @@ const run = async () => {
       codeCoverageLines >= baseCodeCoveragePercentage;
 
     if (generateNewCodeCoverages) {
+      console.log(1);
       if (!strictlyPassGateKeep) {
         core.info(
           `Cannot update base percentage for ${module}. Requirement: ${baseCodeCoveragePercentage}%. Current: ${codeCoverageLines}%`
@@ -108,7 +109,11 @@ const run = async () => {
 
     const title = `Code Coverage Check on ${name}`;
 
+    console.log(2);
+
     await deleteOldComments({ octokit, context, title });
+
+    console.log(3);
 
     core.info(
       `Does it pass the gate keep? ${passGateKeep} (INFO: lines: ${codeCoverageLines}, base percentage: ${baseCodeCoveragePercentage})`
@@ -122,6 +127,7 @@ const run = async () => {
         body: `<h2>📋 ${title} ❌</h2>
         Your code coverage is <b>${codeCoverageLines}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
       });
+      console.log(4);
       core.setFailed(
         `Does not pass the code coverage check (${codeCoverageLines}% instead of ${baseCodeCoveragePercentage}%)`
       );
