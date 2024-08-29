@@ -62,9 +62,9 @@ const run = async () => {
 
     console.log(context.payload.pull_request);
 
-    if (context.payload.pull_request === null) {
-      return;
-    }
+    // if (context.payload.pull_request === null) {
+    //   return;
+    // }
 
     // execSync('pnpx nyc report --reporter json-summary --report-dir /tmp');
 
@@ -111,7 +111,9 @@ const run = async () => {
 
     console.log(2);
 
-    await deleteOldComments({ octokit, context, title });
+    if (context.payload.pull_request) {
+      await deleteOldComments({ octokit, context, title });
+    }
 
     console.log(3);
 
@@ -120,13 +122,14 @@ const run = async () => {
     );
 
     if (!passGateKeep) {
-      const pullRequestNumber = context.payload.pull_request.number;
-      octokit.rest.issues.createComment({
-        ...context.repo,
-        issue_number: pullRequestNumber,
-        body: `<h2>📋 ${title} ❌</h2>
-        Your code coverage is <b>${codeCoverageLines}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
-      });
+      if (context.payload.pull_request) {
+        octokit.rest.issues.createComment({
+          ...context.repo,
+          issue_number: context.payload.pull_request.number,
+          body: `<h2>📋 ${title} ❌</h2>
+          Your code coverage is <b>${codeCoverageLines}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
+        });
+      }
       console.log(4);
       core.setFailed(
         `Does not pass the code coverage check (${codeCoverageLines}% instead of ${baseCodeCoveragePercentage}%)`
