@@ -35,7 +35,7 @@ const deleteOldComments = async ({ octokit, context, title }) => {
   });
 
   existingComments.forEach((existingComment) => {
-    core.debug(`Deleting comment: ${existingComment.id}`);
+    core.info(`Deleting comment: ${existingComment.id}`);
     try {
       octokit.rest.issues.deleteComment({
         owner: context.repo.owner,
@@ -59,10 +59,6 @@ const run = async () => {
     const generateNewCodeCoverages = core.getBooleanInput(
       'generateNewCodeCoverages'
     );
-
-    if (context.payload.pull_request === null) {
-      return;
-    }
 
     execSync('pnpx nyc report --reporter json-summary --report-dir /tmp');
 
@@ -105,20 +101,24 @@ const run = async () => {
 
     const title = `Code Coverage Check on ${name}`;
 
-    await deleteOldComments({ octokit, context, title });
+    if (context.payload.pull_request) {
+      await deleteOldComments({ octokit, context, title });
+    }
 
     core.info(
       `Does it pass the gate keep? ${passGateKeep} (INFO: lines: ${codeCoverageLines}, base percentage: ${baseCodeCoveragePercentage})`
     );
 
     if (!passGateKeep) {
-      const pullRequestNumber = context.payload.pull_request.number;
-      octokit.rest.issues.createComment({
-        ...context.repo,
-        issue_number: pullRequestNumber,
-        body: `<h2>📋 ${title} ❌</h2>
-        Your code coverage is <b>${codeCoverageLines}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
-      });
+      if (context.payload.pull_request) {
+        core.info(`Creating comment on pull request.`);
+        octokit.rest.issues.createComment({
+          ...context.repo,
+          issue_number: context.payload.pull_request.number,
+          body: `<h2>📋 ${title} ❌</h2>
+          Your code coverage is <b>${codeCoverageLines}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
+        });
+      }
       core.setFailed(
         `Does not pass the code coverage check (${codeCoverageLines}% instead of ${baseCodeCoveragePercentage}%)`
       );
