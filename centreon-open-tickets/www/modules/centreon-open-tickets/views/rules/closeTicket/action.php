@@ -32,7 +32,6 @@ session_start();
 /**
  * Function that will check the selection payload.
  *
- * @param string
  * @param string $selection
  *
  * @return bool
