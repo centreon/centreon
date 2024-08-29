@@ -120,4 +120,5 @@ export const buildResourcesEndpoint = ({
   });
 };
 
-export const closeTicketEndpoint = './main.get.php?p=60422';
+export const closeTicketEndpoint =
+  './modules/centreon-open-tickets/views/rules/closeTicket/action.php';

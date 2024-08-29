@@ -157,7 +157,7 @@ const resourcesRequests = (): void => {
     alias: 'postTicketClose',
     method: Method.POST,
     path: closeTicketEndpoint,
-    response: {}
+    response: { code: 0, msg: 'Ticket closed: 12' }
   });
 };
 

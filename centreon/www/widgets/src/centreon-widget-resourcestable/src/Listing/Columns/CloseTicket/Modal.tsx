@@ -5,13 +5,13 @@ import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 import { Button, Modal } from '@centreon/ui/components';
 import { Typography } from '@mui/material';
 import { useAtom } from 'jotai';
+import { equals } from 'ramda';
 import { closeTicketEndpoint } from '../../../api/endpoints';
 import { resourcesToCloseTicketAtom } from '../../../atom';
 import {
   labelCancel,
   labelCloseATicket,
   labelConfirm,
-  labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../../translatedLabels';
 
@@ -23,15 +23,22 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
   const [resourcesToCloseTicket, setResourcesToCloseTicket] = useAtom(
     resourcesToCloseTicketAtom
   );
-  const { showSuccessMessage } = useSnackbar();
+  const { showSuccessMessage, showErrorMessage } = useSnackbar();
   const { t } = useTranslation();
   const { mutateAsync } = useMutationQuery({
+    baseEndpoint: '',
     method: Method.POST,
     getEndpoint: () => closeTicketEndpoint,
-    onSuccess: () => {
-      showSuccessMessage(t(labelTicketClosed));
+    onSuccess: (data) => {
+      if (!equals(data?.code, 0)) {
+        showErrorMessage(data?.msg);
+        return;
+      }
+      showSuccessMessage(data?.msg);
     },
-    onMutate: () => setResourcesToCloseTicket([])
+    onMutate: () => {
+      setResourcesToCloseTicket([]);
+    }
   });
 
   const resource = resourcesToCloseTicket[0];
