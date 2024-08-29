@@ -62,7 +62,7 @@ const run = async () => {
 
     console.log(context.payload.pull_request);
 
-    if (context.payload.pull_request === null) {
+    if (!context.payload.pull_request) {
       return;
     }
 
