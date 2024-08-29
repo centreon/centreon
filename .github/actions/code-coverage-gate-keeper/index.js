@@ -35,7 +35,7 @@ const deleteOldComments = async ({ octokit, context, title }) => {
   });
 
   existingComments.forEach((existingComment) => {
-    core.debug(`Deleting comment: ${existingComment.id}`);
+    core.info(`Deleting comment: ${existingComment.id}`);
     try {
       octokit.rest.issues.deleteComment({
         owner: context.repo.owner,
@@ -60,17 +60,10 @@ const run = async () => {
       'generateNewCodeCoverages'
     );
 
-    console.log(context.payload.pull_request);
+    execSync('pnpx nyc report --reporter json-summary --report-dir /tmp');
 
-    // if (context.payload.pull_request === null) {
-    //   return;
-    // }
-
-    // execSync('pnpx nyc report --reporter json-summary --report-dir /tmp');
-
-    // const coverageFile = fs.readFileSync('/tmp/coverage-summary.json');
-    // const coverage = JSON.parse(coverageFile);
-    const coverage = { total: { lines: { pct: 100 }}};
+    const coverageFile = fs.readFileSync('/tmp/coverage-summary.json');
+    const coverage = JSON.parse(coverageFile);
     const module = modulePath.replaceAll('/', '-');
     const codeCoverageLines = coverage.total.lines.pct;
     const codeCoverages = JSON.parse(
@@ -86,7 +79,6 @@ const run = async () => {
       codeCoverageLines >= baseCodeCoveragePercentage;
 
     if (generateNewCodeCoverages) {
-      console.log(1);
       if (!strictlyPassGateKeep) {
         core.info(
           `Cannot update base percentage for ${module}. Requirement: ${baseCodeCoveragePercentage}%. Current: ${codeCoverageLines}%`
@@ -109,13 +101,9 @@ const run = async () => {
 
     const title = `Code Coverage Check on ${name}`;
 
-    console.log(2);
-
     if (context.payload.pull_request) {
       await deleteOldComments({ octokit, context, title });
     }
-
-    console.log(3);
 
     core.info(
       `Does it pass the gate keep? ${passGateKeep} (INFO: lines: ${codeCoverageLines}, base percentage: ${baseCodeCoveragePercentage})`
@@ -123,6 +111,7 @@ const run = async () => {
 
     if (!passGateKeep) {
       if (context.payload.pull_request) {
+        core.info(`Creating comment on pull request.`);
         octokit.rest.issues.createComment({
           ...context.repo,
           issue_number: context.payload.pull_request.number,
@@ -130,7 +119,6 @@ const run = async () => {
           Your code coverage is <b>${codeCoverageLines}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
         });
       }
-      console.log(4);
       core.setFailed(
         `Does not pass the code coverage check (${codeCoverageLines}% instead of ${baseCodeCoveragePercentage}%)`
       );
