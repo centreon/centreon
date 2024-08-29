@@ -48,4 +48,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           name: centreon
           dynamicCodeCoveragesFilePath: /tmp/baseCodeCoverages.json
-          generateNewCodeCoverages: ${{ github.ref_name == 'MON-146951' && true }}
+          generateNewCodeCoverages: ${{ github.ref_name == 'MON-146951' && false }}
