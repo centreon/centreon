@@ -38,7 +38,7 @@ describe('Web page', () => {
     cy.findByText(labelWebPagePreview).should('be.visible');
   });
 
-  it('displays the page centent if the URL is valid', () => {
+  it('displays the page content if the URL is valid', () => {
     initialize({ url: 'https://docs.centreon.com' });
 
     cy.findByTestId('Webpage Display').should('be.visible');
