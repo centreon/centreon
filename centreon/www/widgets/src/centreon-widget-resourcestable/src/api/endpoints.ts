@@ -119,3 +119,5 @@ export const buildResourcesEndpoint = ({
     }
   });
 };
+
+export const closeTicketEndpoint = './main.get.php?p=60422';
