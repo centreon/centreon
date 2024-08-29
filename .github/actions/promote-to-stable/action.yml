@@ -58,6 +58,7 @@ runs:
         fi
 
         ROOT_REPO_PATH="kdu-virtual"
+        SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}"
 
         # Search for testing packages candidate for promote
         for ARCH in "noarch" "x86_64"; do
