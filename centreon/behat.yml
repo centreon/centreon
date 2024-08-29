@@ -5,6 +5,7 @@ default:
       sessions:
         default:
           selenium2: ~
+      debug: true
     Centreon\Test\Behat\Extensions\ContainerExtension:
       log_directory: "%paths.base%/../acceptance-logs"
       docker_compose_web: "%paths.base%/../.github/docker/docker-compose.yml"
