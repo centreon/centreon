@@ -57,6 +57,8 @@ runs:
           ROOT_REPO_PATH="rpm-standard"
         fi
 
+        ROOT_REPO_PATH="kdu-virtual"
+
         # Search for testing packages candidate for promote
         for ARCH in "noarch" "x86_64"; do
 
@@ -98,7 +100,7 @@ runs:
           # Upload previously downloaded candidates to TARGET_PATH
           for ARTIFACT_DL in $(dir|grep -E "*.rpm"); do
             echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat
+            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat --dry-run
           done
 
           # Cleanup before next round of candidates
@@ -107,65 +109,65 @@ runs:
 
       shell: bash
 
-    - name: Promote DEB packages to stable
-      if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) && !inputs.release_cloud }}
-      run: |
-        set -eux
+    # - name: Promote DEB packages to stable
+    #   if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) && !inputs.release_cloud }}
+    #   run: |
+    #     set -eux
 
-        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
-        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
-        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+    #     echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
+    #     echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
+    #     echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
-        # Define ROOT_REPO_PATH for debian
-        # There is no cloud ROOT_REPO_PATH for debian, only onprem
-        # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
-        ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+    #     # Define ROOT_REPO_PATH for debian
+    #     # There is no cloud ROOT_REPO_PATH for debian, only onprem
+    #     # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
+    #     ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
 
-        echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
+    #     echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 
-        case "${{ inputs.major_version }}" in
-          "22.10"|"23.04"|"23.10")
-            SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
-            ;;
-          *)
-            SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.distrib }}*.deb | jq -r '.[].path')
-            ;;
-        esac
+    #     case "${{ inputs.major_version }}" in
+    #       "22.10"|"23.04"|"23.10")
+    #         SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
+    #         ;;
+    #       *)
+    #         SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.distrib }}*.deb | jq -r '.[].path')
+    #         ;;
+    #     esac
 
-        if [[ ${SRC_PATHS[@]} ]]; then
-          for SRC_PATH in ${SRC_PATHS[@]}; do
-            echo "[DEBUG] - Source path found: $SRC_PATH"
-          done
-        else
-          echo "[DEBUG] - No source path found."
-          continue
-        fi
+    #     if [[ ${SRC_PATHS[@]} ]]; then
+    #       for SRC_PATH in ${SRC_PATHS[@]}; do
+    #         echo "[DEBUG] - Source path found: $SRC_PATH"
+    #       done
+    #     else
+    #       echo "[DEBUG] - No source path found."
+    #       continue
+    #     fi
 
-        echo "[DEBUG] - Build target path."
-        TARGET_PATH="$ROOT_REPO_PATH-${{ inputs.stability }}/pool/${{ inputs.module }}/"
-        echo "[DEBUG] - Target path: $TARGET_PATH"
+    #     echo "[DEBUG] - Build target path."
+    #     TARGET_PATH="$ROOT_REPO_PATH-${{ inputs.stability }}/pool/${{ inputs.module }}/"
+    #     echo "[DEBUG] - Target path: $TARGET_PATH"
 
-        echo "[DEBUG] - Promoting DEB testing artifacts to stable."
-        for ARTIFACT in ${SRC_PATHS[@]}; do
-          echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
-          jf rt download $ARTIFACT --flat
-        done
+    #     echo "[DEBUG] - Promoting DEB testing artifacts to stable."
+    #     for ARTIFACT in ${SRC_PATHS[@]}; do
+    #       echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
+    #       jf rt download $ARTIFACT --flat
+    #     done
 
-        case "${{ inputs.major_version }}" in
-          "22.10"|"23.04"|"23.10")
-            ARTIFACT_SEARCH_PATTERN=".+\.deb"
-            ;;
-          *)
-            ARTIFACT_SEARCH_PATTERN=".+${{ inputs.distrib }}.+\.deb"
-            ;;
-        esac
+    #     case "${{ inputs.major_version }}" in
+    #       "22.10"|"23.04"|"23.10")
+    #         ARTIFACT_SEARCH_PATTERN=".+\.deb"
+    #         ;;
+    #       *)
+    #         ARTIFACT_SEARCH_PATTERN=".+${{ inputs.distrib }}.+\.deb"
+    #         ;;
+    #     esac
 
-        for ARTIFACT_DL in $(dir -1|grep -E $ARTIFACT_SEARCH_PATTERN); do
-          ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
-          echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat
-        done
+    #     for ARTIFACT_DL in $(dir -1|grep -E $ARTIFACT_SEARCH_PATTERN); do
+    #       ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
+    #       echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
+    #       jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat --dry-run
+    #     done
 
-        rm -f *.deb
+    #     rm -f *.deb
 
-      shell: bash
+    #   shell: bash

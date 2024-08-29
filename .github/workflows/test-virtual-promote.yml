@@ -1,0 +1,41 @@
+name: awie
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  push:
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability)  && github.event_name != 'workflow_dispatch' }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el9]
+        # distrib: [el8, el9, bullseye, bookworm]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: web
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: testing
+          # stability: ${{ needs.get-version.outputs.stability }}
+          github_ref_name: ${{ github.ref_name }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
