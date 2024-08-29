@@ -27,6 +27,7 @@ jobs:
           module_name: centreon-ui-context
           dependencies_lock_file: centreon/pnpm-lock.yaml
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: ./src/
 
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
