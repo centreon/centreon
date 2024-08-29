@@ -334,11 +334,11 @@ jobs:
 
           if [[ -f composer.json ]]; then
             echo "is_php_project=true" >> $GITHUB_ENV
-            PHP_VERSION=$( cat composer.json | grep '"php":' | cut -d ":" -f2 | cut -d"." -f 1,2 |  tr -d '">=~' )
+            PHP_VERSION=$( cat composer.json | grep -m1 '"php":' | cut -d ":" -f2 | cut -d"." -f 1,2 |  tr -d '">= ~' )
             echo "php_version=$PHP_VERSION" >> $GITHUB_ENV
             echo "trigger_sca_scan=true" >> $GITHUB_ENV
             if [[ ! -f composer.lock ]]; then
-              composer install --no-dev --optimize-autoloader
+              echo "missing_lock_file=true">> $GITHUB_ENV
             fi
           fi
 
@@ -355,6 +355,10 @@ jobs:
         env:
           fail-fast: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: generate missing composer.lock
+        if: env.missing_lock_file == 'true'
+        run: composer install --no-dev --optimize-autoloader
 
       - name: SCA scan
         if: env.trigger_sca_scan == 'true'
