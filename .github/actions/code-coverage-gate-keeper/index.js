@@ -60,14 +60,17 @@ const run = async () => {
       'generateNewCodeCoverages'
     );
 
+    console.log(context.payload);
+
     if (context.payload.pull_request === null) {
       return;
     }
 
-    execSync('pnpx nyc report --reporter json-summary --report-dir /tmp');
+    // execSync('pnpx nyc report --reporter json-summary --report-dir /tmp');
 
-    const coverageFile = fs.readFileSync('/tmp/coverage-summary.json');
-    const coverage = JSON.parse(coverageFile);
+    // const coverageFile = fs.readFileSync('/tmp/coverage-summary.json');
+    // const coverage = JSON.parse(coverageFile);
+    const coverage = {};
     const module = modulePath.replaceAll('/', '-');
     const codeCoverageLines = coverage.total.lines.pct;
     const codeCoverages = JSON.parse(
