@@ -60,7 +60,7 @@ runs:
           -H "Authorization: Bearer ${{ inputs.artifactory_token }}" \
           -H "Content-Type: application/json" \
           -X PUT \
-          --data '{"rclass":"virtual","packageType":"rpm","repositories":["kdu-local"]","defaultDeploymentRepo":"kdu-local"}' \
+          --data '{"rclass":"virtual","packageType":"rpm","repositories":["kdu-local"],"defaultDeploymentRepo":"kdu-local"}' \
           "https://centreon.jfrog.io/artifactory/api/repositories/kdu-virtual"
       shell: bash
 
@@ -117,7 +117,7 @@ runs:
           fi
 
 
-          ROOT_REPO_PATH="kdu-local"
+          ROOT_REPO_PATH="kdu-virtual"
 
           # Build target path based on ARCH
           echo "[DEBUG] - Build $ARCH target path."
