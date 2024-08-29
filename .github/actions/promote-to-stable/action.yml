@@ -37,6 +37,32 @@ runs:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
+    - name: Create virtual repo
+      run: |
+        curl \
+          -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" \
+          -X DELETE \
+          "https://centreon.jfrog.io/artifactory/api/repositories/kdu-virtual"
+
+        curl \
+          -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" \
+          -X DELETE \
+          "https://centreon.jfrog.io/artifactory/api/repositories/kdu-local"
+
+        curl \
+          -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -X PUT \
+          --data '{"rclass":"local","packageType":"rpm","calculateYumMetadata":true,"yumRootDepth":4,"enableFileListsIndexing":true}' \
+          "https://centreon.jfrog.io/artifactory/api/repositories/kdu-local"
+
+        curl \
+          -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -X PUT \
+          --data '{"rclass":"virtual","packageType":"rpm","repositories":["kdu-local"]","defaultDeploymentRepo":"kdu-local"}' \
+          "https://centreon.jfrog.io/artifactory/api/repositories/kdu-virtual"
+
     - name: Promote RPM packages to stable
       if: ${{ startsWith(inputs.distrib, 'el') }}
       run: |
