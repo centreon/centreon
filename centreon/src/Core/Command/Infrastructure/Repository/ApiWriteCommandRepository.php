@@ -79,7 +79,7 @@ class ApiWriteCommandRepository implements WriteCommandRepositoryInterface
             'macros' => array_map(
                 fn(NewCommandMacro $cmd) => [
                     'name' => $cmd->getName(),
-                    'type' => $cmd->getType(),
+                    'type' => (int) $cmd->getType()->value,
                     'description' => $this->emptyStringAsNull($cmd->getDescription()),
                 ],
                 $command->getMacros(),
@@ -97,10 +97,25 @@ class ApiWriteCommandRepository implements WriteCommandRepositoryInterface
         $response = $this->httpClient->request('POST', $apiEndpoint, $options);
 
         if ($response->getStatusCode() !== 201) {
-            /**
-             * @var array{message:string} $content
-             */
-            $content = $response->toArray(false);
+            try {
+                /** @var array{message:string} $content */
+                $content = $response->toArray(false);
+            } catch (\Throwable $ex) {
+                $this->debug('Error when retrieving response content', [
+                    'http_code' => $response->getStatusCode(),
+                    'exception' => (string) $ex,
+                    'response_content' => $response->getContent(false),
+                ]);
+
+                throw new \Exception(
+                    sprintf(
+                            'Request error: {"code":%d,"message":"Error when retrieving response content (see logs for more details)"',
+                            $response->getStatusCode()
+                        ),
+                    $response->getStatusCode()
+                );
+            }
+
             $this->debug('API error', [
                 'http_code' => $response->getStatusCode(),
                 'message' => $content['message'],
