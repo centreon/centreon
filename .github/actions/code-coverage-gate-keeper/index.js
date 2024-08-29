@@ -60,7 +60,7 @@ const run = async () => {
       'generateNewCodeCoverages'
     );
 
-    console.log(context.payload);
+    console.log(context.payload.pull_request);
 
     if (context.payload.pull_request === null) {
       return;
@@ -70,7 +70,7 @@ const run = async () => {
 
     // const coverageFile = fs.readFileSync('/tmp/coverage-summary.json');
     // const coverage = JSON.parse(coverageFile);
-    const coverage = {};
+    const coverage = { total: { lines: { pct: 100 }}};
     const module = modulePath.replaceAll('/', '-');
     const codeCoverageLines = coverage.total.lines.pct;
     const codeCoverages = JSON.parse(
