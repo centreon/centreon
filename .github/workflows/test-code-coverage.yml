@@ -1,0 +1,42 @@
+name: test-code-coverage
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  push:
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  code-coverage:
+    needs: [get-version]
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          aws-region: eu-west-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Retrieve dynamic code coverages file
+        shell: bash
+        run: |
+          aws s3 cp s3://centreon-lighthouse-report/baseCodeCoverages.json /tmp/
+
+      - name: Check Code coverage
+        uses: ./.github/actions/code-coverage-gate-keeper
+        with:
+          module_path: centreon
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: centreon
+          dynamicCodeCoveragesFilePath: /tmp/baseCodeCoverages.json
+          generateNewCodeCoverages: ""
