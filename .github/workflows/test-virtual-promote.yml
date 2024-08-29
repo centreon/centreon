@@ -34,7 +34,7 @@ jobs:
           distrib: ${{ matrix.distrib }}
           major_version: "24.04"
           minor_version: "6"
-          stability: testing
+          stability: stable
           # stability: ${{ needs.get-version.outputs.stability }}
           github_ref_name: ${{ github.ref_name }}
           release_type: release

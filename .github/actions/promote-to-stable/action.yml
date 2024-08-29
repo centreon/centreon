@@ -60,7 +60,7 @@ runs:
           -H "Authorization: Bearer ${{ inputs.artifactory_token }}" \
           -H "Content-Type: application/json" \
           -X PUT \
-          --data '{"rclass":"virtual","packageType":"rpm","repositories":["kdu-local"],"defaultDeploymentRepo":"kdu-local"}' \
+          --data '{"rclass":"virtual","packageType":"rpm","repositories":["kdu-local","rpm-standard"],"defaultDeploymentRepo":"kdu-local"}' \
           "https://centreon.jfrog.io/artifactory/api/repositories/kdu-virtual"
       shell: bash
 
