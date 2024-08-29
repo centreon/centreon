@@ -134,7 +134,7 @@ runs:
           # Upload previously downloaded candidates to TARGET_PATH
           for ARTIFACT_DL in $(dir|grep -E "*.rpm"); do
             echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat --dry-run
+            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat
           done
 
           # Cleanup before next round of candidates
