@@ -44,7 +44,7 @@ describe('Web page', () => {
     cy.findByTestId('Webpage Display').should('be.visible');
   });
 
-  it('displays the page centent if the URL is valid and not containing http prefex', () => {
+  it('displays the page content if the URL is valid and does not contain the http prefix', () => {
     initialize({ url: 'docs.centreon.com' });
 
     cy.findByTestId('Webpage Display').should('be.visible');
