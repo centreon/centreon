@@ -2,7 +2,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
   cy.startContainers();
-  cy.executeCommandsViaClapi('resources/clapi/config-ACL/ACC-acl-user.json')
+  cy.executeCommandsViaClapi('resources/clapi/config-ACL/ACC-acl-user.json');
 });
 
 beforeEach(() => {

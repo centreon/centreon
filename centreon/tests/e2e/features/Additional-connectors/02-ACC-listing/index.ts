@@ -34,9 +34,9 @@ Given('a non-admin user is logged in', () => {
 
 When('the user clicks on the Specific Connector Configuration page', () => {
   cy.navigateTo({
-    page: 'Additional connector configurations',
+    page: 'Configuration',
     rootItemNumber: 3,
-    subMenu:'Configuration'
+    subMenu:'Additional connector configurations'
   });
 });
 

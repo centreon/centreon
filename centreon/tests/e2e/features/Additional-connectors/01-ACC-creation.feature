@@ -3,11 +3,6 @@ Feature: Create a new Additional Connector Configuration
   I want to visit the Specific Connector Configuration page
   To manage additional connector configuration
 
-  Background:
-    Given a non-admin user is logged in
-    And the user has Read/Write rights on the Specific Connector Configuration page
-    And the user has access to all pollers
-
   Scenario: Add an additional connector configuration with all informations
     Given a non-admin user is in the Specific Connector Configuration page
     When the user clicks on Add
@@ -36,7 +31,6 @@ Feature: Create a new Additional Connector Configuration
     Given a non-admin user is in the Specific Connector Configuration page
     When the user clicks on Add
     And the user doesn't fill in correct type of informations
-    And the user clicks on Create
     Then the form displayed an error
 
   Scenario: Cancel a creation form
@@ -46,7 +40,7 @@ Feature: Create a new Additional Connector Configuration
     And the user clicks on the Cancel button of the creation form
     Then a pop-up appears to confirm cancellation
     And the user confirms the the cancellation
-    Then the user is on the Specific Connector Configuration page
+    Then the creation form is closed
     And the additional connector configuration has not been created
-    When the user opens the form to create a new additional connector configuration for the second time
+    When the user clicks on Add
     Then the form fields are empty

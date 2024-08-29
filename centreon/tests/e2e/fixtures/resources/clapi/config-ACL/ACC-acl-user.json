@@ -2,7 +2,7 @@
 {
     "action": "ADD",
     "object": "CONTACT",
-    "values": "ACC-user;ACC-user;ACC-user@centreon.test;Centreon@2021;0;1;en_US;local"
+    "values": "acc-user;acc-user;acc-user@centreon;Centreon@2021;0;1;en_US;local"
 },
 {
     "action":"SETPARAM",
