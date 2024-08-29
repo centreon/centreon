@@ -140,7 +140,7 @@ jobs:
           rm -rf xunit-reports && mkdir xunit-reports
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.test_tags }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat -vvv --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.test_tags }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
