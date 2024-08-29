@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Modal } from '@centreon/ui/components';
 import { useSnackbar } from '@centreon/ui';
+import { Modal } from '@centreon/ui/components';
 
 import { Ticket } from '../../models';
 import { labelCreateticket } from '../../translatedLabels';
@@ -51,7 +51,7 @@ const OpenTicketModal = ({
   }, [isOpen]);
 
   const src = resource.serviceID
-    ? `./main.get.php?p=60421&cmd=4&provider_id=${providerID}&host_id=${resource.hostID}&service_id=${resource.serviceID}`
+    ? `./main.get.php?p=60421&cmd=3&provider_id=${providerID}&host_id=${resource.hostID}&service_id=${resource.serviceID}`
     : `./main.get.php?p=60421&cmd=4&provider_id=${providerID}&host_id=${resource.hostID}`;
 
   return (

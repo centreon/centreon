@@ -1,10 +1,10 @@
 {
-  "federatedComponentsConfiguration": [{
-    "path": "/widgets/singledata",
-    "federatedComponents": [
-      "./singledata"
-    ]
-  }],
+  "federatedComponentsConfiguration": [
+    {
+      "path": "/widgets/singledata",
+      "federatedComponents": ["./singledata"]
+    }
+  ],
   "moduleFederationName": "widgetsingledata",
   "moduleName": "centreon-widget-singledata"
 }

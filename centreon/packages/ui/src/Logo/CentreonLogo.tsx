@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { Image, ImageVariant } from '..';
+import CentreonLogoDark from '../@assets/brand/centreon-logo-one-line-dark.svg';
+import CentreonLogoLight from '../@assets/brand/centreon-logo-one-line-light.svg';
 import LoadingSkeleton from '../LoadingSkeleton';
 import { useThemeMode } from '../utils/useThemeMode';
-import CentreonLogoLight from '../@assets/brand/centreon-logo-one-line-light.svg';
-import CentreonLogoDark from '../@assets/brand/centreon-logo-one-line-dark.svg';
 
 import { labelCentreonLogo } from './translatedLabels';
 

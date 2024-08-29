@@ -46,6 +46,11 @@ on:
         description: "The test execution and the test plan keys and ids"
         required: true
         type: string
+      is_cloud:
+        description: "Define if the version is targeting cloud"
+        required: false
+        type: boolean
+        default: false
     secrets:
       registry_username:
         required: true
@@ -55,6 +60,10 @@ on:
         required: true
       xray_client_secret:
         required: true
+      artifactory_internal_repo_username:
+        required: false
+      artifactory_internal_repo_password:
+        required: false
 
 jobs:
   cypress-e2e-test-list:
@@ -64,7 +73,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
@@ -96,7 +105,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
@@ -114,7 +123,7 @@ jobs:
         shell: bash
 
       - name: Login to Registry
-        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
@@ -160,6 +169,10 @@ jobs:
           test_tags: ${{ inputs.test_tags }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
+          stability: ${{ inputs.stability }}
+          is_cloud: ${{ inputs.is_cloud }}
+          artifactory_internal_repo_username: ${{ secrets.artifactory_internal_repo_username }}
+          artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Replace / with - in the feature path
         id: feature-path
@@ -220,7 +233,7 @@ jobs:
     if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
@@ -261,7 +274,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:

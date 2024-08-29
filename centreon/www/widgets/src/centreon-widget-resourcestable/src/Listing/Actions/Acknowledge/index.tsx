@@ -1,29 +1,29 @@
 import { useEffect } from 'react';
 
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
-import { useSnackbar, useRequest } from '@centreon/ui';
+import { useRequest, useSnackbar } from '@centreon/ui';
 import { acknowledgementAtom, userAtom } from '@centreon/ui-context';
 
-import {
-  labelRequired,
-  labelAcknowledgeCommandSent,
-  labelAcknowledgedBy
-} from '../../translatedLabels';
 import { Resource } from '../../models';
+import {
+  labelAcknowledgeCommandSent,
+  labelAcknowledgedBy,
+  labelRequired
+} from '../../translatedLabels';
 import { acknowledgeResources } from '../api';
 
+import { boolean, object, string } from 'yup';
 import DialogAcknowledge from './Dialog';
 
-const validationSchema = Yup.object().shape({
-  comment: Yup.string().required(labelRequired),
-  force_active_checks: Yup.boolean(),
-  is_sticky: Yup.boolean(),
-  notify: Yup.boolean(),
-  persistent: Yup.boolean()
+const validationSchema = object().shape({
+  comment: string().required(labelRequired),
+  force_active_checks: boolean(),
+  is_sticky: boolean(),
+  notify: boolean(),
+  persistent: boolean()
 });
 
 interface Props {

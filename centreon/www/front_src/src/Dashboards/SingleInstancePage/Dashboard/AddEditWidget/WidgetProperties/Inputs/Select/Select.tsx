@@ -6,12 +6,12 @@ import { Typography } from '@mui/material';
 
 import { SelectField } from '@centreon/ui';
 
-import { WidgetPropertyProps } from '../../../models';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 
-import useSelect from './useSelect';
 import { useSelectStyles } from './Select.styles';
+import useSelect from './useSelect';
 
 const Select = ({
   propertyName,

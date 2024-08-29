@@ -14,7 +14,6 @@ import Poller from './Poller';
 import HostStatusCounter from './Resources/Host';
 import ServiceStatusCounter from './Resources/Service';
 import UserMenu from './UserMenu';
-import OpenTicketModal from './OpenTicket/Modal';
 
 export const isDarkMode = (theme: Theme): boolean =>
   equals(theme.palette.mode, ThemeMode.dark);
@@ -104,7 +103,6 @@ const Header = (): JSX.Element => {
         <div className={classes.platformName}>
           <FederatedComponent path="/it-edition-extensions/header/platformName" />
         </div>
-        <OpenTicketModal />
         <UserMenu headerRef={headerRef} />
       </div>
     </header>

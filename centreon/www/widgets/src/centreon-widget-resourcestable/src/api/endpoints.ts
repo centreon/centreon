@@ -1,13 +1,13 @@
-import { always, cond, equals, pluck, T } from 'ramda';
+import { T, always, cond, equals, pluck } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { DisplayType } from '../Listing/models';
 import { NamedEntity, Resource } from '../../../models';
 import {
   formatStatus,
   getResourcesSearchQueryParameters
 } from '../../../utils';
+import { DisplayType } from '../Listing/models';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
@@ -68,7 +68,7 @@ export const buildResourcesEndpoint = ({
 
     return [
       {
-        name: 'with_ticket_opened',
+        name: 'only_with_opened_tickets',
         value: !!equals(displayResources, 'withTicket')
       }
     ];

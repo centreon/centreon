@@ -6,14 +6,14 @@ export enum SortOrder {
 }
 
 export enum Fields {
-  'CreationDate' = 'creation_date',
-  'CreatorId' = 'creator.id',
-  'CreatorName' = 'creator.name',
-  'ExpirationDate' = 'expiration_date',
-  'IsRevoked' = 'is_revoked',
-  'TokenName' = 'token_name',
-  'UserId' = 'user.id',
-  'UserName' = 'user.name'
+  CreationDate = 'creation_date',
+  CreatorId = 'creator.id',
+  CreatorName = 'creator.name',
+  ExpirationDate = 'expiration_date',
+  IsRevoked = 'is_revoked',
+  TokenName = 'token_name',
+  UserId = 'user.id',
+  UserName = 'user.name'
 }
 
 export const DefaultSortBy = { [Fields.TokenName]: SortOrder.asc };

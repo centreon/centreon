@@ -1,11 +1,11 @@
 import { RefObject } from 'react';
 
-import { path, isNil, equals, last, pipe, not } from 'ramda';
+import { path, equals, isNil, last, not, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Resource } from '../../../models';
 import ExportableGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
 import { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
+import { Resource } from '../../../models';
 import { GraphTimeParameters } from '../Graph/models';
 
 interface Props {

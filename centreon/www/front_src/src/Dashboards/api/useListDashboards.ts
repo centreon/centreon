@@ -5,15 +5,15 @@ import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 import {
   limitAtom,
   pageAtom,
+  searchAtom,
   sortFieldAtom,
-  sortOrderAtom,
-  searchAtom
+  sortOrderAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
 
-import { Dashboard, resource } from './models';
-import { dashboardsEndpoint } from './endpoints';
 import { dashboardListDecoder } from './decoders';
+import { dashboardsEndpoint } from './endpoints';
 import { List } from './meta.models';
+import { Dashboard, resource } from './models';
 
 type UseListDashboards = {
   data?: List<Omit<Dashboard, 'refresh'>>;

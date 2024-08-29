@@ -1,6 +1,6 @@
-import { equals, isNil, path, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
+import { path, equals, isNil, pathEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
@@ -16,6 +16,11 @@ import {
   useStyleTable
 } from '@centreon/ui';
 
+import {
+  resourcesToAcknowledgeAtom,
+  resourcesToSetDowntimeAtom
+} from '../../atom';
+import useAclQuery from '../Actions/aclQuery';
 import { DisplayType } from '../models';
 import {
   labelAcknowledge,
@@ -25,11 +30,6 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../translatedLabels';
-import {
-  resourcesToAcknowledgeAtom,
-  resourcesToSetDowntimeAtom
-} from '../../atom';
-import useAclQuery from '../Actions/aclQuery';
 
 import IconDowntime from './Icons/Downtime';
 import { useStyles } from './Status.styles';

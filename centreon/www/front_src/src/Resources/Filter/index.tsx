@@ -72,6 +72,7 @@ import {
 import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import SearchHelp from './SearchHelp';
 import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
+import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 import {
   applyCurrentFilterDerivedAtom,
   applyFilterDerivedAtom,
@@ -91,7 +92,6 @@ import {
 } from './models';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
-import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 
 export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();

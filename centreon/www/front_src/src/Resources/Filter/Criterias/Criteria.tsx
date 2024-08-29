@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-import { equals, isNil } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   PopoverMultiAutocompleteField,

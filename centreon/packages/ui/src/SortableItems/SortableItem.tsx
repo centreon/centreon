@@ -1,6 +1,6 @@
-import { props } from 'ramda';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { props } from 'ramda';
 
 import { useMemoComponent } from '../utils';
 

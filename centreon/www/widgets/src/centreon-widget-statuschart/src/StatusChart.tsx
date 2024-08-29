@@ -4,9 +4,9 @@ import { useRefreshInterval } from '@centreon/ui';
 
 import { getResourcesUrl } from '../../utils';
 
-import { DisplayType, StatusChartProps } from './models';
 import Chart from './Chart/Chart';
 import { useStyles } from './StatusChart.styles';
+import { DisplayType, StatusChartProps } from './models';
 import { labelHosts, labelServices } from './translatedLabels';
 
 const StatusChart = ({

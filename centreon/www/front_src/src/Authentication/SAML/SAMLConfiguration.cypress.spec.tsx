@@ -1,7 +1,8 @@
 import { replace } from 'ramda';
 
-import { TestQueryProvider, Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
 
+import { labelSave } from '../Local/translatedLabels';
 import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
@@ -32,8 +33,8 @@ import {
   labelGroupsMapping,
   labelIdentityProvider
 } from '../translatedLabels';
-import { labelSave } from '../Local/translatedLabels';
 
+import { retrievedSAMLConfiguration } from './defaults';
 import {
   labelBothIdentityProviderAndCentreonUI,
   labelCentreonUIOnly,
@@ -49,7 +50,6 @@ import {
   labelSAMLOnly,
   labelUserIdAttribute
 } from './translatedLabels';
-import { retrievedSAMLConfiguration } from './defaults';
 
 import SAMLConfigurationForm from '.';
 

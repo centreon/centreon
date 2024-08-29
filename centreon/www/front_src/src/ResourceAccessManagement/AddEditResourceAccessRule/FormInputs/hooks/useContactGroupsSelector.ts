@@ -6,8 +6,8 @@ import { propEq, reject } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { NamedEntity, ResourceAccessRule } from '../../../models';
 import { allContactGroupsSelectedAtom } from '../../../atom';
+import { NamedEntity, ResourceAccessRule } from '../../../models';
 import { findContactGroupsEndpoint } from '../../api/endpoints';
 
 interface UseContactGroupssSelectorState {

@@ -1,13 +1,20 @@
-import { createStore, Provider } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
-import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
+import { Provider, createStore } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { userAtom, isOnPublicPageAtom } from '@centreon/ui-context';
+import { isOnPublicPageAtom, userAtom } from '@centreon/ui-context';
 
-import { Data, PanelOptions } from '../StatusGridStandard/models';
 import { StatusGridWrapper } from '..';
+import {
+  labelNoHostsFound,
+  labelNoServicesFound
+} from '../../../translatedLabels';
+import { getPublicWidgetEndpoint } from '../../../utils';
+import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
+import { router } from '../StatusGridStandard/Tile';
+import { Data, PanelOptions } from '../StatusGridStandard/models';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
@@ -15,9 +22,6 @@ import {
   labelValue
 } from '../StatusGridStandard/translatedLabels';
 import { hostsEndpoint, resourcesEndpoint } from '../api/endpoints';
-import { router } from '../StatusGridStandard/Tile';
-import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
-import { getPublicWidgetEndpoint } from '../../../utils';
 
 import {
   condensedOptions,
@@ -75,13 +79,22 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
   });
 };
 
-const hostsRequests = (): void => {
+const emptyData = {
+  meta: {
+    limit: 10,
+    page: 1,
+    total: 0
+  },
+  result: []
+};
+
+const hostsRequests = (noValues = false): void => {
   cy.fixture('Widgets/StatusGrid/hostResources.json').then((data) => {
     cy.interceptAPIRequest({
       alias: 'getHostResources',
       method: Method.GET,
       path: `./api/latest${hostsEndpoint}?**`,
-      response: data
+      response: noValues ? emptyData : data
     });
 
     cy.interceptAPIRequest({
@@ -92,7 +105,7 @@ const hostsRequests = (): void => {
         playlistHash: 'hash',
         widgetId: '1'
       })}`,
-      response: data
+      response: noValues ? emptyData : data
     });
   });
   cy.fixture('Widgets/StatusGrid/hostTooltipDetails.json').then((data) => {
@@ -122,20 +135,20 @@ const hostsRequests = (): void => {
   });
 };
 
-const servicesRequests = (): void => {
+const servicesRequests = (noValues = false): void => {
   cy.fixture('Widgets/StatusGrid/serviceResources.json').then((data) => {
     cy.interceptAPIRequest({
       alias: 'getServiceResources',
       method: Method.GET,
       path: `./api/latest${resourcesEndpoint}?page=1&limit=20**`,
-      response: data
+      response: noValues ? emptyData : data
     });
   });
   cy.fixture('Widgets/StatusGrid/serviceTooltipDetails.json').then((data) => {
     cy.interceptAPIRequest({
       alias: 'getServiceTooltipDetails28',
       method: Method.GET,
-      path: `./api/latest/monitoring/hosts/14/services/28/metrics`,
+      path: './api/latest/monitoring/hosts/14/services/28/metrics',
       response: data
     });
   });
@@ -143,7 +156,7 @@ const servicesRequests = (): void => {
     cy.interceptAPIRequest({
       alias: 'getServiceTooltipDetails27',
       method: Method.GET,
-      path: `./api/latest/monitoring/hosts/14/services/27/metrics`,
+      path: './api/latest/monitoring/hosts/14/services/27/metrics',
       response: data
     });
   });
@@ -308,6 +321,18 @@ describe('View by host', () => {
         .should('have.css', 'background-color', 'rgb(136, 185, 34)');
 
       cy.makeSnapshot();
+    });
+  });
+
+  describe('Without resources found', () => {
+    it('displays a message when no resouces was found', () => {
+      hostsRequests(true);
+      cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
+      initialize({ data: { resources }, options: hostOptions });
+
+      cy.waitForRequest('@getHostResources');
+
+      cy.contains(labelNoHostsFound).should('be.visible');
     });
   });
 });
@@ -488,6 +513,18 @@ describe('View by service', () => {
       });
 
       cy.makeSnapshot();
+    });
+  });
+
+  describe('Without resources found', () => {
+    it('displays a message when no resouces was found', () => {
+      servicesRequests(true);
+      cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
+      initialize({ data: { resources }, options: serviceOptions });
+
+      cy.waitForRequest('@getServiceResources');
+
+      cy.contains(labelNoServicesFound).should('be.visible');
     });
   });
 });

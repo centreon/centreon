@@ -1,5 +1,5 @@
-import { has } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { has } from 'ramda';
 
 import { platformVersionsAtom } from '@centreon/ui-context';
 

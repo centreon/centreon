@@ -2,9 +2,7 @@
   "federatedComponentsConfiguration": [
     {
       "path": "/widgets/singlemetric",
-      "federatedComponents": [
-        "./singlemetric"
-      ]
+      "federatedComponents": ["./singlemetric"]
     }
   ],
   "moduleFederationName": "widgetsinglemetric",
