@@ -3,7 +3,12 @@ import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import AddIcon from '@mui/icons-material/Add';
-import { Divider, FormHelperText, Typography } from '@mui/material';
+import {
+  CircularProgress,
+  Divider,
+  FormHelperText,
+  Typography
+} from '@mui/material';
 
 import {
   MultiConnectedAutocompleteField,
@@ -56,7 +61,8 @@ const Resources = ({
     singleResourceSelection,
     isLastResourceInTree,
     changeIdValue,
-    hasSelectedHostForSingleMetricwidget
+    hasSelectedHostForSingleMetricwidget,
+    isValidatingResources
   } = useResources({
     excludedResourceTypes,
     propertyName,
@@ -85,6 +91,7 @@ const Resources = ({
         <Typography className={classes.resourceTitle}>
           {t(labelResources)}
         </Typography>
+        {isValidatingResources && <CircularProgress size={16} />}
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
       <div className={classes.resourceComposition}>
@@ -110,7 +117,9 @@ const Resources = ({
                 className={classes.resourceType}
                 dataTestId={labelResourceType}
                 disabled={
-                  !canEditField || getResourceStatic(resource.resourceType)
+                  !canEditField ||
+                  isValidatingResources ||
+                  getResourceStatic(resource.resourceType)
                 }
                 label={t(labelSelectResourceType) as string}
                 options={getResourceTypeOptions(index, resource)}
@@ -127,6 +136,7 @@ const Resources = ({
                   disableClearable={singleResourceSelection}
                   disabled={
                     !canEditField ||
+                    isValidatingResources ||
                     (equals(
                       resource.resourceType,
                       WidgetResourceType.service
@@ -158,7 +168,11 @@ const Resources = ({
                       })
                   }}
                   className={classes.resources}
-                  disabled={!canEditField || !resource.resourceType}
+                  disabled={
+                    !canEditField ||
+                    isValidatingResources ||
+                    !resource.resourceType
+                  }
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint({
                     index,
