@@ -49,7 +49,6 @@ use Utility\Interfaces\UUIDGeneratorInterface;
 
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
-
 /**
  * For ACL
  *
@@ -2526,6 +2525,7 @@ function updateService_MC($service_id = null, $params = array())
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
+    $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         ReadVaultConfigurationRepositoryInterface::class
     );
@@ -2671,9 +2671,13 @@ function updateService_MC($service_id = null, $params = array())
         $rq .= "geo_coords = '" . $ret["geo_coords"] . "', ";
     }
 
-    $rq .= (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null)
-        ? "service_activate = '" . $ret["service_activate"]["service_activate"] . "', "
-        : "service_activate = '1', ";
+    if (!$isServiceTemplate) {
+        if (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null) {
+            $rq .= "service_activate = '" . $ret["service_activate"]["service_activate"] . "', ";
+        }
+    } else {
+        $rq .= "service_activate = '1', ";
+    }
 
     if (strcmp("UPDATE service SET ", $rq)) {
         // Delete last ',' in request

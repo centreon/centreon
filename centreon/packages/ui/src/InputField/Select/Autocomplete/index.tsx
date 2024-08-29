@@ -1,14 +1,12 @@
-import * as React from 'react';
-
 import { equals, isEmpty, isNil, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  CircularProgress,
-  InputAdornment,
   Autocomplete,
   AutocompleteProps,
+  CircularProgress,
+  InputAdornment,
   useTheme
 } from '@mui/material';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
@@ -16,11 +14,12 @@ import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import { ThemeMode } from '@centreon/ui-context';
 
-import Option from '../Option';
-import TextField from '../../Text';
+import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
 import { SelectEntry } from '..';
-import { searchLabel } from '../../translatedLabels';
 import { getNormalizedId } from '../../../utils';
+import TextField from '../../Text';
+import { searchLabel } from '../../translatedLabels';
+import Option from '../Option';
 
 export type Props = {
   autoFocus?: boolean;
@@ -30,7 +29,7 @@ export type Props = {
   dataTestId?: string;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
-  endAdornment?: React.ReactElement;
+  endAdornment?: ReactElement;
   error?: string;
   getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
@@ -141,7 +140,7 @@ type Multiple = boolean;
 type DisableClearable = boolean;
 type FreeSolo = boolean;
 
-const AutocompleteField = React.forwardRef(
+const AutocompleteField = forwardRef(
   (
     {
       options,
@@ -164,7 +163,7 @@ const AutocompleteField = React.forwardRef(
       getOptionItemLabel = (option) => option.name,
       ...autocompleteProps
     }: Props,
-    ref?: React.ForwardedRef<HTMLDivElement>
+    ref?: ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
     const { classes, cx } = useStyles({ hideInput });
     const { t } = useTranslation();
@@ -259,7 +258,7 @@ const AutocompleteField = React.forwardRef(
           return (
             <li
               className={classes.options}
-              {...(props as React.HTMLAttributes<HTMLLIElement>)}
+              {...(props as HTMLAttributes<HTMLLIElement>)}
             >
               <Option
                 thumbnailUrl={displayOptionThumbnail ? option.url : undefined}

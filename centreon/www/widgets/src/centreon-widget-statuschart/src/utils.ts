@@ -1,5 +1,5 @@
-import { equals, map, omit, pipe, toPairs } from 'ramda';
 import numeral from 'numeral';
+import { equals, map, omit, pipe, toPairs } from 'ramda';
 
 import type { Theme } from '@mui/material';
 

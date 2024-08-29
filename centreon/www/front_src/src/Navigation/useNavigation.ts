@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 
 import { useAtom } from 'jotai';
 import {
+  T,
   always,
   any,
   append,
@@ -17,8 +18,7 @@ import {
   not,
   pipe,
   prop,
-  propEq,
-  T
+  propEq
 } from 'ramda';
 
 import { getData, useRequest } from '@centreon/ui';
@@ -154,8 +154,8 @@ const useNavigation = (): UseNavigationState => {
 
         return (value as Array<Page>).reduce(findReactRoutes, {});
       }, page) as {
-        ['children']?: Record<string, string>;
-        ['groups']?: Record<string, string>;
+        children?: Record<string, string>;
+        groups?: Record<string, string>;
       };
 
       const filteredChildren = filter(pipe(isNil, not), children);

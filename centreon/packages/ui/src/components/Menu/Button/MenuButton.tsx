@@ -5,9 +5,9 @@ import {
   Menu as MenuIcon
 } from '@mui/icons-material';
 
-import { Button, ButtonProps } from '../../Button';
 import { AriaLabelingAttributes } from '../../../@types/aria-attributes';
 import { DataTestAttributes } from '../../../@types/data-attributes';
+import { Button, ButtonProps } from '../../Button';
 import { useMenu } from '../useMenu';
 
 import { useStyles } from './MenuButton.styles';

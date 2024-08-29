@@ -32,7 +32,8 @@ final class FindTimePeriodsResponse
      *     alias: string,
      *     days: array<array{day: int, time_range: string}>,
      *     templates: array<array{id: int, alias: string}>,
-     *     exceptions: array<array{id: int, day_range: string, time_range: string}>
+     *     exceptions: array<array{id: int, day_range: string, time_range: string}>,
+     *     in_period: boolean
      * }>
      */
     public array $timePeriods = [];

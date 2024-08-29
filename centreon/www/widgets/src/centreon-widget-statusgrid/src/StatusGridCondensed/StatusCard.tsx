@@ -1,6 +1,6 @@
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useAtomValue } from 'jotai';
 
 import { Box, useTheme } from '@mui/material';
 
@@ -10,8 +10,8 @@ import {
   formatMetricValue,
   getStatusColors
 } from '@centreon/ui';
-import { Tooltip } from '@centreon/ui/components';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+import { Tooltip } from '@centreon/ui/components';
 
 import { Resource, StatusDetail } from '../../../models';
 import {

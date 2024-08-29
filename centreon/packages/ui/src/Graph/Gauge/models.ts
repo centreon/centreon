@@ -14,7 +14,7 @@ export interface GaugeProps {
 }
 
 export enum ThresholdType {
-  Warning,
-  Error,
-  Success
+  Warning = 0,
+  Error = 1,
+  Success = 2
 }

@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use CentreonOpenTickets\Resources\Infrastructure\API\ExtraDataPresenter;
 use CentreonOpenTickets\Resources\Infrastructure\Repository\OpenTicketExtraDataProvider;
+use CentreonOpenTickets\Resources\Infrastructure\API\TicketExtraDataFormatter;
 
 return static function (ContainerConfigurator $container): void {
     $openTicketsRouteConfigFileRelativePath = __DIR__ . '/../../../www/modules/centreon-open-tickets/routes/CentreonOpenTickets.yaml';
@@ -35,7 +35,7 @@ return static function (ContainerConfigurator $container): void {
         $services->get(OpenTicketExtraDataProvider::class)
             ->tag('monitoring.resource.extra.providers');
 
-        $services->get(ExtraDataPresenter::class)
+        $services->get(TicketExtraDataFormatter::class)
             ->tag('monitoring.resource.extra.presenter.providers');
     }
 };

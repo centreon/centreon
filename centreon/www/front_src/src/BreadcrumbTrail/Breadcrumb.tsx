@@ -1,6 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
-import { useTranslation } from 'react-i18next';
 
 import { Chip, Link } from '@mui/material';
 

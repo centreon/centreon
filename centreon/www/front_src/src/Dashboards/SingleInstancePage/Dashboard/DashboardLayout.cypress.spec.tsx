@@ -1,18 +1,18 @@
 /* eslint-disable import/no-unresolved */
 
-import { createStore, Provider } from 'jotai';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
-import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
-import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
-import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
-import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
+import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
+import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
+import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
+import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { isOnPublicPageAtom, federatedWidgetsAtom } from '@centreon/ui-context';
+import { federatedWidgetsAtom, isOnPublicPageAtom } from '@centreon/ui-context';
 
 import {
   getDashboardEndpoint,

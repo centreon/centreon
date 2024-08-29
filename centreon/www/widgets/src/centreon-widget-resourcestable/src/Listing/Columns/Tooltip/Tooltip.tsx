@@ -1,29 +1,43 @@
-import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 import { Box, Divider, Typography } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
-  labelTicketID,
+  labelOpenTicketForHost,
+  labelOpenTicketForService,
+  labelOpenTime,
   labelSubject,
-  labelOpenTime
+  labelTicketID
 } from '../../translatedLabels';
 
 import { useTooltipStyles } from './Tooltip.styles';
 
 interface Props {
   created_at: string;
+  hasNoTicket: boolean;
   id: number;
+  isHost: boolean;
   subject: string;
 }
 
-const TooltipContent = ({ id, subject, created_at }: Props): JSX.Element => {
+const TooltipContent = ({
+  id,
+  subject,
+  created_at,
+  hasNoTicket,
+  isHost
+}: Props): JSX.Element | string => {
   const { classes } = useTooltipStyles();
 
   const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
+
+  if (!hasNoTicket) {
+    return t(isHost ? labelOpenTicketForHost : labelOpenTicketForService);
+  }
 
   return (
     <Box className={classes.tooltipContainer} data-testid={`tooltip-${id}`}>

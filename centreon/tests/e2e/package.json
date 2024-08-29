@@ -12,17 +12,17 @@
     "gherkinlint": "pnpm gherkin-lint -c ../../../.github/actions/gherkin-lint/.gherkin-lintrc ./features/"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^20.0.7",
+    "@badeball/cypress-cucumber-preprocessor": "^20.1.2",
     "@types/cypress-cucumber-preprocessor": "^4.0.5",
-    "@types/node": "^20.14.5",
+    "@types/node": "^22.5.0",
     "cross-env": "^7.0.3",
-    "cypress": "^13.12.0",
+    "cypress": "^13.13.3",
     "cypress-on-fix": "^1.0.3",
     "cypress-real-events": "^1.13.0",
-    "cypress-wait-until": "^3.0.1",
+    "cypress-wait-until": "^3.0.2",
     "path": "^0.12.7",
     "shell-exec": "^1.1.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.4"
   },
   "cypress-cucumber-preprocessor": {
     "filterSpecs": false,

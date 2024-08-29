@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
-import { equals, isNil, map, pipe, not } from 'ramda';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { equals, isNil, map, not, pipe } from 'ramda';
 
 import { bisectDate } from '../../Graph';
 import { TimeValue } from '../../models';

@@ -113,6 +113,8 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_MONITORING_PERFORMANCES_RW = 'ROLE_MONITORING_PERFORMANCES_RW';
     public const ROLE_MONITORING_RW = 'ROLE_MONITORING_RW';
 
+    public const ROLE_CONFIGURATION_ACC_RW = 'ROLE_CONFIGURATION_ADDITIONAL_CONNECTOR_CONFIGURATION_RW';
+
     /**
      * @var string
      */

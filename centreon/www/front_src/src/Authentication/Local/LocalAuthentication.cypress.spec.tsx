@@ -1,12 +1,12 @@
 import { renderHook } from '@testing-library/react-hooks/dom';
-import { useAtomValue } from 'jotai';
-import { BrowserRouter as Router } from 'react-router-dom';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { useAtomValue } from 'jotai';
 import { replace } from 'ramda';
+import { BrowserRouter as Router } from 'react-router-dom';
 
+import { Method, TestQueryProvider, buildListingEndpoint } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
-import { buildListingEndpoint, Method, TestQueryProvider } from '@centreon/ui';
 
 import {
   authenticationProvidersEndpoint,
@@ -15,44 +15,44 @@ import {
 import { Provider } from '../models';
 
 import {
-  labelReset,
+  defaultPasswordSecurityPolicyAPI,
+  defaultPasswordSecurityPolicyWithNullValues,
+  retrievedPasswordSecurityPolicyAPI
+} from './defaults';
+import { PasswordSecurityPolicyToAPI } from './models';
+import {
+  labelChooseADurationBetween1HourAnd1Week,
+  labelChooseADurationBetween7DaysAnd12Months,
+  labelChooseAValueBetween1and10,
+  labelDay,
+  labelDays,
   labelDefinePasswordPasswordSecurityPolicy,
   labelDoYouWantToResetTheForm,
+  labelExcludedUsers,
+  labelGood,
+  labelHour,
+  labelLast3PasswordsCanBeReused,
+  labelMinimumPasswordLength,
+  labelMinimumTimeBetweenPasswordChanges,
+  labelMinutes,
+  labelMonth,
   labelNumberOfAttemptsBeforeUserIsBlocked,
   labelPasswordBlockingPolicy,
   labelPasswordCasePolicy,
   labelPasswordExpirationPolicy,
-  labelMinimumPasswordLength,
-  labelResetTheForm,
-  labelSave,
+  labelPasswordExpiresAfter,
   labelPasswordMustContainLowerCase,
-  labelPasswordMustContainUpperCase,
   labelPasswordMustContainNumbers,
   labelPasswordMustContainSpecialCharacters,
+  labelPasswordMustContainUpperCase,
+  labelReset,
+  labelResetTheForm,
+  labelSave,
   labelStrong,
-  labelGood,
-  labelWeak,
-  labelPasswordExpiresAfter,
-  labelMonth,
-  labelDays,
-  labelMinimumTimeBetweenPasswordChanges,
-  labelHour,
-  labelExcludedUsers,
-  labelChooseADurationBetween7DaysAnd12Months,
-  labelChooseADurationBetween1HourAnd1Week,
-  labelLast3PasswordsCanBeReused,
-  labelTimeThatMustPassBeforeNewConnection,
-  labelMinutes,
-  labelChooseAValueBetween1and10,
   labelThisWillNotBeUsedBecauseNumberOfAttemptsIsNotDefined,
-  labelDay
+  labelTimeThatMustPassBeforeNewConnection,
+  labelWeak
 } from './translatedLabels';
-import {
-  defaultPasswordSecurityPolicyAPI,
-  retrievedPasswordSecurityPolicyAPI,
-  defaultPasswordSecurityPolicyWithNullValues
-} from './defaults';
-import { PasswordSecurityPolicyToAPI } from './models';
 
 import LocalAuthentication from '.';
 

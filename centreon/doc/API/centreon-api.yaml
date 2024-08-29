@@ -248,6 +248,12 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/additional-connector-configurations:
+    $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/AddAndFindAccs.yaml"
+  /configuration/additional-connector-configurations/{acc_id}:
+    $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/DeleteUpdateAndFindAcc.yaml"
+  /configuration/additional-connectors/pollers/{type}:
+    $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/FindPollers.yaml"
   /configuration/broker/{brokerId}/{tag}:
     $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:

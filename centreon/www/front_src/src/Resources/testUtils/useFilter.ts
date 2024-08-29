@@ -1,15 +1,18 @@
 import { useEffect } from 'react';
 
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { omit } from 'ramda';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import {
-  useRequest,
+  getUrlQueryParameters,
   setUrlQueryParameters,
-  getUrlQueryParameters
+  useRequest
 } from '@centreon/ui';
 
+import { build } from '../Filter/Criterias/searchQueryLanguage';
+import { listCustomFilters } from '../Filter/api';
+import { listCustomFiltersDecoder } from '../Filter/api/decoders';
 import {
   applyCurrentFilterDerivedAtom,
   applyFilterDerivedAtom,
@@ -22,10 +25,7 @@ import {
   setCriteriaDerivedAtom,
   storedFilterAtom
 } from '../Filter/filterAtoms';
-import { listCustomFilters } from '../Filter/api';
-import { listCustomFiltersDecoder } from '../Filter/api/decoders';
 import { Filter } from '../Filter/models';
-import { build } from '../Filter/Criterias/searchQueryLanguage';
 import { FilterState } from '../Filter/useFilter';
 
 const useFilter = (): FilterState => {

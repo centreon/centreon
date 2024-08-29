@@ -1,25 +1,25 @@
 import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { Box, CardActionArea, Typography } from '@mui/material';
 import DvrIcon from '@mui/icons-material/Dvr';
+import { Box, CardActionArea, Typography } from '@mui/material';
 
 import { EllipsisTypography, HostIcon, ServiceIcon } from '@centreon/ui';
 
 import { Resource } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
 
-import { useTileStyles } from './StatusGrid.styles';
-import { IndicatorType, ResourceData } from './models';
-import { labelSeeMore } from './translatedLabels';
-import State from './State';
 import {
   AnomalyDetectionIcon,
   BAIcon,
   BooleanRuleIcon,
   MetaServiceIcon
 } from './Icons';
+import State from './State';
+import { useTileStyles } from './StatusGrid.styles';
+import { IndicatorType, ResourceData } from './models';
+import { labelSeeMore } from './translatedLabels';
 import { getLink } from './utils';
 
 interface Props {

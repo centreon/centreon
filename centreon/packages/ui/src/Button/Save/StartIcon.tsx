@@ -1,4 +1,4 @@
-import { always, cond, not, pipe, propEq, T } from 'ramda';
+import { T, always, cond, not, pipe, propEq } from 'ramda';
 
 import CheckIcon from '@mui/icons-material/Check';
 import SaveIcon from '@mui/icons-material/Save';

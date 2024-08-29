@@ -1,8 +1,8 @@
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { equals, gt, pluck } from 'ramda';
 
-import { getValueByUnit } from '../common/utils';
 import { LegendScale } from '../Legend/models';
+import { getValueByUnit } from '../common/utils';
 
 import { BarType } from './models';
 
@@ -11,7 +11,7 @@ interface Size {
   width: number;
 }
 
-interface useBarStackProps {
+interface UseBarStackProps {
   data: Array<BarType>;
   height: number;
   legendRef;
@@ -21,7 +21,7 @@ interface useBarStackProps {
   variant?: 'vertical' | 'horizontal';
   width: number;
 }
-interface useBarStackState {
+interface UseBarStackState {
   barSize: Size;
   colorScale;
   input;
@@ -43,7 +43,7 @@ const useResponsiveBarStack = ({
   titleRef,
   legendRef,
   size
-}: useBarStackProps): useBarStackState => {
+}: UseBarStackProps): UseBarStackState => {
   const isVerticalBar = equals(variant, 'vertical');
 
   const heightOfTitle = titleRef.current?.offsetHeight || 0;

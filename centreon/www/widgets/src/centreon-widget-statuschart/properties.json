@@ -42,10 +42,7 @@
           "name": "Service"
         }
       ],
-      "defaultValue": [
-        "host",
-        "service"
-      ],
+      "defaultValue": ["host", "service"],
       "keepOneOptionSelected": true
     },
     "unit": {
@@ -85,9 +82,7 @@
       "type": "resources",
       "defaultValue": [],
       "required": false,
-      "excludedResourceTypes": [
-        "meta-service"
-      ]
+      "excludedResourceTypes": ["meta-service"]
     }
   },
   "moduleName": "centreon-widget-statuschart"
