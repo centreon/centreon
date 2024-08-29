@@ -7086,7 +7086,7 @@ msgid "Last 4 Days"
 msgstr "Les 4 précédents jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:180
-msgid "Last 5 days"
+msgid "Last 5 Days"
 msgstr "Les 5 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:182
@@ -7098,7 +7098,7 @@ msgstr "Les 14 précédents jours"
 #: centreon-web/www/include/views/graphs/graphs.php:183
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
 #: centreon-web/www/include/eventLogs/viewLog.php:176
-msgid "Last 28 days"
+msgid "Last 28 Days"
 msgstr "Les 28 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:185
@@ -18179,28 +18179,28 @@ msgstr "Plage temporelle"
 msgid "Last hour"
 msgstr "La dernière heure"
 
-msgid "Last 3 hours"
+msgid "Last 3 Hours"
 msgstr "Les 3 dernières heures"
 
-msgid "Last 6 hours"
+msgid "Last 6 Hours"
 msgstr "Les 6 dernières heures"
 
-msgid "Last 12 hours"
+msgid "Last 12 Hours"
 msgstr "Les 12 dernières heures"
 
-msgid "Last 24 hours"
+msgid "Last 24 Hours"
 msgstr "Les 24 dernières heures"
 
-msgid "Last 7 days"
+msgid "Last 7 Days"
 msgstr "Les 7 derniers jours"
 
-msgid "Last 30 days"
+msgid "Last 30 Days"
 msgstr "Les 30 derniers jours"
 
 msgid "Last 3 months"
 msgstr "Les 3 derniers mois"
 
-msgid "Last 6 months"
+msgid "Last 6 Months"
 msgstr "Les 6 derniers mois"
 
 msgid "Last 12 months"
