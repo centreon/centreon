@@ -51,8 +51,8 @@ const OpenTicketModal = ({
   }, [isOpen]);
 
   const src = resource.serviceID
-    ? `./main.get.php?p=60421&cmd=3&provider_id=${providerID}&host_id=${resource.hostID}&service_id=${resource.serviceID}`
-    : `./main.get.php?p=60421&cmd=4&provider_id=${providerID}&host_id=${resource.hostID}`;
+    ? `./main.get.php?p=60421&cmd=3&rule_id=${providerID}&host_id=${resource.hostID}&service_id=${resource.serviceID}`
+    : `./main.get.php?p=60421&cmd=4&rule_id=${providerID}&host_id=${resource.hostID}`;
 
   return (
     <Modal hasCloseButton open={isOpen} size="xlarge" onClose={close}>
