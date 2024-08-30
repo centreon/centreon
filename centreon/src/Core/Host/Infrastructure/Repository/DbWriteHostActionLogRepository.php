@@ -145,64 +145,62 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
 
             $this->writeHostRepository->update($host);
 
-            if ($diff !== []) {
-                if (array_key_exists('isActivated', $diff) && count($diff) === 1) {
-                    $action = (bool) $diff['isActivated']
-                        ? ActionLog::ACTION_TYPE_ENABLE
-                        : ActionLog::ACTION_TYPE_DISABLE;
-                    $actionLog = new ActionLog(
-                        self::HOST_OBJECT_TYPE,
-                        $host->getId(),
-                        $host->getName(),
-                        $action,
-                        $this->contact->getId()
-                    );
-                    $this->writeActionLogRepository->addAction($actionLog);
-                }
+            if (array_key_exists('isActivated', $diff) && count($diff) === 1) {
+                $action = (bool) $diff['isActivated']
+                    ? ActionLog::ACTION_TYPE_ENABLE
+                    : ActionLog::ACTION_TYPE_DISABLE;
+                $actionLog = new ActionLog(
+                    self::HOST_OBJECT_TYPE,
+                    $host->getId(),
+                    $host->getName(),
+                    $action,
+                    $this->contact->getId()
+                );
+                $this->writeActionLogRepository->addAction($actionLog);
+            }
 
-                if (array_key_exists('isActivated', $diff) && count($diff) > 1) {
-                    $action = (bool) $diff['isActivated']
-                        ? ActionLog::ACTION_TYPE_ENABLE
-                        : ActionLog::ACTION_TYPE_DISABLE;
-                    $actionLog = new ActionLog(
-                        self::HOST_OBJECT_TYPE,
-                        $host->getId(),
-                        $host->getName(),
-                        $action,
-                        $this->contact->getId()
-                    );
-                    $this->writeActionLogRepository->addAction($actionLog);
+            if (array_key_exists('isActivated', $diff) && count($diff) > 1) {
+                $action = (bool) $diff['isActivated']
+                    ? ActionLog::ACTION_TYPE_ENABLE
+                    : ActionLog::ACTION_TYPE_DISABLE;
+                $actionLog = new ActionLog(
+                    self::HOST_OBJECT_TYPE,
+                    $host->getId(),
+                    $host->getName(),
+                    $action,
+                    $this->contact->getId()
+                );
+                $this->writeActionLogRepository->addAction($actionLog);
 
-                    $actionLogChange = new ActionLog(
-                        self::HOST_OBJECT_TYPE,
-                        $host->getId(),
-                        $host->getName(),
-                        ActionLog::ACTION_TYPE_CHANGE,
-                        $this->contact->getId()
-                    );
-                    $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
-                    if ($actionLogChangeId === 0) {
-                        throw new RepositoryException('Action log ID cannot be 0');
-                    }
-                    $actionLogChange->setId($actionLogChangeId);
-                    $this->writeActionLogRepository->addActionDetails($actionLogChange, $updatedHostDetails);
+                $actionLogChange = new ActionLog(
+                    self::HOST_OBJECT_TYPE,
+                    $host->getId(),
+                    $host->getName(),
+                    ActionLog::ACTION_TYPE_CHANGE,
+                    $this->contact->getId()
+                );
+                $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
+                if ($actionLogChangeId === 0) {
+                    throw new RepositoryException('Action log ID cannot be 0');
                 }
+                $actionLogChange->setId($actionLogChangeId);
+                $this->writeActionLogRepository->addActionDetails($actionLogChange, $updatedHostDetails);
+            }
 
-                if (! array_key_exists('isActivated', $diff) && count($diff) >= 1) {
-                    $actionLogChange = new ActionLog(
-                        self::HOST_OBJECT_TYPE,
-                        $host->getId(),
-                        $host->getName(),
-                        ActionLog::ACTION_TYPE_CHANGE,
-                        $this->contact->getId()
-                    );
-                    $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
-                    if ($actionLogChangeId === 0) {
-                        throw new RepositoryException('Action log ID cannot be 0');
-                    }
-                    $actionLogChange->setId($actionLogChangeId);
-                    $this->writeActionLogRepository->addActionDetails($actionLogChange, $updatedHostDetails);
+            if (! array_key_exists('isActivated', $diff) && count($diff) >= 1) {
+                $actionLogChange = new ActionLog(
+                    self::HOST_OBJECT_TYPE,
+                    $host->getId(),
+                    $host->getName(),
+                    ActionLog::ACTION_TYPE_CHANGE,
+                    $this->contact->getId()
+                );
+                $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
+                if ($actionLogChangeId === 0) {
+                    throw new RepositoryException('Action log ID cannot be 0');
                 }
+                $actionLogChange->setId($actionLogChangeId);
+                $this->writeActionLogRepository->addActionDetails($actionLogChange, $updatedHostDetails);
             }
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
