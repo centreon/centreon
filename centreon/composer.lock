@@ -7108,12 +7108,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "0b3609aad6c6109907ce648c27b89a5704510617"
+                "reference": "68d84ad59bfab431c959cda57c02e9689b778955"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/0b3609aad6c6109907ce648c27b89a5704510617",
-                "reference": "0b3609aad6c6109907ce648c27b89a5704510617",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/68d84ad59bfab431c959cda57c02e9689b778955",
+                "reference": "68d84ad59bfab431c959cda57c02e9689b778955",
                 "shasum": ""
             },
             "require": {
@@ -7162,7 +7162,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/fix-panther-again"
             },
-            "time": "2024-08-30T11:20:22+00:00"
+            "time": "2024-08-30T12:11:57+00:00"
         },
         {
             "name": "clue/ndjson-react",
