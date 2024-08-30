@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import React from 'react';
+import type React from 'react';
 
 import { mount } from 'cypress/react18';
 import { equals, isNil } from 'ramda';
@@ -153,7 +153,7 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('adjustViewport', () => cy.viewport(1280, 590));
+Cypress.Commands.add('adjustViewport', () => cy.viewport(1280, 580));
 
 Cypress.Commands.add('makeSnapshot', (title?: string) => {
   cy.adjustViewport();
