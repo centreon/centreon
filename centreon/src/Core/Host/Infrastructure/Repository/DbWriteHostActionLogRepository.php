@@ -41,7 +41,7 @@ use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\NewHost;
 use Core\Host\Domain\Model\SnmpVersion;
 
-class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHostRepositoryInterface
+class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements WriteHostRepositoryInterface
 {
     use LoggerTrait;
     public const HOST_OBJECT_TYPE = 'host';
@@ -120,11 +120,7 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
                 $this->contact->getId()
             );
 
-            $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
-            if ($actionLogId === 0) {
-                throw new RepositoryException('Action log ID cannot be 0');
-            }
-            $actionLog->setId($actionLogId);
+            $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
@@ -149,27 +145,34 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
 
             $this->writeHostRepository->update($host);
 
-            if (array_key_exists('isActivated', $diff)) {
-                if ((bool) $diff['isActivated']) {
-                    $actionType = ActionLog::ACTION_TYPE_ENABLE;
-                } else {
-                    $actionType = ActionLog::ACTION_TYPE_DISABLE;
+            if ($diff !== []) {
+                if (array_key_exists('isActivated', $diff) && count($diff) === 1) {
+                    $action = (bool) $diff['isActivated']
+                        ? ActionLog::ACTION_TYPE_ENABLE
+                        : ActionLog::ACTION_TYPE_DISABLE;
+                    $actionLog = new ActionLog(
+                        self::HOST_OBJECT_TYPE,
+                        $host->getId(),
+                        $host->getName(),
+                        $action,
+                        $this->contact->getId()
+                    );
+                    $this->writeActionLogRepository->addAction($actionLog);
                 }
 
-                $actionLog = new ActionLog(
-                    self::HOST_OBJECT_TYPE,
-                    $host->getId(),
-                    $host->getName(),
-                    $actionType,
-                    $this->contact->getId()
-                );
-                $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
-                if ($actionLogId === 0) {
-                    throw new RepositoryException('Action log ID cannot be 0');
-                }
-                $actionLog->setId($actionLogId);
+                if (array_key_exists('isActivated', $diff) && count($diff) > 1) {
+                    $action = (bool) $diff['isActivated']
+                        ? ActionLog::ACTION_TYPE_ENABLE
+                        : ActionLog::ACTION_TYPE_DISABLE;
+                    $actionLog = new ActionLog(
+                        self::HOST_OBJECT_TYPE,
+                        $host->getId(),
+                        $host->getName(),
+                        $action,
+                        $this->contact->getId()
+                    );
+                    $this->writeActionLogRepository->addAction($actionLog);
 
-                if (count($diff) > 1) {
                     $actionLogChange = new ActionLog(
                         self::HOST_OBJECT_TYPE,
                         $host->getId(),
@@ -184,22 +187,23 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
                     $actionLogChange->setId($actionLogChangeId);
                     $this->writeActionLogRepository->addActionDetails($actionLogChange, $updatedHostDetails);
                 }
-            } else {
-                $actionLogChange = new ActionLog(
-                    self::HOST_OBJECT_TYPE,
-                    $host->getId(),
-                    $host->getName(),
-                    ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
-                );
-                $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
-                if ($actionLogChangeId === 0) {
-                    throw new RepositoryException('Action log ID cannot be 0');
-                }
-                $actionLogChange->setId($actionLogChangeId);
-                $this->writeActionLogRepository->addActionDetails($actionLogChange, $updatedHostDetails);
-            }
 
+                if (! array_key_exists('isActivated', $diff) && count($diff) >= 1) {
+                    $actionLogChange = new ActionLog(
+                        self::HOST_OBJECT_TYPE,
+                        $host->getId(),
+                        $host->getName(),
+                        ActionLog::ACTION_TYPE_CHANGE,
+                        $this->contact->getId()
+                    );
+                    $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
+                    if ($actionLogChangeId === 0) {
+                        throw new RepositoryException('Action log ID cannot be 0');
+                    }
+                    $actionLogChange->setId($actionLogChangeId);
+                    $this->writeActionLogRepository->addActionDetails($actionLogChange, $updatedHostDetails);
+                }
+            }
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
@@ -253,17 +257,10 @@ class DbWriteHostLogRepository extends AbstractRepositoryRDB implements WriteHos
             if (is_array($value)) {
                 if ($value === []) {
                     $value = '';
-                } else {
-                    if (is_string($value[0])) {
-                        $value = '!' . implode(
-                            '!',
-                            str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $value)
-                        );
-                    }
-
-                    if ($value[0] instanceof HostEvent) {
-                        $value = HostEventConverter::toString($value);
-                    }
+                } elseif (is_string($value[0])) {
+                    $value = '!' . implode('!', str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $value));
+                } elseif ($value[0] instanceof HostEvent) {
+                    $value = HostEventConverter::toString($value);
                 }
             }
 
