@@ -64,7 +64,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         // tags 0=servicegroup, 1=hostgroup, 2=servicecategory, 3=hostcategory
         $request = <<<'SQL'
-                SELECT
+                SELECT SQL_CALC_FOUND_ROWS
                     services.name AS service_name
                 FROM `:dbstg`.resources AS services
                 INNER JOIN `:dbstg`.resources AS hosts
@@ -142,7 +142,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         // tags 0=servicegroup, 1=hostgroup, 2=servicecategory, 3=hostcategory
         $request = <<<'SQL'
-                SELECT
+                SELECT SQL_CALC_FOUND_ROWS
                     services.name AS service_name
                 FROM `:dbstg`.resources AS services
                 INNER JOIN `:dbstg`.resources AS hosts

@@ -76,7 +76,7 @@ it('should find all categories as user with no filters on categories', function 
 
     $this->configurationRepository
         ->expects($this->once())
-        ->method('hasAclFilterOnHostCategories')
+        ->method('hasRestrictedAccessToHostCategories')
         ->willReturn(false);
 
     $this->repository->expects($this->once())
@@ -103,7 +103,7 @@ it('should find all categories as user with filters on categories', function ():
 
     $this->configurationRepository
         ->expects($this->once())
-        ->method('hasAclFilterOnHostCategories')
+        ->method('hasRestrictedAccessToHostCategories')
         ->willReturn(true);
 
     $this->repository->expects($this->once())
