@@ -47,8 +47,8 @@ jobs:
         id: find_changed_files
         run: |
           mapfile -t CHANGED_FILES <<< "$(git show --name-only $LATEST_COMMIT | grep '\.feature$')"
-          echo "CHANGED_FILES=${CHANGED_FILES[@]}" >> $GITHUB_ENV
-          echo "Changed .feature files: ${CHANGED_FILES[@]}"
+          echo "CHANGED_FILES=${CHANGED_FILES[*]}" >> $GITHUB_ENV
+          echo "Changed .feature files: ${CHANGED_FILES[*]}"
 
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''

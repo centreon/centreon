@@ -50,8 +50,14 @@ final class AddRulePresenter extends AbstractPresenter implements AddRulePresent
                         'name' => $response->name,
                         'description' => $response->description,
                         'is_enabled' => $response->isEnabled,
-                        'contacts' => $response->contactIds,
-                        'contact_groups' => $response->contactGroupIds,
+                        'contacts' => [
+                            'ids' => $response->contactIds,
+                            'all' => $response->applyToAllContacts,
+                        ],
+                        'contact_groups' => [
+                            'ids' => $response->contactGroupIds,
+                            'all' => $response->applyToAllContactGroups,
+                        ],
                         'dataset_filters' => $response->datasetFilters,
                     ]
                 )

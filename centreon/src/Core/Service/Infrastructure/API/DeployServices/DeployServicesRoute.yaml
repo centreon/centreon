@@ -1,0 +1,7 @@
+DeployServices:
+  methods: POST
+  path: /configuration/hosts/{hostId}/services/deploy
+  requirements:
+    serviceId: '\d+'
+  controller: 'Core\Service\Infrastructure\API\DeployServices\DeployServicesController'
+  condition: "request.attributes.get('version') >= 24.04"

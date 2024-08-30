@@ -1,10 +1,13 @@
-import { equals, flatten, includes, pluck } from 'ramda';
+import { equals } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
 import { DisplayType } from '../Listing/models';
 import { Resource } from '../../../models';
-import { formatStatus } from '../../../utils';
+import {
+  formatStatus,
+  getResourcesSearchQueryParameters
+} from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
@@ -18,21 +21,6 @@ interface BuildResourcesEndpointProps {
   statuses: Array<string>;
   type: DisplayType;
 }
-
-const resourceTypesCustomParameters = [
-  'host-group',
-  'host-category',
-  'service-group',
-  'service-category'
-];
-const resourceTypesSearchParameters = ['host', 'service'];
-
-const categories = ['host-category', 'service-category'];
-
-const resourcesSearchMapping = {
-  host: 'parent_name',
-  service: 'name'
-};
 
 export const buildResourcesEndpoint = ({
   type,
@@ -50,23 +38,8 @@ export const buildResourcesEndpoint = ({
   const formattedType = equals(type, 'all') ? ['host', 'service'] : [type];
   const formattedStatuses = formatStatus(statuses);
 
-  const resourcesToApplyToCustomParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
-  );
-  const resourcesToApplyToSearchParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
-  );
-
-  const searchConditions = resourcesToApplyToSearchParameters.map(
-    ({ resourceType, resources: resourcesToApply }) => {
-      return resourcesToApply.map((resource) => ({
-        field: resourcesSearchMapping[resourceType],
-        values: {
-          $rg: `^${resource.name}$`
-        }
-      }));
-    }
-  );
+  const { resourcesSearchConditions, resourcesCustomParameters } =
+    getResourcesSearchQueryParameters(resources);
 
   return buildListingEndpoint({
     baseEndpoint,
@@ -74,20 +47,13 @@ export const buildResourcesEndpoint = ({
       { name: 'types', value: formattedType },
       { name: 'statuses', value: formattedStatuses },
       { name: 'states', value: states },
-      ...resourcesToApplyToCustomParameters.map(
-        ({ resourceType, resources: resourcesToApply }) => ({
-          name: includes(resourceType, categories)
-            ? `${resourceType.replace('-', '_')}_names`
-            : `${resourceType.replace('-', '')}_names`,
-          value: pluck('name', resourcesToApply)
-        })
-      )
+      ...resourcesCustomParameters
     ],
     parameters: {
       limit,
       page,
       search: {
-        conditions: flatten(searchConditions)
+        conditions: resourcesSearchConditions
       },
       sort
     }

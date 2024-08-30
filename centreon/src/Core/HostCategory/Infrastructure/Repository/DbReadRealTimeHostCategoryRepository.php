@@ -164,7 +164,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                     ON host_categories.tag_id  = rtags.tag_id
                     AND host_categories.`type` = 3
                 INNER JOIN `:db`.acl_resources_hc_relations arhr
-                    ON host_categories.id = arhr.sc_id
+                    ON host_categories.id = arhr.hc_id
                 INNER JOIN `:db`.acl_resources res
                     ON arhr.acl_res_id = res.acl_res_id
                 INNER JOIN `:db`.acl_res_group_relations argr

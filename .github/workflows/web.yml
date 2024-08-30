@@ -1,5 +1,5 @@
 name: web
-run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.is_nightly == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -23,6 +23,10 @@ on:
       - ready_for_review
     paths:
       - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
@@ -34,6 +38,10 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
@@ -59,6 +67,7 @@ jobs:
             has_frontend_changes:
               - '**/*.[jt]sx?'
               - '**/www/front_src/**'
+              - '**/www/widgets/src/**'
               - '**/tests/e2e/**'
               - '**/package*'
               - '**/lighthouse/**'
@@ -985,7 +994,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bullseye, bookworm, jammy]
 
     steps:
       - name: Checkout sources

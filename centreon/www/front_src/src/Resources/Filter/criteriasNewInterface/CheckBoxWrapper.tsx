@@ -103,6 +103,7 @@ export const CheckBoxWrapper = ({
 
       <CheckboxGroup
         className={classes.checkbox}
+        dataTestId={filterName}
         direction="horizontal"
         formGroupProps={formGroupProps}
         labelProps={labelProps}
