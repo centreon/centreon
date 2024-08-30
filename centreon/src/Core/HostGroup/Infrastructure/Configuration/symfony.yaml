@@ -19,7 +19,7 @@ services:
     arguments:
       $logger: '@Centreon\Domain\Log\Logger'
 
-  Core\HostGroup\Infrastructure\Repository\DbWriteHostGroupLogRepository:
+  Core\HostGroup\Infrastructure\Repository\DbWriteHostGroupActionLogRepository:
     decorates: Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface
     arguments:
       - '@.inner'
