@@ -117,7 +117,7 @@ runs:
           fi
 
 
-          ROOT_REPO_PATH="kdu-virtual111"
+          ROOT_REPO_PATH="kdu-virtual"
 
           # Build target path based on ARCH
           echo "[DEBUG] - Build $ARCH target path."
