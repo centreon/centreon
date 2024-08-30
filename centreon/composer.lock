@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fd846dd3c1b1505403bbb0cbe3220d31",
+    "content-hash": "e2de73fccafa394ceb7ef7dcf886f1e5",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -7104,16 +7104,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-fix-panther-again",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "68d84ad59bfab431c959cda57c02e9689b778955"
+                "reference": "67cb5c7117a04459c48453edb98413fda6a7183a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/68d84ad59bfab431c959cda57c02e9689b778955",
-                "reference": "68d84ad59bfab431c959cda57c02e9689b778955",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/67cb5c7117a04459c48453edb98413fda6a7183a",
+                "reference": "67cb5c7117a04459c48453edb98413fda6a7183a",
                 "shasum": ""
             },
             "require": {
@@ -7136,6 +7136,7 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -7160,9 +7161,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/fix-panther-again"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2024-08-30T12:11:57+00:00"
+            "time": "2024-08-30T15:03:34+00:00"
         },
         {
             "name": "clue/ndjson-react",
