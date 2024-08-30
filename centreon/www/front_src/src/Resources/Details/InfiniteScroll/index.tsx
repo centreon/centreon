@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { type RefObject, useEffect, useRef, useState } from 'react';
 
 import { useAtomValue } from 'jotai';
 import {
@@ -32,7 +32,7 @@ import memoizeComponent from '../../memoizedComponent';
 import { labelScrollToTop } from '../../translatedLabels';
 import NoResultsMessage from '../NoResultsMessage';
 import { selectedResourcesDetailsAtom } from '../detailsAtoms';
-import { ResourceDetails } from '../models';
+import type { ResourceDetails } from '../models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -125,6 +125,7 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
       atPage: page
     }
   ): Promise<ListingModel<TEntity>> | undefined => {
+    console.log('am i here ?');
     return sendListingRequest?.({ atPage })
       .then((retrievedListing) => {
         const { meta } = retrievedListing;

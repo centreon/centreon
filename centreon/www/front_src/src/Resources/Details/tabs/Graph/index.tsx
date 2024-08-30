@@ -75,13 +75,12 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
             getParameters={getTimePeriodsParameters}
             renderExternalComponent={<GraphOptions />}
           />
-          <div>lola</div>
 
           <ChartGraph
             resource={details}
             graphInterval={graphTimeParameters}
             // graphEndpoint={graphEndpoint}
-            setUpdatedGraphInterval={setUpdatedGraphInterval}
+            updatedGraphInterval={setUpdatedGraphInterval}
           />
           {graphTimeParameters && (
             <ExportablePerformanceGraphWithTimeline

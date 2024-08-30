@@ -129,4 +129,4 @@ const WrapperChart = ({
 	);
 };
 
-export default WrapperChart;
+export default memo(WrapperChart);
