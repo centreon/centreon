@@ -1,34 +1,31 @@
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { type ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import {
   T,
   always,
   cond,
   equals,
-  isEmpty,
-  propEq,
-  reject,
-  pluck,
+  filter,
+  flatten,
   includes,
+  isEmpty,
   isNotNil,
   last,
-  filter
+  pluck,
+  propEq,
+  reject
 } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import {
-  QueryParameter,
-  SelectEntry,
+  type QueryParameter,
+  type SearchParameter,
+  type SelectEntry,
   buildListingEndpoint
 } from '@centreon/ui';
 
-import {
-  Widget,
-  WidgetDataResource,
-  WidgetPropertyProps,
-  WidgetResourceType
-} from '../../../models';
+import { baseEndpoint } from '../../../../../../../api/endpoint';
 import {
   labelHost,
   labelHostCategory,
@@ -38,12 +35,17 @@ import {
   labelServiceCategory,
   labelServiceGroup
 } from '../../../../translatedLabels';
-import { baseEndpoint } from '../../../../../../../api/endpoint';
-import { getDataProperty } from '../utils';
 import {
   hasMetricInputTypeDerivedAtom,
   widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
+import {
+  type Widget,
+  type WidgetDataResource,
+  type WidgetPropertyProps,
+  WidgetResourceType
+} from '../../../models';
+import { getDataProperty } from '../utils';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -256,30 +258,33 @@ const useResources = ({
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
-  const getCustomQueryParameters = (
+  const getQueryParameters = (
     index: number,
     resourceType
-  ): Array<QueryParameter> => {
+  ): {
+    customParameters: Array<QueryParameter>;
+    searchParameters: Array<SearchParameter>;
+  } => {
     const usesResourcesEndpoint = includes(resourceType, [
       WidgetResourceType.host
     ]);
+
     const isOfTypeService = equals(resourceType, WidgetResourceType.service);
-    const isOfTypeCategory = includes(resourceType, [
-      WidgetResourceType.hostCategory,
-      WidgetResourceType.serviceCategory
-    ]);
 
     if (equals(index, 0)) {
-      return usesResourcesEndpoint
-        ? getAdditionalQueryParameters(resourceType, hasMetricInputType)
-        : [];
+      return {
+        customParameters: usesResourcesEndpoint
+          ? getAdditionalQueryParameters(resourceType, hasMetricInputType)
+          : [],
+        searchParameters: []
+      };
     }
 
     const searchParameter = value?.[index - 1].resourceType as string;
     const searchValues = pluck('name', value?.[index - 1].resources);
 
-    if (!usesResourcesEndpoint && !isOfTypeCategory) {
-      const serviceParameters = isOfTypeService
+    if (!usesResourcesEndpoint) {
+      const customParameters = isOfTypeService
         ? [
             {
               name: 'only_with_performance_data',
@@ -288,17 +293,17 @@ const useResources = ({
           ]
         : [];
 
-      return [
-        {
-          name: 'search',
-          value: {
-            [`${searchParameter.replace('-', '_')}.name`]: {
+      return {
+        customParameters,
+        searchParameters: [
+          {
+            field: `${searchParameter.replace('-', '_')}.name`,
+            values: {
               $in: searchValues
             }
           }
-        },
-        ...serviceParameters
-      ];
+        ]
+      };
     }
 
     const baseParams = getAdditionalQueryParameters(
@@ -306,33 +311,54 @@ const useResources = ({
       hasMetricInputType
     );
 
-    return [
-      ...baseParams,
-      {
-        name: includes('category', searchParameter)
-          ? `${searchParameter.replace('-', '_')}_names`
-          : `${searchParameter.replace('-', '')}_names`,
-        value: searchValues
-      }
-    ];
+    return {
+      customParameters: [
+        ...baseParams,
+        {
+          name: includes('category', searchParameter)
+            ? `${searchParameter.replace('-', '_')}_names`
+            : `${searchParameter.replace('-', '')}_names`,
+          value: searchValues
+        }
+      ],
+      searchParameters: []
+    };
   };
 
   const getResourceResourceBaseEndpoint =
     ({ index, resourceType }) =>
     (parameters): string => {
+      const endpoint = `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`;
+
+      const searchLists = parameters.search?.lists;
+
+      const { customParameters, searchParameters } = getQueryParameters(
+        index,
+        resourceType
+      );
+
+      const searchConditions = [
+        ...flatten(parameters.search?.conditions || []),
+        ...searchParameters
+      ];
+
       return buildListingEndpoint({
-        baseEndpoint: `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`,
-        customQueryParameters: getCustomQueryParameters(index, resourceType),
+        baseEndpoint: endpoint,
+        customQueryParameters: customParameters,
         parameters: {
           ...parameters,
-          limit: 30
+          limit: 30,
+          search: {
+            conditions: searchConditions,
+            lists: searchLists
+          }
         }
       });
     };
 
   const getSearchField = (resourceType: string): string =>
     cond([
-      [equals('host'), always('host.name')],
+      [equals('host'), always('h.name')],
       [T, always('name')]
     ])(resourceType);
 
