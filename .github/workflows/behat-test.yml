@@ -132,7 +132,7 @@ jobs:
 
       - name: Behat acceptance testing
         env:
-#          PANTHER_CHROME_BINARY: /usr/bin/google-chrome
+          PANTHER_CHROME_BINARY: /usr/bin/google-chrome
           WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           MYSQL_IMAGE: ${{ inputs.database_image }}
         run: |
