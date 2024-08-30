@@ -1,7 +1,7 @@
-import { has } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { has } from 'ramda';
 
-import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 const useIsBamModuleInstalled = (): boolean => {
   const platform = useAtomValue(platformVersionsAtom);

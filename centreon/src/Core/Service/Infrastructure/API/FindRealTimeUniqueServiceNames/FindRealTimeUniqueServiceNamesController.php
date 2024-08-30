@@ -36,8 +36,10 @@ final class FindRealTimeUniqueServiceNamesController extends AbstractController
      *
      * @return Response
      */
-    public function __invoke(FindRealTimeUniqueServiceNames $useCase, FindRealTimeUniqueServiceNamesPresenterInterface $presenter): Response
-    {
+    public function __invoke(
+        FindRealTimeUniqueServiceNames $useCase,
+        FindRealTimeUniqueServiceNamesPresenterInterface $presenter,
+    ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
         $useCase($presenter);

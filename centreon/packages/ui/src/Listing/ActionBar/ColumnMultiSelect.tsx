@@ -1,13 +1,13 @@
-import { useTranslation } from 'react-i18next';
 import { isNil, prop } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import ColumnIcon from '@mui/icons-material/ViewColumn';
 
-import { getVisibleColumns, Props as ListingProps } from '..';
-import IconPopoverMultiSelect from '../../InputField/Select/IconPopover';
-import { labelAddColumns } from '../translatedLabels';
+import { Props as ListingProps, getVisibleColumns } from '..';
 import { SelectEntry } from '../../InputField/Select';
+import IconPopoverMultiSelect from '../../InputField/Select/IconPopover';
 import { Column } from '../models';
+import { labelAddColumns } from '../translatedLabels';
 
 type Props = Pick<
   ListingProps<unknown>,

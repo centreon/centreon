@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Common\Application\Repository;
 
+use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 interface ReadVaultRepositoryInterface
 {
     public function isVaultConfigured(): bool;
@@ -30,7 +33,7 @@ interface ReadVaultRepositoryInterface
     public function setCustomPath(string $customPath): void;
 
     /**
-     * Get vaul content given path.
+     * Get vault content from given path.
      *
      * @param string $path
      *
@@ -39,4 +42,13 @@ interface ReadVaultRepositoryInterface
      * @return array<string,string>
      */
     public function findFromPath(string $path): array;
+
+    /**
+     * Test a vault configuration validity.
+     *
+     * @param VaultConfiguration|NewVaultConfiguration $vaultConfiguration
+     *
+     * @return bool
+     */
+    public function testVaultConnection(VaultConfiguration|NewVaultConfiguration $vaultConfiguration): bool;
 }

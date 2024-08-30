@@ -128,6 +128,7 @@ if (file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
             $httpClient = new CurlHttpClient();
             $token = $authenticateToVault($httpClient, $vaultConfiguration);
             $databaseVaultPathPart = explode("::", $conf_centreon['user']);
+            array_pop($databaseVaultPathPart);
             $vaultPath = end($databaseVaultPathPart);
             $credentialContent = $retrieveDatabaseCredentialsFromVault($token, $vaultPath, $httpClient, $vaultConfiguration);
             $conf_centreon['user'] = $credentialContent['username'];

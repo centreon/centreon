@@ -36,6 +36,8 @@ use Core\Broker\Application\UseCase\AddBrokerInputOutput\BrokerInputOutputValida
 use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\Type;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Tests\Core\Broker\Infrastructure\API\AddBrokerInputOutput\AddBrokerInputOutputPresenterStub;
 
@@ -71,6 +73,8 @@ beforeEach(function (): void {
         $this->readOutputRepository = $this->createMock(ReadBrokerInputOutputRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->validator = $this->createMock(BrokerInputOutputValidator::class),
+        $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        $this->flags = new FeatureFlags(false, ''),
     );
 });
 

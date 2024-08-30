@@ -1,8 +1,9 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { useAtom, useAtomValue } from 'jotai';
 import { useFormikContext } from 'formik';
+import { useAtom, useAtomValue } from 'jotai';
 import {
+  path,
   T,
   always,
   cond,
@@ -13,7 +14,6 @@ import {
   isEmpty,
   isNil,
   last,
-  path,
   pluck,
   propEq,
   reject
@@ -24,7 +24,10 @@ import {
   SelectEntry,
   buildListingEndpoint
 } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
+import { baseEndpoint } from '../../../../api/endpoint';
+import { selectedDatasetFiltersAtom } from '../../../atom';
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
   labelAllBusinessViewsSelected,
@@ -44,9 +47,6 @@ import {
   labelServiceCategory,
   labelServiceGroup
 } from '../../../translatedLabels';
-import { baseEndpoint } from '../../../../api/endpoint';
-import { selectedDatasetFiltersAtom } from '../../../atom';
-import { platformVersionsAtom } from '../../../../Main/atoms/platformVersionsAtom';
 
 type UseDatasetFilterState = {
   addResource: () => void;

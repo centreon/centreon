@@ -19,7 +19,7 @@ jobs:
   release-trigger-builds:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Install Github CLI
         run: |
@@ -44,8 +44,8 @@ jobs:
 
           # VARS
           # names defined in workflow files per components
-          COMPONENTS_OSS=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
-          COMPONENTS_OSS_FULL=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
+          COMPONENTS_OSS=("awie" "dsm" "ha" "open-tickets" "web")
+          COMPONENTS_OSS_FULL=("awie" "dsm" "ha" "open-tickets" "web")
           #COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
           #COMPONENTS_MODULES_FULL=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm" "php-pecl-gnupg" "sourceguardian-loader")
           #COMPONENTS_COLLECT=("Centreon collect")
@@ -62,12 +62,12 @@ jobs:
 
           if [[ "${{ inputs.dispatch_content }}" == "FULL" ]]; then
             echo "Requested ${{ inputs.dispatch_content }} content, triggering all component workflows."
-            for COMPONENT in ${COMPONENTS_OSS_FULL[@]}; do
+            for COMPONENT in "${COMPONENTS_OSS_FULL[@]}"; do
               gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
             done
           else
             echo "Requested ${{ inputs.dispatch_content }} content, triggering centreon named components only."
-            for COMPONENT in ${COMPONENTS_OSS[@]}; do
+            for COMPONENT in "${COMPONENTS_OSS[@]}"; do
               gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
             done
           fi

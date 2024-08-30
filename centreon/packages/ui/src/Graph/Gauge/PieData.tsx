@@ -6,8 +6,8 @@ import { useTheme } from '@mui/material';
 
 import { getColorFromDataAndTresholds } from '../common/utils';
 
-import { thresholdThickness } from './Thresholds';
 import AnimatedPie from './AnimatedPie';
+import { thresholdThickness } from './Thresholds';
 import { GaugeProps } from './models';
 import { angles } from './utils';
 

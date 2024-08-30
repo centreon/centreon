@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
-import { ContactType, Labels } from '../models';
-import { contactTypeAtom } from '../atoms';
 import { Subtitle } from '../../../..';
+import { contactTypeAtom } from '../atoms';
+import { ContactType, Labels } from '../models';
 
 import { useContactSwitchStyles } from './ShareInput.styles';
 

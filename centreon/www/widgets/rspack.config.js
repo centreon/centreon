@@ -37,6 +37,10 @@ module.exports = ({ widgetName }) => {
       optimization: {
         splitChunks: false
       },
+      performance: {
+        maxAssetSize: 1200000,
+        maxEntrypointSize: 1200000
+      },
       plugins: [
         new rspack.CopyRspackPlugin({
           patterns: [

@@ -20,7 +20,10 @@ export const Default: Story = {
         {[...Array(5)].map((_, i) => (
           <DataTable.Item
             description={`Item description ${i}`}
-            key={`k-${i}`} // eslint-disable-line react/no-array-index-key
+            key={`k-${
+              // biome-ignore lint/suspicious/noArrayIndexKey:
+              i
+            }`}
             title={`Item ${i}`}
           />
         ))}

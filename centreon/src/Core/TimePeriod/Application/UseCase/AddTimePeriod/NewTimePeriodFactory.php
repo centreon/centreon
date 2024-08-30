@@ -33,14 +33,14 @@ use Core\TimePeriod\Domain\Model\{
 final class NewTimePeriodFactory
 {
     /**
-     * @param AddTimePeriodRequest $dto
+     * @param AddTimePeriodDto $dto
      *
      * @throws \Assert\AssertionFailedException
      * @throws \Throwable
      *
      * @return NewTimePeriod
      */
-    public static function create(AddTimePeriodRequest $dto): NewTimePeriod
+    public static function create(AddTimePeriodDto $dto): NewTimePeriod
     {
         $newTimePeriod = new NewTimePeriod($dto->name, $dto->alias);
         $newTimePeriod->setDays(

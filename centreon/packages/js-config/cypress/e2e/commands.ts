@@ -312,6 +312,10 @@ interface ExecInContainerProps {
   name: string;
 }
 
+interface ExecInContainerOptions {
+  log: boolean;
+}
+
 interface ExecInContainerResult {
   exitCode: number;
   output: string;
@@ -319,7 +323,7 @@ interface ExecInContainerResult {
 
 Cypress.Commands.add(
   'execInContainer',
-  ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
+  ({ command, name }, { log = true } = { log: true }): Cypress.Chainable => {
     const commands =
       typeof command === 'string' || command instanceof String
         ? [command]
@@ -330,19 +334,22 @@ Cypress.Commands.add(
         cy.task<ExecInContainerResult>(
           'execInContainer',
           { command: runCommand, name },
-          { timeout: 600000 }
+          { log, timeout: 600000 }
         ).then((result) => {
+          const displayedOutput = log ? result.output : 'hidden command output';
+          const displayedRunCommand = log ? runCommand : 'hidden run command';
+
           if (result.exitCode) {
-            cy.log(result.output);
+            cy.log(displayedOutput);
 
             // output will not be truncated
             throw new Error(`
-Execution of "${runCommand}" failed
+Execution of "${displayedRunCommand}" failed
 Exit code: ${result.exitCode}
-Output:\n${result.output}`);
+Output:\n${displayedOutput}`);
           }
 
-          acc.output = `${acc.output}${result.output}`;
+          acc.output = `${acc.output}${displayedOutput}`;
         });
 
         return acc;
@@ -778,10 +785,10 @@ declare global {
         options?: Partial<Cypress.ExecOptions>
       ) => Cypress.Chainable;
       createDirectory: (directoryPath: string) => Cypress.Chainable;
-      execInContainer: ({
-        command,
-        name
-      }: ExecInContainerProps) => Cypress.Chainable;
+      execInContainer: (
+        props: ExecInContainerProps,
+        options?: ExecInContainerOptions
+      ) => Cypress.Chainable;
       getByLabel: ({
         patternType,
         tag,

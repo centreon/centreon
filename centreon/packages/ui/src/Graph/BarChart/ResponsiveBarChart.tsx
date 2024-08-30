@@ -1,31 +1,31 @@
-import { MutableRefObject, useMemo, useRef, useState } from 'react';
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
-import { equals, flatten, has, isNil, pluck } from 'ramda';
 import { useAtom } from 'jotai';
+import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
 
 import { Skeleton } from '@mui/material';
 
-import { Data, LineChartProps } from '../LineChart/models';
-import { Thresholds as ThresholdsModel } from '../common/models';
-import { useIntersection } from '../LineChart/useLineChartIntersection';
-import { Line } from '../common/timeSeries/models';
-import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
-import {
-  getLeftScale,
-  getRightScale,
-  getUnits,
-  getXScaleBand
-} from '../common/timeSeries';
+import { Tooltip } from '../../components';
+import { useDeepCompare } from '../../utils';
+import { margin } from '../Chart/common';
+import { Data, LineChartProps } from '../Chart/models';
+import { useIntersection } from '../Chart/useChartIntersection';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
-import { useTooltipStyles } from '../common/useTooltipStyles';
-import { margin } from '../LineChart/common';
-import { Tooltip } from '../../components';
+import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import Thresholds from '../common/Thresholds/Thresholds';
+import { Thresholds as ThresholdsModel } from '../common/models';
+import {
+  getUnits,
+  getXScaleBand,
+  getYScalePerUnit
+} from '../common/timeSeries';
+import { Line } from '../common/timeSeries/models';
+import { useTooltipStyles } from '../common/useTooltipStyles';
 
 import BarGroup from './BarGroup';
-import { tooltipDataAtom } from './atoms';
 import BarChartTooltip from './Tooltip/BarChartTooltip';
+import { tooltipDataAtom } from './atoms';
 import { BarStyle } from './models';
 
 interface Props
@@ -35,7 +35,7 @@ interface Props
   graphRef: MutableRefObject<HTMLDivElement | null>;
   height: number;
   limitLegend?: false | number;
-  orientation: 'vertical' | 'horizontal';
+  orientation: 'vertical' | 'horizontal' | 'auto';
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
   width: number;
@@ -67,7 +67,13 @@ const ResponsiveBarChart = ({
 
   const { isInViewport } = useIntersection({ element: graphRef?.current });
 
-  const [, secondUnit] = getUnits(linesGraph);
+  const displayedLines = useMemo(
+    () => linesGraph.filter(({ display }) => display),
+    [linesGraph]
+  );
+
+  const [firstUnit, secondUnit] = getUnits(displayedLines);
+  const allUnits = getUnits(lines);
 
   const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
     hasSecondUnit: Boolean(secondUnit),
@@ -82,7 +88,13 @@ const ResponsiveBarChart = ({
     pluck('value', thresholds?.critical || [])
   ]);
 
-  const isHorizontal = equals(orientation, 'horizontal');
+  const isHorizontal = useMemo(() => {
+    if (!equals(orientation, 'auto')) {
+      return equals(orientation, 'horizontal');
+    }
+
+    return gte(graphWidth, graphHeight + 60);
+  }, [orientation, graphWidth, graphHeight]);
 
   const xScale = useMemo(
     () =>
@@ -93,10 +105,10 @@ const ResponsiveBarChart = ({
     [timeSeries, graphWidth, isHorizontal, graphHeight]
   );
 
-  const leftScale = useMemo(
+  const yScalesPerUnit = useMemo(
     () =>
-      getLeftScale({
-        dataLines: linesGraph,
+      getYScalePerUnit({
+        dataLines: displayedLines,
         dataTimeSeries: timeSeries,
         isCenteredZero: axis?.isCenteredZero,
         isHorizontal,
@@ -104,52 +116,33 @@ const ResponsiveBarChart = ({
         scaleLogarithmicBase: axis?.scaleLogarithmicBase,
         thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
-        valueGraphHeight: (isHorizontal ? graphHeight : graphWidth) - 35
+        valueGraphHeight:
+          (isHorizontal ? graphHeight : graphWidth) - margin.bottom
       }),
     [
-      linesGraph,
+      displayedLines,
       timeSeries,
       graphHeight,
       thresholdValues,
+      graphWidth,
+      thresholds?.enabled,
       axis?.isCenteredZero,
       axis?.scale,
-      axis?.scaleLogarithmicBase,
-      graphWidth,
-      isHorizontal
+      axis?.scaleLogarithmicBase
     ]
   );
 
-  const rightScale = useMemo(
-    () =>
-      getRightScale({
-        dataLines: linesGraph,
-        dataTimeSeries: timeSeries,
-        isCenteredZero: axis?.isCenteredZero,
-        isHorizontal,
-        scale: axis?.scale,
-        scaleLogarithmicBase: axis?.scaleLogarithmicBase,
-        thresholdUnit,
-        thresholds: (thresholds?.enabled && thresholdValues) || [],
-        valueGraphHeight: (isHorizontal ? graphHeight : graphWidth) - 35
-      }),
-    [
-      timeSeries,
-      linesGraph,
-      graphHeight,
-      axis?.isCenteredZero,
-      axis?.scale,
-      axis?.scaleLogarithmicBase,
-      graphWidth,
-      isHorizontal
-    ]
+  const leftScale = yScalesPerUnit[firstUnit];
+  const rightScale = yScalesPerUnit[secondUnit];
+
+  useEffect(
+    () => {
+      setLinesGraph(lines);
+    },
+    useDeepCompare([lines])
   );
 
   const displayLegend = legend?.display ?? true;
-
-  const displayedLines = useMemo(
-    () => linesGraph.filter(({ display }) => display),
-    [linesGraph]
-  );
 
   const showGridLines = useMemo(
     () => isNil(axis?.showGridLines) || axis?.showGridLines,
@@ -207,6 +200,7 @@ const ResponsiveBarChart = ({
       >
         <div className={classes.tooltipChildren}>
           <ChartSvgWrapper
+            allUnits={allUnits}
             axis={axis}
             base={baseAxis}
             displayedLines={displayedLines}
@@ -214,7 +208,7 @@ const ResponsiveBarChart = ({
             graphWidth={graphWidth - (isHorizontal ? 0 : margin.left - 15)}
             gridLinesType={axis?.gridLinesType}
             leftScale={leftScale}
-            orientation={orientation}
+            orientation={isHorizontal ? 'horizontal' : 'vertical'}
             rightScale={rightScale}
             showGridLines={showGridLines}
             svgRef={graphSvgRef}
@@ -224,24 +218,19 @@ const ResponsiveBarChart = ({
             <>
               <BarGroup
                 barStyle={barStyle}
-                isCenteredZero={axis?.isCenteredZero}
                 isTooltipHidden={isTooltipHidden}
-                leftScale={leftScale}
                 lines={displayedLines}
-                orientation={orientation}
-                rightScale={rightScale}
-                secondUnit={secondUnit}
+                orientation={isHorizontal ? 'horizontal' : 'vertical'}
                 size={isHorizontal ? graphHeight - margin.top - 5 : graphWidth}
                 timeSeries={timeSeries}
                 xScale={xScale}
+                yScalesPerUnit={yScalesPerUnit}
               />
               {thresholds?.enabled && (
                 <Thresholds
                   displayedLines={displayedLines}
                   hideTooltip={() => setTooltipData(null)}
                   isHorizontal={isHorizontal}
-                  leftScale={leftScale}
-                  rightScale={rightScale}
                   showTooltip={({ tooltipData: thresholdLabel }) =>
                     setTooltipData({
                       thresholdLabel
@@ -250,6 +239,7 @@ const ResponsiveBarChart = ({
                   thresholdUnit={thresholdUnit}
                   thresholds={thresholds as ThresholdsModel}
                   width={isHorizontal ? graphWidth : graphHeight - margin.top}
+                  yScalesPerUnit={yScalesPerUnit}
                 />
               )}
             </>

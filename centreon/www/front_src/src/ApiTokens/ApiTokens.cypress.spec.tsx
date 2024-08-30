@@ -371,6 +371,7 @@ describe('Api-token', () => {
     const store = createStore();
 
     store.set(userAtom, {
+      canManageApiTokens: true,
       isAdmin: true,
       locale: 'en_US',
       timezone: 'Europe/Paris'
@@ -398,8 +399,8 @@ describe('Api-token', () => {
 
     cy.fixture('apiTokens/listing/list.json').then((data) => {
       cy.findByTestId('Listing Pagination').contains(data.meta.limit);
-      cy.findByLabelText(`Previous page`).should('be.disabled');
-      cy.findByLabelText(`Next page`).should('be.enabled');
+      cy.findByLabelText('Previous page').should('be.disabled');
+      cy.findByLabelText('Next page').should('be.enabled');
 
       checkArrowSorting(data.meta);
 
@@ -438,7 +439,7 @@ describe('Api-token', () => {
       parameters: { ...DefaultParameters, page: 2 }
     });
 
-    cy.findByLabelText(`Next page`).should('be.enabled').click();
+    cy.findByLabelText('Next page').should('be.enabled').click();
 
     cy.waitForRequest('@getListTokensPage2');
 
@@ -454,7 +455,7 @@ describe('Api-token', () => {
       parameters: DefaultParameters
     });
 
-    cy.findByLabelText(`Previous page`).should('be.enabled').click();
+    cy.findByLabelText('Previous page').should('be.enabled').click();
 
     cy.waitForRequest('@getListTokens');
     cy.getRequestCalls('@getListTokens').then((calls) => {
@@ -475,7 +476,7 @@ describe('Api-token', () => {
       parameters: { ...DefaultParameters, limit: 20 }
     });
 
-    cy.findByLabelText(`Last page`).should('be.enabled').click();
+    cy.findByLabelText('Last page').should('be.enabled').click();
 
     cy.waitForRequest('@getListTokensPage2');
 
@@ -491,7 +492,7 @@ describe('Api-token', () => {
       parameters: DefaultParameters
     });
 
-    cy.findByLabelText(`First page`).should('be.enabled').click();
+    cy.findByLabelText('First page').should('be.enabled').click();
 
     cy.waitForRequest('@getListTokens');
 

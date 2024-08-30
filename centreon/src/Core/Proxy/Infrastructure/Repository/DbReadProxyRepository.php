@@ -45,7 +45,7 @@ class DbReadProxyRepository extends AbstractRepositoryRDB implements ReadProxyRe
     {
         $statement = $this->db->query($this->translateDbName(
             <<<'SQL'
-                SELECT * FROM `:db`.`options` WHERE `key` LIKE 'proxy%';
+                SELECT `key`, `value` FROM `:db`.`options` WHERE `key` LIKE 'proxy%';
                 SQL
         ));
         /**
@@ -56,7 +56,7 @@ class DbReadProxyRepository extends AbstractRepositoryRDB implements ReadProxyRe
          *  proxy_password: string|null
          * }|false $proxyInfo
          */
-        $proxyInfo = $statement === false ? false : $statement->fetch(\PDO::FETCH_ASSOC);
+        $proxyInfo = $statement === false ? false : $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
 
         if (isset($proxyInfo['proxy_url']) && $proxyInfo['proxy_url'] !== '') {
             $port = isset($proxyInfo['proxy_port']) ? (int) $proxyInfo['proxy_port'] : null;

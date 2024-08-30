@@ -4,8 +4,27 @@ import {
   checkPlatformVersion,
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
-  installCentreon
+  installCentreon,
+  localPackageDirectory
 } from '../common';
+
+before(() => {
+  if (
+    Cypress.env('IS_CLOUD') &&
+    (!Cypress.env('INTERNAL_REPO_USERNAME') ||
+      !Cypress.env('INTERNAL_REPO_PASSWORD'))
+  ) {
+    throw new Error(
+      `Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.`
+    );
+  }
+
+  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+    cy.exec(`ls ${localPackageDirectory}/centreon-web-*.rpm`);
+  } else {
+    cy.exec(`ls ${localPackageDirectory}/centreon-web_*.deb`);
+  }
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -66,6 +85,17 @@ beforeEach(() => {
 Given(
   'a running platform in major {string} with {string} version',
   (major_version_from_expression: string, version_from_expression: string) => {
+    if (
+      Cypress.env('IS_CLOUD') &&
+      !Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ) {
+      cy.log('Cloud platforms are only available on almalinux');
+
+      return cy.wrap('skipped');
+    }
+
+    cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
+
     return cy.getWebVersion().then(({ major_version }) => {
       let major_version_from = '0';
       switch (major_version_from_expression) {
@@ -129,22 +159,39 @@ Given(
                 }
 
                 cy.log(
-                  `${version_from_expression} version is ${minor_version_index}`
+                  `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
                 );
+                const installed_version = `${major_version_from}.${stable_minor_versions[minor_version_index]}`;
+                Cypress.env('installed_version', installed_version);
+                cy.log('installed_version', installed_version);
 
-                return installCentreon(
-                  `${major_version_from}.${stable_minor_versions[minor_version_index]}`
-                )
+                return installCentreon(installed_version)
                   .then(() => {
                     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
                       const distrib =
                         Cypress.env('WEB_IMAGE_OS') === 'alma9' ? 'el9' : 'el8';
 
+                      if (Cypress.env('IS_CLOUD')) {
+                        cy.log('Configuring cloud internal repository...');
+
+                        return cy.execInContainer(
+                          {
+                            command: [
+                              `dnf config-manager --add-repo https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal/${major_version}/${distrib}/centreon-${major_version}-internal.repo`,
+                              `sed -i "s#packages.centreon.com/rpm-standard-internal#${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${major_version}-internal.repo`,
+                              `dnf config-manager --set-enabled 'centreon*'`
+                            ],
+                            name: 'web'
+                          },
+                          { log: false }
+                        );
+                      }
+
                       return cy.execInContainer({
-                        command: `bash -e <<EOF
-                          dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/${distrib}/centreon-${major_version}.repo
-                          dnf config-manager --set-enabled 'centreon*'
-EOF`,
+                        command: [
+                          `dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/${distrib}/centreon-${major_version}.repo`,
+                          `dnf config-manager --set-enabled 'centreon*'`
+                        ],
                         name: 'web'
                       });
                     }

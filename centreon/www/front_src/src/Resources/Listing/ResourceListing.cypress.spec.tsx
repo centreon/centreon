@@ -1,47 +1,139 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-import * as Ramda from 'ramda';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { renderHook } from '@testing-library/react-hooks/dom';
-import { useAtomValue, Provider, createStore } from 'jotai';
+import { Provider, createStore, useAtomValue } from 'jotai';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   ListingVariant,
-  userAtom,
-  platformFeaturesAtom
+  platformFeaturesAtom,
+  userAtom
 } from '@centreon/ui-context';
 
+import Resources from '..';
+import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import { Type } from '../Actions/model';
+import { panelWidthStorageAtom } from '../Details/detailsAtoms';
+import useDetails from '../Details/useDetails';
+import { applyFilterDerivedAtom } from '../Filter/filterAtoms';
+import { allFilter } from '../Filter/models';
+import useFilter from '../Filter/useFilter';
 import { Visualization } from '../models';
 import {
-  labelInDowntime,
   labelAcknowledged,
-  labelViewByService,
   labelAll,
-  labelViewByHost
+  labelDisplayView,
+  labelInDowntime,
+  labelMoreActions,
+  labelViewByHost,
+  labelViewByService
 } from '../translatedLabels';
-import useDetails from '../Details/useDetails';
-import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import useFilter from '../Filter/useFilter';
 
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from './columns';
-import useLoadDetails from './useLoadResources/useLoadDetails';
+import { enabledAutorefreshAtom, selectedColumnIdsAtom } from './listingAtoms';
 import {
   columnToSort,
-  getPlatformFeatures,
-  fakeData,
-  retrievedListingWithCriticalResources,
-  retrievedListingByHosts,
-  retrievedListing,
+  columns,
   entities,
-  columns
+  fakeData,
+  getPlatformFeatures,
+  retrievedListing,
+  retrievedListingByHosts,
+  retrievedListingWithCriticalResources
 } from './testUtils';
-import { selectedColumnIdsAtom } from './listingAtoms';
+import useLoadDetails from './useLoadResources/useLoadDetails';
 
+import {
+  __,
+  filter,
+  find,
+  head,
+  includes,
+  isNil,
+  map,
+  partition,
+  pipe,
+  prop,
+  propEq,
+  reject,
+  split,
+  where
+} from 'ramda';
 import Listing from '.';
+
+const pageNavigationCalls = [
+  { expectedCall: 1, param: 'page=2&limit=30' },
+  { expectedCall: 4, param: 'page=1&limit=30' },
+  { expectedCall: 1, param: 'page=4&limit=30' }
+];
+
+const listingActionsData = [
+  {
+    conditionsInListing: [
+      { rule: 'be.visible', testId: 'PlayArrowIcon' },
+      { rule: 'be.visible', testId: 'RefreshIcon' }
+    ],
+    conditionsInMoreActions: [
+      {
+        rule: 'not.exist',
+        testId: 'RefreshInMoreActions'
+      },
+      {
+        rule: 'not.exist',
+        testId: 'AutorefreshInMoreActions'
+      }
+    ],
+    height: 590,
+    panelWidth: 750,
+    type: Type.medium
+  },
+  {
+    conditionsInListing: [
+      { rule: 'not.exist', testId: 'PlayArrowIcon' },
+      { rule: 'not.exist', testId: 'RefreshIcon' }
+    ],
+    conditionsInMoreActions: [
+      {
+        rule: 'be.visible',
+        testId: 'RefreshInMoreActions'
+      },
+      {
+        rule: 'be.visible',
+        testId: 'AutorefreshInMoreActions'
+      }
+    ],
+    height: 590,
+    panelWidth: 900,
+    type: Type.small
+  }
+];
+
+const interceptRequest = ({ dataPath, alias, path }): void => {
+  cy.fixture(dataPath).then((data) => {
+    cy.interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path,
+      response: data
+    });
+  });
+};
+
+const configureUserAtomViewMode = (
+  listingVariant: ListingVariant = ListingVariant.compact
+): void => {
+  const userData = renderHook(() => useAtomValue(userAtom));
+
+  userData.result.current.timezone = 'Europe/Paris';
+  userData.result.current.locale = 'en_US';
+  userData.result.current.user_interface_density = listingVariant;
+};
+
+before(() => {
+  configureUserAtomViewMode();
+});
 
 const ListingTest = (): JSX.Element => {
   useFilter();
@@ -67,20 +159,6 @@ const ListingTestWithJotai = (): JSX.Element => (
     </TestQueryProvider>
   </Provider>
 );
-
-const configureUserAtomViewMode = (
-  listingVariant: ListingVariant = ListingVariant.compact
-): void => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-  userData.result.current.user_interface_density = listingVariant;
-};
-
-before(() => {
-  configureUserAtomViewMode();
-});
 
 const interceptRequestsAndMountBeforeEach = (
   interceptCriticalResources = false
@@ -112,6 +190,91 @@ const interceptRequestsAndMountBeforeEach = (
   cy.adjustViewport();
 };
 
+const mountResourcePage = (): void => {
+  cy.interceptAPIRequest({
+    alias: 'filterRequest',
+    method: Method.GET,
+    path: './api/latest/users/filters/events-view?*',
+    response: fakeData
+  });
+
+  interceptRequest({
+    alias: 'listingRequest',
+    dataPath: 'resources/resourceListing.json',
+    path: './api/latest/monitoring/resources?*'
+  });
+
+  interceptRequest({
+    alias: 'detailsRequest',
+    dataPath: 'resources/anomalyDetectionDetails.json',
+    path: './api/latest/monitoring/resources/anomaly-detection/1'
+  });
+
+  cy.mount({
+    Component: (
+      <Provider store={store}>
+        <Router>
+          <TestQueryProvider>
+            <Resources />
+          </TestQueryProvider>
+        </Router>
+      </Provider>
+    )
+  });
+};
+
+describe('Responsivity listing actions', () => {
+  beforeEach(() => {
+    cy.viewport(1650, 590);
+    store.set(applyFilterDerivedAtom, allFilter);
+    store.set(selectedVisualizationAtom, Visualization.All);
+    store.set(enabledAutorefreshAtom, false);
+    store.set(platformFeaturesAtom, getPlatformFeatures({}));
+
+    mountResourcePage();
+  });
+  listingActionsData.forEach(
+    ({
+      panelWidth,
+      conditionsInListing,
+      type,
+      conditionsInMoreActions,
+      height
+    }) => {
+      it(`Displays the listing actions correctly for responsiveness cases when the size is ${type}`, () => {
+        const collection =
+          document?.getElementById('cy-root')?.children[0]?.children[0];
+        collection.style.height = '590px';
+        store.set(panelWidthStorageAtom, panelWidth);
+
+        cy.waitForRequest('@filterRequest');
+        cy.waitForRequest('@listingRequest');
+
+        cy.contains('ad').click();
+
+        cy.waitForRequest('@detailsRequest');
+
+        cy.findByText(labelDisplayView).should('not.exist');
+
+        conditionsInListing.forEach(({ rule, testId }) => {
+          cy.findByTestId(testId).should(rule);
+        });
+
+        cy.findByLabelText(labelMoreActions).click();
+
+        conditionsInMoreActions.forEach(({ testId, rule }) => {
+          cy.findByTestId(testId).should(rule);
+        });
+
+        cy.makeSnapshotWithCustomResolution({
+          resolution: { height, width: 1650 },
+          title: `listing actions when the size is ${type}`
+        });
+      });
+    }
+  );
+});
+
 describe('Resource Listing', () => {
   beforeEach(() => {
     configureUserAtomViewMode();
@@ -119,21 +282,15 @@ describe('Resource Listing', () => {
 
   it('displays first part of information when multiple (split by \n) are available', () => {
     interceptRequestsAndMountBeforeEach();
-    const [resourcesWithMultipleLines, resourcesWithSingleLines] =
-      Ramda.partition(
-        Ramda.where({ information: Ramda.includes('\n') }),
-        retrievedListing.result
-      );
+    const [resourcesWithMultipleLines, resourcesWithSingleLines] = partition(
+      where({ information: includes('\n') }),
+      retrievedListing.result
+    );
     cy.waitFiltersAndListingRequests();
 
     resourcesWithMultipleLines.forEach(({ information }) =>
       cy
-        .contains(
-          Ramda.pipe(
-            Ramda.split('\n'),
-            Ramda.head
-          )(information as string) as string
-        )
+        .contains(pipe(split('\n'), head)(information as string) as string)
         .should('exist')
     );
     resourcesWithSingleLines.forEach(({ information }) => {
@@ -391,7 +548,7 @@ describe('column sorting', () => {
     cy.adjustViewport();
     columnToSort.forEach(() => {
       cy.interceptAPIRequest({
-        alias: `dataToListingTable`,
+        alias: 'dataToListingTable',
         method: Method.GET,
         path: './api/latest/monitoring**',
         response: retrievedListing
@@ -420,22 +577,18 @@ describe('column sorting', () => {
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTable`);
+      cy.waitForRequest('@dataToListingTable');
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTable`);
+      cy.waitForRequest('@dataToListingTable');
+
+      cy.get('div[class*="MuiTable-root"]').parent().scrollTo('top');
 
       cy.makeSnapshot();
     });
   });
 });
-
-const pageNavigationCalls = [
-  { expectedCall: 1, param: 'page=2&limit=30' },
-  { expectedCall: 4, param: 'page=1&limit=30' },
-  { expectedCall: 1, param: 'page=4&limit=30' }
-];
 
 describe('Listing request', () => {
   beforeEach(() => {
@@ -445,7 +598,7 @@ describe('Listing request', () => {
   it('executes a listing request with an updated page param when a change page action is clicked', () => {
     cy.waitFiltersAndListingRequests();
 
-    cy.findByLabelText(`Next page`)
+    cy.findByLabelText('Next page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -453,7 +606,7 @@ describe('Listing request', () => {
 
     cy.waitForRequest('@dataToListingTable');
 
-    cy.findByLabelText(`Previous page`)
+    cy.findByLabelText('Previous page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -461,7 +614,7 @@ describe('Listing request', () => {
 
     cy.waitForRequest('@dataToListingTable');
 
-    cy.findByLabelText(`Last page`)
+    cy.findByLabelText('Last page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -469,7 +622,7 @@ describe('Listing request', () => {
 
     cy.waitForRequest('@dataToListingTable');
 
-    cy.findByLabelText(`First page`)
+    cy.findByLabelText('First page')
       .should((label) => {
         expect(label).to.be.enabled;
       })
@@ -481,10 +634,7 @@ describe('Listing request', () => {
       expect(calls).to.have.length(6);
       pageNavigationCalls.forEach(({ param, expectedCall }) => {
         expect(
-          Ramda.filter(
-            (call) => Ramda.includes(param, call.request.url.search),
-            calls
-          )
+          filter((call) => includes(param, call.request.url.search), calls)
         ).to.have.length(expectedCall);
       });
     });
@@ -499,7 +649,7 @@ describe('Listing request', () => {
     cy.contains(/^30$/).click({ force: true });
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('&limit=30', request.url.search)).to.be.true;
+      expect(includes('&limit=30', request.url.search)).to.be.true;
     });
 
     cy.makeSnapshot();
@@ -564,7 +714,7 @@ describe('Display additional columns', () => {
 
     cy.waitForRequest('@downtimeRequest').then(({ request }) => {
       expect(
-        Ramda.includes(
+        includes(
           request.url.pathname,
           entityInDowntime?.links?.endpoints.downtime as string
         )
@@ -599,7 +749,7 @@ describe('Display additional columns', () => {
 
     cy.waitForRequest('@acknowledgeRequest').then(({ request }) => {
       expect(
-        Ramda.includes(
+        includes(
           request.url.pathname,
           acknowledgedEntity?.links?.endpoints.acknowledgement as string
         )
@@ -615,10 +765,10 @@ describe('Display additional columns', () => {
     cy.makeSnapshot();
   });
 
-  const columnIds = Ramda.map(Ramda.prop('id'), columns);
+  const columnIds = map(prop('id'), columns);
 
-  const additionalIds = Ramda.reject(
-    Ramda.includes(Ramda.__, [...defaultSelectedColumnIds, 'state']),
+  const additionalIds = reject(
+    includes(__, [...defaultSelectedColumnIds, 'state']),
     columnIds
   );
 
@@ -628,12 +778,12 @@ describe('Display additional columns', () => {
 
       cy.findByLabelText('Add columns').click();
 
-      const column = Ramda.find(Ramda.propEq(columnId, 'id'), columns);
+      const column = find(propEq(columnId, 'id'), columns);
       const columnLabel = column?.label as string;
 
       const columnShortLabel = column?.shortLabel as string;
 
-      const hasShortLabel = !Ramda.isNil(columnShortLabel);
+      const hasShortLabel = !isNil(columnShortLabel);
 
       const columnDisplayLabel = hasShortLabel
         ? `${columnLabel} (${columnShortLabel})`
@@ -695,7 +845,6 @@ describe('Notification column', () => {
     cy.makeSnapshot();
   });
 });
-
 describe('Tree view : Feature Flag', () => {
   it('hides the tree view icons if the feature is disabled', () => {
     store.set(

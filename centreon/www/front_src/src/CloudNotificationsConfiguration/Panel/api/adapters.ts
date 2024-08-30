@@ -28,7 +28,8 @@ export const adaptNotification = ({
   serviceGroups,
   users,
   contactgroups,
-  businessviews
+  businessviews,
+  timeperiod
 }): object => ({
   contactgroups: map(prop('id'), contactgroups),
   is_activated: isActivated,
@@ -65,6 +66,6 @@ export const adaptNotification = ({
         ]
       : [])
   ],
-  timeperiod_id: 1,
+  timeperiod_id: timeperiod.id,
   users: map(prop('id'), users)
 });

@@ -4,7 +4,8 @@ import { equals, isNil } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { getXAxisTickFormat } from '../../LineChart/helpers';
+import { margin } from '../../Chart/common';
+import { getXAxisTickFormat } from '../../Chart/helpers';
 import { getUnits } from '../timeSeries';
 
 import UnitLabel from './UnitLabel';
@@ -12,6 +13,7 @@ import { Data } from './models';
 import useAxisY from './useAxisY';
 
 interface Props {
+  allUnits: Array<string>;
   data: Data;
   height: number;
   leftScale: ScaleLinear<number, number>;
@@ -28,31 +30,33 @@ const Axes = ({
   rightScale,
   leftScale,
   xScale,
-  orientation
+  orientation,
+  allUnits
 }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const { lines, showBorder, yAxisTickLabelRotation } = data;
+  const isHorizontal = equals(orientation, 'horizontal');
 
-  const { axisLeft, axisRight } = useAxisY({ data, graphHeight: height });
+  const { axisLeft, axisRight } = useAxisY({
+    data,
+    graphHeight: height,
+    graphWidth: width,
+    isHorizontal
+  });
 
-  const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
+  const [, secondUnit] = getUnits(lines);
 
   const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
+  const [start, end] = xScale.domain();
+
   const tickFormat =
-    data?.axisX?.xAxisTickFormat ??
-    getXAxisTickFormat({
-      start: xScale.domain()[0],
-      start: xScale.domain()[-1]
-    });
+    data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat({ end, start });
 
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });
 
-  const hasMoreThanTwoUnits = !isNil(thirdUnit);
-  const displayAxisRight = !isNil(secondUnit) && !hasMoreThanTwoUnits;
-
-  const isHorizontal = equals(orientation, 'horizontal');
+  const displayAxisRight = !isNil(secondUnit);
 
   const AxisBottom = isHorizontal ? Axis.AxisBottom : Axis.AxisLeft;
   const AxisLeft = isHorizontal ? Axis.AxisLeft : Axis.AxisTop;
@@ -69,14 +73,16 @@ const Axes = ({
           ...axisLeft.tickLabelProps(),
           dx: isHorizontal ? 16 : -4
         })}
-        top={isHorizontal ? height - 5 : 0}
+        top={isHorizontal ? height - margin.bottom : 0}
       />
 
       {axisLeft.displayUnit && (
         <UnitLabel
-          unit={firstUnit}
+          unit={axisLeft.unit}
+          units={allUnits}
           x={isHorizontal ? -8 : width + 8}
-          y={isHorizontal ? 16 : 0}
+          y={isHorizontal ? 16 : -2}
+          onUnitChange={data.axisYLeft?.onUnitChange}
         />
       )}
 
@@ -88,8 +94,8 @@ const Axes = ({
         tickLabelProps={() => ({
           ...axisLeft.tickLabelProps(),
           angle: yAxisTickLabelRotation,
-          dx: isHorizontal ? -8 : 2,
-          dy: isHorizontal ? 4 : -4
+          dx: isHorizontal ? -8 : 4,
+          dy: isHorizontal ? 4 : -6
         })}
         tickLength={2}
       />
@@ -104,18 +110,20 @@ const Axes = ({
           tickLabelProps={() => ({
             ...axisRight.tickLabelProps(),
             angle: yAxisTickLabelRotation,
-            dx: isHorizontal ? 4 : -8,
+            dx: isHorizontal ? 4 : -4,
             dy: 4
           })}
           tickLength={2}
-          top={isHorizontal ? 0 : height}
+          top={isHorizontal ? 0 : height - margin.bottom}
         />
       )}
       {axisRight.displayUnit && (
         <UnitLabel
-          unit={secondUnit}
-          x={width + 8}
+          unit={axisRight.unit}
+          units={allUnits}
+          x={width}
           y={isHorizontal ? 16 : -(height + 8)}
+          onUnitChange={data.axisYRight?.onUnitChange}
         />
       )}
     </g>

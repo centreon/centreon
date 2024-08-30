@@ -1,10 +1,11 @@
 import { useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
+import { useAtom } from 'jotai';
 import {
   append,
+  difference,
   equals,
   filter,
   find,
@@ -14,10 +15,9 @@ import {
   pluck,
   propEq,
   remove,
-  difference,
   uniq
 } from 'ramda';
-import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Box, Grid } from '@mui/material';
 
@@ -28,12 +28,12 @@ import {
 } from '@centreon/ui';
 import type { RootComponentProps } from '@centreon/ui';
 
-import getDetailCardLines, { DetailCardLine } from '../DetailsCard/cards';
 import { ResourceDetails } from '../../../models';
+import getDetailCardLines, { DetailCardLine } from '../DetailsCard/cards';
 import { detailsCardsAtom } from '../detailsCardsAtom';
 
-import { CardsLayout, ChangeExpandedCardsProps, ExpandAction } from './models';
 import Content from './Content';
+import { CardsLayout, ChangeExpandedCardsProps, ExpandAction } from './models';
 
 interface Props {
   details: ResourceDetails;

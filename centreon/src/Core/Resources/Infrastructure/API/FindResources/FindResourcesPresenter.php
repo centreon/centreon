@@ -33,33 +33,36 @@ use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesPresenterInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesResponse;
 use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDto;
+use Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface;
 
 class FindResourcesPresenter extends AbstractPresenter implements FindResourcesPresenterInterface
 {
-    use HttpUrlTrait;
-    use PresenterTrait;
+    use HttpUrlTrait, PresenterTrait;
     private const IMAGE_DIRECTORY = '/img/media/',
-        SERVICE_RESOURCE_TYPE = 'service';
+                  SERVICE_RESOURCE_TYPE = 'service';
 
     /**
      * @param HypermediaCreator $hypermediaCreator
      * @param RequestParametersInterface $requestParameters
      * @param PresenterFormatterInterface $presenterFormatter
+     * @param \Traversable<ExtraDataNormalizerInterface> $extraDataNormalizers
      */
     public function __construct(
         private readonly HypermediaCreator $hypermediaCreator,
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
+        private readonly \Traversable $extraDataNormalizers
     ) {
         parent::__construct($presenterFormatter);
     }
 
-    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $data): void
+    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $response): void
     {
-        if ($data instanceof FindResourcesResponse) {
+        if ($response instanceof FindResourcesResponse) {
             $result = [];
-            foreach ($data->resources as $resource) {
-                $parentResource = $resource->parent !== null
+
+            foreach ($response->resources as $resource) {
+                $parentResource = ($resource->parent !== null && $resource->parent->resourceId !== null)
                     ? [
                         'uuid' => $resource->parent->uuid,
                         'id' => $resource->parent->id,
@@ -74,6 +77,10 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                         'alias' => $resource->parent->alias,
                         'fqdn' => $resource->parent->fqdn,
                         'monitoring_server_name' => $resource->parent->monitoringServerName,
+                        'extra' => $this->normalizeExtraDataForResource(
+                            $resource->parent->resourceId,
+                            $response->extraData,
+                        ),
                     ]
                     : null;
 
@@ -174,6 +181,9 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                     'is_notification_enabled' => false,
                     'severity' => $severity,
                     'links' => $links,
+                    'extra' => $resource->resourceId !== null
+                        ? $this->normalizeExtraDataForResource($resource->resourceId, $response->extraData)
+                        : [],
                 ];
             }
 
@@ -182,8 +192,32 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                 'meta' => $this->requestParameters->toArray(),
             ]);
         } else {
-            $this->setResponseStatus($data);
+            $this->setResponseStatus($response);
         }
+    }
+
+    /**
+     * @param int $resourceId
+     * @param array<string, array<mixed, mixed>> $extraData
+     *
+     * @return mixed[]
+     */
+    private function normalizeExtraDataForResource(int $resourceId, array $extraData): array
+    {
+        $data = [];
+        foreach ($extraData as $sourceName => $sourceData) {
+            foreach (iterator_to_array($this->extraDataNormalizers) as $provider) {
+                if ($provider->isValidFor($sourceName)) {
+                    if (array_key_exists($resourceId, $sourceData)) {
+                        $data[$sourceName] = $provider->normalizeExtraDataForResource(
+                            $sourceData[$resourceId],
+                        );
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
     private function generateUrlWithMacrosResolved(string $url, ResourceResponseDto $resource): string

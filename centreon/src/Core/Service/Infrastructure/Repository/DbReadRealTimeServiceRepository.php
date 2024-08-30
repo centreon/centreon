@@ -206,7 +206,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
     {
         // tags 0=servicegroup, 1=hostgroup, 2=servicecategory, 3=hostcategory
         return <<<'SQL'
-                SELECT
+                SELECT SQL_CALC_FOUND_ROWS
                     services.id AS `id`,
                     services.name AS `name`,
                     services.status AS `status`

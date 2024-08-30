@@ -1,5 +1,5 @@
-import MultiAutocompleteField from '../../Multi';
 import ConnectedAutocompleteField from '..';
+import MultiAutocompleteField from '../../Multi';
 
 const MultiConnectedAutocompleteField = ConnectedAutocompleteField(
   MultiAutocompleteField,

@@ -28,10 +28,12 @@ const withQueryProvider: Decorator = (story, context): JSX.Element => (
 
 const preview: Preview = {
   loaders: [mswLoader],
+
   decorators: [
     withThemeProvider,
     withQueryProvider,
   ],
+
   globalTypes: {
     reactquerydevtools: {
       description: "React-Query devtools",
@@ -46,8 +48,9 @@ const preview: Preview = {
       },
     },
   },
+
   parameters: {
-    actions: { argTypesRegex: "^on[A-Z].*" },
+    // actions: { argTypesRegex: "^on[A-Z].*" },
     a11y: {
       manual: true,
     },
@@ -68,7 +71,9 @@ const preview: Preview = {
       defaultViewport: 'tablet',
       defaultOrientation: 'landscape'
     },
-  }
+  },
+
+  tags: ["autodocs"]
 };
 
 export default preview;

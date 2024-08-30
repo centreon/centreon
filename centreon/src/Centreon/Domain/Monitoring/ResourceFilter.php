@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,13 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
 
 /**
- * Filter model for resource repository
- *
- * @package Centreon\Domain\Monitoring
+ * Filter model for resource repository.
  */
 class ResourceFilter
 {
@@ -34,30 +33,29 @@ class ResourceFilter
     public const TYPE_META = 'metaservice';
 
     /**
-     * Non-ok status in hard state , not acknowledged & not in downtime
+     * Non-ok status in hard state , not acknowledged & not in downtime.
      */
     public const STATE_UNHANDLED_PROBLEMS = 'unhandled_problems';
 
     /**
-     * Non-ok status in hard state
+     * Non-ok status in hard state.
      */
     public const STATE_RESOURCES_PROBLEMS = 'resources_problems';
 
     /**
-     * Resources in downtime
+     * Resources in downtime.
      */
     public const STATE_IN_DOWNTIME = 'in_downtime';
 
     /**
-     * Acknowledged resources
+     * Acknowledged resources.
      */
     public const STATE_ACKNOWLEDGED = 'acknowledged';
 
     /**
-     * All status & resources
+     * All status & resources.
      */
     public const STATE_ALL = 'all';
-
     public const STATUS_OK = 'OK';
     public const STATUS_UP = 'UP';
     public const STATUS_WARNING = 'WARNING';
@@ -68,11 +66,10 @@ class ResourceFilter
     public const STATUS_PENDING = 'PENDING';
 
     /**
-     * Available state types
+     * Available state types.
      */
     public const HARD_STATUS_TYPE = 'hard';
     public const SOFT_STATUS_TYPE = 'soft';
-
     public const MAP_STATUS_SERVICE = [
         self::STATUS_OK => 0,
         self::STATUS_WARNING => 1,
@@ -80,109 +77,88 @@ class ResourceFilter
         self::STATUS_UNKNOWN => 3,
         self::STATUS_PENDING => 4,
     ];
-
     public const MAP_STATUS_HOST = [
         self::STATUS_UP => 0,
         self::STATUS_DOWN => 1,
         self::STATUS_UNREACHABLE => 2,
         self::STATUS_PENDING => 4,
     ];
-
     public const MAP_STATUS_TYPES = [
         self::HARD_STATUS_TYPE => 1,
         self::SOFT_STATUS_TYPE => 0,
     ];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $types = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $states = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $statuses = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $hostgroupNames = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $servicegroupNames = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $monitoringServerNames = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $serviceCategoryNames = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $hostCategoryNames = [];
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private $hostIds = [];
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private $serviceIds = [];
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private $metaServiceIds = [];
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $onlyWithPerformanceData = false;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $statusTypes = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private array $serviceSeverityNames = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private array $hostSeverityNames = [];
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private array $serviceSeverityLevels = [];
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private array $hostSeverityLevels = [];
 
     /**
-     * Transform result by map
+     * Dedicated to open-tickets.
+     *
+     * @var int|null
+     */
+    private ?int $ruleId = null;
+
+    /**
+     * Dedicated to open-tickets.
+     *
+     * @var bool
+     */
+    private bool $onlyWithTicketsOpened = false;
+
+    /**
+     * Transform result by map.
      *
      * @param array<mixed, mixed> $list
      * @param array<mixed, mixed> $map
+     *
      * @return array<int, mixed>
      */
     public static function map(array $list, array $map): array
@@ -190,7 +166,7 @@ class ResourceFilter
         $result = [];
 
         foreach ($list as $value) {
-            if (!array_key_exists($value, $map)) {
+            if (! array_key_exists($value, $map)) {
                 continue;
             }
 
@@ -202,11 +178,12 @@ class ResourceFilter
 
     /**
      * @param string $type
+     *
      * @return bool
      */
     public function hasType(string $type): bool
     {
-        return in_array($type, $this->types);
+        return in_array($type, $this->types, true);
     }
 
     /**
@@ -219,6 +196,7 @@ class ResourceFilter
 
     /**
      * @param string[] $types
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setTypes(array $types): self
@@ -230,11 +208,12 @@ class ResourceFilter
 
     /**
      * @param string $state
+     *
      * @return bool
      */
     public function hasState(string $state): bool
     {
-        return in_array($state, $this->states);
+        return in_array($state, $this->states, true);
     }
 
     /**
@@ -247,6 +226,7 @@ class ResourceFilter
 
     /**
      * @param string[] $states
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setStates(array $states): self
@@ -258,11 +238,12 @@ class ResourceFilter
 
     /**
      * @param string $status
+     *
      * @return bool
      */
     public function hasStatus(string $status): bool
     {
-        return in_array($status, $this->statuses);
+        return in_array($status, $this->statuses, true);
     }
 
     /**
@@ -275,6 +256,7 @@ class ResourceFilter
 
     /**
      * @param string[] $statuses
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setStatuses(array $statuses): self
@@ -294,6 +276,7 @@ class ResourceFilter
 
     /**
      * @param string[] $hostgroupNames
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setHostgroupNames(array $hostgroupNames): self
@@ -313,6 +296,7 @@ class ResourceFilter
 
     /**
      * @param string[] $monitoringServerNames
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setMonitoringServerNames(array $monitoringServerNames): self
@@ -332,6 +316,7 @@ class ResourceFilter
 
     /**
      * @param string[] $servicegroupNames
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setServicegroupNames(array $servicegroupNames): self
@@ -351,12 +336,13 @@ class ResourceFilter
 
     /**
      * @param int[] $hostIds
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setHostIds(array $hostIds): self
     {
         foreach ($hostIds as $hostId) {
-            if (!is_int($hostId)) {
+            if (! is_int($hostId)) {
                 throw new \InvalidArgumentException('Host ids must be an array of integers');
             }
         }
@@ -376,12 +362,13 @@ class ResourceFilter
 
     /**
      * @param int[] $serviceIds
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setServiceIds(array $serviceIds): self
     {
         foreach ($serviceIds as $serviceId) {
-            if (!is_int($serviceId)) {
+            if (! is_int($serviceId)) {
                 throw new \InvalidArgumentException('Service ids must be an array of integers');
             }
         }
@@ -401,12 +388,13 @@ class ResourceFilter
 
     /**
      * @param int[] $metaServiceIds
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setMetaServiceIds(array $metaServiceIds): self
     {
         foreach ($metaServiceIds as $metaServiceId) {
-            if (!is_int($metaServiceId)) {
+            if (! is_int($metaServiceId)) {
                 throw new \InvalidArgumentException('Meta Service ids must be an array of integers');
             }
         }
@@ -417,17 +405,19 @@ class ResourceFilter
     }
 
     /**
-     * @param boolean $onlyWithPerformanceData
+     * @param bool $onlyWithPerformanceData
+     *
      * @return \Centreon\Domain\Monitoring\ResourceFilter
      */
     public function setOnlyWithPerformanceData(bool $onlyWithPerformanceData): self
     {
         $this->onlyWithPerformanceData = $onlyWithPerformanceData;
+
         return $this;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getOnlyWithPerformanceData(): bool
     {
@@ -444,16 +434,19 @@ class ResourceFilter
 
     /**
      * @param string[] $statusTypes
+     *
      * @return self
      */
     public function setStatusTypes(array $statusTypes): self
     {
         $this->statusTypes = $statusTypes;
+
         return $this;
     }
 
     /**
      * @param string[] $serviceCategoryNames
+     *
      * @return self
      */
     public function setServiceCategoryNames(array $serviceCategoryNames): self
@@ -465,6 +458,7 @@ class ResourceFilter
 
     /**
      * @param string[] $serviceSeverityNames
+     *
      * @return self
      */
     public function setServiceSeverityNames(array $serviceSeverityNames): self
@@ -484,6 +478,7 @@ class ResourceFilter
 
     /**
      * @param string[] $hostCategoryNames
+     *
      * @return self
      */
     public function setHostCategoryNames(array $hostCategoryNames): self
@@ -503,6 +498,7 @@ class ResourceFilter
 
     /**
      * @param string[] $hostSeverityNames
+     *
      * @return self
      */
     public function setHostSeverityNames(array $hostSeverityNames): self
@@ -530,6 +526,7 @@ class ResourceFilter
 
     /**
      * @param int[] $serviceSeverityLevels
+     *
      * @return self
      */
     public function setServiceSeverityLevels(array $serviceSeverityLevels): self
@@ -549,6 +546,7 @@ class ResourceFilter
 
     /**
      * @param int[] $hostSeverityLevels
+     *
      * @return self
      */
     public function setHostSeverityLevels(array $hostSeverityLevels): self
@@ -564,5 +562,45 @@ class ResourceFilter
     public function getHostSeverityLevels(): array
     {
         return $this->hostSeverityLevels;
+    }
+
+    /**
+     * @param null|int $ruleId
+     *
+     * @return self
+     */
+    public function setRuleId(?int $ruleId): self
+    {
+        $this->ruleId = $ruleId;
+
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getRuleId(): ?int
+    {
+        return $this->ruleId;
+    }
+
+    /**
+     * @param bool $onlyWithTicketsOpened
+     *
+     * @return self
+     */
+    public function setOnlyWithTicketsOpened(bool $onlyWithTicketsOpened): self
+    {
+        $this->onlyWithTicketsOpened = $onlyWithTicketsOpened;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getOnlyWithTicketsOpened(): bool
+    {
+        return $this->onlyWithTicketsOpened;
     }
 }

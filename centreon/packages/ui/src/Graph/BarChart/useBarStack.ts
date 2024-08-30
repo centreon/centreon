@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from 'react';
 
-import { BarStack, BarStackHorizontal } from '@visx/shape';
-import { equals, keys, omit } from 'ramda';
 import { scaleOrdinal } from '@visx/scale';
+import { BarStack, BarStackHorizontal } from '@visx/shape';
 import { useSetAtom } from 'jotai';
+import { equals, keys, omit } from 'ramda';
 
 import { useDeepMemo } from '../../utils';
 import { Line, TimeValue } from '../common/timeSeries/models';
@@ -35,8 +35,8 @@ interface UseBarStackState {
 export const useBarStack = ({
   timeSeries,
   isHorizontal,
-  yScale,
   lines,
+  yScale,
   xScale
 }: UseBarStackProps): UseBarStackState => {
   const setTooltipData = useSetAtom(tooltipDataAtom);

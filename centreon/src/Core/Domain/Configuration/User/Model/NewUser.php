@@ -63,6 +63,8 @@ class NewUser
 
     protected bool $canReachRealtimeApi = false;
 
+    protected bool $canReachConfigurationApi = false;
+
     /**
      * @param string $alias
      * @param string $name
@@ -316,5 +318,25 @@ class NewUser
         $this->canReachRealtimeApi = $canReachRealtimeApi;
 
         return $this;
+    }
+
+    /**
+     * @param bool $canReachConfigurationApi
+     *
+     * @return self
+     */
+    public function setCanReachConfigurationApi(bool $canReachConfigurationApi): self
+    {
+        $this->canReachConfigurationApi = $canReachConfigurationApi;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canReachConfigurationApi(): bool
+    {
+        return $this->canReachConfigurationApi;
     }
 }

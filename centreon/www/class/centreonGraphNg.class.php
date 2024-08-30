@@ -171,30 +171,8 @@ class CentreonGraphNg
      */
     private function initDatabase()
     {
-        global $conf_centreon;
-
-        $mysqlHost = $conf_centreon["hostCentreon"];
-        $mysqlDatabase = $conf_centreon["db"];
-        $mysqlUser = $conf_centreon["user"];
-        $mysqlPassword = $conf_centreon["password"];
-        $mysqlPort = $conf_centreon["port"] ? $conf_centreon["port"] : '3306';
-        $this->db = new PDO(
-            "mysql:dbname=pdo;host=" . $mysqlHost . ";port=" . $mysqlPort . ";dbname=" . $mysqlDatabase,
-            $mysqlUser,
-            $mysqlPassword,
-            array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8")
-        );
-        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        $mysqlHostCs = $conf_centreon["hostCentstorage"];
-        $mysqlDatabaseCs = $conf_centreon["dbcstg"];
-        $this->dbCs = new PDO(
-            "mysql:dbname=pdo;host=" . $mysqlHostCs . ";port=" . $mysqlPort . ";dbname=" . $mysqlDatabaseCs,
-            $mysqlUser,
-            $mysqlPassword,
-            array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8")
-        );
-        $this->dbCs->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->db = new CentreonDB(CentreonDB::LABEL_DB_CONFIGURATION);
+        $this->dbCs = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
     }
 
     /**

@@ -598,11 +598,13 @@ final class PartialUpdateService
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
         if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
-            $vaultPath = $this->writeVaultRepository->upsert(
+            $macroPrefixName = '_SERVICE' . $macro->getName();
+            $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
-                $action === 'INSERT' ? ['_SERVICE' . $macro->getName() => $macro->getValue()] : [],
-                $action === 'DELETE' ? ['_SERVICE' . $macro->getName() => $macro->getValue()] : [],
+                $action === 'INSERT' ? [$macroPrefixName => $macro->getValue()] : [],
+                $action === 'DELETE' ? [$macroPrefixName => $macro->getValue()] : [],
             );
+            $vaultPath = $vaultPaths[$macroPrefixName];
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
             $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);

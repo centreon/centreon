@@ -44,9 +44,9 @@ jobs:
       release_cloud: ${{ steps.get_version.outputs.release_cloud}}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
+      - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         if: ${{ endsWith(inputs.version_file, '.php') }}
         with:
           php-version: 8.1
@@ -133,6 +133,11 @@ jobs:
               echo "release_cloud=1" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
+            dev-[2-9][0-9].[0-9][0-9].x)
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              echo "release_cloud=0" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              ;;
             release* | hotfix*)
               # Handle workflow_dispatch run triggers and run a dispatch ONLY for cloud release
               GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
@@ -159,6 +164,17 @@ jobs:
                 echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               fi
+              ;;
+            prepare-release-cloud*)
+              # Set release cloud to 1 (0=not-cloud, 1=cloud)
+              GITHUB_RELEASE_CLOUD=1
+              # Debug
+              echo "GITHUB_RELEASE_TYPE is: $GITHUB_RELEASE_TYPE"
+              echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
+              # Github ouputs
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               ;;
             *)
               # Any branch name

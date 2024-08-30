@@ -1,15 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
-import { useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
 import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 import { useFetchQuery } from '@centreon/ui';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
-import { pollerListIssuesEndPoint } from '../api/endpoints';
 import { pollerIssuesDecoder } from '../api/decoders';
+import { pollerListIssuesEndPoint } from '../api/endpoints';
 
 import { getPollerPropsAdapter } from './getPollerPropsAdapter';
 import type { GetPollerPropsAdapterResult } from './getPollerPropsAdapter';

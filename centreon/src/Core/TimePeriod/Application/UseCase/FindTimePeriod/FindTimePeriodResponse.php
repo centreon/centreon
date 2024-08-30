@@ -23,20 +23,17 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Application\UseCase\FindTimePeriod;
 
-final class FindTimePeriodResponse
+use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\TimePeriod\Domain\Model\TimePeriod;
+
+final class FindTimePeriodResponse implements StandardResponseInterface
 {
-    public int $id = 0;
+    public function __construct(readonly public TimePeriod $timePeriod)
+    {
+    }
 
-    public string $name = '';
-
-    public string $alias = '';
-
-    /** @var array<array{day: int, time_range: string}> */
-    public array $days = [];
-
-    /** @var array<array{id: int, alias: string}> */
-    public array $templates = [];
-
-    /** @var array<array{id: int, day_range: string, time_range: string}> */
-    public array $exceptions = [];
+    public function getData(): mixed
+    {
+        return $this->timePeriod;
+    }
 }

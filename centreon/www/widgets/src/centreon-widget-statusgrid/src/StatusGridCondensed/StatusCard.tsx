@@ -1,6 +1,6 @@
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useAtomValue } from 'jotai';
 
 import { Box, useTheme } from '@mui/material';
 
@@ -10,17 +10,24 @@ import {
   formatMetricValue,
   getStatusColors
 } from '@centreon/ui';
-import { Tooltip } from '@centreon/ui/components';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+import { Tooltip } from '@centreon/ui/components';
 
 import { Resource, StatusDetail } from '../../../models';
-import { getResourcesUrl, severityStatusBySeverityCode } from '../../../utils';
+import {
+  getBAsURL,
+  getResourcesUrl,
+  indicatorsURL,
+  severityStatusBySeverityCode
+} from '../../../utils';
 
 import { useStatusGridCondensedStyles } from './StatusGridCondensed.styles';
 import ResourcesTooltip from './Tooltip/ResourcesTooltip';
 
 interface Props {
   count: StatusDetail;
+  isBAResourceType: boolean;
+  isBVResourceType: boolean;
   label: string;
   resourceType: string;
   resources: Array<Resource>;
@@ -34,7 +41,9 @@ const StatusCard = ({
   severityCode,
   resourceType,
   resources,
-  total
+  total,
+  isBVResourceType,
+  isBAResourceType
 }: Props): JSX.Element => {
   const { classes, cx } = useStatusGridCondensedStyles();
   const { t } = useTranslation();
@@ -42,13 +51,22 @@ const StatusCard = ({
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
-  const url = getResourcesUrl({
-    allResources: resources,
-    isForOneResource: false,
-    states: [],
-    statuses: [severityStatusBySeverityCode[severityCode]],
-    type: resourceType
-  });
+  const getUrl = (): string => {
+    if (isBVResourceType) {
+      return getBAsURL(severityCode);
+    }
+    if (isBAResourceType) {
+      return indicatorsURL;
+    }
+
+    return getResourcesUrl({
+      allResources: resources,
+      isForOneResource: false,
+      states: [],
+      statuses: [severityStatusBySeverityCode[severityCode]],
+      type: resourceType
+    });
+  };
 
   return (
     <Tooltip
@@ -64,6 +82,8 @@ const StatusCard = ({
       label={
         <ResourcesTooltip
           count={count.total}
+          isBAResourceType={isBAResourceType}
+          isBVResourceType={isBVResourceType}
           resourceType={resourceType}
           resources={resources}
           severityCode={severityCode}
@@ -79,7 +99,7 @@ const StatusCard = ({
         data-label={label}
         rel="noopener noreferrer"
         target="_blank"
-        to={url}
+        to={getUrl()}
       >
         <Box
           className={cx(classes.status, classes.statusCard)}

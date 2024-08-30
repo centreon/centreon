@@ -2,9 +2,9 @@ import { isNil } from 'ramda';
 
 import {
   labelAll,
+  labelAllAlerts,
   labelNewFilter,
-  labelUnhandledAlerts,
-  labelAllAlerts
+  labelUnhandledAlerts
 } from '../translatedLabels';
 
 import getDefaultCriterias from './Criterias/default';

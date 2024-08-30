@@ -24,7 +24,8 @@ declare(strict_types=1);
 namespace Core\Infrastructure\Common\Presenter;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{BodyResponseInterface,
+use Core\Application\Common\UseCase\{
+    BodyResponseInterface,
     ConflictResponse,
     CreatedResponse,
     ErrorResponse,

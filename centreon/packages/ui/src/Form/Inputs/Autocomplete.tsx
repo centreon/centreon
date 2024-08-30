@@ -1,16 +1,16 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, isNil, map, not, path, prop, type } from 'ramda';
+import { path, equals, isNil, map, not, prop, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FormHelperText, Stack } from '@mui/material';
 
+import { SelectEntry } from '../../InputField/Select';
 import SingleAutocompleteField from '../../InputField/Select/Autocomplete';
-import { labelPressEnterToAccept } from '../translatedLabels';
 import MultiAutocompleteField from '../../InputField/Select/Autocomplete/Multi';
 import { useMemoComponent } from '../../utils';
-import { SelectEntry } from '../../InputField/Select';
+import { labelPressEnterToAccept } from '../translatedLabels';
 
 import { InputPropsWithoutGroup, InputType } from './models';
 

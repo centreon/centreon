@@ -13,9 +13,12 @@ export interface FormTimePeriod {
 
 export interface PanelOptions {
   areaOpacity: number;
+  barOpacity: number;
+  barRadius: number;
   curveType: 'linear' | 'step' | 'natural';
   dashLength?: number;
   dashOffset?: number;
+  displayType: 'line' | 'bar' | 'bar-stacked';
   dotOffset?: number;
   globalRefreshInterval?: number;
   gridLinesType: 'horizontal' | 'vertical' | 'all';
@@ -25,6 +28,7 @@ export interface PanelOptions {
   lineStyleMode: 'solid' | 'dash' | 'dots';
   lineWidth?: number;
   lineWidthMode: 'auto' | 'custom';
+  orientation: 'auto' | 'horizontal' | 'vertical';
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   scale: 'linear' | 'logarithmic';

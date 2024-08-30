@@ -214,32 +214,16 @@ abstract class AbstractHost extends AbstractObject
 
         $host['macros'] = array();
         foreach ($macros as $macro) {
-            # Modify macro value for Centreon Vault Storage
-            if (
-                $this->isVaultEnabled
-                && $macro['is_password'] === 1
-            ) {
-                $hostMacroName = preg_replace(
-                    '/\$(_HOST.*)\$/',
-                    '$1',
-                    $macro['host_macro_name']);
-                $macro['host_macro_value'] = sprintf("{%s::%s}", $hostMacroName, $macro['host_macro_value']);
-            }
-
             $hostMacroName = preg_replace(
                 '/\$_HOST(.*)\$/',
                 '_$1',
                 $macro['host_macro_name']);
             $host['macros'][$hostMacroName] = $macro['host_macro_value'];
         }
-        if (!is_null($host['host_snmp_community']) && $host['host_snmp_community'] != '') {
-            if (preg_match(self::VAULT_PATH_REGEX, $host['host_snmp_community'])) {
-                $host['macros']['_SNMPCOMMUNITY'] = sprintf("{%s::%s}", "_HOSTSNMPCOMMUNITY", $host['host_snmp_community']);
-            } else {
+        if (! is_null($host['host_snmp_community']) && $host['host_snmp_community'] !== '') {
                 $host['macros']['_SNMPCOMMUNITY'] = $host['host_snmp_community'];
-            }
         }
-        if (!is_null($host['host_snmp_version']) && $host['host_snmp_version'] != 0) {
+        if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
             $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
         }
 

@@ -1,7 +1,7 @@
 import {
-  memo,
   MouseEvent,
   ReactNode,
+  memo,
   useEffect,
   useMemo,
   useRef,
@@ -17,25 +17,26 @@ import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  alpha,
   Button,
   CircularProgress,
   ClickAwayListener,
   Paper,
   Tooltip,
   Typography,
+  alpha,
   useTheme
 } from '@mui/material';
 import { grey } from '@mui/material/colors';
 
 import {
+  LineChartData,
   dateTimeFormat,
   useLocaleDateTimeFormat,
   useMemoComponent
 } from '@centreon/ui';
 
-import { CommentParameters } from '../../../Actions/api';
 import useAclQuery from '../../../Actions/Resource/aclQuery';
+import { CommentParameters } from '../../../Actions/api';
 import { ResourceDetails } from '../../../Details/models';
 import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
 import { Resource } from '../../../models';
@@ -45,32 +46,28 @@ import {
 } from '../../../translatedLabels';
 import { updatedGraphIntervalAtom } from '../ExportableGraphWithTimeline/atoms';
 import Lines from '../Lines';
-import { AdditionalLines, Line as LineModel, TimeValue } from '../models';
+import { Line as LineModel, LinesProps, TimeValue } from '../models';
 import {
   getDates,
   getLeftScale,
   getRightScale,
-  getSortedStackedLines,
-  getTime,
-  getUnits,
-  getXScale,
-  getYScale
+  getXScale
 } from '../timeSeries';
 
 import AddCommentForm from './AddCommentForm';
 import Annotations from './Annotations';
+import Axes from './Axes';
+import TimeShiftZones, { TimeShiftContext } from './TimeShiftZones';
 import {
   annotationHoveredAtom,
   changeAnnotationHoveredDerivedAtom
 } from './annotationsAtoms';
-import Axes from './Axes';
 import {
+  MousePosition,
   changeMousePositionAndTimeValueDerivedAtom,
   changeTimeValueDerivedAtom,
-  MousePosition,
   mousePositionAtom
 } from './mouseTimeValueAtoms';
-import TimeShiftZones, { TimeShiftContext } from './TimeShiftZones';
 
 interface BarProps {
   className?: string;
@@ -201,7 +198,8 @@ interface GraphContentProps {
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
+  performanceGraphData?: LineChartData;
+  renderAdditionalLines?: (additionalLinesProps: LinesProps) => ReactNode;
   resource: Resource | ResourceDetails;
   showAddCommentTooltip: (args) => void;
   start: string;
@@ -238,7 +236,8 @@ const GraphContent = ({
   displayTimeValues,
   renderAdditionalLines,
   end,
-  start
+  start,
+  performanceGraphData
 }: GraphContentProps): JSX.Element => {
   const { classes } = useStyles({ onAddComment });
   const { t } = useTranslation();
@@ -466,16 +465,13 @@ const GraphContent = ({
   const commentTitle = isCommentPermitted ? '' : t(labelActionNotPermitted);
 
   const additionalLinesProps = {
-    getSortedStackedLines,
-    getTime,
-    getUnits,
-    getYScale,
+    data: performanceGraphData,
+    end,
     graphHeight,
-    graphWidth,
     leftScale,
     lines,
     rightScale,
-    timeSeries,
+    start,
     xScale
   };
 
@@ -519,10 +515,9 @@ const GraphContent = ({
               graphHeight={graphHeight}
               leftScale={leftScale}
               lines={lines}
-              renderAdditionalLines={renderAdditionalLines?.({
-                additionalLinesProps,
-                resource
-              })}
+              renderAdditionalLines={renderAdditionalLines?.(
+                additionalLinesProps
+              )}
               rightScale={rightScale}
               timeSeries={timeSeries}
               timeTick={timeTick}

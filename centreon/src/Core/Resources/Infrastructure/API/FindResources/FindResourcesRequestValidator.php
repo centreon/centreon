@@ -42,7 +42,9 @@ use Core\Domain\RealTime\ResourceTypeInterface;
  *      host_severity_levels: list<int>,
  *      service_severity_levels: list<int>,
  *      status_types: list<string>,
- *      only_with_performance_data: bool
+ *      only_with_performance_data: bool,
+ *      only_with_opened_tickets: bool,
+ *      ticket_provider_id: int|null
  * }
  */
 final class FindResourcesRequestValidator
@@ -64,6 +66,8 @@ final class FindResourcesRequestValidator
     public const PARAM_SERVICE_SEVERITY_LEVELS = 'service_severity_levels';
     public const PARAM_STATUS_TYPES = 'status_types';
     public const PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY = 'only_with_performance_data';
+    public const PARAM_RESOURCES_WITH_OPENED_TICKETS = 'only_with_opened_tickets';
+    public const PARAM_OPEN_TICKET_RULE_ID = 'ticket_provider_id';
 
     // Errors Codes for exceptions.
     public const ERROR_UNKNOWN_PARAMETER = 1;
@@ -76,6 +80,7 @@ final class FindResourcesRequestValidator
     public const ERROR_NOT_AN_ARRAY = 8;
     public const ERROR_NOT_A_BOOLEAN = 9;
     public const ERROR_NO_PROVIDERS = 10;
+    public const ERROR_NOT_A_INT = 11;
 
     /** Allowed values for statuses. */
     public const ALLOWED_STATUSES = [
@@ -119,6 +124,8 @@ final class FindResourcesRequestValidator
         self::PARAM_SERVICE_SEVERITY_LEVELS => [],
         self::PARAM_STATUS_TYPES => [],
         self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY => false,
+        self::PARAM_RESOURCES_WITH_OPENED_TICKETS => false,
+        self::PARAM_OPEN_TICKET_RULE_ID => null,
     ];
 
     /** Query parameters that should be ignored but not forbidden. */
@@ -217,6 +224,12 @@ final class FindResourcesRequestValidator
                     break;
                 case self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY:
                     $filterData[$param] = $this->ensureBoolean($param, $value);
+                    break;
+                case self::PARAM_RESOURCES_WITH_OPENED_TICKETS:
+                    $filterData[$param] = $this->ensureBoolean($param, $value);
+                    break;
+                case self::PARAM_OPEN_TICKET_RULE_ID:
+                    $filterData[$param] = $this->ensureInt($param, $value);
                     break;
             }
         }
@@ -434,6 +447,28 @@ final class FindResourcesRequestValidator
             throw new \InvalidArgumentException(
                 sprintf('Value provided for %s is not correctly formatted. Boolean expected', $parameterName),
                 self::ERROR_NOT_A_BOOLEAN
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * Ensures that value provided is a integer.
+     *
+     * @param string $parameterName
+     * @param mixed $value
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return int
+     */
+    private function ensureInt(string $parameterName, mixed $value): int
+    {
+        if (! \is_int($value)) {
+            throw new \InvalidArgumentException(
+                sprintf('Value provided for %s is not correctly formatted. Integer expected', $parameterName),
+                self::ERROR_NOT_A_INT
             );
         }
 

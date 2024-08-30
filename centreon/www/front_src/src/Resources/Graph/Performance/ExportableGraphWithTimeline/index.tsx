@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { isNil, not, or, path } from 'ramda';
+import { path, isNil, not, or } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Theme } from '@mui/material';
@@ -25,13 +25,8 @@ import { listTimelineEventsDecoder } from '../../../Details/tabs/Timeline/api/de
 import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
 import { Resource } from '../../../models';
 import MemoizedGraphActions from '../GraphActions';
-import {
-  AdditionalLines,
-  FilterLines,
-  GraphOptionId,
-  NewLines
-} from '../models';
 import { resourceDetailsUpdatedAtom } from '../TimePeriods/timePeriodAtoms';
+import { FilterLines, GraphOptionId, LinesProps, NewLines } from '../models';
 import { useIntersection } from '../useGraphIntersection';
 
 import { graphOptionsAtom } from './graphOptionsAtoms';
@@ -61,8 +56,7 @@ interface Props {
   graphTimeParameters: Parameters;
   interactWithGraph: boolean;
   limitLegendRows?: boolean;
-  renderAdditionalGraphAction?: ReactNode;
-  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
+  renderAdditionalLines?: (args: LinesProps) => ReactNode;
   resource?: Resource | ResourceDetails;
 }
 
@@ -71,7 +65,6 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
   graphHeight,
   limitLegendRows,
   interactWithGraph,
-  renderAdditionalGraphAction,
   renderAdditionalLines,
   filterLines,
   graphTimeParameters
@@ -199,7 +192,6 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
               performanceGraphRef={
                 performanceGraphRef as unknown as MutableRefObject<HTMLDivElement | null>
               }
-              renderAdditionalGraphActions={renderAdditionalGraphAction}
               resource={resource}
               start={start}
               timeline={timeline}

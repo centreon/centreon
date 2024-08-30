@@ -1,9 +1,11 @@
 import { memo } from 'react';
 
 import { scaleBand } from '@visx/scale';
-import { equals, gt, pick } from 'ramda';
+import { BarRounded } from '@visx/shape';
+import { dec, equals, gt, pick } from 'ramda';
 
-import { useBarStack, UseBarStackProps } from './useBarStack';
+import { BarStyle } from './models';
+import { UseBarStackProps, useBarStack } from './useBarStack';
 
 const xScale = scaleBand<number>({
   domain: [0, 0],
@@ -14,6 +16,7 @@ const xScale = scaleBand<number>({
 interface Props extends Omit<UseBarStackProps, 'xScale'> {
   barIndex: number;
   barPadding: number;
+  barStyle: BarStyle;
   barWidth: number;
   isTooltipHidden: boolean;
 }
@@ -34,7 +37,8 @@ const BarStack = ({
   barWidth,
   barPadding,
   barIndex,
-  isTooltipHidden
+  isTooltipHidden,
+  barStyle = { opacity: 1, radius: 0.2 }
 }: Props): JSX.Element => {
   const {
     BarStackComponent,
@@ -53,16 +57,26 @@ const BarStack = ({
       {...commonBarStackProps}
     >
       {(barStacks) => {
-        return barStacks.map((barStack) =>
+        return barStacks.map((barStack, index) =>
           barStack.bars.map((bar) => {
+            const shouldApplyRadiusOnBottom = equals(index, 0);
+            const shouldApplyRadiusOnTop = equals(index, dec(barStacks.length));
             const isNegativeValue = gt(0, bar.bar[1]);
 
+            const barRoundedProps = {
+              [isHorizontal ? 'bottom' : 'left']: shouldApplyRadiusOnBottom,
+              [isHorizontal ? 'top' : 'right']: shouldApplyRadiusOnTop
+            };
+
             return (
-              <rect
+              <BarRounded
+                {...barRoundedProps}
                 data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}`}
                 fill={bar.color}
                 height={isHorizontal ? Math.abs(bar.height) : barWidth}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
+                opacity={barStyle.opacity ?? 1}
+                radius={barWidth * barStyle.radius}
                 width={isHorizontal ? barWidth : Math.abs(bar.width)}
                 x={
                   isHorizontal
@@ -107,7 +121,8 @@ const propsToMemoize = [
   'lines',
   'barPadding',
   'barIndex',
-  'isTooltipHidden'
+  'isTooltipHidden',
+  'barStyle'
 ];
 
 export default memo(BarStack, (prevProps, nextProps) => {

@@ -186,6 +186,13 @@ contents:
       group: "centreon"
       mode: 0755
 
+  - src: "../bin/migrateCredentials.php"
+    dst: "/usr/share/centreon/bin/migrateCredentials.php"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0744
+
   - src: "../bin/logAnalyserBroker"
     dst: "/usr/share/centreon/bin/logAnalyserBroker"
     file_info:
@@ -440,7 +447,7 @@ overrides:
       - net-snmp-utils
       - rsync
       - brotli
-      - lua-curl
+      - lua-curl >= 0.3.13-20
     provides:
       - centreon-backup
       - centreon-clapi
@@ -519,7 +526,7 @@ overrides:
       - gettext
       - rsync
       - brotli
-      - lua5.3-curl
+      - lua-curl (>= 0.3.13-20)
     provides:
       - centreon-web-apache
       - centreon-web-common

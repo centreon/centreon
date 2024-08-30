@@ -84,6 +84,8 @@ final class FindResourcesByParentController extends AbstractController
             ->setMonitoringServerNames($filter[RequestValidator::PARAM_MONITORING_SERVER_NAMES])
             ->setHostSeverityLevels($filter[RequestValidator::PARAM_HOST_SEVERITY_LEVELS])
             ->setOnlyWithPerformanceData($filter[RequestValidator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY])
+            ->setOnlyWithTicketsOpened($filter[RequestValidator::PARAM_RESOURCES_WITH_OPENED_TICKETS])
+            ->setRuleId($filter[RequestValidator::PARAM_OPEN_TICKET_RULE_ID])
             ->setTypes(
                 array_filter(
                     $this->validator->getResourceTypes(),

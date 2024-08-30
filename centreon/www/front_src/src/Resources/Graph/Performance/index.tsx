@@ -29,8 +29,9 @@ import { makeStyles } from 'tss-react/mui';
 import { Skeleton, Typography } from '@mui/material';
 
 import {
-  getData,
+  LineChartData,
   ParentSize,
+  getData,
   timeFormat,
   useLocaleDateTimeFormat,
   useRequest
@@ -51,10 +52,10 @@ import {
 import Legend from './Legend';
 import LoadingSkeleton from './LoadingSkeleton';
 import {
-  AdditionalLines,
   FilterLines,
   GraphData,
   Line as LineModel,
+  LinesProps,
   NewLines,
   TimeValue
 } from './models';
@@ -77,7 +78,7 @@ interface Props {
   isInViewport?: boolean;
   limitLegendRows?: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
+  renderAdditionalLines?: (args: LinesProps) => ReactNode;
   resource: Resource | ResourceDetails;
   start: string;
   timeline?: Array<TimelineEvent>;
@@ -170,6 +171,8 @@ const PerformanceGraph = <T,>({
   const [lineData, setLineData] = useState<Array<LineModel>>();
   const [title, setTitle] = useState<string>();
   const [base, setBase] = useState<number>();
+  const [performanceGraphData, setPerformanceGraphData] =
+    useState<LineChartData>();
 
   const performanceGraphRef = useRef<HTMLDivElement | null>(null);
   const performanceGraphHeightRef = useRef<number>(0);
@@ -197,6 +200,7 @@ const PerformanceGraph = <T,>({
       endpoint
     })
       .then((graphData) => {
+        setPerformanceGraphData(graphData);
         setTimeSeries(getTimeSeries(graphData));
         setBase(graphData.global.base);
         setTitle(graphData.global.title);
@@ -389,6 +393,7 @@ const PerformanceGraph = <T,>({
               interactWithGraph={interactWithGraph}
               lines={displayedLines}
               loading={sendingGetGraphDataRequest}
+              performanceGraphData={performanceGraphData}
               renderAdditionalLines={renderAdditionalLines}
               resource={resource}
               start={start}

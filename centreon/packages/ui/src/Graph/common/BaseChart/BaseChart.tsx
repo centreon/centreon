@@ -10,13 +10,13 @@ import { equals, gt, isNil, lte, reduce } from 'ramda';
 
 import { Stack } from '@mui/material';
 
-import Legend from '../../LineChart/Legend';
-import { legendWidth } from '../../LineChart/Legend/Legend.styles';
+import Legend from '../../Chart/Legend';
+import { legendWidth } from '../../Chart/Legend/Legend.styles';
 import { Line } from '../timeSeries/models';
 
-import { useBaseChartStyles } from './useBaseChartStyles';
 import Header from './Header';
 import { LineChartHeader } from './Header/models';
+import { useBaseChartStyles } from './useBaseChartStyles';
 
 interface Props {
   base?: number;
@@ -27,6 +27,7 @@ interface Props {
   isHorizontal?: boolean;
   legend: {
     displayLegend: boolean;
+    legendHeight?: number;
     mode?: 'grid' | 'list';
     placement?: 'left' | 'right' | 'bottom';
     renderExtraComponent?: ReactNode;
@@ -112,7 +113,10 @@ const BaseChart = ({
         </Stack>
       </div>
       {legend.displayLegend && displayLegendInBottom && (
-        <div ref={legendRef}>
+        <div
+          ref={legendRef}
+          style={{ height: legend?.legendHeight ?? 'undefined' }}
+        >
           <Legend
             base={base}
             height={height}

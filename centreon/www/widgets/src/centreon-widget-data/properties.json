@@ -24,7 +24,9 @@
       ],
       "defaultValue": "name",
       "hiddenCondition": {
+        "target": "options",
         "when": "options.threshold.enabled",
+        "method": "equals",
         "matches": false
       }
     }

@@ -8,14 +8,15 @@ import 'dayjs/locale/pt';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
+import { Provider } from 'jotai';
 
 import { Box } from '@mui/material';
 
-import { LineChartProps } from '../LineChart/models';
-import { LineChartData, Thresholds } from '../common/models';
 import { ParentSize } from '../../ParentSize';
-import useLineChartData from '../LineChart/useLineChartData';
-import LoadingSkeleton from '../LineChart/LoadingSkeleton';
+import LoadingSkeleton from '../Chart/LoadingSkeleton';
+import { LineChartProps } from '../Chart/models';
+import useChartData from '../Chart/useChartData';
+import { LineChartData, Thresholds } from '../common/models';
 
 import ResponsiveBarChart from './ResponsiveBarChart';
 import { BarStyle } from './models';
@@ -33,7 +34,7 @@ export interface BarChartProps
   end: string;
   limitLegend?: false | number;
   loading: boolean;
-  orientation: 'vertical' | 'horizontal';
+  orientation: 'vertical' | 'horizontal' | 'auto';
   start: string;
   thresholdUnit?: string;
   thresholds?: Thresholds;
@@ -58,7 +59,7 @@ const BarChart = ({
     radius: 0.2
   }
 }: BarChartProps): JSX.Element => {
-  const { adjustedData } = useLineChartData({ data, end, start });
+  const { adjustedData } = useChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
 
   if (loading && !adjustedData) {
@@ -71,30 +72,32 @@ const BarChart = ({
   }
 
   return (
-    <Box
-      ref={lineChartRef}
-      sx={{ height: '100%', overflow: 'hidden', width: '100%' }}
-    >
-      <ParentSize>
-        {({ height: responsiveHeight, width }) => (
-          <ResponsiveBarChart
-            axis={axis}
-            barStyle={barStyle}
-            graphData={adjustedData}
-            graphRef={lineChartRef}
-            header={header}
-            height={height || responsiveHeight}
-            legend={legend}
-            limitLegend={limitLegend}
-            orientation={orientation}
-            thresholdUnit={thresholdUnit}
-            thresholds={thresholds}
-            tooltip={tooltip}
-            width={width}
-          />
-        )}
-      </ParentSize>
-    </Box>
+    <Provider>
+      <Box
+        ref={lineChartRef}
+        sx={{ height: '100%', overflow: 'hidden', width: '100%' }}
+      >
+        <ParentSize>
+          {({ height: responsiveHeight, width }) => (
+            <ResponsiveBarChart
+              axis={axis}
+              barStyle={barStyle}
+              graphData={adjustedData}
+              graphRef={lineChartRef}
+              header={header}
+              height={height || responsiveHeight}
+              legend={legend}
+              limitLegend={limitLegend}
+              orientation={orientation}
+              thresholdUnit={thresholdUnit}
+              thresholds={thresholds}
+              tooltip={tooltip}
+              width={width}
+            />
+          )}
+        </ParentSize>
+      </Box>
+    </Provider>
   );
 };
 

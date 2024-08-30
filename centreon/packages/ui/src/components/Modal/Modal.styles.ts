@@ -35,8 +35,8 @@ const useStyles = makeStyles<{
       transition: theme.transitions.create('left')
     },
     '&[data-size="large"] .MuiDialog-paper': {
-      maxWidth: '604px',
-      width: '604px'
+      maxWidth: '704px',
+      width: '704px'
     },
     '&[data-size="medium"] .MuiDialog-paper': {
       width: '520px'

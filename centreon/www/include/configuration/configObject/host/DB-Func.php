@@ -43,7 +43,17 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Infrastructure\Common\Api\Router;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Quickform rule that checks whether or not monitoring server can be set
@@ -361,15 +371,15 @@ function deleteHostInDB($hosts = array())
     global $pearDB, $centreon;
 
     $hostIds = array_keys($hosts);
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
-        deleteResourceSecretsInVault($vaultConfiguration, $logger, $hostIds, []);
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        deleteResourceSecretsInVault($writeVaultRepository, $hostIds, []);
     }
     foreach ($hostIds as $hostId) {
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
@@ -426,19 +436,13 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
     global $pearDB, $path, $centreon, $is_admin;
 
     $hostAcl = [];
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
-    if ($vaultConfiguration !== null) {
-        $httpClient = new CentreonRestHttp();
-        $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-    }
     foreach ($hosts as $key => $value) {
         $dbResult = $pearDB->query("SELECT * FROM host WHERE host_id = '" . (int)$key . "' LIMIT 1");
         $row = $dbResult->fetch();
@@ -718,7 +722,10 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                 "SELECT MAX(host_macro_id) from on_demand_macro_host WHERE is_password = 1"
                             );
                             $resultMacro = $maxIdStatement->fetch();
-                            $macroPasswords[$resultMacro['MAX(host_macro_id)']] = $macVal;
+                            $macroPasswords[$resultMacro['MAX(host_macro_id)']] = [
+                                'macroName' => $macName,
+                                'macroValue' => $macVal
+                            ];
                         }
                     }
 
@@ -736,24 +743,31 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
 
                     /**
                      * The value should be duplicated in vault if it's a password and is already in vault
-                     * The regex /^secret::[^:]*::/ define that the value is store in vault.
+                     * The pattern secret:: define that the value is store in vault.
                      */
                     if (
                         ! empty($row['host_snmp_community'])
-                        && preg_match('/' . VAULT_PATH_REGEX . '/', $row['host_snmp_community'])
+                        && str_starts_with(VaultConfiguration::VAULT_PATH_PATTERN, $row['host_snmp_community'])
                         || ! empty($macroPasswords)
                     ) {
                         if ($vaultConfiguration !== null) {
+                            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+                            $readVaultRepository = $kernel->getContainer()->get(
+                                ReadVaultRepositoryInterface::class
+                            );
+                            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+                            $writeVaultRepository = $kernel->getContainer()->get(
+                                WriteVaultRepositoryInterface::class
+                            );
+                            $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
                             try {
                                 duplicateHostSecretsInVault(
-                                    $vaultConfiguration,
+                                    $readVaultRepository,
+                                    $writeVaultRepository,
                                     $logger,
-                                    $uuidGenerator,
-                                    $httpClient,
                                     $row['host_snmp_community'],
                                     $macroPasswords,
                                     $key,
-                                    $clientToken,
                                     (int) $maxId["MAX(host_id)"]
                                 );
                             } catch (\Throwable $ex) {
@@ -1309,20 +1323,18 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         $ret = $configuration;
     }
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
     //Retrieve UUID for vault path before updating values in database.
-    $uuid = null;
+    $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveHostUuidFromDatabase($pearDB, $hostId, $vaultConfiguration->getName());
+        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
     if (! $isCloudPlatform) {
@@ -1471,15 +1483,21 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
 
     //If there is a vault configuration write into vault
     if ($vaultConfiguration !== null) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
         try {
             updateHostSecretsInVault(
-                $vaultConfiguration,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $logger,
-                $uuidGenerator,
-                $uuid,
+                $vaultPath,
                 (int) $hostId,
                 $hostObj->getFormattedMacros(),
-                $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+                $bindParams[':host_snmp_community'][\PDO::PARAM_STR] ?? null
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -1505,23 +1523,20 @@ function updateHost_MC($hostId = null)
         return;
     }
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
     //Retrieve UUID for vault path before updating values in database.
-    $uuid = null;
+    $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveHostUuidFromDatabase($pearDB, $hostId, $vaultConfiguration->getName());
+        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
-    $submittedValues = [];
     $submittedValues = $form->getSubmitValues();
 
     if (! $isCloudPlatform) {
@@ -1624,14 +1639,25 @@ function updateHost_MC($hostId = null)
     // If there is a vault configuration write into vault.
     if ($vaultConfiguration !== null) {
         try {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
+
+            $updatedPasswordMacros = array_filter($hostObj->getFormattedMacros(), function ($macro) {
+                return $macro['macroPassword'] === '1'
+                    && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+            });
             updateHostSecretsInVaultFromMC(
-                $vaultConfiguration,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $logger,
-                $uuidGenerator,
-                $uuid,
+                $vaultPath,
                 $hostId,
-                $hostObj->getFormattedMacros(),
-                $submittedValues['host_snmp_community']
+                $updatedPasswordMacros,
+                $submittedValues['host_snmp_community'] ?? null
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -2854,11 +2880,11 @@ function insertHostInAPI(array $ret = []): int|null
  */
 function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePath): int
 {
-    $kernel = \App\Kernel::createForWeb();
-    /** @var Core\Infrastructure\Common\Api\Router $router */
-    $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class)
         ?? throw new LogicException('Router not found in container');
-    $client = new Symfony\Component\HttpClient\CurlHttpClient();
+    $client = new CurlHttpClient();
 
     if ((int) $formData['host_register'] === 0) {
         // is template
@@ -2867,7 +2893,7 @@ function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePat
         $url = $router->generate(
             'AddHostTemplate',
             $basePath ? ['base_uri' => $basePath] : [],
-            Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+            UrlGeneratorInterface::ABSOLUTE_URL,
         );
     } else {
         // is regular host
@@ -2876,13 +2902,13 @@ function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePat
         $url = $router->generate(
             'AddHost',
             $basePath ? ['base_uri' => $basePath] : [],
-            Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+            UrlGeneratorInterface::ABSOLUTE_URL,
         );
     }
 
     $headers = [
         'Content-Type' => 'application/json',
-        'X-AUTH-TOKEN' => $_COOKIE['PHPSESSID'],
+        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
     ];
     $response = $client->request(
         'POST',

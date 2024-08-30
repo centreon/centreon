@@ -57,7 +57,7 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: List Postman Collections and Environments
         id: set_collections
@@ -75,6 +75,7 @@ jobs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-ids.outputs.test_plan_id }}
       issue_list_ids: ${{ steps.xray-newman.outputs.issue_list_ids }}
+      api-issue-ids: ${{ steps.xray-newman.outputs.api-issue-ids }}
     defaults:
       run:
         shell: bash
@@ -82,7 +83,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Test Execution and test plan Keys
         id: get-test-ids
@@ -132,7 +133,7 @@ jobs:
                 # Parsing and processing test IDs
                 current_test_issue_ids=($(echo "$response" | jq -r '.data.getTests.results[].issueId'))
 
-                echo "Current Test Issue IDs: ${current_test_issue_ids[@]}"
+                echo "Current Test Issue IDs: ${current_test_issue_ids[*]}"
 
                 # Check if there are no more test issues
                 if [ ${#current_test_issue_ids[@]} -eq 0 ]; then
@@ -148,21 +149,21 @@ jobs:
             done
 
             # Display all retrieved test issue IDs
-            echo "All Test Issue IDs: ${test_issue_ids[@]}"
+            echo "All Test Issue IDs: ${test_issue_ids[*]}"
           }
 
           get_test_ids
 
           formatted_getTest_issue_ids_str="["
           for issue_id in "${test_issue_ids[@]}"; do
-          formatted_getTest_issue_ids_str+="\"$issue_id\","
+            formatted_getTest_issue_ids_str+="\"$issue_id\","
           done
           formatted_getTest_issue_ids_str="${formatted_getTest_issue_ids_str%,}"
           formatted_getTest_issue_ids_str+="]"
           echo "$formatted_getTest_issue_ids_str"
 
           # Display the retrieved test issue IDs
-          echo "Test Issue IDs: ${test_issue_ids[@]}"
+          echo "Test Issue IDs: ${test_issue_ids[*]}"
 
           # Mutation to add tests to the test plan
           xray_graphql_addTestsToTestPlan='{
@@ -204,7 +205,7 @@ jobs:
 
                 # Parsing and processing test IDs
                 current_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | .issueId'))
-                echo "Current Issue IDs: ${current_issue_ids[@]}"
+                echo "Current Issue IDs: ${current_issue_ids[*]}"
 
                 # Concatenate the current batch of results to the overall issue_ids array
                 issue=("${issue[@]}" "${current_issue_ids[@]}")
@@ -224,7 +225,8 @@ jobs:
             done
 
             # Display results
-            echo "API Issue IDs: ${api_issue_ids[@]}"
+            echo "API Issue IDs: ${api_issue_ids[*]}"
+            echo "api-issue-ids=${api_issue_ids[*]}" >> $GITHUB_OUTPUT
           }
 
           get_test_plan_issue_ids
@@ -269,7 +271,7 @@ jobs:
             collection_name=$(basename "$collection_file" .postman_collection.json)
             collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-            if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
+            if [[ " ${summaries[*]} " =~ " ${collection_name_sanitized} " ]]; then
               echo "The test case for $collection_name_sanitized already exists in the test plan."
             else
               # Adding a new test case
@@ -300,7 +302,7 @@ jobs:
                 test_case_id=$(echo "$response" | jq -r '.id')
 
                 # Checking if the test case is a new one
-                if [[ ! " ${existing_test_case_ids[@]} " =~ " ${test_case_id} " ]]; then
+                if [[ ! " ${existing_test_case_ids[*]} " =~ " ${test_case_id} " ]]; then
                   echo "New Test Case with ID: $test_case_id"
                   summaries+=("$collection_name_sanitized")
 
@@ -328,7 +330,7 @@ jobs:
 
           get_test_plan_issue_ids
           issue_list_ids=("${issue[@]}")
-          echo "issue_list_ids=("${issue[@]}")" >> $GITHUB_OUTPUT
+          echo "issue_list_ids=("${issue[*]}")" >> $GITHUB_OUTPUT
 
           test_issue_ids=("${issue_list_ids[@]}")
           formatted_test_issue_ids_str="["
@@ -376,14 +378,14 @@ jobs:
       DATABASE_IMAGE: ${{ inputs.database_image }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 8
           run_install: false
 
-      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: 20
           cache: pnpm
@@ -398,7 +400,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Login to registry
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
@@ -507,7 +509,7 @@ jobs:
     if: always()
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Generate Xray Token
         id: generate-xray-token
@@ -579,40 +581,43 @@ jobs:
               local command=$2
               local attempt=0
               local exit_code=0
-              local wait_time=1
 
-              until [ $attempt -ge $max_attempts ]; do
-                attempt=$(( attempt + 1 ))
+              while [ $attempt -lt $max_attempts ]; do
+                attempt=$((attempt + 1))
+                echo "Attempt $attempt/$max_attempts: $command"
                 eval "$command"
                 exit_code=$?
                 if [ $exit_code -eq 0 ]; then
                   break
                 fi
-                echo "Attempt $attempt/$max_attempts failed. Retrying in $wait_time seconds..."
-                sleep $wait_time
-                wait_time=$(( wait_time * 2 ))
+                echo "Error: $exit_code"
+                echo "Response: $(curl -v -s -o /dev/null -w "%{http_code}" "$command")"
+                sleep 30
               done
 
-              return $exit_code
+              if [ $exit_code -ne 0 ]; then
+                echo "Failed after $max_attempts attempts"
+                exit 1
+              fi
             }
 
             for summary_file in newman-json-test-reports/*.json; do
                 test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
                 test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
-                issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
-                echo "issue_ids content: $issue_ids"
+                issue_ids="${{ needs.associate-test-cases.outputs.api-issue-ids }}"
+
+                # Convert issue_ids string to an array using space as the delimiter
+                IFS=' ' read -r -a issue_ids_array <<< "$issue_ids"
+                echo "issue_ids content: ${issue_ids_array[*]}"
 
                 filename=$(basename "$summary_file")
                 collection_name="${filename%-summary.json}"
                 collection_name="${collection_name//-/_}"
-                echo "Contenu de collection_name : $collection_name"
-
                 failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
                 failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
                 failures=$(jq -r '.Run.Failures' "$summary_file")
 
-                summaries=()
-                for issue_id in "${issue_ids[@]}"; do
+                for issue_id in "${issue_ids_array[@]}"; do
                     echo "Processing issue ID: $issue_id"
                     jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
@@ -685,13 +690,14 @@ jobs:
       - name: Perform Jira Transitions
         if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
-          issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
           transition_ids=("61" "81" "21" "31")
+          issue_ids="${{ needs.associate-test-cases.outputs.api-issue-ids }}"
 
-          # Display the final set of issue IDs
-          echo "All Issue IDs: ${issue_ids[@]}"
+          # Convert issue_ids string to an array using space as the delimiter
+          IFS=' ' read -r -a issue_ids_array <<< "$issue_ids"
+          echo "issue_ids content: ${issue_ids_array[*]}"
 
-          for test_issue_id in "${issue_ids[@]}"; do
+          for test_issue_id in "${issue_ids_array[@]}"; do
             # Make a GET request to get information about available transitions
             get_response=$(curl --request GET \
               --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \

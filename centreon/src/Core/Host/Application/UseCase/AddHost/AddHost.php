@@ -57,6 +57,7 @@ use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class AddHost
 {
@@ -177,7 +178,11 @@ final class AddHost
             : 0;
 
         if ($this->writeVaultRepository->isVaultConfigured() === true && $request->snmpCommunity !== '') {
-            $vaultPath = $this->writeVaultRepository->upsert(null, ['_HOSTSNMPCOMMUNITY' => $request->snmpCommunity], []);
+            $vaultPaths = $this->writeVaultRepository->upsert(
+                null,
+                [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $request->snmpCommunity]
+            );
+            $vaultPath = $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY];
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
             $request->snmpCommunity = $vaultPath;
         }
@@ -330,10 +335,11 @@ final class AddHost
                 );
             }
             if ($this->writeVaultRepository->isVaultConfigured() === true && $macro->isPassword() === true) {
-                $vaultPath = $this->writeVaultRepository->upsert(
+                $vaultPaths = $this->writeVaultRepository->upsert(
                     $this->uuid ?? null,
                     ['_HOST' . $macro->getName() => $macro->getValue()],
                 );
+                $vaultPath = $vaultPaths['_HOST' . $macro->getName()];
                 $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
                 $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);

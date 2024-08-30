@@ -4,12 +4,11 @@ import { useAtom } from 'jotai';
 import { includes, isNil, keys } from 'ramda';
 
 import { getData, useRequest } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
+import { platformVersionsDecoder } from '../api/decoders';
 import { platformVersionsEndpoint } from '../api/endpoint';
 import { PlatformVersions } from '../api/models';
-import { platformVersionsDecoder } from '../api/decoders';
-
-import { platformVersionsAtom } from './atoms/platformVersionsAtom';
 
 interface UsePlatformVersionsState {
   getModules: () => Array<string> | null;

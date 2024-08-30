@@ -92,6 +92,18 @@ class Broker extends AbstractObjectJSON
     protected $stmt_engine_parameters = null;
     protected $cacheExternalValue = null;
     protected $cacheLogValue = null;
+    protected $readVaultConfigurationRepository = null;
+
+    public function __construct(\Pimple\Container $dependencyInjector)
+    {
+        parent::__construct($dependencyInjector);
+
+        // Get Centeron Vault Storage configuration
+        $kernel = \App\Kernel::createForWeb();
+        $this->readVaultConfigurationRepository = $kernel->getContainer()->get(
+            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        );
+    }
 
     private function getExternalValues()
     {
@@ -356,6 +368,11 @@ class Broker extends AbstractObjectJSON
 
             // Remove unnecessary element form inputs and output for stream types bbdo
             $object = $this->cleanBbdoStreams($object);
+
+            // Add vault path if vault if defined
+            if ($this->readVaultConfigurationRepository->exists()) {
+                $object['vault_configuration'] = $this->readVaultConfigurationRepository->getLocation();
+            }
 
             // Generate file
             $this->generateFile($object);

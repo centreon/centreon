@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
 import { path } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { ConfirmDialog, TextField } from '@centreon/ui';
 

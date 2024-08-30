@@ -30,10 +30,14 @@ module.exports = (enableCoverage = false) =>
         path: path.resolve(`${__dirname}/www/static`),
         publicPath: './static/'
       },
+      performance: {
+        maxAssetSize: 300000,
+        maxEntrypointSize: 300000
+      },
       plugins: [
         new rspack.ProvidePlugin({
           React: 'react',
-          process: 'process/browser'
+          process: require.resolve('process/browser')
         }),
         new rspack.HtmlRspackPlugin({
           filename: path.resolve(`${__dirname}`, 'www', 'index.html'),

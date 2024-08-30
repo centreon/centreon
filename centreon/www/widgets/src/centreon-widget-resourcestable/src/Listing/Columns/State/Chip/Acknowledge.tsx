@@ -1,5 +1,5 @@
-import { useTheme } from '@mui/material';
 import IconAcknowledge from '@mui/icons-material/Person';
+import { useTheme } from '@mui/material';
 
 import Chip from '.';
 

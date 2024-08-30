@@ -16,10 +16,7 @@
           "name": "Service"
         }
       ],
-      "defaultValue": [
-        "host",
-        "service"
-      ],
+      "defaultValue": ["host", "service"],
       "keepOneOptionSelected": true
     },
     "statuses": {
@@ -41,17 +38,13 @@
         {
           "id": "5",
           "name": "Success (OK/Up)"
-
         },
         {
           "id": "6",
           "name": "Undefined (Unreachable/Unknown)"
         }
       ],
-      "defaultValue": [
-        "2",
-        "1"
-      ]
+      "defaultValue": ["2", "1"]
     },
     "refreshInterval": {
       "type": "refresh-interval",
@@ -66,10 +59,7 @@
       "required": false,
       "requireResourceType": true,
       "singleResourceType": true,
-      "restrictedResourceTypes": [
-        "host-group",
-        "service-group"
-      ]
+      "restrictedResourceTypes": ["host-group", "service-group"]
     }
   },
   "moduleName": "centreon-widget-groupmonitoring"

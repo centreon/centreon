@@ -33,7 +33,7 @@ const Content = (): JSX.Element => {
       <g style={{ transform: 'translate(600px, 400px)' }}>
         <circle fill="green" r={70} />
       </g>
-      <g style={{ transform: `translate(2400px, 1400px)` }}>
+      <g style={{ transform: 'translate(2400px, 1400px)' }}>
         <circle fill="red" r={70} />
       </g>
     </g>

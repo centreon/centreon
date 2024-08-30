@@ -31,6 +31,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterface
@@ -101,13 +102,15 @@ class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterfa
 
         if (
             $this->readVaultConfigurationRepository->exists()
-            && str_starts_with($customConfiguration->getClientId(), 'secret::')
+            && str_starts_with($customConfiguration->getClientId(), VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $openIDCredentialsFromVault = $this->readVaultRepository->findFromPath($customConfiguration->getClientId());
-            if (! array_key_exists('_OPENID_CLIENT_ID', $openIDCredentialsFromVault)) {
-                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault('_OPENID_CLIENT_ID');
+            if (! array_key_exists(VaultConfiguration::OPENID_CLIENT_ID_KEY, $openIDCredentialsFromVault)) {
+                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault(
+                    VaultConfiguration::OPENID_CLIENT_ID_KEY
+                );
             }
-            $customConfiguration->setClientId($openIDCredentialsFromVault['_OPENID_CLIENT_ID']);
+            $customConfiguration->setClientId($openIDCredentialsFromVault[VaultConfiguration::OPENID_CLIENT_ID_KEY]);
         }
 
         $authenticationUriParts = [

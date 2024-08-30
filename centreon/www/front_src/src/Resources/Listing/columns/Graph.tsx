@@ -1,7 +1,7 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { isNil, not, path } from 'ramda';
+import { path, isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import IconGraph from '@mui/icons-material/BarChart';
@@ -77,13 +77,10 @@ const Graph = ({
         endpoint={`${endpoint}${graphQueryParameters}`}
         graphHeight={150}
         interactWithGraph={false}
-        renderAdditionalLines={({
-          additionalLinesProps,
-          resource
-        }): JSX.Element => (
+        renderAdditionalLines={(props): JSX.Element => (
           <FederatedComponent
-            additionalLinesData={{ additionalLinesProps, resource }}
-            path="/anomaly-detection"
+            {...props}
+            path="/anomaly-detection/thresholdLines"
           />
         )}
         resource={row}

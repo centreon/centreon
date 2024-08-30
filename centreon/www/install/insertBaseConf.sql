@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.05.0');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.07.0');
 
 --
 -- Contenu de la table `contact`
@@ -476,7 +476,14 @@ INSERT INTO `cb_log` (`id`, `name`) VALUES
 (7, 'tcp'),
 (8, 'tls'),
 (9, 'lua'),
-(10, 'bam');
+(10, 'bam'),
+(11, 'neb'),
+(12, 'rrd'),
+(13, 'grpc'),
+(14, 'influxdb'),
+(15, 'graphite'),
+(16, 'victoria_metrics'),
+(17, 'stats');
 
 --
 -- Contenu de la table `cb_log_level`
@@ -622,7 +629,6 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (84, 'certificate','Certificate path','Full path to the file containing the certificate in PEM format (required for encryption)','text', NULL),
 (85, 'compression','Compression','Enable data compression','radio', NULL),
 (86, 'retention','Enable retention','Enable data retention until the client is connected','radio', NULL),
-(87, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL),
 (88, 'host','Server address','Address of the server to which the client should connect','text', NULL),
 (89, 'port','Server port','TCP port of the server to which the client should connect','int', NULL),
 (90, 'retry_interval','Retry interval (seconds)','Number of seconds between a lost or failed connection and the next try','int', NULL),
@@ -631,8 +637,7 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (93, 'encryption','Enable TLS encryption','Enable TLS 1.3 encryption','radio', NULL),
 (94, 'ca_certificate',"Trusted CA's certificate path (optional)","If the server's certificate is signed by an untrusted Certification Authority (CA), then specify the certificate's path.\nIf the server\s certificate is self-signed, then specify its path.\nYou can also add the certificate to the store of certificates trusted by the operating system.\nThe file must be in PEM format.",'text', NULL),
 (95, 'ca_name','Certificate Common Name (optional)','If the Common Name (CN) of the certificate is different from the value in the "Server address" field, the CN must be provided here','text', NULL),
-(96, 'compression','Compression','Enable data compression','radio', NULL),
-(97, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL);
+(96, 'compression','Compression','Enable data compression','radio', NULL);
 
 INSERT INTO `cb_fieldgroup` (`cb_fieldgroup_id`, `groupname`, `displayname`, `multiple`, `group_parent_id`) VALUES
 (1, 'filters', '', 0, NULL),
@@ -654,7 +659,9 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (62, 'is_tag', 'Tag', 'Whether or not this column is a tag', 'radio', NULL, 3),
 (71, 'name', 'Name', 'Name of the metric.', 'text', NULL, 4),
 (72, 'value', 'Value', 'Value of the metric.', 'text', NULL, 4),
-(73, 'type', 'Type', 'Type of the metric.', 'select', NULL, 4);
+(73, 'type', 'Type', 'Type of the metric.', 'select', NULL, 4),
+(87, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL, 1),
+(97, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL, 1);
 
 --
 -- Contenu de la table `cb_list`
@@ -1506,4 +1513,5 @@ VALUES ('centreon-widget-statusgrid');
 INSERT INTO dashboard_widgets (`name`) VALUES
 ('centreon-widget-resourcestable'),
 ('centreon-widget-groupmonitoring'),
-('centreon-widget-statuschart');
+('centreon-widget-statuschart'),
+('centreon-widget-clock');

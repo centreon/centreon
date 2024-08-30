@@ -102,4 +102,20 @@ export const useStateStyles = makeStyles()({
   }
 });
 
+export const useOpenTicketStyles = makeStyles()((theme) => ({
+  actions: {
+    alignItems: 'center',
+    display: 'flex',
+    flexWrap: 'nowrap',
+    gridGap: theme.spacing(0.25),
+    justifyContent: 'center'
+  },
+  tooltip: {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    padding: 0,
+    position: 'relative'
+  }
+}));
+
 export default useStyles;

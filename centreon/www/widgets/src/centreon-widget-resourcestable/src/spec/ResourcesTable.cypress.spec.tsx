@@ -1,32 +1,62 @@
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
+import {
+  isOnPublicPageAtom,
+  platformFeaturesAtom,
+  platformVersionsAtom
+} from '@centreon/ui-context';
 
 import { SortOrder } from '../../../models';
-import { Data, PanelOptions } from '../models';
+import { getPublicWidgetEndpoint } from '../../../utils';
+import { DisplayType } from '../Listing/models';
 import ResourcesTable from '../ResourcesTable';
 import { resourcesEndpoint, viewByHostEndpoint } from '../api/endpoints';
-import { DisplayType } from '../Listing/models';
-import { getPublicWidgetEndpoint } from '../../../utils';
+import { Data, PanelOptions } from '../models';
 
 import {
-  options as resourcesOptions,
-  resources,
   columnsForViewByHost,
   columnsForViewByService,
-  selectedColumnIds,
-  metaServiceResources
+  metaServiceResources,
+  resources,
+  options as resourcesOptions,
+  selectedColumnIds
 } from './testUtils';
 
 interface Props {
   data: Data;
+  isPublic?: boolean;
   options: PanelOptions;
 }
+const platformFeatures = {
+  featureFlags: {
+    resouresTableOpenTickets: true
+  },
+  isCloudPlatform: false
+};
 
+const platformVersions = {
+  isCloudPlatform: false,
+  modules: {
+    'centreon-open-tickets': {
+      fix: '0',
+      major: '24',
+      minor: '10',
+      version: '23.10.0'
+    }
+  },
+  web: {
+    fix: '0',
+    major: '23',
+    minor: '10',
+    version: '23.10.0'
+  },
+  widgets: {}
+};
+
+const store = createStore();
 const render = ({ options, data, isPublic = false }: Props): void => {
-  const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
 
   cy.window().then((window) => {
@@ -206,7 +236,7 @@ describe('View by all', () => {
       options: { ...resourcesOptions, limit: 100, states: ['acknowledged'] }
     });
 
-    cy.findByTestId('PersonIcon').trigger('mouseover');
+    cy.findByLabelText('Load Acknowledged').trigger('mouseover');
 
     cy.contains('Author');
     cy.contains('admin');
@@ -419,6 +449,59 @@ describe('View by host', () => {
     });
 
     cy.contains('Centreon-Server').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Open tickets', () => {
+  beforeEach(() => {
+    store.set(platformFeaturesAtom, platformFeatures);
+    store.set(platformVersionsAtom, platformVersions);
+    resourcesRequests();
+  });
+
+  it('displays tickets actions when openticket switch is enabled and a rule is selected', () => {
+    render({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayResources: 'all',
+        isOpenTicketEnabled: true,
+        provider: { id: 1, name: 'Rule 1' },
+        selectedColumnIds: [...selectedColumnIds, 'open_ticket']
+      }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.contains('Open ticket');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays tickets "id","subject" and "open time" when openticket switch is enabled, a rule is selected and display resources property is set to "withTicket"', () => {
+    render({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayResources: 'withTicket',
+        isOpenTicketEnabled: true,
+        provider: { id: 1, name: 'Rule 1' },
+        selectedColumnIds: [
+          ...selectedColumnIds,
+          'ticket_id',
+          'ticket_subject',
+          'ticket_open_time'
+        ]
+      }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.contains('Ticket ID');
+    cy.contains('Ticket subject');
+    cy.contains('Opened on');
 
     cy.makeSnapshot();
   });

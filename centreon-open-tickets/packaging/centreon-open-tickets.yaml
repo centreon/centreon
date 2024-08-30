@@ -15,8 +15,18 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
+  - src: "../config"
+    dst: "/usr/share/centreon/config"
+
   - src: "../www/modules/centreon-open-tickets"
     dst: "/usr/share/centreon/www/modules/centreon-open-tickets"
+    file_info:
+      mode: 0644
+      owner: "@APACHE_USER@"
+      group: "@APACHE_GROUP@"
+
+  - src: "../src/CentreonOpenTickets"
+    dst: "/usr/share/centreon/src/CentreonOpenTickets"
     file_info:
       mode: 0644
       owner: "@APACHE_USER@"
@@ -28,6 +38,9 @@ contents:
       mode: 0644
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
+
+scripts:
+  postinstall: ./scripts/centreon-open-tickets-postinstall.sh
 
 overrides:
   rpm:

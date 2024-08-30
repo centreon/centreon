@@ -41,7 +41,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
     /**
      * @inheritDoc
      */
-    public function upsert(?string $uuid = null, array $inserts = [], array $deletes = []): string
+    public function upsert(?string $uuid = null, array $inserts = [], array $deletes = []): array
     {
         if ($this->vaultConfiguration === null) {
             throw new \LogicException('Vault not configured');
@@ -73,7 +73,14 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
 
         $this->sendRequest('POST', $url, $payload);
 
-        return $this->buildPath($uuid);
+        $paths = [];
+
+        /** @var string $credentialName */
+        foreach (array_keys($payload) as $credentialName) {
+            $paths[$credentialName] = $this->buildPath($uuid, $credentialName);
+        }
+
+        return $paths;
     }
 
     /**

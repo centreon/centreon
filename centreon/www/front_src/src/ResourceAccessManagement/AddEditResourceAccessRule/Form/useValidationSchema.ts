@@ -1,15 +1,15 @@
+import { useAtomValue } from 'jotai';
 import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
-  array,
   ArraySchema,
-  boolean,
-  object,
   ObjectSchema,
   ObjectShape,
+  array,
+  boolean,
+  object,
   string
 } from 'yup';
-import { useAtomValue } from 'jotai';
 
 import {
   editedResourceAccessRuleIdAtom,

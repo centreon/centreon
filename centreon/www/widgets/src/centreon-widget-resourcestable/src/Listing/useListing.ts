@@ -1,31 +1,49 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
+import { useAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Column, useSnackbar } from '@centreon/ui';
 
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
+import {
+  resourcesToAcknowledgeAtom,
+  resourcesToOpenTicketAtom,
+  resourcesToSetDowntimeAtom,
+  selectedResourcesAtom
+} from '../atom';
 import { PanelOptions } from '../models';
 
+import useColumns from './Columns/useColumns';
+import { DisplayType, NamedEntity, ResourceListing, Ticket } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import { DisplayType, ResourceListing } from './models';
-import { defaultSelectedColumnIds, useColumns } from './Columns';
 import useLoadResources from './useLoadResources';
 
 interface UseListingState {
+  cancelAcknowledge: () => void;
+  cancelSetDowntime: () => void;
   changeLimit: (value) => void;
   changePage: (updatedPage) => void;
   changeSort: ({ sortOrder, sortField }) => void;
   columns: Array<Column>;
+  confirmAcknowledge: () => void;
+  confirmSetDowntime: () => void;
   data: ResourceListing | undefined;
+  defaultSelectedColumnIds: Array<string>;
   goToResourceStatusPage?: (row) => void;
   hasMetaService: boolean;
   isLoading: boolean;
+  onTicketClose: () => void;
   page: number | undefined;
   resetColumns: () => void;
+  resourcesToAcknowledge;
+  resourcesToOpenTicket: Array<Ticket>;
+  resourcesToSetDowntime;
   selectColumns: (updatedColumnIds: Array<string>) => void;
+  selectedResources;
+  setSelectedResources;
 }
 
 interface UseListingProps
@@ -34,21 +52,30 @@ interface UseListingProps
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
   changeViewMode?: (displayType) => void;
+  displayResources: 'all' | 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
+  hostSeverities: Array<NamedEntity>;
+  isDownHostHidden: boolean;
   isFromPreview?: boolean;
+  isOpenTicketEnabled: boolean;
+  isUnreachableHostHidden: boolean;
   limit?: number;
+  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
+  serviceSeverities: Array<NamedEntity>;
   setPanelOptions?: (partialOptions: object) => void;
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;
+  statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
 }
 
 const useListing = ({
   resources,
+  isOpenTicketEnabled,
   states,
   statuses,
   displayType,
@@ -63,26 +90,54 @@ const useListing = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  statusTypes,
+  hostSeverities,
+  serviceSeverities,
+  isDownHostHidden,
+  isUnreachableHostHidden,
+  displayResources,
+  provider
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
 
   const [page, setPage] = useState(1);
+  const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
+    resourcesToOpenTicketAtom
+  );
+
+  const [selectedResources, setSelectedResources] = useAtom(
+    selectedResourcesAtom
+  );
+
+  const [resourcesToAcknowledge, setResourcesToAcknowledge] = useAtom(
+    resourcesToAcknowledgeAtom
+  );
+  const [resourcesToSetDowntime, setResourcesToSetDowntime] = useAtom(
+    resourcesToSetDowntimeAtom
+  );
 
   const { data, isLoading } = useLoadResources({
     dashboardId,
+    displayResources,
     displayType,
+    hostSeverities,
     id,
+    isDownHostHidden,
+    isUnreachableHostHidden,
     limit,
     page,
     playlistHash,
+    provider,
     refreshCount,
     refreshIntervalToUse,
     resources,
+    serviceSeverities,
     sortField,
     sortOrder,
     states,
+    statusTypes,
     statuses,
     widgetPrefixQuery
   });
@@ -125,8 +180,11 @@ const useListing = ({
     setPage(updatedPage + 1);
   };
 
-  const columns = useColumns({
-    displayType
+  const { columns, defaultSelectedColumnIds } = useColumns({
+    displayResources,
+    displayType,
+    isOpenTicketEnabled,
+    provider
   });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
@@ -151,18 +209,53 @@ const useListing = ({
     setPanelOptions?.({ displayType: DisplayType.All });
   }, [hasMetaService]);
 
+  const cancelAcknowledge = (): void => {
+    setResourcesToAcknowledge([]);
+  };
+
+  const cancelSetDowntime = (): void => {
+    setResourcesToSetDowntime([]);
+  };
+
+  const confirmSetDowntime = (): void => {
+    setResourcesToSetDowntime([]);
+
+    setSelectedResources([]);
+  };
+
+  const confirmAcknowledge = (): void => {
+    setResourcesToAcknowledge([]);
+
+    setSelectedResources([]);
+  };
+
+  const onTicketClose = (): void => {
+    setResourcesToOpenTicket([]);
+  };
+
   return {
+    cancelAcknowledge,
+    cancelSetDowntime,
     changeLimit,
     changePage,
     changeSort,
     columns,
+    confirmAcknowledge,
+    confirmSetDowntime,
     data,
+    defaultSelectedColumnIds,
     goToResourceStatusPage,
     hasMetaService,
     isLoading,
+    onTicketClose,
     page,
     resetColumns,
-    selectColumns
+    resourcesToAcknowledge,
+    resourcesToOpenTicket,
+    resourcesToSetDowntime,
+    selectColumns,
+    selectedResources,
+    setSelectedResources
   };
 };
 
