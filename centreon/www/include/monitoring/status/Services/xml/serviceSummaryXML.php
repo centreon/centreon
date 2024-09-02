@@ -204,12 +204,37 @@ while ($ndo = $dbResult->fetch()) {
     $tabFinal[$ndo["name"]]["nb_service_k"] = 0;
     $tabFinal[$ndo["name"]]["host_id"] = $ndo["host_id"];
     if (substr($o, 0, 6) !== 'svcSum') {
-        $tabFinal[$ndo["name"]]["nb_service_k"] = $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 0, $obj);
+        $tabFinal[$ndo["name"]]["nb_service_k"] = $obj->monObj->getServiceStatusCount(
+            $ndo["name"],
+            $obj,
+            $o,
+            CentreonMonitoring::SERVICE_STATUS_OK
+        );
     }
-    $tabFinal[$ndo["name"]]["nb_service_w"] = 0 + $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 1, $obj);
-    $tabFinal[$ndo["name"]]["nb_service_c"] = 0 + $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 2, $obj);
-    $tabFinal[$ndo["name"]]["nb_service_u"] = 0 + $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 3, $obj);
-    $tabFinal[$ndo["name"]]["nb_service_p"] = 0 + $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 4, $obj);
+    $tabFinal[$ndo["name"]]["nb_service_w"] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo["name"],
+        $obj,
+        $o,
+        CentreonMonitoring::SERVICE_STATUS_WARNING
+    );
+    $tabFinal[$ndo["name"]]["nb_service_c"] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo["name"],
+        $obj,
+        $o,
+        CentreonMonitoring::SERVICE_STATUS_CRITICAL
+    );
+    $tabFinal[$ndo["name"]]["nb_service_u"] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo["name"],
+        $obj,
+        $o,
+        CentreonMonitoring::SERVICE_STATUS_UNKNOWN
+    );
+    $tabFinal[$ndo["name"]]["nb_service_p"] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo["name"],
+        $obj,
+        $o,
+        CentreonMonitoring::SERVICE_STATUS_PENDING
+    );
     $tabFinal[$ndo["name"]]["cs"] = $ndo["state"];
 
     if (isset($ndo["icon_image"]) && $ndo["icon_image"] != "") {

@@ -45,9 +45,12 @@ include_once _CENTREON_PATH_ . "www/class/centreonService.class.php";
 
 // Create XML Request Objects
 CentreonSession::start(1);
-$obj = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
+$centreonXMLBGRequest = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
 
-if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id, $obj->DB)) {
+if (
+    ! isset($centreonXMLBGRequest->session_id)
+    || !CentreonSession::checkSession($centreonXMLBGRequest->session_id, $centreonXMLBGRequest->DB)
+) {
     print "Bad Session ID";
     exit();
 }
@@ -61,7 +64,7 @@ $centreon = $_SESSION['centreon'];
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
 // Set Default Poller
-$obj->getDefaultFilters();
+$centreonXMLBGRequest->getDefaultFilters();
 
 // Check Arguments From GET tab
 $o = isset($_GET['o']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']) : 'h';
@@ -69,14 +72,14 @@ $p = filter_input(INPUT_GET, 'p', FILTER_VALIDATE_INT, ['options' => ['default' 
 $num = filter_input(INPUT_GET, 'num', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $limit = filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT, ['options' => ['default' => 20]]);
 //if instance value is not set, displaying all active pollers linked resources
-$instance = filter_var($obj->defaultPoller ?? -1, FILTER_VALIDATE_INT);
-$hostgroups = filter_var($obj->defaultHostgroups ?? 0, FILTER_VALIDATE_INT);
+$instance = filter_var($centreonXMLBGRequest->defaultPoller ?? -1, FILTER_VALIDATE_INT);
+$hostgroups = filter_var($centreonXMLBGRequest->defaultHostgroups ?? 0, FILTER_VALIDATE_INT);
 $search = isset($_GET['search']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']) : '';
 $sortType = isset($_GET['sort_type']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['sort_type']) : 'host_name';
 $order = isset($_GET['order']) && $_GET['order'] === "DESC" ? "DESC" : "ASC";
 
 // Backup poller selection
-$obj->setInstanceHistory($instance);
+$centreonXMLBGRequest->setInstanceHistory($instance);
 
 $kernel = \App\Kernel::createForWeb();
 /**
@@ -111,12 +114,12 @@ if ($hostgroups) {
     $queryValues['hostgroup'] = [\PDO::PARAM_INT =>  $hostgroups];
 }
 
-if (!$obj->is_admin) {
+if (!$centreonXMLBGRequest->is_admin) {
     $request .= <<<SQL
         
         INNER JOIN centreon_acl
             ON centreon_acl.host_id = hosts.host_id
-            AND centreon_acl.group_id IN ({$obj->grouplistStr})
+            AND centreon_acl.group_id IN ({$centreonXMLBGRequest->grouplistStr})
     SQL;
 }
 
@@ -169,7 +172,7 @@ $queryValues['numLimit'] = [\PDO::PARAM_INT => ($num * $limit)];
 $queryValues['limit'] = [\PDO::PARAM_INT => $limit];
 
 // Execute request
-$dbResult = $obj->DBC->prepare($request);
+$dbResult = $centreonXMLBGRequest->DBC->prepare($request);
 foreach ($queryValues as $bindId => $bindData) {
     foreach ($bindData as $bindType => $bindValue) {
         $dbResult->bindValue($bindId, $bindValue, $bindType);
@@ -177,25 +180,26 @@ foreach ($queryValues as $bindId => $bindData) {
 }
 $dbResult->execute();
 
-$numRows = (int) $obj->DBC->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
+$numRows = (int) $centreonXMLBGRequest->DBC->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
-$obj->XML->startElement("reponse");
-$obj->XML->startElement("i");
-$obj->XML->writeElement("numrows", $numRows);
-$obj->XML->writeElement("num", $num);
-$obj->XML->writeElement("limit", $limit);
-$obj->XML->writeElement("p", $p);
+$centreonXMLBGRequest->XML->startElement("reponse");
+$centreonXMLBGRequest->XML->startElement("i");
+$centreonXMLBGRequest->XML->writeElement("numrows", $numRows);
+$centreonXMLBGRequest->XML->writeElement("num", $num);
+$centreonXMLBGRequest->XML->writeElement("limit", $limit);
+$centreonXMLBGRequest->XML->writeElement("p", $p);
 
-preg_match("/svcOV/", $_GET["o"], $matches) ? $obj->XML->writeElement("s", "1") : $obj->XML->writeElement("s", "0");
-$obj->XML->endElement();
+preg_match("/svcOV/", $_GET["o"], $matches)
+    ? $centreonXMLBGRequest->XML->writeElement("s", "1")
+    : $centreonXMLBGRequest->XML->writeElement("s", "0");
+
+$centreonXMLBGRequest->XML->endElement();
 
 $tab_final = [];
-$str = "";
+$hostIds = [];
+
 while ($ndo = $dbResult->fetch()) {
-    if ($str != "") {
-        $str .= ",";
-    }
-    $str .= "'" . $ndo["name"] . "'";
+    $hostIds[] = $ndo["host_id"];
     $tab_final[$ndo["name"]] = array("cs" => $ndo["state"], "hid" => $ndo["host_id"]);
     if ($ndo["icon_image"] != "") {
         $tabIcone[$ndo["name"]] = $ndo["icon_image"];
@@ -206,7 +210,7 @@ while ($ndo = $dbResult->fetch()) {
 $dbResult->closeCursor();
 
 // Get Service status
-$tab_svc = $obj->monObj->getServiceStatus($str, $obj, $o, $instance, $hostgroups);
+$tab_svc = $centreonXMLBGRequest->monObj->getServiceStatus($hostIds, $centreonXMLBGRequest, $o, $instance);
 if (isset($tab_svc)) {
     foreach ($tab_svc as $host_name => $tab) {
         if (count($tab)) {
@@ -218,40 +222,40 @@ if (isset($tab_svc)) {
 $ct = 0;
 if (isset($tab_svc)) {
     foreach ($tab_final as $host_name => $tab) {
-        $obj->XML->startElement("l");
-        $obj->XML->writeAttribute("class", $obj->getNextLineClass());
+        $centreonXMLBGRequest->XML->startElement("l");
+        $centreonXMLBGRequest->XML->writeAttribute("class", $centreonXMLBGRequest->getNextLineClass());
         if (isset($tab["tab_svc"])) {
             foreach ($tab["tab_svc"] as $svc => $details) {
                 $state = $details['state'];
                 $serviceId = $details['service_id'];
-                $obj->XML->startElement("svc");
-                $obj->XML->writeElement("sn", CentreonUtils::escapeSecure($svc), false);
-                $obj->XML->writeElement("snl", CentreonUtils::escapeSecure(urlencode($svc)));
-                $obj->XML->writeElement("sc", $obj->colorService[$state]);
-                $obj->XML->writeElement("svc_id", $serviceId);
-                $obj->XML->writeElement(
+                $centreonXMLBGRequest->XML->startElement("svc");
+                $centreonXMLBGRequest->XML->writeElement("sn", CentreonUtils::escapeSecure($svc), false);
+                $centreonXMLBGRequest->XML->writeElement("snl", CentreonUtils::escapeSecure(urlencode($svc)));
+                $centreonXMLBGRequest->XML->writeElement("sc", $centreonXMLBGRequest->colorService[$state]);
+                $centreonXMLBGRequest->XML->writeElement("svc_id", $serviceId);
+                $centreonXMLBGRequest->XML->writeElement(
                     "s_details_uri",
                     $useDeprecatedPages
                         ? 'main.php?o=svcd&p=202&host_name=' . $host_name . '&service_description=' . $svc
                         : $resourceController->buildServiceDetailsUri($tab["hid"], $serviceId)
                 );
-                $obj->XML->endElement();
+                $centreonXMLBGRequest->XML->endElement();
             }
         }
-        $obj->XML->writeElement("o", $ct++);
-        $obj->XML->writeElement("ico", $tabIcone[$host_name]);
-        $obj->XML->writeElement("hn", $host_name, false);
-        $obj->XML->writeElement("hid", $tab["hid"], false);
-        $obj->XML->writeElement("hnl", CentreonUtils::escapeSecure(urlencode($host_name)));
-        $obj->XML->writeElement("hs", _($obj->statusHost[$tab["cs"]]), false);
-        $obj->XML->writeElement("hc", $obj->colorHost[$tab["cs"]]);
-        $obj->XML->writeElement(
+        $centreonXMLBGRequest->XML->writeElement("o", $ct++);
+        $centreonXMLBGRequest->XML->writeElement("ico", $tabIcone[$host_name]);
+        $centreonXMLBGRequest->XML->writeElement("hn", $host_name, false);
+        $centreonXMLBGRequest->XML->writeElement("hid", $tab["hid"], false);
+        $centreonXMLBGRequest->XML->writeElement("hnl", CentreonUtils::escapeSecure(urlencode($host_name)));
+        $centreonXMLBGRequest->XML->writeElement("hs", _($centreonXMLBGRequest->statusHost[$tab["cs"]]), false);
+        $centreonXMLBGRequest->XML->writeElement("hc", $centreonXMLBGRequest->colorHost[$tab["cs"]]);
+        $centreonXMLBGRequest->XML->writeElement(
             "h_details_uri",
             $useDeprecatedPages
                 ? 'main.php?p=20202&o=hd&host_name=' . $host_name
                 : $resourceController->buildHostDetailsUri($tab["hid"])
         );
-        $obj->XML->writeElement(
+        $centreonXMLBGRequest->XML->writeElement(
             "s_listing_uri",
             $useDeprecatedPages
                 ? 'main.php?o=svc&p=20201&statusFilter=;host_search=' . $host_name
@@ -263,19 +267,25 @@ if (isset($tab_svc)) {
                     ]),
                 ])
         );
-        $obj->XML->writeElement("chartIcon", returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18));
-        $obj->XML->writeElement("viewIcon", returnSvg("www/img/icons/view.svg", "var(--icons-fill-color)", 18, 18));
-        $obj->XML->endElement();
+        $centreonXMLBGRequest->XML->writeElement(
+            "chartIcon",
+            returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18)
+        );
+        $centreonXMLBGRequest->XML->writeElement(
+            "viewIcon",
+            returnSvg("www/img/icons/view.svg", "var(--icons-fill-color)", 18, 18)
+        );
+        $centreonXMLBGRequest->XML->endElement();
     }
 }
 
 if (!$ct) {
-    $obj->XML->writeElement("infos", "none");
+    $centreonXMLBGRequest->XML->writeElement("infos", "none");
 }
-$obj->XML->endElement();
+$centreonXMLBGRequest->XML->endElement();
 
 // Send Header
-$obj->header();
+$centreonXMLBGRequest->header();
 
 // Send XML
-$obj->XML->output();
+$centreonXMLBGRequest->XML->output();
