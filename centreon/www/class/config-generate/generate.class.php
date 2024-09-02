@@ -70,6 +70,7 @@ require_once dirname(__FILE__) . '/severity.class.php';
 require_once dirname(__FILE__) . '/timeperiod.class.php';
 require_once dirname(__FILE__) . '/timezone.class.php';
 require_once dirname(__FILE__) . '/vault.class.php';
+require_once dirname(__FILE__) . '/AdditionalConnectorVmWareV6.class.php';
 
 class Generate
 {
@@ -251,6 +252,7 @@ class Generate
         Resource::getInstance($this->dependencyInjector)->reset();
         Engine::getInstance($this->dependencyInjector)->reset();
         Broker::getInstance($this->dependencyInjector)->reset();
+        AdditionalConnectorVmWareV6::getInstance($this->dependencyInjector)->reset();
         $this->resetModuleObjects();
     }
 
@@ -260,6 +262,10 @@ class Generate
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
+
+        AdditionalConnectorVmWareV6::getInstance($this->dependencyInjector)->generateFromPollerId(
+            $this->current_poller['id']
+        );
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         Host::getInstance($this->dependencyInjector)->generateFromPollerId(

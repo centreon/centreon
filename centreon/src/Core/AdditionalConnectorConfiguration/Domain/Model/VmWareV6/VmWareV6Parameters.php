@@ -21,10 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\AdditionalConnectorConfiguration\Domain\Model;
+namespace Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\AdditionalConnectorConfiguration\Domain\Model\AccParametersInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Security\Interfaces\EncryptionInterface;
 
@@ -158,12 +159,14 @@ class VmWareV6Parameters implements AccParametersInterface
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = str_starts_with($vcenter['username'], VaultConfiguration::VAULT_PATH_PATTERN)
-                ? $vcenter['username']
-                : $this->encryption->crypt($vcenter['username']);
-            $parameters['vcenters'][$index]['password'] = str_starts_with($vcenter['password'], VaultConfiguration::VAULT_PATH_PATTERN)
-                ? $vcenter['password']
-                : $this->encryption->crypt($vcenter['password']);
+            $parameters['vcenters'][$index]['username'] = str_starts_with(
+                $vcenter['username'],
+                VaultConfiguration::VAULT_PATH_PATTERN
+            ) ? $vcenter['username'] : $this->encryption->crypt($vcenter['username']);
+            $parameters['vcenters'][$index]['password'] = str_starts_with(
+                $vcenter['password'],
+                VaultConfiguration::VAULT_PATH_PATTERN
+            ) ? $vcenter['password'] : $this->encryption->crypt($vcenter['password']);
         }
 
         return $parameters;
@@ -183,12 +186,14 @@ class VmWareV6Parameters implements AccParametersInterface
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = str_starts_with($vcenter['username'], VaultConfiguration::VAULT_PATH_PATTERN)
-                ? $vcenter['username']
-                : $this->encryption->decrypt($vcenter['username']) ?? '';
-            $parameters['vcenters'][$index]['password'] = str_starts_with($vcenter['password'], VaultConfiguration::VAULT_PATH_PATTERN)
-                ? $vcenter['password']
-                : $this->encryption->decrypt($vcenter['password']) ?? '';
+            $parameters['vcenters'][$index]['username'] = str_starts_with(
+                $vcenter['username'],
+                VaultConfiguration::VAULT_PATH_PATTERN
+            ) ? $vcenter['username'] : $this->encryption->decrypt($vcenter['username']) ?? '';
+            $parameters['vcenters'][$index]['password'] = str_starts_with(
+                $vcenter['password'],
+                VaultConfiguration::VAULT_PATH_PATTERN
+            ) ? $vcenter['password'] : $this->encryption->decrypt($vcenter['password']) ?? '';
         }
 
         return $parameters;
