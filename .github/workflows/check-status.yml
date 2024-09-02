@@ -16,7 +16,23 @@ on:
       - MON-146261-open-pipelines-to-external-contrib-*
 
 jobs:
+  validate:
+    if: github.event.pull_request.author_association == 'NONE'
+    name: wait validation
+    id: wait_validation
+    timeout-minutes: 5
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Wait for validation to succeed
+        uses: lewagon/wait-on-check-action@ccfb013c15c8afb7bf2b7c028fb74dc5a068cccc #v1.3.4
+        with:
+          ref: ${{ github.head.ref }}
+          check-name: 'validate run'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
   check-status:
+    needs: [validate]
     runs-on: ubuntu-24.04
     steps:
       - name: review state

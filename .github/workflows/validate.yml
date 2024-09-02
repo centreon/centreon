@@ -6,6 +6,11 @@ concurrency:
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
 
 jobs:
   validate_run:
