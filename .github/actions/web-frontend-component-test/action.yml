@@ -38,6 +38,8 @@ runs:
       uses: browser-actions/setup-chrome@v1
       with:
         chrome-version: 127
+        install-chromedriver: true
+        install-dependencies: true
 
     - run: chrome --version
       shell: bash
