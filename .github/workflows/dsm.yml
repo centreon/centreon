@@ -32,7 +32,6 @@ env:
 
 jobs:
   validate:
-    if: github.event.pull_request.author_association == 'NONE'
     name: wait validation
     timeout-minutes: 5
     runs-on: ubuntu-24.04
@@ -44,9 +43,10 @@ jobs:
           check-name: 'validate run'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+          allowed-conclusions: success
 
   get-version:
-    needs: [validate_run]
+    needs: [validate]
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php

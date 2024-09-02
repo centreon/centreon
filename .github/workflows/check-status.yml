@@ -17,7 +17,6 @@ on:
 
 jobs:
   validate:
-    if: github.event.pull_request.author_association == 'NONE'
     name: wait validation
     timeout-minutes: 5
     runs-on: ubuntu-24.04
@@ -29,6 +28,7 @@ jobs:
           check-name: 'validate run'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+          allowed-conclusions: success
 
   check-status:
     needs: [validate]
