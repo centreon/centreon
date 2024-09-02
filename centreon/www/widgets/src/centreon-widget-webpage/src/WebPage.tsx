@@ -1,6 +1,9 @@
 import Preview from './Preview';
 import { useIframeStyles } from './useWebPage.styles';
 
+
+const getIframeSrc = (url:string) =>  /^http/.test(url) ? url : `http://${url}`;
+
 const WebPage = ({ panelOptions }): JSX.Element => {
   const { classes } = useIframeStyles();
 
@@ -10,12 +13,10 @@ const WebPage = ({ panelOptions }): JSX.Element => {
     return <Preview />;
   }
 
-  const iframeSrc = /^http/.test(url) ? url : `http://${url}`;
-
   return (
     <div className={classes.container}>
       <iframe
-        src={iframeSrc}
+        src={getIframeSrc(url)}
         className={classes.iframe}
         title="Webpage Display"
         data-testid="Webpage Display"
