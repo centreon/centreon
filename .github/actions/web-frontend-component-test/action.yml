@@ -34,13 +34,6 @@ runs:
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-    - name: Install Chrome
-      uses: browser-actions/setup-chrome@v1
-      with:
-        chrome-version: 127
-        install-chromedriver: true
-        install-dependencies: true
-
     - run: chrome --version
       shell: bash
 
