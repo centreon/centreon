@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useMemo } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -10,13 +10,16 @@ import {
   filter,
   find,
   flatten,
+  gte,
   includes,
   isEmpty,
+  isNil,
   isNotNil,
   last,
   map,
   pick,
   pluck,
+  project,
   propEq,
   reject
 } from 'ramda';
@@ -80,6 +83,7 @@ interface UseResourcesState {
   isLastResourceInTree: boolean;
   singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
+  isValidatingResources: boolean;
 }
 
 export const resourceTypeBaseEndpoints = {
@@ -192,6 +196,8 @@ const useResources = ({
   | 'required'
   | 'useAdditionalResources'
 >): UseResourcesState => {
+  const [isValidatingResources, setIsValidatingResources] = useState(false);
+
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
@@ -250,6 +256,9 @@ const useResources = ({
         selectedResources
       );
       setFieldTouched(`data.${propertyName}`, true, false);
+
+      setIsValidatingResources(true);
+      validateNextResource({ index, parentResources: selectedResources });
     };
 
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
@@ -259,6 +268,9 @@ const useResources = ({
       selectedResource
     ]);
     setFieldTouched(`data.${propertyName}`, true, false);
+
+    setIsValidatingResources(true);
+    validateNextResource({ index, parentResources: [selectedResource] });
   };
 
   const addResource = (): void => {
@@ -284,11 +296,78 @@ const useResources = ({
 
     setFieldValue(`data.${propertyName}.${index}.resources`, newResource);
     setFieldTouched(`data.${propertyName}`, true, false);
+
+    setIsValidatingResources(true);
+    validateNextResource({ index, parentResources: newResource });
   };
+
+  const validateNextResource = useCallback(
+    ({ index, parentResources }) => {
+      const nextResourceIndex = index + 1;
+      const nextResourceType = value?.[nextResourceIndex]?.resourceType;
+      const nextResources = value?.[nextResourceIndex]?.resources;
+
+      if (
+        gte(nextResourceIndex, value?.length) ||
+        isNil(nextResourceType) ||
+        isEmpty(nextResources)
+      ) {
+        setIsValidatingResources(false);
+        return;
+      }
+
+      if (isEmpty(parentResources)) {
+        setFieldValue(
+          `data.${propertyName}.${nextResourceIndex}.resources`,
+          []
+        );
+        validateNextResource({ index: nextResourceIndex, parentResources: [] });
+        return;
+      }
+
+      fetch(
+        getResourceResourceBaseEndpoint({
+          index: nextResourceIndex,
+          resourceType: nextResourceType,
+          resourcesToSearch: pluck('name', nextResources),
+          parentResources
+        })({})
+      )
+        .then((response) => response.ok && response.json())
+        .then((body) => {
+          if (isNil(body.result)) {
+            setFieldValue(
+              `data.${propertyName}.${nextResourceIndex}.resources`,
+              []
+            );
+
+            setIsValidatingResources(false);
+            return;
+          }
+          const retrievedResourceNames = pluck('name', body.result);
+          const includedResources = filter(
+            ({ name }) => includes(name, retrievedResourceNames),
+            nextResources
+          );
+
+          setFieldValue(
+            `data.${propertyName}.${nextResourceIndex}.resources`,
+            includedResources
+          );
+          validateNextResource({
+            index: nextResourceIndex,
+            parentResources: project(['id', 'name'], includedResources)
+          });
+        });
+    },
+    [value, propertyName]
+  );
 
   const getQueryParameters = (
     index: number,
-    resourceType
+    resourceType,
+    resourcesToSearch: string | undefined,
+    parentResources
   ): {
     customParameters: Array<QueryParameter>;
     searchParameters: Array<SearchParameter>;
@@ -310,7 +389,10 @@ const useResources = ({
     }
 
     const searchParameter = value?.[index - 1].resourceType as string;
-    const searchValues = pluck('name', value?.[index - 1].resources);
+    const searchValues = pluck(
+      'name',
+      parentResources || value?.[index - 1].resources
+    );
 
     if (!usesResourcesEndpoint) {
       const customParameters = isOfTypeService
@@ -318,6 +400,17 @@ const useResources = ({
             {
               name: 'only_with_performance_data',
               value: hasMetricInputType
+            }
+          ]
+        : [];
+
+      const searchForExactResource = resourcesToSearch
+        ? [
+            {
+              field: 'name',
+              values: {
+                $in: resourcesToSearch
+              }
             }
           ]
         : [];
@@ -330,7 +423,8 @@ const useResources = ({
             values: {
               $in: searchValues
             }
-          }
+          },
+          ...searchForExactResource
         ]
       };
     }
@@ -355,7 +449,7 @@ const useResources = ({
   };
 
   const getResourceResourceBaseEndpoint =
-    ({ index, resourceType }) =>
+    ({ index, resourceType, parentResources, resourcesToSearch }) =>
     (parameters): string => {
       const additionalResource = find(
         ({ resourceType: additionalResourceType }) =>
@@ -381,7 +475,9 @@ const useResources = ({
 
       const { customParameters, searchParameters } = getQueryParameters(
         index,
-        resourceType
+        resourceType,
+        resourcesToSearch,
+        parentResources
       );
 
       const searchConditions = [
@@ -540,7 +636,8 @@ const useResources = ({
     hasSelectedHostForSingleMetricwidget,
     isLastResourceInTree,
     singleResourceSelection: widgetProperties?.singleResourceSelection,
-    value: value || []
+    value: value || [],
+    isValidatingResources
   };
 };
 

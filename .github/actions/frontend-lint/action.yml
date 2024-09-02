@@ -17,6 +17,10 @@ inputs:
   pat:
     description: "The personal access token"
     required: true
+  lint_path:
+    required: false
+    description: "The path to lint"
+    default: '.'
 
 runs:
   using: "composite"
@@ -48,7 +52,11 @@ runs:
         working-dir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
 
-    - name: Run Biome
-      run: pnpm lint:ci
-      working-directory: ${{ inputs.frontend_directory }}
-      shell: bash
+    - uses: mongolyy/reviewdog-action-biome@6b01155716493e5cc365df64aa0946ec9adc53c2 # v1.6.1
+      with:
+        workdir: ${{ inputs.frontend_directory }}
+        github_token: ${{ inputs.pat }}
+        reporter: github-pr-check
+        fail_on_error: true
+        level: 'error'
+        biome_flags: ${{ inputs.lint_path }}
