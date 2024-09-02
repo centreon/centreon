@@ -55,6 +55,7 @@ const resultsToSubmit = [
     status: 'ok'
   }
 ];
+
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -145,6 +146,8 @@ before(() => {
     jsonName: 'admin'
   });
 
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping'});
+
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -157,6 +160,13 @@ before(() => {
   checkServicesAreMonitored([
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
+  ]);
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
   ]);
 
   cy.logoutViaAPI();

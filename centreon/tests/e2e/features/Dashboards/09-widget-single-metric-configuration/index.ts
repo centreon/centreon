@@ -29,6 +29,10 @@ before(() => {
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
 
+  cy.loginAsAdminViaApiV2()
+    .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping'})
+    .logoutViaAPI();
+
   checkServicesAreMonitored([
     {
       name: 'Ping',
