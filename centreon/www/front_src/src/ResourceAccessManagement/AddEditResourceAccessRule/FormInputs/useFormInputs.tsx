@@ -67,7 +67,6 @@ const useFormInputs = (): UseFormInputsState => {
             grid: {
               alignItems: 'left',
               className: classes.ruleProperties,
-              isColumnDirection: true,
               columns: [
                 {
                   custom: {
@@ -106,7 +105,8 @@ const useFormInputs = (): UseFormInputsState => {
                   label: t(labelStatus),
                   type: InputType.Custom
                 }
-              ]
+              ],
+              isColumnDirection: true
             },
             label: t(labelRuleProperies),
             type: InputType.Grid
@@ -116,7 +116,6 @@ const useFormInputs = (): UseFormInputsState => {
             grid: {
               alignItems: 'center',
               className: classes.resourceSelection,
-              isColumnDirection: true,
               columns: [
                 {
                   dataTestId: t(labelAddResourceDatasets),
@@ -124,7 +123,6 @@ const useFormInputs = (): UseFormInputsState => {
                   grid: {
                     alignItems: 'left',
                     className: classes.resourceSelection,
-                    isColumnDirection: true,
                     columns: [
                       {
                         custom: {
@@ -135,7 +133,8 @@ const useFormInputs = (): UseFormInputsState => {
                         label: t(labelAddResourceDatasets),
                         type: InputType.Custom
                       }
-                    ]
+                    ],
+                    isColumnDirection: true
                   },
                   label: t(labelAddResourceDatasets),
                   type: InputType.Grid
@@ -146,7 +145,6 @@ const useFormInputs = (): UseFormInputsState => {
                   grid: {
                     alignItems: 'left',
                     className: classes.contactsAndContactGroups,
-                    isColumnDirection: true,
                     columns: [
                       {
                         custom: {
@@ -191,12 +189,14 @@ const useFormInputs = (): UseFormInputsState => {
                         required: true,
                         type: InputType.MultiConnectedAutocomplete
                       }
-                    ]
+                    ],
+                    isColumnDirection: true
                   },
                   label: t(labelContactsAndContactGroups),
                   type: InputType.Grid
                 }
-              ]
+              ],
+              isColumnDirection: true
             },
             label: '',
             type: InputType.Grid

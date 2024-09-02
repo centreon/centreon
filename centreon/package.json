@@ -187,7 +187,10 @@
     "suiteName": "jest tests",
     "output": "./jest-test-results.xml"
   },
-  "workspaces": ["packages/*", "www/widgets"],
+  "workspaces": [
+    "packages/*",
+    "www/widgets"
+  ],
   "msw": {
     "workerDirectory": "www/front_src/public"
   },
