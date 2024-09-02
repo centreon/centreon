@@ -128,6 +128,8 @@ enabled = 1
 module_hotfixes = 1
 EOT
 
+rpm --import https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB
+
 dnf install -y mariadb-server mariadb
 
 echo "[server]
