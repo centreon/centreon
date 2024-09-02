@@ -22,4 +22,4 @@ systemctl stop php-fpm
 systemctl stop httpd
 
 rm -f /tmp/gorgone/*.ipc /var/log/centreon*/*.log /var/lib/centreon-gorgone/history.sdb
-find /var/lib/centreon-{engine,broker} /var/lib/centreon/centcore -type f -delete
+find /var/log/centreon{,-engine,-broker,-gorgone} /var/lib/centreon-{engine,broker} /var/lib/centreon/{centcore,metrics,status} -type f -delete
