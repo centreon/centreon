@@ -1,0 +1,20 @@
+name: validate
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+
+jobs:
+  validate_run:
+    name: validate run
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: get_context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+        shell: bash
