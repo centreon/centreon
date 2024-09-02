@@ -3,15 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { Divider, Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
-import { InputProps, Group, InputType } from '@centreon/ui';
+import { Group, InputProps, InputType } from '@centreon/ui';
 
 import {
+  labelAddResourceDatasets,
   labelContactGroups,
   labelContacts,
   labelContactsAndContactGroups,
   labelDescription,
   labelName,
-  labelAddResourceDatasets,
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
@@ -67,6 +67,7 @@ const useFormInputs = (): UseFormInputsState => {
             grid: {
               alignItems: 'left',
               className: classes.ruleProperties,
+              isColumnDirection: true,
               columns: [
                 {
                   custom: {
@@ -115,6 +116,7 @@ const useFormInputs = (): UseFormInputsState => {
             grid: {
               alignItems: 'center',
               className: classes.resourceSelection,
+              isColumnDirection: true,
               columns: [
                 {
                   dataTestId: t(labelAddResourceDatasets),
@@ -122,6 +124,7 @@ const useFormInputs = (): UseFormInputsState => {
                   grid: {
                     alignItems: 'left',
                     className: classes.resourceSelection,
+                    isColumnDirection: true,
                     columns: [
                       {
                         custom: {
@@ -143,6 +146,7 @@ const useFormInputs = (): UseFormInputsState => {
                   grid: {
                     alignItems: 'left',
                     className: classes.contactsAndContactGroups,
+                    isColumnDirection: true,
                     columns: [
                       {
                         custom: {

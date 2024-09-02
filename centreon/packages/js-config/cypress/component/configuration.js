@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { defineConfig } = require('cypress');
+const { devServer } = require('cypress-rspack-dev-server');
 const {
   addMatchImageSnapshotPlugin
 } = require('@simonsmith/cypress-image-snapshot/plugin');
@@ -17,11 +18,18 @@ module.exports = ({
 
   return defineConfig({
     component: {
-      devServer: {
-        bundler: useVite ? 'vite' : 'webpack',
-        framework: 'react',
-        webpackConfig
-      },
+      devServer: useVite
+        ? {
+            bundler: 'vite',
+            framework: 'react',
+            webpackConfig
+          }
+        : (devServerConfig) =>
+            devServer({
+              ...devServerConfig,
+              framework: 'react',
+              rspackConfig: webpackConfig
+            }),
       excludeSpecPattern,
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
