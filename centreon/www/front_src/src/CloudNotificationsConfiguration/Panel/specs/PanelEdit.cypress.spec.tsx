@@ -398,8 +398,6 @@ describe('Edit Panel', () => {
     cy.findByLabelText(labelSubject).should('have.value', 'Notification');
 
     cy.get('#panel-content').scrollTo('bottom');
-
-    cy.makeSnapshot();
   });
 
   it('validates that when the Subject field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
@@ -452,8 +450,6 @@ describe('Edit Panel : Confirm Dialog', () => {
     cy.findByText(labelSuccessfulEditNotification).should('be.visible');
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 });
 
