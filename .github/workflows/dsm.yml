@@ -5,8 +5,13 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  check_run:
+    types: [ rerequested, completed ]
   workflow_dispatch:
-  pull_request_target:
+  pull_request_review:
+    type: submitted
+    states:
+      - approved
     types:
       - opened
       - synchronize

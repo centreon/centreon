@@ -5,6 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  check_run:
+    types: [ created, rerequested, completed ]
   pull_request_target:
     branches:
       - develop
