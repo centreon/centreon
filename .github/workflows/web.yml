@@ -109,7 +109,7 @@ jobs:
           features_path: centreon/tests/e2e/features
 
   dispatch-to-maintained-branches:
-    if: ${{ github.event_name == 'schedule' && github.ref_name == 'develop' }}
+    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
@@ -236,6 +236,7 @@ jobs:
           module_name: centreon
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: ./www/front_src/
 
   frontend-widgets-lint:
     runs-on: ubuntu-22.04

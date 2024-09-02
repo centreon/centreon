@@ -2,7 +2,8 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
-  checkServicesAreMonitored
+  checkServicesAreMonitored,
+  checkMetricsAreMonitored
 } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
@@ -140,7 +141,13 @@ before(() => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
-
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
   cy.logoutViaAPI();
   cy.applyAcl();
 });
