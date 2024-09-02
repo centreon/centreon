@@ -13,7 +13,7 @@ before(() => {
   cy.startContainers();
 
   cy.loginAsAdminViaApiV2()
-    .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping'})
+    .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
     .logoutViaAPI();
 });
 

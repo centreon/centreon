@@ -8,6 +8,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
+  checkMetricsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -146,7 +147,7 @@ before(() => {
     jsonName: 'admin'
   });
 
-  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping'});
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
 
   checkHostsAreMonitored([
     { name: services.serviceOk.host },

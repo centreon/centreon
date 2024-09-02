@@ -135,7 +135,7 @@ before(() => {
     jsonName: 'admin'
   });
 
-  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping'});;
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
 
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
