@@ -29,6 +29,7 @@ jobs:
           check-name: 'validate run'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+          allowed-conclusions: success
 
   check-status:
     needs: [validate]
