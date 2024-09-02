@@ -5,17 +5,10 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_dispatch:
-  pull_request_target:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
-    paths:
-      - "centreon-dsm/**"
-      - "!centreon-dsm/veracode.json"
-      - "!centreon-dsm/.veracode-exclusions"
+  pull_request_review:
+    type: submitted
+    states:
+      - approved
   push:
     branches:
       - develop
@@ -31,7 +24,26 @@ env:
   module: dsm
 
 jobs:
+  paths:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: dorny/paths-filter@ebc4d7e9ebcb0b1eb21480bb8f43113e996ac77a # v3.0.1
+        id: include
+        with:
+          filters: |
+            inclusion:
+              - "centreon-dsm/**"
+              - "!centreon-dsm/veracode.json"
+              - "!centreon-dsm/.veracode-exclusions"
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        #  paths:
+        #    - "centreon-dsm/**"
+        #    - "!centreon-dsm/veracode.json"
+        #    - "!centreon-dsm/.veracode-exclusions"
+
   get-version:
+    if: steps.include.outputs.inclusion == 'true'
+    needs: [paths]
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
