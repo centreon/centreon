@@ -169,7 +169,6 @@ before(() => {
       service: 'Ping'
     }
   ]);
-
   cy.logoutViaAPI();
   cy.applyAcl();
 });
