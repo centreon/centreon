@@ -35,6 +35,7 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Install Chrome 127
+      shell: bash
       run: |
         VERSION_STRING="127.0.6533.119"
         wget "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${VERSION_STRING}_amd64.deb"
