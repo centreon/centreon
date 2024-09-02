@@ -32,7 +32,6 @@ env:
 
 jobs:
   validate:
-    if: github.event.pull_request.author_association == 'NONE'
     name: wait validation
     timeout-minutes: 5
     runs-on: ubuntu-24.04
@@ -47,7 +46,7 @@ jobs:
           allowed-conclusions: success
 
   get-version:
-    needs: [validate_run]
+    needs: [validate]
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
