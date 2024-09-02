@@ -6,6 +6,14 @@ concurrency:
 
 on:
   pull_request_target:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+      - hotfix-*
+      - release-*
+      - MON-146261-open-pipelines-to-external-contrib-*
 
 jobs:
   check-status:
