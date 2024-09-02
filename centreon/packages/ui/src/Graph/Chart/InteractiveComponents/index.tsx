@@ -91,7 +91,6 @@ const InteractionWithGraph = ({
 	const setEventMouseLeave = useSetAtom(eventMouseLeaveAtom);
 	const changeMousePosition = useSetAtom(changeMousePositionDerivedAtom);
 	const setGraphTooltipData = useSetAtom(graphTooltipDataAtom);
-	console.log("---->", annotationData);
 	const {
 		graphHeight,
 		graphWidth,
@@ -246,7 +245,7 @@ const InteractionWithGraph = ({
 			{displayEventAnnotations && (
 				<Annotations
 					data={annotationData?.data as Array<TimelineEvent>}
-					graphHeight={graphHeight}
+					graphHeight={graphHeight - margin.bottom}
 					graphSvgRef={graphSvgRef}
 					graphWidth={graphWidth}
 					xScale={xScale}
