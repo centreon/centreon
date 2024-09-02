@@ -121,14 +121,15 @@ dnf install -y \
 # curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
 #   | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.11"
 
-echo "[mariadb-main]
+cat <<EOT >> /etc/yum.repos.d/mariadb.repo
+[mariadb-main]
 name = MariaDB Server
-baseurl = https://dlm.mariadb.com/repo/mariadb-server/10.5/yum/rhel/8/x86_64
+baseurl = https://dlm.mariadb.com/repo/mariadb-server/10.11/yum/rhel/8/x86_64
 gpgkey = file:///etc/pki/rpm-gpg/MariaDB-Server-GPG-KEY
 gpgcheck = 1
 enabled = 1
 module_hotfixes = 1
-" > /etc/yum.conf.d/mariadb.repo
+EOT
 
 dnf install -y mariadb-server mariadb
 
