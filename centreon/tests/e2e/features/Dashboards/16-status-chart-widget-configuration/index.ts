@@ -287,7 +287,7 @@ Then(
         'background: rgb(227, 227, 227)',
         'background: rgb(30, 190, 179)'
       ],
-      ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
+      ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
     );
   }
 );
@@ -325,7 +325,7 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
       'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
+    ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
   );
 });
 
@@ -352,7 +352,7 @@ Then('the unit of the resources already displayed should be updated', () => {
       'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['3', '1', '1', '0', '5']
+    ['3', '1', '1', '3', '2']
   );
 });
 
@@ -393,7 +393,7 @@ Then('only the contents of the other widget are displayed', () => {
       'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['3', '1', '1', '0', '5']
+    ['3', '1', '1', '3', '2']
   );
 });
 
@@ -420,7 +420,7 @@ Then('a second Status Chart widget is displayed on the dashboard', () => {
       'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
+    ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
   );
 });
 
@@ -452,7 +452,7 @@ Then(
         'background: rgb(227, 227, 227)',
         'background: rgb(30, 190, 179)'
       ],
-      ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
+      ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
     );
   }
 );
