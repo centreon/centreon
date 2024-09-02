@@ -35,11 +35,9 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Install Chrome
-      shell: bash
-      run: |
-        wget -q -O /tmp/chrome.deb http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_127.0.6533.119_amd64.deb
-        sudo apt install -y /tmp/chrome.deb
-        rm /tmp/chrome.deb
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: 126
 
     - name: Install Cypress binary
       uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
