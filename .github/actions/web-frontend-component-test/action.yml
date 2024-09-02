@@ -38,7 +38,6 @@ runs:
       uses: browser-actions/setup-chrome@v1
       with:
         chrome-version: 127
-        install-chromedriver: true
 
     - name: Install Cypress binary
       uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
