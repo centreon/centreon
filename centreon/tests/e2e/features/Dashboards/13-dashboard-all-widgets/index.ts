@@ -8,6 +8,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
+  checkMetricsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -55,6 +56,7 @@ const resultsToSubmit = [
     status: 'ok'
   }
 ];
+
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -145,6 +147,8 @@ before(() => {
     jsonName: 'admin'
   });
 
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -158,7 +162,13 @@ before(() => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
-
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
   cy.logoutViaAPI();
   cy.applyAcl();
 });
