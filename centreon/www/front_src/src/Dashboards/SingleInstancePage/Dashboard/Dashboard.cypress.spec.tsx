@@ -766,12 +766,7 @@ describe('Dashboard', () => {
 
     it('renders Web Page widgets', () => {
       cy.findAllByTestId('Webpage Display').should('have.length', 2);
-      cy.findAllByTestId('Webpage Display')
-        .eq(0)
-        .should('have.attr', 'src', 'https://docs.centreon.com/fr/');
-      cy.findAllByTestId('Webpage Display')
-        .eq(1)
-        .should('have.attr', 'src', 'https://react.dev/');
+
     });
 
     it('renders iframes with correct source URL', () => {
@@ -782,6 +777,13 @@ describe('Dashboard', () => {
       cy.findAllByTestId('Webpage Display')
         .eq(1)
         .should('have.attr', 'src', 'https://react.dev/');
+    });
+
+    it('displays widget refresh buttons', () => {
+      cy.findAllByTestId('Webpage Display').should('have.length', 2);
+
+      cy.findAllByTestId("UpdateIcon").should('have.length', 2)
+      
     });
   });
 });
