@@ -16,7 +16,6 @@ Cypress.Commands.add('disableListingAutoRefresh', (): Cypress.Chainable => {
   return cy.getByTestId({ testId: 'Disable autorefresh' }).click();
 });
 
-
 Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   return cy.executeActionViaClapi({
     bodyContent: {
