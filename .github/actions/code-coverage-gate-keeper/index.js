@@ -94,6 +94,7 @@ const run = async () => {
         JSON.stringify(newCodeCoverages)
       );
       core.info(`New code coverage for ${module}: ${codeCoverageLines}%`);
+      core.setOutput('hasNewCodeCoverage', 'true');
       return;
     }
 
