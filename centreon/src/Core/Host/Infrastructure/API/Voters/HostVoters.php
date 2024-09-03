@@ -29,14 +29,11 @@ class HostVoters extends Voter
             return false;
         }
 
-        switch ($attribute) {
-            case self::WRITE_HOST:
-                return $this->canWrite($user);
-            case self::READ_HOST:
-                return $this->canRead($user);
-        }
-
-        return false;
+        return match($attribute) {
+            self::WRITE_HOST => $this->canWrite($user),
+            self::READ_HOST => $this->canRead($user),
+            default => throw new \LogicException('This code should not be reached!')
+        };
     }
 
     private function canWrite(ContactInterface $user): bool

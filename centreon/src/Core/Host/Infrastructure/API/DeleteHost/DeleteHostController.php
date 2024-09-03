@@ -27,9 +27,11 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Host\Application\UseCase\DeleteHost\DeleteHost;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class DeleteHostController extends AbstractController
 {
+    #[IsGranted('write_host', 'You are not allowed to delete hosts', Response::HTTP_FORBIDDEN)]
     public function __invoke(
         DeleteHost $useCase,
         DefaultPresenter $presenter,
