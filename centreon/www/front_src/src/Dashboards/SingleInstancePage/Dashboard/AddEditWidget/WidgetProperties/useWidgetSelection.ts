@@ -95,13 +95,11 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
   const { setValues, values, setTouched } = useFormikContext<Widget>();
 
-  const isCloudPlatform = platformFeatures?.isCloudPlatform
+  const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
   const availableWidgetsProperties = reject((widget) => {
-    return isCloudPlatform && widget?.availableOnPremOnly ;
-    
-  }, federatedWidgetsProperties || [])
-
+    return isCloudPlatform && widget?.availableOnPremOnly;
+  }, federatedWidgetsProperties || []);
 
   const filteredWidgets = filter(
     ({ title }) => title?.includes(search),
