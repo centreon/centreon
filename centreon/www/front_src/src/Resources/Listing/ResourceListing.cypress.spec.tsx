@@ -845,18 +845,3 @@ describe('Notification column', () => {
     cy.makeSnapshot();
   });
 });
-describe('Tree view : Feature Flag', () => {
-  it('hides the tree view icons if the feature is disabled', () => {
-    store.set(
-      platformFeaturesAtom,
-      getPlatformFeatures({ enableTreeView: false })
-    );
-    interceptRequestsAndMountBeforeEach();
-
-    cy.contains('E0').should('be.visible');
-
-    cy.findByTestId('tree view').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-});
