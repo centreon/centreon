@@ -128,6 +128,10 @@ before(() => {
     jsonName: 'admin'
   });
 
+  ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  })
+
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -330,11 +334,10 @@ Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
     cy.getCellContent(1, 2).then((myTableContent) => {
+      expect(myTableContent[1]).to.include('Critical');
+      expect(myTableContent[2]).to.include('Warning');
+      expect(myTableContent[3]).to.include('Unknown');
       expect(myTableContent[6]).to.include('Pending');
-      expect(myTableContent[7]).to.include('Pending');
-      expect(myTableContent[8]).to.include('Up');
-      expect(myTableContent[9]).to.include('Up');
-      expect(myTableContent[10]).to.include('Up');
     });
   }
 );

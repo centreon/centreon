@@ -34,7 +34,7 @@ use PDOException;
 /**
  * @phpstan-type _TicketData array{
  *  resource_id:int,
- *  ticket_id:string,
+ *  ticket_value:string,
  *  subject:string,
  *  timestamp: int
  * }
@@ -225,7 +225,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         $request = <<<SQL
             SELECT
                 r.resource_id,
-                tickets.ticket_id,
+                tickets.ticket_value,
                 tickets.timestamp,
                 tickets.user,
                 tickets_data.subject
@@ -263,7 +263,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
              * @var _TicketData $record
              */
             $tickets[(int) $record['resource_id']] = [
-                'id' => (int) $record['ticket_id'],
+                'id' => (int) $record['ticket_value'],
                 'subject' => $record['subject'],
                 'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp'])
             ];
@@ -292,7 +292,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         $request = <<<SQL
             SELECT
                 r.resource_id,
-                tickets.ticket_id,
+                tickets.ticket_value,
                 tickets.timestamp,
                 tickets.user,
                 tickets_data.subject
@@ -328,7 +328,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
              * @var _TicketData $record
              */
             $tickets[(int) $record['resource_id']] = [
-                'id' => (int) $record['ticket_id'],
+                'id' => (int) $record['ticket_value'],
                 'subject' => $record['subject'],
                 'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp'])
             ];
