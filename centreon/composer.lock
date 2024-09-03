@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba36c7c74f1779edd86e477c053cadfe",
+    "content-hash": "70de5915f7a30abc3ccb2d229e91b991",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -7136,6 +7136,7 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -7160,7 +7161,7 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/fix-panther-again"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
             "time": "2024-08-30T15:03:34+00:00"
         },
