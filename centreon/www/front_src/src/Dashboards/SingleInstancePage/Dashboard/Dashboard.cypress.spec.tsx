@@ -785,5 +785,23 @@ describe('Dashboard', () => {
       cy.findAllByTestId("UpdateIcon").should('have.length', 2)
       
     });
+    it('displays widget refresh buttons', () => {
+      cy.findAllByTestId('Webpage Display').should('have.length', 2);
+
+      cy.findAllByTestId("UpdateIcon").should('have.length', 2)
+      
+    });
+    it('displays widget refresh buttons', () => {
+      cy.findAllByTestId('Webpage Display').should('have.length', 2);
+
+      cy.findAllByTestId("UpdateIcon").should('have.length', 2)
+      
+    });
+    it('displays widget refresh buttons', () => {
+      cy.findAllByTestId('Webpage Display').should('have.length', 2);
+
+      cy.findAllByTestId("UpdateIcon").should('have.length', 2)
+      
+    });
   });
 });
