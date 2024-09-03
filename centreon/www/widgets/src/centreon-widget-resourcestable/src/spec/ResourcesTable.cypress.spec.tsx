@@ -1,7 +1,7 @@
 import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
-import { Method, TestQueryProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   isOnPublicPageAtom,
   platformFeaturesAtom,
@@ -12,9 +12,20 @@ import { SortOrder } from '../../../models';
 import { getPublicWidgetEndpoint } from '../../../utils';
 import { DisplayType } from '../Listing/models';
 import ResourcesTable from '../ResourcesTable';
-import { resourcesEndpoint, viewByHostEndpoint } from '../api/endpoints';
+import {
+  closeTicketEndpoint,
+  resourcesEndpoint,
+  viewByHostEndpoint
+} from '../api/endpoints';
 import { Data, PanelOptions } from '../models';
 
+import {
+  labelCloseATicket,
+  labelCloseTicket,
+  labelConfirm,
+  labelTicketClosed,
+  labelTicketWillBeClosedInTheProvider
+} from '../Listing/translatedLabels';
 import {
   columnsForViewByHost,
   columnsForViewByService,
@@ -69,22 +80,24 @@ const render = ({ options, data, isPublic = false }: Props): void => {
     Component: (
       <BrowserRouter>
         <TestQueryProvider>
-          <Provider store={store}>
-            <div style={{ height: '100vh', width: '100%' }}>
-              <ResourcesTable
-                dashboardId={1}
-                globalRefreshInterval={{
-                  interval: 30,
-                  type: 'manual'
-                }}
-                id="1"
-                panelData={data}
-                panelOptions={options}
-                playlistHash="hash"
-                refreshCount={0}
-              />
-            </div>
-          </Provider>
+          <SnackbarProvider>
+            <Provider store={store}>
+              <div style={{ height: '100vh', width: '100%' }}>
+                <ResourcesTable
+                  dashboardId={1}
+                  globalRefreshInterval={{
+                    interval: 30,
+                    type: 'manual'
+                  }}
+                  id="1"
+                  panelData={data}
+                  panelOptions={options}
+                  playlistHash="hash"
+                  refreshCount={0}
+                />
+              </div>
+            </Provider>
+          </SnackbarProvider>
         </TestQueryProvider>
       </BrowserRouter>
     )
@@ -138,6 +151,13 @@ const resourcesRequests = (): void => {
       path: '**downtimes**',
       response: data
     });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'postTicketClose',
+    method: Method.POST,
+    path: closeTicketEndpoint,
+    response: { code: 0, msg: 'Ticket closed: 12' }
   });
 };
 
@@ -492,7 +512,8 @@ describe('Open tickets', () => {
           ...selectedColumnIds,
           'ticket_id',
           'ticket_subject',
-          'ticket_open_time'
+          'ticket_open_time',
+          'action'
         ]
       }
     });
@@ -502,6 +523,97 @@ describe('Open tickets', () => {
     cy.contains('Ticket ID');
     cy.contains('Ticket subject');
     cy.contains('Opened on');
+    cy.contains('Action').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation modal when a close ticket button is clicked for a service', () => {
+    render({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayResources: 'withTicket',
+        isOpenTicketEnabled: true,
+        provider: { id: 1, name: 'Rule 1' },
+        selectedColumnIds: [
+          ...selectedColumnIds,
+          'ticket_id',
+          'ticket_subject',
+          'ticket_open_time',
+          'action'
+        ]
+      }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.contains('Action').should('be.visible');
+
+    cy.findAllByLabelText(labelCloseTicket).eq(0).click();
+
+    cy.contains(labelCloseATicket).should('be.visible');
+    cy.contains(labelTicketWillBeClosedInTheProvider).should('be.visible');
+
+    cy.contains(labelConfirm).click();
+
+    cy.waitForRequest('@postTicketClose').then(({ request }) => {
+      expect(request.body).equal(
+        JSON.stringify({
+          data: {
+            selection: '14;19',
+            rule_id: '1'
+          }
+        })
+      );
+    });
+
+    cy.contains(labelTicketClosed).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation modal when a close ticket button is clicked for a host', () => {
+    render({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayResources: 'withTicket',
+        isOpenTicketEnabled: true,
+        provider: { id: 1, name: 'Rule 1' },
+        selectedColumnIds: [
+          ...selectedColumnIds,
+          'ticket_id',
+          'ticket_subject',
+          'ticket_open_time',
+          'action'
+        ]
+      }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.contains('Action').should('be.visible');
+
+    cy.findAllByLabelText(labelCloseTicket).eq(1).click();
+
+    cy.contains(labelCloseATicket).should('be.visible');
+    cy.contains(labelTicketWillBeClosedInTheProvider).should('be.visible');
+
+    cy.contains(labelConfirm).click();
+
+    cy.waitForRequest('@postTicketClose').then(({ request }) => {
+      expect(request.body).equal(
+        JSON.stringify({
+          data: {
+            selection: '6',
+            rule_id: '1'
+          }
+        })
+      );
+    });
+
+    cy.contains(labelTicketClosed).should('be.visible');
 
     cy.makeSnapshot();
   });

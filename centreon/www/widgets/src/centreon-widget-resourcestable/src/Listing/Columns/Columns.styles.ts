@@ -115,6 +115,12 @@ export const useOpenTicketStyles = makeStyles()((theme) => ({
     color: theme.palette.text.primary,
     padding: 0,
     position: 'relative'
+  },
+  iconWithBadge: {
+    padding: '1px 1px',
+    justifyContent: 'inherit',
+    alignContent: 'inherit',
+    alignItems: 'inherit'
   }
 }));
 
