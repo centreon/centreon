@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ca5201c11268615ce83362b0d8b3327",
+    "content-hash": "e94c55d8ddd492febfd5f9dbbfa468b5",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6875,16 +6875,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "23.04.x-dev",
+            "version": "dev-fix-behat-23.04",
             "source": {
                 "type": "git",
-                "url": "git@github.com:centreon/centreon-test-lib.git",
-                "reference": "0b72ad99bb6faaa4232e785e5e5d8b8f1b95cb1a"
+                "url": "https://github.com/centreon/centreon-test-lib.git",
+                "reference": "f31a296fb7f7fa0d2573c71d142487787b5d1ef9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/0b72ad99bb6faaa4232e785e5e5d8b8f1b95cb1a",
-                "reference": "0b72ad99bb6faaa4232e785e5e5d8b8f1b95cb1a",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/f31a296fb7f7fa0d2573c71d142487787b5d1ef9",
+                "reference": "f31a296fb7f7fa0d2573c71d142487787b5d1ef9",
                 "shasum": ""
             },
             "require": {
@@ -6931,7 +6931,11 @@
                 "phpunit",
                 "testing"
             ],
-            "time": "2023-12-08T11:20:10+00:00"
+            "support": {
+                "issues": "https://github.com/centreon/centreon-test-lib/issues",
+                "source": "https://github.com/centreon/centreon-test-lib/tree/fix-behat-23.04"
+            },
+            "time": "2024-09-03T09:18:39+00:00"
         },
         {
             "name": "composer/pcre",
@@ -12014,5 +12018,5 @@
     "platform-overrides": {
         "php": "8.1"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
