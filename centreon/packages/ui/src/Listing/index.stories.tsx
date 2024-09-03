@@ -331,7 +331,7 @@ const listingWithSubItems = [...tenElements].map((_, index) => ({
   selected: false,
   subItems:
     index % 2 === 0
-      ? [...tenElements].map((__, subIndex) => ({
+      ? [...tenElements].map((_, subIndex) => ({
           active: false,
           description: `Sub item ${subIndex + (index + 10) * 10} description`,
           disableCheckbox: false,

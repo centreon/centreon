@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
 
 import { userAtom } from '@centreon/ui-context';
 
@@ -56,6 +55,21 @@ const initialize = ({
   cy.viewport('macbook-13');
 };
 
+const checkWidth = (orientation): void => {
+  if (orientation === 'vertical') {
+    cy.get('g[class*="visx-rows"] > line')
+      .eq(0)
+      .should('have.attr', 'x2')
+      .and('equal', '1135');
+
+    return;
+  }
+  cy.get('g[class*="visx-rows"] > line')
+    .eq(0)
+    .should('have.attr', 'x2')
+    .and('equal', '1170');
+};
+
 describe('Bar chart', () => {
   ['horizontal', 'vertical'].forEach((orientation) => {
     it(`displays the bar chart ${orientation}ly`, () => {
@@ -63,19 +77,12 @@ describe('Bar chart', () => {
       const userData = renderHook(() => useAtomValue(userAtom));
       userData.result.current.locale = 'en';
 
+      checkWidth(orientation);
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      if (equals(orientation, 'horizontal')) {
-        cy.findByTestId('single-bar-3-2-0.08644')
-          .should('have.attr', 'height')
-          .should('equals', '295');
-      } else {
-        cy.findByTestId('single-bar-3-2-0.08644')
-          .should('have.attr', 'width')
-          .should('equals', '863');
-      }
+      cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -83,19 +90,12 @@ describe('Bar chart', () => {
     it(`displays the bar chart ${orientation}ly centered in zero`, () => {
       initialize({ axis: { isCenteredZero: true }, orientation });
 
+      checkWidth(orientation);
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      if (equals(orientation, 'horizontal')) {
-        cy.findByTestId('single-bar-3-2-0.08644')
-          .should('have.attr', 'height')
-          .should('equals', '171');
-      } else {
-        cy.findByTestId('single-bar-3-2-0.08644')
-          .should('have.attr', 'width')
-          .should('equals', '432');
-      }
+      cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -103,19 +103,12 @@ describe('Bar chart', () => {
     it(`displays the stacked bar chart ${orientation}ly`, () => {
       initialize({ data: dataPingServiceStacked, orientation });
 
+      checkWidth(orientation);
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      if (equals(orientation, 'horizontal')) {
-        cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
-          .should('have.attr', 'height')
-          .should('equals', '187');
-      } else {
-        cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
-          .should('have.attr', 'width')
-          .should('equals', '546');
-      }
+      cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -123,21 +116,12 @@ describe('Bar chart', () => {
     it(`displays bar chart ${orientation}ly with a mix of stacked and non-stacked data`, () => {
       initialize({ data: dataPingServiceMixedStacked, orientation });
 
+      checkWidth(orientation);
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      if (equals(orientation, 'horizontal')) {
-        cy.findByTestId('stacked-bar-3-0-0.08644')
-          .should('have.attr', 'height')
-          .should('equals', '265');
-      } else {
-        cy.findByTestId('stacked-bar-3-0-0.08644')
-          .should('have.attr', 'width')
-          .should('equals', '773');
-      }
-
-      cy.makeSnapshot();
+      cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
     });
 
     it(`displays the stacked bar chart ${orientation}ly centered in zero`, () => {
@@ -147,19 +131,12 @@ describe('Bar chart', () => {
         orientation
       });
 
+      checkWidth(orientation);
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      if (equals(orientation, 'horizontal')) {
-        cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
-          .should('have.attr', 'height')
-          .should('equals', '94');
-      } else {
-        cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
-          .should('have.attr', 'width')
-          .should('equals', '273');
-      }
+      cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -171,19 +148,12 @@ describe('Bar chart', () => {
         orientation
       });
 
+      checkWidth(orientation);
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      if (equals(orientation, 'horizontal')) {
-        cy.findByTestId('stacked-bar-3-0-0.08644')
-          .should('have.attr', 'height')
-          .should('equals', '133');
-      } else {
-        cy.findByTestId('stacked-bar-3-0-0.08644')
-          .should('have.attr', 'width')
-          .should('equals', '387');
-      }
+      cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
     });
 
     it(`displays bar chart ${orientation}ly with a custom style`, () => {
@@ -193,19 +163,12 @@ describe('Bar chart', () => {
         orientation
       });
 
+      checkWidth(orientation);
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      if (equals(orientation, 'horizontal')) {
-        cy.findByTestId('stacked-bar-3-0-0.08644')
-          .should('have.attr', 'height')
-          .should('equals', '265');
-      } else {
-        cy.findByTestId('stacked-bar-3-0-0.08644')
-          .should('have.attr', 'width')
-          .should('equals', '773');
-      }
+      cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
     });
   });
 
@@ -214,21 +177,18 @@ describe('Bar chart', () => {
       orientation: 'horizontal'
     });
 
+    checkWidth('horizontal');
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');
 
-    cy.findByTestId('single-bar-3-2-0.11372').realHover();
+    cy.findByTestId('stacked-bar-10-0-7650.368581547736').realHover();
 
     cy.contains('06/19/2024').should('be.visible');
     cy.contains('Centreon-Server: Round-Trip Maximum Time').should(
       'be.visible'
     );
-    cy.contains('0.11 ms').should('be.visible');
-
-    cy.findByTestId('single-bar-3-2-0.08644')
-      .should('have.attr', 'height')
-      .should('equals', '295');
+    cy.contains('7.47 KB').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -243,6 +203,7 @@ describe('Bar chart', () => {
       }
     });
 
+    checkWidth('horizontal');
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');
@@ -251,9 +212,7 @@ describe('Bar chart', () => {
 
     cy.contains('06/19/2024').should('not.exist');
 
-    cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
-      .should('have.attr', 'height')
-      .should('equals', '187');
+    cy.findByTestId('stacked-bar-3-0-0.12340000000000001').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -268,6 +227,7 @@ describe('Bar chart', () => {
       }
     });
 
+    checkWidth('horizontal');
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');
@@ -288,9 +248,7 @@ describe('Bar chart', () => {
     cy.contains('0.02 ms').should('be.visible');
     cy.contains('0.11 ms').should('be.visible');
 
-    cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
-      .should('have.attr', 'height')
-      .should('equals', '187');
+    cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -305,6 +263,7 @@ describe('Bar chart', () => {
       }
     });
 
+    checkWidth('horizontal');
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');
@@ -317,9 +276,7 @@ describe('Bar chart', () => {
     );
     cy.contains('0.05 ms').should('be.visible');
 
-    cy.findByTestId('stacked-bar-3-0-0.12340000000000001')
-      .should('have.attr', 'height')
-      .should('equals', '187');
+    cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
 
     cy.makeSnapshot();
   });

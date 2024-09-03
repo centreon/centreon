@@ -38,6 +38,7 @@ services:
             - '../../src/Core/Media/*'
             - '../../src/Core/Command/*'
             - '../../src/Core/ResourceAccess/*'
+            - '../../src/Core/TimePeriod/*'
             - '../../src/Core/Service/*'
             - '../../src/Core/HostGroup/*'
             - '../../src/Core/ServiceGroup/*'

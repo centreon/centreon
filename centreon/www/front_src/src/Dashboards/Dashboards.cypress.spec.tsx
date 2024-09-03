@@ -1,31 +1,40 @@
-import { createStore, Provider } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
-import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
+import { Provider, createStore } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router-dom';
 
+import { Method } from '@centreon/js-config/cypress/component/commands';
+import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   DashboardGlobalRole,
   ListingVariant,
-  userAtom,
-  platformVersionsAtom
+  platformVersionsAtom,
+  userAtom
 } from '@centreon/ui-context';
-import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import { Method } from '@centreon/js-config/cypress/component/commands';
 
 import { labelMoreActions } from '../Resources/translatedLabels';
 
 import { DashboardsPage } from './DashboardsPage';
-import { DashboardRole } from './api/models';
 import {
+  dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-  dashboardSharesEndpoint,
   getDashboardAccessRightsContactGroupEndpoint,
   getDashboardEndpoint,
   playlistsByDashboardEndpoint
 } from './api/endpoints';
+import { DashboardRole } from './api/models';
 import {
-  labelShareWithContacts,
+  labelCardsView,
+  labelEditProperties,
+  labelEditor,
+  labelListView,
+  labelViewer
+} from './components/DashboardLibrary/DashboardListing/translatedLabels';
+import { DashboardLayout } from './models';
+import { routerHooks } from './routerHooks';
+import {
+  labelAddAContact,
   labelCancel,
   labelCreate,
   labelDashboardDeleted,
@@ -39,21 +48,12 @@ import {
   labelDuplicateDashboard,
   labelName,
   labelSave,
+  labelShareWithContacts,
   labelSharesSaved,
   labelUpdate,
   labelUserDeleted,
-  labelWelcomeToDashboardInterface,
-  labelAddAContact
+  labelWelcomeToDashboardInterface
 } from './translatedLabels';
-import { routerHooks } from './routerHooks';
-import { DashboardLayout } from './models';
-import {
-  labelCardsView,
-  labelEditor,
-  labelEditProperties,
-  labelListView,
-  labelViewer
-} from './components/DashboardLibrary/DashboardListing/translatedLabels';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -121,7 +121,7 @@ const initializeAndMount = ({
     });
   });
 
-  cy.fixture(`Dashboards/contacts.json`).then((response) => {
+  cy.fixture('Dashboards/contacts.json').then((response) => {
     cy.interceptAPIRequest({
       alias: 'getContacts',
       method: Method.GET,

@@ -109,11 +109,11 @@ $attrsTextarea  = array("rows"=>"5", "cols"=>"40");
  * Form begin
  */
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=".$p, '', array('onsubmit' => 'return formValidate()'));
-if ($o == "a") {
+if ($o == ADD_BROKER_CONFIGURATION) {
     $form->addElement('header', 'title', _("Add a Centreon-Broker Configuration"));
-} elseif ($o == "c") {
+} elseif ($o == MODIFY_BROKER_CONFIGURATION) {
     $form->addElement('header', 'title', _("Modify a Centreon-Broker Configuration"));
-} elseif ($o == "w") {
+} elseif ($o == WATCH_BROKER_CONFIGURATION) {
     $form->addElement('header', 'title', _("View a Centreon-Broker Configuration"));
 }
 
@@ -121,7 +121,7 @@ if ($o == "a") {
  * Smarty template Init
  */
 $tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+$tpl = initSmartyTpl(__DIR__, $tpl);
 
 /*
  * TAB 1 - General informations
@@ -215,7 +215,7 @@ foreach ($tags as $tagId => $tag) {
 /**
  * Default values
  */
-if (isset($_GET["o"]) && $_GET["o"] == 'a') {
+if (isset($_GET["o"]) && $_GET["o"] == ADD_BROKER_CONFIGURATION) {
     $result = array_merge(
         array(
             "name" => '',
@@ -272,7 +272,7 @@ $form->addRule('event_queue_max_size', _('Value must be numeric'), 'numeric');
 $form->addRule('event_queues_total_size', _('Value must be numeric'), 'numeric');
 $form->addRule('pool_size', _('Value must be a positive numeric'), 'isPositiveNumeric');
 
-if ($o == "w") {
+if ($o == WATCH_BROKER_CONFIGURATION) {
     if ($centreon->user->access->page($p) != 2) {
         $form->addElement(
             "button",
@@ -282,13 +282,13 @@ if ($o == "w") {
         );
     }
     $form->freeze();
-} elseif ($o == "c") {
+} elseif ($o == MODIFY_BROKER_CONFIGURATION) {
     /*
      * Modify a Centreon Broker information
      */
     $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
     $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
-} elseif ($o == "a") {
+} elseif ($o == ADD_BROKER_CONFIGURATION) {
     /*
      * Add a nagios information
      */
@@ -309,7 +309,7 @@ if ($form->validate()) {
     $valid = true;
 }
 if ($valid) {
-    require_once($path."listCentreonBroker.php");
+    require_once(__DIR__ . LISTING_FILE);
 } else {
     /*
      * Apply a template definition

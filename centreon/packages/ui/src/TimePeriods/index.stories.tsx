@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 
 import Switch from '@mui/material/Switch';
 
-import { dateFormat } from './models';
 import SimpleCustomTimePeriod from './CustomTimePeriod/SimpleCustomTimePeriod';
+import { dateFormat } from './models';
 
 import TimePeriod from '.';
 

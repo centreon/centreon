@@ -22,6 +22,7 @@ services:
     Core\Command\Application\UseCase\MigrateAllCommands\MigrateAllCommands:
         arguments:
             $writeCommandRepository: '@Core\Command\Infrastructure\Repository\ApiWriteCommandRepository'
+            $logger: '@Centreon\Domain\Log\Logger'
 
     Core\Command\Application\UseCase\AddCommand\AddCommand:
         arguments:

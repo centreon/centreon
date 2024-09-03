@@ -1,0 +1,23 @@
+services:
+    # Configuration Notifications
+    _defaults:
+        public: false
+        autowire: true
+        autoconfigure: true
+
+    _instanceof:
+        Core\TimePeriod\Domain\Rules\TimePeriodRuleStrategyInterface:
+            tags: ['timeperiod.rule.strategy']
+
+    Core\TimePeriod\:
+        resource: '../../../../Core/TimePeriod/*'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+    Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods:
+        arguments:
+            $strategies: !tagged_iterator 'timeperiod.rule.strategy'
+
+    Core\TimePeriod\Infrastructure\API\FindTimePeriod\TimePeriodNormalizer:
+        arguments:
+            $strategies: !tagged_iterator 'timeperiod.rule.strategy'

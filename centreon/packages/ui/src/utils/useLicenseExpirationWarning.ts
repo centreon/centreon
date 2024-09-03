@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import dayjs from 'dayjs';
-import { path, pipe, propEq, find, lt, isNil } from 'ramda';
+import { path, find, isNil, lt, pipe, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useFetchQuery, useSnackbar } from '..';

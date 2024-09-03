@@ -21,6 +21,112 @@ const getStatusNumberFromString = (status: string): number => {
   throw new Error(`Status ${status} does not exist`);
 };
 
+interface HostCheck {
+  host: string;
+  isForced?: boolean;
+}
+
+Cypress.Commands.add(
+  'scheduleHostCheck',
+  ({
+    host,
+    isForced = true
+  }: ServiceCheck): Cypress.Chainable => {
+    let query = `SELECT id FROM resources WHERE name = '${host}' AND type = 1`;
+
+    return cy
+      .requestOnDatabase({
+        database: 'centreon_storage',
+        query
+      })
+      .then(([rows]) => {
+        if (rows.length === 0) {
+          throw new Error(`Cannot find host ${host}`);
+        }
+
+        const hostId = rows[0].id;
+
+        return cy.request({
+          body: {
+            check: {
+              is_forced: isForced
+            },
+            resources: [
+              {
+                id: hostId,
+                parent: null,
+                type: 'host'
+              }
+            ]
+          },
+          method: 'POST',
+          timeout: 30000,
+          url: '/centreon/api/latest/monitoring/resources/check'
+        }).then((response) => {
+          expect(response.status).to.eq(204);
+
+          return cy.wrap(null);
+        });
+      });
+  }
+);
+
+interface ServiceCheck {
+  host: string;
+  isForced?: boolean;
+  service: string;
+}
+
+Cypress.Commands.add(
+  'scheduleServiceCheck',
+  ({
+    host,
+    isForced = true,
+    service
+  }: ServiceCheck): Cypress.Chainable => {
+    let query = `SELECT parent_id, id FROM resources WHERE parent_name = '${host}' AND name = '${service}'`;
+
+    return cy
+      .requestOnDatabase({
+        database: 'centreon_storage',
+        query
+      })
+      .then(([rows]) => {
+        if (rows.length === 0) {
+          throw new Error(`Cannot find service ${host} / ${service}`);
+        }
+
+        const hostId = rows[0].parent_id;
+        const serviceId = rows[0].id;
+
+        return cy.request({
+          body: {
+            check: {
+              is_forced: isForced
+            },
+            resources: [
+              {
+                id: serviceId,
+                parent: {
+                  id: hostId
+                },
+                type: 'service'
+              }
+            ]
+          },
+          method: 'POST',
+          timeout: 30000,
+          url: '/centreon/api/latest/monitoring/resources/check'
+        }).then((response) => {
+          expect(response.status).to.eq(204);
+
+          return cy.wrap(null);
+        });
+      });
+  }
+);
+
+
 interface SubmitResult {
   host: string;
   output: string;
@@ -108,6 +214,8 @@ Cypress.Commands.add(
 declare global {
   namespace Cypress {
     interface Chainable {
+      scheduleHostCheck: (hostCheck) => Cypress.Chainable;
+      scheduleServiceCheck: (serviceCheck) => Cypress.Chainable;
       submitResults: (props: Array<SubmitResult>) => Cypress.Chainable;
       waitForDowntime: (downtime: Downtime) => Cypress.Chainable;
     }

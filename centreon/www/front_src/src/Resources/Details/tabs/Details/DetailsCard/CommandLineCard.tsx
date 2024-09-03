@@ -1,19 +1,19 @@
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Card, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import IconCopyFile from '@mui/icons-material/FileCopy';
+import { Card, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 
 import { useCopyToClipboard } from '@centreon/ui';
 
-import { ResourceDetails } from '../../../models';
-import CommandWithArguments from '../CommandLine';
 import {
   labelCommand,
   labelCommandCopied,
   labelCopy,
   labelSomethingWentWrong
 } from '../../../../translatedLabels';
+import { ResourceDetails } from '../../../models';
+import CommandWithArguments from '../CommandLine';
 
 interface Props {
   details: ResourceDetails;

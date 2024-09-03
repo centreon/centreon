@@ -1,10 +1,25 @@
 import { equals } from 'ramda';
 
-import { alpha, PaletteOptions } from '@mui/material';
+import { PaletteOptions, alpha } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
-
-import * as BaseTokens from '../base/tokens/themes/base.tokens';
+import {
+  colorBlue50,
+  colorBlue400,
+  colorBlue600,
+  colorBlue900,
+  colorGrey50,
+  colorGrey100,
+  colorGrey200,
+  colorGrey300,
+  colorGrey400,
+  colorGrey500,
+  colorGrey600,
+  colorGrey700,
+  colorGrey800,
+  colorGrey900,
+  colorGrey950
+} from '../base/tokens/themes/base.tokens';
 
 import {
   black,

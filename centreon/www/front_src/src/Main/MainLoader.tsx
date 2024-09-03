@@ -5,8 +5,8 @@ import { Typography } from '@mui/material';
 
 import { Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
 
-import logoCentreon from '../assets/logo-centreon-colors.svg';
 import { labelCentreonLogo } from '../Login/translatedLabels';
+import logoCentreon from '../assets/logo-centreon-colors.svg';
 
 import { labelCentreonIsLoading } from './translatedLabels';
 

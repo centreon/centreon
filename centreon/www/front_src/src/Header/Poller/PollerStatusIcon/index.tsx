@@ -1,11 +1,11 @@
-import { makeStyles } from 'tss-react/mui';
 import { CSSObject } from 'tss-react';
+import { makeStyles } from 'tss-react/mui';
 
-import StorageIcon from '@mui/icons-material/Storage';
 import LatencyIcon from '@mui/icons-material/Speed';
+import StorageIcon from '@mui/icons-material/Storage';
 import { Avatar } from '@mui/material';
 
-import { getStatusColors, SeverityCode } from '@centreon/ui';
+import { SeverityCode, getStatusColors } from '@centreon/ui';
 
 export interface PollerStatusIconProps {
   iconSeverities: {
@@ -25,58 +25,57 @@ interface StyleProps {
   latencySeverity: SeverityCode;
 }
 
-const useStatusStyles = makeStyles<StyleProps>()((
-  theme,
-  { databaseSeverity, latencySeverity }
-) => {
-  const getSeverityColor = (severityCode): CSSObject => ({
-    background: getStatusColors({
-      severityCode,
-      theme
-    }).backgroundColor,
-    color: getStatusColors({
-      severityCode,
-      theme
-    }).color
-  });
+const useStatusStyles = makeStyles<StyleProps>()(
+  (theme, { databaseSeverity, latencySeverity }) => {
+    const getSeverityColor = (severityCode): CSSObject => ({
+      background: getStatusColors({
+        severityCode,
+        theme
+      }).backgroundColor,
+      color: getStatusColors({
+        severityCode,
+        theme
+      }).color
+    });
 
-  return {
-    avatar: {
-      fontSize: theme.typography.body1.fontSize,
-      height: theme.spacing(2.125),
-      width: theme.spacing(2.125)
-    },
-    container: {
-      display: 'flex',
-      gap: theme.spacing(0.5),
-      [theme.breakpoints.up(768)]: {
-        minHeight: theme.spacing(0.3)
+    return {
+      avatar: {
+        fontSize: theme.typography.body1.fontSize,
+        height: theme.spacing(2.125),
+        width: theme.spacing(2.125)
       },
+      container: {
+        display: 'flex',
+        gap: theme.spacing(0.5),
+        [theme.breakpoints.up(768)]: {
+          minHeight: theme.spacing(0.3)
+        },
 
-      [theme.breakpoints.down(768)]: {
-        bottom: 0,
-        flexFlow: 'column wrap',
-        gap: theme.spacing(0.3),
-        right: theme.spacing(1)
+        [theme.breakpoints.down(768)]: {
+          bottom: 0,
+          flexFlow: 'column wrap',
+          gap: theme.spacing(0.3),
+          right: theme.spacing(1)
+        }
+      },
+      database: getSeverityColor(databaseSeverity),
+      icon: {
+        height: theme.spacing(1.75),
+        width: theme.spacing(1.75)
+      },
+      latency: getSeverityColor(latencySeverity),
+      visuallyHiddenText: {
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: '1px',
+        overflow: 'hidden',
+        position: 'absolute',
+        whiteSpace: 'nowrap',
+        width: '1px'
       }
-    },
-    database: getSeverityColor(databaseSeverity),
-    icon: {
-      height: theme.spacing(1.75),
-      width: theme.spacing(1.75)
-    },
-    latency: getSeverityColor(latencySeverity),
-    visuallyHiddenText: {
-      clip: 'rect(0 0 0 0)',
-      clipPath: 'inset(50%)',
-      height: '1px',
-      overflow: 'hidden',
-      position: 'absolute',
-      whiteSpace: 'nowrap',
-      width: '1px'
-    }
-  };
-});
+    };
+  }
+);
 
 const PollerStatusIcon = ({
   iconSeverities
