@@ -86,11 +86,7 @@ export interface Downtime {
 
 export interface FeatureFlags {
   adExclusionPeriods?: boolean;
-  dashboard?: boolean;
-  dashboardPlayList?: boolean;
   notification?: boolean;
-  resourceStatusFilterRevamp?: boolean;
-  resourceStatusTreeView?: boolean;
   resouresTableOpenTickets: boolean;
   vault?: boolean;
 }
