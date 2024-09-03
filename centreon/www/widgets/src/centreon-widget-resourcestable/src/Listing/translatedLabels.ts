@@ -14,6 +14,7 @@ export const labelAcknowledged = 'Acknowledged';
 export const labelSelectAtLeastThreeColumns =
   'At least three columns must be selected';
 export const labelInformation = 'Information';
+export const labelAction = 'Action';
 
 export const labelAuthor = 'Author';
 export const labelStartTime = 'Start time';
@@ -75,6 +76,7 @@ export const labelCheck = 'Check';
 export const labelOpenTicket = 'Open ticket';
 export const labelOpenTicketForHost = 'Open ticket for host';
 export const labelOpenTicketForService = 'Open ticket for service';
+export const labelCloseTicket = 'Close ticket';
 
 export const labelTicketID = 'Ticket ID';
 export const labelTicketSubject = 'Ticket subject';
@@ -83,3 +85,9 @@ export const labelTicketOpenTime = 'Opened on';
 export const labelSubject = 'Subject';
 export const labelOpenTime = 'Open time';
 export const labelCreateticket = 'Create a ticket';
+export const labelCloseATicket = 'Close a ticket';
+export const labelConfirm = 'Confirm';
+export const labelTicketWillBeClosedInTheProvider =
+  'The ticket will be closed on the selected ticket provider';
+export const labelTicketCreated = 'Ticket created';
+export const labelTicketClosed = 'Ticket closed';

@@ -10,6 +10,7 @@ import { PanelOptions } from '../models';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
+import CloseTicketModal from './Columns/CloseTicket/Modal';
 import OpenTicketModal from './Columns/OpenTicket/Modal';
 import { rowColorConditions } from './colors';
 import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
@@ -200,6 +201,7 @@ const Listing = ({
           resource={resourcesToOpenTicket[0]}
         />
       )}
+      <CloseTicketModal providerID={provider?.id} />
     </>
   );
 };
