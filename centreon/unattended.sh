@@ -362,7 +362,7 @@ function set_centreon_repos() {
 			log "ERROR" "Unsupported repository: $_repo" &&
 			usage
 
-		if [[ "${detected_os_release}" =~ debian-release-.* || "${detected_os_release}" =~ ubuntu-release-.* ]]; then
+		if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
 			CENTREON_REPO+="$version-$_repo"
 		else
 			CENTREON_REPO+="centreon-$version-$_repo*"
@@ -405,7 +405,7 @@ function set_mariadb_repos() {
 	else
 		log "INFO" "Successfully installed the $dbms repository"
 	fi
-	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
 		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
 	else
 		rm -f /etc/yum.repos.d/mariadb.repo.old_* > /dev/null 2>&1
@@ -417,7 +417,7 @@ function set_mariadb_repos() {
 #
 function setup_mysql() {
 	log "INFO" "Install MySQL repository"
-	if [[ "${detected_os_release}" =~ debian-release-.* ]] || [[ "${detected_os_release}" =~ ubuntu-release-.* ]] ; then
+	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
 		curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
 		export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
 		$PKG_MGR -y update
@@ -1219,7 +1219,7 @@ function install_central() {
 		CENTREON_DBMS_PKG="centreon-database"
 	fi
 
-	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
 		$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon
 
 		if [ $? -ne 0 ]; then
@@ -1248,7 +1248,7 @@ function install_central() {
 		}
 		echo $timezoneName;
 	' 2>/dev/null)
-	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
 		echo "date.timezone = $timezone" >> /etc/php/8.1/mods-available/centreon.ini
 	else
 		echo "date.timezone = $timezone" >> $PHP_ETC/50-centreon.ini
@@ -1266,7 +1266,7 @@ function install_central() {
 function install_poller() {
 	log "INFO" "Poller installation from ${CENTREON_REPO}"
 
-	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
 		$PKG_MGR install -y --no-install-recommends centreon-poller
 
 		if [ $? -ne 0 ]; then
@@ -1286,7 +1286,7 @@ function install_poller() {
 #
 function update_centreon_packages() {
 	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
-	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
 		$PKG_MGR upgrade centreon
 	else
 		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
@@ -1318,7 +1318,7 @@ function update_after_installation() {
 
 	enable_new_services
 
-	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+	if ! [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
 		# install Centreon SELinux packages first (as getenforce is still at 0)
 		$PKG_MGR -q install -y ${CENTREON_SELINUX_PACKAGES[@]} --enablerepo="$CENTREON_REPO"
 		if [ $? -ne 0 ]; then
@@ -1431,7 +1431,7 @@ is_systemd_present
 ## Start to execute
 case $operation in
 install)
-	if ! [[ "${detected_os_release}" =~ debian-release-.* || "${detected_os_release}" =~ ubuntu-release-.* ]]; then
+	if ! [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
 		setup_before_installation
 	fi
 
