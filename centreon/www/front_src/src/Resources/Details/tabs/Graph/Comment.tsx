@@ -10,8 +10,10 @@ import {
 	labelActionNotPermitted,
 	labelAddComment,
 } from "../../../translatedLabels";
+import { useChartGraphStyles } from "./chartGraph.styles";
 
 const Comment = ({ resource, commentDate, hideAddCommentTooltip }) => {
+	const { classes } = useChartGraphStyles();
 	const { t } = useTranslation();
 	const queryClient = useQueryClient();
 	const [addingComment, setAddingComment] = useState(false);
@@ -27,7 +29,6 @@ const Comment = ({ resource, commentDate, hideAddCommentTooltip }) => {
 	const commentTitle = isCommentPermitted ? "" : t(labelActionNotPermitted);
 
 	const retriveTimeLineEvents = () => {
-		console.log("retrieve");
 		queryClient.invalidateQueries({ queryKey: ["timeLineEvents"] });
 		setAddingComment(false);
 		hideAddCommentTooltip();
@@ -35,24 +36,24 @@ const Comment = ({ resource, commentDate, hideAddCommentTooltip }) => {
 
 	return (
 		<>
-			<Typography variant="caption">
-				{format({
-					date: new Date(commentDate as Date),
-					formatString: dateTimeFormat,
-				})}
-			</Typography>
-			<Tooltip title={commentTitle}>
-				<div>
+			<div className={classes.commentContainer}>
+				<Typography variant="body1" align="center">
+					{format({
+						date: new Date(commentDate as Date),
+						formatString: dateTimeFormat,
+					})}
+				</Typography>
+				<Tooltip title={commentTitle}>
 					<Button
-						// color="primary"
 						disabled={!isCommentPermitted}
 						size="small"
 						onClick={prepareAddComment}
+						variant="ghost"
 					>
-						{t(labelAddComment)}
+						<Typography variant="body2">{t(labelAddComment)}</Typography>
 					</Button>
-				</div>
-			</Tooltip>
+				</Tooltip>
+			</div>
 
 			{addingComment && (
 				<AddCommentForm

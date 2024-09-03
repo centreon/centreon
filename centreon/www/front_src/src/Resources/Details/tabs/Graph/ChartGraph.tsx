@@ -6,19 +6,27 @@ import {
 	useFetchQuery,
 } from "@centreon/ui";
 import { path } from "ramda";
-import { useRef, useState } from "react";
+import { useState } from "react";
+import FederatedComponent from "../../../../components/FederatedComponents";
 import MemoizedGraphActions from "../../../Graph/Performance/GraphActions";
 import Comment from "./Comment";
 import { useChartGraphStyles } from "./chartGraph.styles";
 import useRetrieveTimeLine from "./useRetrieveTimeLine";
+
 const ChartGraph = ({ graphInterval, resource, updatedGraphInterval }) => {
 	const { classes } = useChartGraphStyles();
+
 	const [graphRef, setGraphRef] = useState();
 
-	const ref = useRef();
+	const [areaThresholdLines, setAreaThresholdLines] = useState();
 
 	const graphEndpoint = path<string>(
 		["links", "endpoints", "performance_graph"],
+		resource,
+	);
+
+	const timelineEndpoint = path<string>(
+		["links", "endpoints", "timeline"],
 		resource,
 	);
 
@@ -37,11 +45,6 @@ const ChartGraph = ({ graphInterval, resource, updatedGraphInterval }) => {
 		},
 	});
 
-	const timelineEndpoint = path<string>(
-		["links", "endpoints", "timeline"],
-		resource,
-	);
-
 	const timeLineData = useRetrieveTimeLine({
 		timelineEndpoint,
 		start: graphInterval?.start,
@@ -51,6 +54,10 @@ const ChartGraph = ({ graphInterval, resource, updatedGraphInterval }) => {
 
 	const getInterval = (interval: Interval): void => {
 		updatedGraphInterval(interval);
+	};
+
+	const getRef = (ref) => {
+		setGraphRef(ref);
 	};
 
 	const graphActions = graphInterval && (
@@ -63,52 +70,47 @@ const ChartGraph = ({ graphInterval, resource, updatedGraphInterval }) => {
 		/>
 	);
 
-	const getRef = (ref) => {
-		setGraphRef(ref);
-	};
-
-	console.log({ timeLineData });
+	const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
 	return (
-		<LineChart
-			// a regler with displayEvent notation
-			annotationEvent={{ data: timeLineData ? timeLineData.result : [] }}
-			containerStyle={classes.container}
-			getRef={getRef}
-			ref={ref}
-			data={data}
-			end={graphInterval?.end}
-			height={280}
-			legend={{ mode: "grid", placement: "bottom" }}
-			lineStyle={{ lineWidth: 1 }}
-			header={{ extraComponent: graphActions }}
-			tooltip={{
-				// mode: "all",
-				// sortOrder: "name",
-				enable: true,
-				renderComponent: ({
-					data,
-					tooltipOpen,
-					hideTooltip,
-				}: TooltipData): JSX.Element => {
-					console.log({ data });
-					// return <div> hola</div>;
-					return (
-						<Comment
-							commentDate={data}
-							hideAddCommentTooltip={hideTooltip}
-							resource={resource}
-						/>
-					);
-				},
-			}}
-			// shapeLines={{
-			//     areaThresholdLines: getShapeLines,
-			// }}
-			start={graphInterval?.start}
-			timeShiftZones={{ enable: true, getInterval }}
-			zoomPreview={{ enable: true, getInterval }}
-		/>
+		<>
+			<FederatedComponent
+				path="/anomaly-detection/enableThresholdLines"
+				styleMenuSkeleton={{ height: 0, width: 0 }}
+				type={resource?.type}
+				getShapeLines={setAreaThresholdLines}
+			/>
+			<LineChart
+				annotationEvent={{ data: timeLineData }}
+				containerStyle={classes.container}
+				getRef={getRef}
+				data={data}
+				end={graphInterval?.end}
+				height={280}
+				legend={{ mode: "grid", placement: "bottom" }}
+				lineStyle={{ lineWidth: 1 }}
+				header={{ extraComponent: graphActions }}
+				tooltip={{
+					renderComponent: ({
+						data,
+						hideTooltip,
+					}: TooltipData): JSX.Element => {
+						console.log({ data });
+						return (
+							<Comment
+								commentDate={data}
+								hideAddCommentTooltip={hideTooltip}
+								resource={resource}
+							/>
+						);
+					},
+				}}
+				start={graphInterval?.start}
+				timeShiftZones={{ enable: true, getInterval }}
+				zoomPreview={{ enable: true, getInterval }}
+				{...rest}
+			/>
+		</>
 	);
 };
 

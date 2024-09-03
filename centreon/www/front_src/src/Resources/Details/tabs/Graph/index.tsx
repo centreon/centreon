@@ -51,7 +51,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
 	const equalsService = equals(ResourceType.service);
 	const equalsMetaService = equals(ResourceType.metaservice);
 	const equalsAnomalyDetection = equals(ResourceType.anomalyDetection);
-	// const updatedGraphInterval = useAtomValue(updatedGraphIntervalAtom);
 
 	const isService =
 		equalsService(type) ||
@@ -61,10 +60,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
 	const getTimePeriodsParameters = (data: GraphTimeParameters): void => {
 		setGraphTimeParameters(data);
 	};
-
-	// const newGraphInterval = updatedGraphInterval
-	// 	? { end: updatedGraphInterval.end, start: updatedGraphInterval.start }
-	// 	: undefined;
 
 	return (
 		<div className={classes.container}>
@@ -79,7 +74,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
 					<ChartGraph
 						resource={details}
 						graphInterval={graphTimeParameters}
-						// graphEndpoint={graphEndpoint}
 						updatedGraphInterval={setUpdatedGraphInterval}
 					/>
 					{graphTimeParameters && (

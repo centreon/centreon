@@ -106,6 +106,7 @@ const Chart = ({
 	const [linesGraph, setLinesGraph] = useState<Array<Line>>(
 		filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines)),
 	);
+
 	const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
 	const [thresholdTooltip, setThresholdTooltip] = useAtom(thresholdTooltipAtom);

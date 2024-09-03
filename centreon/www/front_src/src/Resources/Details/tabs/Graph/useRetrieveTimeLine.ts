@@ -1,6 +1,7 @@
 import { type ListingModel, useFetchQuery } from "@centreon/ui";
 import { useAtomValue } from "jotai";
 import { path } from "ramda";
+import { useCallback } from "react";
 import { graphOptionsAtom } from "../../../Graph/Performance/ExportableGraphWithTimeline/graphOptionsAtoms";
 import { GraphOptionId } from "../../../Graph/Performance/models";
 import { buildListTimelineEventsEndpoint } from "../Timeline/api";
@@ -50,7 +51,14 @@ const useRetrieveTimeLine = ({
 		},
 	});
 
-	return displayEventAnnotations ? data : [];
+	const getData = useCallback(() => {
+		if (!data) {
+			return;
+		}
+		return data.result;
+	}, [data]);
+
+	return displayEventAnnotations ? getData() : [];
 };
 
 export default useRetrieveTimeLine;
