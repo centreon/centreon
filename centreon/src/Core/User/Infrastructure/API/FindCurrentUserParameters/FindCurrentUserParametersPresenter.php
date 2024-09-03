@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\User\Infrastructure\API\FindCurrentUserParameters;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Infrastructure\FeatureFlags;
 use Core\Dashboard\Infrastructure\Model\DashboardGlobalRoleConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -34,17 +33,12 @@ use Core\User\Infrastructure\Model\UserInterfaceDensityConverter;
 use Core\User\Infrastructure\Model\UserThemeConverter;
 
 class FindCurrentUserParametersPresenter extends DefaultPresenter
-    implements FindCurrentUserParametersPresenterInterface
+implements FindCurrentUserParametersPresenterInterface
 {
-    private bool $hasDashboardFlag;
-
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
-        FeatureFlags $flags
     ) {
         parent::__construct($presenterFormatter);
-
-        $this->hasDashboardFlag = $flags->isEnabled('dashboard');
     }
 
     public function presentResponse(ResponseStatusInterface|FindCurrentUserParametersResponse $data): void
@@ -66,18 +60,16 @@ class FindCurrentUserParametersPresenter extends DefaultPresenter
                 'default_page' => $data->defaultPage,
             ];
 
-            if ($this->hasDashboardFlag) {
-                $array['dashboard'] = $data->dashboardPermissions->globalRole
-                    ? [
-                        'global_user_role' => DashboardGlobalRoleConverter::toString(
-                            $data->dashboardPermissions->globalRole
-                        ),
-                        'view_dashboards' => $data->dashboardPermissions->hasViewerRole,
-                        'create_dashboards' => $data->dashboardPermissions->hasCreatorRole,
-                        'administrate_dashboards' => $data->dashboardPermissions->hasAdminRole,
-                    ]
-                    : null;
-            }
+            $array['dashboard'] = $data->dashboardPermissions->globalRole
+                ? [
+                    'global_user_role' => DashboardGlobalRoleConverter::toString(
+                        $data->dashboardPermissions->globalRole
+                    ),
+                    'view_dashboards' => $data->dashboardPermissions->hasViewerRole,
+                    'create_dashboards' => $data->dashboardPermissions->hasCreatorRole,
+                    'administrate_dashboards' => $data->dashboardPermissions->hasAdminRole,
+                ]
+                : null;
 
             $this->present($array);
         } else {
