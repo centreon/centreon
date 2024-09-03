@@ -772,7 +772,6 @@ describe('Dashboard', () => {
       cy.findAllByTestId('Webpage Display')
         .eq(1)
         .should('have.attr', 'src', 'https://react.dev/');
-
     });
 
     it('renders iframes with correct source URL', () => {
@@ -783,8 +782,6 @@ describe('Dashboard', () => {
       cy.findAllByTestId('Webpage Display')
         .eq(1)
         .should('have.attr', 'src', 'https://react.dev/');
-
     });
-
   });
 });

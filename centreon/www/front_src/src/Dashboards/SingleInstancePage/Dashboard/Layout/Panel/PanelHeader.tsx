@@ -106,9 +106,8 @@ const PanelHeader = ({
   const page = t(pageType || labelResourcesStatus);
 
   const isWebPageWidget = equals(name, 'centreon-widget-webpage');
-  
-  const refresWebpageWidget = useRefreshWebPageWidget(id);
 
+  const refresWebpageWidget = useRefreshWebPageWidget(id);
 
   return (
     <CardHeader

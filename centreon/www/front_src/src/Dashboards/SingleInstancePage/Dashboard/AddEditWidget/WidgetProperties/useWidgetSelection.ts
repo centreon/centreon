@@ -34,9 +34,7 @@ import {
 } from '../atoms';
 import type { Widget } from '../models';
 
-import {
-  platformFeaturesAtom,
-} from '@centreon/ui-context';
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
