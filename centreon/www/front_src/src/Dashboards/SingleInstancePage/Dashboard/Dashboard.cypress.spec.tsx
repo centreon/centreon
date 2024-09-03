@@ -764,7 +764,7 @@ describe('Dashboard', () => {
   describe('Web Page widget', () => {
     beforeEach(() => initializeDashboardWithWebpageWidgets({}));
 
-    it('renders Web Page widgets with correct source URL', () => {
+    it('renders Web Page widgets', () => {
       cy.findAllByTestId('Webpage Display').should('have.length', 2);
       cy.findAllByTestId('Webpage Display')
         .eq(0)
@@ -774,5 +774,17 @@ describe('Dashboard', () => {
         .should('have.attr', 'src', 'https://react.dev/');
 
     });
+
+    it('renders iframes with correct source URL', () => {
+      cy.findAllByTestId('Webpage Display').should('have.length', 2);
+      cy.findAllByTestId('Webpage Display')
+        .eq(0)
+        .should('have.attr', 'src', 'https://docs.centreon.com/fr/');
+      cy.findAllByTestId('Webpage Display')
+        .eq(1)
+        .should('have.attr', 'src', 'https://react.dev/');
+
+    });
+
   });
 });
