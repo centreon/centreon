@@ -1133,6 +1133,171 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Adding widget clock/timer",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds a clock/timer widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"panels\": [\r\n        {\r\n            \"id\": null,\r\n            \"layout\": {\r\n                \"height\": 3,\r\n                \"min_height\": 2,\r\n                \"min_width\": 2,\r\n                \"width\": 12,\r\n                \"x\": 0,\r\n                \"y\": 0\r\n            },\r\n            \"name\": \"centreon-widget-clock\",\r\n            \"widget_settings\": {\r\n                \"data\": {},\r\n                \"options\": {\r\n                    \"displayType\": \"clock\",\r\n                    \"showTimezone\": true,\r\n                    \"timezone\": {\r\n                        \"id\": \"Europe/Amsterdam\",\r\n                        \"name\": \"Europe/Amsterdam\"\r\n                    },\r\n                    \"showDate\": true,\r\n                    \"timeFormat\": \"12\",\r\n                    \"backgroundColor\": \"#076059\",\r\n                    \"description\": {\r\n                        \"content\": \"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[{\\\"detail\\\":0,\\\"format\\\":0,\\\"mode\\\":\\\"normal\\\",\\\"style\\\":\\\"\\\",\\\"text\\\":\\\"Clock/timer\\\",\\\"type\\\":\\\"text\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textFormat\\\":0,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\r\n                        \"enabled\": true\r\n                    },\r\n                    \"name\": \"New Clock/timer\"\r\n                }\r\n            },\r\n            \"widget_type\": \"/widgets/clock\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with status chart  widget Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-clock\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check panels properties\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(jsonData.panels).to.be.an(\"array\").that.is.not.empty;\r",
+									"    \r",
+									"    const panel = jsonData.panels[0]; \r",
+									"\r",
+									"    pm.expect(panel.name).to.eql(\"centreon-widget-clock\");\r",
+									"    pm.expect(panel.widget_type).to.eql(\"/widgets/clock\");\r",
+									"    \r",
+									"    pm.expect(panel.layout).to.have.property(\"x\", 0);\r",
+									"    pm.expect(panel.layout).to.have.property(\"y\", 0);\r",
+									"    pm.expect(panel.layout).to.have.property(\"width\", 12);\r",
+									"    pm.expect(panel.layout).to.have.property(\"height\", 3);\r",
+									"    pm.expect(panel.layout).to.have.property(\"min_width\", 2);\r",
+									"    pm.expect(panel.layout).to.have.property(\"min_height\", 2);\r",
+									"    \r",
+									"    pm.expect(panel.widget_settings.options).to.have.property(\"displayType\", \"clock\");\r",
+									"    pm.expect(panel.widget_settings.options).to.have.property(\"showTimezone\", true);\r",
+									"    \r",
+									"    pm.expect(panel.widget_settings.options.timezone).to.have.property(\"id\", \"Europe/Amsterdam\");\r",
+									"    pm.expect(panel.widget_settings.options.timezone).to.have.property(\"name\", \"Europe/Amsterdam\");\r",
+									"    \r",
+									"    pm.expect(panel.widget_settings.options).to.have.property(\"showDate\", true);\r",
+									"    pm.expect(panel.widget_settings.options).to.have.property(\"timeFormat\", \"12\");\r",
+									"    pm.expect(panel.widget_settings.options).to.have.property(\"backgroundColor\", \"#076059\");\r",
+									"    \r",
+									"    pm.expect(panel.widget_settings.options.description).to.have.property(\"enabled\", true);\r",
+									"    pm.expect(panel.widget_settings.options.description).to.have.property(\"content\").that.includes(\"Clock/timer\");\r",
+									"    \r",
+									"    pm.expect(panel.widget_settings.options).to.have.property(\"name\", \"New Clock/timer\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

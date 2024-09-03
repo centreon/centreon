@@ -19417,6 +19417,9 @@ msgstr "Afficher le fuseau horaire"
 msgid "Show date"
 msgstr "Afficher la date"
 
+msgid "The ticket will be closed for the selected ticket provider"
+msgstr "Le ticket sera fermé pour le fournisseur de tickets sélectionné"
+
 msgid "Web page"
 msgstr "Page web"
 
