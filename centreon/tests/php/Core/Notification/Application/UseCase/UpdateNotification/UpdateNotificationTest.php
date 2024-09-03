@@ -23,16 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\UpdateNotification;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
@@ -42,9 +38,6 @@ use Core\Notification\Application\UseCase\UpdateNotification\Factory\Notificatio
 use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotification;
 use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationRequest;
 use Core\Notification\Application\UseCase\UpdateNotification\Validator\NotificationValidator;
-use Core\Notification\Domain\Model\TimePeriod;
-use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\HostEvent;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Notification\Infrastructure\API\UpdateNotification\UpdateNotificationPresenterStub;
 
@@ -90,7 +83,7 @@ it('should present a forbidden response when the user is not admin and does not 
         ->toBe(NotificationException::updateNotAllowed()->getMessage());
 });
 
-it('should present a not found response when the notification does not exists', function (): void {
+it('should present a not found response when the notification does not exist', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('hasTopologyRole')

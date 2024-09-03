@@ -33,7 +33,7 @@ beforeEach(function (): void {
     $this->factory = new NewNotificationFactory($this->notificationRepository);
 });
 
-it('should throws an InvalidArgumentResponse when a field assert failed', function (): void {
+it('should throw an InvalidArgumentResponse when a field assert fails', function (): void {
     $this->notificationRepository
         ->expects($this->once())
         ->method('existsByName')

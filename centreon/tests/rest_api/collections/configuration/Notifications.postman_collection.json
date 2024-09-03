@@ -3746,7 +3746,7 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
+									"description": "HTTP schema (This can only be http or https)"
 								},
 								{
 									"key": "server",
@@ -4504,7 +4504,7 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
+									"description": "HTTP schema (This can only be http or https)"
 								},
 								{
 									"key": "server",
@@ -5072,7 +5072,7 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
+									"description": "HTTP schema (This can only be http or https)"
 								},
 								{
 									"key": "server",
@@ -5571,7 +5571,7 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
+									"description": "HTTP schema (This can only be http or https)"
 								},
 								{
 									"key": "server",
@@ -5767,7 +5767,7 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
+									"description": "HTTP schema (This can only be http or https)"
 								},
 								{
 									"key": "server",

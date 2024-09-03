@@ -2,7 +2,7 @@ type: object
 properties:
   id:
     type: integer
-    description: "Contact group id"
+    description: "Contact group ID"
     example: 1
     nullable: false
   name:

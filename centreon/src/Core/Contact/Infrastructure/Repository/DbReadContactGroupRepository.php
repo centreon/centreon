@@ -376,7 +376,6 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
                 INNER JOIN `:db`.contactgroup cg
                     ON cg.cg_id = gcgr.cg_cg_id
                 WHERE gcgr.acl_group_id IN ({$subQuery})
-                    AND cg_activate = '1'
                 GROUP BY cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
                 UNION
                 SELECT /* Search for contact groups the user belongs to */
@@ -387,7 +386,6 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
                 INNER JOIN `:db`.contact c
                     ON c.contact_id = ccr.contact_contact_id
                 WHERE ccr.contact_contact_id = :user_id
-                    AND cg.cg_activate = '1'
                     AND c.contact_register = '1'
             ) AS contact_groups
             SQL

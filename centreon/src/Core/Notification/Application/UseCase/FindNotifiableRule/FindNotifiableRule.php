@@ -140,7 +140,7 @@ final class FindNotifiableRule
             return $this->notificationRepository->findUsersByNotificationId($notificationId);
         }
   
-            return $this->notificationRepository->findUsersByNotificationIdAndAccessGroups(
+            return $this->notificationRepository->findUsersByNotificationIdUserAndAccessGroups(
                 $notificationId,
                 $this->user,
                 $this->findAccessGroupsOfNonAdminUser()

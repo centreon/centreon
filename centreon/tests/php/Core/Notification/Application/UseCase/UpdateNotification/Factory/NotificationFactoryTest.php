@@ -35,7 +35,7 @@ beforeEach(function(): void {
     $this->factory = new NotificationFactory($this->repository);
 });
 
-it('should thrown a NotificationException when a different notification with the same name exists', function ():
+it('should throw a NotificationException when a different notification with the same name exists', function ():
 void {
     $request = new UpdateNotificationRequest();
     $request->id = 1;

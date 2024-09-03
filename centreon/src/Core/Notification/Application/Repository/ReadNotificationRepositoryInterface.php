@@ -99,7 +99,7 @@ interface ReadNotificationRepositoryInterface
      *
      * @return array<int, Contact>
      */
-    public function findUsersByNotificationIdAndAccessGroups(
+    public function findUsersByNotificationIdUserAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
         array $accessGroups

@@ -53,7 +53,7 @@ beforeEach(function (): void {
     );
 });
 
-it('should present an ErrorResponse while an exception occurred', function (): void {
+it('should present an ErrorResponse when an exception occurs', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -74,7 +74,7 @@ it('should present an ErrorResponse while an exception occurred', function (): v
         ->toBe(ContactGroupException::errorWhileSearchingForContactGroups()->getMessage());
 });
 
-it('should present an ForbiddenResponse if the user doesnt have the read menu access to contact group', function (): void {
+it('should present a ForbiddenResponse if the user doesn\'t have read menu access to contact group', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -146,7 +146,7 @@ it('should call the method findByAccessGroups if the user is not admin', functio
     $this->useCase->__invoke($presenter);
 });
 
-it('should present a FindContactGroupsResponse when no error occured', function (): void {
+it('should present a FindContactGroupsResponse when no error occurred', function (): void {
     $contactGroup = new ContactGroup(1, 'fake_name', 'fake_alias', 'fake_comments', true, ContactGroupType::Local);
     $this->contactGroupRepository
         ->expects($this->once())

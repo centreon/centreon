@@ -196,7 +196,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function findUsersByNotificationIdAndAccessGroups(
+    public function findUsersByNotificationIdUserAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
         array $accessGroups

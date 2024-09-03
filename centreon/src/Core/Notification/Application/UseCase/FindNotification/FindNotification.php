@@ -130,7 +130,7 @@ final class FindNotification
             $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationId($notificationId));
         } else {
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-            $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationIdAndAccessGroups(
+            $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationIdUserAndAccessGroups(
                 $notificationId,
                 $this->user,
                 $accessGroups

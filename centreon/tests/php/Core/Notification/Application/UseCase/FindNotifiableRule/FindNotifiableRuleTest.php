@@ -152,7 +152,7 @@ it(
             ->willReturn(false);
         $this->notificationRepository
             ->expects($this->once())
-            ->method('findUsersByNotificationIdAndAccessGroups')
+            ->method('findUsersByNotificationIdUserAndAccessGroups')
             ->willReturn([$notificationUser]);
 
         $this->notificationRepository
