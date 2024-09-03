@@ -41,10 +41,7 @@ const Options = (): JSX.Element => {
     graphOptionsConfiguration
   );
 
-  console.log({ graphOptionsConfiguration });
-
   const changeTabGraphOptions = (options: GraphOptions): void => {
-    console.log({ options });
     setGraphTabParameters({
       ...tabParameters.graph,
       options

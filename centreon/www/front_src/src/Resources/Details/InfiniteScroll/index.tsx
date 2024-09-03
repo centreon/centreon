@@ -125,7 +125,6 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
       atPage: page
     }
   ): Promise<ListingModel<TEntity>> | undefined => {
-    console.log('am i here ?');
     return sendListingRequest?.({ atPage })
       .then((retrievedListing) => {
         const { meta } = retrievedListing;
