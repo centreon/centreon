@@ -52,7 +52,7 @@ const WrapperThresholdLines = ({
 		timeSeries,
 	};
 
-	const thresholdLines = areaThresholdLines?.map((item, index) => {
+	const thresholdLines = areaThresholdLines?.map((item) => {
 		const { type, id } = item;
 
 		if (equals(type, ThresholdType.basic)) {
@@ -101,7 +101,7 @@ const WrapperThresholdLines = ({
 
 			const { data: pattern, id } = dataPattern;
 
-			return pattern.map((element, ind) => ({
+			return pattern.map((element) => ({
 				Component: ThresholdWithPatternLines,
 				key: id,
 				props: {

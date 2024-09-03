@@ -100,10 +100,5 @@ export const findLineOfOriginMetricThreshold = (
 
 export const canDisplayThreshold = (
 	areaThresholdLines: GlobalAreaLines["areaThresholdLines"],
-): boolean => {
-	console.log("->", areaThresholdLines);
-
-	return !!areaThresholdLines?.find(
-		(item) => item && item.type in ThresholdType,
-	);
-};
+): boolean =>
+	!!areaThresholdLines?.find((item) => item && item.type in ThresholdType);

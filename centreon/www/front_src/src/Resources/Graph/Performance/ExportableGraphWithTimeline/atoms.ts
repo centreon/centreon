@@ -1,5 +1,5 @@
-import { atom } from 'jotai';
+import { atom } from "jotai";
 
-import { UpdatedGraphInterval } from './models';
+import type { Interval } from "@centreon/ui";
 
-export const updatedGraphIntervalAtom = atom<UpdatedGraphInterval | null>(null);
+export const updatedGraphIntervalAtom = atom<Interval | null>(null);
