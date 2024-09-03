@@ -7,7 +7,7 @@ import { useSnackbar } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
 
 import { Ticket } from '../../models';
-import { labelCreateticket } from '../../translatedLabels';
+import { labelCreateticket, labelTicketCreated } from '../../translatedLabels';
 
 interface Props {
   close: () => void;
@@ -33,7 +33,7 @@ const OpenTicketModal = ({
       return;
     }
 
-    showSuccessMessage('Ticket created');
+    showSuccessMessage(t(labelTicketCreated));
 
     close();
   };
