@@ -1,10 +1,8 @@
-import { useAtomValue } from 'jotai';
 import { T, always, cond, equals, head, pipe, propOr, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { ColumnType, useStyleTable } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
-import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { DisplayType } from '../models';
 import {
@@ -58,7 +56,6 @@ const useColumns = ({
 }: ColumnProps): ColumnsState => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
 
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
@@ -77,8 +74,7 @@ const useColumns = ({
     [T, always(labelParent)]
   ])(displayType);
 
-  const isOpenTicketColumnsVisible =
-    featureFlags?.resouresTableOpenTickets && isOpenTicketEnabled && !!provider;
+  const isOpenTicketColumnsVisible = isOpenTicketEnabled && !!provider;
 
   const isOpenTicketActionColumnVisible =
     isOpenTicketColumnsVisible && !equals(displayResources, 'withTicket');

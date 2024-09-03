@@ -41,9 +41,7 @@ interface Props {
   options: PanelOptions;
 }
 const platformFeatures = {
-  featureFlags: {
-    resouresTableOpenTickets: true
-  },
+  featureFlags: {},
   isCloudPlatform: false
 };
 
