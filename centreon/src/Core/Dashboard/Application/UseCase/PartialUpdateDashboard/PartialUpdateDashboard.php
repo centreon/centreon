@@ -42,6 +42,8 @@ use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh;
+use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
+use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -60,6 +62,7 @@ final class PartialUpdateDashboard
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadMediaRepositoryInterface $mediaRepository,
         private readonly bool $isCloudPlatform
     ) {
     }
@@ -166,6 +169,8 @@ final class PartialUpdateDashboard
      */
     private function updateDashboardAndSave(Dashboard $dashboard, PartialUpdateDashboardRequest $request): void
     {
+        $dashboard->setThumbnail($this->readDashboardRepository->findThumbnailByDashboardId($dashboard->getId()));
+
         // Build of the new domain objects.
         $updatedDashboard = $this->getUpdatedDashboard($dashboard, $request);
 
@@ -180,6 +185,18 @@ final class PartialUpdateDashboard
             $this->dataStorageEngine->startTransaction();
 
             $this->writeDashboardRepository->update($updatedDashboard);
+
+            // We want to save the relation between a dashboard and its thumbnail if the thumbnail does exist and is
+            // not the one currently configured on the dashboard
+            if (
+                $updatedDashboard->getThumbnail() !== null
+                && $updatedDashboard->getThumbnail()->getId() !== $dashboard->getThumbnail()?->getId()
+            ) {
+                if (! $this->mediaRepository->existsByPath($updatedDashboard->getThumbnail()->getRelativePath())) {
+                    throw DashboardException::thumbnailNotFound($updatedDashboard->getId());
+                }
+                $this->writeDashboardRepository->addThumbnailRelation($updatedDashboard, $updatedDashboard->getThumbnail());
+            }
 
             if (null !== $panelsDifference) {
                 foreach ($panelsDifference->getPanelIdsToDelete() as $id) {
@@ -230,6 +247,16 @@ final class PartialUpdateDashboard
                 $request->description !== '' ? $request->description : null,
                 $dashboard->getDescription(),
             ),
+        )->setThumbnail(
+            ($request->thumbnail instanceof NoValue)
+                ? $dashboard->getThumbnail()
+                : new Media(
+                    $request->thumbnail->id,
+                    $request->thumbnail->name,
+                    $request->thumbnail->directory,
+                    null,
+                    null,
+                )
         );
     }
 

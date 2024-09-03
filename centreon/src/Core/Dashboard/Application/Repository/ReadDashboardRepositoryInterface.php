@@ -26,6 +26,7 @@ namespace Core\Dashboard\Application\Repository;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Media\Domain\Model\Media;
 
 interface ReadDashboardRepositoryInterface
 {
@@ -121,4 +122,20 @@ interface ReadDashboardRepositoryInterface
      * @return bool
      */
     public function existsOneByContact(int $dashboardId, ContactInterface $contact): bool;
+
+    /**
+     * @param int $dashboardId
+     *
+     * @throws \Throwable
+     *
+     * @return null|Media
+     */
+    public function findThumbnailByDashboardId(int $dashboardId): ?Media;
+
+    /**
+     * @param int[] $dasboardIds
+     *
+     * @return array<int, Media>
+     */
+    public function findThumbnailsByDashboardIds(array $dasboardIds): array;
 }
