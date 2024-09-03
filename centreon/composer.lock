@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e94c55d8ddd492febfd5f9dbbfa468b5",
+    "content-hash": "9ca5201c11268615ce83362b0d8b3327",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6875,16 +6875,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-fix-behat-23.04",
+            "version": "23.04.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "f31a296fb7f7fa0d2573c71d142487787b5d1ef9"
+                "reference": "0c66b4be9c296fc2820c350a9deb7a16054167eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/f31a296fb7f7fa0d2573c71d142487787b5d1ef9",
-                "reference": "f31a296fb7f7fa0d2573c71d142487787b5d1ef9",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/0c66b4be9c296fc2820c350a9deb7a16054167eb",
+                "reference": "0c66b4be9c296fc2820c350a9deb7a16054167eb",
                 "shasum": ""
             },
             "require": {
@@ -6933,9 +6933,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/fix-behat-23.04"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/23.04.x"
             },
-            "time": "2024-09-03T09:18:39+00:00"
+            "time": "2024-09-03T09:54:03+00:00"
         },
         {
             "name": "composer/pcre",
