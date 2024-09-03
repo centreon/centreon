@@ -50,6 +50,7 @@ const resultsToSubmit = [
     status: 'ok'
   }
 ];
+
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -127,6 +128,8 @@ before(() => {
   cy.loginByTypeOfUser({
     jsonName: 'admin'
   });
+
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
 
   checkHostsAreMonitored([
     { name: services.serviceOk.host },

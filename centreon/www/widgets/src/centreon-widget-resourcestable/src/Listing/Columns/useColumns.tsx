@@ -8,6 +8,7 @@ import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { DisplayType } from '../models';
 import {
+  labelAction,
   labelDuration,
   labelHost,
   labelInformation,
@@ -26,6 +27,7 @@ import {
   labelTries
 } from '../translatedLabels';
 
+import CloseTicket from './CloseTicket/CloseTicket';
 import useStyles, { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
 import ParentResourceColumn from './Parent';
@@ -90,7 +92,7 @@ const useColumns = ({
     'parent_resource',
     ...(isOpenTicketActionColumnVisible ? ['open_ticket'] : []),
     ...(areTicketColumnsVisible
-      ? ['ticket_id', 'ticket_subject', 'ticket_open_time']
+      ? ['ticket_id', 'ticket_subject', 'ticket_open_time', 'action']
       : ['state', 'severity', 'duration', 'last_check'])
   ];
 
@@ -234,7 +236,19 @@ const useColumns = ({
       rowMemoProps: ['is_in_downtime', 'is_acknowledged', 'name', 'links'],
       sortable: false,
       type: ColumnType.component
-    }
+    },
+    ...(areTicketColumnsVisible
+      ? [
+          {
+            Component: CloseTicket,
+            getRenderComponentOnRowUpdateCondition: T,
+            id: 'action',
+            label: t(labelAction),
+            type: ColumnType.component,
+            clickable: true
+          }
+        ]
+      : [])
   ];
 
   return { columns, defaultSelectedColumnIds };

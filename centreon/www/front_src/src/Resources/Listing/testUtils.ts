@@ -94,16 +94,13 @@ export const retrievedListingWithCriticalResources = {
 };
 
 export const getPlatformFeatures = ({
-  enableTreeView = true,
   notification = false
 }: {
-  enableTreeView?: boolean;
   notification?: boolean;
 }): PlatformFeatures => {
   return {
     featureFlags: {
-      notification,
-      resourceStatusTreeView: enableTreeView
+      notification
     },
     isCloudPlatform: false
   };
