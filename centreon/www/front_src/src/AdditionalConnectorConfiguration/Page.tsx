@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { Box, Typography } from '@mui/material';
 
 import Listing from './Listing/Listing';
-import { labelAdditionalConnectorConfiguration } from './translatedLabels';
-import { useStyles } from './Page.styles';
-import AdditionalConnectorModal from './Modal/Modal';
 import CloseModalConfirmationDialog from './Modal/CloseModalConfirmation';
+import AdditionalConnectorModal from './Modal/Modal';
+import { useStyles } from './Page.styles';
+import { labelAdditionalConnectorConfiguration } from './translatedLabels';
 
 const AdditionalConnectorConfiguration = (): JSX.Element => {
   const { classes } = useStyles();

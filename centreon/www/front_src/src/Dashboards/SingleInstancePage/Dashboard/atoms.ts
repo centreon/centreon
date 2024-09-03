@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import {
   collectBy,
   equals,
@@ -15,13 +16,12 @@ import {
   reject,
   set
 } from 'ramda';
-import { atomWithStorage } from 'jotai/utils';
 
 import { SelectEntry, getColumnsFromScreenSize } from '@centreon/ui';
 
 import {
-  Panel,
   Dashboard,
+  Panel,
   PanelConfiguration,
   QuitWithoutSavedDashboard,
   WidgetOptions

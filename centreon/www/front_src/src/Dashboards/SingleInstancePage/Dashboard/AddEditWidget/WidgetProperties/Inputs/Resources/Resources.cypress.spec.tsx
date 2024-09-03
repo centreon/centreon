@@ -1,25 +1,27 @@
 /* eslint-disable import/no-unresolved */
 
-import { Formik } from 'formik';
-import { createStore, Provider } from 'jotai';
 import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
+import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 import { difference, includes, pluck, reject } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { widgetPropertiesAtom } from '../../../atoms';
-import { WidgetResourceType } from '../../../models';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelAddFilter,
   labelDelete,
+  labelHost,
   labelHostCategory,
   labelHostGroup,
   labelResourceType,
   labelSelectAResource,
+  labelService,
   labelServiceCategory,
   labelServiceGroup
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { widgetPropertiesAtom } from '../../../atoms';
+import { WidgetResourceType } from '../../../models';
 
 import Resources from './Resources';
 import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';
@@ -403,5 +405,37 @@ describe('Resources tree', () => {
     cy.contains(labelAddFilter).should('be.disabled');
 
     cy.makeSnapshot();
+  });
+
+  it('revalidates subsequent resources when a resource is changed', () => {
+    initialize({});
+
+    cy.findByTestId(labelResourceType).parent().click();
+    cy.contains(labelHostGroup).click();
+    cy.findByTestId(labelSelectAResource).click();
+    cy.contains('Host Group 0').click();
+    cy.contains(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.findByLabelText(labelHost).click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains('Host 0').click();
+    cy.contains(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(2).parent().click();
+    cy.findByLabelText(labelService).click();
+    cy.findAllByTestId(labelSelectAResource).eq(2).click();
+    cy.contains('Service 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host Group 1').click();
+
+    cy.waitForRequest('@getHosts').then(() => {
+      cy.getRequestCalls('@getHosts').then((calls) => {
+        expect(calls).to.have.length(2);
+      });
+    });
+    cy.waitForRequest('@getServices').then(() => {
+      cy.getRequestCalls('@getServices').then((calls) => {
+        expect(calls).to.have.length(2);
+      });
+    });
   });
 });

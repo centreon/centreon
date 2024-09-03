@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { EmptyRow } from '../Row/EmptyRow';
 
 interface EmptyResultProps {

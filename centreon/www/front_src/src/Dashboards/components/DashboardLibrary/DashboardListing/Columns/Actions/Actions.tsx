@@ -1,24 +1,24 @@
 import { useTranslation } from 'react-i18next';
 
 import {
+  MoreHoriz as MoreIcon,
   Share as ShareIcon,
-  PersonRemove as UnShareIcon,
-  MoreHoriz as MoreIcon
+  PersonRemove as UnShareIcon
 } from '@mui/icons-material';
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
+import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
 import {
   labelMoreActions,
-  labelUnshare,
-  labelShareWithContacts
+  labelShareWithContacts,
+  labelUnshare
 } from '../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
-import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
 
-import useActions from './useActions';
 import MoreActions from './MoreActions';
+import useActions from './useActions';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();

@@ -1,8 +1,8 @@
 import { GraphInterval, GraphIntervalProperty } from '../../models';
 
 export enum TimeShiftDirection {
-  backward,
-  forward
+  backward = 0,
+  forward = 1
 }
 
 export interface GetShiftDate {

@@ -2,8 +2,9 @@ import { useSetAtom } from 'jotai';
 
 import { ConfirmationModal } from '@centreon/ui/components';
 
-import useDashboardSaveBlocker from '../hooks/useDashboardSaveBlocker';
+import { DashboardPanel } from '../../../api/models';
 import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
+import useDashboardSaveBlocker from '../hooks/useDashboardSaveBlocker';
 import useSaveDashboard from '../hooks/useSaveDashboard';
 import {
   labelDiscard,
@@ -11,7 +12,6 @@ import {
   labelIfYouClickOnDiscard,
   labelSave
 } from '../translatedLabels';
-import { DashboardPanel } from '../../../api/models';
 
 interface Props {
   panels?: Array<DashboardPanel>;

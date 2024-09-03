@@ -3,7 +3,7 @@ import duration from 'dayjs/plugin/duration';
 
 import { Module } from '@centreon/ui';
 
-import { Data, CommonWidgetProps } from '../../models';
+import { CommonWidgetProps, Data } from '../../models';
 
 import LineChart from './LineChart';
 import { PanelOptions } from './models';

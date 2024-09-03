@@ -1,8 +1,8 @@
 import { isEmpty } from 'ramda';
 
-import { useListDashboards } from '../../../api/useListDashboards';
-import { Dashboard } from '../../../api/models';
 import { List } from '../../../api/meta.models';
+import { Dashboard } from '../../../api/models';
+import { useListDashboards } from '../../../api/useListDashboards';
 
 type UseDashboardsOverview = {
   dashboards: Array<Dashboard>;

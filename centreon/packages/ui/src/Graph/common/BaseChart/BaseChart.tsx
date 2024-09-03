@@ -14,9 +14,9 @@ import Legend from '../../Chart/Legend';
 import { legendWidth } from '../../Chart/Legend/Legend.styles';
 import { Line } from '../timeSeries/models';
 
-import { useBaseChartStyles } from './useBaseChartStyles';
 import Header from './Header';
 import { LineChartHeader } from './Header/models';
+import { useBaseChartStyles } from './useBaseChartStyles';
 
 interface Props {
   base?: number;

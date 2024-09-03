@@ -6,12 +6,12 @@ import { Box, Typography } from '@mui/material';
 import { LineChartData, SingleBar } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
 
-import useThresholds from '../../useThresholds';
 import { FormThreshold } from '../../models';
+import useThresholds from '../../useThresholds';
 import { getResourcesUrlForMetricsWidgets } from '../../utils';
 
-import { Resource } from './models';
 import { useTopBottomStyles } from './TopBottom.styles';
+import { Resource } from './models';
 
 interface MetricTopProps {
   displayAsRaw: boolean;

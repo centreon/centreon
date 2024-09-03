@@ -1,8 +1,8 @@
 import { useFormikContext } from 'formik';
 import { remove } from 'ramda';
 
-import { AdditionalConnectorConfiguration, Parameter } from '../models';
 import { defaultParameters } from '../../utils';
+import { AdditionalConnectorConfiguration, Parameter } from '../models';
 
 interface UseParameterStates {
   addParameterGroup: () => void;

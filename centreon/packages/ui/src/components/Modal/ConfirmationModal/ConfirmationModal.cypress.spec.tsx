@@ -1,4 +1,4 @@
-import { atom, createStore, useSetAtom, Provider } from 'jotai';
+import { Provider, atom, createStore, useSetAtom } from 'jotai';
 
 import { Button } from '@mui/material';
 

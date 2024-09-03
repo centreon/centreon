@@ -41,7 +41,7 @@ export const useCopyToClipboard = ({
         }
 
         showErrorMessage(errorMessage);
-      } catch (e) {
+      } catch (_e) {
         showErrorMessage(errorMessage);
       }
 

@@ -1,12 +1,12 @@
 import { equals } from 'ramda';
 
-import { EllipsisTypography, type ComponentColumnProps } from '@centreon/ui';
+import { type ComponentColumnProps, EllipsisTypography } from '@centreon/ui';
 
 import { DisplayType } from '../models';
 import { getStatus } from '../utils';
 
-import ShortTypeChip from './ShortTypeChip';
 import StatusChip from './ServiceSubItemColumn/StatusChip';
+import ShortTypeChip from './ShortTypeChip';
 
 const ResourceColumn =
   ({ displayType, classes }) =>

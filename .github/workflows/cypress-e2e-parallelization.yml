@@ -46,6 +46,11 @@ on:
         description: "The test execution and the test plan keys and ids"
         required: true
         type: string
+      is_cloud:
+        description: "Define if the version is targeting cloud"
+        required: false
+        type: boolean
+        default: false
     secrets:
       registry_username:
         required: true
@@ -55,6 +60,10 @@ on:
         required: true
       xray_client_secret:
         required: true
+      artifactory_internal_repo_username:
+        required: false
+      artifactory_internal_repo_password:
+        required: false
 
 jobs:
   cypress-e2e-test-list:
@@ -160,6 +169,10 @@ jobs:
           test_tags: ${{ inputs.test_tags }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
+          stability: ${{ inputs.stability }}
+          is_cloud: ${{ inputs.is_cloud }}
+          artifactory_internal_repo_username: ${{ secrets.artifactory_internal_repo_username }}
+          artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Replace / with - in the feature path
         id: feature-path
