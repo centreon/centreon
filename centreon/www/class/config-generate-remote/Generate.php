@@ -20,6 +20,7 @@
 
 namespace ConfigGenerateRemote;
 
+use AdditionalConnectorVmWareV6;
 use PDO;
 use Exception;
 
@@ -194,6 +195,8 @@ class Generate
             $this->currentPoller['id'],
             $this->currentPoller['localhost']
         );
+        AdditionalConnectorVmWareV6::getInstance($this->dependencyInjector)
+            ->generateFromPollerId($this->currentPoller['id']);
 
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
         Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
