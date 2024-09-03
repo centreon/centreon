@@ -773,7 +773,6 @@ describe('Dashboard', () => {
         .eq(1)
         .should('have.attr', 'src', 'https://react.dev/');
 
-      cy.makeSnapshot();
     });
   });
 });
