@@ -581,12 +581,14 @@ function set_required_prerequisite() {
 				;;
 			esac
 			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
+			repo_prefix="apt"
 			;;
 		ubuntu-release*)
 			if ! [[ "$version" == "24.04" ]]; then
 				error_and_exit "For Ubuntu, only Centreon versions >= 24.04 are compatible. You chose $version"
 			fi
 			${PKG_MGR} update && ${PKG_MGR} install -y apt-transport-https gnupg2
+			repo_prefix="ubuntu"
 			;;
 		esac
 
@@ -604,10 +606,10 @@ function set_required_prerequisite() {
 		set_centreon_repos
 		IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
 		for _repo in "${array_apt[@]}"; do
-			echo "deb https://packages.centreon.com/apt-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+			echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
 
 			SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
-			echo "deb $ARCH https://packages.centreon.com/apt-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
+			echo "deb $ARCH https://packages.centreon.com/$repo_prefix-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
 		done
 		wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 
