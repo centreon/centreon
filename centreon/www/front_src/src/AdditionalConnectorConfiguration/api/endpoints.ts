@@ -1,10 +1,10 @@
 import { buildListingEndpoint } from '@centreon/ui';
 
 export const additionalConnectorsEndpoint =
-  '/configuration/additional-connectors';
+  '/configuration/additional-connector-configurations';
 
 export const getAdditionalConnectorEndpoint = (id): string =>
-  `/configuration/additional-connectors/${id}`;
+  `/configuration/additional-connector-configurations/${id}`;
 
 export const pollersEndpoint = '/configuration/monitoring-servers';
 
