@@ -202,7 +202,7 @@ const Chart = ({
 				filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines)),
 			);
 		},
-		useDeepCompare([lines]),
+		useDeepCompare([lines, shapeLines?.areaThresholdLines]),
 	);
 
 	const graphTooltipData = useGraphTooltip({
