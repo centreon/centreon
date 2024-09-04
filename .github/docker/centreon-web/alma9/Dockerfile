@@ -7,14 +7,14 @@ FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${DEPENDENCIES_TAG}
 
 ARG VERSION
 
-COPY *.rpm /tmp/rpms-centreon/
+# COPY *.rpm /tmp/rpms-centreon/
 
 COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /tmp/entrypoint
 COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /tmp/configuration
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
-RUN bash -e <<EOF
+RUN --mount=type=bind,src=rpms-centreon,dst=/tmp/rpms-centreon bash -e <<EOF
 
 rm -f /tmp/rpms-centreon/centreon{,-central,-mariadb,-mysql}-${VERSION}*.rpm
 dnf install -y /tmp/rpms-centreon/centreon-*.rpm
