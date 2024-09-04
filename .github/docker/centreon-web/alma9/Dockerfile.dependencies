@@ -99,8 +99,11 @@ dnf install -y \
 # install collect dependencies #
 ################################
 
-# dnf install -y \
-#   centreon-engine \
+dnf install -y \
+  centreon-engine \
+  nagios-plugins \
+  nagios-plugins-dhcp \
+  nagios-plugins-icmp
 #   centreon-plugin-Applications-Databases-Mysql \
 #   centreon-plugin-Applications-Monitoring-Centreon-Central \
 #   centreon-plugin-Applications-Monitoring-Centreon-Database \
@@ -114,10 +117,7 @@ dnf install -y \
 #   centreon-plugin-Hardware-Ups-Standard-Rfc1628-Snmp \
 #   centreon-plugin-Network-Cisco-Standard-Snmp \
 #   centreon-plugin-Operatingsystems-Linux-Snmp \
-#   centreon-plugin-Operatingsystems-Windows-Snmp \
-#   nagios-plugins \
-#   nagios-plugins-dhcp \
-#   nagios-plugins-icmp
+#   centreon-plugin-Operatingsystems-Windows-Snmp
 
 dnf clean all --enablerepo=*
 
