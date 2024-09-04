@@ -766,7 +766,6 @@ describe('Dashboard', () => {
 
     it('renders Web Page widgets', () => {
       cy.findAllByTestId('Webpage Display').should('have.length', 2);
-
     });
 
     it('renders iframes with correct source URL', () => {
@@ -782,8 +781,7 @@ describe('Dashboard', () => {
     it('displays widget refresh buttons', () => {
       cy.findAllByTestId('Webpage Display').should('have.length', 2);
 
-      cy.findAllByTestId("UpdateIcon").should('have.length', 2)
-      
+      cy.findAllByTestId('UpdateIcon').should('have.length', 2);
     });
   });
 });

@@ -84,3 +84,12 @@ export const useThresholdStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1)
   }
 }));
+
+export const useTextFieldStyles = makeStyles()((theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(0.5),
+    marginBottom : theme.spacing(0.5)
+  }
+}));

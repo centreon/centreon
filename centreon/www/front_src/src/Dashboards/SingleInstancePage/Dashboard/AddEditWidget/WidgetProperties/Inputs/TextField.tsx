@@ -9,6 +9,9 @@ import { TextField } from '@centreon/ui';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 import type { Widget, WidgetPropertyProps } from '../../models';
 
+import { Typography } from '@mui/material';
+import Subtitle from '../../../components/Subtitle';
+import { useTextFieldStyles } from './Inputs.styles';
 import { getProperty } from './utils';
 
 const WidgetTextField = ({
@@ -17,9 +20,12 @@ const WidgetTextField = ({
   text,
   required = false,
   disabled = false,
-  className
+  className,
+  isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
+
+  const { classes } = useTextFieldStyles();
 
   const { errors, values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
@@ -58,30 +64,35 @@ const WidgetTextField = ({
     setFieldValue(`options.${propertyName}`, newText);
   };
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
-    <TextField
-      fullWidth
-      autoSize={text?.autoSize}
-      autoSizeDefaultWidth={8}
-      className={className}
-      dataTestId={label}
-      disabled={!canEditField || disabled}
-      error={isTouched && error}
-      helperText={isTouched && error}
-      inputProps={{
-        'aria-label': t(label) as string,
-        max: text?.max,
-        min: text?.min,
-        step: text?.step || '1'
-      }}
-      label={t(label) || ''}
-      multiline={text?.multiline || false}
-      required={required}
-      size={text?.size || 'small'}
-      type={text?.type || 'text'}
-      value={value ?? ''}
-      onChange={change}
-    />
+    <div className={classes.container}>
+      <Label>{t(label)}</Label>
+      <TextField
+        fullWidth
+        autoSize={text?.autoSize}
+        autoSizeDefaultWidth={8}
+        className={className}
+        dataTestId={label}
+        disabled={!canEditField || disabled}
+        error={isTouched && error}
+        helperText={isTouched && error}
+        inputProps={{
+          'aria-label': t(label) as string,
+          max: text?.max,
+          min: text?.min,
+          step: text?.step || '1'
+        }}
+        label={t(label) || ''}
+        multiline={text?.multiline || false}
+        required={required}
+        size={text?.size || 'small'}
+        type={text?.type || 'text'}
+        value={value ?? ''}
+        onChange={change}
+      />
+    </div>
   );
 };
 
