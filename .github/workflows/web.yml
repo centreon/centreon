@@ -589,8 +589,10 @@ jobs:
           fail-on-cache-miss: true
 
       - run: |
+          rm -f centreon{,-central,-mariadb,-mysql}-${{ needs.get-version.outputs.major_version }}*.rpm
           mkdir rpms-centreon
           mv *.rpm rpms-centreon/
+        shell: bash
 
       - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
 

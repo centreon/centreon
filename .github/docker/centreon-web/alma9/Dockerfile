@@ -16,7 +16,7 @@ COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
 RUN --mount=type=bind,src=rpms-centreon,dst=/tmp/rpms-centreon bash -e <<EOF
 
-rm -f /tmp/rpms-centreon/centreon{,-central,-mariadb,-mysql}-${VERSION}*.rpm
+# rm -f /tmp/rpms-centreon/centreon{,-central,-mariadb,-mysql}-${VERSION}*.rpm
 dnf install -y /tmp/rpms-centreon/centreon-*.rpm
 
 mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
