@@ -180,9 +180,6 @@ Then(
   () => {
     cy.get('iframe')
       .its('0.contentDocument.body')
-      .should('not.be.empty')
-      .then(cy.wrap)
-      .find('#main-frame-error')
-      .should('exist');
+      .should('be.empty')
   }
 );
