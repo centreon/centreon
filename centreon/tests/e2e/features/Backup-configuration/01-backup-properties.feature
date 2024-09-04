@@ -6,19 +6,19 @@ Feature: Creating a Notification Rule
   @TEST_MON-147112
   Scenario: Verify Backup Configuration in the UI
     Given an admin user is logged in
-    When the admin user acces to the backup page
-    Then backup is enable in UI
-    And backup directory is set
-    And backup temporary is set
-    And database backup options is set
-    And Mysql configuration file path is set
+    When the admin user accesses the backup page
+    Then the backup is enabled in the UI
+    And the backup directory is set
+    And the backup temporary directory is set
+    And the database backup options are set
+    And the MySQL configuration file path is set
 
   @TEST_MON-147112
   Scenario: Run the full backup
     Given an admin user is logged in
-    When the admin user acces to the backup page
+    When the admin user accesses the backup page
     And the admin user enables backup for all configuration files
-    And the admin user selects full backup day
-    And the admin user saves the backup configuration and export the configuration
+    And the admin user selects the "full backup day" option
+    And the admin user saves the backup configuration and exports the configuration
     And after the scheduled cron job has run
-    Then the database backups and configuration files should be present in the backup directory
+    Then the database backups and configuration files are present in the backup directory

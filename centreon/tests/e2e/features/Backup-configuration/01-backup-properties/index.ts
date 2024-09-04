@@ -26,7 +26,7 @@ Given('an admin user is logged in', () => {
   });
 });
 
-When('the admin user acces to the backup page', () => {
+When('the admin user accesses the backup page', () => {
   cy.navigateTo({
     page: 'Backup',
     rootItemNumber: 4,
@@ -35,13 +35,13 @@ When('the admin user acces to the backup page', () => {
   cy.wait('@userTimeZone');
 });
 
-Then('backup is enable in UI', () => {
+Then('the backup is enabled in the UI', () => {
   cy.enterIframe('#main-content').within(() => {
     cy.get('input[name="backup_enabled[backup_enabled]"]').should('be.checked');
   });
 });
 
-Then('backup directory is set', () => {
+Then('the backup directory is set', () => {
   cy.enterIframe('#main-content').within(() => {
     cy.get('input[name="backup_backup_directory"]').should(
       'have.value',
@@ -50,7 +50,7 @@ Then('backup directory is set', () => {
   });
 });
 
-Then('backup temporary is set', () => {
+Then('the backup temporary directory is set', () => {
   cy.enterIframe('#main-content').within(() => {
     cy.get('input[name="backup_tmp_directory"]').should(
       'have.value',
@@ -59,13 +59,13 @@ Then('backup temporary is set', () => {
   });
 });
 
-Then('database backup options is set', () => {
+Then('the database backup options are set', () => {
   cy.enterIframe('#main-content').within(() => {
     cy.get('input[name="backup_database_centreon"]').should('be.checked');
   });
 });
 
-Then('Mysql configuration file path is set', () => {
+Then('the MySQL configuration file path is set', () => {
   cy.enterIframe('#main-content').within(() => {
     cy.get('input[name="backup_retention"]').should('have.value', '7');
     cy.get('input[name="backup_configuration_files"]').should('be.checked');
@@ -92,12 +92,12 @@ Then('the admin user enables backup for all configuration files', () => {
   });
 });
 
-Then('the admin user selects full backup day', () => {
+Then('the admin user selects the "full backup day" option', () => {
   cy.selectCurrentDayCheckbox();
 });
 
 Then(
-  'the admin user saves the backup configuration and export the configuration',
+  'the admin user saves the backup configuration and exports the configuration',
   () => {
     cy.enterIframe('#main-content').within(() => {
       cy.get('input[name="backup_mysql_conf"]')
@@ -117,7 +117,7 @@ Then('after the scheduled cron job has run', () => {
 });
 
 Then(
-  'the database backups and configuration files should be present in the backup directory',
+  'the database backups and configuration files are present in the backup directory',
   () => {
     cy.execInContainer({
       command: 'sh -c "cd /var/cache/centreon/backup && ls"',
