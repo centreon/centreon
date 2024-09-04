@@ -10,20 +10,20 @@ const invalidUrl = 'http://docss.Centreon.com/fr/';
 const iframeContent = 'Bienvenue dans la Documentation Centreon !';
 
 before(() => {
-  // cy.intercept({
-  //   method: 'GET',
-  //   url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  // }).as('getNavigationList');
-  // cy.intercept({
-  //   method: 'GET',
-  //   url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
-  // }).as('resourceRequest');
-  // cy.startContainers();
-  // cy.enableDashboardFeature();
-  // cy.executeCommandsViaClapi(
-  //   'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  // );
-  // cy.applyAcl();
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
+  }).as('resourceRequest');
+  cy.startContainers();
+  cy.enableDashboardFeature();
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
+  );
+  cy.applyAcl();
 });
 
 beforeEach(() => {
