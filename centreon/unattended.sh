@@ -582,6 +582,16 @@ function set_required_prerequisite() {
 			esac
 			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
 			repo_prefix="apt"
+
+			# Get CPU architecture type
+			VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
+			ARCH=""
+			if [[ "$VENDORID" == "ARM" ]]; then
+				ARCH="[ arch=all,arm64 ]"
+				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$topology" == "poller" ]]; then
+					error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
+				fi
+			fi
 			;;
 		ubuntu-release*)
 			if ! [[ "$version" == "24.04" ]]; then
@@ -591,16 +601,6 @@ function set_required_prerequisite() {
 			repo_prefix="ubuntu"
 			;;
 		esac
-
-		# Get CPU architecture type
-		VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
-		ARCH=""
-		if [[ "$VENDORID" == "ARM" ]]; then
-			ARCH="[ arch=all,arm64 ]"
-			if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$topology" == "poller" ]]; then
-				error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
-			fi
-		fi
 
 		# Add Centreon repositories
 		set_centreon_repos
