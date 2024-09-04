@@ -36,7 +36,7 @@ Feature: Create a new Additional Connector Configuration
   Scenario: Cancel a creation form
     Given a non-admin user is in the Specific Connector Configuration page
     When the user clicks on Add
-    And the user fills in the mandatory informations
+    And the user fills in the needed informations
     And the user clicks on the Cancel button of the creation form
     Then a pop-up appears to confirm cancellation
     And the user confirms the the cancellation

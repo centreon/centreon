@@ -1,62 +1,62 @@
 [
-{
-    "action": "ADD",
-    "object": "CONTACT",
-    "values": "acc-user;acc-user;acc-user@centreon;Centreon@2021;0;1;en_US;local"
-},
-{
-    "action":"SETPARAM",
-    "object":"CONTACT",
-    "values":"ACC-user;reach_api;1"
-},
-{
-    "action":"SETPARAM",
-    "object":"CONTACT",
-    "values":"ACC-user;reach_api_rt;1"
-},
-{
-    "action": "ADD",
-    "object": "ACLGROUP",
-    "values": "user-ACLGROUP;user-ACLGROUP"
-},
-{
-    "action": "SETCONTACT",
-    "object": "ACLGROUP",
-    "values": "user-ACLGROUP;ACC-user;"
-},
-{
-    "action": "ADD",
-    "object": "ACLMENU",
-    "values": "user-ACLMENU;user-ACLMENU"
-},
-{
-    "action": "GRANTRW",
-    "object": "ACLMENU",
-    "values": "user-ACLMENU;1;Configuration"
-},
-{
-    "action": "ADDMENU",
-    "object": "ACLGROUP",
-    "values": "user-ACLGROUP;user-ACLMENU"
-},
-{
-    "action": "ADDRESOURCE",
-    "object": "ACLGROUP",
-    "values": "user-ACLGROUP;All Resources"
-},
-{
-    "action": "ADD",
-    "object": "ACLACTION",
-    "values": "user-ACLACTION;user-ACLACTION"
-},
-{
-    "action": "ADDACTION",
-    "object": "ACLGROUP",
-    "values": "user-ACLGROUP;user-ACLACTION"
-},
-{
-    "action": "GRANT",
-    "object": "ACLACTION",
-    "values": "user-ACLACTION;generate_cfg|generate_trap"
-}
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "acc-user;acc-user;acc-user@centreon;Centreon@2021;0;1;en_US;local"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"acc-user;reach_api;1"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"acc-user;reach_api_rt;1"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP;user-ACLGROUP"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP;acc-user;"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "user-ACLMENU;user-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "user-ACLMENU;1;Configuration"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP;user-ACLMENU"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP;All Resources"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLACTION",
+        "values": "user-ACLACTION;user-ACLACTION"
+    },
+    {
+        "action": "ADDACTION",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP;user-ACLACTION"
+    },
+    {
+        "action": "GRANT",
+        "object": "ACLACTION",
+        "values": "user-ACLACTION;generate_cfg|generate_trap"
+    }
 ]
