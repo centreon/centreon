@@ -1,4 +1,8 @@
-import { type ListingModel, useFetchQuery } from '@centreon/ui';
+import {
+  type ListingModel,
+  type Parameters,
+  useFetchQuery
+} from '@centreon/ui';
 import { useAtomValue } from 'jotai';
 import { path } from 'ramda';
 import { useCallback } from 'react';
@@ -8,13 +12,18 @@ import { buildListTimelineEventsEndpoint } from '../Timeline/api';
 import { listTimelineEventsDecoder } from '../Timeline/api/decoders';
 import type { TimelineEvent } from '../Timeline/models';
 
+interface Props {
+  timelineEndpoint?: string;
+  graphTimeParameters?: Parameters;
+}
+
 const useRetrieveTimeLine = ({
   timelineEndpoint,
-  start,
-  end,
-  timelineEventsLimit
-}) => {
+  graphTimeParameters
+}: Props) => {
   const graphOptions = useAtomValue(graphOptionsAtom);
+
+  const { start, end, timelineEventsLimit } = graphTimeParameters || {};
 
   const displayEventAnnotations = path<boolean>(
     [GraphOptionId.displayEvents, 'value'],
@@ -39,7 +48,7 @@ const useRetrieveTimeLine = ({
     decoder: listTimelineEventsDecoder,
     getEndpoint: () =>
       buildListTimelineEventsEndpoint({
-        endpoint: timelineEndpoint,
+        endpoint: timelineEndpoint as string,
         parameters
       }),
     getQueryKey: () => ['timeLineEvents'],

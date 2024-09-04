@@ -98,7 +98,7 @@ export interface EndStartInterval {
 	start: string;
 }
 
-interface Parameters extends EndStartInterval {
+export interface Parameters extends EndStartInterval {
 	timelineEventsLimit: number;
 }
 

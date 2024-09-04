@@ -57,13 +57,6 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
     setGraphTimeParameters(data);
   };
 
-  // const newGraphInterval = useMemo(() => {
-  // 	if (!updatedGraphInterval) {
-  // 		return undefined;
-  // 	}
-  // 	return { end: updatedGraphInterval.end, start: updatedGraphInterval.start };
-  // }, [updatedGraphInterval?.end, updatedGraphInterval?.start]);
-
   return (
     <InfiniteScroll<Resource>
       details={details}

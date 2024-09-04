@@ -66,28 +66,26 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
 
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
-      <div key={row.uuid}>
-        <FederatedComponent
-          path="/anomaly-detection/enableThresholdLines"
-          styleMenuSkeleton={{ height: 0, width: 0 }}
-          type={row?.type}
-          getShapeLines={getShapeLines}
-        />
-        <LineChart
-          data={data}
-          end={end}
-          height={200}
-          legend={{ mode: 'grid', placement: 'bottom' }}
-          lineStyle={{ lineWidth: 1 }}
-          start={start}
-          tooltip={{ mode: 'hidden' }}
-          displayAnchor={{
-            displayGuidingLines: false,
-            displayTooltipsGuidingLines: false
-          }}
-          {...rest}
-        />
-      </div>
+      <FederatedComponent
+        path="/anomaly-detection/enableThresholdLines"
+        styleMenuSkeleton={{ height: 0, width: 0 }}
+        type={row?.type}
+        getShapeLines={getShapeLines}
+      />
+      <LineChart
+        data={data}
+        end={end}
+        height={200}
+        legend={{ mode: 'grid', placement: 'bottom' }}
+        lineStyle={{ lineWidth: 1 }}
+        start={start}
+        tooltip={{ mode: 'hidden' }}
+        displayAnchor={{
+          displayGuidingLines: false,
+          displayTooltipsGuidingLines: false
+        }}
+        {...rest}
+      />
     </Suspense>
   );
 };
@@ -110,7 +108,6 @@ interface Props {
   onClick: (row) => void;
 }
 
-//HOC
 const GraphColumn = ({
   onClick
 }: Props): ((props: ComponentColumnProps) => JSX.Element | null) => {

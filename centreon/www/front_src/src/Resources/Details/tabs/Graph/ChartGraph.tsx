@@ -2,22 +2,34 @@ import {
   type Interval,
   LineChart,
   type LineChartData,
+  type Parameters,
   type TooltipData,
   useFetchQuery
 } from '@centreon/ui';
 import { path } from 'ramda';
-import { useState } from 'react';
+import { type MutableRefObject, useState } from 'react';
 import FederatedComponent from '../../../../components/FederatedComponents';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
+import type { Resource } from '../../../models';
+import type { ResourceDetails } from '../../models';
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';
 
-const ChartGraph = ({ graphInterval, resource, updatedGraphInterval }) => {
+interface Props {
+  graphTimeParameters?: Parameters;
+  resource?: ResourceDetails | Resource;
+  updatedGraphInterval: (args: Interval) => void;
+}
+
+const ChartGraph = ({
+  graphTimeParameters,
+  resource,
+  updatedGraphInterval
+}: Props) => {
   const { classes } = useChartGraphStyles();
 
-  const [graphRef, setGraphRef] = useState();
-
+  const [graphRef, setGraphRef] = useState<MutableRefObject<HTMLDivElement>>();
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const graphEndpoint = path<string>(
@@ -32,46 +44,44 @@ const ChartGraph = ({ graphInterval, resource, updatedGraphInterval }) => {
 
   const { data } = useFetchQuery<LineChartData>({
     getEndpoint: () =>
-      `${graphEndpoint}?start=${graphInterval?.start}&end=${graphInterval?.end}`,
+      `${graphEndpoint}?start=${graphTimeParameters?.start}&end=${graphTimeParameters?.end}`,
     getQueryKey: () => [
       'graphPerformance',
-      graphInterval?.start,
-      graphInterval?.end,
+      graphTimeParameters?.start,
+      graphTimeParameters?.end,
       graphEndpoint
     ],
     queryOptions: {
-      enabled: !!graphInterval && !!graphEndpoint,
+      enabled: !!graphTimeParameters && !!graphEndpoint,
       suspense: false
     }
   });
 
   const timeLineData = useRetrieveTimeLine({
     timelineEndpoint,
-    start: graphInterval?.start,
-    end: graphInterval?.end,
-    timelineEventsLimit: graphInterval?.timelineEventsLimit
+    graphTimeParameters
   });
 
   const getInterval = (interval: Interval): void => {
     updatedGraphInterval(interval);
   };
 
-  const getRef = (ref) => {
+  const getRef = (ref: MutableRefObject<HTMLDivElement>) => {
     setGraphRef(ref);
   };
 
-  const graphActions = graphInterval && (
+  const graphActions = graphTimeParameters && (
     <MemoizedGraphActions
-      end={graphInterval.end}
+      end={graphTimeParameters.end}
       performanceGraphRef={graphRef}
       resource={resource}
-      start={graphInterval.start}
+      start={graphTimeParameters.start}
       timeline={[]}
     />
   );
 
   const getShapeLines = (callback) => {
-    setAreaThresholdLines(callback(resource.uuid));
+    setAreaThresholdLines(callback(resource?.uuid));
   };
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
@@ -89,7 +99,7 @@ const ChartGraph = ({ graphInterval, resource, updatedGraphInterval }) => {
         containerStyle={classes.container}
         getRef={getRef}
         data={data}
-        end={graphInterval?.end}
+        end={graphTimeParameters?.end}
         height={280}
         legend={{ mode: 'grid', placement: 'bottom' }}
         lineStyle={{ lineWidth: 1 }}
@@ -106,7 +116,7 @@ const ChartGraph = ({ graphInterval, resource, updatedGraphInterval }) => {
             />
           )
         }}
-        start={graphInterval?.start}
+        start={graphTimeParameters?.start}
         timeShiftZones={{ enable: true, getInterval }}
         zoomPreview={{ enable: true, getInterval }}
         {...rest}

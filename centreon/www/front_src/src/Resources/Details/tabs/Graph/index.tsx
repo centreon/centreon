@@ -1,7 +1,7 @@
 import { equals } from 'ramda';
 import { useState } from 'react';
 
-import { TimePeriods } from '@centreon/ui';
+import { type Parameters, TimePeriods } from '@centreon/ui';
 import type { TabProps } from '..';
 import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
 import memoizeComponent from '../../../memoizedComponent';
@@ -12,7 +12,6 @@ import { useAtom } from 'jotai';
 import HostGraph from './HostGraph';
 import { updatedGraphIntervalAtom } from './atoms';
 import { useChartGraphStyles } from './chartGraph.styles';
-import type { GraphTimeParameters } from './models';
 
 const GraphTabContent = ({ details }: TabProps): JSX.Element => {
   const { classes } = useChartGraphStyles();
@@ -21,8 +20,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     updatedGraphIntervalAtom
   );
 
-  const [graphTimeParameters, setGraphTimeParameters] =
-    useState<GraphTimeParameters>();
+  const [graphTimeParameters, setGraphTimeParameters] = useState<Parameters>();
 
   const type = details?.type as ResourceType;
   const equalsService = equals(ResourceType.service);
@@ -34,7 +32,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     equalsMetaService(type) ||
     equalsAnomalyDetection(type);
 
-  const getTimePeriodsParameters = (data: GraphTimeParameters): void => {
+  const getTimePeriodsParameters = (data: Parameters): void => {
     setGraphTimeParameters(data);
   };
 
@@ -50,7 +48,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
 
           <ChartGraph
             resource={details}
-            graphInterval={graphTimeParameters}
+            graphTimeParameters={graphTimeParameters}
             updatedGraphInterval={setUpdatedGraphInterval}
           />
         </>

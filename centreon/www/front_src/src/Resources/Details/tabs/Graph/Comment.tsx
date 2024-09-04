@@ -10,9 +10,16 @@ import {
   labelActionNotPermitted,
   labelAddComment
 } from '../../../translatedLabels';
+import type { ResourceDetails } from '../../models';
 import { useChartGraphStyles } from './chartGraph.styles';
 
-const Comment = ({ resource, commentDate, hideAddCommentTooltip }) => {
+interface Props {
+  resource?: ResourceDetails;
+  commentDate: Date;
+  hideAddCommentTooltip: () => void;
+}
+
+const Comment = ({ resource, commentDate, hideAddCommentTooltip }: Props) => {
   const { classes } = useChartGraphStyles();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -28,10 +35,14 @@ const Comment = ({ resource, commentDate, hideAddCommentTooltip }) => {
   const isCommentPermitted = canComment([resource]);
   const commentTitle = isCommentPermitted ? '' : t(labelActionNotPermitted);
 
-  const retriveTimeLineEvents = () => {
+  const success = () => {
     queryClient.invalidateQueries({ queryKey: ['timeLineEvents'] });
     setAddingComment(false);
     hideAddCommentTooltip();
+  };
+
+  const close = () => {
+    setAddingComment(false);
   };
 
   return (
@@ -55,14 +66,12 @@ const Comment = ({ resource, commentDate, hideAddCommentTooltip }) => {
         </Tooltip>
       </div>
 
-      {addingComment && (
+      {addingComment && resource && (
         <AddCommentForm
-          date={commentDate as Date}
+          date={commentDate}
           resource={resource}
-          onClose={(): void => {
-            setAddingComment(false);
-          }}
-          onSuccess={retriveTimeLineEvents}
+          onClose={close}
+          onSuccess={success}
         />
       )}
     </>

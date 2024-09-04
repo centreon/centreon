@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import { path, equals, isNil, last, not, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
+import type { Interval } from '@centreon/ui';
 import type { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
 import type { Resource } from '../../../models';
 import ChartGraph from '../Graph/ChartGraph';
@@ -12,6 +13,7 @@ interface Props {
   graphTimeParameters: GraphTimeParameters;
   infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
   services: Array<Resource>;
+  updateGraphInterval: (args: Interval) => void;
 }
 
 export interface ResourceGraphMousePosition {
@@ -52,7 +54,7 @@ const ServiceGraphs = ({
           <div key={id}>
             <ChartGraph
               resource={service}
-              graphInterval={graphTimeParameters}
+              graphTimeParameters={graphTimeParameters}
               updatedGraphInterval={updateGraphInterval}
             />
             {isLastService && <div ref={infiniteScrollTriggerRef} />}

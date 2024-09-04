@@ -26,5 +26,5 @@ export * from "./resourcesStatusURL";
 export * from "../Graph/Chart/helpers";
 export * from "../Graph/Chart/InteractiveComponents/TimeShiftZones/useTimeShiftZones";
 export * from "../TimePeriods/helpers";
-export { lastDayPeriod } from "../TimePeriods/models";
+export { lastDayPeriod, type Parameters } from "../TimePeriods/models";
 export * from "./useLocaleTimezoneDate/useLocaleTimezoneDate";

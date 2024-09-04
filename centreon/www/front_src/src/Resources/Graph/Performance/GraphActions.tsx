@@ -35,7 +35,7 @@ import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 
 interface Props {
   end: string;
-  performanceGraphRef?: MutableRefObject<HTMLDivElement | null>;
+  performanceGraphRef?: MutableRefObject<HTMLDivElement>;
   resource?: Resource | ResourceDetails;
   start: string;
   timeline?: Array<TimelineEvent>;
@@ -213,15 +213,7 @@ const GraphActions = ({
 
 const MemoizedGraphActions = memoizeComponent<Props>({
   Component: GraphActions,
-  memoProps: [
-    'resourceParentName',
-    'resourceName',
-    'timeline',
-    'performanceGraphRef',
-    'renderAdditionalGraphActions',
-    'end',
-    'start'
-  ]
+  memoProps: ['resource', 'timeline', 'performanceGraphRef', 'end', 'start']
 });
 
 export default MemoizedGraphActions;
