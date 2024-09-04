@@ -1,31 +1,30 @@
-import * as React from 'react';
-
 import { useAtomValue } from 'jotai';
-import { CSSInterpolation } from 'tss-react';
 import { equals } from 'ramda';
+import { CSSInterpolation } from 'tss-react';
 
 import {
   ButtonProps,
-  createTheme,
   InputBaseProps,
+  ThemeProvider as MuiThemeProvider,
   StyledEngineProvider,
   Theme,
-  ThemeProvider as MuiThemeProvider
+  createTheme
 } from '@mui/material';
-import CssBaseline from '@mui/material/CssBaseline';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
+import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeOptions } from '@mui/material/styles/createTheme';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
-import RobotoLightWoff2 from '@centreon/ui/fonts/roboto-light-webfont.woff2';
-import RobotoRegularWoff2 from '@centreon/ui/fonts/roboto-regular-webfont.woff2';
-import RobotoMediumWoff2 from '@centreon/ui/fonts/roboto-medium-webfont.woff2';
-import RobotoBoldWoff2 from '@centreon/ui/fonts/roboto-bold-webfont.woff2';
 
+import RobotoBoldWoff2 from '../fonts/roboto-bold-webfont.woff2';
+import RobotoLightWoff2 from '../fonts/roboto-light-webfont.woff2';
+import RobotoMediumWoff2 from '../fonts/roboto-medium-webfont.woff2';
+import RobotoRegularWoff2 from '../fonts/roboto-regular-webfont.woff2';
+
+import { ReactNode, useMemo } from 'react';
 import { getPalette } from './palettes';
 
 declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
 }
 
@@ -293,13 +292,13 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
 });
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const ThemeProvider = ({ children }: Props): JSX.Element => {
   const { themeMode } = useAtomValue(userAtom);
 
-  const theme = React.useMemo(
+  const theme = useMemo(
     () => createTheme(getTheme(themeMode || ThemeMode.light)),
     [themeMode]
   );
