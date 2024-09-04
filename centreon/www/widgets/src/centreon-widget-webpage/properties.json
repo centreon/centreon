@@ -8,7 +8,8 @@
       "type": "textfield",
       "defaultValue": "",
       "label": "URL",
-      "required": true
+      "required": true,
+      "secondaryLabel": "URL"
     },
     "refreshInterval": {
       "type": "refresh-interval",
