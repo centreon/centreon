@@ -23,14 +23,26 @@ declare(strict_types=1);
 
 namespace Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class VmWareConfig
 {
     /**
      * @param VSphereServer[] $vSphereServers
      * @param int $port
+     *
+     * @throws AssertionFailedException
      */
     public function __construct(private readonly array $vSphereServers, private readonly int $port)
     {
+        foreach ($vSphereServers as $vSphereServer) {
+            Assertion::isInstanceOf(
+                $vSphereServer,
+                VSphereServer::class,
+                (new \ReflectionClass($this))->getShortName() . '::vSphereServers'
+            );
+        }
     }
 
     /**

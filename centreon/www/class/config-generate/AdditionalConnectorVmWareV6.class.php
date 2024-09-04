@@ -20,27 +20,29 @@
  */
 
 use App\Kernel;
+use Assert\AssertionFailedException;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, VSphereServer};
 
 class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
 {
-    public function __construct(\Pimple\Container $dependencyInjector)
-    {
-        parent::__construct($dependencyInjector);
+    public function __construct(
+        private readonly Backend $backend,
+        private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
+    ) {
     }
 
+    /**
+     * Generate VM Ware v6 configuration file for plugins.
+     *
+     * @param int $pollerId
+     *
+     * @throws \Exception|AssertionFailedException
+     */
     private function generate(int $pollerId): void
     {
-        $kernel = Kernel::createForWeb();
-
-        /** @var ReadAccRepositoryInterface $readAdditionalConnectorRepository */
-        $readAdditionalConnectorRepository = $kernel->getContainer()->get(
-            ReadAccRepositoryInterface::class
-        ) ?? throw new \Exception('ReadAccRepositoryInterface not found');
-
-        $additionalConnectorsVMWareV6 = $readAdditionalConnectorRepository
+        $additionalConnectorsVMWareV6 = $this->readAdditionalConnectorRepository
             ->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
 
         // Cast to object to ensure that an empty JSON and not an empty array is write in file if no ACC exists.
@@ -73,9 +75,9 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
             ];
         }
         $this->generate_filename = 'centreon_vmware.json';
-        $this->backend_instance->createDirectories([$this->backend_instance->generate_path . '/vmware/' . $pollerId]);
+        $this->backend->createDirectories([$this->backend->generate_path . '/vmware/' . $pollerId]);
         $this->generateFile($object, false);
-        $this->writeFile($this->backend_instance->generate_path . '/vmware/' . $pollerId);
+        $this->writeFile($this->backend->generate_path . '/vmware/' . $pollerId);
     }
 
     public function generateFromPollerId(int $pollerId): void

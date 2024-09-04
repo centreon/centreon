@@ -20,6 +20,8 @@
 
 namespace ConfigGenerateRemote;
 
+use App\Kernel;
+use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use PDO;
 use Exception;
 
@@ -90,6 +92,8 @@ class Generate
     private $moduleObjects = null;
     protected $dependencyInjector = null;
 
+    private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
+
     /**
      * Constructor
      *
@@ -99,6 +103,10 @@ class Generate
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backendInstance = Backend::getInstance($this->dependencyInjector);
+
+        $kernel = Kernel::createForWeb();
+        $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
     }
 
     /**
@@ -194,8 +202,10 @@ class Generate
             $this->currentPoller['id'],
             $this->currentPoller['localhost']
         );
-        \AdditionalConnectorVmWareV6::getInstance($this->dependencyInjector)
-            ->generateFromPollerId($this->currentPoller['id']);
+        (new \AdditionalConnectorVmWareV6(
+            $this->backendInstance,
+            $this->readAdditionalConnectorRepository
+        ))->generateFromPollerId($this->currentPoller['id']);
 
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
         Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);

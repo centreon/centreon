@@ -35,6 +35,10 @@
  */
 
 // file centreon.config.php may not exist in test environment
+
+use App\Kernel;
+use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
+
 $configFile = realpath(dirname(__FILE__) . "/../../../config/centreon.config.php");
 if ($configFile !== false) {
     require_once $configFile;
@@ -84,10 +88,16 @@ class Generate
     private $module_objects = null;
     protected $dependencyInjector = null;
 
+    private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
+
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+        
+        $kernel = Kernel::createForWeb();
+        $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
     }
 
     /**
@@ -252,7 +262,10 @@ class Generate
         Resource::getInstance($this->dependencyInjector)->reset();
         Engine::getInstance($this->dependencyInjector)->reset();
         Broker::getInstance($this->dependencyInjector)->reset();
-        AdditionalConnectorVmWareV6::getInstance($this->dependencyInjector)->reset();
+        (new AdditionalConnectorVmWareV6(
+            Backend::getInstance($this->dependencyInjector),
+            $this->readAdditionalConnectorRepository
+        ))->reset();
         $this->resetModuleObjects();
     }
 
@@ -263,9 +276,10 @@ class Generate
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
 
-        AdditionalConnectorVmWareV6::getInstance($this->dependencyInjector)->generateFromPollerId(
-            $this->current_poller['id']
-        );
+        (new AdditionalConnectorVmWareV6(
+            Backend::getInstance($this->dependencyInjector),
+            $this->readAdditionalConnectorRepository
+        ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         Host::getInstance($this->dependencyInjector)->generateFromPollerId(
