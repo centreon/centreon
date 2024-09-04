@@ -64,24 +64,8 @@ dnf install -y \
   perl-DBD-MySQL \
   perl-DBD-SQLite \
   perl-DBI \
-  perl-EV \
-  perl-FFI-CheckLib \
-  perl-FFI-Platypus \
   perl-HTML-Parser \
-  perl-NetAddr-IP \
-  perl-Net-Curl \
-  perl-Net-DNS \
-  perl-Net-HTTP \
-  perl-Net-Ping \
-  perl-Pod-Parser \
-  perl-Specio \
-  perl-Test-Simple \
-  perl-Unicode-Collate \
-  perl-XML-LibXML \
-  perl-XML-SAX \
-  perl-XML-Twig \
-  perl-UUID \
-  perltidy
+  perl-Net-Curl
 
 #############################
 # install test dependencies #

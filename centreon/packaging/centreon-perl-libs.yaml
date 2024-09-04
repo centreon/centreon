@@ -25,7 +25,7 @@ overrides:
   rpm:
     depends:
       - centreon-common = ${VERSION}-${RELEASE}${DIST}
-      - perl
+      - perl-interpreter
       - perl(DBI)
       - perl(FindBin)
       - perl(Getopt::Long)
