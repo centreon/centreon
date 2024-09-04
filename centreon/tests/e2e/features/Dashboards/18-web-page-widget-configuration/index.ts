@@ -5,21 +5,25 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import webPageWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithWebPageWidget.json';
 import webPageWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoWebPageWidget.json';
 
+const validUrl = 'https://docs.centreon.com/fr/';
+const invalidUrl = 'http://docss.Centreon.com/fr/';
+const iframeContent = 'Bienvenue dans la Documentation Centreon !';
+
 before(() => {
-  // cy.intercept({
-  //   method: 'GET',
-  //   url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  // }).as('getNavigationList');
-  // cy.intercept({
-  //   method: 'GET',
-  //   url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
-  // }).as('resourceRequest');
-  // cy.startContainers();
-  // cy.enableDashboardFeature();
-  // cy.executeCommandsViaClapi(
-  //   'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  // );
-  // cy.applyAcl();
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
+  }).as('resourceRequest');
+  cy.startContainers();
+  cy.enableDashboardFeature();
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
+  );
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -82,100 +86,100 @@ When(
 );
 
 When(
-  'the dashboard administrator user selects the widget type "Web page"',
+  'the dashboard administrator user selects the widget type "web page"',
   () => {
     cy.getByTestId({ testId: 'Widget type' }).click();
     cy.contains('Web page').click();
   }
 );
 
-Then(
-  'configuration properties for the Web page widget are displayed',
-  () => {
-    cy.getByLabel({ label: 'Title' }).should('be.visible');
-    cy.getByLabel({ label: 'RichTextEditor' }).should('be.visible');
-    cy.getByLabel({ label: 'URL' }).should('be.visible');
-  }
-)
-
-When('the dashboard administrator adds a valid URL', () => {
-cy.getByLabel({ label: 'URL' }).type('https://docs.centreon.com/fr/')
-cy.get('iframe[data-testid="Webpage Display"]')
-.should('be.visible')
-.and('have.attr', 'src', 'https://docs.centreon.com/fr/');
-cy.get('iframe')
-.its('0.contentDocument.body')
-.should('not.be.empty')
-.then(cy.wrap)
-
-.find('h1')
-.should('exist');
+Then('configuration properties for the web page widget are displayed', () => {
+  cy.getByLabel({ label: 'Title' }).should('be.visible');
+  cy.getByLabel({ label: 'RichTextEditor' }).should('be.visible');
+  cy.getByLabel({ label: 'URL' }).should('be.visible');
 });
 
-When('the user saves the Web page widget', () => {
+When('the dashboard administrator adds a valid URL', () => {
+  cy.getByLabel({ label: 'URL' }).type(validUrl);
+  cy.get('iframe[data-testid="Webpage Display"]')
+    .should('be.visible')
+    .and('have.attr', 'src', validUrl);
+  cy.get('iframe')
+    .its('0.contentDocument.body')
+    .should('not.be.empty')
+    .then(cy.wrap)
+
+    .find('h1')
+    .should('exist');
+});
+
+When('the user saves the web page widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click({ force: true });
 });
 
-Then("the Web page widget is added in the dashboard's layout", () => {
+Then("the web page widget is added in the dashboard's layout", () => {
   cy.get('iframe')
-  .its('0.contentDocument.body')
-  .should('not.be.empty')
-  .then(cy.wrap)
-  .find('h1')
-  .should('exist')
-  .and('have.text', 'Bienvenue dans la Documentation Centreon !');
+    .its('0.contentDocument.body')
+    .should('not.be.empty')
+    .then(cy.wrap)
+    .find('h1')
+    .should('exist')
+    .and('have.text', iframeContent);
 });
 
-Given('a dashboard having a configured Web page widget', () => {
+Given('a dashboard having a configured web page widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, webPageWidget);
   cy.editDashboard(dashboards.default.name);
-  cy.editWidget(1);
 });
 
-When(
-  'the dashboard administrator user duplicates the Web page widget',
-  () => {
-    cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
-  }
-);
+When('the dashboard administrator user duplicates the web page widget', () => {
+  cy.editDashboard(dashboards.default.name);
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
+});
 
-Then(
-  'a second Web page widget is displayed on the dashboard',
-  () => {
-  cy.get('iframe').eq(1)
-  .its('0.contentDocument.body')
-  .should('not.be.empty')
-  .then(cy.wrap)
-  .find('h1')
-  .should('exist')
-  .and('have.text', 'Bienvenue dans la Documentation Centreon !');
-  }
-);
+Then('a second web page widget is displayed on the dashboard', () => {
+  cy.get('iframe')
+    .eq(1)
+    .its('0.contentDocument.body')
+    .should('not.be.empty')
+    .then(cy.wrap)
+    .find('h1')
+    .should('exist')
+    .and('have.text', iframeContent);
+});
 
-Given('a dashboard featuring two Web page widgets', () => {
+Given('a dashboard featuring two web page widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, webPageWidgets);
   cy.editDashboard(dashboards.default.name);
-  cy.editWidget(1);
 });
 
-When(
-  'the dashboard administrator user deletes one of the widgets',
-  () => {
-    cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).eq(1).click();
-    cy.getByTestId({ testId: 'DeleteIcon' }).click({ force: true });
-    cy.getByLabel({
-      label: 'Delete',
-      tag: 'button'
-    }).realClick();
-  }
+When('the dashboard administrator user deletes one of the widgets', () => {
+  cy.getByTestId({ testId: 'More actions' }).eq(1).click();
+  cy.getByTestId({ testId: 'DeleteIcon' }).click({ force: true });
+  cy.getByLabel({
+    label: 'Delete',
+    tag: 'button'
+  }).realClick();
+});
+
+Then('only the contents of the other widget are displayed', () => {
+  cy.get('iframe').eq(1).should('not.exist');
+});
+
+When('the dashboard administrator attempts to add an invalid URL', () => {
+  cy.editWidget(1);
+  cy.getByLabel({ label: 'URL' }).clear().type(invalidUrl);
+  cy.getByTestId({ testId: 'confirm' }).click({ force: true });
+  cy.get('.MuiAlert-message').should('not.exist');
+}
 );
 
 Then(
-  'only the contents of the other widget are displayed',
+  'an error message should be displayed, indicating that the URL is invalid',
   () => {
-    cy.get('iframe').eq(1).should('not.exist');
+    cy.get('iframe')
+      .its('0.contentDocument.body')
+      .should('be.empty')
   }
 );
