@@ -170,13 +170,16 @@ Then('only the contents of the other widget are displayed', () => {
 When('the dashboard administrator attempts to add an invalid URL', () => {
   cy.editWidget(1);
   cy.getByLabel({ label: 'URL' }).clear().type(invalidUrl);
-});
+  cy.getByTestId({ testId: 'confirm' }).click({ force: true });
+  cy.get('.MuiAlert-message').should('not.exist');
+}
+);
 
 Then(
   'an error message should be displayed, indicating that the URL is invalid',
   () => {
     cy.get('iframe')
-      .its('1.contentDocument.body')
+      .its('0.contentDocument.body')
       .should('not.be.empty')
       .then(cy.wrap)
       .find('#main-frame-error')
