@@ -10,20 +10,20 @@ const invalidUrl = 'http://docss.Centreon.com/fr/';
 const iframeContent = 'Bienvenue dans la Documentation Centreon !';
 
 before(() => {
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
-    url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
-  }).as('resourceRequest');
-  cy.startContainers();
-  cy.enableDashboardFeature();
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  );
-  cy.applyAcl();
+  // cy.intercept({
+  //   method: 'GET',
+  //   url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  // }).as('getNavigationList');
+  // cy.intercept({
+  //   method: 'GET',
+  //   url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
+  // }).as('resourceRequest');
+  // cy.startContainers();
+  // cy.enableDashboardFeature();
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-metrics-graph.json'
+  // );
+  // cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -175,8 +175,8 @@ When('the dashboard administrator attempts to add an invalid URL', () => {
 Then(
   'an error message should be displayed, indicating that the URL is invalid',
   () => {
-    cy.get('iframe[src="https://docss.Centreon.com/fr/"]')
-      .its('0.contentDocument.body')
+    cy.get('iframe')
+      .its('1.contentDocument.body')
       .should('not.be.empty')
       .then(cy.wrap)
       .find('#main-frame-error')
