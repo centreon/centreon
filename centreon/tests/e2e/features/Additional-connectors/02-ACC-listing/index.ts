@@ -1,8 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.startContainers();
-  cy.executeCommandsViaClapi('resources/clapi/config-ACL/ACC-acl-user.json')
+  // cy.startContainers();
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
 });
 
 beforeEach(() => {
@@ -18,6 +18,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/additional-connectors/*'
   }).as('getConnectorDetail');
+  cy.loginByTypeOfUser({
+    jsonName: 'user-non-admin-for-ACC',
+    loginViaApi: false
+  });
 });
 
 after(() => {
