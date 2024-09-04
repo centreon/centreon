@@ -443,7 +443,7 @@ overrides:
       - rrdtool
       - rrdtool-perl
       - net-snmp
-      - net-snmp-perl
+      # - net-snmp-perl
       - net-snmp-utils
       - rsync
       - brotli

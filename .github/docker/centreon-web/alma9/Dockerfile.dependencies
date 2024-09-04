@@ -44,7 +44,6 @@ dnf install -y \
   lua \
   openpgm \
   net-snmp \
-  net-snmp-perl \
   net-snmp-utils \
   openssl \
   python3 \
