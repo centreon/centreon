@@ -33,6 +33,7 @@ import { labelScrollToTop } from '../../translatedLabels';
 import NoResultsMessage from '../NoResultsMessage';
 import { selectedResourcesDetailsAtom } from '../detailsAtoms';
 import type { ResourceDetails } from '../models';
+import type { GraphTimeParameters } from '../tabs/Graph/models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -94,6 +95,7 @@ interface Props<TEntity> {
   sendListingRequest?: (parameters: {
     atPage?: number;
   }) => Promise<ListingModel<TEntity>>;
+  graphTimeParameters?: GraphTimeParameters;
 }
 
 const InfiniteScrollContent = <TEntity extends { id: number }>({
@@ -105,7 +107,8 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
   preventReloadWhen = false,
   sendListingRequest,
   children,
-  details
+  details,
+  graphTimeParameters
 }: Props<TEntity>): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -246,7 +249,16 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
             {cond([
               [always(isNil(entities)), always(loadingSkeleton)],
               [isEmpty, always(<NoResultsMessage />)],
-              [T, always(children({ entities, infiniteScrollTriggerRef }))]
+              [
+                T,
+                always(
+                  children({
+                    entities,
+                    infiniteScrollTriggerRef,
+                    graphTimeParameters
+                  })
+                )
+              ]
             ])(entities)}
           </div>
           <div className={classes.fab}>
@@ -278,7 +290,8 @@ const MemoizedInfiniteScrollContent = memoizeComponent({
     'loading',
     'preventReloadWhen',
     'filter',
-    'details'
+    'details',
+    'graphTimeParameters'
   ]
 }) as typeof InfiniteScrollContent;
 

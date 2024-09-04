@@ -63,7 +63,9 @@ const HoverChip = ({
         leaveDelay={0}
         open={isChipHovered}
         placement="left"
-        title={<span>{children({ close: closeTooltip, isChipHovered })}</span>}
+        title={
+          <span>{children({ close: closeTooltip, isChipHovered, id })}</span>
+        }
         onClick={(e): void => {
           e.preventDefault();
           e.stopPropagation();

@@ -35,7 +35,6 @@ import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 
 interface Props {
   end: string;
-  open?: boolean;
   performanceGraphRef?: MutableRefObject<HTMLDivElement | null>;
   resource?: Resource | ResourceDetails;
   start: string;
@@ -56,7 +55,6 @@ const GraphActions = ({
   resource,
   timeline,
   performanceGraphRef,
-  open,
   end,
   start
 }: Props): JSX.Element | null => {
@@ -129,10 +127,6 @@ const GraphActions = ({
       setExporting(false);
     });
   };
-
-  // if (!open) {
-  // 	return null;
-  // }
 
   return (
     <div className={classes.buttonGroup}>

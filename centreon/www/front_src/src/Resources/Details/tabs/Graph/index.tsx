@@ -1,71 +1,73 @@
-import { equals } from "ramda";
-import { useState } from "react";
+import { equals } from 'ramda';
+import { useState } from 'react';
 
-import { type Interval, TimePeriods } from "@centreon/ui";
-import type { TabProps } from "..";
-import GraphOptions from "../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions";
-import memoizeComponent from "../../../memoizedComponent";
-import { ResourceType } from "../../../models";
-import ChartGraph from "./ChartGraph";
+import { TimePeriods } from '@centreon/ui';
+import type { TabProps } from '..';
+import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
+import memoizeComponent from '../../../memoizedComponent';
+import { ResourceType } from '../../../models';
+import ChartGraph from './ChartGraph';
 
-import HostGraph from "./HostGraph";
-import { useChartGraphStyles } from "./chartGraph.styles";
-import type { GraphTimeParameters } from "./models";
+import { useAtom } from 'jotai';
+import HostGraph from './HostGraph';
+import { updatedGraphIntervalAtom } from './atoms';
+import { useChartGraphStyles } from './chartGraph.styles';
+import type { GraphTimeParameters } from './models';
 
 const GraphTabContent = ({ details }: TabProps): JSX.Element => {
-	const { classes } = useChartGraphStyles();
+  const { classes } = useChartGraphStyles();
 
-	const [updatedGraphInterval, setUpdatedGraphInterval] = useState<Interval>();
+  const [updatedGraphInterval, setUpdatedGraphInterval] = useAtom(
+    updatedGraphIntervalAtom
+  );
 
-	const [graphTimeParameters, setGraphTimeParameters] =
-		useState<GraphTimeParameters>();
+  const [graphTimeParameters, setGraphTimeParameters] =
+    useState<GraphTimeParameters>();
 
-	const type = details?.type as ResourceType;
-	const equalsService = equals(ResourceType.service);
-	const equalsMetaService = equals(ResourceType.metaservice);
-	const equalsAnomalyDetection = equals(ResourceType.anomalyDetection);
+  const type = details?.type as ResourceType;
+  const equalsService = equals(ResourceType.service);
+  const equalsMetaService = equals(ResourceType.metaservice);
+  const equalsAnomalyDetection = equals(ResourceType.anomalyDetection);
 
-	const isService =
-		equalsService(type) ||
-		equalsMetaService(type) ||
-		equalsAnomalyDetection(type);
+  const isService =
+    equalsService(type) ||
+    equalsMetaService(type) ||
+    equalsAnomalyDetection(type);
 
-	const getTimePeriodsParameters = (data: GraphTimeParameters): void => {
-		setGraphTimeParameters(data);
-	};
+  const getTimePeriodsParameters = (data: GraphTimeParameters): void => {
+    setGraphTimeParameters(data);
+  };
 
-	console.log({ isService });
+  return (
+    <div className={classes.graphTabContainer}>
+      {isService ? (
+        <>
+          <TimePeriods
+            adjustTimePeriodData={updatedGraphInterval}
+            getParameters={getTimePeriodsParameters}
+            renderExternalComponent={<GraphOptions />}
+          />
 
-	return (
-		<div className={classes.graphTabContainer}>
-			{isService ? (
-				<>
-					<TimePeriods
-						adjustTimePeriodData={updatedGraphInterval}
-						getParameters={getTimePeriodsParameters}
-						renderExternalComponent={<GraphOptions />}
-					/>
-
-					<ChartGraph
-						resource={details}
-						graphInterval={graphTimeParameters}
-						updatedGraphInterval={setUpdatedGraphInterval}
-					/>
-				</>
-			) : (
-				<HostGraph details={details} />
-			)}
-		</div>
-	);
+          <ChartGraph
+            resource={details}
+            graphInterval={graphTimeParameters}
+            updatedGraphInterval={setUpdatedGraphInterval}
+          />
+        </>
+      ) : (
+        <HostGraph details={details} />
+      )}
+    </div>
+  );
 };
 
 const MemoizedGraphTabContent = memoizeComponent<TabProps>({
-	Component: GraphTabContent,
-	memoProps: ["details"],
+  Component: GraphTabContent,
+  memoProps: ['details']
 });
 
 const GraphTab = ({ details }: TabProps): JSX.Element => {
-	return <MemoizedGraphTabContent details={details} />;
+  return <MemoizedGraphTabContent details={details} />;
 };
 
 export default GraphTab;
