@@ -71,9 +71,12 @@ export const useDatePicker = ({
     [timezone]
   );
 
-  const changeDate = useCallback(({ date }: { date: Date }) => {
-    setFieldValue(`options.${propertyName}`, date.getTime());
-  }, []);
+  const changeDate = useCallback(
+    ({ date }: { date: Date }) => {
+      setFieldValue(`options.${propertyName}`, date.getTime());
+    },
+    [propertyName]
+  );
 
   return {
     changeDate,
