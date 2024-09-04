@@ -185,7 +185,7 @@ jobs:
 
   deliver-deb:
     needs: [get-version, package]
-    if: ${{ !needs.get-version.outputs.release_cloud && contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
