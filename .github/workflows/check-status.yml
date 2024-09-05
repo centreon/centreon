@@ -6,7 +6,7 @@ concurrency:
 
 on:
   pull_request_review:
-    types: [submitted, edited]
+    types: [submitted]
 #  pull_request_target:
 #    branches:
 #      - develop
