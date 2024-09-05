@@ -22,6 +22,7 @@ import RobotoMediumWoff2 from '../fonts/roboto-medium-webfont.woff2';
 import RobotoRegularWoff2 from '../fonts/roboto-regular-webfont.woff2';
 
 import { ReactNode, useMemo } from 'react';
+import { white } from './colors';
 import { getPalette } from './palettes';
 
 declare module '@mui/styles/defaultTheme' {
@@ -114,7 +115,14 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     MuiButton: {
       defaultProps: { size: 'small' },
       styleOverrides: {
-        root: ({ ownerState }) => getButtonRootStyle(ownerState)
+        root: ({ ownerState, theme }) => ({
+          ...getButtonRootStyle(ownerState),
+          '&.MuiButton-containedPrimary:hover': {
+            color: equals(theme.palette.mode, ThemeMode.dark)
+              ? white[50]
+              : theme.palette.primary.contrastText
+          }
+        })
       }
     },
     MuiChip: {

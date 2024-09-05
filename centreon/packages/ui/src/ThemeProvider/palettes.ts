@@ -3,23 +3,6 @@ import { equals } from 'ramda';
 import { PaletteOptions, alpha } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
-import {
-  colorBlue50,
-  colorBlue400,
-  colorBlue600,
-  colorBlue900,
-  colorGrey50,
-  colorGrey100,
-  colorGrey200,
-  colorGrey300,
-  colorGrey400,
-  colorGrey500,
-  colorGrey600,
-  colorGrey700,
-  colorGrey800,
-  colorGrey900,
-  colorGrey950
-} from '../base/tokens/themes/base.tokens';
 
 import {
   black,
@@ -251,8 +234,8 @@ export const lightPalette: PaletteOptions = {
       },
       color: {
         active: blue[500],
-        default: grey[500],
-        hover: grey[600]
+        default: grey[700],
+        hover: grey[800]
       }
     },
     divider: {
@@ -405,7 +388,7 @@ export const darkPalette: PaletteOptions = {
         hover: grey[900]
       },
       color: {
-        active: blue[400],
+        active: white[50],
         default: grey[50],
         hover: white[50]
       }
@@ -417,7 +400,7 @@ export const darkPalette: PaletteOptions = {
     main: turquoise[800]
   },
   primary: {
-    contrastText: black[950],
+    contrastText: white[950],
     dark: blue[600],
     light: blue[200],
     main: blue[400]
