@@ -419,56 +419,6 @@ describe('View by service', () => {
     verifyListingRows();
 
     cy.makeSnapshot();
-  });  
-  
-  it('retrieves resources', () => {
-    cy.waitForRequest('@getResources');
-
-    verifyListingRows();
-
-    cy.makeSnapshot();
-  });
-  
-  it('retrieves resources', () => {
-    cy.waitForRequest('@getResources');
-
-    verifyListingRows();
-
-    cy.makeSnapshot();
-  });
-
-
-  it('retrieves resources', () => {
-    cy.waitForRequest('@getResources');
-
-    verifyListingRows();
-
-    cy.makeSnapshot();
-  });
-
-
-  it('retrieves resources', () => {
-    cy.waitForRequest('@getResources');
-
-    verifyListingRows();
-
-    cy.makeSnapshot();
-  });
-
-  it('retrieves resources', () => {
-    cy.waitForRequest('@getResources');
-
-    verifyListingRows();
-
-    cy.makeSnapshot();
-  });
-
-  it('retrieves resources', () => {
-    cy.waitForRequest('@getResources');
-
-    verifyListingRows();
-
-    cy.makeSnapshot();
   });
   
   it('executes a listing request with limit from widget properties', () => {
