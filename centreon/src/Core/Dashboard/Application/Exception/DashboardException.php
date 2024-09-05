@@ -250,7 +250,7 @@ class DashboardException extends \Exception
     public static function thumbnailNotFound(int $dashboardId): self
     {
         return new self(sprintf(
-            _('The thumbnail provided for dashboard [%s] was not found'),
+            _('The thumbnail provided for dashboard [%d] was not found'),
             $dashboardId
         ));
     }

@@ -254,8 +254,8 @@ final class PartialUpdateDashboard
                     $request->thumbnail->id,
                     $request->thumbnail->name,
                     $request->thumbnail->directory,
-                    null,
-                    null,
+                    comment: null,
+                    data: null,
                 )
         );
     }

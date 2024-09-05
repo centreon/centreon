@@ -104,15 +104,15 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
     /**
      * @inheritDoc
      */
-    public function findThumbnailsByDashboardIds(array $dasboardIds): array
+    public function findThumbnailsByDashboardIds(array $dashboardIds): array
     {
         $thumbnails = [];
 
-        if ($dasboardIds === []) {
+        if ($dashboardIds === []) {
             return $thumbnails;
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($dasboardIds, ':dashboard');
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($dashboardIds, ':dashboard');
 
         $query = <<<SQL
                 SELECT
@@ -420,8 +420,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
             (int) $record['id'],
             $record['name'],
             $record['directory'],
-            null,
-            null,
+            comment: null,
+            data: null
         );
     }
 

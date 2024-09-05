@@ -133,9 +133,9 @@ interface ReadDashboardRepositoryInterface
     public function findThumbnailByDashboardId(int $dashboardId): ?Media;
 
     /**
-     * @param int[] $dasboardIds
+     * @param int[] $dashboardIds
      *
      * @return array<int, Media>
      */
-    public function findThumbnailsByDashboardIds(array $dasboardIds): array;
+    public function findThumbnailsByDashboardIds(array $dashboardIds): array;
 }
