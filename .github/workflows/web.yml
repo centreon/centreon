@@ -100,7 +100,7 @@ jobs:
   gherkin-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    if: needs.changes.outputs.has_features_changes == 'true' && github.event.review.state == 'approved'
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 

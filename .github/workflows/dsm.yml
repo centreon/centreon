@@ -42,7 +42,7 @@ jobs:
         #    - "!centreon-dsm/.veracode-exclusions"
 
   get-version:
-    if: steps.include.outputs.inclusion == 'true'
+    if: steps.include.outputs.inclusion == 'true' && github.event.review.state == 'approved'
     needs: [paths]
     uses: ./.github/workflows/get-version.yml
     with:
