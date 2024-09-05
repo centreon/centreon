@@ -38,7 +38,7 @@ export interface InputProps {
     creatable?: boolean;
     options: Array<SelectEntry>;
   };
-  change?: ({ setFieldValue, value }) => void;
+  change?: ({ setFieldValue, value, setFieldTouched }) => void;
   checkbox?: {
     direction?: 'horizontal' | 'vertical';
     labelPlacement?: LabelPlacement;

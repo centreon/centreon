@@ -20,12 +20,15 @@ export const useInputs = (): Array<InputProps> => {
       required: true,
       fieldName: 'address',
       group: '',
-      change: ({ setFieldValue, value }) => {
+      change: ({ setFieldValue, value, setFieldTouched }) => {
         const port = value.match(portRegex);
         const url = value.match(/https?:\/\//);
 
         if (isNil(port)) {
-          setFieldValue('address', value);
+          const addressWithoutProtocol = url
+            ? value.replace(url[0], '')
+            : value;
+          setFieldValue('address', addressWithoutProtocol);
           return;
         }
         const newAddress = value.replace(port[0], '');
@@ -33,6 +36,7 @@ export const useInputs = (): Array<InputProps> => {
           ? newAddress.replace(url[0], '')
           : newAddress;
 
+        setFieldTouched('port', true);
         setFieldValue('address', addressWithoutProtocol);
         setFieldValue('port', port[0].substring(1));
       }

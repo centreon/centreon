@@ -12,3 +12,4 @@ export const labelCancel = 'Cancel';
 export const labelResetConfiguration = 'Reset configuration';
 export const labelFormWillBeCleared =
   'The form will be cleared and all data will be lost. Do you want to proceed?';
+export const labelPortExpectedAtMost = 'Port expected at most 65535';

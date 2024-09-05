@@ -36,15 +36,21 @@ const Text = ({
 
   const [isVisible, setIsVisible] = useState(false);
 
-  const { values, setFieldValue, touched, errors, handleBlur } =
-    useFormikContext<FormikValues>();
+  const {
+    values,
+    setFieldValue,
+    touched,
+    errors,
+    handleBlur,
+    setFieldTouched
+  } = useFormikContext<FormikValues>();
 
   const fieldNamePath = split('.', fieldName);
 
   const changeText = (event: ChangeEvent<HTMLInputElement>): void => {
     const { value } = event.target;
     if (change) {
-      change({ setFieldValue, value });
+      change({ setFieldValue, value, setFieldTouched });
 
       return;
     }

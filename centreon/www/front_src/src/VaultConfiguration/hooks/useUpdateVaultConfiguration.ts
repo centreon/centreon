@@ -7,7 +7,7 @@ const formatVaultConfiguration = (
   configuration: PostVaultConfiguration
 ): PostVaultConfigurationAPI => ({
   address: configuration.address,
-  port: configuration.port,
+  port: Number(configuration.port),
   root_path: configuration.rootPath,
   role_id: configuration.roleId,
   secret_id: configuration.secretId
@@ -15,6 +15,7 @@ const formatVaultConfiguration = (
 
 export const useUpdateVaultConfiguration = () => {
   const { mutateAsync } = useMutationQuery({
+    baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     getEndpoint: () => vaultConfigurationEndpoint,
     method: Method.PUT,
     onMutate: ({ _meta }) => {
