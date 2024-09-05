@@ -123,6 +123,9 @@ const Text = ({
         value={value || ''}
         onBlur={handleBlur(fieldName)}
         onChange={changeText}
+        inputProps={{
+          min: text?.min
+        }}
       />
     ),
     memoProps: [

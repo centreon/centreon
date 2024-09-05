@@ -102,6 +102,7 @@ export interface InputProps {
     multilineRows?: number;
     placeholder?: string;
     type?: string;
+    min?: number;
   };
   type: InputType;
 }
