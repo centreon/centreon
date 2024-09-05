@@ -95,9 +95,9 @@ class Generate
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
         
-        $kernel = Kernel::createForWeb();
-        $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        // $kernel = Kernel::createForWeb();
+        // $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+        //     ?? throw new \Exception('ReadAccRepositoryInterface not found');
     }
 
     /**
@@ -264,7 +264,7 @@ class Generate
         Broker::getInstance($this->dependencyInjector)->reset();
         (new AdditionalConnectorVmWareV6(
             Backend::getInstance($this->dependencyInjector),
-            $this->readAdditionalConnectorRepository
+            // $this->readAdditionalConnectorRepository
         ))->reset();
         $this->resetModuleObjects();
     }
@@ -278,7 +278,7 @@ class Generate
 
         (new AdditionalConnectorVmWareV6(
             Backend::getInstance($this->dependencyInjector),
-            $this->readAdditionalConnectorRepository
+            // $this->readAdditionalConnectorRepository
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);

@@ -104,9 +104,9 @@ class Generate
         $this->dependencyInjector = $dependencyInjector;
         $this->backendInstance = Backend::getInstance($this->dependencyInjector);
 
-        $kernel = Kernel::createForWeb();
-        $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        // $kernel = Kernel::createForWeb();
+        // $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+        //     ?? throw new \Exception('ReadAccRepositoryInterface not found');
     }
 
     /**
@@ -204,7 +204,7 @@ class Generate
         );
         (new \AdditionalConnectorVmWareV6(
             $this->backendInstance,
-            $this->readAdditionalConnectorRepository
+            // $this->readAdditionalConnectorRepository
         ))->generateFromPollerId($this->currentPoller['id']);
 
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
