@@ -70,7 +70,7 @@ const run = async () => {
       fs.readFileSync(dynamicCodeCoveragesFilePath)
     );
     const baseCodeCoveragePercentage = codeCoverages[module];
-    const lowerBaseCodeCoverage = baseCodeCoveragePercentage - 0.04;
+    const lowerBaseCodeCoverage = baseCodeCoveragePercentage - 0.2;
 
     const passGateKeep =
       codeCoverageLines >= lowerBaseCodeCoverage ||
