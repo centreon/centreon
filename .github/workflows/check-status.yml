@@ -5,19 +5,17 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_run:
-    workflows: ["validate"]
-    types:
-      - completed
-  pull_request:
-    branches:
-      - develop
-      - dev-[2-9][0-9].[0-9][0-9].x
-      - master
-      - "[2-9][0-9].[0-9][0-9].x"
-      - hotfix-*
-      - release-*
-      - MON-146261-open-pipelines-to-external-contrib-*
+  pull_request_review:
+    types: [submitted]
+#  pull_request:
+#    branches:
+#      - develop
+#      - dev-[2-9][0-9].[0-9][0-9].x
+#      - master
+#      - "[2-9][0-9].[0-9][0-9].x"
+#      - hotfix-*
+#      - release-*
+#      - MON-146261-open-pipelines-to-external-contrib-*
 
 jobs:
   check-status:
