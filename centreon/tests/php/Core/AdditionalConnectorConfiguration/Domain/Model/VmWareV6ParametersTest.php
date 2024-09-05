@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\AdditionalConnectorConfiguration\Application\Validation;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6Parameters;
+use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\VmWareV6Parameters;
 use Security\Interfaces\EncryptionInterface;
 
 beforeEach(function (): void {
