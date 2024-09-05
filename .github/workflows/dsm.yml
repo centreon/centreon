@@ -26,7 +26,11 @@ env:
 jobs:
   paths:
     runs-on: ubuntu-22.04
+    outputs:
+      inclusion: ${{ steps.filter.outputs.inclusion }}
     steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
       - uses: dorny/paths-filter@ebc4d7e9ebcb0b1eb21480bb8f43113e996ac77a # v3.0.1
         id: include
         with:
@@ -42,7 +46,7 @@ jobs:
         #    - "!centreon-dsm/.veracode-exclusions"
 
   get-version:
-    if: steps.include.outputs.inclusion == 'true' && github.event.review.state == 'approved'
+    if: needs.paths.outputs.inclusion == 'true' && github.event.review.state == 'approved'
     needs: [paths]
     uses: ./.github/workflows/get-version.yml
     with:
