@@ -7,7 +7,7 @@ concurrency:
 on:
   pull_request_review:
     types: [submitted]
-#  pull_request_target:
+#  pull_request:
 #    branches:
 #      - develop
 #      - dev-[2-9][0-9].[0-9][0-9].x
