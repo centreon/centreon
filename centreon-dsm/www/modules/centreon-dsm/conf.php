@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
+ * Copyright 2005-2025 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -50,6 +50,7 @@ The goal of this module is to overhead the basic trap management system of Centr
     "with a single service and alarm crashed by successive alarms.
 ";
 $module_conf['centreon-dsm']["is_removeable"] = "1";
+
 $module_conf['centreon-dsm']["author"] = "Centreon";
 $module_conf['centreon-dsm']["stability"] = "stable";
 $module_conf['centreon-dsm']["last_update"] = "2024-08-27";
