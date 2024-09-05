@@ -88,16 +88,10 @@ class Generate
     private $module_objects = null;
     protected $dependencyInjector = null;
 
-    private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
-
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
-        
-        // $kernel = Kernel::createForWeb();
-        // $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-        //     ?? throw new \Exception('ReadAccRepositoryInterface not found');
     }
 
     /**
@@ -262,9 +256,13 @@ class Generate
         Resource::getInstance($this->dependencyInjector)->reset();
         Engine::getInstance($this->dependencyInjector)->reset();
         Broker::getInstance($this->dependencyInjector)->reset();
+
+        $kernel = Kernel::createForWeb();
+        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
         (new AdditionalConnectorVmWareV6(
             Backend::getInstance($this->dependencyInjector),
-            // $this->readAdditionalConnectorRepository
+            $readAdditionalConnectorRepository
         ))->reset();
         $this->resetModuleObjects();
     }
@@ -275,10 +273,12 @@ class Generate
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
-
+        $kernel = Kernel::createForWeb();
+        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
         (new AdditionalConnectorVmWareV6(
             Backend::getInstance($this->dependencyInjector),
-            // $this->readAdditionalConnectorRepository
+            $readAdditionalConnectorRepository
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);

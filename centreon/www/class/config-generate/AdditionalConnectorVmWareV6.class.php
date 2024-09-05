@@ -19,7 +19,6 @@
  *
  */
 
-use App\Kernel;
 use Assert\AssertionFailedException;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
@@ -29,7 +28,7 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
 {
     public function __construct(
         private readonly Backend $backend,
-        // private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
+        private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
     ) {
     }
 
@@ -42,9 +41,7 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
      */
     private function generate(int $pollerId): void
     {
-        $kernel = Kernel::createForWeb();
-        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class);
-        $additionalConnectorsVMWareV6 = $readAdditionalConnectorRepository
+        $additionalConnectorsVMWareV6 = $this->readAdditionalConnectorRepository
             ->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
 
         // Cast to object to ensure that an empty JSON and not an empty array is write in file if no ACC exists.

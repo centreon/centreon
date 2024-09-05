@@ -92,8 +92,6 @@ class Generate
     private $moduleObjects = null;
     protected $dependencyInjector = null;
 
-    private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
-
     /**
      * Constructor
      *
@@ -103,10 +101,6 @@ class Generate
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backendInstance = Backend::getInstance($this->dependencyInjector);
-
-        // $kernel = Kernel::createForWeb();
-        // $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-        //     ?? throw new \Exception('ReadAccRepositoryInterface not found');
     }
 
     /**
@@ -202,9 +196,12 @@ class Generate
             $this->currentPoller['id'],
             $this->currentPoller['localhost']
         );
+        $kernel = Kernel::createForWeb();
+        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
         (new \AdditionalConnectorVmWareV6(
             $this->backendInstance,
-            // $this->readAdditionalConnectorRepository
+            $readAdditionalConnectorRepository
         ))->generateFromPollerId($this->currentPoller['id']);
 
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
