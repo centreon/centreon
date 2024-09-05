@@ -6,9 +6,7 @@ concurrency:
 
 on:
   pull_request_review:
-    type: submitted
-    states:
-      - approved
+    types: [submitted]
   push:
     branches:
       - develop
