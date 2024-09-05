@@ -227,12 +227,12 @@ if ($searchH != "" || $searchS != "" || $searchP != "") {
         $queryParams[':searchH'] = '%' . htmlentities($searchH, ENT_QUOTES, 'UTF-8') . '%';
     }
     if ($searchS != "") {
-        $search_string .= " AND i.service_description LIKE :searchS ";
+        $search_string .= " AND s.display_name LIKE :searchS ";
         $queryParams[':searchS'] = '%' . htmlentities($searchS, ENT_QUOTES, 'UTF-8') . '%';
     }
     if ($searchP != "") {
         /* Centron Broker */
-        $extTables = ", hosts h";
+        $extTables = "JOIN hosts h ON h.host_id = i.host_id";
         $search_string .= " AND i.host_id = h.host_id AND h.instance_id = :searchP ";
         $queryParams[':searchP'] = $searchP;
     }
@@ -243,8 +243,19 @@ $storage_type = [0 => "RRDTool", 2 => "RRDTool & MySQL"];
 $yesOrNo = [0 => "No", 1 => "Yes", 2 => "Rebuilding"];
 
 $data = array ();
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT i.* FROM index_data i, metrics m" . $extTables .
-    " WHERE i.id = m.index_id $search_string ORDER BY host_name, service_description LIMIT :offset, :limit";
+$query = <<<SQL
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT i.* , s.display_name
+    FROM index_data i
+    JOIN services s
+        ON i.service_id = s.service_id
+    JOIN metrics m
+        ON i.id = m.index_id
+    {$extTables}
+    WHERE i.id = m.index_id
+    {$search_string}
+    ORDER BY host_name, display_name
+    LIMIT :offset, :limit
+    SQL;
 
 $stmt = $pearDBO->prepare($query);
 
@@ -276,7 +287,7 @@ for ($i = 0; $indexData = $stmt->fetch(\PDO::FETCH_ASSOC); $i++) {
     }
     $indexData["metrics_name"] = $metric;
     $indexData["service_description"] = "<a href='./main.php?p=50119&o=msvc&index_id=" . $indexData["id"] . "'>" .
-        $indexData["service_description"] . "</a>";
+        $indexData["display_name"] . "</a>";
 
     $indexData["storage_type"] = $storage_type[$indexData["storage_type"]];
     $indexData["must_be_rebuild"] = $yesOrNo[$indexData["must_be_rebuild"]];
