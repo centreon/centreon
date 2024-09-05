@@ -26,7 +26,7 @@ const WidgetTextField = ({
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
-  const { classes } = useTextFieldStyles({hasMarginBottom : !!secondaryLabel});
+  const { classes } = useTextFieldStyles({ hasMarginBottom: !!secondaryLabel });
 
   const { errors, values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
@@ -69,7 +69,7 @@ const WidgetTextField = ({
 
   return (
     <div className={classes.container}>
-      {secondaryLabel && <Label>{t(secondaryLabel)}</Label> }
+      {secondaryLabel && <Label>{t(secondaryLabel)}</Label>}
       <TextField
         fullWidth
         autoSize={text?.autoSize}
