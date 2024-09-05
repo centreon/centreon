@@ -231,7 +231,7 @@ try {
     $createAcc($pearDB);
     $addCentreonBrokerForeignKeyOnBrokerLogTable($pearDB);
 
-    // Tansactional queries
+    // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
@@ -240,6 +240,7 @@ try {
     $insertNewBrokerLogs($pearDB);
     $insertNewBrokersLogsRelations($pearDB);
     $removeDashboardFeatureFlagFromTopology($pearDB);
+    $insertVaultConfiguration($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
