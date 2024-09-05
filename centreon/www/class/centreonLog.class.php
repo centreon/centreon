@@ -172,12 +172,15 @@ class CentreonLog
     public const TYPE_UPGRADE = 4;
     public const TYPE_PLUGIN_PACK_MANAGER = 5;
 
+    public const TYPE_BUSINESS_LOG = 6;
+
     private const DEFAULT_LOG_FILES = [
         self::TYPE_LOGIN => 'login.log',
         self::TYPE_SQL => 'sql-error.log',
         self::TYPE_LDAP => 'ldap.log',
         self::TYPE_UPGRADE => 'upgrade.log',
         self::TYPE_PLUGIN_PACK_MANAGER => 'plugin-pack-manager.log',
+        self::TYPE_BUSINESS_LOG => 'centreon-web.log'
     ];
 
     /** @var array<int,string> */
