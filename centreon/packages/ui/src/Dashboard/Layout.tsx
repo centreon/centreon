@@ -5,15 +5,15 @@ import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 
 import {
-  Responsive as ResponsiveHeight,
   ParentSize,
+  Responsive as ResponsiveHeight,
   useMemoComponent
 } from '..';
 
 import { useDashboardLayoutStyles } from './Dashboard.styles';
-import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
 import Grid from './Grid';
 import { isResizingItemAtom } from './atoms';
+import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
 
 const ReactGridLayout = WidthProvider(GridLayout);
 
@@ -44,7 +44,7 @@ const DashboardLayout = <T extends Layout>({
     setColumns(getColumnsFromScreenSize());
   };
 
-  const startResize = useCallback((_, __, newItem: T) => {
+  const startResize = useCallback((_, _e, newItem: T) => {
     setIsResizingItem(newItem.i);
   }, []);
 

@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 
-import { ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
+import { ResourceData } from '../models';
 
 import State from './State';
 

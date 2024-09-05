@@ -5,10 +5,10 @@ import { Box } from '@mui/material';
 import { Form as FormComponent } from '@centreon/ui';
 
 import { panelWidthStorageAtom } from '../../atom';
-import useFormInputs from '../FormInputs/useFormInputs';
-import ReducePanel from '../ReducePanel';
-import { Header } from '../Header';
 import useFormInitialValues from '../FormInitialValues/useFormInitialValues';
+import useFormInputs from '../FormInputs/useFormInputs';
+import { Header } from '../Header';
+import ReducePanel from '../ReducePanel';
 import useIsBamModuleInstalled from '../useIsBamModuleInstalled';
 
 import useStyles from './Form.styles';

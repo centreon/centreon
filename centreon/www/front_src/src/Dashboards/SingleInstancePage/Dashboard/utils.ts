@@ -30,7 +30,7 @@ export const getDetailsPanelQueriers = (data): object => {
   const resourcesDetailsEndpoint = `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
 
   const queryParameters = {
-    id: parseInt(serviceId, 10),
+    id: Number.parseInt(serviceId, 10),
     resourcesDetailsEndpoint,
     selectedTimePeriodId: 'last_24_h',
     tab: 'graph',

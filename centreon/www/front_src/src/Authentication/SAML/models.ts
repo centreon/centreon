@@ -5,9 +5,9 @@ import {
   SharedRolesMapping
 } from '../shared/models';
 import {
-  SharedRolesMappingToAPI,
+  SharedAuthenticationConditionsToAPI,
   SharedGroupsMappingToAPI,
-  SharedAuthenticationConditionsToAPI
+  SharedRolesMappingToAPI
 } from '../shared/modelsAPI';
 
 export interface SAMLConfiguration {

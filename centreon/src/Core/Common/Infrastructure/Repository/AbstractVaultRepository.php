@@ -39,6 +39,7 @@ abstract class AbstractVaultRepository
     public const OPEN_ID_CREDENTIALS_VAULT_PATH = 'configuration/openid';
     public const DATABASE_VAULT_PATH = 'database';
     public const BROKER_VAULT_PATH = 'configuration/broker';
+    public const ACC_VAULT_PATH = 'configuration/additionalConnectorConfigurations';
     protected const DEFAULT_SCHEME = 'https';
 
     /** @var string[] */
@@ -50,6 +51,7 @@ abstract class AbstractVaultRepository
         self::OPEN_ID_CREDENTIALS_VAULT_PATH,
         self::DATABASE_VAULT_PATH,
         self::BROKER_VAULT_PATH,
+        self::ACC_VAULT_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;

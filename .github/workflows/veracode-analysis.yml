@@ -69,7 +69,7 @@ jobs:
           elif [[ $CHECK_BRANCH == "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]; then
             # e.g release-23.04-next
             FAIL_BUILD="false"
-            DEVELOPMENT_STAGE="Development"
+            DEVELOPMENT_STAGE="Testing"
             DISPLAY_SUMMARY="false"
           else
             FAIL_BUILD="$ENABLE_QG"
@@ -90,7 +90,7 @@ jobs:
           echo "skip_analysis=$SKIP_ANALYSIS" >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         if: steps.routing-mode.outputs.skip_analysis == 'false'
 
       - name: Generate binary file
@@ -107,7 +107,7 @@ jobs:
     runs-on: [self-hosted, common]
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Get build binary
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -244,7 +244,7 @@ jobs:
         # only baseline files not generated from a development branch are saved
         if: success() && needs.build.outputs.development_stage != 'Development'
         run: |
-          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
+          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x release-${{ inputs.major_version }}-next)
           for BRANCH in "${BRANCHES[@]}"; do
             if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
               mv *results.json /tmp
@@ -285,7 +285,7 @@ jobs:
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           appname: "${{ inputs.module_name }}"
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}_attempt-${{ github.run_attempt }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
@@ -323,7 +323,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Removing pnpm dependencies
         run: |

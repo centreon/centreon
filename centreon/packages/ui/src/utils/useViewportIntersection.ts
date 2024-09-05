@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
 interface ViewportIntersectionState {
   isInViewport: boolean;

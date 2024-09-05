@@ -17924,10 +17924,10 @@ msgid "Show thresholds"
 msgstr "Afficher les seuils"
 
 msgid "Custom"
-msgstr "Personnalisé"
+msgstr "Personnalisée"
 
-msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
-msgstr "Les seuils sont automatiquement masqués dès que vous sélectionnez 2 unités métriques."
+msgid "Thresholds are automatically hidden when you select several metrics with different units."
+msgstr "Les seuils sont automatiquement masqués lorsque vous sélectionnez des métriques aux unités différentes."
 
 msgid "Show description"
 msgstr "Afficher la description"
@@ -17960,7 +17960,7 @@ msgid "Your widget has been created successfully!"
 msgstr "Votre widget a été créé avec succès !"
 
 msgid "Value settings"
-msgstr "Paramètres de valeur"
+msgstr "Paramètres des valeurs"
 
 msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
 msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
@@ -18008,7 +18008,7 @@ msgid "Widget type"
 msgstr "Type de widget"
 
 msgid "Display as"
-msgstr "Afficher en tant que"
+msgstr "Afficher sous forme de"
 
 msgid "Text"
 msgstr "Texte"
@@ -18019,8 +18019,8 @@ msgstr "Jauge"
 msgid "Bar chart"
 msgstr "Diagramme à barres"
 
-msgid "The default value is the value defined for the first metric used."
-msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée."
+msgid "The default value is the value defined for the first selected metric."
+msgstr "La valeur par défaut est la valeur définie pour la première métrique sélectionnée."
 
 msgid "Raw value"
 msgstr "Valeur brute"
@@ -18173,8 +18173,8 @@ msgstr "Seuils"
 msgid "Value format"
 msgstr "Format de la valeur"
 
-msgid "Time period"
-msgstr "Période temporelle"
+msgid "Time range"
+msgstr "Plage temporelle"
 
 msgid "Last hour"
 msgstr "La dernière heure"
@@ -18963,8 +18963,8 @@ msgstr "Type de courbe"
 msgid "Linear"
 msgstr "Linéaire"
 
-msgid "Natural"
-msgstr "Naturel"
+msgid "Smooth"
+msgstr "Arrondie"
 
 msgid "Error while partially updating the token"
 msgstr "Erreur lors de la mise à jour partielle du jeton"
@@ -18987,23 +18987,20 @@ msgstr "Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps
 msgid "You are not allowed to access services in the real time context"
 msgstr "Vous n'êtes pas autorisé à accéder aux services dans le cadre du temps réel"
 
-msgid "Value sorting"
+msgid "Value sort order"
 msgstr "Tri des valeurs"
 
 msgid "By name"
 msgstr "Par nom"
 
-msgid "Tooltip display"
-msgstr "Affichage de l'infobulle"
-
 msgid "All"
-msgstr "Tout"
+msgstr "Toutes"
 
-msgid "Single"
-msgstr "Unique"
+msgid "Only one"
+msgstr "Une seule"
 
 msgid "Hidden"
-msgstr "Masqué"
+msgstr "Masquées"
 
 msgid "Hide"
 msgstr "Masquer"
@@ -19014,8 +19011,8 @@ msgstr "Largeur de la ligne"
 msgid "Auto"
 msgstr "Auto"
 
-msgid "Show area"
-msgstr "Afficher l'aire"
+msgid "Area"
+msgstr "Aire"
 
 msgid "Show"
 msgstr "Afficher"
@@ -19023,14 +19020,14 @@ msgstr "Afficher"
 msgid "Display curve points"
 msgstr "Afficher les points de la courbe"
 
-msgid "Show axis border"
-msgstr "Afficher la bordure de l'axe"
+msgid "Show axis borders"
+msgstr "Afficher les bordures de l'axe"
 
-msgid "Y-axis tick label rotation"
-msgstr "Rotation de l'étiquette de l'axe Y"
+msgid "Y-axis label rotation"
+msgstr "Rotation des étiquettes de l'axe Y"
 
-msgid "The Auto value corresponds to the value defined in the Curves configuration in Centreon."
-msgstr "La valeur Auto correspond à la valeur définie dans la configuration des courbes dans Centreon."
+msgid "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves)."
+msgstr "Auto : Valeur par défaut définie dans le modèle de courbe correspondant (Supervision > Informations de performance > Courbes)."
 
 msgid "Position"
 msgstr "Position"
@@ -19053,11 +19050,11 @@ msgstr "Centré sur zéro"
 msgid "Solid"
 msgstr "Uni"
 
-msgid "Dashed"
-msgstr "Tiret"
+msgid "Dashes"
+msgstr "Tirets"
 
-msgid "Dotted"
-msgstr "Pointillé"
+msgid "Dots"
+msgstr "Pointillés"
 
 msgid "Graph style"
 msgstr "Style de graphe"
@@ -19065,8 +19062,8 @@ msgstr "Style de graphe"
 msgid "Display type"
 msgstr "Type d'affichage"
 
-msgid "Display settings"
-msgstr "Afichage des paramètres"
+msgid "Graph settings"
+msgstr "Paramètres de graphe"
 
 msgid "Fill opacity"
 msgstr "Opacité du remplissage"
@@ -19080,8 +19077,11 @@ msgstr "Largeur du tiret"
 msgid "Space"
 msgstr "Espacement"
 
-msgid "Show grid lines"
-msgstr "Affichage de la grille"
+msgid "Show gridlines"
+msgstr "Afficher le quadrillage"
+
+msgid "Gridline type"
+msgstr "Type de quadrillage"
 
 msgid "Horizontal"
 msgstr "Horizontal"
@@ -19104,11 +19104,11 @@ msgstr "Gauche"
 msgid "Right"
 msgstr "Droite"
 
-msgid "Axis"
-msgstr "Axe"
+msgid "Axes"
+msgstr "Axes"
 
-msgid "Tooltip"
-msgstr "Infobulle"
+msgid "Tooltips"
+msgstr "Infobulles"
 
 msgid "Unable to retrieve credentials ['%s'] from vault"
 msgstr "Impossible de récupérer les informations d'identification ['%s'] du coffre"
@@ -19134,8 +19134,8 @@ msgstr "Orientation"
 msgid "Bar radius"
 msgstr "Radius de la barre"
 
-msgid "Bar background opacity"
-msgstr "Opacité du fond de la barre"
+msgid "Bar opacity"
+msgstr "Opacité de la barre"
 
 msgid "Check command sent!"
 msgstr "Commande de vérification envoyée !"
@@ -19208,6 +19208,7 @@ msgstr "Sélectionner la règle (fournisseur de tickets)"
 
 msgid "Display resources with these status types"
 msgstr "Afficher les ressources avec ces types de statuts"
+
 msgid  "All KPIs on this Business Activity are working fine."
 msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
 
@@ -19255,3 +19256,166 @@ msgstr "Santé"
 
 msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
+
+msgid "Additional connector configurations"
+msgstr "Configuration supplémentaire de connecteurs"
+
+msgid "Types"
+msgstr "Types"
+
+msgid "Updated by"
+msgstr "Mis à jour par"
+
+msgid "Edit connector configuration"
+msgstr "Modifier la configuration de connecteur"
+
+msgid "More filters"
+msgstr "Plus de filtres"
+
+msgid "Delete additional connector configuration"
+msgstr "Supprimer la configuration supplémentaire de connecteur"
+
+msgid "The {{name}} additional connector configuration will be permanently deleted."
+msgstr "La configuration supplémentaire de connecteur {{name}} sera définitivement supprimée."
+
+msgid "The corresponding connectors will not work anymore."
+msgstr "Les connecteurs correspondants ne fonctionneront plus."
+
+msgid "Additional connector configuration deleted"
+msgstr "Configuration supplémentaire de connecteur supprimée"
+
+msgid "Additional connector configuration duplicated"
+msgstr "Configuration supplémentaire de connecteur dupliquée"
+
+msgid "Additional connector configuration created"
+msgstr "Configuration supplémentaire de connecteur créée"
+
+msgid "Additional connector configuration updated"
+msgstr "Configuration supplémentaire de connecteur mise à jour"
+
+msgid "Duplicate connector configuration"
+msgstr "Dupliquer la configuration de connecteur"
+
+msgid "The name can be at most 50 characters long"
+msgstr "Le nom peut comporter au maximum 50 caractères"
+
+msgid "The name should be at least 3 characters long"
+msgstr "Le nom doit comporter au moins 3 caractères"
+
+msgid "Create additional connector configuration"
+msgstr "Créer une configuration supplémentaire de connecteur"
+
+msgid "Update additional connector configuration"
+msgstr "Mettre à jour la configuration supplémentaire de connecteur"
+
+msgid "Select poller(s)"
+msgstr "Sélectionner le(s) collecteur(s)"
+
+msgid "Add parameter"
+msgstr "Ajouter un paramètre"
+
+msgid "Add vCenter/ESX"
+msgstr "Ajouter vCenter/ESX"
+
+msgid "Remove vCenter/ESX"
+msgstr "Supprimer vCenter/ESX"
+
+msgid "At least one poller is required"
+msgstr "Au moins un collecteur est requis"
+
+msgid "At least one vCenter is required"
+msgstr "Au moins un vCenter est requis"
+
+msgid "Please enter a valid URL or IP address"
+msgstr "Entrez une URL ou une adresse IP valide"
+
+msgid "Invalid port number"
+msgstr "Numéro de port invalide"
+
+msgid "The name of the vCenter should be unique"
+msgstr "Le nom du vCenter doit être unique"
+
+msgid "vCenter name"
+msgstr "Nom du vCenter"
+
+msgid "Do you want to quit without saving the changes?"
+msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
+
+
+msgid "Error while adding an additional connector configuration"
+msgstr "Erreur lors de l'ajout d'une configuration additionnelle de connecteur"
+
+msgid "You are not allowed to access additional connector configurations"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations additionnelles de connecteurs"
+
+msgid "An additional connector configuration of type %s is already associated with poller ID(s) '%s'"
+msgstr "Une configuration additionnelle de connecteur de type %s est déjà associée au(x) ID(s) de collecteur(s) '%s'"
+
+msgid "Duplicates not allowed for property '%s'"
+msgstr "Doublons non autorisés pour la propriété '%'"
+
+msgid "'%s' must contain at least one element"
+msgstr "'%s' doit contenir au moins un élément"
+
+msgid "Error while retrieving an additional connector configuration"
+msgstr "Erreur durant la récupération d'une configuration additionnelle de connecteur"
+
+msgid "The additional connector configuration name '%s' already exists"
+msgstr "Le nom de configuration additionnelle de connecteur '%s' existe déjà"
+
+msgid "Error while deleting an additional connector configuration"
+msgstr "Erreur lors de la suppression d'une configuration additionelle de connecteur"
+
+msgid "You don't have sufficient permissions for this action"
+msgstr "Vous ne disposez pas de droits suffisants pour cette action"
+
+msgid "Error while searching for additional connector configurations"
+msgstr "Erreur lors de la recherche de configurations additionnelles de connecteurs"
+
+msgid "Error while searching for available pollers for type '%s'"
+msgstr "Erreur lors de la recherche de collecteurs disponibles pour le type '%s'"
+
+msgid "Error while updating an additional connector configuration"
+msgstr "Erreur lors de la mise à jour d'une configuration additionnelle de connecteur"
+
+msgid "Changing type of an existing additional connector configuration is not allowed"
+msgstr "Changer le type d'une configuration additionnelle de connecteur existante n'est pas autorisé"
+
+msgid "Select time zone"
+msgstr "Sélectionner un fuseau horaire"
+
+msgid "Select time format"
+msgstr "Sélectionner un format d'heure"
+
+msgid "12 hours"
+msgstr "12 heures"
+
+msgid "24 hours"
+msgstr "24 heures"
+
+msgid "Ends at"
+msgstr "Se termine à"
+
+msgid "Time zone"
+msgstr "Fuseau horaire"
+
+msgid "Date format"
+msgstr "Format de date"
+
+msgid "Time format"
+msgstr "Format d'heure"
+
+msgid "Countdown"
+msgstr "Compte à rebours"
+
+msgid "Timer"
+msgstr "Minuteur"
+
+msgid "Show time zone"
+msgstr "Afficher le fuseau horaire"
+
+msgid "Show date"
+msgstr "Afficher la date"
+
+msgid "The ticket will be closed for the selected ticket provider"
+msgstr "Le ticket sera fermé pour le fournisseur de tickets sélectionné"

@@ -14,6 +14,13 @@ inputs:
     description: The eslint command
     required: false
     default: eslint
+  pat:
+    description: "The personal access token"
+    required: true
+  lint_path:
+    required: false
+    description: "The path to lint"
+    default: '.'
 
 runs:
   using: "composite"
@@ -39,14 +46,17 @@ runs:
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-    - name: Run ESLint
-      run: pnpm eslint -f json -o eslint-report.json --max-warnings 0
-      working-directory: ${{ inputs.frontend_directory }}
-      shell: bash
-
-    - if: failure()
-      uses: ./.github/actions/publish-report
+    - name: Setup Biome CLI
+      uses: biomejs/setup-biome@0de019f8c69e70cd3dc5535e7943afa3b05f94b7 # v2.2.1
       with:
-        path: ${{ inputs.frontend_directory }}/eslint-report.json
-        format: eslint
-        check_name: ${{ inputs.module_name }}-eslint-report
+        working-dir: ${{ inputs.frontend_directory }}
+        token: ${{ inputs.pat }}
+
+    - uses: mongolyy/reviewdog-action-biome@6b01155716493e5cc365df64aa0946ec9adc53c2 # v1.6.1
+      with:
+        workdir: ${{ inputs.frontend_directory }}
+        github_token: ${{ inputs.pat }}
+        reporter: github-pr-check
+        fail_on_error: true
+        level: 'error'
+        biome_flags: ${{ inputs.lint_path }}

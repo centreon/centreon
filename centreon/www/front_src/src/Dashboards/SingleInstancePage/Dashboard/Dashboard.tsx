@@ -7,28 +7,28 @@ import {
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
-import { Divider } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { Divider } from '@mui/material';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
+import { Dashboard as DashboardType } from '../../api/models';
+import { isSharesOpenAtom } from '../../atoms';
+import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { DashboardConfigModal } from '../../components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
 import { useDashboardConfig } from '../../components/DashboardLibrary/DashboardConfig/useDashboardConfig';
-import { Dashboard as DashboardType } from '../../api/models';
-import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
-import { isSharesOpenAtom } from '../../atoms';
+import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
 
+import { AddWidgetButton } from './AddEditWidget';
+import { useDashboardStyles } from './Dashboard.styles';
 import Layout from './Layout';
-import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
-import { AddWidgetButton } from './AddEditWidget';
-import { useCanEditProperties } from './hooks/useCanEditDashboard';
-import { useDashboardStyles } from './Dashboard.styles';
-import DeleteWidgetModal from './components/DeleteWidgetModal';
 import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
+import DeleteWidgetModal from './components/DeleteWidgetModal';
+import { useCanEditProperties } from './hooks/useCanEditDashboard';
+import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();

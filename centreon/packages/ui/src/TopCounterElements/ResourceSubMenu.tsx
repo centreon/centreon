@@ -1,8 +1,6 @@
-import * as React from 'react';
-
 import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 import { Link } from 'react-router-dom';
+import { makeStyles } from 'tss-react/mui';
 
 import { List, ListItem } from '@mui/material';
 
@@ -80,7 +78,6 @@ const SubMenu = ({ items, onClose }: SubMenuProps): JSX.Element => {
             disableGutters
             className={classes.submenuItem}
             key={to}
-            role="none"
             onClick={onClose}
           >
             <Link

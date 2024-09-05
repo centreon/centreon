@@ -2,6 +2,7 @@ import { equals } from 'ramda';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
+import NoResources from '../../NoResources';
 import {
   CommonWidgetProps,
   FormThreshold,
@@ -9,13 +10,12 @@ import {
   Metric,
   Resource
 } from '../../models';
-import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 
-import { TopBottomSettings } from './models';
-import useTopBottom from './useTopBottom';
 import MetricTop from './MetricTop';
 import { useTopBottomStyles } from './TopBottom.styles';
+import { TopBottomSettings } from './models';
+import useTopBottom from './useTopBottom';
 
 interface TopBottomProps
   extends Pick<

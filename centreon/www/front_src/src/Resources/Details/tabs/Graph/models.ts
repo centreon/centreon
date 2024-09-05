@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
 import { find, propEq } from 'ramda';
 
-import { timeFormat, dateFormat } from '@centreon/ui';
+import { dateFormat, timeFormat } from '@centreon/ui';
 
 import {
-  label31Days,
-  labelLast31Days,
-  label7Days,
-  labelLast7Days,
   label1Day,
+  label7Days,
+  label31Days,
+  labelLast7Days,
+  labelLast31Days,
   labelLastDay
 } from '../../../translatedLabels';
 

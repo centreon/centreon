@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { Box } from '@mui/system';
 
 import { DeleteButton } from '../../Actions/Delete';
-import { labelDeleteMultipleResourceAccessRules } from '../../translatedLabels';
-import { selectedRowsAtom } from '../../atom';
 import useDelete from '../../Actions/Delete/useDelete';
+import { selectedRowsAtom } from '../../atom';
 import { DeleteType } from '../../models';
+import { labelDeleteMultipleResourceAccessRules } from '../../translatedLabels';
 
 import AddButton from './AddButton';
 import useHeaderStyles from './Header.styles';

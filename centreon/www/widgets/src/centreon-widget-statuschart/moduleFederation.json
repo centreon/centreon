@@ -2,9 +2,7 @@
   "federatedComponentsConfiguration": [
     {
       "path": "/widgets/statuschart",
-      "federatedComponents": [
-        "./statuschart"
-      ],
+      "federatedComponents": ["./statuschart"],
       "panelMinHeight": 3
     }
   ],

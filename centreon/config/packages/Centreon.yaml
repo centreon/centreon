@@ -38,11 +38,14 @@ services:
             - '../../src/Core/Media/*'
             - '../../src/Core/Command/*'
             - '../../src/Core/ResourceAccess/*'
+            - '../../src/Core/TimePeriod/*'
             - '../../src/Core/Service/*'
             - '../../src/Core/HostGroup/*'
             - '../../src/Core/ServiceGroup/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
+            - '../../src/Core/AdditionalConnectorConfiguration/*'
+            - '../../src/Core/Security/Vault/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
@@ -91,11 +94,6 @@ services:
               arguments: ['%env(APP_SECRET)%']
         public: true
 
-    Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface:
-        class: Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository
-        public: true
-        arguments:
-            $configurationFile: '%vault_conf_path%'
 
     Core\Common\Application\Repository\WriteVaultRepositoryInterface:
         class: Core\Common\Infrastructure\Repository\WriteVaultRepository
@@ -313,11 +311,6 @@ services:
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
 
-    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
-        class: Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository
-        public: true
-        arguments:
-            $configurationFile: '%vault_conf_path%'
 
 
     # Monitoring resources

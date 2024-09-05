@@ -6,20 +6,20 @@ import { SelectEntry } from '../../InputField/Select';
 import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
 
 export enum InputType {
-  Switch,
-  Radio,
-  Text,
-  SingleAutocomplete,
-  MultiAutocomplete,
-  Password,
-  SingleConnectedAutocomplete,
-  MultiConnectedAutocomplete,
-  FieldsTable,
-  Grid,
-  Custom,
-  Checkbox,
-  CheckboxGroup,
-  List
+  Switch = 0,
+  Radio = 1,
+  Text = 2,
+  SingleAutocomplete = 3,
+  MultiAutocomplete = 4,
+  Password = 5,
+  SingleConnectedAutocomplete = 6,
+  MultiConnectedAutocomplete = 7,
+  FieldsTable = 8,
+  Grid = 9,
+  Custom = 10,
+  Checkbox = 11,
+  CheckboxGroup = 12,
+  List = 13
 }
 
 interface FieldsTableGetRequiredProps {
@@ -46,6 +46,7 @@ export interface InputProps {
   };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
+    chipColor?: string;
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;

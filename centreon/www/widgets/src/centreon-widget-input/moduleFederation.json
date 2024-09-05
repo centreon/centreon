@@ -2,9 +2,7 @@
   "federatedComponentsConfiguration": [
     {
       "path": "/widgets/input",
-      "federatedComponents": [
-        "./input"
-      ],
+      "federatedComponents": ["./input"],
       "panelMinHeight": 3,
       "panelMinWidth": 4
     }

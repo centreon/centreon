@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import SyncDisabledIcon from '@mui/icons-material/SyncDisabled';
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
