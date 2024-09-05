@@ -99,15 +99,15 @@ const WrapperThresholdLines = ({
 				return null;
 			}
 
-			const { data: pattern, id } = dataPattern;
+			const { data: pattern } = dataPattern;
 
-			return pattern.map((element) => ({
+			return pattern.map((element, index) => ({
 				Component: ThresholdWithPatternLines,
-				key: id,
+				key: index,
 				props: {
 					data: element,
 					graphHeight,
-					key: id,
+					key: index,
 					orientation: dataPattern?.orientation,
 					xScale,
 					yScalesPerUnit,
@@ -128,7 +128,7 @@ const WrapperThresholdLines = ({
 		<g>
 			{filteredThresholdLines.map((element) =>
 				element?.map(({ Component, props, key }) => (
-					<Component {...props} id={props.id} key={key} />
+					<Component {...props} id={props?.id ?? key} key={key} />
 				)),
 			)}
 		</g>
