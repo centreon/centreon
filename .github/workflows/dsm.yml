@@ -25,7 +25,7 @@ jobs:
   paths:
     runs-on: ubuntu-22.04
     outputs:
-      inclusion: ${{ steps.filter.outputs.inclusion }}
+      inclusion: ${{ steps.include.outputs.inclusion }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
