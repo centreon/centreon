@@ -117,7 +117,7 @@ const Text = ({
         EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
         autoFocus={autoFocus}
-        dataTestId={dataTestId || ''}
+        dataTestId={dataTestId || label}
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}
@@ -130,6 +130,8 @@ const Text = ({
         onBlur={handleBlur(fieldName)}
         onChange={changeText}
         inputProps={{
+          'data-testid': dataTestId || label,
+          'aria-label': label,
           min: text?.min
         }}
       />

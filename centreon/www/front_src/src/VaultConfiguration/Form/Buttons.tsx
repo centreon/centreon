@@ -56,7 +56,7 @@ const Buttons = (): JSX.Element => {
       >
         {t(labelSave)}
       </Button>
-      <Modal open={isResetModalOpen}>
+      <Modal open={isResetModalOpen} onClose={closeResetModal}>
         <Modal.Header>{t(labelResetConfiguration)}</Modal.Header>
         <Modal.Body>{t(labelFormWillBeCleared)}</Modal.Body>
         <Modal.Actions

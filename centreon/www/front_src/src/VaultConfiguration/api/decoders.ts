@@ -14,6 +14,7 @@ export const getVaultConfigurationDecoder =
     'Vault configuration',
     {
       rootPath: 'root_path',
-      roleId: 'role_id'
+      roleId: 'role_id',
+      vaultId: 'vault_id'
     }
   );

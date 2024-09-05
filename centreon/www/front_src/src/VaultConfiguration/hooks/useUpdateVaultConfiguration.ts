@@ -1,7 +1,9 @@
-import { Method, useMutationQuery } from '@centreon/ui';
+import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 import type { FormikHelpers } from 'formik';
+import { useTranslation } from 'react-i18next';
 import { vaultConfigurationEndpoint } from '../api/endpoints';
 import { PostVaultConfiguration, PostVaultConfigurationAPI } from '../models';
+import { labelVaultConfigurationUpdate } from '../translatedLabels';
 
 const formatVaultConfiguration = (
   configuration: PostVaultConfiguration
@@ -14,6 +16,9 @@ const formatVaultConfiguration = (
 });
 
 export const useUpdateVaultConfiguration = () => {
+  const { t } = useTranslation();
+  const { showSuccessMessage } = useSnackbar();
+
   const { mutateAsync } = useMutationQuery({
     baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     getEndpoint: () => vaultConfigurationEndpoint,
@@ -33,6 +38,7 @@ export const useUpdateVaultConfiguration = () => {
           secretId: ''
         }
       });
+      showSuccessMessage(t(labelVaultConfigurationUpdate));
     }
   });
 
