@@ -3851,7 +3851,7 @@ msgstr "Le dernier mois"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:94
 msgid "Last year"
-msgstr "La dernière année"
+msgstr "Les 12 derniers mois"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:147
 #: centreon-web/www/include/configuration/configDowntime/formDowntime.php:233
@@ -5365,10 +5365,6 @@ msgstr "Propriétés d'authentification"
 msgid "Support Information"
 msgstr "Centre de services"
 
-#: centreon-web/www/include/Administration/parameters/engine/form.php:73
-msgid "Monitoring Engine information"
-msgstr "Informations sur le moteur de supervision"
-
 #: centreon-web/www/include/Administration/parameters/engine/form.php:74
 msgid "Images Directory"
 msgstr "Répertoire des images"
@@ -5402,11 +5398,6 @@ msgid "Page refresh interval"
 msgstr "Intervalle de rafraîchissement de la page"
 
 #: centreon-web/www/include/Administration/parameters/engine/form.php:98
-#: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:92
-#: centreon-web/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php:85
-#: centreon-web/www/include/monitoring/external_cmd/popup/massive_ack.php:114
-msgid "Sticky"
-msgstr "Persistant (non-OK)"
 
 #: centreon-web/www/include/Administration/parameters/engine/form.php:99
 #: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:77
@@ -7072,59 +7063,46 @@ msgstr "Choisissez la source à grapher"
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
 #: centreon-web/www/include/eventLogs/viewLog.php:172
-msgid "Last 2 Days"
-msgstr "Les 2 précédents jours"
+msgid "Last 2 days"
+msgstr "Les 2 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:178
-msgid "Last 3 Days"
+msgid "Last 3 days"
 msgstr "Les 3 derniers jours"
 
-#: centreon-web/www/include/views/graphs/graphs.php:179
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:107
-#: centreon-web/www/include/eventLogs/viewLog.php:173
-msgid "Last 4 Days"
-msgstr "Les 4 précédents jours"
-
 #: centreon-web/www/include/views/graphs/graphs.php:180
-msgid "Last 5 Days"
+msgid "Last 5 days"
 msgstr "Les 5 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:182
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:109
 #: centreon-web/www/include/eventLogs/viewLog.php:175
-msgid "Last 14 Days"
-msgstr "Les 14 précédents jours"
+msgid "Last 14 days"
+msgstr "Les 14 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:183
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
 #: centreon-web/www/include/eventLogs/viewLog.php:176
-msgid "Last 28 Days"
+msgid "Last 28 days"
 msgstr "Les 28 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:185
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:112
 #: centreon-web/www/include/eventLogs/viewLog.php:178
-msgid "Last 31 Days"
-msgstr "Les 31 précédents jours"
+msgid "Last 31 days"
+msgstr "Les 31 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:186
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:113
 #: centreon-web/www/include/eventLogs/viewLog.php:179
-msgid "Last 2 Months"
-msgstr "Les 2 précédents mois"
+msgid "Last 2 months"
+msgstr "Les 2 derniers mois"
 
 #: centreon-web/www/include/views/graphs/graphs.php:187
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:114
 #: centreon-web/www/include/eventLogs/viewLog.php:180
-msgid "Last 4 Months"
-msgstr "Les 4 précédents mois"
-
-#: centreon-web/www/include/views/graphs/graphs.php:189
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:116
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:260
-#: centreon-web/www/include/eventLogs/viewLog.php:182
-msgid "Last Year"
-msgstr "L'année précédente"
+msgid "Last 4 months"
+msgstr "Les 4 derniers mois"
 
 #: centreon-web/www/include/views/graphs/graphs.php:191
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:118
@@ -7604,10 +7582,6 @@ msgstr "Cette Semaine"
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:256
 msgid "This Month"
 msgstr "Ce mois ci"
-
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:258
-msgid "Last Month"
-msgstr "Le mois dernier"
 
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:259
 msgid "This Year"
@@ -11657,10 +11631,6 @@ msgstr "Informations sur le serveur"
 msgid "Gorgone Information"
 msgstr "Informations Gorgone"
 
-#: centreon-web/www/include/configuration/configServers/formServers.php:103
-msgid "Monitoring Engine Information"
-msgstr "Information sur le moteur de supervision"
-
 #: centreon-web/www/include/configuration/configServers/formServers.php:105
 msgid "Centreon Trap Collector"
 msgstr "Colleteur de traps SNMP Centreon"
@@ -15224,9 +15194,6 @@ msgstr "31 jours"
 msgid "Last day"
 msgstr "Dernier jour"
 
-msgid "Last 31 days"
-msgstr "Derniers 31 jours"
-
 msgid "Set downtime on"
 msgstr "Programmer une plage de maintenance sur"
 
@@ -18179,28 +18146,28 @@ msgstr "Plage temporelle"
 msgid "Last hour"
 msgstr "La dernière heure"
 
-msgid "Last 3 Hours"
+msgid "Last 3 hours"
 msgstr "Les 3 dernières heures"
 
-msgid "Last 6 Hours"
+msgid "Last 6 hours"
 msgstr "Les 6 dernières heures"
 
-msgid "Last 12 Hours"
+msgid "Last 12 hours"
 msgstr "Les 12 dernières heures"
 
-msgid "Last 24 Hours"
+msgid "Last 24 hours"
 msgstr "Les 24 dernières heures"
 
-msgid "Last 7 Days"
+msgid "Last 7 days"
 msgstr "Les 7 derniers jours"
 
-msgid "Last 30 Days"
+msgid "Last 30 days"
 msgstr "Les 30 derniers jours"
 
 msgid "Last 3 months"
 msgstr "Les 3 derniers mois"
 
-msgid "Last 6 Months"
+msgid "Last 6 months"
 msgstr "Les 6 derniers mois"
 
 msgid "Last 12 months"
