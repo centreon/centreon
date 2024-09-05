@@ -5,8 +5,10 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request_review:
-    types: [submitted]
+  workflow_run:
+    workflows: [validate]
+    types:
+      - completed
 #  pull_request:
 #    branches:
 #      - develop
