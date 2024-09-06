@@ -225,7 +225,9 @@ const ExtensionsHolder = ({
                     <Typography style={{ fontWeight: 'bold' }} variant="body1">
                       {parseDescription(entity.description)}
                     </Typography>
-                    <Typography variant="body2">{`by ${entity.label}`}</Typography>
+                    <Typography variant="body2">
+                      {`by ${entity.label}`}
+                    </Typography>
                   </CardContent>
                   <CardActions style={{ justifyContent: 'center' }}>
                     {entity.version.installed ? (

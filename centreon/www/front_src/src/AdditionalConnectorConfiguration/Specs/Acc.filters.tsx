@@ -212,9 +212,7 @@ export default (): void => {
       cy.waitForRequest('@getConnectors').then(({ request }) => {
         expect(
           JSON.parse(request.url.searchParams.get('search'))
-        ).to.deep.equal({
-          $and: []
-        });
+        ).to.deep.equal({ $and: [] });
       });
 
       cy.matchImageSnapshot();
