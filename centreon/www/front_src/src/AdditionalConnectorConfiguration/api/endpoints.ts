@@ -10,7 +10,7 @@ export const pollersEndpoint = '/configuration/monitoring-servers';
 
 export const getPollersForConnectorTypeEndpoint = ({
   type = 'vmware_v6'
-}): string => `/configuration/additional-connectors/pollers/${type}`;
+}): string => `/configuration/additional-connector-configurations/pollers/${type}`;
 
 export const getPollersEndpoint = (parameters): string =>
   buildListingEndpoint({
