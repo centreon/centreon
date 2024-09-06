@@ -6,6 +6,7 @@ services:
     ports: ["4000:80"]
     depends_on:
       - db
+      - vault
     environment:
       MYSQL_HOST: db
     healthcheck:
@@ -61,3 +62,8 @@ services:
     image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]
+
+  vault:
+    env_file:
+      - .env
+    ports: ["8200"]

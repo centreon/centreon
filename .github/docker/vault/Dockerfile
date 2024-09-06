@@ -21,6 +21,51 @@ RUN bash -e <<EOF
     token_ttl=1h token_max_ttl=4h
 
   export VAULT_ROLE_ID=$(vault read auth/approle/role/central/role-id -format=json | jq -r '.data.role_id')
+  echo $VAULT_ROLE_ID >> /etc/vault.d/agent_role_id
   export VAULT_SECRET_ID=$(vault write -force auth/approle/role/central/secret-id -format=json | jq -r '.data.secret_id')
+  echo $VAULT_SECRET_ID >> /etc/vault.d/agent_secret_id
   vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID
+
+  cat <<EOF>/etc/vault.d/vault-agent.hcl
+  vault {
+    # vault address
+    address = "http://127.0.0.1:8200"
+    retry {
+      num_retries = 5
+    }
+  }
+
+  auto_auth {
+    method {
+      type = "approle"
+      config = {
+        role_id_file_path = "/etc/vault.d/agent_role_id"
+        secret_id_file_path = "/etc/vault.d/agent_secret_id"
+        remove_secret_id_file_after_reading = false
+      }
+    }
+    sink "file" {
+      config = {
+        path = "/tmp/vault-agent"
+      }
+    }
+  }
+
+  cache {
+    use_auto_auth_token = true
+  }
+
+  listener "tcp" {
+    address = "127.0.0.1:8100"
+    tls_disable = true
+  }
+
+  listener "unix" {
+    address = "/tmp/vault-agent.sock"
+    tls_disable = true
+    socket_user = "vault"
+    socket_group = "vault"
+    socket_mode = "0660"
+  }
   EOF
+EOF
