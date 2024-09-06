@@ -70,7 +70,7 @@ describe('Vault configuration', () => {
 
     cy.waitForRequest('@getVaultConfiguration');
 
-    cy.findByLabelText(labelPort).clear().type('1');
+    cy.findByLabelText(labelPort).clear().type('-1');
     cy.findByLabelText(labelPort).blur();
 
     cy.contains(labelPortMustStartFrom1).should('be.visible');
