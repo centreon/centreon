@@ -1443,7 +1443,6 @@
 									"        \"name\": \"Central\",\r",
 									"        \"is_localhost\": true,\r",
 									"        \"is_default\": true,\r",
-									"        \"last_restart\": null,\r",
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"is_activate\": true,\r",
 									"        \"engine_start_command\": \"service centengine start\",\r",
@@ -1464,6 +1463,7 @@
 									"        \"remote_server_use_as_proxy\": true,\r",
 									"        \"is_updated\": false\r",
 									"    });\r",
+									"    pm.expect(responseJson.result[0].last_restart).to.not.eql(null);\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1555,6 +1555,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The monitoring servers configuration are not generated and reloaded.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
@@ -1603,6 +1604,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The monitoring servers configuration are not reloaded.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
@@ -1651,6 +1653,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The monitoring servers configuration are not generated.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
@@ -1698,6 +1701,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The monitoring servers configuration are not reloaded.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
@@ -1745,6 +1749,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The monitoring servers configuration are not generated and reloaded.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
@@ -2937,6 +2942,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The monitoring servers configuration are not  generated.\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"\r",
@@ -2984,6 +2990,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The monitoring servers configuration are not generated and reloaded.\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"\r",
@@ -3032,6 +3039,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The monitoring servers configuration are not reloaded.\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"\r",
@@ -3080,6 +3088,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The monitoring servers configuration are successully generated.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
