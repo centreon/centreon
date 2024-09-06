@@ -58,7 +58,7 @@ const Timer = ({
   const diff = dateFromCountDown.diff(currentDate);
   const duration = dayjs.duration(diff);
 
-  const daysRemaining = duration.days();
+  const daysRemaining = Math.floor(duration.asDays());
   const hoursRemaining = formatTimerPart(duration.hours());
   const minutesRemaining = formatTimerPart(duration.minutes());
   const secondsRemaining = formatTimerPart(duration.seconds());
