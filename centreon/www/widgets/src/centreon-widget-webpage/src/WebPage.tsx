@@ -42,6 +42,7 @@ const WebPage = ({
         clearInterval(intervalId);
         setIntervalId(null);
       }
+      
       return;
     }
 
