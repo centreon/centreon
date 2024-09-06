@@ -28,7 +28,6 @@ RUN bash -e <<EOF
 
   cat <<EOF>/etc/vault.d/vault-agent.hcl
   vault {
-    # vault address
     address = "http://127.0.0.1:8200"
     retry {
       num_retries = 5
