@@ -98,9 +98,7 @@ const useDeleteRequest = ({
             .map((item) => item.name);
 
           showWarningMessage(
-            `${labelFailedToDeleteSelectedRules}: ${failedResponsesNames.join(
-              ', '
-            )}`
+            `${labelFailedToDeleteSelectedRules}: ${failedResponsesNames.join(', ')}`
           );
 
           return;

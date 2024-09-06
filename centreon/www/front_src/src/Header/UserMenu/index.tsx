@@ -335,9 +335,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
           title={
             passwordIsNotYetAboutToExpire
               ? ''
-              : `${t(
-                  labelPasswordWillExpireIn
-                )}: ${formattedPasswordRemainingTime}`
+              : `${t(labelPasswordWillExpireIn)}: ${formattedPasswordRemainingTime}`
           }
         >
           <Badge

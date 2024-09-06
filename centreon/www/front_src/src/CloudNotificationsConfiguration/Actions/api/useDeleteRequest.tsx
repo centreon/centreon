@@ -101,9 +101,7 @@ const useDeleteRequest = ({
               .map((item) => item.name);
 
             showWarningMessage(
-              `${labelFailedToDeleteNotifications}: ${failedResponsesName.join(
-                ', '
-              )}`
+              `${labelFailedToDeleteNotifications}: ${failedResponsesName.join(', ')}`
             );
 
             return;
