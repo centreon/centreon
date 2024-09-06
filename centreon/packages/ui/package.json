@@ -6,7 +6,7 @@
 		"update:deps": "pnpx npm-check-updates -i --format group",
 		"lint": "biome check ./src --error-on-warnings",
 		"lint:fix": "pnpm lint --fix",
-		"lint:ci": "biome ci ./src/ --error-on-warnings",
+		"lint:ci": "biome ci ./src --error-on-warnings",
 		"storybook": "storybook dev -p 9001 -c .storybook",
 		"build:storybook": "storybook build -c .storybook -o .out",
 		"test": "jest",
