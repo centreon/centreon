@@ -6,6 +6,7 @@ import {
   labelFormWillBeCleared,
   labelPort,
   labelPortExpectedAtMost,
+  labelPortMustStartFrom1,
   labelReset,
   labelResetConfiguration,
   labelRoleID,
@@ -68,6 +69,11 @@ describe('Vault configuration', () => {
     initialize();
 
     cy.waitForRequest('@getVaultConfiguration');
+
+    cy.findByLabelText(labelPort).clear().type('1');
+    cy.findByLabelText(labelPort).blur();
+
+    cy.contains(labelPortMustStartFrom1).should('be.visible');
 
     cy.findByLabelText(labelPort).clear().type('4526121');
     cy.findByLabelText(labelPort).blur();

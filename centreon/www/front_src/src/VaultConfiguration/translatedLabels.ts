@@ -14,3 +14,4 @@ export const labelFormWillBeCleared =
   'The form will be cleared and all data will be lost. Do you want to proceed?';
 export const labelPortExpectedAtMost = 'Port expected at most 65535';
 export const labelVaultConfigurationUpdate = 'Vault configuration updated';
+export const labelPortMustStartFrom1 = 'Port must start from 1';

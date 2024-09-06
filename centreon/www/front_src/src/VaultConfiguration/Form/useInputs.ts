@@ -48,7 +48,7 @@ export const useInputs = (): Array<InputProps> => {
       fieldName: 'port',
       text: {
         type: 'number',
-        min: 0
+        min: 1
       },
 
       group: ''

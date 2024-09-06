@@ -19450,3 +19450,6 @@ msgstr "Le port maximum attendu est 65535"
 msgid "Vault configuration updated"
 msgstr "La configuration du Vaul a été mise à jour"
 
+msgid "Post must start from 1"
+msgstr "Le port doit commencé à 1"
+

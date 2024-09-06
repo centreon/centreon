@@ -4,6 +4,7 @@ import { PostVaultConfiguration } from '../models';
 import {
   labelAddressIsNotAnUrl,
   labelPortExpectedAtMost,
+  labelPortMustStartFrom1,
   labelRequired
 } from '../translatedLabels';
 
@@ -24,6 +25,7 @@ export const useValidationSchema = (): Schema<PostVaultConfiguration> => {
       })
       .required(t(labelRequired)),
     port: number()
+      .min(1, t(labelPortMustStartFrom1))
       .max(65535, t(labelPortExpectedAtMost))
       .required(t(labelRequired)),
     rootPath: string().required(t(labelRequired)),

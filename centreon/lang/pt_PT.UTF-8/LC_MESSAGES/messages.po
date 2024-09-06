@@ -18142,3 +18142,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Vault configuration updated"
 # msgstr ""
 
+# msgid "Port must start from 1"
+# msgstr ""
+
