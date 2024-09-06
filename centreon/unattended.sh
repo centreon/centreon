@@ -329,7 +329,7 @@ function get_os_information() {
 			;;
 		Ubuntu*)
 			detected_os_release="ubuntu-release-${OS_VERSIONID}"
-			mysql_service_name="mysqld"
+			mysql_service_name="mysql"
 			;;
 		*)
 			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
