@@ -2919,23 +2919,22 @@ function updateServiceNotifOptionInterval_MC($service_id = null)
 
 function updateServiceNotifOptionTimeperiod($service_id = null, $ret = array())
 {
-    global $form, $pearDB;
+    global $pearDB;
 
-    if (!$service_id) {
+    if (! $service_id) {
         return;
     }
 
-    if (isset($ret["timeperiod_tp_id2"])) {
-        $ret = $ret["timeperiod_tp_id2"];
-    } else {
-        $ret = $form->getSubmitValue("timeperiod_tp_id2");
-    }
-
-    $rq = "UPDATE service SET ";
-    $rq .= "timeperiod_tp_id2 = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
-    $rq .= "WHERE service_id = '" . $service_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $request = <<<'SQL'
+        UPDATE `service` SET `timeperiod_tp_id2` = :timeperiod_tp_id2
+        WHERE `service_id` = :service_id
+        SQL;
+    $statement = $pearDB->prepare($request);
+    isset($ret['timeperiod_tp_id2'])
+        ? $statement->bindValue(':timeperiod_tp_id2', $ret['timeperiod_tp_id2'], \PDO::PARAM_STR)
+        : $statement->bindValue(':timeperiod_tp_id2', null, \PDO::PARAM_NULL);
+    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->execute();
 }
 
 // For massive change. incremental mode
