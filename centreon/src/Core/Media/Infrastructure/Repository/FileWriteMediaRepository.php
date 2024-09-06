@@ -25,6 +25,7 @@ namespace Core\Media\Infrastructure\Repository;
 
 use Core\Common\Infrastructure\Repository\FileDataStoreEngine;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
+use Core\Media\Domain\Model\Media;
 use Core\Media\Domain\Model\NewMedia;
 
 class FileWriteMediaRepository implements WriteMediaRepositoryInterface
@@ -50,5 +51,13 @@ class FileWriteMediaRepository implements WriteMediaRepositoryInterface
         }
 
         return $status;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(Media $media): void
+    {
+        $this->engine->deleteFromFileSystem($media->getDirectory() . DIRECTORY_SEPARATOR . $media->getFilename());
     }
 }

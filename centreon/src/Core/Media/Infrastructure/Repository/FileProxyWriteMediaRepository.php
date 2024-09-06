@@ -24,6 +24,7 @@ declare(strict_types = 1);
 namespace Core\Media\Infrastructure\Repository;
 
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
+use Core\Media\Domain\Model\Media;
 use Core\Media\Domain\Model\NewMedia;
 
 class FileProxyWriteMediaRepository implements WriteMediaRepositoryInterface
@@ -45,5 +46,16 @@ class FileProxyWriteMediaRepository implements WriteMediaRepositoryInterface
         $this->fileWriteMediaRepository->add($media);
 
         return $mediaId;
+    }
+
+    /**
+     * Deletes the file from the database and also from the file system.
+     *
+     * {@inheritDoc}
+     */
+    public function delete(Media $media): void
+    {
+        $this->dbWriteMediaRepository->delete($media);
+        $this->fileWriteMediaRepository->delete($media);
     }
 }

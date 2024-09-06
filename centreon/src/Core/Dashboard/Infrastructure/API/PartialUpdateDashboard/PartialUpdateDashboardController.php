@@ -31,6 +31,7 @@ use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashb
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\RefreshRequestDto;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\ThumbnailRequestDto;
 use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -102,6 +103,11 @@ final class PartialUpdateDashboardController extends AbstractController
          *     refresh?: array{
          *         type: string,
          *         interval: int|null
+         *     },
+         *     thumbnail?: array{
+         *         id: int,
+         *         directory: string,
+         *         name: string
          *     }
          * } $dataSent
          */
@@ -146,6 +152,16 @@ final class PartialUpdateDashboardController extends AbstractController
             $dtoGlobalRefresh->refreshInterval = $dataSent['refresh']['interval'];
 
             $dto->refresh = $dtoGlobalRefresh;
+        }
+
+        if (\array_key_exists('thumbnail', $dataSent)) {
+            $dtoThumbnail = new ThumbnailRequestDto(
+                $dataSent['thumbnail']['id'],
+                $dataSent['thumbnail']['directory'],
+                $dataSent['thumbnail']['name'],
+            );
+
+            $dto->thumbnail = $dtoThumbnail;
         }
 
         return $dto;

@@ -13,7 +13,9 @@ info:
     + Added new filters for /monitoring/resources /monitoring/resources/hosts related to Open Tickets
     + Added new key 'extra' that contains extra data from modules installed for resources endpoints
     + Update /configuration/contacts/groups endpoint by adding new listing properties
-    
+    + Added new key 'thumbnail' to dashboards listing endpoint that contains thumbnail information
+    + Added new key 'thumbnail' to dashboard update payload endpoint that contains thumbnail information
+    +
     # Information
     All dates are in **ISO 8601** format
     # Authentication
