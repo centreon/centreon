@@ -1,5 +1,5 @@
 export const labelVaultConfiguration = 'Vault configuration';
-export const labelAddressIsNotAnUrl = 'The address is not an URL';
+export const labelAddressIsNotAnUrl = 'The address is invalid';
 export const labelRequired = 'Required';
 export const labelVaultAddress = 'Vault address';
 export const labelPort = 'Port';

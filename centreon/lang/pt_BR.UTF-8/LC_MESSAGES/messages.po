@@ -18131,3 +18131,34 @@ msgstr ""
 
 #  msgid "Changing type of an existing additional connector configuration is not allowed"
 #  msgstr ""
+
+# msgid "Vault configuration"
+# msgstr ""
+
+# msgid "The address is invalid"
+# msgstr ""
+
+# msgid "Vault address"
+# msgstr ""
+
+# msgid "Root path"
+# msgstr ""
+
+# msgid "Role ID"
+# msgstr ""
+
+# msgid "Secret ID"
+# msgstr ""
+
+# msgid "Reset configuration"
+# msgstr ""
+
+# msgid "The form will be cleared and all data will be lost. Do you want to proceed?"
+# msgstr ""
+
+# msgid "Port expected at most 65535"
+# msgstr ""
+
+# msgid "Vault configuration updated"
+# msgstr ""
+
