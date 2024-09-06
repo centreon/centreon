@@ -241,4 +241,17 @@ class DashboardException extends \Exception
             implode(', ', $contactGroupIds)
         ));
     }
+
+    /**
+     * @param int $dashboardId
+     *
+     * @return self
+     */
+    public static function thumbnailNotFound(int $dashboardId): self
+    {
+        return new self(sprintf(
+            _('The thumbnail provided for dashboard [%d] was not found'),
+            $dashboardId
+        ));
+    }
 }
