@@ -27,8 +27,7 @@ const Clock = ({
   const { classes } = useClockStyles();
 
   const [date, setDate] = useState(dayjs());
-  const [showPoints, setShowPoints] = useState(true);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   const { locale: localeToUse, timezone: timezoneToUse } =
     useGetLocaleAndTimezone({ locale, timezone });
@@ -53,8 +52,7 @@ const Clock = ({
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setDate(dayjs());
-      setShowPoints((currentShowPoints) => !currentShowPoints);
-    }, 2000);
+    }, 5000);
 
     return () => {
       if (intervalRef.current) {
@@ -79,7 +77,7 @@ const Clock = ({
             <div className={classes.clockLabel}>
               <Typography
                 fontSize={fontSize}
-              >{`${hours}${showPoints ? ':' : ' '}${minutes}`}</Typography>
+              >{`${hours}:${minutes}`}</Typography>
               {isMeridiem && (
                 <Typography
                   fontSize={fontSize / 3}
