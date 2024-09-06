@@ -31,6 +31,8 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\NotEmptyString;
+use Core\Common\Domain\PositiveInteger;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
@@ -597,17 +599,15 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     /**
      * @param _ContactRecord $data
      *
-     * @throws AssertionFailedException
-     *
      * @return BasicContact
      */
     private function createBasicContact(array $data): BasicContact
     {
         return new BasicContact(
-            (int) $data['contact_id'],
-            $data['contact_name'],
-            $data['contact_alias'],
-            $data['contact_email'],
+            new PositiveInteger((int) $data['contact_id']),
+            new NotEmptyString($data['contact_name']),
+            new NotEmptyString($data['contact_alias']),
+            new NotEmptyString($data['contact_email']),
             $data['contact_admin'] === '1',
             $data['contact_activate'] === '1'
         );

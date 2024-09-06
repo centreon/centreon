@@ -23,53 +23,39 @@ declare(strict_types = 1);
 
 namespace Core\Contact\Domain\Model;
 
-use Assert\AssertionFailedException;
-use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Common\Domain\NotEmptyString;
+use Core\Common\Domain\PositiveInteger;
 
 class BasicContact
 {
-    /**
-     * @param int $id
-     * @param string $name
-     * @param string $alias
-     * @param string $email
-     * @param bool $isAdmin
-     * @param bool $isActive
-     *
-     * @throws AssertionFailedException
-     */
     public function __construct(
-        private readonly int $id,
-        private readonly string $name,
-        private readonly string $alias,
-        private readonly string $email,
+        private readonly PositiveInteger $id,
+        private readonly NotEmptyString $name,
+        private readonly NotEmptyString $alias,
+        private readonly NotEmptyString $email,
         private readonly bool $isAdmin,
         private readonly bool $isActive,
     ) {
-        Assertion::min($id, 1, 'BasicContact::id');
-        Assertion::notEmpty($name, 'BasicContact::name');
-        Assertion::notEmpty($alias, 'BasicContact::alias');
-        Assertion::notEmpty($email, 'BasicContact::email');
     }
 
     public function getId(): int
     {
-        return $this->id;
+        return $this->id->getValue();
     }
 
     public function getName(): string
     {
-        return $this->name;
+        return (string) $this->name;
     }
 
     public function getAlias(): string
     {
-        return $this->alias;
+        return (string) $this->alias;
     }
 
     public function getEmail(): string
     {
-        return $this->email;
+        return (string) $this->email;
     }
 
     public function isAdmin(): bool
