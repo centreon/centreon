@@ -3,12 +3,16 @@ import { useAtomValue } from 'jotai';
 import { useFetchQuery } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
+import {
+  type CommonWidgetProps,
+  type Resource,
+  SortOrder
+} from '../../../models';
 import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
-import { PanelOptions } from '../models';
+import type { PanelOptions } from '../models';
 
-import { DisplayType, NamedEntity, ResourceListing } from './models';
+import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
 
 interface LoadResourcesProps
@@ -33,6 +37,7 @@ interface LoadResourcesProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
+  isOpenTicketEnabled?: boolean;
 }
 
 interface LoadResources {
@@ -61,7 +66,8 @@ const useLoadResources = ({
   isDownHostHidden,
   isUnreachableHostHidden,
   displayResources,
-  provider
+  provider,
+  isOpenTicketEnabled
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
@@ -74,18 +80,22 @@ const useLoadResources = ({
         defaultEndpoint: buildResourcesEndpoint({
           displayResources,
           hostSeverities,
-          isDownHostHidden,
-          isUnreachableHostHidden,
           limit: limit || 10,
           page: page || 1,
-          provider,
           resources,
           serviceSeverities,
           sort: sort || { status_severity_code: SortOrder.Desc },
           states,
           statusTypes,
           statuses,
-          type: displayType
+          type: displayType,
+          ...(isOpenTicketEnabled
+            ? {
+                isDownHostHidden,
+                isUnreachableHostHidden,
+                provider
+              }
+            : {})
         }),
         extraQueryParameters: {
           limit: limit || 10,

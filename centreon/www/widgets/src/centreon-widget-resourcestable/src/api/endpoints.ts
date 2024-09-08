@@ -2,12 +2,12 @@ import { T, always, cond, equals, pluck } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { NamedEntity, Resource } from '../../../models';
+import type { NamedEntity, Resource } from '../../../models';
 import {
   formatStatus,
   getResourcesSearchQueryParameters
 } from '../../../utils';
-import { DisplayType } from '../Listing/models';
+import type { DisplayType } from '../Listing/models';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
@@ -15,8 +15,8 @@ export const viewByHostEndpoint = '/monitoring/resources/hosts';
 interface BuildResourcesEndpointProps {
   displayResources: 'all' | 'withTicket' | 'withoutTicket';
   hostSeverities: Array<NamedEntity>;
-  isDownHostHidden: boolean;
-  isUnreachableHostHidden: boolean;
+  isDownHostHidden?: boolean;
+  isUnreachableHostHidden?: boolean;
   limit: number;
   page: number;
   provider?: { id: number; name: string };

@@ -1,10 +1,19 @@
-import { useAtomValue } from 'jotai';
-import { T, always, cond, equals, head, pipe, propOr, split } from 'ramda';
+import {
+  T,
+  always,
+  cond,
+  equals,
+  head,
+  isEmpty,
+  isNotNil,
+  pipe,
+  propOr,
+  split
+} from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { ColumnType, useStyleTable } from '@centreon/ui';
+import { ColumnType, useLocaleDateTimeFormat, useStyleTable } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
-import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { DisplayType } from '../models';
 import {
@@ -13,7 +22,6 @@ import {
   labelHost,
   labelInformation,
   labelLastCheck,
-  labelOpenTicket,
   labelParent,
   labelResource,
   labelService,
@@ -21,12 +29,14 @@ import {
   labelSeverity,
   labelState,
   labelStatus,
+  labelTicket,
   labelTicketID,
   labelTicketOpenTime,
   labelTicketSubject,
   labelTries
 } from '../translatedLabels';
 
+import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
 import useStyles, { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
@@ -57,13 +67,15 @@ const useColumns = ({
   isOpenTicketEnabled
 }: ColumnProps): ColumnsState => {
   const { classes } = useStyles();
-  const { t } = useTranslation();
-  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
-
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
   });
+  
+  const { t } = useTranslation();
+  const { format } = useLocaleDateTimeFormat();
+  
+  const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
   const resourceLabel = cond([
     [equals(DisplayType.Host), always(labelHost)],
@@ -77,8 +89,9 @@ const useColumns = ({
     [T, always(labelParent)]
   ])(displayType);
 
+  const hasProvider = isNotNil(provider) && !isEmpty(provider);
   const isOpenTicketColumnsVisible =
-    featureFlags?.resouresTableOpenTickets && isOpenTicketEnabled && !!provider;
+    isOpenTicketInstalled && isOpenTicketEnabled && hasProvider;
 
   const isOpenTicketActionColumnVisible =
     isOpenTicketColumnsVisible && !equals(displayResources, 'withTicket');
@@ -142,7 +155,7 @@ const useColumns = ({
             Component: OpenTicket,
             clickable: true,
             id: 'open_ticket',
-            label: t(labelOpenTicket),
+            label: t(labelTicket),
             type: ColumnType.component
           }
         ]
@@ -174,7 +187,10 @@ const useColumns = ({
       ? [
           {
             getFormattedString: (row): string =>
-              row?.extra?.open_tickets?.tickets?.created_at,
+              format({
+                date: row?.extra?.open_tickets?.tickets?.created_at,
+                formatString: 'L'
+              }),
             id: 'ticket_open_time',
             label: t(labelTicketOpenTime),
             type: ColumnType.string

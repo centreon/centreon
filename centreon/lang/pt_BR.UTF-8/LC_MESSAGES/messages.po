@@ -17861,7 +17861,7 @@ msgstr ""
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Enable Open Tickets"
+# msgid "Enable tickets"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17882,7 +17882,7 @@ msgstr ""
 # msgid "Hide services with Down host"
 # msgstr ""
 
-# msgstr "hide services with Unreachable host"
+# msgstr "Hide services with Unreachable host"
 # msgstr ""
 
 # msgstr "Ticket ID"

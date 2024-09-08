@@ -1,4 +1,4 @@
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
@@ -111,6 +111,7 @@ export interface FederatedWidgetProperties {
         };
       };
       groups: Array<SelectEntry>;
+      hasModule?: string
     };
   };
   customBaseColor?: boolean;
