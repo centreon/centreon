@@ -495,7 +495,7 @@ describe('Open tickets', () => {
 
     cy.waitForRequest('@getResources');
 
-    cy.contains('Open ticket');
+    cy.contains('Ticket');
 
     cy.makeSnapshot();
   });
