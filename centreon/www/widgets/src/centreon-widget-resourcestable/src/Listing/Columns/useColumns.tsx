@@ -12,7 +12,11 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { ColumnType, useLocaleDateTimeFormat, useStyleTable } from '@centreon/ui';
+import {
+  ColumnType,
+  useLocaleDateTimeFormat,
+  useStyleTable
+} from '@centreon/ui';
 import type { Column } from '@centreon/ui';
 
 import { DisplayType } from '../models';
@@ -71,10 +75,10 @@ const useColumns = ({
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
   });
-  
+
   const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
-  
+
   const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
   const resourceLabel = cond([
@@ -187,10 +191,12 @@ const useColumns = ({
       ? [
           {
             getFormattedString: (row): string =>
-              format({
-                date: row?.extra?.open_tickets?.tickets?.created_at,
-                formatString: 'L'
-              }),
+              row?.extra?.open_tickets?.tickets?.created_at
+                ? format({
+                    date: row?.extra?.open_tickets?.tickets?.created_at,
+                    formatString: 'L'
+                  })
+                : '',
             id: 'ticket_open_time',
             label: t(labelTicketOpenTime),
             type: ColumnType.string
