@@ -76,8 +76,8 @@ const useColumns = ({
     data: dataStyle.statusColumnChip
   });
 
-  const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
+  const { t } = useTranslation();
 
   const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
