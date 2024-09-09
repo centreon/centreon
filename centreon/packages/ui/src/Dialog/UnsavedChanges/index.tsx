@@ -8,10 +8,10 @@ import {
   labelDoYouWantToQuitWithoutResolving,
   labelDoYouWantToResolveErrors,
   labelDoYouWantToSaveChanges,
+  labelIfYouClickOnDiscard,
   labelResolve,
   labelSave,
-  labelThereAreErrorsInTheForm,
-  labelIfYouClickOnDiscard
+  labelThereAreErrorsInTheForm
 } from './translatedLabels';
 
 interface Props {

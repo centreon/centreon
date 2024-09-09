@@ -1,14 +1,14 @@
 import { Paper } from '@mui/material';
 
+import { Form, GroupDirection } from './Form';
 import {
   BasicForm,
+  CustomButton,
   basicFormGroups,
   basicFormInitialValues,
   basicFormInputs,
-  basicFormValidationSchema,
-  CustomButton
+  basicFormValidationSchema
 } from './storiesData';
-import { Form, GroupDirection } from './Form';
 
 export default { title: 'Form' };
 

@@ -14,8 +14,8 @@ import { Paper, Theme, useMediaQuery } from '@mui/material';
 import CustomTimePeriod from './CustomTimePeriod';
 import SelectedTimePeriod from './SelectedTimePeriod';
 import { useStyles } from './TimePeriods.styles';
-import useTimePeriod from './useTimePeriod';
 import { WrapperTimePeriodProps } from './models';
+import useTimePeriod from './useTimePeriod';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utcPlugin);

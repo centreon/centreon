@@ -1,10 +1,10 @@
 import { useAtomValue } from 'jotai';
 import { equals, reject, type } from 'ramda';
 
-import { isOnPublicPageAtom, federatedModulesAtom } from '@centreon/ui-context';
+import { federatedModulesAtom, isOnPublicPageAtom } from '@centreon/ui-context';
 
-import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
 import { Remote } from '../../federatedModules/Load';
+import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
 import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
 import { FederatedModule, PageComponent } from '../../federatedModules/models';
 

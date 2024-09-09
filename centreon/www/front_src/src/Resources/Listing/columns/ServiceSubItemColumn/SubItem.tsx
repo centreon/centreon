@@ -4,8 +4,8 @@ import { Box } from '@mui/material';
 
 import { ComponentColumnProps, SeverityCode } from '@centreon/ui';
 
-import useStyles from './SubItem.styles';
 import StatusChip from './StatusChip';
+import useStyles from './SubItem.styles';
 
 export const getStatus = cond([
   [equals('ok'), () => ({ label: 'O', severity: SeverityCode.OK })],

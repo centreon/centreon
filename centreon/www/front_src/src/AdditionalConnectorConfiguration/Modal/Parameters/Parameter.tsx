@@ -1,20 +1,20 @@
 import { ReactElement } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { keys } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { TextField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
 
-import { labelValue, labelName } from '../../translatedLabels';
-import { Parameter } from '../models';
+import { labelName, labelValue } from '../../translatedLabels';
+import { Parameter as ParameterModel } from '../models';
 
-import { useParameterStyles } from './useParametersStyles';
 import useParameter from './useParameter';
+import { useParameterStyles } from './useParametersStyles';
 
 interface Props {
   index: number;
-  parameter: Parameter;
+  parameter: ParameterModel;
 }
 
 const Parameter = ({ parameter, index }: Props): ReactElement => {

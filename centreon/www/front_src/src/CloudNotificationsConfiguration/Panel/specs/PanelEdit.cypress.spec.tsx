@@ -1,50 +1,50 @@
 import { Provider, createStore } from 'jotai';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import {
-  labelDelete,
-  labelSave,
-  labelDuplicate,
-  labelActiveOrInactive,
-  labelClosePanel,
-  labelReduceInformationPanel,
-  labelExpandInformationPanel,
-  labelChangeName,
-  labelNotificationName,
-  labelRequired,
-  labelSearchHostGroups,
-  labelSearchServiceGroups,
-  labelChooseAtLeastOneResource,
-  labelChooseAtleastOneContact,
-  labelTimePeriod,
-  labelSubject,
-  labelMessageFieldShouldNotBeEmpty,
-  labelSuccessfulEditNotification,
-  labelThisNameAlreadyExists,
-  labelDeleteNotification,
-  labelDeleteNotificationWarning,
-  labelNotificationSuccessfullyDeleted,
-  labelCancel,
-  labelPleaseEnterNameForDuplicatedNotification,
-  labelDiscard,
-  labelNotificationDuplicated,
-  labelSearchBusinessViews,
-  labelBusinessViewsEvents,
-  labelSearchContacts,
-  labelTimePeriodFieldShouldNotBeEmpty
-} from '../../translatedLabels';
-import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
+import Form from '..';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
+import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
+import {
+  labelActiveOrInactive,
+  labelBusinessViewsEvents,
+  labelCancel,
+  labelChangeName,
+  labelChooseAtLeastOneResource,
+  labelChooseAtleastOneContact,
+  labelClosePanel,
+  labelDelete,
+  labelDeleteNotification,
+  labelDeleteNotificationWarning,
+  labelDiscard,
+  labelDuplicate,
+  labelExpandInformationPanel,
+  labelMessageFieldShouldNotBeEmpty,
+  labelNotificationDuplicated,
+  labelNotificationName,
+  labelNotificationSuccessfullyDeleted,
+  labelPleaseEnterNameForDuplicatedNotification,
+  labelReduceInformationPanel,
+  labelRequired,
+  labelSave,
+  labelSearchBusinessViews,
+  labelSearchContacts,
+  labelSearchHostGroups,
+  labelSearchServiceGroups,
+  labelSubject,
+  labelSuccessfulEditNotification,
+  labelThisNameAlreadyExists,
+  labelTimePeriod,
+  labelTimePeriodFieldShouldNotBeEmpty
+} from '../../translatedLabels';
 import {
   availableTimePeriodsEndpoint,
   notificationEndpoint
 } from '../api/endpoints';
-import { PanelMode } from '../models';
 import { editedNotificationIdAtom, panelModeAtom } from '../atom';
-import Form from '..';
+import { PanelMode } from '../models';
 
 import {
   getNotificationResponse,
@@ -289,8 +289,8 @@ describe('Edit Panel', () => {
     cy.findByTestId('include Services').click();
 
     cy.findByTestId('Extra events services').within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('not.be.checked').and('be.disabled');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('not.be.checked').and('be.disabled');
       });
     });
 
@@ -312,8 +312,8 @@ describe('Edit Panel', () => {
       });
 
     cy.findByTestId('Host groups events').within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('not.be.checked');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('not.be.checked');
       });
     });
 
@@ -352,8 +352,8 @@ describe('Edit Panel', () => {
     cy.findAllByLabelText('Clear').eq(1).click({ force: true });
 
     cy.findByTestId('Service groups events').within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('not.be.checked').and('be.disabled');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('not.be.checked').and('be.disabled');
       });
     });
 
@@ -703,8 +703,8 @@ describe('Edit Panel: Business Views', () => {
     cy.findAllByLabelText('Clear').eq(2).click({ force: true });
 
     cy.findByTestId(labelBusinessViewsEvents).within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('be.disabled').and('not.be.checked');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('be.disabled').and('not.be.checked');
       });
     });
 

@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 
 import { LineChartData } from '../common/models';
 import dataPingService from '../mockedData/pingService.json';
-import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
+import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 
 import BarChart from './BarChart';
 

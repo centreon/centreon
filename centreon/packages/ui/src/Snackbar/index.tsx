@@ -1,14 +1,13 @@
-import * as React from 'react';
-
-import { useSnackbar, SnackbarContent } from 'notistack';
+import { SnackbarContent, useSnackbar } from 'notistack';
 import { isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { IconButton, Alert } from '@mui/material';
 import IconClose from '@mui/icons-material/Close';
+import { Alert, IconButton } from '@mui/material';
 
 import { sanitizedHTML } from '../utils';
 
+import { forwardRef, useEffect, useRef } from 'react';
 import Severity from './Severity';
 
 const useStyles = makeStyles()((theme) => ({
@@ -36,16 +35,16 @@ export interface SnackbarProps {
   severity: Severity;
 }
 
-const Snackbar = React.forwardRef(
+const Snackbar = forwardRef(
   (
     { message, id, severity }: SnackbarProps,
     ref: React.ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
     const { classes } = useStyles();
     const { closeSnackbar } = useSnackbar();
-    const timeoutId = React.useRef<number | undefined>();
+    const timeoutId = useRef<NodeJS.Timeout | undefined>();
 
-    React.useEffect((): void => {
+    useEffect((): void => {
       timeoutId.current = setTimeout(() => {
         closeSnackbar(id);
       }, 6000);
@@ -53,7 +52,7 @@ const Snackbar = React.forwardRef(
 
     const close = (): void => {
       if (not(isNil(timeoutId.current))) {
-        clearTimeout(timeoutId.current as number);
+        clearTimeout(timeoutId.current);
       }
       closeSnackbar(id);
     };

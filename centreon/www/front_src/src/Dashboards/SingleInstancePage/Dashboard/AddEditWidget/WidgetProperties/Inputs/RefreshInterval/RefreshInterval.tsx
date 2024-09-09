@@ -10,10 +10,10 @@ import {
   Typography
 } from '@mui/material';
 
-import { labelRefreshInterval } from '../../../../translatedLabels';
-import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { labelRefreshInterval } from '../../../../translatedLabels';
+import { WidgetPropertyProps } from '../../../models';
 
 import useRefreshInterval from './useRefreshInterval';
 

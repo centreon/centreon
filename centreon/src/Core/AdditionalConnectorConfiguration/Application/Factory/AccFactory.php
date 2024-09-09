@@ -25,9 +25,12 @@ namespace Core\AdditionalConnectorConfiguration\Application\Factory;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\NewAcc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
-use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6Parameters;
+use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\VmWareV6Parameters;
 use Security\Interfaces\EncryptionInterface;
 
+/**
+ * @phpstan-import-type _VmWareV6Parameters from VmWareV6Parameters
+ */
 class AccFactory
 {
     public function __construct(private readonly EncryptionInterface $encryption){
@@ -65,8 +68,8 @@ class AccFactory
      * @param int $id
      * @param string $name
      * @param Type $type
-     * @param int $createdBy
-     * @param int $updatedBy
+     * @param null|int $createdBy
+     * @param null|int $updatedBy
      * @param \DateTimeImmutable $createdAt
      * @param \DateTimeImmutable $updatedAt
      * @param array<string,mixed> $parameters
@@ -78,8 +81,8 @@ class AccFactory
         int $id,
         string $name,
         Type $type,
-        int $createdBy,
-        int $updatedBy,
+        ?int $createdBy,
+        ?int $updatedBy,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
         array $parameters,
@@ -97,6 +100,38 @@ class AccFactory
             description: $description,
             parameters: match ($type->value) {
                 Type::VMWARE_V6->value => new VmWareV6Parameters($this->encryption, $parameters),
+            }
+        );
+    }
+
+    /**
+     * @param Acc $acc
+     * @param string $name
+     * @param int $updatedBy
+     * @param array<string,mixed> $parameters
+     * @param null|string $description
+     *
+     * @return Acc
+     */
+    public function updateAcc(
+        Acc $acc,
+        string $name,
+        int $updatedBy,
+        array $parameters,
+        ?string $description = null,
+    ): Acc
+    {
+        return new Acc(
+            id: $acc->getId(),
+            name: $name,
+            type: $acc->getType(),
+            createdBy: $acc->getCreatedBy(),
+            updatedBy: $updatedBy,
+            createdAt: $acc->getCreatedAt(),
+            updatedAt: new \DateTimeImmutable(),
+            description: $description,
+            parameters: match ($acc->getType()) {
+                Type::VMWARE_V6 => VmWareV6Parameters::update($this->encryption, $acc->getParameters(), $parameters),
             }
         );
     }

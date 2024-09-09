@@ -1,7 +1,7 @@
-import { always, cond, equals, has, T } from 'ramda';
+import { T, always, cond, equals, has } from 'ramda';
 
-import { Avatar, Paper, Typography, useTheme } from '@mui/material';
 import SpaIcon from '@mui/icons-material/Spa';
+import { Avatar, Paper, Typography, useTheme } from '@mui/material';
 
 import { ChildrenProps } from '..';
 

@@ -1,5 +1,5 @@
-import { saveAs } from 'file-saver';
 import dom2image from 'dom-to-image';
+import { saveAs } from 'file-saver';
 
 interface Props {
   backgroundColor: string;

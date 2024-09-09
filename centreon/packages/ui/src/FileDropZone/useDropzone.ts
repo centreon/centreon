@@ -7,7 +7,7 @@ import {
   useState
 } from 'react';
 
-import { all, isNil, lte, not, path, pluck } from 'ramda';
+import { path, all, isNil, lte, not, pluck } from 'ramda';
 
 import { labelFileTooBig, labelInvalidFileType } from './translatedLabels';
 

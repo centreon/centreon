@@ -1,14 +1,14 @@
 import { FormikValues, useFormikContext } from 'formik';
-import * as Yup from 'yup';
 import { equals, prop } from 'ramda';
 
-import { Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MailIcon from '@mui/icons-material/MailOutline';
+import { Typography } from '@mui/material';
 
 import { SelectEntry } from '../InputField/Select';
 import { Listing } from '../api/models';
 
+import { array, boolean, number, object, string } from 'yup';
 import {
   Group,
   InputProps,
@@ -43,46 +43,42 @@ export interface BasicForm {
   sports: Array<SelectEntry>;
 }
 
-const selectEntryValidationSchema = Yup.object().shape({
-  id: Yup.number().required('Required'),
-  name: Yup.string().required('Required')
+const selectEntryValidationSchema = object().shape({
+  id: number().required('Required'),
+  name: string().required('Required')
 });
 
-export const basicFormValidationSchema = Yup.object().shape({
-  active: Yup.boolean().required('Active is required'),
-  activeSortableFieldsTable: Yup.boolean().required(
+export const basicFormValidationSchema = object().shape({
+  active: boolean().required('Active is required'),
+  activeSortableFieldsTable: boolean().required(
     'Active Sortable FieldsTable is required'
   ),
-  animals: Yup.array().of(selectEntryValidationSchema.required('Required')),
-  anotherText: Yup.string(),
-  certificate: Yup.string(),
+  animals: array().of(selectEntryValidationSchema.required('Required')),
+  anotherText: string(),
+  certificate: string(),
   class: selectEntryValidationSchema.nullable().required('Required'),
-  custom: Yup.string().required('Custom is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
+  custom: string().required('Custom is required'),
+  email: string().email('Invalid email').required('Email is required'),
   group: selectEntryValidationSchema.nullable().required('Required'),
-  inviteUsers: Yup.array().of(
-    Yup.object({
-      email: Yup.string()
-        .email('Invalid user email')
-        .required('Email is required'),
+  inviteUsers: array().of(
+    object({
+      email: string().email('Invalid user email').required('Email is required'),
       role: selectEntryValidationSchema
     })
   ),
-  inviteUsers2: Yup.array().of(Yup.string().email('Invalid user email')),
-  isForced: Yup.boolean().required('Is forced is required'),
-  language: Yup.string().required('Language is required'),
-  name: Yup.string().required('Name is required'),
-  password: Yup.string().required('Password is required'),
-  roleMapping: Yup.array().of(
-    Yup.object({
+  inviteUsers2: array().of(string().email('Invalid user email')),
+  isForced: boolean().required('Is forced is required'),
+  language: string().required('Language is required'),
+  name: string().required('Name is required'),
+  password: string().required('Password is required'),
+  roleMapping: array().of(
+    object({
       role: selectEntryValidationSchema,
-      value: Yup.string().required('Role value is required')
+      value: string().required('Role value is required')
     })
   ),
-  scopes: Yup.array().of(
-    Yup.string().min(3, '3 characters min').required('Required')
-  ),
-  sports: Yup.array().of(selectEntryValidationSchema.required('Required'))
+  scopes: array().of(string().min(3, '3 characters min').required('Required')),
+  sports: array().of(selectEntryValidationSchema.required('Required'))
 });
 
 const roleEntries: Array<SelectEntry> = [

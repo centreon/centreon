@@ -5,13 +5,13 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
-import LoadingSkeleton from '../LoadingSkeleton';
-import { CentreonLogo } from '../Logo/CentreonLogo';
+import { Image } from '..';
 import NotAuthorizedTemplateBackgroundDark from '../@assets/images/not-authorized-template-background-dark.svg';
 import NotAuthorizedTemplateBackgroundLight from '../@assets/images/not-authorized-template-background-light.svg';
-import { Image } from '..';
-import { useThemeMode } from '../utils/useThemeMode';
+import LoadingSkeleton from '../LoadingSkeleton';
+import { CentreonLogo } from '../Logo/CentreonLogo';
 import { typedMemo } from '../utils/typedMemo';
+import { useThemeMode } from '../utils/useThemeMode';
 
 const useStyles = makeStyles()((theme) => ({
   logo: {

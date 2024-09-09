@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelBottom,
   labelDisplay,
@@ -9,7 +10,6 @@ import {
   labelShowValueLabels,
   labelTop
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import TopBottomSettings from './TopBottomSettings';
 

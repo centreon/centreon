@@ -1,4 +1,4 @@
-import { renderHook, waitFor, RenderHookResult } from '@testing-library/react';
+import { RenderHookResult, renderHook, waitFor } from '@testing-library/react';
 import fetchMock from 'jest-fetch-mock';
 
 import TestQueryProvider from '../TestQueryProvider';

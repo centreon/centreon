@@ -21,9 +21,7 @@
           "name": "Success (OK)"
         }
       ],
-      "defaultValue": [
-        "problem"
-      ]
+      "defaultValue": ["problem"]
     },
     "link": {
       "type": "radio",
@@ -57,9 +55,7 @@
       "required": true,
       "useAdditionalResources": true,
       "singleResourceType": true,
-      "restrictedResourceTypes": [
-        "business-activity"
-      ]
+      "restrictedResourceTypes": ["business-activity"]
     }
   },
   "singleResourceSelection": true,

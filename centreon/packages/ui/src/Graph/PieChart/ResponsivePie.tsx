@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
-import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
+import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import numeral from 'numeral';
 import { always, equals, gt, ifElse, lt } from 'ramda';
@@ -14,8 +14,8 @@ import { Legend as LegendComponent } from '../Legend';
 import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
 
-import { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
+import { PieProps } from './models';
 import { useResponsivePie } from './useResponsivePie';
 
 const DefaultLegend = ({ scale, direction }: LegendProps): JSX.Element => (
@@ -185,7 +185,11 @@ const ResponsivePie = ({
                           radianY: Math.sin(midAngle)
                         })}
                       >
-                        <g data-testid={arc.data.label} onClick={onClick}>
+                        <g
+                          data-testid={arc.data.label}
+                          onClick={onClick}
+                          onKeyUp={() => undefined}
+                        >
                           <path
                             cursor="pointer"
                             d={pie.path(arc) as string}

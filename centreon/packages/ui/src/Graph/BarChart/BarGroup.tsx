@@ -1,34 +1,32 @@
 import { memo, useMemo } from 'react';
 
-import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
-import { difference, equals, isEmpty, keys, omit, pick } from 'ramda';
-import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { Group } from '@visx/group';
+import { scaleBand, scaleOrdinal } from '@visx/scale';
+import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
+import { ScaleLinear } from 'd3-scale';
+import { difference, equals, keys, omit, pick, pluck, uniq } from 'ramda';
 
 import { useDeepMemo } from '../../utils';
-import { Line, TimeValue } from '../common/timeSeries/models';
 import {
   getSortedStackedLines,
   getTime,
-  getTimeSeriesForLines
+  getTimeSeriesForLines,
+  getUnits
 } from '../common/timeSeries';
+import { Line, TimeValue } from '../common/timeSeries/models';
 
-import SingleBar from './SingleBar';
 import BarStack from './BarStack';
 import { BarStyle } from './models';
 
 interface Props {
   barStyle: BarStyle;
-  isCenteredZero?: boolean;
   isTooltipHidden: boolean;
-  leftScale;
   lines: Array<Line>;
   orientation: 'horizontal' | 'vertical';
-  rightScale;
-  secondUnit?: string;
   size: number;
   timeSeries: Array<TimeValue>;
   xScale;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 const BarGroup = ({
@@ -37,14 +35,13 @@ const BarGroup = ({
   size,
   lines,
   xScale,
-  leftScale,
-  rightScale,
-  secondUnit,
-  isCenteredZero,
+  yScalesPerUnit,
   isTooltipHidden,
   barStyle
 }: Props): JSX.Element => {
   const isHorizontal = equals(orientation, 'horizontal');
+
+  const [firstUnit] = getUnits(lines);
 
   const BarComponent = useMemo(
     () => (isHorizontal ? VisxBarGroup : BarGroupHorizontal),
@@ -52,29 +49,36 @@ const BarGroup = ({
   );
 
   const stackedLines = getSortedStackedLines(lines);
+  const stackedUnits = uniq(pluck('unit', stackedLines));
   const notStackedLines = difference(lines, stackedLines);
 
-  const stackLinesRight = stackedLines.filter(({ unit }) =>
-    equals(unit, secondUnit)
+  const stackedKeys = stackedUnits.reduce(
+    (acc, unit) => ({
+      ...acc,
+      [`stacked-${unit}`]: null
+    }),
+    {}
   );
-  const stackLinesLeft = stackedLines.filter(
-    ({ unit }) => !equals(unit, secondUnit)
-  );
-  const hasStackedLinesRight = !isEmpty(stackLinesRight)
-    ? { stackedRight: null }
-    : {};
-  const hasStackedLinesLeft = !isEmpty(stackLinesLeft)
-    ? { stackedLeft: null }
-    : {};
+  const stackedLinesTimeSeriesPerUnit = stackedUnits.reduce(
+    (acc, stackedUnit) => {
+      const relatedLines = stackedLines.filter(({ unit }) =>
+        equals(unit, stackedUnit)
+      );
 
-  const stackedTimeSeriesRight = getTimeSeriesForLines({
-    lines: stackLinesRight,
-    timeSeries
-  });
-  const stackedTimeSeriesLeft = getTimeSeriesForLines({
-    lines: stackLinesLeft,
-    timeSeries
-  });
+      return {
+        ...acc,
+        [stackedUnit]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            lines: relatedLines,
+            timeSeries
+          })
+        }
+      };
+    },
+    {}
+  );
+
   const notStackedTimeSeries = getTimeSeriesForLines({
     lines: notStackedLines,
     timeSeries
@@ -82,8 +86,7 @@ const BarGroup = ({
 
   const normalizedTimeSeries = notStackedTimeSeries.map((timeSerie) => ({
     ...timeSerie,
-    ...hasStackedLinesRight,
-    ...hasStackedLinesLeft
+    ...stackedKeys
   }));
 
   const lineKeys = useDeepMemo({
@@ -119,6 +122,8 @@ const BarGroup = ({
     [...lineKeys, xScale.bandwidth()]
   );
 
+  const placeholderScale = yScalesPerUnit[firstUnit];
+
   const barComponentBaseProps = useMemo(
     () =>
       isHorizontal
@@ -126,15 +131,15 @@ const BarGroup = ({
             x0: getTime,
             x0Scale: xScale,
             x1Scale: metricScale,
-            yScale: leftScale
+            yScale: placeholderScale
           }
         : {
-            xScale: leftScale,
+            xScale: placeholderScale,
             y0: getTime,
             y0Scale: xScale,
             y1Scale: metricScale
           },
-    [isHorizontal, leftScale, rightScale, xScale, metricScale]
+    [isHorizontal, placeholderScale, xScale, metricScale]
   );
 
   return (
@@ -152,49 +157,50 @@ const BarGroup = ({
             left={barGroup.x0}
             top={barGroup.y0}
           >
-            {barGroup.bars.map((bar) => (
-              <>
-                <SingleBar
-                  bar={bar}
+            {barGroup.bars.map((bar) => {
+              const isStackedBar = bar.key.startsWith('stacked-');
+              const linesBar = isStackedBar
+                ? stackedLinesTimeSeriesPerUnit[bar.key.replace('stacked-', '')]
+                    .lines
+                : (notStackedLines.find(({ metric_id }) =>
+                    equals(metric_id, Number(bar.key))
+                  ) as Line);
+              const timeSeriesBar = isStackedBar
+                ? stackedLinesTimeSeriesPerUnit[bar.key.replace('stacked-', '')]
+                    .timeSeries
+                : notStackedTimeSeries.map((timeSerie) => ({
+                    timeTick: timeSerie.timeTick,
+                    [bar.key]: timeSerie[Number(bar.key)]
+                  }));
+
+              return isStackedBar ? (
+                <BarStack
+                  key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
+                  barIndex={barGroup.index}
+                  barPadding={isHorizontal ? bar.x : bar.y}
                   barStyle={barStyle}
-                  isCenteredZero={isCenteredZero}
+                  barWidth={isHorizontal ? bar.width : bar.height}
                   isHorizontal={isHorizontal}
                   isTooltipHidden={isTooltipHidden}
-                  key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
-                  leftScale={leftScale}
-                  lines={lines}
-                  rightScale={rightScale}
-                  secondUnit={secondUnit}
-                  size={size}
+                  lines={linesBar}
+                  timeSeries={timeSeriesBar}
+                  yScale={yScalesPerUnit[bar.key.replace('stacked-', '')]}
                 />
-                {equals(bar.key, 'stackedRight') && (
-                  <BarStack
-                    barIndex={barGroup.index}
-                    barPadding={isHorizontal ? bar.x : bar.y}
-                    barStyle={barStyle}
-                    barWidth={isHorizontal ? bar.width : bar.height}
-                    isHorizontal={isHorizontal}
-                    isTooltipHidden={isTooltipHidden}
-                    lines={stackLinesRight}
-                    timeSeries={stackedTimeSeriesRight}
-                    yScale={rightScale}
-                  />
-                )}
-                {equals(bar.key, 'stackedLeft') && (
-                  <BarStack
-                    barIndex={barGroup.index}
-                    barPadding={isHorizontal ? bar.x : bar.y}
-                    barStyle={barStyle}
-                    barWidth={isHorizontal ? bar.width : bar.height}
-                    isHorizontal={isHorizontal}
-                    isTooltipHidden={isTooltipHidden}
-                    lines={stackLinesLeft}
-                    timeSeries={stackedTimeSeriesLeft}
-                    yScale={leftScale}
-                  />
-                )}
-              </>
-            ))}
+              ) : (
+                <BarStack
+                  key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
+                  barIndex={barGroup.index}
+                  barPadding={isHorizontal ? bar.x : bar.y}
+                  barStyle={barStyle}
+                  barWidth={isHorizontal ? bar.width : bar.height}
+                  isHorizontal={isHorizontal}
+                  isTooltipHidden={isTooltipHidden}
+                  lines={[linesBar]}
+                  timeSeries={timeSeriesBar}
+                  yScale={yScalesPerUnit[linesBar.unit]}
+                />
+              );
+            })}
           </Group>
         ))
       }
@@ -213,27 +219,13 @@ const propsToMemoize = [
 ];
 
 export default memo(BarGroup, (prevProps, nextProps) => {
-  const prevLeftScale = [
-    ...prevProps.leftScale.domain(),
-    ...prevProps.leftScale.range()
-  ];
-  const prevRightScale = [
-    ...prevProps.rightScale.domain(),
-    ...prevProps.rightScale.range()
-  ];
+  const prevYScale = prevProps.yScalesPerUnit;
   const prevXScale = [
     ...prevProps.xScale.domain(),
     ...prevProps.xScale.range()
   ];
 
-  const nextLeftScale = [
-    ...nextProps.leftScale.domain(),
-    ...nextProps.leftScale.range()
-  ];
-  const nextRightScale = [
-    ...nextProps.rightScale.domain(),
-    ...nextProps.rightScale.range()
-  ];
+  const nextYScale = nextProps.yScalesPerUnit;
   const nextXScale = [
     ...nextProps.xScale.domain(),
     ...nextProps.xScale.range()
@@ -241,8 +233,7 @@ export default memo(BarGroup, (prevProps, nextProps) => {
 
   return (
     equals(pick(propsToMemoize, prevProps), pick(propsToMemoize, nextProps)) &&
-    equals(prevLeftScale, nextLeftScale) &&
-    equals(prevRightScale, nextRightScale) &&
+    equals(prevYScale, nextYScale) &&
     equals(prevXScale, nextXScale)
   );
 });

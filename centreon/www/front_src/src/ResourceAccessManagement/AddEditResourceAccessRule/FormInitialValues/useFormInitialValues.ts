@@ -1,9 +1,9 @@
-import { equals } from 'ramda';
-import { useAtomValue } from 'jotai';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
-import { ModalMode, ResourceAccessRule } from '../../models';
 import { editedResourceAccessRuleIdAtom, modalStateAtom } from '../../atom';
+import { ModalMode, ResourceAccessRule } from '../../models';
 
 import { getEmptyInitialValues, getInitialValues } from './initialValues';
 

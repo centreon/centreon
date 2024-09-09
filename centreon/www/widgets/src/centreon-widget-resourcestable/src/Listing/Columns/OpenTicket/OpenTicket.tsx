@@ -1,19 +1,19 @@
-import { useTranslation } from 'react-i18next';
-import { equals, or } from 'ramda';
 import { useSetAtom } from 'jotai';
+import { equals, or } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
+import { resourcesToOpenTicketAtom } from '../../../atom';
 import {
   labelOpenTicketForHost,
   labelOpenTicketForService
 } from '../../translatedLabels';
-import IconCreateTicket from '../Icons/CreateTicket';
 import { useOpenTicketStyles } from '../Columns.styles';
+import IconCreateTicket from '../Icons/CreateTicket';
 import TooltipContent from '../Tooltip/Tooltip';
-import { resourcesToOpenTicketAtom } from '../../../atom';
 
 const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useOpenTicketStyles();

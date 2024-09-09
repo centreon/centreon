@@ -1,29 +1,29 @@
 import { ReactElement, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { generatePath, useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { generatePath, useNavigate } from 'react-router-dom';
 
 import { DataTable } from '@centreon/ui/components';
 
-import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
+import routeMap from '../../../../reactRoutes/routeMap';
+import { Dashboard } from '../../../api/models';
+import { DashboardLayout } from '../../../models';
 import {
   labelCreateADashboard,
   labelWelcomeToDashboardInterface
 } from '../../../translatedLabels';
-import { Dashboard } from '../../../api/models';
-import routeMap from '../../../../reactRoutes/routeMap';
-import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
-import { DashboardLayout } from '../../../models';
-import { DashboardListing } from '../DashboardListing';
-import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
-import { ViewMode } from '../DashboardListing/models';
 import DashboardCardActions from '../DashboardCardActions/DashboardCardActions';
+import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
+import { DashboardListing } from '../DashboardListing';
+import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
+import { ViewMode } from '../DashboardListing/models';
+import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 
-import { useDashboardsOverview } from './useDashboardsOverview';
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
+import { useDashboardsOverview } from './useDashboardsOverview';
 
 const DashboardsOverview = (): ReactElement => {
   const { classes } = useStyles();

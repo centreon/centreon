@@ -1,25 +1,24 @@
-import * as React from 'react';
-
-import { append, equals, includes, isNil, omit, reject } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-import { CSSObject } from 'tss-react';
 import { useAtom } from 'jotai';
+import { append, equals, includes, isNil, omit, reject } from 'ramda';
+import { CSSObject } from 'tss-react';
+import { makeStyles } from 'tss-react/mui';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  alpha,
   TableCell,
   TableCellBaseProps,
   TableCellProps,
-  Theme
+  Theme,
+  alpha
 } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
 import { IconButton } from '../..';
-import { getTextStyleByViewMode } from '../useStyleTable';
 import { subItemsPivotsAtom } from '../tableAtoms';
+import { getTextStyleByViewMode } from '../useStyleTable';
 
+import { ElementType } from 'react';
 import { Props as DataCellProps } from './DataCell';
 
 interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
@@ -182,7 +181,7 @@ const Cell = ({
       classes={{
         root: cx(classes.root)
       }}
-      component={'div' as unknown as React.ElementType<TableCellBaseProps>}
+      component={'div' as unknown as ElementType<TableCellBaseProps>}
       {...omit(
         [
           'isRowHovered',

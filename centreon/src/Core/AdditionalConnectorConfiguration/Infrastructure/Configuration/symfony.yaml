@@ -11,16 +11,31 @@ services:
         Core\AdditionalConnectorConfiguration\Application\Validation\TypeDataValidatorInterface:
             tags: ['acc.validators']
         Core\AdditionalConnectorConfiguration\Application\Repository\WriteVaultAccRepositoryInterface:
-            tags: ['acc.vault.repositories']
+            tags: ['acc.vault.repositories.write']
+        Core\AdditionalConnectorConfiguration\Application\Repository\ReadVaultAccRepositoryInterface:
+            tags: ['acc.vault.repositories.read']
 
     Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc\Validator:
         arguments:
             $parametersValidators: !tagged_iterator 'acc.validators'
 
+    Core\AdditionalConnectorConfiguration\Application\UseCase\UpdateAcc\Validator:
+        arguments:
+            $parametersValidators: !tagged_iterator 'acc.validators'
+
     Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc\AddAcc:
         arguments:
-            $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories'
+            $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories.write'
 
     Core\AdditionalConnectorConfiguration\Application\UseCase\DeleteAcc\DeleteAcc:
         arguments:
-            $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories'
+            $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories.write'
+
+    Core\AdditionalConnectorConfiguration\Application\UseCase\UpdateAcc\UpdateAcc:
+        arguments:
+            $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories.write'
+            $readVaultAccRepositories: !tagged_iterator 'acc.vault.repositories.read'
+
+    Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface:
+        class: Core\AdditionalConnectorConfiguration\Infrastructure\Repository\DbReadAccRepository
+        public: true

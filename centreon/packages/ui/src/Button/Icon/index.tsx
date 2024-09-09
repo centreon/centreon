@@ -1,8 +1,8 @@
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  IconButton as MuiIconButton,
   IconButtonProps,
+  IconButton as MuiIconButton,
   Tooltip
 } from '@mui/material';
 

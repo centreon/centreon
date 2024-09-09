@@ -1,7 +1,7 @@
-import { useMemo, ReactElement } from 'react';
+import { ReactElement, useMemo } from 'react';
 
-import { Grid as VisxGrid } from '@visx/visx';
 import { scaleLinear } from '@visx/scale';
+import { Grid as VisxGrid } from '@visx/visx';
 
 import { useTheme } from '@mui/material';
 

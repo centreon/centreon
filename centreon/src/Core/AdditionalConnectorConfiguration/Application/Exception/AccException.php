@@ -34,6 +34,11 @@ class AccException extends \Exception
         return new self(_('Error while adding an additional connector configuration'));
     }
 
+    public static function updateAcc(): self
+    {
+        return new self(_('Error while updating an additional connector configuration'));
+    }
+
     public static function deleteAcc(): self
     {
         return new self(_('Error while deleting an additional connector configuration'));
@@ -42,6 +47,14 @@ class AccException extends \Exception
     public static function findAccs(): self
     {
         return new self(_('Error while searching for additional connector configurations'));
+    }
+
+    public static function findPollers(string $type): self
+    {
+        return new self(sprintf(
+            _("Error while searching for available pollers for type '%s'"),
+            $type
+        ));
     }
 
     public static function accessNotAllowed(): self
@@ -121,6 +134,14 @@ class AccException extends \Exception
     {
         return new self(
             sprintf( _("The additional connector configuration name '%s' already exists"), $name),
+            self::CODE_CONFLICT
+        );
+    }
+
+    public static function typeChangeNotAllowed(): self
+    {
+        return new self(
+            _('Changing type of an existing additional connector configuration is not allowed'),
             self::CODE_CONFLICT
         );
     }

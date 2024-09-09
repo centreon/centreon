@@ -1,6 +1,6 @@
+import { useAtomValue } from 'jotai';
 import { and, isEmpty, isNil, or } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 import Yup, {
   ObjectSchema,
   ObjectShape,
@@ -10,19 +10,19 @@ import Yup, {
   number
 } from 'yup';
 
+import { notificationsNamesAtom } from '../../atom';
+import { TimeperiodType } from '../../models';
 import {
-  labelRequired,
   labelChooseAtLeastOneResource,
   labelChooseAtleastOneContact,
   labelMessageFieldShouldNotBeEmpty,
+  labelRequired,
   labelThisNameAlreadyExists,
   labelTimePeriodFieldShouldNotBeEmpty
 } from '../../translatedLabels';
-import { notificationsNamesAtom } from '../../atom';
-import { emptyEmail } from '../utils';
 import { editedNotificationIdAtom } from '../atom';
 import { NotificationType } from '../models';
-import { TimeperiodType } from '../../models';
+import { emptyEmail } from '../utils';
 
 interface UseValidationSchemaState {
   validationSchema: Yup.Schema<NotificationType>;
