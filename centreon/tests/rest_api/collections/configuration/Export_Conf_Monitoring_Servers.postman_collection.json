@@ -2875,26 +2875,25 @@
 									"\r",
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": 2,\r",
-									"        \"name\": \"Poller test\",\r",
-									"        \"is_localhost\": false,\r",
-									"        \"is_default\": false,\r",
-									"        \"last_restart\": null,\r",
-									"        \"address\": \"10.30.2.55\",\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\",\r",
+									"        \"is_localhost\": true,\r",
+									"        \"is_default\": true,\r",
+									"        \"address\": \"127.0.0.1\",\r",
 									"        \"is_activate\": true,\r",
 									"        \"engine_start_command\": \"service centengine start\",\r",
 									"        \"engine_stop_command\": \"service centengine stop\",\r",
 									"        \"engine_restart_command\": \"service centengine restart\",\r",
 									"        \"engine_reload_command\": \"service centengine reload\",\r",
 									"        \"nagios_bin\": \"/usr/sbin/centengine\",\r",
-									"        \"nagiostats_bin\": \"/usr/bin/centenginestats\",\r",
+									"        \"nagiostats_bin\": \"/usr/sbin/centenginestats\",\r",
 									"        \"broker_reload_command\": \"service cbd reload\",\r",
 									"        \"centreonbroker_cfg_path\": \"/etc/centreon-broker\",\r",
 									"        \"centreonbroker_module_path\": \"/usr/share/centreon/lib/centreon-broker\",\r",
 									"        \"centreonconnector_path\": \"/usr/lib64/centreon-connector\",\r",
 									"        \"ssh_port\": 22,\r",
-									"        \"init_script_centreontrapd\": null,\r",
-									"        \"snmp_trapd_path_conf\": null,\r",
+									"        \"init_script_centreontrapd\": \"centreontrapd\",\r",
+									"        \"snmp_trapd_path_conf\": \"/etc/snmp/centreon_traps/\",\r",
 									"        \"centreonbroker_logs_path\": null,\r",
 									"        \"remote_id\": null,\r",
 									"        \"remote_server_use_as_proxy\": true,\r",
@@ -3159,14 +3158,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/monitoring-servers/2/reload",
+							"raw": "{{baseUrl}}/configuration/monitoring-servers/1/reload",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
 								"monitoring-servers",
-								"2",
+								"1",
 								"reload"
 							]
 						}
