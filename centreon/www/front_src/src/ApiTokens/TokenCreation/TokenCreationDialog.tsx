@@ -2,7 +2,6 @@ import { Formik } from 'formik';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { number, object, string } from 'yup';
-import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
