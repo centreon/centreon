@@ -29,7 +29,6 @@ else
 fi
 dnf config-manager --set-enabled 'centreon*'
 dnf config-manager --disable 'centreon-plugins*-stable*' --disable 'centreon-plugins*-testing*'
-dnf config-manager --disable 'epel*'
 
 #############################
 # install base dependencies #
