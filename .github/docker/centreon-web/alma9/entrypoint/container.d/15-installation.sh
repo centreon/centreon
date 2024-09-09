@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if [ $(mysql -N -s -h${MYSQL_HOST} -u root -p"${MYSQL_ROOT_PASSWORD}" -e \
+    "SELECT count(*) from information_schema.tables WHERE \
+        table_schema='centreon' and table_name='nagios_server'") -eq 1 ]; then
+    echo "Centreon is already installed."
+    su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
+    exit 0
+fi
+
 sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/database.json
 
 cd /usr/share/centreon/www/install/steps/process
