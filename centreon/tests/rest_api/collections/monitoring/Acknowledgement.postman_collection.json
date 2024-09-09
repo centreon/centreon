@@ -881,7 +881,7 @@
 									"const responseJson = pm.response.json();\r",
 									"console.log(responseJson);\r",
 									"\r",
-									"if ((pm.response.code != 200 || responseJson.state_type != 0 || responseJson.state != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((pm.response.code != 200 || responseJson.state_type != 0 || responseJson.state != 1) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -892,7 +892,7 @@
 									"    pm.test(\"The host is in Hard state\", function () {\r",
 									"        pm.response.to.have.status(200);\r",
 									"        pm.expect(responseJson.state_type).not.to.eql(0);\r",
-									"        pm.expect(responseJson.state).eql(2);\r",
+									"        pm.expect(responseJson.state).eql(1);\r",
 									"    });\r",
 									"}"
 								],
@@ -997,7 +997,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result.length != 1) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((responseJson.result.length != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    console.log(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
@@ -1042,7 +1042,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"DESC\"}",
+							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1053,7 +1053,7 @@
 							"query": [
 								{
 									"key": "sort_by",
-									"value": "{\"id\":\"DESC\"}"
+									"value": "{\"id\":\"ASC\"}"
 								}
 							]
 						}
@@ -1129,7 +1129,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result[0].deletion_time == null)) {\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result.length != 2) && (responseJson.result[0].deletion_time == null)) {\r",
 									"    console.log(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
@@ -1174,7 +1174,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"DESC\"}",
+							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1185,7 +1185,7 @@
 							"query": [
 								{
 									"key": "sort_by",
-									"value": "{\"id\":\"DESC\"}"
+									"value": "{\"id\":\"ASC\"}"
 								}
 							]
 						}
