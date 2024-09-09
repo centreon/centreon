@@ -1,5 +1,5 @@
 import { Scale } from '@visx/visx';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import {
   path,
   add,
@@ -25,7 +25,7 @@ import {
   uniq
 } from 'ramda';
 
-import {
+import type {
   AxeScale,
   GraphData,
   Line,
@@ -334,7 +334,7 @@ const getLeftScale = ({
   dataTimeSeries,
   valueGraphHeight
 }: AxeScale): ScaleLinear<number, number> => {
-  const [firstUnit, thirdUnit] = getUnits(dataLines);
+  const [firstUnit, , thirdUnit] = getUnits(dataLines);
 
   const graphValues = isNil(thirdUnit)
     ? getMetricValuesForUnit({
@@ -377,7 +377,7 @@ const getRightScale = ({
   dataTimeSeries,
   valueGraphHeight
 }: AxeScale): ScaleLinear<number, number> => {
-  const [secondUnit] = getUnits(dataLines);
+  const [, secondUnit] = getUnits(dataLines);
 
   const graphValues = getMetricValuesForUnit({
     lines: dataLines,

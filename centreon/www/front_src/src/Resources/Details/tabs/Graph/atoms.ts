@@ -2,4 +2,4 @@ import { atom } from 'jotai';
 
 import type { Interval } from '@centreon/ui';
 
-export const updatedGraphIntervalAtom = atom<Interval | null>(null);
+export const updatedGraphIntervalAtom = atom<Interval>();
