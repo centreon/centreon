@@ -62,7 +62,6 @@ describe('Web page', () => {
 
     cy.findByTestId('Webpage Display').as('iframe');
 
-    // Wait for the interval to pass and check if the iframe's src is refreshed
     cy.tick(1000);
     cy.get('@iframe').should('have.attr', 'src', 'http://docs.centreon.com');
 
