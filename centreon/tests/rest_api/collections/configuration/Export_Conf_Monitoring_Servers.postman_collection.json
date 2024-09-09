@@ -2719,7 +2719,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addfilter_instance\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;Poller Test\"\r\n}",
+							"raw": "{\r\n  \"action\": \"addfilter_instance\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;Central\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2936,7 +2936,7 @@
 					"response": []
 				},
 				{
-					"name": "Generate monitoring servers configuration",
+					"name": "Generate monitoring servers configuration (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -2946,7 +2946,151 @@
 									"pm.test(\"The monitoring servers configuration are not  generated.\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Monitoring server not found (#1)\");});"
+									"    pm.expect(responseJson.message).to.eql(\"Monitoring server not found (#2)\");});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/monitoring-servers/2/generate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"monitoring-servers",
+								"2",
+								"generate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload monitoring servers configuration (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The monitoring servers configuration are not reloaded.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"Monitoring server not found (#2)\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/monitoring-servers/2/reload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"monitoring-servers",
+								"2",
+								"reload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate and reload monitoring servers configuration (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The monitoring servers configuration are not generated and reloaded.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"Monitoring server not found (#2)\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/monitoring-servers/2/generate-and-reload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"monitoring-servers",
+								"2",
+								"generate-and-reload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate monitoring servers configuration (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The monitoring servers configuration are successully reloaded.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2984,17 +3128,60 @@
 					"response": []
 				},
 				{
-					"name": "Generate and reload monitoring servers configuration",
+					"name": "Reload monitoring servers configuration (successful)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The monitoring servers configuration are not generated and reloaded.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Monitoring server not found (#1)\");\r",
+									"pm.test(\"The monitoring servers configuration are successully reloaded.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/monitoring-servers/2/reload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"monitoring-servers",
+								"2",
+								"reload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate and reload monitoring servers configuration (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The monitoring servers configuration are successully generated and reloaded.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -3033,64 +3220,13 @@
 					"response": []
 				},
 				{
-					"name": "Reload monitoring servers configuration",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The monitoring servers configuration are not reloaded.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Monitoring server not found (#1)\");\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/monitoring-servers/1/reload",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"monitoring-servers",
-								"1",
-								"reload"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Generate all monitoring servers configurations",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
-									"pm.test(\"The monitoring servers configuration are successully generated.\", function () {\r",
+									"pm.test(\"The monitoring servers configuration are successully reloaded.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
