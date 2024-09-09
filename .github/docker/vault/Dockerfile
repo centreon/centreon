@@ -2,7 +2,8 @@ FROM hashicorp/vault:latest
 
 RUN bash -e <<EOF
 
-  apk add jq
+  apk add --no-cache jq
+  apk add --no-cache openrc
   vault login ${VAULT_DEV_ROOT_TOKEN_ID}
   export VAULT_ADDR='http://127.0.0.1:8200'
   vault secrets enable -path=centreon kv
@@ -66,5 +67,37 @@ RUN bash -e <<EOF
     socket_group = "vault"
     socket_mode = "0660"
   }
+  EOF
+
+  cat <<EOF >>/etc/init.d/vault-agent
+    #!/sbin/openrc-run
+
+    description="Vault Agent"
+    command="/usr/bin/vault"
+    command_args="agent -config=/etc/vault.d/vault-agent.hcl"
+    command_user="vault:vault"
+    retry="SIGTERM/5"
+
+    depend() {
+        after vault
+        need vault
+    }
+
+    start_pre() {
+        ebegin "Setting up Vault Agent pre-start"
+        eend 0
+    }
+
+    reload() {
+        ebegin "Reloading Vault Agent"
+        start-stop-daemon --signal HUP --pidfile /run/vault-agent.pid
+        eend $?
+    }
+
+    stop() {
+        ebegin "Stopping Vault Agent"
+        start-stop-daemon --stop --exec $command
+        eend $?
+    }
   EOF
 EOF
