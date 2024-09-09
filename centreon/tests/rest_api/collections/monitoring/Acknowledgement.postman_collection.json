@@ -604,7 +604,7 @@
 							"script": {
 								"exec": [
 									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
-									"pm.collectionVariables.set(\"maxNumberOfTries\", 20);\r",
+									"pm.collectionVariables.set(\"maxNumberOfTries\", 30);\r",
 									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
