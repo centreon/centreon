@@ -334,7 +334,7 @@ const getLeftScale = ({
   dataTimeSeries,
   valueGraphHeight
 }: AxeScale): ScaleLinear<number, number> => {
-  const [firstUnit, ,thirdUnit] = getUnits(dataLines);
+  const [firstUnit, , thirdUnit] = getUnits(dataLines);
 
   const graphValues = isNil(thirdUnit)
     ? getMetricValuesForUnit({
@@ -377,7 +377,7 @@ const getRightScale = ({
   dataTimeSeries,
   valueGraphHeight
 }: AxeScale): ScaleLinear<number, number> => {
-  const [,secondUnit] = getUnits(dataLines);
+  const [, secondUnit] = getUnits(dataLines);
 
   const graphValues = getMetricValuesForUnit({
     lines: dataLines,
