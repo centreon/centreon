@@ -9,6 +9,7 @@ import {
   findIndex,
   gt,
   gte,
+  identity,
   includes,
   isNil,
   last,
@@ -75,9 +76,9 @@ const getVisibleColumns = ({
     return columns;
   }
 
-  return selectedColumnIds.map((id) =>
-    columns.find(propEq(id, 'id'))
-  ) as Array<Column>;
+  return selectedColumnIds
+    .map((id) => columns.find(propEq(id, 'id')))
+    .filter(identity) as Array<Column>;
 };
 
 interface CustomStyle {

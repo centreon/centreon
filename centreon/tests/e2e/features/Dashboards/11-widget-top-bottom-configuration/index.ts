@@ -41,6 +41,10 @@ before(() => {
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
 
+  cy.loginAsAdminViaApiV2()
+    .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
+    .logoutViaAPI();
+
   checkServicesAreMonitored([
     {
       name: 'Ping',
