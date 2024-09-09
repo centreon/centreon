@@ -2,15 +2,19 @@ import { Button, Modal } from '@centreon/ui/components';
 import SaveIcon from '@mui/icons-material/Save';
 import { CircularProgress } from '@mui/material';
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { canMigrateAtom } from '../atoms';
 import {
   labelCancel,
   labelFormWillBeCleared,
+  labelMigrate,
   labelReset,
   labelResetConfiguration,
   labelSave
 } from '../translatedLabels';
+import MigrationModal from './MigrationModal';
 import { useFormStyles } from './useFormStyles';
 
 const Buttons = (): JSX.Element => {
@@ -18,6 +22,9 @@ const Buttons = (): JSX.Element => {
   const { t } = useTranslation();
 
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
+
+  const canMigrate = useAtomValue(canMigrateAtom);
 
   const { isValid, dirty, isSubmitting, resetForm, submitForm } =
     useFormikContext();
@@ -33,6 +40,16 @@ const Buttons = (): JSX.Element => {
 
   const closeResetModal = useCallback(() => setIsResetModalOpen(false), []);
 
+  const openMigrationModal = useCallback(
+    () => setIsMigrationModalOpen(true),
+    []
+  );
+
+  const closeMigrationModal = useCallback(
+    () => setIsMigrationModalOpen(false),
+    []
+  );
+
   const closeAndReset = (): void => {
     resetForm();
     closeResetModal();
@@ -40,22 +57,32 @@ const Buttons = (): JSX.Element => {
 
   return (
     <div className={classes.buttons}>
-      {isSubmitting && <CircularProgress size={24} />}
       <Button
         variant="ghost"
-        onClick={openResetModal}
-        disabled={isResetDisabled}
+        disabled={!canMigrate}
+        onClick={openMigrationModal}
       >
-        {t(labelReset)}
+        {t(labelMigrate)}
       </Button>
-      <Button
-        disabled={isSubmitDisabled}
-        iconVariant="start"
-        icon={<SaveIcon />}
-        onClick={submitForm}
-      >
-        {t(labelSave)}
-      </Button>
+      <div>
+        {isSubmitting && <CircularProgress size={24} />}
+        <Button
+          variant="ghost"
+          onClick={openResetModal}
+          disabled={isResetDisabled}
+        >
+          {t(labelReset)}
+        </Button>
+        <Button
+          disabled={isSubmitDisabled}
+          iconVariant="start"
+          icon={<SaveIcon />}
+          onClick={submitForm}
+        >
+          {t(labelSave)}
+        </Button>
+      </div>
+
       <Modal open={isResetModalOpen} onClose={closeResetModal}>
         <Modal.Header>{t(labelResetConfiguration)}</Modal.Header>
         <Modal.Body>{t(labelFormWillBeCleared)}</Modal.Body>
@@ -68,6 +95,10 @@ const Buttons = (): JSX.Element => {
           }}
         />
       </Modal>
+      <MigrationModal
+        isOpen={isMigrationModalOpen}
+        close={closeMigrationModal}
+      />
     </div>
   );
 };

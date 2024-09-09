@@ -16,6 +16,6 @@ export const useFormStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(1.5),
-    alignSelf: 'flex-end'
+    justifyContent: 'space-between'
   }
 }));

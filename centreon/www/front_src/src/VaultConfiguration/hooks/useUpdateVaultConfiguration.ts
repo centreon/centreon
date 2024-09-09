@@ -1,7 +1,9 @@
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 import type { FormikHelpers } from 'formik';
+import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { vaultConfigurationEndpoint } from '../api/endpoints';
+import { canMigrateAtom } from '../atoms';
 import { PostVaultConfiguration, PostVaultConfigurationAPI } from '../models';
 import { labelVaultConfigurationUpdate } from '../translatedLabels';
 
@@ -19,7 +21,10 @@ export const useUpdateVaultConfiguration = () => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
+  const setCanMigrate = useSetAtom(canMigrateAtom);
+
   const { mutateAsync } = useMutationQuery({
+    baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     getEndpoint: () => vaultConfigurationEndpoint,
     method: Method.PUT,
     onMutate: ({ _meta }) => {
@@ -37,7 +42,11 @@ export const useUpdateVaultConfiguration = () => {
           secretId: ''
         }
       });
+      setCanMigrate(true);
       showSuccessMessage(t(labelVaultConfigurationUpdate));
+    },
+    onError: () => {
+      setCanMigrate(false);
     }
   });
 
