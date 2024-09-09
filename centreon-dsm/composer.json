@@ -3,19 +3,6 @@
   "version": "23.04.0",
   "type": "project",
   "license": "GPL-2.0-only",
-  "scripts": {
-    "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./",
-    "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache",
-    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "rector --dry-run --debug",
-    "rector:exec": "rector --debug"
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../centreon"
-    }
-  ],
   "require": {
     "centreon/centreon": "dev-develop"
   },
@@ -23,6 +10,12 @@
     "squizlabs/php_codesniffer": "^3.5",
     "phpstan/phpstan": "^1.10"
   },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../centreon"
+    }
+  ],
   "config": {
     "secure-http": false,
     "sort-packages": true,
@@ -33,5 +26,12 @@
       "symfony/flex": false,
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
+  },
+  "scripts": {
+    "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./",
+    "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache",
+    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
+    "rector:check": "rector --dry-run --debug",
+    "rector:exec": "rector --debug"
   }
 }

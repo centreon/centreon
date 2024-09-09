@@ -3,28 +3,11 @@
   "description": "Module dedicated to open case on various Ticket systems",
   "version": "24.10.0",
   "type": "project",
-  "license": "GPL-2.0-only",
   "keywords": [
     "centreon",
     "centreon-open-tickets"
   ],
-  "scripts": {
-    "test": "pest",
-    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml --no-interaction --do-not-cache-result",
-    "codestyle": "phpcs --standard=./ruleset.xml ./",
-    "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache",
-    "phpstan": "phpstan analyse -c phpstan.neon --level 6 --memory-limit=512M",
-    "phpstan:ci": "@phpstan --error-format=checkstyle --no-interaction --no-progress",
-    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "rector --dry-run --debug",
-    "rector:exec": "rector --debug"
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../centreon"
-    }
-  ],
+  "license": "GPL-2.0-only",
   "require": {
     "centreon/centreon": "dev-develop",
     "ext-openssl": "*",
@@ -48,6 +31,12 @@
       "Tests\\": "tests/php/"
     }
   },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../centreon"
+    }
+  ],
   "config": {
     "secure-http": false,
     "sort-packages": true,
@@ -59,5 +48,16 @@
       "pestphp/pest-plugin": true,
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
+  },
+  "scripts": {
+    "test": "pest",
+    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml --no-interaction --do-not-cache-result",
+    "codestyle": "phpcs --standard=./ruleset.xml ./",
+    "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache",
+    "phpstan": "phpstan analyse -c phpstan.neon --level 6 --memory-limit=512M",
+    "phpstan:ci": "@phpstan --error-format=checkstyle --no-interaction --no-progress",
+    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
+    "rector:check": "rector --dry-run --debug",
+    "rector:exec": "rector --debug"
   }
 }
