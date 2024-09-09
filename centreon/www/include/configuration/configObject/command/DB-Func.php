@@ -169,7 +169,7 @@ function updateCommandInDB($cmd_id = null)
 
 function updateCommand($cmd_id = null, $params = array())
 {
-    global $form, $pearDB, $centreon;
+    global $form, $pearDB, $centreon, $isCloudPlatform;
 
     if (!$cmd_id) {
         return;
@@ -203,12 +203,14 @@ function updateCommand($cmd_id = null, $params = array())
             ? $ret["command_activate"]["command_activate"]
             : null;
 
+    $type = $isCloudPlatform ? $ret['type'] : $ret["command_type"]["command_type"];
+
     $sth = $pearDB->prepare($rq);
     $sth->bindParam(':command_name', $ret["command_name"], PDO::PARAM_STR);
     $sth->bindParam(':command_line', $ret["command_line"], PDO::PARAM_STR);
     $sth->bindParam(':enable_shell', $ret["enable_shell"], PDO::PARAM_INT);
     $sth->bindParam(':command_example', $ret["command_example"], PDO::PARAM_STR);
-    $sth->bindParam(':command_type', $ret["command_type"]["command_type"], PDO::PARAM_INT);
+    $sth->bindParam(':command_type', $type, PDO::PARAM_INT);
     $sth->bindParam(':command_comment', $ret["command_comment"], PDO::PARAM_STR);
     $sth->bindParam(':graph_id', $ret["graph_id"], PDO::PARAM_INT);
     $sth->bindParam(':connector_id', $ret["connectors"], PDO::PARAM_INT);
