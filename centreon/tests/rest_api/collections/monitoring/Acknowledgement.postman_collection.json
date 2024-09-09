@@ -796,7 +796,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -819,11 +820,12 @@
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"        const responseJson = pm.response.json();\r",
 									"        pm.expect(responseJson.state_type).not.to.eql(0);\r",
-									"        pm.expect(responseJson.state).not.to.eql(0);\r",
+									"        pm.expect(responseJson.state).eql(2);\r",
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -862,7 +864,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -885,11 +888,12 @@
 									"        pm.response.to.have.status(200);\r",
 									"        const responseJson = pm.response.json();\r",
 									"        pm.expect(responseJson.state_type).not.to.eql(0);\r",
-									"        pm.expect(responseJson.state).not.to.eql(0);\r",
+									"        pm.expect(responseJson.state).eql(2);\r",
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
