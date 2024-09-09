@@ -29,6 +29,7 @@ else
 fi
 dnf config-manager --set-enabled 'centreon*'
 dnf config-manager --disable 'centreon-plugins*-stable*' --disable 'centreon-plugins*-testing*'
+dnf config-manager --disable 'epel*'
 
 #############################
 # install base dependencies #
@@ -67,7 +68,9 @@ dnf install -y \
   perl-DBD-SQLite \
   perl-DBI \
   perl-HTML-Parser \
-  perl-Net-Curl
+  perl-Net-Curl \
+  perl-lib \
+  perl-Env
 
 #############################
 # install test dependencies #
