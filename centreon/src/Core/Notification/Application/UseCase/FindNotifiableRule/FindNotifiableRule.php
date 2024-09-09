@@ -221,19 +221,12 @@ final class FindNotifiableRule
             if (in_array($contact->getId(), $contactIdsAlreadyCreated, true)) {
                 continue;
             }
-            if ($contact instanceof NotificationContact) {
-                $contactDtos[] = new ContactDto(
-                    fullName: $contact->getName(),
-                    emailAddress: $contact->getEmail(),
-                );
-                $contactIdsAlreadyCreated[] = $contact->getId();
-            } elseif ($contact instanceof BasicContact) {
-                $contactDtos[] = new ContactDto(
-                    fullName: $contact->getName(),
-                    emailAddress: $contact->getEmail(),
-                );
-                $contactIdsAlreadyCreated[] = $contact->getId();
-            }
+
+            $contactDtos[] = new ContactDto(
+                fullName: $contact->getName(),
+                emailAddress: $contact->getEmail(),
+            );
+            $contactIdsAlreadyCreated[] = $contact->getId();
         }
 
         return $contactDtos;
