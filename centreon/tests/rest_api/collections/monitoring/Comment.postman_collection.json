@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "ff51eb75-3109-4d36-b1fb-aff3c592251d",
+		"_postman_id": "eabf7f88-7703-43de-a6b0-bf179af162c2",
 		"name": "Comment",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ff51eb75-3109-4d36-b1fb-aff3c592251d?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "1366693"
 	},
 	"item": [
 		{
@@ -533,7 +532,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a comment on the host by admin (successful)",
+					"name": "Check the host is monitored",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -553,6 +552,80 @@
 									"pm.collectionVariables.set(\"maxNumberOfTries\", 60);\r",
 									"pm.collectionVariables.set(\"sleepBetweenTries\", 1000);\r",
 									"\r",
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length == 0) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host is monitored\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"The host is successfully listed\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        pm.expect(responseJson.result[0].name).to.eql(pm.collectionVariables.get(\"Host1Name\"));\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts?search={\"host.name\":{\"$rg\":\"{{Host1Name}}\"}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "{\"host.name\":{\"$rg\":\"{{Host1Name}}\"}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a comment on the host by admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
