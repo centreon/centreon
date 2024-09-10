@@ -23,6 +23,12 @@ echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
 touch /var/log/php8.1-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.1-fpm-centreon-error.log
 
+systemctl stop gorgoned
+systemctl stop centengine
+systemctl stop cbd
+systemctl stop apache2
+systemctl stop php8.1-fpm
+
 apt-get clean
 
 EOF

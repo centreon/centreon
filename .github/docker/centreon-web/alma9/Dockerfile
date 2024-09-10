@@ -19,6 +19,12 @@ echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
+systemctl stop gorgoned
+systemctl stop centengine
+systemctl stop cbd
+systemctl stop httpd
+systemctl stop php-fpm
+
 dnf clean all
 
 EOF
