@@ -262,7 +262,7 @@ jobs:
 
             matrix = {
               "main": [alma9_mariadb],
-              "operating_systems": [alma9_mariadb, alma8_mariadb],
+              "operating_systems": [alma9_mariadb, alma8_mariadb, bullseye_mysql],
               "databases": [alma9_mariadb],
             };
 

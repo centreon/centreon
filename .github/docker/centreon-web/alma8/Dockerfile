@@ -10,9 +10,9 @@ COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /us
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
-RUN --mount=type=bind,src=rpms-centreon,dst=/tmp/rpms-centreon bash -e <<EOF
+RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
-dnf install -y /tmp/rpms-centreon/centreon-*.rpm
+dnf install -y /tmp/packages-centreon/centreon-*.rpm
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
