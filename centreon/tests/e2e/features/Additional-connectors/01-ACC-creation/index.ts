@@ -4,7 +4,7 @@ before(() => {
   cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
 });
 
 beforeEach(() => {
@@ -14,11 +14,11 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/additional-connectors?*'
+    url: '/centreon/api/latest/configuration/additional-connector-configurations?*'
   }).as('getConnectorPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/additional-connectors'
+    url: '/centreon/api/latest/configuration/additional-connector-configurations'
   }).as('addAdditionalConnector');
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-for-ACC',
