@@ -1,17 +1,17 @@
 import { useAtomValue, useSetAtom } from 'jotai';
+import { has } from 'ramda';
 
 import { useRequest } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { listResources } from '../../../Listing/api';
 import { Resource } from '../../../models';
 import { detailsAtom, selectResourceDerivedAtom } from '../../detailsAtoms';
 import InfiniteScroll from '../../InfiniteScroll';
+import { platformVersionsAtom } from '../../../../Main/atoms/platformVersionsAtom';
 
 import ServiceList from './List';
 import LoadingSkeleton from './LoadingSkeleton';
-import { has } from 'ramda';
 
 const ServicesTab = (): JSX.Element => {
   const { sendRequest, sending } = useRequest({
