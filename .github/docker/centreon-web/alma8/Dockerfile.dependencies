@@ -101,6 +101,8 @@ dnf install -y \
   php-pear \
   php-json
 
+sed -i "s#apache,nginx#apache#g" /etc/php-fpm.d/www.conf
+
 ################################
 # install collect dependencies #
 ################################
