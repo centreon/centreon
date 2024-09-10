@@ -143,7 +143,7 @@ class CentreonMonitoring
         $statement = $centreonXMLBGRequest->DBC->prepare($query);
         $centreonXMLBGRequest->DBC->executePreparedQuery($statement, $toBind);
 
-        if (($count = $statement->fetchColumn()) !== false) {
+        if (($count = $centreonXMLBGRequest->DBC->fetchColumn($statement)) !== false) {
             return (int) $count;
         }
 
@@ -226,7 +226,7 @@ class CentreonMonitoring
         $statement = $centreonXMLBGRequest->DBC->prepare($query);
         $centreonXMLBGRequest->DBC->executePreparedQuery($statement, $toBind);
 
-        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($result = $centreonXMLBGRequest->DBC->fetch($statement)) {
             if (! isset($serviceDetails[$result["name"]])) {
                 $serviceDetails[$result["name"]] = [];
             }
@@ -235,6 +235,7 @@ class CentreonMonitoring
                 'service_id' => $result['service_id']
             ];
         }
+        $centreonXMLBGRequest->DBC->closeQuery($statement);
 
         return $serviceDetails;
     }
