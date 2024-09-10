@@ -58,7 +58,10 @@ $centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1,
 $db = $dependencyInjector['configuration_db'];
 $rule = new Centreon_OpenTickets_Rule($db);
 
-$data = isset($_POST['data']) ? $_POST['data'] : null;
+$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+$payload = json_decode($request->getContent(), true);
+
+$data = isset($payload['data']) ? $payload['data'] : null;
 
 if ($data === null) {
     $resultat = ['code' => 1, 'msg' => 'POST data key missing'];
