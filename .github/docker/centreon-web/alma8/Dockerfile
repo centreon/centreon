@@ -5,8 +5,8 @@ FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${FROM_IMAGE_VERSION}
 
 ARG VERSION
 
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /usr/share/centreon
-COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp
+COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint /usr/share/centreon
+COPY --chown=apache:apache ./.github/docker/centreon-web/alma8/configuration /usr/share/centreon/www/install/tmp
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
