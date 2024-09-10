@@ -66,7 +66,6 @@ dnf install -y \
   perl-DBI \
   perl-HTML-Parser \
   perl-Net-Curl \
-  perl-lib \
   perl-Env
 
 #############################
