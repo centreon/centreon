@@ -40,8 +40,9 @@ if (!isset($oreon)) {
 
 $pool = array();
 if (($o == "c" || $o == "w") && $slot_id) {
-    $dbResult = $pearDB->query("SELECT * FROM mod_dsm_pool WHERE pool_id = '" . $slot_id . "' LIMIT 1");
-    $pool = $dbResult->fetch();
+    $stmt = $pearDB->prepareQuery("SELECT * FROM mod_dsm_pool WHERE pool_id = :slot_id LIMIT 1");
+    $pearDB->executePreparedQuery($stmt, [':slot_id' => [(int)$slot_id, PDO::PARAM_INT]], true);
+    $pool = $pearDB->fetch($stmt);
 }
 
 /*
