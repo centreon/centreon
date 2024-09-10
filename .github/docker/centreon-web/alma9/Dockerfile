@@ -1,30 +1,27 @@
-ARG REGISTRY_URL
-ARG VERSION
-ARG DEPENDENCIES_TAG
+ARG REGISTRY_URL=docker.centreon.com/centreon
+ARG FROM_IMAGE_VERSION=develop
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${DEPENDENCIES_TAG}
-#FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${FROM_IMAGE_VERSION}
 
 ARG VERSION
 
-# COPY *.rpm /tmp/rpms-centreon/
-
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /tmp/entrypoint
-COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /tmp/configuration
+# COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /tmp/entrypoint
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /usr/share/centreon
+# COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /tmp/configuration
+COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
 RUN --mount=type=bind,src=rpms-centreon,dst=/tmp/rpms-centreon bash -e <<EOF
 
-# rm -f /tmp/rpms-centreon/centreon{,-central,-mariadb,-mysql}-${VERSION}*.rpm
 dnf install -y /tmp/rpms-centreon/centreon-*.rpm
 
-mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
-mv /tmp/entrypoint/container.d /usr/share/centreon/container.d
-chmod -R 755 /usr/share/centreon/container.*
+# mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
+# mv /tmp/entrypoint/container.d /usr/share/centreon/container.d
+# chmod -R 755 /usr/share/centreon/container.*
 
-mv /tmp/configuration/* /usr/share/centreon/www/install/tmp/
-chown -R apache:apache /usr/share/centreon/www/install/tmp
+# mv /tmp/configuration/* /usr/share/centreon/www/install/tmp/
+# chown -R apache:apache /usr/share/centreon/www/install/tmp
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 

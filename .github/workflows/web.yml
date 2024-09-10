@@ -581,6 +581,22 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
+      - name: Get FROM image tag
+        id: from_image_version
+        run: |
+          FROM_IMAGE_VERSION="${{ needs.get-version.outputs.major_version }}"
+
+          FROM_IMAGE="centreon-web-dependencies-${{ matrix.operating_system }}"
+          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+
+          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+            FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
+            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+          fi
+
+          echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
@@ -608,8 +624,7 @@ jobs:
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
-            "DEPENDENCIES_TAG=${{ github.head_ref || github.ref_name }}"
-            "MYDUMPER_VERSION=0.16.3-5"
+            "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
           pull: true
           push: true
           load: true
