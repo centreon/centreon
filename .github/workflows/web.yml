@@ -605,10 +605,10 @@ jobs:
           fail-on-cache-miss: true
 
       - run: |
-          if [ "${{ steps.matrix_include.outputs.package_extension }}" = "rpm"]; then
+          if [ "${{ steps.matrix_include.outputs.package_extension }}" = "rpm" ]; then
             rm -f centreon{,-central,-mariadb,-mysql}-${{ needs.get-version.outputs.major_version }}*.rpm
           else
-            rm -f centreon{,-central,-mariadb,-mysql}_${{ needs.get-version.outputs.major_version }}*.rpm
+            rm -f centreon{,-central,-mariadb,-mysql}_${{ needs.get-version.outputs.major_version }}*.deb
           fi
 
           mkdir packages-centreon

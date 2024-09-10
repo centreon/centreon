@@ -13,6 +13,8 @@ RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
 # install and configure repositories #
 ######################################
 
+echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf
+
 dnf install -y dnf-plugins-core
 
 dnf config-manager --set-enabled powertools
