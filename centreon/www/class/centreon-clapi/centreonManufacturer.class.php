@@ -40,8 +40,10 @@ require_once "centreonUtils.class.php";
 require_once "Centreon/Object/Manufacturer/Manufacturer.php";
 
 /**
+ * Class
  *
- * @author sylvestre
+ * @class CentreonManufacturer
+ * @package CentreonClapi
  */
 class CentreonManufacturer extends CentreonObject
 {
@@ -49,10 +51,13 @@ class CentreonManufacturer extends CentreonObject
     const ORDER_ALIAS = 1;
     const FILE_NOT_FOUND = "Could not find file";
 
+    /** @var string */
+    public $action;
+
     /**
-     * Constructor
+     * CentreonManufacturer constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

@@ -55,11 +55,27 @@ require_once dirname(__FILE__, 2) . '/centreonServicegroups.class.php';
 require_once dirname(__FILE__, 2) . '/centreonInstance.class.php';
 require_once __DIR__ . "/Validator/RtValidator.php";
 
+/**
+ * Class
+ *
+ * @class CentreonRtDowntime
+ * @package CentreonClapi
+ */
 class CentreonRtDowntime extends CentreonObject
 {
-    /**
-     * @var array
-     */
+    /** @var \CentreonHostgroups */
+    public $hgObject;
+    /** @var \CentreonServiceGroups */
+    public $sgObject;
+    /** @var \CentreonInstance */
+    public $instanceObject;
+    /** @var \CentreonGMT */
+    public $GMTObject;
+    /** @var \CentreonExternalCommand */
+    public $externalCmdObj;
+    /** @var string */
+    public $action;
+    /** @var string[] */
     protected $downtimeType = array(
         'HOST',
         'SVC',
@@ -67,34 +83,21 @@ class CentreonRtDowntime extends CentreonObject
         'SG',
         'INSTANCE',
     );
-
-    /**
-     * @var
-     */
+    /** @var */
     protected $dHosts;
-
-    /**
-     * @var
-     */
+    /** @var */
     protected $dServices;
-
-    /**
-     * @var \CentreonClapi\CentreonHost
-     */
+    /** @var CentreonHost */
     protected $hostObject;
-
-    /**
-     * @var \CentreonClapi\CentreonService
-     */
+    /** @var CentreonService */
     protected $serviceObject;
-
-    /**
-     * @var \CentreonClapi\Validator\RtValidator
-     */
+    /** @var Validator\RtValidator */
     protected $rtValidator;
 
     /**
-     * CentreonRtDowntime constructor.
+     * CentreonRtDowntime constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -186,7 +189,9 @@ class CentreonRtDowntime extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @return array
+     * @throws CentreonClapiException
      */
     private function parseShowParameters($parameters)
     {
@@ -447,6 +452,8 @@ class CentreonRtDowntime extends CentreonObject
 
     /**
      * @param null $parameters
+     *
+     * @throws CentreonClapiException
      */
     public function add($parameters = null)
     {
@@ -641,6 +648,7 @@ class CentreonRtDowntime extends CentreonObject
      * @param string $comment
      *
      * @throws CentreonClapiException
+     * @throws \Throwable
      */
     private function addSgDowntime(
         string $resource,
@@ -699,7 +707,9 @@ class CentreonRtDowntime extends CentreonObject
      * @param $fixed
      * @param $duration
      * @param $comment
+     *
      * @throws CentreonClapiException
+     * @throws \PDOException
      */
     private function addInstanceDowntime(
         $resource,

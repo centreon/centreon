@@ -43,9 +43,11 @@ require_once "Centreon/Object/Host/Template.php";
 require_once "Centreon/Object/Service/Template.php";
 
 /**
- * Class for managing service templates
+ * Class
  *
- * @author sylvestre
+ * @class CentreonServiceTemplate
+ * @package CentreonClapi
+ * @description Class for managing service templates
  */
 class CentreonServiceTemplate extends CentreonObject
 {
@@ -55,6 +57,7 @@ class CentreonServiceTemplate extends CentreonObject
     public const NB_UPDATE_PARAMS = 3;
     public const UNKNOWN_NOTIFICATION_OPTIONS = "Invalid notifications options";
 
+    /** @var string[] */
     public static $aDepends = array(
         'CMD',
         'TP',
@@ -63,7 +66,6 @@ class CentreonServiceTemplate extends CentreonObject
     );
 
     /**
-     *
      * @var array
      * Contains : list of authorized notifications_options for this objects
      */
@@ -76,10 +78,15 @@ class CentreonServiceTemplate extends CentreonObject
         's' => 'Downtime Scheduled'
     );
 
+    /** @var string */
+    public $action;
+    /** @var int */
+    public $register;
+
     /**
-     * Constructor
+     * CentreonServiceTemplate constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -116,7 +123,9 @@ class CentreonServiceTemplate extends CentreonObject
      * Check parameters
      *
      * @param string $serviceDescription
+     *
      * @return bool
+     * @throws \Exception
      */
     protected function serviceExists($serviceDescription)
     {
@@ -143,6 +152,8 @@ class CentreonServiceTemplate extends CentreonObject
      *
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -859,8 +870,7 @@ class CentreonServiceTemplate extends CentreonObject
      * Magic method.
      *
      * @param string $name
-     * @param array $args
-     * @param mixed $arg
+     * @param array $arg
      *
      * @throws CentreonClapiException
      */
@@ -1017,7 +1027,9 @@ class CentreonServiceTemplate extends CentreonObject
      * Parse template tree
      *
      * @param array $tree
-     * @param Centreon_Object_Service_Extended $extendedObj
+     * @param null $filter_id
+     *
+     * @throws \Exception
      */
     protected function parseTemplateTree($tree, $filter_id = null)
     {
@@ -1113,7 +1125,9 @@ class CentreonServiceTemplate extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {

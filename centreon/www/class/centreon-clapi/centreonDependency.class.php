@@ -49,9 +49,11 @@ require_once "Centreon/Object/Relation/Dependency/Parent/Servicegroup.php";
 require_once "Centreon/Object/Relation/Dependency/Parent/Metaservice.php";
 
 /**
- * Class for managing dependency objects
+ * Class
  *
- * @author sylvestre
+ * @class CentreonDependency
+ * @package CentreonClapi
+ * @description Class for managing dependency objects
  */
 class CentreonDependency extends CentreonObject
 {
@@ -64,12 +66,16 @@ class CentreonDependency extends CentreonObject
     const DEP_TYPE_SERVICE = 'SERVICE';
     const DEP_TYPE_SERVICEGROUP = 'SG';
     const DEP_TYPE_META = 'META';
+
+    /** @var CentreonService */
     protected $serviceObj;
+    /** @var string */
+    public $action;
 
     /**
-     * Constructor
+     * CentreonDependency constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -89,6 +95,8 @@ class CentreonDependency extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -270,6 +278,8 @@ class CentreonDependency extends CentreonObject
      * Add host type dependency
      *
      * @param array $params
+     *
+     * @throws CentreonClapiException
      */
     protected function addHostDependency($params)
     {
@@ -288,6 +298,8 @@ class CentreonDependency extends CentreonObject
      * Add hostgroup type dependency
      *
      * @param array $params
+     *
+     * @throws CentreonClapiException
      */
     protected function addHostGroupDependency($params)
     {
@@ -348,6 +360,8 @@ class CentreonDependency extends CentreonObject
      * Add servicegroup type dependency
      *
      * @param array $params
+     *
+     * @throws CentreonClapiException
      */
     protected function addServiceGroupDependency($params)
     {
@@ -366,6 +380,8 @@ class CentreonDependency extends CentreonObject
      * Add meta type dependency
      *
      * @param array $params
+     *
+     * @throws CentreonClapiException
      */
     protected function addMetaDependency($params)
     {
@@ -1184,6 +1200,8 @@ class CentreonDependency extends CentreonObject
 
     /**
      * @param $parameters
+     *
+     * @throws CentreonClapiException
      */
     public function delparent($parameters)
     {
@@ -1194,6 +1212,8 @@ class CentreonDependency extends CentreonObject
      * Delete child
      *
      * @param string $parameters | dep_name;children_to_delete
+     *
+     * @throws CentreonClapiException
      */
     public function delchild($parameters)
     {
@@ -1204,6 +1224,8 @@ class CentreonDependency extends CentreonObject
      * Add parent
      *
      * @param string
+     *
+     * @throws CentreonClapiException
      */
     public function addparent($parameters)
     {
@@ -1232,7 +1254,7 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportHostDep()
     {
@@ -1340,7 +1362,7 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportServiceDep()
     {
@@ -1450,7 +1472,7 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportHostgroupDep()
     {
@@ -1537,7 +1559,7 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportServicegroupDep()
     {
@@ -1624,7 +1646,7 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportMetaDep()
     {

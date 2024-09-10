@@ -43,22 +43,27 @@ require_once "Centreon/Object/Host/Host.php";
 require_once "Centreon/Object/Host/Category.php";
 require_once "Centreon/Object/Relation/Host/Category/Host.php";
 
-
 /**
- * Class for managing host categories
+ * Class
  *
- * @author sylvestre
+ * @class CentreonHostCategory
+ * @package CentreonClapi
+ * @description Class for managing host categories
  */
 class CentreonHostCategory extends CentreonSeverityAbstract
 {
+    /** @var string[] */
     public static $aDepends = array(
         'HOST'
     );
 
+    /** @var string */
+    public $action;
+
     /**
-     * Constructor
+     * CentreonHostCategory constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -78,6 +83,8 @@ class CentreonHostCategory extends CentreonSeverityAbstract
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {

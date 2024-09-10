@@ -55,9 +55,16 @@ use CentreonUser;
  */
 class TopologyWebserviceTest extends TestCase
 {
-    use Traits\WebServiceAuthorizePublicTrait,
-        TestCaseExtensionTrait,
-        Dependency\CentreonDbManagerDependencyTrait;
+    use Dependency\CentreonDbManagerDependencyTrait;
+    use TestCaseExtensionTrait;
+    use Traits\WebServiceAuthorizePublicTrait;
+
+    /** @var Container */
+    public $container;
+    /** @var CentreonDB */
+    public $db;
+    /** @var TopologyWebservice|(TopologyWebservice&object&\PHPUnit\Framework\MockObject\MockObject)|(TopologyWebservice&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    public $webservice;
 
     protected function setUp(): void
     {

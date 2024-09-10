@@ -50,9 +50,11 @@ require_once "Centreon/Object/Relation/Host/Group/Service/Group.php";
 require_once "Centreon/Object/Dependency/DependencyHostgroupParent.php";
 
 /**
- * Class for managing host groups
+ * Class
  *
- * @author sylvestre
+ * @class CentreonHostGroup
+ * @package CentreonClapi
+ * @description Class for managing host groups
  */
 class CentreonHostGroup extends CentreonObject
 {
@@ -60,14 +62,19 @@ class CentreonHostGroup extends CentreonObject
     const ORDER_ALIAS = 1;
     public const INVALID_GEO_COORDS = "Invalid geo coords";
 
+    /** @var string[] */
     public static $aDepends = array(
         'HOST'
     );
 
+    /** @var string */
+    public $action;
+
+
     /**
-     * Constructor
+     * CentreonHostGroup constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -84,6 +91,8 @@ class CentreonHostGroup extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -127,7 +136,9 @@ class CentreonHostGroup extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed
+     *
+     * @return void
+     * @throws \Exception
      */
     public function add($parameters): void
     {
@@ -202,7 +213,9 @@ class CentreonHostGroup extends CentreonObject
      * Enable object
      *
      * @param string $objectName
+     *
      * @return void
+     * @throws \Exception
      */
     public function enable($objectName)
     {
@@ -217,7 +230,9 @@ class CentreonHostGroup extends CentreonObject
      * Disable object
      *
      * @param string $objectName
+     *
      * @return void
+     * @throws \Exception
      */
     public function disable($objectName)
     {
@@ -464,7 +479,10 @@ class CentreonHostGroup extends CentreonObject
     /**
      * Export
      *
+     * @param null $filterName
+     *
      * @return void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {

@@ -32,6 +32,13 @@ use CentreonLegacy\Core\Module\Exception;
  */
 class HealthcheckTest extends TestCase
 {
+    /** @var FileSystem */
+    public $fs;
+    /** @var (Configuration&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    public $container;
+    /** @var (Healthcheck&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    public $service;
+    /** @var */
     protected $isModuleFs;
 
     public function setUp(): void

@@ -36,22 +36,36 @@
 require_once __DIR__ . '/centreonAuth.class.php';
 require_once __DIR__ . '/centreonLDAP.class.php';
 
+
 /**
- * Class for Ldap authentication
+ * Class
+ *
+ * @class CentreonAuthLDAP
+ * @description Class for Ldap authentication
  */
 class CentreonAuthLDAP
 {
+    /** @var \LDAP\Connection|resource */
+    public $ds;
+    /** @var CentreonDB */
     protected $pearDB;
+    /** @var CentreonLDAP */
     protected $ldap;
+    /** @var CentreonUserLog */
     protected $CentreonLog;
+    /** @var mixed[] */
     protected $contactInfos;
+    /** @var string */
     protected $typePassword;
+    /** @var int */
     protected $debug;
+    /** @var bool */
     protected $firstCheck = true;
+    /** @var int */
     protected $arId;
 
     /**
-     * Constructor
+     * CentreonAuthLDAP constructor
      *
      * @param CentreonDB $pearDB Connection to centreon database
      * @param CentreonUserLog $CentreonLog Log event
@@ -59,7 +73,6 @@ class CentreonAuthLDAP
      * @param string $password The user password
      * @param mixed[] $contactInfos
      * @param int $arId | Auth Ressource ID
-     * @return void
      */
     public function __construct($pearDB, $CentreonLog, $login, $password, $contactInfos, $arId)
     {

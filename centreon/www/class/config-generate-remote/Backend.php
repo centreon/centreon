@@ -28,32 +28,60 @@ if ($configFile !== false) {
     require_once $configFile;
 }
 
+/**
+ * Class
+ *
+ * @class Backend
+ * @package ConfigGenerateRemote
+ */
 class Backend
 {
+    /** @var string */
+    public $generatePath;
+    /** @var */
+    public $engine_sub;
+    /** @var */
+    public $stmtCentralPoller;
+    /** @var null */
     private static $instance = null;
+    /** @var mixed|null */
     public $db = null;
+    /** @var mixed|null */
     public $dbCs = null;
 
+    /** @var string[] */
     private $subdirs = ['configuration', 'media'];
 
+    /** @var string */
     private $fieldSeparatorInfile = '~~~';
+    /** @var string */
     private $lineSeparatorInfile = '######';
 
+    /** @var string */
     private $tmpDirPrefix = 'tmpdir_';
 
+    /** @var null */
     private $tmpFile = null;
+    /** @var null */
     private $tmpDir = null;
+    /** @var string */
     private $tmpDirSuffix = '.d';
+    /** @var null */
     private $fullPath = null;
+    /** @var string */
     private $whoaim = 'unknown';
 
+    /** @var bool */
     private $exportContact = false;
 
+    /** @var null */
     private $pollerId = null;
+    /** @var null */
     private $centralPollerId = null;
 
+
     /**
-     * Constructor
+     * Backend constructor
      *
      * @param \Pimple\Container $dependencyInjector
      */

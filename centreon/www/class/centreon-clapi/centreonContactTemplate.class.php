@@ -37,13 +37,14 @@ namespace CentreonClapi;
 
 require_once "centreonContact.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonContactTemplate
+ * @package CentreonClapi
+ */
 class CentreonContactTemplate extends CentreonContact
 {
-    public static $aDepends = array(
-        'CMD',
-        'TP'
-    );
-
     public const ORDER_NAME = 0;
     public const ORDER_UNIQUENAME = 1;
     public const ORDER_MAIL = 2;
@@ -53,10 +54,19 @@ class CentreonContactTemplate extends CentreonContact
     public const ORDER_AUTHTYPE = 6;
     public const ORDER_DEFAULT_PAGE = 7;
 
+    /** @var string[] */
+    public static $aDepends = array(
+        'CMD',
+        'TP'
+    );
+    /** @var string */
+    public $action;
+
+
     /**
-     * Constructor
+     * CentreonContactTemplate constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

@@ -41,30 +41,23 @@
  */
 abstract class Centreon_Object_Relation
 {
-    /**
-     * Database Connector
-     */
+    /** @var string */
+    public $firstObject;
+    /** @var string */
+    public $secondObject;
+    /** @var mixed */
     protected $db;
-
-    /**
-     * Relation Table
-     */
+    /** @var null */
     protected $relationTable = null;
-
-    /**
-     * First key
-     */
+    /** @var null */
     protected $firstKey = null;
-
-    /**
-     * Second key
-     */
+    /** @var null */
     protected $secondKey = null;
 
     /**
-     * Constructor
+     * Centreon_Object_Relation constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -106,6 +99,12 @@ abstract class Centreon_Object_Relation
         $this->db->query($sql, $args);
     }
 
+    /**
+     * @param $sql
+     * @param $params
+     *
+     * @return mixed
+     */
     protected function getResult($sql, $params = array())
     {
         $res = $this->db->query($sql, $params);

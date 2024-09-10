@@ -34,15 +34,38 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Macro
+ */
 class Macro extends AbstractObject
 {
+    /** @var */
+    public $stmt_host;
+    /** @var int */
     private $use_cache = 1;
+    /** @var int */
     private $done_cache = 0;
+    /** @var array */
     private $macro_service_cache = array();
+    /** @var null */
     protected $generate_filename = null;
+    /** @var null */
     protected $object_name = null;
+    /** @var null */
     protected $stmt_service = null;
 
+    /**
+     * Macro constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
@@ -54,6 +77,10 @@ class Macro extends AbstractObject
         $this->buildCache();
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function cacheMacroService()
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
@@ -75,6 +102,11 @@ class Macro extends AbstractObject
         }
     }
 
+    /**
+     * @param $service_id
+     *
+     * @return array|mixed|null
+     */
     public function getServiceMacroByServiceId($service_id)
     {
         # Get from the cache
@@ -110,6 +142,10 @@ class Macro extends AbstractObject
         return $this->macro_service_cache[$service_id];
     }
 
+    /**
+     * @return int|void
+     * @throws PDOException
+     */
     private function buildCache()
     {
         if ($this->done_cache == 1) {

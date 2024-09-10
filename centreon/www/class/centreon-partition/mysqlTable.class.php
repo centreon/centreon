@@ -33,8 +33,10 @@
  */
 
 /**
- * Class that handles properties to create partitions for a table
+ * Class
  *
+ * @class MysqlTable
+ * @descrfiption Class that handles properties to create partitions for a table
  * @category Database
  * @package  Centreon
  * @author   qgarnier <qgarnier@centreon.com>
@@ -43,18 +45,33 @@
  */
 class MysqlTable
 {
+    /** @var null */
+    public $type;
+    /** @var CentreonDB */
     private $db;
+    /** @var */
     private $name;
+    /** @var null */
     private $schema;
+    /** @var */
     private $schemaFile;
+    /** @var int */
     private $activate;
+    /** @var null */
     private $column;
+    /** @var null */
     private $duration;
+    /** @var null */
     private $timezone;
+    /** @var null */
     private $retention;
+    /** @var null */
     private $retentionforward;
+    /** @var null */
     private $createstmt;
+    /** @var null */
     private $backupFolder;
+    /** @var null */
     private $backupFormat;
 
     /**

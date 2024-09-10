@@ -56,9 +56,11 @@ require_once "Centreon/Object/Relation/Acl/Resource/Meta/Service.php";
 require_once "Centreon/Object/Relation/Acl/Resource/Instance.php";
 
 /**
- * Class for managing ACL groups
- * @author sylvestre
+ * Class
  *
+ * @class CentreonACLResource
+ * @package CentreonClapi
+ * @description Class for managing ACL groups
  */
 class CentreonACLResource extends CentreonObject
 {
@@ -66,16 +68,13 @@ class CentreonACLResource extends CentreonObject
     const ORDER_ALIAS = 1;
     const UNSUPPORTED_WILDCARD = "Action does not support the '*' wildcard";
 
-    /**
-     *
-     * @var Centreon_Object_Acl_Group
-     */
+    /** @var string */
+    public $action;
+
+    /** @var \Centreon_Object_Acl_Group */
     protected $aclGroupObj;
 
-    /**
-     *
-     * @var Centreon_Object_Relation_Acl_Group_Resource
-     */
+    /** @var \Centreon_Object_Relation_Acl_Group_Resource */
     protected $relObject;
 
     /**
@@ -92,6 +91,7 @@ class CentreonACLResource extends CentreonObject
      */
     protected $resourceTypeObjectRelation;
 
+    /** @var string[] */
     public $aDepends = array(
         'HOST',
         'SERVICE',
@@ -103,9 +103,9 @@ class CentreonACLResource extends CentreonObject
     );
 
     /**
-     * Constructor
+     * CentreonACLResource constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

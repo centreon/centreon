@@ -62,9 +62,10 @@ require_once "Centreon/Object/Relation/Host/Group/Service/Service.php";
 require_once "Centreon/Object/Relation/Service/Category/Service.php";
 
 /**
- * Centreon Service objects
+ * Class
  *
- * @author sylvestre
+ * @class CentreonHostGroupService
+ * @package CentreonClapi
  */
 class CentreonHostGroupService extends CentreonObject
 {
@@ -73,17 +74,23 @@ class CentreonHostGroupService extends CentreonObject
     const ORDER_SVCTPL = 2;
     const NB_UPDATE_PARAMS = 4;
 
+    /** @var string[] */
     public static $aDepends = array(
         'HOST',
         'SERVICE'
     );
 
+    /** @var string */
+    public $action;
+    /** @var int */
+    public $register;
+    /** @var */
     protected $hgId;
 
     /**
-     * Constructor
+     * CentreonHostGroupService constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -139,7 +146,9 @@ class CentreonHostGroupService extends CentreonObject
      *
      * @param string $hgName
      * @param string $serviceDescription
+     *
      * @return bool
+     * @throws \Exception
      */
     protected function serviceExists($hgName, $serviceDescription)
     {
@@ -166,6 +175,8 @@ class CentreonHostGroupService extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -797,7 +808,7 @@ class CentreonHostGroupService extends CentreonObject
      * Magic method
      *
      * @param string $name
-     * @param array $args
+     * @param array $arg
      * @return void
      * @throws CentreonClapiException
      */
@@ -916,7 +927,10 @@ class CentreonHostGroupService extends CentreonObject
     /**
      * Export
      *
-     * @return void
+     * @param null $filterName
+     *
+     * @return int|void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {

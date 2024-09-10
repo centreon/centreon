@@ -34,8 +34,9 @@
  */
 
 /**
- * Class that handles XML properties file
+ * Class
  *
+ * @class Config
  * @category Database
  * @package  Centreon
  * @author   qgarnier <qgarnier@centreon.com>
@@ -44,18 +45,27 @@
  */
 class Config
 {
+    /** @var string */
+    public $XMLFile;
+    /** @var */
     public $XMLfile;
+    /** @var */
     private $defaultConfiguration;
+    /** @var array */
     public $tables;
+    /** @var CentreonDB */
     public $centstorageDb;
+    /** @var CentreonDB */
     private $centreonDb;
 
     /**
-     * Class constructor
+     * Config constructor
      *
-     * @param CentreonDB $centstorageDb   the centstorage database
-     * @param string     $file            the xml file name
-     * @param CentreonDB $centreonDb      the centreon database
+     * @param CentreonDB $centstorageDb the centstorage database
+     * @param string $file the xml file name
+     * @param CentreonDB $centreonDb the centreon database
+     *
+     * @throws Exception
      */
     public function __construct($centstorageDb, $file, $centreonDb)
     {
@@ -68,7 +78,8 @@ class Config
     }
 
     /**
-     *
+     * @return void
+     * @throws PDOException
      */
     public function loadCentreonDefaultConfiguration()
     {
@@ -84,13 +95,14 @@ class Config
             $this->defaultConfiguration[$row['key']] = $row['value'];
         }
     }
-    
+
     /**
      * Parse XML configuration file to get properties of table to process
      *
      * @param string $xmlfile the xml file name
      *
      * @return null
+     * @throws Exception
      */
     public function parseXML($xmlfile)
     {
@@ -168,7 +180,7 @@ class Config
     /**
      * Check if each table property is set
      *
-     * @return boolean
+     * @return bool
      */
     public function isValid()
     {

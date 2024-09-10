@@ -43,9 +43,11 @@ require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . '/www/class/centreonTopology.class.php';
 
 /**
- * Class for managing ACL Menu rules
- * @author sylvestre
+ * Class
  *
+ * @class CentreonACLMenu
+ * @package CentreonClapi
+ * @description Class for managing ACL Menu rules
  */
 class CentreonACLMenu extends CentreonObject
 {
@@ -55,8 +57,14 @@ class CentreonACLMenu extends CentreonObject
     const LEVEL_2 = 1;
     const LEVEL_3 = 2;
     const LEVEL_4 = 3;
+
+    /** @var string */
+    public $action;
+    /** @var \Centreon_Object_Relation_Acl_Group_Menu */
     protected $relObject;
+    /** @var \Centreon_Object_Acl_Group */
     protected $aclGroupObj;
+    /** @var \CentreonTopology */
     protected $topologyObj;
 
     /**

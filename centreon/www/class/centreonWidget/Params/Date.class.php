@@ -35,13 +35,36 @@
 
 require_once __DIR__ . "/../Params.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsDate
+ */
 class CentreonWidgetParamsDate extends CentreonWidgetParams
 {
+    /** @var */
+    public $element;
+
+    /**
+     * CentreonWidgetParamsDate constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @param $params
+     *
+     * @return void
+     * @throws HTML_QuickForm_Error
+     */
     public function init($params)
     {
         parent::init($params);
@@ -68,6 +91,14 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
         }
     }
 
+    /**
+     * @param $params
+     *
+     * @return void
+     * @throws CentreonWidgetParamsException
+     * @throws HTML_QuickForm_Error
+     * @throws PDOException
+     */
     public function setValue($params)
     {
         $userPref = $this->getUserPreferences($params);

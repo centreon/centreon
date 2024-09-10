@@ -35,24 +35,44 @@
 
 require_once __DIR__ . "/Params/Interface.class.php";
 
-class CentreonWidgetParamsException extends Exception
-{
-}
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsException
+ */
+class CentreonWidgetParamsException extends Exception {}
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParams
+ */
 abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
 {
+    /** @var */
     protected static $instances;
+    /** @var int */
+    public $userId;
+    /** @var */
+    public $element;
+    /** @var CentreonDB */
     protected $db;
+    /** @var HTML_Quickform */
     protected $quickform;
+    /** @var */
     protected $params;
+    /** @var array */
     protected $userGroups;
+    /** @var false */
     protected $trigger;
+    /** @var CentreonACL */
     protected $acl;
+    /** @var CentreonDB */
     protected $monitoringDb;
+    /** @var string[] */
     protected $multiType = array(
         'serviceMulti'
     );
-
 
     /**
      * Constructor
@@ -60,7 +80,8 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @param CentreonDB $db
      * @param HTML_Quickform $quickform
      * @param int $userId
-     * @return void
+     *
+     * @throws PDOException
      */
     public function __construct($db, $quickform, $userId)
     {
@@ -84,7 +105,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * Get User Preferences
      *
      * @param array $params
+     *
      * @return mixed
+     * @throws PDOException
      */
     protected function getUserPreferences($params)
     {
@@ -115,8 +138,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      *
      * @param CentreonDB $db
      * @param HTML_Quickform $quickform
-     * @param string $typeName
+     * @param $className
      * @param int $userId
+     *
      * @return mixed
      */
     public static function factory($db, $quickform, $className, $userId)
@@ -142,7 +166,10 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * Set Value
      *
      * @param array $params
+     *
      * @return void
+     * @throws HTML_QuickForm_Error
+     * @throws PDOException
      */
     public function setValue($params)
     {
@@ -173,7 +200,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * Get List Values
      *
      * @param int $paramId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getListValues($paramId)
     {
@@ -188,6 +217,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
         return $tab;
     }
 
+    /**
+     * @return false
+     */
     public function getTrigger()
     {
         return $this->trigger;

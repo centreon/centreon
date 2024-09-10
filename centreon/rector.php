@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveNullTagValueNodeRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
@@ -28,51 +29,74 @@ use Rector\Visibility\Rector\ClassMethod\ExplicitPublicClassMethodRector;
 
 return RectorConfig::configure()
     ->withPaths([
-         __DIR__ . '/api',
-         __DIR__ . '/config',
-         __DIR__ . '/cron',
-         __DIR__ . '/lib',
-         __DIR__ . '/libinstall',
-         __DIR__ . '/packaging',
-         __DIR__ . '/src',
-         __DIR__ . '/tests',
-         __DIR__ . '/tools',
-         __DIR__ . '/www',
-         __DIR__ . '/.env.local.php',
-         __DIR__ . '/.php-cs-fixer.dist.php',
-         __DIR__ . '/.php-cs-fixer.unstrict.php',
-         __DIR__ . '/rector.php',
-         __DIR__ . '/bootstrap.php',
-         __DIR__ . '/container.php',
-    ])
-    ->withPhpSets(php82: true)
-    ->withPreparedSets(earlyReturn: true)
-    ->withSkip([
-        RemoveNullTagValueNodeRector::class,
-        RemoveUselessVarTagRector::class,
-        RemoveUselessParamTagRector::class,
-        RemoveUselessReturnTagRector::class,
-        MixedTypeRector::class,
-        MergeDateTimePropertyTypeDeclarationRector::class,
-        SensitiveHereNowDocRector::class,
-        ReadOnlyClassRector::class,
-        ReadOnlyPropertyRector::class,
-        ChangeOrIfContinueToMultiContinueRector::class,
-        ChangeAndIfToEarlyReturnRector::class,
-        RemoveUnusedVariableInCatchRector::class,
-        SensitiveConstantNameRector::class,
-        RemoveExtraParametersRector::class,
-        BinaryOpBetweenNumberAndStringRector::class
-    ])
-    ->withRules([
-        AddVoidReturnTypeWhereNoReturnRector::class,
-        AddClosureVoidReturnTypeWhereNoReturnRector::class,
-        AddParamTypeSplFixedArrayRector::class,
-        NestedAnnotationToAttributeRector::class,
-        AttributeKeyToClassConstFetchRector::class,
-        ExplicitPublicClassMethodRector::class,
-        RemoveAlwaysElseRector::class,
+        __DIR__ . '/api',
+        __DIR__ . '/config',
+        __DIR__ . '/cron',
+        __DIR__ . '/lib',
+        __DIR__ . '/libinstall',
+        __DIR__ . '/packaging',
+        __DIR__ . '/src',
+        __DIR__ . '/tests',
+        __DIR__ . '/tools',
+        __DIR__ . '/www',
+        __DIR__ . '/.env.local.php',
+        __DIR__ . '/.php-cs-fixer.dist.php',
+        __DIR__ . '/.php-cs-fixer.unstrict.php',
+        __DIR__ . '/rector.php',
+        __DIR__ . '/bootstrap.php',
+        __DIR__ . '/container.php',
+    ])->withRules([
+        CompleteDynamicPropertiesRector::class
     ]);
+
+//return RectorConfig::configure()
+//    ->withPaths([
+//         __DIR__ . '/api',
+//         __DIR__ . '/config',
+//         __DIR__ . '/cron',
+//         __DIR__ . '/lib',
+//         __DIR__ . '/libinstall',
+//         __DIR__ . '/packaging',
+//         __DIR__ . '/src',
+//         __DIR__ . '/tests',
+//         __DIR__ . '/tools',
+//         __DIR__ . '/www',
+//         __DIR__ . '/.env.local.php',
+//         __DIR__ . '/.php-cs-fixer.dist.php',
+//         __DIR__ . '/.php-cs-fixer.unstrict.php',
+//         __DIR__ . '/rector.php',
+//         __DIR__ . '/bootstrap.php',
+//         __DIR__ . '/container.php',
+//    ])
+//    ->withPhpSets(php82: true)
+//    ->withPreparedSets(earlyReturn: true)
+//    ->withSkip([
+//        RemoveNullTagValueNodeRector::class,
+//        RemoveUselessVarTagRector::class,
+//        RemoveUselessParamTagRector::class,
+//        RemoveUselessReturnTagRector::class,
+//        MixedTypeRector::class,
+//        MergeDateTimePropertyTypeDeclarationRector::class,
+//        SensitiveHereNowDocRector::class,
+//        ReadOnlyClassRector::class,
+//        ReadOnlyPropertyRector::class,
+//        ChangeOrIfContinueToMultiContinueRector::class,
+//        ChangeAndIfToEarlyReturnRector::class,
+//        RemoveUnusedVariableInCatchRector::class,
+//        SensitiveConstantNameRector::class,
+//        RemoveExtraParametersRector::class,
+//        BinaryOpBetweenNumberAndStringRector::class
+//    ])
+//    ->withRules([
+//        AddVoidReturnTypeWhereNoReturnRector::class,
+//        AddClosureVoidReturnTypeWhereNoReturnRector::class,
+//        AddParamTypeSplFixedArrayRector::class,
+//        NestedAnnotationToAttributeRector::class,
+//        AttributeKeyToClassConstFetchRector::class,
+//        ExplicitPublicClassMethodRector::class,
+//        RemoveAlwaysElseRector::class,
+//        CompleteDynamicPropertiesRector::class
+//    ]);
 //    ->withSets([
 //        SymfonySetList::SYMFONY_64,
 //        SymfonySetList::SYMFONY_CODE_QUALITY,

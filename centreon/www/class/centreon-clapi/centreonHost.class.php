@@ -71,9 +71,10 @@ require_once "Centreon/Object/Media/Media.php";
 require_once "Centreon/Object/Dependency/DependencyHostParent.php";
 
 /**
- * Centreon Host objects
+ * Class
  *
- * @author sylvestre
+ * @class CentreonHost
+ * @package CentreonClapi
  */
 class CentreonHost extends CentreonObject
 {
@@ -89,13 +90,14 @@ class CentreonHost extends CentreonObject
     public const UNKNOWN_TIMEZONE = "Invalid timezone";
     public const HOST_LOCATION = "timezone";
 
-    /**
-     *
-     * @var Timezone
-     */
+    /** @var string */
+    public $action;
+    /** @var \Centreon_Object_Timezone */
     protected $timezoneObject;
+    /** @var int */
     protected $register;
 
+    /** @var string[] */
     public static $aDepends = array(
         'CMD',
         'TP',
@@ -117,15 +119,18 @@ class CentreonHost extends CentreonObject
         'n' => 'None'
     );
 
+    /** @var */
     protected $templateIds;
+    /** @var */
     protected $hostgroupIds;
+    /** @var */
     protected $instanceId;
 
 
     /**
-     * Constructor
+     * CentreonHost constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -214,6 +219,8 @@ class CentreonHost extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -243,6 +250,8 @@ class CentreonHost extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function showbyaddress($parameters = null, $filters = array())
     {
@@ -358,7 +367,9 @@ class CentreonHost extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed
+     *
+     * @return void
+     * @throws \Exception
      */
     public function add($parameters): void
     {
@@ -1612,6 +1623,14 @@ class CentreonHost extends CentreonObject
         }
     }
 
+    /**
+     * @param $host_id
+     * @param $macroInput
+     * @param $macroValue
+     * @param $cmdId
+     *
+     * @return bool
+     */
     public function hasMacroFromHostChanged($host_id, &$macroInput, &$macroValue, $cmdId = false)
     {
         $aTemplates = $this->getTemplateChain($host_id, array(), -1, true, "host_name,host_id,command_command_id");
@@ -1779,6 +1798,12 @@ class CentreonHost extends CentreonObject
     }
 
 
+    /**
+     * @param $hostId
+     * @param $template
+     *
+     * @return array
+     */
     public function getCustomMacroInDb($hostId = null, $template = null)
     {
         $arr = array();
@@ -1810,6 +1835,11 @@ class CentreonHost extends CentreonObject
         return $arr;
     }
 
+    /**
+     * @param $aTempMacro
+     *
+     * @return array
+     */
     public function macro_unique($aTempMacro)
     {
         $storedMacros = array();
@@ -1836,6 +1866,13 @@ class CentreonHost extends CentreonObject
         return $finalMacros;
     }
 
+    /**
+     * @param $macroA
+     * @param $macroB
+     * @param $getFirst
+     *
+     * @return mixed
+     */
     private function comparaPriority($macroA, $macroB, $getFirst = true)
     {
         $arrayPrio = array('direct' => 3, 'fromTpl' => 2, 'fromCommand' => 1);
@@ -1854,6 +1891,12 @@ class CentreonHost extends CentreonObject
         }
     }
 
+    /**
+     * @param $storedMacros
+     * @param $finalMacros
+     *
+     * @return void
+     */
     private function addInfosToMacro($storedMacros, &$finalMacros)
     {
         foreach ($finalMacros as &$finalMacro) {
@@ -1876,6 +1919,12 @@ class CentreonHost extends CentreonObject
         }
     }
 
+    /**
+     * @param $storedMacros
+     * @param $finalMacro
+     *
+     * @return mixed|string
+     */
     private function getInheritedDescription($storedMacros, $finalMacro)
     {
         $description = "";
@@ -1898,12 +1947,24 @@ class CentreonHost extends CentreonObject
         return $description;
     }
 
+    /**
+     * @param $finalMacro
+     * @param $description
+     *
+     * @return void
+     */
     private function setInheritedDescription(&$finalMacro, $description)
     {
         $finalMacro['description'] = $description;
         $finalMacro['description'] = $description;
     }
 
+    /**
+     * @param $tplValue
+     * @param $finalMacro
+     *
+     * @return void
+     */
     private function setTplValue($tplValue, &$finalMacro)
     {
         if ($tplValue) {
@@ -1915,6 +1976,12 @@ class CentreonHost extends CentreonObject
         }
     }
 
+    /**
+     * @param $storedMacro
+     * @param $getFirst
+     *
+     * @return false
+     */
     private function findTplValue($storedMacro, $getFirst = true)
     {
         if ($getFirst) {

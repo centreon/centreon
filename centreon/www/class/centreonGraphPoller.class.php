@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
@@ -34,83 +34,53 @@
  */
 
 /**
- *  Class tp get metrics for a poller and return this on JSON
+ * Class
+ *
+ * @class centreonGraphPoller
+ * @description Class tp get metrics for a poller and return this on JSON
  */
 class centreonGraphPoller
 {
+    /** @var */
+    public $rrdOptions;
+    /** @var */
+    public $arguments;
+    /** @var */
+    public $metrics;
+    /** @var */
+    public $graphData;
+    /** @var */
     protected $generalOpt;
+    /** @var */
     protected $extraDatas;
-
-    /**
-     *
-     * @var string Rrdtool command line
-     */
+    /** @var string Rrdtool command line */
     private $commandLine;
-
-    /**
-     *
-     * @var int Poller id
-     */
+    /**@var int Poller id */
     private $pollerId;
-
-    /**
-     *
-     * @var array Graph titles
-     */
+    /**@var array Graph titles */
     private $title;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     private $options;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     private $differentStats;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     private $colors;
-
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var \CentreonDB */
     private $db;
-
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var \CentreonDB */
     private $dbMonitoring;
-
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     private $graphName;
-
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     private $nagiosStatsPath;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     private $metricsInfos = array();
 
     /**
+     * centreonGraphPoller constructor
      *
-     * @param \CentreonDB $db
-     * @param \CentreonDB $dbMonitoring
+     * @param CentreonDB $db
+     * @param CentreonDB $dbMonitoring
      */
     public function __construct($db, $dbMonitoring)
     {
@@ -211,6 +181,7 @@ class centreonGraphPoller
      * Get rrdtool options
      *
      * @return void
+     * @throws PDOException
      */
     private function initRrd()
     {

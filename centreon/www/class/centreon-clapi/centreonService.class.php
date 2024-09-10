@@ -69,10 +69,12 @@ require_once "Centreon/Object/Relation/Service/Category/Service.php";
 require_once "Centreon/Object/Relation/Service/Group/Service.php";
 
 require_once "Centreon/Object/Dependency/DependencyServiceParent.php";
+
 /**
- * Centreon Service objects
+ * Class
  *
- * @author sylvestre
+ * @class CentreonService
+ * @package CentreonClapi
  */
 class CentreonService extends CentreonObject
 {
@@ -83,6 +85,7 @@ class CentreonService extends CentreonObject
     public const UNKNOWN_NOTIFICATION_OPTIONS = "Invalid notifications options";
     public const INVALID_GEO_COORDS = "Invalid geo coords";
 
+    /** @var string[] */
     public static $aDepends = array(
         'CMD',
         'TP',
@@ -92,7 +95,6 @@ class CentreonService extends CentreonObject
     );
 
     /**
-     *
      * @var array
      * Contains : list of authorized notifications_options for this objects
      */
@@ -105,12 +107,17 @@ class CentreonService extends CentreonObject
         's' => 'Downtime Scheduled'
     );
 
+    /** @var int */
+    public $register;
+    /** @var string */
+    public $action;
+    /** @var */
     protected $hostId;
 
     /**
-     * Constructor
+     * CentreonService constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -170,7 +177,7 @@ class CentreonService extends CentreonObject
      *
      * @param string $host
      * @param string $service
-     * @return array | array($hostId, $serviceId)
+     * @return array|array($hostId, $serviceId)
      */
     public function getHostAndServiceId($host, $service)
     {
@@ -231,7 +238,9 @@ class CentreonService extends CentreonObject
      *
      * @param string $hostName
      * @param string $serviceDescription
+     *
      * @return bool
+     * @throws \Exception
      */
     public function serviceExists($hostName, $serviceDescription)
     {
@@ -258,6 +267,8 @@ class CentreonService extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -319,7 +330,9 @@ class CentreonService extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed
+     *
+     * @return void
+     * @throws CentreonClapiException
      */
     public function add($parameters): void
     {
@@ -386,7 +399,9 @@ class CentreonService extends CentreonObject
      * Enable object
      *
      * @param string $objectName
+     *
      * @return void
+     * @throws CentreonClapiException
      */
     public function enable($objectName)
     {
@@ -401,7 +416,9 @@ class CentreonService extends CentreonObject
      * Disable object
      *
      * @param string $objectName
+     *
      * @return void
+     * @throws CentreonClapiException
      */
     public function disable($objectName)
     {
@@ -1213,7 +1230,7 @@ class CentreonService extends CentreonObject
      * Magic method
      *
      * @param string $name
-     * @param array $args
+     * @param array $arg
      * @return void
      * @throws CentreonClapiException
      */
@@ -1368,7 +1385,9 @@ class CentreonService extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {

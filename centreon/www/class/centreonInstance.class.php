@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
@@ -34,24 +34,33 @@
  */
 
 /**
- * Class for handling Instances
+ * Class
+ *
+ * @class CentreonInstance
+ * @description Class for handling Instances
  */
 class CentreonInstance
 {
+    /** @var */
+    public $paramsByName;
+    /** @var */
+    public $DB;
+    /** @var CentreonDB */
     protected $db;
+    /** @var CentreonDB */
     protected $dbo;
+    /** @var */
     protected $params;
+    /** @var array */
     protected $instances;
-    /**
-     * @var CentreonInstance|null $staticInstance
-     */
+    /** @var CentreonInstance|null $staticInstance */
     private static ?CentreonInstance $staticInstance = null;
 
     /**
-     * Constructor
+     * CentreonInstance constructor
      *
      * @param CentreonDB $db
-     * @return void
+     * @param CentreonDB|null $dbo
      */
     public function __construct($db, $dbo = null)
     {
@@ -66,8 +75,8 @@ class CentreonInstance
     /**
      * @param CentreonDB $db
      * @param CentreonDB|null $dbo
+     *
      * @return CentreonInstance
-     * @throws PDOException
      */
     public static function getInstance(CentreonDB $db, ?CentreonDB $dbo = null): CentreonInstance
     {
@@ -78,6 +87,7 @@ class CentreonInstance
      * Initialize Parameters
      *
      * @return void
+     * @throws PDOException
      */
     protected function initParams()
     {
@@ -135,7 +145,7 @@ class CentreonInstance
                 foreach ($filteredPollerIds as $index => $filteredPollerId) {
                     $pollerParams[':pollerId' . $index] = $filteredPollerId;
                 }
-                $stmt = $this->DB->prepare(
+                $stmt = $this->DB->prepare( // FIXME I think it's $db, to check
                     'SELECT i.instance_id, i.name FROM instances i ' .
                     'WHERE i.instance_id IN ( ' . implode(',', array_keys($pollerParams)) . ' )'
                 );
@@ -192,7 +202,9 @@ class CentreonInstance
      * Get command data from poller id
      *
      * @param int $pollerId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCommandData($pollerId)
     {
@@ -213,8 +225,10 @@ class CentreonInstance
     /**
      * Return list of commands used by poller
      *
-     * @param int $pollerId
+     * @param int|null $pollerId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCommandsFromPollerId($pollerId = null)
     {
@@ -245,7 +259,9 @@ class CentreonInstance
      *
      * @param int $pollerId
      * @param array $commands
+     *
      * @return void
+     * @throws PDOException
      */
     public function setCommands($pollerId, $commands)
     {
@@ -270,7 +286,9 @@ class CentreonInstance
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {
@@ -333,7 +351,9 @@ class CentreonInstance
 
     /**
      * @param $instanceName
+     *
      * @return array
+     * @throws PDOException
      */
     public function getHostsByInstance($instanceName)
     {
@@ -356,6 +376,12 @@ class CentreonInstance
         return $instanceList;
     }
 
+    /**
+     * @param $instanceName
+     *
+     * @return mixed
+     * @throws PDOException
+     */
     public function getInstanceId($instanceName)
     {
         $query = "SELECT ns.id " .

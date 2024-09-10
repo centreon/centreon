@@ -39,8 +39,15 @@ require_once _CENTREON_PATH_ . "/www/class/centreonACL.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonHook.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonPerformanceService
+ */
 class CentreonPerformanceService extends CentreonConfigurationObjects
 {
+    /** @var */
+    public $arguments;
     /**
      * @var CentreonDB
      */

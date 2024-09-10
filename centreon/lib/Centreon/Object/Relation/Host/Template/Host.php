@@ -35,12 +35,29 @@
 
 require_once "Centreon/Object/Relation/Relation.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Host_Template_Host
+ */
 class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relation
 {
+    /** @var Centreon_Object_Host */
+    public $firstObject;
+    /** @var Centreon_Object_Host */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "host_template_relation";
+    /** @var string */
     protected $firstKey = "host_tpl_id";
+    /** @var string */
     protected $secondKey = "host_host_id";
 
+    /**
+     * Centreon_Object_Relation_Host_Template_Host constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
@@ -126,7 +143,9 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      * @param string $sort
      * @param array $filters
      * @param string $filterType
+     *
      * @return array
+     * @throws Exception
      */
     public function getMergedParameters(
         $firstTableParams = array(),

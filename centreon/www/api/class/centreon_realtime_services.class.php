@@ -37,29 +37,52 @@ require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
 require_once dirname(__FILE__) . "/centreon_realtime_base.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonRealtimeServices
+ */
 class CentreonRealtimeServices extends CentreonRealtimeBase
 {
+    /** @var */
+    public $servicegroup;
+    /** @var */
+    public $searchOutput;
     /**
      * @var CentreonDB
      */
     protected $aclObj;
+    /** @var int */
     protected $admin;
 
     /* parameters */
+    /** @var */
     protected $limit;
+    /** @var */
     protected $number;
+    /** @var */
     protected $status;
+    /** @var */
     protected $hostgroup;
+    /** @var */
     protected $search;
+    /** @var */
     protected $searchHost;
+    /** @var */
     protected $viewType;
+    /** @var */
     protected $sortType;
+    /** @var */
     protected $order;
+    /** @var */
     protected $instance;
+    /** @var */
     protected $criticality;
 
+    /** @var */
     protected $fieldList;
 
+    /** @var */
     protected $criticalityList;
 
     /**
@@ -93,6 +116,9 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         return $this->getServiceState();
     }
 
+    /**
+     * @return array
+     */
     protected function getFieldContent()
     {
         $tab = explode(',', $this->arguments['fields']);
@@ -104,6 +130,10 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         return ($fieldList);
     }
 
+    /**
+     * @return void
+     * @throws RestBadRequestException
+     */
     protected function setServiceFilters()
     {
         /* Pagination Elements */
@@ -183,6 +213,9 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         }
     }
 
+    /**
+     * @return void
+     */
     protected function setServiceFieldList()
     {
         $fields = array();
@@ -581,6 +614,10 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         return $dataList;
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     protected function getCriticality()
     {
         $this->criticalityList = array();

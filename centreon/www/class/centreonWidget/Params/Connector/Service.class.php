@@ -35,14 +35,36 @@
 
 require_once __DIR__ . "/../List.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorService
+ */
 class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
 {
+    /** @var HTML_QuickForm_element*/
+    public $element;
+
+    /**
+     * CentreonWidgetParamsConnectorService constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
         $this->trigger = true;
     }
 
+    /**
+     * @param $params
+     *
+     * @return void
+     * @throws HTML_QuickForm_Error
+     * @throws PDOException
+     */
     public function init($params)
     {
         parent::init($params);
@@ -78,7 +100,9 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      * Get service id from host id
      *
      * @param int $hostId
+     *
      * @return array
+     * @throws PDOException
      */
     protected function getServiceIds($hostId)
     {
@@ -111,6 +135,12 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
         return $tab;
     }
 
+    /**
+     * @param $paramId
+     *
+     * @return mixed|null[]
+     * @throws PDOException
+     */
     public function getListValues($paramId)
     {
         static $tab;
@@ -149,7 +179,10 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      * Set Value
      *
      * @param array $params
+     *
      * @return void
+     * @throws HTML_QuickForm_Error
+     * @throws PDOException
      */
     public function setValue($params)
     {

@@ -41,6 +41,12 @@ require_once __DIR__ . "/../../../lib/Centreon/Object/Contact/Contact.php";
 require_once "centreonClapiException.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreon-clapi/centreonExported.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonObject
+ * @package CentreonClapi
+ */
 abstract class CentreonObject
 {
     public const MISSINGPARAMETER = "Missing parameters";
@@ -56,8 +62,13 @@ abstract class CentreonObject
     public const SINGLE_VALUE = 0;
     public const MULTIPLE_VALUE = 1;
 
-
+    /** @var string */
+    public $action;
+    /** @var \CentreonClapi\CentreonApi */
+    public $api;
+    /** @var null */
     private $centreon_api = null;
+    /** @var */
     protected static $instances;
 
     /**
@@ -67,9 +78,7 @@ abstract class CentreonObject
      */
     protected $db;
 
-    /**
-     * @var
-     */
+    /** @var */
     protected $dependencyInjector;
 
     /**
@@ -128,9 +137,9 @@ abstract class CentreonObject
     protected $objectIds = array();
 
     /**
-     * Constructor
+     * CentreonObject constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -282,7 +291,9 @@ abstract class CentreonObject
 
     /**
      * @param $parameters
+     *
      * @return mixed
+     * @throws CentreonClapiException
      */
     public function add($parameters)
     {
@@ -440,7 +451,9 @@ abstract class CentreonObject
      * Enable object
      *
      * @param string $objectName
+     *
      * @return void
+     * @throws CentreonClapiException
      */
     public function enable($objectName)
     {
@@ -451,13 +464,20 @@ abstract class CentreonObject
      * Disable object
      *
      * @param string $objectName
+     *
      * @return void
+     * @throws CentreonClapiException
      */
     public function disable($objectName)
     {
         $this->activate($objectName, '0');
     }
 
+    /**
+     * @param $filterName
+     *
+     * @return bool
+     */
     protected function canBeExported($filterName = null)
     {
         $exported = CentreonExported::getInstance();

@@ -33,11 +33,22 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Engine
+ */
 class Engine extends AbstractObject
 {
+    /** @var */
+    public $cfg_file;
+    /** @var null */
     protected $engine = null;
+    /** @var null */
     protected $generate_filename = null; # it's in 'cfg_nagios' table
+    /** @var null */
     protected $object_name = null;
+    /** @var string */
     protected $attributes_select = '
         nagios_id,
         use_timezone,
@@ -121,6 +132,7 @@ class Engine extends AbstractObject
         macros_filter,
         logger_version
     ';
+    /** @var string[] */
     protected $attributes_write = array(
         'use_timezone',
         'resource_file',
@@ -188,6 +200,7 @@ class Engine extends AbstractObject
         'log_level_process',
         'log_level_runtime',
     );
+    /** @var string[] */
     protected $attributes_default = array(
         'instance_heartbeat_interval',
         'enable_notifications',
@@ -219,16 +232,26 @@ class Engine extends AbstractObject
         'enable_predictive_service_dependency_checks',
         'enable_environment_macros',
     );
+    /** @var string[] */
     protected $attributes_array = array(
         'cfg_file',
         'broker_module',
         'interval_length',
     );
+    /** @var null */
     protected $stmt_engine = null;
+    /** @var null */
     protected $stmt_broker = null;
+    /** @var null */
     protected $stmt_interval_length = null;
+    /** @var array */
     protected $add_cfg_files = array();
 
+    /**
+     * @param $poller_id
+     *
+     * @return void
+     */
     private function buildCfgFile($poller_id)
     {
         $this->engine['cfg_dir'] = preg_replace('/\/$/', '', $this->engine['cfg_dir']);
@@ -272,6 +295,10 @@ class Engine extends AbstractObject
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getBrokerModules()
     {
         if (is_null($this->stmt_broker)) {
@@ -286,6 +313,10 @@ class Engine extends AbstractObject
         $this->engine['broker_module'] = $this->stmt_broker->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getIntervalLength()
     {
         if (is_null($this->stmt_interval_length)) {
@@ -300,6 +331,9 @@ class Engine extends AbstractObject
 
     /**
      *  If log V2 enabled, set logger V2 configuration and unset logger legacy elements
+     *
+     * @return void
+     * @throws PDOException
      */
     private function setLoggerCfg(): void
     {
@@ -323,6 +357,12 @@ class Engine extends AbstractObject
         }
     }
 
+    /**
+     * @return void
+     * @throws LogicException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     private function setEngineNotificationState(): void
     {
         $kernel = \App\Kernel::createForWeb();
@@ -335,6 +375,15 @@ class Engine extends AbstractObject
                 : '0';
     }
 
+    /**
+     * @param $poller_id
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     private function generate($poller_id)
     {
         if (is_null($this->stmt_engine)) {
@@ -392,6 +441,15 @@ class Engine extends AbstractObject
         $this->close_file();
     }
 
+    /**
+     * @param $poller
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     public function generateFromPoller($poller)
     {
         Connector::getInstance($this->dependencyInjector)->generateObjects($poller['centreonconnector_path']);
@@ -400,11 +458,19 @@ class Engine extends AbstractObject
         $this->generate($poller['id']);
     }
 
+    /**
+     * @param $cfg_path
+     *
+     * @return void
+     */
     public function addCfgPath($cfg_path)
     {
         $this->add_cfg_files[] = $cfg_path;
     }
 
+    /**
+     * @return void
+     */
     public function reset()
     {
         $this->add_cfg_files = array();

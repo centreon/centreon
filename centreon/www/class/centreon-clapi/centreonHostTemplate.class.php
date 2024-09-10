@@ -37,8 +37,15 @@ namespace CentreonClapi;
 
 require_once "centreonHost.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonHostTemplate
+ * @package CentreonClapi
+ */
 class CentreonHostTemplate extends CentreonHost
 {
+    /** @var string[] */
     public static $aDepends = array(
         'CMD',
         'TP',
@@ -46,10 +53,13 @@ class CentreonHostTemplate extends CentreonHost
         'INSTANCE'
     );
 
+    /** @var string */
+    public $action;
+
     /**
-     * Constructor
+     * CentreonHostTemplate constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -72,7 +82,10 @@ class CentreonHostTemplate extends CentreonHost
     /**
      * Export
      *
+     * @param mixed|null $filterName
+     *
      * @return void
+     * @throws \Exception
      */
     public function export(mixed $filterName = null): void
     {

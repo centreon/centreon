@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2016 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,12 +22,17 @@ use CentreonLegacy\Core\Widget;
 use CentreonLegacy\ServiceProvider;
 
 /**
- * Description of factoryTest
+ * Class
  *
- * @author lionel
+ * @class FactoryTest
+ * @package CentreonLegacy\Core\Widget
  */
 class FactoryTest extends \PHPUnit\Framework\TestCase
 {
+
+    /** @var ServiceContainer */
+    public $container;
+
     public function setUp(): void
     {
         $this->container = new ServiceContainer();

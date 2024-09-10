@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
@@ -38,26 +38,36 @@ require_once _CENTREON_PATH_ . "www/class/centreonUtils.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonCustomView.class.php";
 
 /**
- * Class CentreonWidgetException
+ * Class
+ *
+ * @class CentreonWidgetException
  */
-class CentreonWidgetException extends Exception
-{
-}
+class CentreonWidgetException extends Exception {}
 
 /**
- * Class for managing widgets
+ * Class
+ *
+ * @class CentreonWidget
  */
 class CentreonWidget
 {
+    /** @var CentreonCustomView */
+    public $customView;
+    /** @var int */
     protected $userId;
+    /** @var */
     protected $db;
+    /** @var array */
     protected $widgets;
+    /** @var array */
     protected $userGroups;
 
     /**
-     * CentreonWidget constructor.
+     * CentreonWidget constructor
+     *
      * @param $centreon
      * @param $db
+     *
      * @throws Exception
      */
     public function __construct($centreon, $db)
@@ -578,11 +588,11 @@ class CentreonWidget
     }
 
     /**
-     * @param $params
+     * @param array $params
      * @param bool $permission
      * @param bool $authorized
+     *
      * @throws CentreonWidgetException
-     * @throws Exception
      */
     public function updateUserWidgetPreferences(array $params, bool $permission, bool $authorized)
     {
@@ -731,10 +741,10 @@ class CentreonWidget
      * Updates a widget position on a customview
      *
      * @param int $customViewId
-     * @param string[] $position
      * @param bool $permission
+     * @param array $positions
+     *
      * @throws CentreonWidgetException
-     * @throws Exception
      */
     public function updateWidgetPositions(int $customViewId, bool $permission, array $positions = [])
     {
@@ -1398,8 +1408,9 @@ class CentreonWidget
     /**
      * Rename widget
      *
-     * @param int $elementId widget id
+     * @param int $widgetId
      * @param string $newName widget new name
+     *
      * @return string
      */
     public function rename(int $widgetId, string $newName)

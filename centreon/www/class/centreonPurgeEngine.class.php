@@ -37,23 +37,28 @@ require_once(realpath(dirname(__FILE__) . "/../../config/centreon.config.php"));
 require_once(realpath(dirname(__FILE__) . "/centreonDB.class.php"));
 
 /**
+ * Class
  *
- * Class that handles MySQL table partitions
- * @author msugumaran
- *
+ * @class CentreonPurgeEngine
+ * @description Class that handles MySQL table partitions
  */
 class CentreonPurgeEngine
 {
+    /** @var string */
+    public $purgeAuditLogQuery;
+    /** @var CentreonDB */
     private $dbCentstorage;
-
+    /** @var string */
     private $purgeCommentsQuery;
+    /** @var string */
     private $purgeDowntimesQuery;
-
+    /** @var array[] */
     private $tablesToPurge;
 
     /**
+     * CentreonPurgeEngine constructor
      *
-     * Class constructor
+     * @throws Exception
      */
     public function __construct()
     {
@@ -115,6 +120,10 @@ class CentreonPurgeEngine
         $this->checkTablesPartitioned();
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     private function readConfig()
     {
         $query = 'SELECT len_storage_mysql,archive_retention,reporting_retention, ' .
@@ -144,6 +153,10 @@ class CentreonPurgeEngine
         }
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     private function checkTablesPartitioned()
     {
         foreach ($this->tablesToPurge as $name => $value) {
@@ -166,6 +179,10 @@ class CentreonPurgeEngine
         }
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function purge()
     {
         foreach ($this->tablesToPurge as $table => $parameters) {
@@ -221,6 +238,12 @@ class CentreonPurgeEngine
         return 0;
     }
 
+    /**
+     * @param $table
+     *
+     * @return void
+     * @throws Exception
+     */
     private function purgeOldData($table)
     {
         if (isset($this->tablesToPurge[$table]['custom_query'])) {
@@ -242,6 +265,10 @@ class CentreonPurgeEngine
         }
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     private function purgeIndexData()
     {
         $request = "UPDATE index_data SET to_delete = '1' WHERE ";
@@ -253,7 +280,11 @@ class CentreonPurgeEngine
             throw new Exception("Error : Cannot purge index_data, " . $e->getMessage() . "\n");
         }
     }
-    
+
+    /**
+     * @return void
+     * @throws Exception
+     */
     private function purgeLogActionModification()
     {
         $request = "DELETE FROM log_action_modification WHERE action_log_id " .

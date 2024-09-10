@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
@@ -42,9 +42,12 @@ require_once "Centreon/Object/Broker/Broker.php";
 require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonConfigCentreonBroker.php";
 
+
 /**
+ * Class
  *
- * @author sylvestre
+ * @class CentreonCentbrokerCfg
+ * @package CentreonClapi
  */
 class CentreonCentbrokerCfg extends CentreonObject
 {
@@ -53,15 +56,22 @@ class CentreonCentbrokerCfg extends CentreonObject
     const UNKNOWNCOMBO = "Unknown combination";
     const INVALIDFIELD = "Invalid field";
     const NOENTRYFOUND = "No entry found";
-    protected $instanceObj;
-    protected $brokerObj;
 
+    /** @var string */
+    public $action;
+    /** @var CentreonInstance */
+    protected $instanceObj;
+    /** @var \CentreonConfigCentreonBroker */
+    protected $brokerObj;
+    /** @var string[] */
     public static $aDepends = array(
         'INSTANCE'
     );
 
+
     /**
-     * CentreonCentbrokerCfg constructor.
+     * CentreonCentbrokerCfg constructor
+     *
      * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
@@ -82,7 +92,7 @@ class CentreonCentbrokerCfg extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters)
@@ -142,6 +152,8 @@ class CentreonCentbrokerCfg extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {

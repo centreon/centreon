@@ -37,8 +37,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationService
+ */
 class CentreonConfigurationService extends CentreonConfigurationObjects
 {
+    /** @var */
+    public $db;
     /**
      * @var CentreonDB
      */
@@ -377,7 +384,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
             'AND esr.host_host_id = h.host_id ' .
             'AND h.host_register = "1" ' .
             'AND esr.escalation_esc_id = :id';
-        $stmt = $this->db->prepare($queryService);
+        $stmt = $this->db->prepare($queryService); //FIXME to check because db is not initialised
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {

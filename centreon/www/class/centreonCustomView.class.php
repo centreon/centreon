@@ -38,24 +38,23 @@ require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
 /**
- * Centreon Custom View Exception
+ * Class
+ *
+ * @class CentreonCustomViewException
+ * @description Centreon Custom View Exception
  */
 class CentreonCustomViewException extends Exception
 {
 }
 
 /**
- * Class for managing widgets
+ * Class
+ *
+ * @class CentreonCustomView
+ * @description Class for managing widgets
  */
 class CentreonCustomView
 {
-    protected $userId;
-    protected $userGroups;
-    protected $db;
-    protected $customViews;
-    protected $currentView;
-    protected $defaultView;
-
     public const TOPOLOGY_PAGE_EDIT_VIEW = 10301;
     public const TOPOLOGY_PAGE_SHARE_VIEW = 10302;
     public const TOPOLOGY_PAGE_SET_WIDGET_PREFERENCES = 10303;
@@ -65,6 +64,21 @@ class CentreonCustomView
     public const TOPOLOGY_PAGE_DELETE_VIEW = 10306;
     public const TOPOLOGY_PAGE_ADD_VIEW = 10307;
     public const TOPOLOGY_PAGE_SET_DEFAULT_VIEW = 10308;
+
+    /** @var CentreonContactgroup */
+    public $cg;
+    /** @var */
+    protected $userId;
+    /** @var array */
+    protected $userGroups;
+    /** @var */
+    protected $db;
+    /** @var */
+    protected $customViews;
+    /** @var */
+    protected $currentView;
+    /** @var int|mixed */
+    protected $defaultView;
 
     /**
      * CentreonCustomView constructor.
@@ -184,7 +198,9 @@ class CentreonCustomView
      * Returns true if user can, false otherwise
      *
      * @param int $viewId
+     *
      * @return bool
+     * @throws Exception
      */
     public function checkPermission(int $viewId): bool
     {
@@ -238,7 +254,9 @@ class CentreonCustomView
      * Check if user is not owner but view shared with him
      *
      * @param int $viewId
+     *
      * @return bool
+     * @throws Exception
      */
     public function checkSharedPermission($viewId)
     {
@@ -256,7 +274,9 @@ class CentreonCustomView
      * Returns true if user can, false otherwise
      *
      * @param int $viewId
+     *
      * @return bool
+     * @throws Exception
      */
     public function checkOwnership($viewId)
     {
@@ -309,6 +329,7 @@ class CentreonCustomView
      * Get Current View Id
      *
      * @return int
+     * @throws Exception
      */
     public function getCurrentView()
     {

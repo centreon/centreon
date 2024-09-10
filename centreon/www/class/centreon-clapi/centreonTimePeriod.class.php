@@ -41,6 +41,12 @@ require_once __DIR__ . "/../../../lib/Centreon/Object/Timeperiod/Exception.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Timeperiod/Exclude.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Timeperiod/Include.php";
 
+/**
+ * Class
+ *
+ * @class CentreonTimePeriod
+ * @package CentreonClapi
+ */
 class CentreonTimePeriod extends CentreonObject
 {
     const ORDER_UNIQUENAME = 0;
@@ -49,26 +55,19 @@ class CentreonTimePeriod extends CentreonObject
     const TP_EXCLUDE = "exclude";
     const TP_EXCEPTION = "exception";
 
-    /**
-     * @var Centreon_Relation_Timeperiod_Exclude
-     */
+    /** @var Centreon_Relation_Timeperiod_Exclude */
     protected $exclude;
-
-    /**
-     * @var Centreon_Relation_Timeperiod_Exclude
-     */
+    /** @var \Pimple\Container */
     protected $dependencyInjector;
-
-    /**
-     *
-     * @var Centreon_Relation_Timeperiod_Include
-     */
+    /** @var Centreon_Relation_Timeperiod_Include */
     protected $include;
+    /** @var string */
+    public $action;
 
     /**
-     * Constructor
+     * CentreonTimePeriod constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -302,9 +301,11 @@ class CentreonTimePeriod extends CentreonObject
      * Set Include / Exclude relations
      *
      * @param int $relationType
-     * @param string $sourceName
+     * @param int $sourceId
      * @param string $relationName
+     *
      * @return void
+     * @throws CentreonClapiException
      */
     protected function setRelations($relationType, $sourceId, $relationName)
     {

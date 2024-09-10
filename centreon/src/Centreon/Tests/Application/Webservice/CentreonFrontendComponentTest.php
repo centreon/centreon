@@ -52,6 +52,9 @@ class CentreonFrontendComponentTest extends TestCase
 {
     use Traits\WebServiceAuthorizePublicTrait;
 
+    /** @var CentreonFrontendComponent|(CentreonFrontendComponent&object&MockObject)|(CentreonFrontendComponent&MockObject)|(object&MockObject)|MockObject */
+    public $webservice;
+
     /**
      * Control value for the method getComponents
      *

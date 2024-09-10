@@ -37,8 +37,16 @@ use CentreonLegacy\Core\Menu\Menu;
 
 require_once dirname(__FILE__) . "/webService.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonMenu
+ */
 class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInterface
 {
+    /** @var */
+    public $pearDB;
+    /** @var */
     private $dependencyInjector;
     /**
      * Get the init menu on loading page

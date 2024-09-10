@@ -56,52 +56,29 @@ require_once __DIR__ . "/Validator/RtValidator.php";
  */
 class CentreonRtAcknowledgement extends CentreonObject
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $acknowledgementType = array(
         'HOST',
         'SVC'
     );
 
-    /**
-     * @var
-     */
+    /** @var string */
+    public $action;
+    /** @var */
     protected $aHosts;
-
-    /**
-     * @var
-     */
+    /** @var */
     protected $aServices;
-
-    /**
-     * @var
-     */
+    /** @var CentreonHost */
     protected $hostObject;
-
-    /**
-     * @var
-     */
+    /** @var CentreonService */
     protected $serviceObject;
-
-    /**
-     * @var
-     */
+    /** @var \CentreonGMT */
     protected $GMTObject;
-
-    /**
-     * @var
-     */
+    /** @var \CentreonExternalCommand */
     protected $externalCmdObj;
-
-    /**
-     * @var
-     */
+    /** @var string */
     protected $author;
-
-    /**
-     * @var \CentreonClapi\Validator\RtValidator
-     */
+    /** @var \CentreonClapi\Validator\RtValidator */
     protected $rtValidator;
 
     /**
@@ -169,7 +146,9 @@ class CentreonRtAcknowledgement extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @return array
+     * @throws CentreonClapiException
      */
     private function parseShowParameters($parameters)
     {

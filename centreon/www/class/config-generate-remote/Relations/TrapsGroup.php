@@ -23,25 +23,44 @@ namespace ConfigGenerateRemote\Relations;
 use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class TrapsGroup
+ * @package ConfigGenerateRemote\Relations
+ */
 class TrapsGroup extends AbstractObject
 {
+    /** @var */
+    public $trapgroupCache;
+    /** @var */
+    public $serviceLinkedCache;
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
 
+    /** @var array */
     private $trapGroupCache = [];
+    /** @var array */
     private $trapLinkedCache = [];
 
+    /** @var string */
     protected $table = 'traps_group';
+    /** @var string */
     protected $generateFilename = 'traps_group.infile';
+    /** @var null */
     protected $stmtTrap = null;
 
+    /** @var string[] */
     protected $attributesWrite = [
         'traps_group_id',
         'traps_group_name'
     ];
 
+
     /**
-     * Constructor
+     * TrapsGroup constructor
      *
      * @param \Pimple\Container $dependencyInjector
      */

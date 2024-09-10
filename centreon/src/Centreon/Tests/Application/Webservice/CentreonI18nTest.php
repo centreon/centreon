@@ -51,6 +51,11 @@ class CentreonI18nTest extends TestCase
 {
     use Traits\WebServiceAuthorizePublicTrait;
 
+    /** @var Container */
+    public $container;
+    /** @var CentreonI18n|(CentreonI18n&object&\PHPUnit\Framework\MockObject\MockObject)|(CentreonI18n&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    public $webservice;
+
     protected function setUp(): void
     {
         // dependencies

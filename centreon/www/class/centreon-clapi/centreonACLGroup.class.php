@@ -41,15 +41,21 @@ use CentreonClapi\Repository\AclGroupRepository;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
 
 /**
- * Class for managing ACL groups
- * @author sylvestre
+ * Class
  *
+ * @class CentreonACLGroup
+ * @package CentreonClapi
+ * @description Class for managing ACL groups
  */
 class CentreonACLGroup extends CentreonObject
 {
     const ORDER_UNIQUENAME = 0;
     const ORDER_ALIAS = 1;
 
+    /** @var string */
+    public $action;
+
+    /** @var string[] */
     public $aDepends = array(
         'CONTACT',
         'CG',

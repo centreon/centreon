@@ -42,25 +42,60 @@ if ($configFile !== false) {
 define('TMP_DIR_PREFIX', 'tmpdir_');
 define('TMP_DIR_SUFFIX', '.d');
 
+/**
+ * Class
+ *
+ * @class Backend
+ */
 class Backend
 {
+    /** @var */
+    public $stmt_central_poller;
+    /** @var null */
     private static $_instance = null;
+    /** @var string */
     public $generate_path = '/var/cache/centreon/config';
+    /** @var string */
     public $engine_sub = 'engine';
+    /** @var string */
     public $broker_sub = 'broker';
 
     /** @var CentreonDB|null  */
     public $db = null;
+    /** @var mixed|null */
     public $db_cs = null;
 
+    /** @var null */
     private $tmp_file = null;
+    /** @var null */
     private $tmp_dir = null;
+    /** @var null */
     private $full_path = null;
+    /** @var string */
     private $whoaim = 'unknown';
 
+    /** @var null */
     private $poller_id = null;
+    /** @var null */
     private $central_poller_id = null;
 
+    /**
+     * Backend constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     */
+    private function __construct(\Pimple\Container $dependencyInjector)
+    {
+        $this->generate_path = _CENTREON_CACHEDIR_ . '/config';
+        $this->db = $dependencyInjector['configuration_db'];
+        $this->db_cs = $dependencyInjector['realtime_db'];
+    }
+
+    /**
+     * @param \Pimple\Container $dependencyInjector
+     *
+     * @return Backend|null
+     */
     public static function getInstance(\Pimple\Container $dependencyInjector)
     {
         if (is_null(self::$_instance)) {
@@ -70,6 +105,11 @@ class Backend
         return self::$_instance;
     }
 
+    /**
+     * @param $path
+     *
+     * @return bool
+     */
     private function deleteDir($path)
     {
         if (is_dir($path) === true) {
@@ -86,6 +126,12 @@ class Backend
         return false;
     }
 
+    /**
+     * @param $paths
+     *
+     * @return string
+     * @throws Exception
+     */
     protected function createDirectories($paths)
     {
         $dir = '';
@@ -111,11 +157,21 @@ class Backend
         return $dir;
     }
 
+    /**
+     * @return string
+     */
     public function getEngineGeneratePath()
     {
         return $this->generate_path . '/' . $this->engine_sub;
     }
 
+    /**
+     * @param $poller_id
+     * @param $engine
+     *
+     * @return void
+     * @throws Exception
+     */
     public function initPath($poller_id, $engine = 1)
     {
         if ($engine == 1) {
@@ -142,11 +198,19 @@ class Backend
         chmod($this->full_path, 0770);
     }
 
+    /**
+     * @return null
+     */
     public function getPath()
     {
         return $this->full_path;
     }
 
+    /**
+     * @param $poller_id
+     *
+     * @return void
+     */
     public function movePath($poller_id)
     {
         $subdir = dirname($this->full_path);
@@ -155,6 +219,9 @@ class Backend
         rename($this->full_path, $subdir . '/' . $poller_id);
     }
 
+    /**
+     * @return void
+     */
     public function cleanPath()
     {
         $subdir = dirname($this->full_path);
@@ -165,26 +232,46 @@ class Backend
         @unlink($subdir . '/' . $this->tmp_file);
     }
 
+    /**
+     * @param $username
+     *
+     * @return void
+     */
     public function setUserName($username)
     {
         $this->whoaim = $username;
     }
 
+    /**
+     * @return string
+     */
     public function getUserName()
     {
         return $this->whoaim;
     }
 
+    /**
+     * @param $poller_id
+     *
+     * @return void
+     */
     public function setPollerId($poller_id)
     {
         $this->poller_id = $poller_id;
     }
 
+    /**
+     * @return null
+     */
     public function getPollerId()
     {
         return $this->poller_id;
     }
 
+    /**
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function getCentralPollerId()
     {
         if (!is_null($this->central_poller_id)) {
@@ -202,12 +289,5 @@ class Backend
         } else {
             throw new Exception("Cannot get central poller id");
         }
-    }
-
-    private function __construct(\Pimple\Container $dependencyInjector)
-    {
-        $this->generate_path = _CENTREON_CACHEDIR_ . '/config';
-        $this->db = $dependencyInjector['configuration_db'];
-        $this->db_cs = $dependencyInjector['realtime_db'];
     }
 }

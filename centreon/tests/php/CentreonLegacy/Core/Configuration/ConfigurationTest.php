@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2019 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,13 @@ use Symfony\Component\Finder\Finder;
  */
 class ConfigurationTest extends TestCase
 {
+    /** @var string[] */
+    public $configuration;
+    /** @var string */
+    public $centreonPath;
+    /** @var \CentreonLegacy\Core\Configuration\Configuration */
+    public $service;
+
     public function setUp(): void
     {
         $this->configuration = [

@@ -40,11 +40,13 @@ require_once "centreonUtils.class.php";
 require_once "Centreon/Object/Command/Command.php";
 require_once "Centreon/Object/Graph/Template/Template.php";
 
+
 /**
+ * Class
  *
- * Centreon Command Class
+ * @class CentreonCommand
+ * @package CentreonClapi
  * @author jmathis
- *
  */
 class CentreonCommand extends CentreonObject
 {
@@ -53,6 +55,9 @@ class CentreonCommand extends CentreonObject
     public const ORDER_COMMAND = 2;
     public const UNKNOWN_CMD_TYPE = "Unknown command type";
 
+    /** @var string */
+    public $action;
+    /** @var array[] */
     public $aTypeCommand = array(
         'host' => array(
             'key' => '$_HOST',
@@ -63,13 +68,13 @@ class CentreonCommand extends CentreonObject
             'preg' => '/\$_SERVICE(\w+)\$/'
         ),
     );
-
+    /** @var int[] */
     protected $typeConversion;
 
     /**
-     * Constructor
+     * CentreonCommand constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

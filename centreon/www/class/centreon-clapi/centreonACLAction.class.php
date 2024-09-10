@@ -33,33 +33,35 @@ use CentreonClapi\Repository\AclGroupRepository;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
 
 /**
- * Class for managing ACL Actions
- * @author sylvestre
+ * Class
  *
+ * @class CentreonACLAction
+ * @package CentreonClapi
+ * @description Class for managing ACL Actions
  */
 class CentreonACLAction extends CentreonObject
 {
     const ORDER_UNIQUENAME = 0;
     const ORDER_DESCRIPTION = 1;
     const UNKNOWN_ACTION = "Unknown action";
+
+    /** @var string */
+    public $action;
+    /** @var \Centreon_Object_Relation_Acl_Group_Action */
     protected $relObject;
+    /** @var \Centreon_Object_Acl_Group */
     protected $aclGroupObj;
+    /** @var string[] */
     protected $availableActions;
-
-    /**
-     * @var AclGroupRepository
-     */
+    /** @var AclGroupRepository */
     private AclGroupRepository $aclGroupRepository;
-
-    /**
-     * @var SessionRepository
-     */
+    /** @var SessionRepository */
     private SessionRepository $sessionRepository;
 
     /**
-     * Constructor
+     * CentreonACLAction constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

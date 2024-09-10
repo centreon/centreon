@@ -42,24 +42,34 @@ require_once "Centreon/Object/Engine/Engine_Broker_Module.php";
 require_once "Centreon/Object/Command/Command.php";
 
 /**
+ * Class
  *
- * @author sylvestre
+ * @class CentreonEngineCfg
+ * @package CentreonClapi
  */
 class CentreonEngineCfg extends CentreonObject
 {
     public const ORDER_UNIQUENAME = 0;
     public const ORDER_INSTANCE = 1;
     public const ORDER_COMMENT = 2;
-    protected $instanceObj;
 
+    /** @var string[] */
     public static $aDepends = array(
         'INSTANCE'
     );
+    /** @var \Centreon_Object_Command */
+    public $commandObj;
+    /** @var \Centreon_Object_Engine_Broker_Module */
+    public $brokerModuleObj;
+    /** @var string */
+    public $action;
+    /** @var CentreonInstance */
+    protected $instanceObj;
 
     /**
-     * Constructor
+     * CentreonEngineCfg constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -161,7 +171,7 @@ class CentreonEngineCfg extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters)
@@ -258,6 +268,8 @@ class CentreonEngineCfg extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -287,7 +299,9 @@ class CentreonEngineCfg extends CentreonObject
      * Export
      *
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {
@@ -388,7 +402,9 @@ class CentreonEngineCfg extends CentreonObject
      *
      * @param int $objectId
      * @param string $brokerModule
+     *
      * @return void
+     * @throws CentreonClapiException
      * @todo we should implement this object in the centreon api so that we don't have to write our own query
      */
     protected function addBkModule($objectId, $brokerModule)
@@ -434,7 +450,9 @@ class CentreonEngineCfg extends CentreonObject
      *
      * @param int $objectId
      * @param string $brokerModule
+     *
      * @return void
+     * @throws CentreonClapiException
      * @todo we should implement this object in the centreon api so that we don't have to write our own query
      */
     protected function delBkModule($objectId, $brokerModule)

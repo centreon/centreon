@@ -34,45 +34,61 @@
  */
 
 
-/*
- * Class for request
+/**
+ * Class
  *
+ * @class CentreonBase
+ * @description Class for request
  */
 class CentreonBase
 {
+    /** @var string */
+    public $index;
+
     /*
 	 * Objects
 	 */
+
+    /** @var CentreonDB */
     protected $DB;
+    /** @var CentreonDB */
     protected $DBC;
-
+    /** @var CentreonGMT */
     protected $GMT;
-
+    /** @var CentreonHost */
     protected $hostObj;
+    /** @var CentreonService */
     protected $serviceObj;
-
+    /** @var string */
     protected $sessionId;
 
     /*
 	 * Variables
 	 */
+
+    /** @var int */
     protected $debug;
+    /** @var int|mixed */
     protected $compress;
+    /** @var */
     protected $userId;
+    /** @var */
     protected $general_opt;
 
-    /*
-	 * Class constructor
-	 *
-	 * <code>
-	 * $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
-	 * </code>
-	 *
-	 * $sessionId 	char 	session id
-	 * $dbneeds		bool 	flag for enable ndo connexion
-	 * $headType	bool 	send XML header
-	 * $debug		bool 	debug flag.
-	 */
+    /**
+     * CentreonBase constructor
+     *
+     * <code>
+     *  $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
+     * </code>
+     *
+     * @param string $sessionId
+     * @param bool $index
+     * @param bool $debug
+     * @param bool $compress
+     *
+     * @throws PDOException
+     */
     public function __construct($sessionId, $index, $debug, $compress = null)
     {
         if (!isset($debug)) {
@@ -109,9 +125,11 @@ class CentreonBase
         $this->GMT->getMyGMTFromSession($this->sessionId, $this->DB);
     }
 
-    /*
-	 * Set General options
-	 */
+    /**
+     * @param $options
+     *
+     * @return void
+     */
     public function setGeneralOption($options)
     {
         $this->general_opt = $options;

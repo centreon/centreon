@@ -33,31 +33,58 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class AbstractObject
+ */
 abstract class AbstractObject
 {
+
     protected const VAULT_PATH_REGEX = '/^secret::[^:]*::/';
+
+    /** @var */
+    public $object_name;
 
     /** @var Backend|null  */
     protected $backend_instance = null;
+    /** @var string */
     protected $generate_subpath = 'nagios';
+    /** @var null */
     protected $generate_filename = null;
+    /** @var array */
     protected $exported = array();
+    /** @var null */
     protected $fp = null;
 
+    /** @var array */
     protected $attributes_write = array();
+    /** @var array */
     protected $attributes_array = array();
+    /** @var array */
     protected $attributes_hash = array();
+    /** @var array */
     protected $attributes_default = array();
+    /** @var null */
     protected $notificationOption = null;
 
+    /** @var bool */
     protected $engine = true;
+    /** @var bool */
     protected $broker = false;
+    /** @var \Pimple\Container */
     protected $dependencyInjector;
 
+    /** @var bool */
     protected $isVaultEnabled = false;
 
-    /*
+    /**
      * Get Centreon Vault Configuration Status
+     *
+     * @return void
+     * @throws LogicException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      */
     public function getVaultConfigurationStatus(): void
     {
@@ -95,12 +122,20 @@ abstract class AbstractObject
         return $instances[$calledClass];
     }
 
+    /**
+     * AbstractObject constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     */
     protected function __construct(\Pimple\Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
     }
 
+    /**
+     * @return void
+     */
     public function close_file()
     {
         if (!is_null($this->fp)) {
@@ -109,6 +144,10 @@ abstract class AbstractObject
         $this->fp = null;
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function reset()
     {
         $this->close_file();
@@ -136,6 +175,9 @@ abstract class AbstractObject
         return $this->notificationOption;
     }
 
+    /**
+     * @return void
+     */
     private function setHeader()
     {
         $header =
@@ -181,6 +223,11 @@ abstract class AbstractObject
         }
     }
 
+    /**
+     * @param $str
+     *
+     * @return array|false|mixed|mixed[]|string|string[]|null
+     */
     private function toUTF8($str)
     {
         $finalString = $str;
@@ -190,6 +237,11 @@ abstract class AbstractObject
         return $finalString;
     }
 
+    /**
+     * @param $object
+     *
+     * @return void
+     */
     protected function writeObject($object)
     {
         $object_file = "\n";
@@ -237,6 +289,13 @@ abstract class AbstractObject
         fwrite($this->fp, $this->toUTF8($object_file));
     }
 
+    /**
+     * @param $object
+     * @param $id
+     *
+     * @return void
+     * @throws Exception
+     */
     protected function generateObjectInFile($object, $id)
     {
         if (is_null($this->fp)) {
@@ -248,6 +307,11 @@ abstract class AbstractObject
         $this->exported[$id] = 1;
     }
 
+    /**
+     * @param $object
+     *
+     * @return void
+     */
     private function writeNoObject($object)
     {
         foreach ($this->attributes_array as &$attr) {
@@ -280,6 +344,12 @@ abstract class AbstractObject
         }
     }
 
+    /**
+     * @param $object
+     *
+     * @return void
+     * @throws Exception
+     */
     protected function generateFile($object)
     {
         if (is_null($this->fp)) {
@@ -291,6 +361,11 @@ abstract class AbstractObject
         $this->writeNoObject($object);
     }
 
+    /**
+     * @param $id
+     *
+     * @return int
+     */
     public function checkGenerate($id)
     {
         if (isset($this->exported[$id])) {
@@ -299,6 +374,9 @@ abstract class AbstractObject
         return 0;
     }
 
+    /**
+     * @return array
+     */
     public function getExported()
     {
         if (isset($this->exported)) {

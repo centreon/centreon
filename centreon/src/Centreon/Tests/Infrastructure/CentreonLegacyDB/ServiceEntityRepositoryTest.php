@@ -46,9 +46,22 @@ use Centreon\Tests\Resources\Mock;
 use Centreon\Tests\Resources\CheckPoint;
 use Centreon\Test\Traits\TestCaseExtensionTrait;
 
+/**
+ * Class
+ *
+ * @class ServiceEntityRepositoryTest
+ * @package Centreon\Tests\Infrastructure\CentreonLegacyDB
+ */
 class ServiceEntityRepositoryTest extends TestCase
 {
     use TestCaseExtensionTrait;
+
+    /** @var CentreonDB */
+    public $db;
+    /** @var CentreonDBManagerService */
+    public $manager;
+    /** @var Mock\RepositoryMock */
+    public $repository;
 
     public function setUp(): void
     {

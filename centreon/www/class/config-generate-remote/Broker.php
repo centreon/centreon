@@ -24,11 +24,22 @@ namespace ConfigGenerateRemote;
 use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class Broker
+ * @package ConfigGenerateRemote
+ */
 class Broker extends AbstractObject
 {
+    /** @var */
+    public $stmtEngine;
+    /** @var string */
     protected $table = 'cfg_centreonbroker';
+    /** @var string */
     protected $generateFilename = 'cfg_centreonbroker.infile';
 
+    /** @var string */
     protected $attributesSelect = '
         config_id,
         config_name,
@@ -45,6 +56,7 @@ class Broker extends AbstractObject
         daemon,
         pool_size
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'config_id',
         'config_name',
@@ -61,6 +73,7 @@ class Broker extends AbstractObject
         'daemon',
         'pool_size',
     ];
+    /** @var null */
     protected $stmtBroker = null;
 
     /**

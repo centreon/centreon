@@ -32,6 +32,13 @@ use Centreon\Test\Mock;
  */
 class UtilsTest extends TestCase
 {
+    /** @var FileSystem */
+    public $fs;
+    /** @var Mock\CentreonDB */
+    public $container;
+    /** @var \CentreonLegacy\Core\Utils\Utils */
+    public $service
+    ;
     public function setUp(): void
     {
         // mount VFS

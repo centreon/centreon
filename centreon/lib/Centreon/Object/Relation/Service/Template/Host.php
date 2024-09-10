@@ -35,12 +35,29 @@
 
 require_once "Centreon/Object/Relation/Relation.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Service_Template_Host
+ */
 class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Relation
 {
+    /** @var Centreon_Object_Service_Template */
+    public $firstObject;
+    /** @var Centreon_Object_Host_Template */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "host_service_relation";
+    /** @var string */
     protected $firstKey = "service_service_id";
+    /** @var string */
     protected $secondKey = "host_host_id";
 
+    /**
+     * Centreon_Object_Relation_Service_Template_Host constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
@@ -72,7 +89,9 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * @param string $sort
      * @param array $filters
      * @param string $filterType
+     *
      * @return array
+     * @throws Exception
      */
     public function getMergedParameters($firstTableParams = array(), $secondTableParams = array(), $count = -1, $offset = 0, $order = null, $sort = "ASC", $filters = array(), $filterType = "OR")
     {
@@ -121,8 +140,8 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * Delete host template / host relation
      * Order has importance
      *
-     * @param ?int $fkey
-     * @param ?int $skey
+     * @param int|null $fkey
+     * @param int|null $skey
      * @return void
      */
     public function delete($fkey, $skey = null)

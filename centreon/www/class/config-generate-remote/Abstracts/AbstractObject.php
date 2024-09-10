@@ -24,24 +24,50 @@ use \Exception;
 use ConfigGenerateRemote\Backend;
 use ConfigGenerateRemote\Manifest;
 
+/**
+ * Class
+ *
+ * @class AbstractObject
+ * @package ConfigGenerateRemote\Abstracts
+ */
 abstract class AbstractObject
 {
+    /** @var */
+    public $attributes_array;
+    /** @var */
+    public $attributes_hash;
+    /** @var */
+    public $attributes_default;
+    /** @var Backend|null */
     protected $backendInstance = null;
+    /** @var null */
     protected $generateFilename = null;
+    /** @var null */
     protected $table = null;
+    /** @var array */
     protected $exported = [];
+    /** @var null */
     protected $fp = null;
+    /** @var string */
     protected $type = 'infile';
+    /** @var string */
     protected $subdir = 'configuration';
 
+    /** @var array */
     protected $attributesWrite = [];
+    /** @var array */
     protected $attributesArray = [];
 
+    /** @var bool */
     protected $engine = true;
+    /** @var bool */
     protected $broker = false;
+    /** @var \Pimple\Container */
     protected $dependencyInjector;
 
+    /** @var string|null */
     protected $fieldSeparatorInfile = null;
+    /** @var string|null */
     protected $lineSeparatorInfile = null;
 
     /**
@@ -99,8 +125,10 @@ abstract class AbstractObject
     /**
      * Reset object
      *
-     * @param boolean $createfile
+     * @param bool $createfile
+     *
      * @return void
+     * @throws Exception
      */
     public function reset($createfile = false): void
     {
@@ -115,7 +143,9 @@ abstract class AbstractObject
      * Create generateFilename in given directory
      *
      * @param string $dir
+     *
      * @return void
+     * @throws Exception
      */
     protected function createFile(string $dir): void
     {
@@ -181,7 +211,9 @@ abstract class AbstractObject
      *
      * @param array $object
      * @param int|string|null $id
+     *
      * @return void
+     * @throws Exception
      */
     protected function generateObjectInFile(array $object, $id = null): void
     {
@@ -236,7 +268,9 @@ abstract class AbstractObject
      * Generate file
      *
      * @param array $object
+     *
      * @return void
+     * @throws Exception
      */
     protected function generateFile(array $object): void
     {
@@ -250,8 +284,8 @@ abstract class AbstractObject
     /**
      * Check if an id has already been generated
      *
-     * @param integer $id
-     * @return boolean
+     * @param int $id
+     * @return bool
      */
     public function checkGenerate($id): bool
     {
@@ -279,7 +313,7 @@ abstract class AbstractObject
     /**
      * Check if current object is engine
      *
-     * @return boolean
+     * @return bool
      */
     public function isEngineObject(): bool
     {
@@ -289,7 +323,7 @@ abstract class AbstractObject
     /**
      * Check if current object is broker
      *
-     * @return boolean
+     * @return bool
      */
     public function isBrokerObject(): bool
     {

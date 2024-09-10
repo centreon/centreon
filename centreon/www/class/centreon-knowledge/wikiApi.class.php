@@ -37,17 +37,36 @@ require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wiki.class.php";
 
+/**
+ * Class
+ *
+ * @class WikiApi
+ */
 class WikiApi
 {
+    /**
+     * @var never[]
+     */
+    public $cookies;
+    /** @var CentreonDB */
     private $db;
+    /** @var Wiki */
     private $wikiObj;
+    /** @var string */
     private $url;
+    /** @var mixed */
     private $username;
+    /** @var mixed */
     private $password;
+    /** @var float */
     private $version;
+    /** @var CurlHandle|false */
     private $curl;
+    /** @var */
     private $loggedIn;
+    /** @var */
     private $tokens;
+    /** @var mixed */
     private $noSslCertificate;
 
     public const PROXY_URL = './include/configuration/configKnowledge/proxy/proxy.php';
@@ -69,6 +88,9 @@ class WikiApi
         $this->cookies = array();
     }
 
+    /**
+     * @return CurlHandle|false
+     */
     private function getCurl()
     {
         $curl = curl_init();
@@ -84,6 +106,10 @@ class WikiApi
         return $curl;
     }
 
+    /**
+     * @return float
+     * @throws Exception
+     */
     public function getWikiVersion()
     {
         $postfields = array(
@@ -104,6 +130,10 @@ class WikiApi
         }
     }
 
+    /**
+     * @return bool
+     * @throws Exception
+     */
     public function login()
     {
         if ($this->loggedIn) {
@@ -154,6 +184,9 @@ class WikiApi
         return $this->loggedIn;
     }
 
+    /**
+     * @return void
+     */
     public function logout()
     {
         $postfields = array(
@@ -164,6 +197,12 @@ class WikiApi
         curl_exec($this->curl);
     }
 
+    /**
+     * @param $method
+     * @param $title
+     *
+     * @return mixed
+     */
     public function getMethodToken($method = 'delete', $title = '')
     {
         if ($this->version >= 1.24) {
@@ -205,6 +244,13 @@ class WikiApi
         return $this->tokens[$method];
     }
 
+    /**
+     * @param $oldTitle
+     * @param $newTitle
+     *
+     * @return true
+     * @throws Exception
+     */
     public function movePage($oldTitle = '', $newTitle = '')
     {
         $this->login();
@@ -246,6 +292,9 @@ class WikiApi
         }
     }
 
+    /**
+     * @return array
+     */
     public function getAllPages()
     {
         $postfields = array(

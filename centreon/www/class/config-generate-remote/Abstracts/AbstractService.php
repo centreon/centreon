@@ -32,8 +32,17 @@ use ConfigGenerateRemote\Trap;
 use ConfigGenerateRemote\Relations\ContactServiceRelation;
 use ConfigGenerateRemote\Relations\ContactGroupServiceRelation;
 
+/**
+ * Class
+ *
+ * @class AbstractService
+ * @package ConfigGenerateRemote\Abstracts
+ */
 abstract class AbstractService extends AbstractObject
 {
+    /** @var */
+    public $serviceCache;
+    /** @var string */
     protected $attributesSelect = '
         service_id,
         service_template_model_stm_id,
@@ -65,6 +74,7 @@ abstract class AbstractService extends AbstractObject
         graph_id,
         service_acknowledgement_timeout
     ';
+    /** @var string[] */
     protected $attributesWrite = array(
         'service_id',
         'service_template_model_stm_id',
@@ -90,10 +100,15 @@ abstract class AbstractService extends AbstractObject
         'service_register',
         'service_acknowledgement_timeout',
     );
+    /** @var array */
     protected $loopStpl = []; // To be reset
+    /** @var null */
     protected $stmtMacro = null;
+    /** @var null */
     protected $stmtStpl = null;
+    /** @var null */
     protected $stmtContact = null;
+    /** @var null */
     protected $stmtService = null;
 
     /**
@@ -154,6 +169,11 @@ abstract class AbstractService extends AbstractObject
         return 0;
     }
 
+    /**
+     * @param array $service
+     *
+     * @return void
+     */
     protected function getTraps(array &$service): void
     {
         Trap::getInstance($this->dependencyInjector)

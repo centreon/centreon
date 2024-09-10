@@ -34,8 +34,19 @@ use ConfigGenerateRemote\Relations\HostTemplateRelation;
 use ConfigGenerateRemote\Relations\HostPollerRelation;
 use ConfigGenerateRemote\Relations\MacroHost;
 
+/**
+ * Class
+ *
+ * @class AbstractHost
+ * @package ConfigGenerateRemote\Abstracts
+ */
 abstract class AbstractHost extends AbstractObject
 {
+    /** @var */
+    public $stmt_htpl;
+    /** @var */
+    public $hosts;
+    /** @var string */
     protected $attributesSelect = '
         host_id,
         command_command_id,
@@ -73,6 +84,7 @@ abstract class AbstractHost extends AbstractObject
         geo_coords
     ';
 
+    /** @var string[] */
     protected $attributesWrite = [
         'host_id',
         'command_command_id',
@@ -102,11 +114,17 @@ abstract class AbstractHost extends AbstractObject
         'geo_coords'
     ];
 
+    /** @var array */
     protected $loopHtpl = []; // To be reset
+    /** @var null */
     protected $stmtMacro = null;
+    /** @var null */
     protected $stmtHtpl = null;
+    /** @var null */
     protected $stmtContact = null;
+    /** @var null */
     protected $stmtCg = null;
+    /** @var null */
     protected $stmtPoller = null;
 
     /**

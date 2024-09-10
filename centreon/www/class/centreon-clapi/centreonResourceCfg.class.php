@@ -41,8 +41,10 @@ require_once "Centreon/Object/Resource/Resource.php";
 require_once "Centreon/Object/Relation/Instance/Resource.php";
 
 /**
+ * Class
  *
- * @author sylvestre
+ * @class CentreonResourceCfg
+ * @package CentreonClapi
  */
 class CentreonResourceCfg extends CentreonObject
 {
@@ -52,17 +54,24 @@ class CentreonResourceCfg extends CentreonObject
     public const ORDER_COMMENT = 3;
     public const MACRO_ALREADY_IN_USE = "Resource is already tied to instance";
 
-    protected $instanceObj;
-    protected $relObj;
-    protected $instanceIds;
+    /** @var string[] */
     public static $aDepends = array(
         'INSTANCE'
     );
 
+    /** @var string */
+    public $action;
+    /** @var CentreonInstance */
+    protected $instanceObj;
+    /** @var \Centreon_Object_Relation_Instance_Resource */
+    protected $relObj;
+    /** @var */
+    protected $instanceIds;
+
     /**
-     * Constructor
+     * CentreonResourceCfg constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -90,9 +99,10 @@ class CentreonResourceCfg extends CentreonObject
     /**
      * Checks if macro is unique on a given poller
      *
-     * @param mixed $macroName
+     * @param $macro
      * @param int $pollerId
-     * @return boolean
+     *
+     * @return bool
      * @throws CentreonClapiException
      */
     protected function isUnique($macro, $pollerId)
@@ -276,6 +286,8 @@ class CentreonResourceCfg extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -325,7 +337,9 @@ class CentreonResourceCfg extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|int|void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {
@@ -391,7 +405,7 @@ class CentreonResourceCfg extends CentreonObject
      * Magic method
      *
      * @param string $name
-     * @param array $args
+     * @param array $arg
      * @return void
      * @throws CentreonClapiException
      */

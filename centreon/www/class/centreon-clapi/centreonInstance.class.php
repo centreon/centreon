@@ -42,8 +42,10 @@ require_once "Centreon/Object/Host/Host.php";
 require_once "Centreon/Object/Relation/Instance/Host.php";
 
 /**
+ * Class
  *
- * @author sylvestre
+ * @class CentreonInstance
+ * @package CentreonClapi
  */
 class CentreonInstance extends CentreonObject
 {
@@ -55,10 +57,15 @@ class CentreonInstance extends CentreonObject
     const GORGONE_COMMUNICATION = array('ZMQ' => '1', 'SSH' => '2');
     const INCORRECTIPADDRESS = "Invalid IP address format";
 
-    /*
-     * Constructor
+    /** @var string */
+    public $action;
+    /** @var CentreonConfigPoller */
+    public $centreonConfigPoller;
+
+    /**
+     * CentreonInstance constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -258,7 +265,9 @@ class CentreonInstance extends CentreonObject
      * Get hosts monitored by instance
      *
      * @param string $instanceName
-     * @return string
+     *
+     * @return void
+     * @throws \Exception
      */
     public function getHosts($instanceName)
     {

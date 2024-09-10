@@ -34,80 +34,119 @@
  *
  */
 
-/*
- * Need Centreon Configuration file
- */
 require_once realpath(__DIR__ . "/../../config/centreon.config.php");
 require_once realpath(__DIR__ . "/../../bootstrap.php");
 
-/** * ****************************
- * Class for XML/Ajax request
+/**
+ * Class
  *
+ * @class CentreonXMLBGRequest
+ * @description Class for XML/Ajax request
  */
 class CentreonXMLBGRequest
 {
+    /** @var string */
+    public $classLine;
+
     /*
      * Objects
      */
 
+    /** @var mixed */
     public $DB;
+    /** @var mixed */
     public $DBC;
+    /** @var CentreonXML */
     public $XML;
+    /** @var CentreonGMT */
     public $GMT;
+    /** @var CentreonHost */
     public $hostObj;
+    /** @var CentreonService */
     public $serviceObj;
+    /** @var CentreonMonitoring */
     public $monObj;
+    /** @var CentreonACL */
     public $access;
+    /** @var string */
     public $session_id;
+    /** @var */
     public $broker;
 
     /*
      * Variables
      */
+    /** @var */
     public $buffer;
+    /** @var int */
     public $debug;
+    /** @var int|mixed */
     public $compress;
+    /** @var int */
     public $header;
+    /** @var */
     public $is_admin;
+    /** @var */
     public $user_id;
+    /** @var array */
     public $grouplist;
+    /** @var string */
     public $grouplistStr;
+    /** @var */
     public $general_opt;
+    /** @var */
     public $class;
+    /** @var string[] */
     public $stateType;
+    /** @var string[] */
     public $statusHost;
+    /** @var string[] */
     public $statusService;
+    /** @var string[] */
     public $colorHost;
+    /** @var string[] */
     public $colorHostInService;
+    /** @var string[] */
     public $colorService;
+    /** @var array */
     public $en;
+    /** @var string[] */
     public $stateTypeFull;
 
+    /** @var string[] */
     public $backgroundHost;
+    /** @var string[] */
     public $backgroundService;
 
     /*
      * Filters
      */
+    /** @var */
     public $defaultPoller;
+    /** @var */
     public $defaultHostgroups;
+    /** @var */
     public $defaultServicegroups;
+    /** @var int */
     public $defaultCriticality = 0;
 
-    /*
-     * Class constructor
+    /**
+     * CentreonXMLBGRequest constructor
      *
      * <code>
-     * $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
+     *  $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
      * </code>
      *
-     * $session_id 	char 	session id
-     * $dbneeds		bool 	flag for enable ndo connexion
-     * $headType	bool 	send XML header
-     * $debug		bool 	debug flag.
-     * $compress	bool 	compress enable.
+     * @param \Pimple\Container $dependencyInjector
+     * @param string $session_id
+     * @param bool $dbNeeds
+     * @param bool $headerType
+     * @param bool $debug
+     * @param bool $compress
+     * @param $fullVersion
+     *
+     * @throws PDOException
      */
-
     public function __construct(
         \Pimple\Container $dependencyInjector,
         $session_id,
@@ -215,10 +254,9 @@ class CentreonXMLBGRequest
         $this->colorHostInService = array(0 => "normal", 1 => "#FD8B46", 2 => "normal", 4 => "normal");
     }
 
-    /*
-     * Check if user is admin
+    /**
+     * @return void
      */
-
     private function isUserAdmin()
     {
         $statement = $this->DB->prepare("SELECT contact_admin, contact_id FROM contact " .
@@ -234,10 +272,10 @@ class CentreonXMLBGRequest
         }
     }
 
-    /*
+    /**
      * Get user id from session_id
+     * @return void
      */
-
     protected function getUserIdFromSID()
     {
         $query = "SELECT user_id FROM session " .
@@ -262,6 +300,9 @@ class CentreonXMLBGRequest
      * Get Status Color
      */
 
+    /**
+     * @return void
+     */
     protected function getStatusColor()
     {
         $this->general_opt = array();
@@ -273,8 +314,9 @@ class CentreonXMLBGRequest
         unset($c);
     }
 
-    /*
+    /**
      * Send headers information for web server
+     * @return void
      */
     public function header()
     {
@@ -290,6 +332,9 @@ class CentreonXMLBGRequest
         }
     }
 
+    /**
+     * @return string
+     */
     public function getNextLineClass()
     {
         if ($this->classLine == "list_one") {
@@ -300,6 +345,9 @@ class CentreonXMLBGRequest
         return $this->classLine;
     }
 
+    /**
+     * @return void
+     */
     public function getDefaultFilters()
     {
         $this->defaultPoller = -1;
@@ -319,26 +367,53 @@ class CentreonXMLBGRequest
         }
     }
 
+    /**
+     * @param $instance
+     *
+     * @return void
+     */
     public function setInstanceHistory($instance)
     {
         $_SESSION['monitoring_default_poller'] = $instance;
     }
 
+    /**
+     * @param $hg
+     *
+     * @return void
+     */
     public function setHostGroupsHistory($hg)
     {
         $_SESSION['monitoring_default_hostgroups'] = $hg;
     }
 
+    /**
+     * @param $sg
+     *
+     * @return void
+     */
     public function setServiceGroupsHistory($sg)
     {
         $_SESSION['monitoring_default_servicegroups'] = $sg;
     }
 
+    /**
+     * @param $criticality
+     *
+     * @return void
+     */
     public function setCriticality($criticality)
     {
         $_SESSION['criticality_id'] = $criticality;
     }
 
+    /**
+     * @param $name
+     * @param $tab
+     * @param $defaultValue
+     *
+     * @return string|void
+     */
     public function checkArgument($name, $tab, $defaultValue)
     {
         if (isset($name) && isset($tab)) {
@@ -354,6 +429,11 @@ class CentreonXMLBGRequest
         }
     }
 
+    /**
+     * @param $name
+     *
+     * @return array|string|string[]
+     */
     public function prepareObjectName($name)
     {
         $name = str_replace("/", "#S#", $name);

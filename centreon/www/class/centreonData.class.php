@@ -36,9 +36,10 @@
  */
 
 /**
- * Object used for storing and accessing specific data
+ * Class
  *
- * @package Centreon
+ * @class CentreonData
+ * @description Object used for storing and accessing specific data
  * @version 2.5.0
  * @since 2.5.0
  * @author Sylvestre Ho <sho@centreon.com>
@@ -58,14 +59,11 @@ class CentreonData
      * @var array
      */
     private $jsData = array();
-    
+
     /**
-     * Constructor
-     *
+     * CentreonData constructor
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Pass data to javascript
@@ -94,7 +92,7 @@ class CentreonData
     {
         return $this->jsData;
     }
-    
+
     /**
      * Get a instance of Centreon_Template
      *

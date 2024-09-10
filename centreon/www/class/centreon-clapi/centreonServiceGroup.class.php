@@ -46,9 +46,11 @@ require_once "Centreon/Object/Relation/Service/Group/Host/Group/Service.php";
 require_once "Centreon/Object/Dependency/DependencyServicegroupParent.php";
 
 /**
- * Class for managing Service groups
+ * Class
  *
- * @author sylvestre
+ * @class CentreonServiceGroup
+ * @package CentreonClapi
+ * @description Class for managing Service groups
  */
 class CentreonServiceGroup extends CentreonObject
 {
@@ -56,15 +58,19 @@ class CentreonServiceGroup extends CentreonObject
     const ORDER_ALIAS = 1;
     public const INVALID_GEO_COORDS = "Invalid geo coords";
 
+    /** @var string[] */
     public static $aDepends = array(
         'HOST',
         'SERVICE'
     );
 
+    /** @var string */
+    public $action;
+
     /**
-     * Constructor
+     * CentreonServiceGroup constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -81,6 +87,8 @@ class CentreonServiceGroup extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -411,7 +419,9 @@ class CentreonServiceGroup extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed
+     *
+     * @return void
+     * @throws CentreonClapiException
      */
     public function add($parameters): void
     {
@@ -453,7 +463,10 @@ class CentreonServiceGroup extends CentreonObject
     }
 
     /**
-     * {@inheritDoc}
+     * @param $parameters
+     *
+     * @return void
+     * @throws CentreonClapiException
      */
     public function setParam($parameters = []): void
     {
@@ -480,7 +493,10 @@ class CentreonServiceGroup extends CentreonObject
     }
 
     /**
-     * {@inheritDoc}
+     * @param $objectName
+     *
+     * @return void
+     * @throws CentreonClapiException
      */
     public function enable($objectName)
     {
@@ -495,7 +511,10 @@ class CentreonServiceGroup extends CentreonObject
     }
 
     /**
-     * {@inheritDoc}
+     * @param $objectName
+     *
+     * @return void
+     * @throws CentreonClapiException
      */
     public function disable($objectName)
     {
@@ -514,7 +533,10 @@ class CentreonServiceGroup extends CentreonObject
     /**
      * Export
      *
+     * @param null $filterName
+     *
      * @return void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {

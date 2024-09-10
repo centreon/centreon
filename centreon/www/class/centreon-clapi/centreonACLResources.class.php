@@ -35,15 +35,34 @@
 
 namespace CentreonClapi;
 
+/**
+ * Class
+ *
+ * @class CentreonACLResources
+ * @package CentreonClapi
+ */
 class CentreonACLResources
 {
-    private $DB;
+    /** @var mixed */
+    public $_DB;
+    /** @var */
+    private $DB; // FIXME not used ?
 
+    /**
+     * CentreonACLResources constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         $this->_DB = $dependencyInjector['configuration_db'];
     }
 
+    /**
+     * @param $name
+     *
+     * @return int
+     */
     public function getACLResourceID($name)
     {
         $request = "SELECT acl_group_id FROM acl_groups WHERE acl_group_name LIKE '"
@@ -57,6 +76,12 @@ class CentreonACLResources
         }
     }
 
+    /**
+     * @param $contact_id
+     * @param $aclid
+     *
+     * @return int
+     */
     public function addContact($contact_id, $aclid)
     {
         $request = "DELETE FROM acl_group_contacts_relations "
@@ -70,6 +95,12 @@ class CentreonACLResources
         return 0;
     }
 
+    /**
+     * @param $contact_id
+     * @param $aclid
+     *
+     * @return int
+     */
     public function delContact($contact_id, $aclid)
     {
         $request = "DELETE FROM acl_group_contacts_relations "
@@ -78,6 +109,9 @@ class CentreonACLResources
         return 0;
     }
 
+    /**
+     * @return int
+     */
     public function updateACL()
     {
         $request = "UPDATE `acl_resources` SET `changed` = '1'";

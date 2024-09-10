@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
@@ -33,17 +33,42 @@
  */
 
 /**
- * Class for get status for a service and return this on JSON
+ * Class
  *
+ * @class CentreonGraphStatus
+ * @description Class for get status for a service and return this on JSON
  */
 class CentreonGraphStatus
 {
+    /** @var CentreonDB */
+    public $pearDB;
+    /** @var CentreonDB */
+    public $pearDBMonitoring;
+    /** @var int */
+    public $index;
+    /** @var int */
+    public $startTime;
+    /** @var int */
+    public $endTime;
+    /** @var string */
+    public $statusPath;
+    /** @var array */
+    public $generalOpt;
+    /** @var array */
+    public $rrdCachedOptions;
+    /** @var */
+    public $arguments;
+    /** @var */
+    public $rrdOptions;
+
     /**
-     * Constructor
+     * CentreonGraphStatus Constructor
      *
      * @param int $index The index data id
      * @param int $start The start time
-     * @param int $end   The end time
+     * @param int $end The end time
+     *
+     * @throws RuntimeException
      */
     public function __construct($index, $start, $end)
     {
@@ -61,6 +86,7 @@ class CentreonGraphStatus
      * Get the metrics
      *
      * @return mixed
+     * @throws RuntimeException
      */
     public function getData()
     {
@@ -188,6 +214,7 @@ class CentreonGraphStatus
      * Get general options
      *
      * @return array The list of genreal options
+     * @throws RuntimeException
      */
     protected function getOptions()
     {
@@ -209,6 +236,7 @@ class CentreonGraphStatus
      * Get the RRDCacheD options of local RRD Broker
      *
      * @return array of RRDCacheD options
+     * @throws PDOException
      */
     protected function getRrdCachedOptions()
     {
@@ -228,11 +256,13 @@ class CentreonGraphStatus
 
         return $rrdCachedOptions;
     }
-    
+
     /**
      * Get the status RRD path
      *
      * @return string The status RRD path
+     * @throws PDOException
+     * @throws RuntimeException
      */
     protected function getStatusPath()
     {
@@ -248,11 +278,13 @@ class CentreonGraphStatus
     /**
      * Get the index data id for a service
      *
-     * @param int        $hostId The host id
-     * @param int        $serviceId The service id
+     * @param int $hostId The host id
+     * @param int $serviceId The service id
      * @param CentreonDB $dbc The database connection to centreon_storage
      *
      * @return int
+     * @throws OutOfRangeException
+     * @throws PDOException
      */
     public static function getIndexId($hostId, $serviceId, $dbc)
     {

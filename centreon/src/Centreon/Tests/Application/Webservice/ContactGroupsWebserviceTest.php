@@ -39,6 +39,9 @@ class ContactGroupsWebserviceTest extends TestCase
 
     public const METHOD_GET_LIST = 'getList';
 
+    /** @var ContactGroupsWebservice|(ContactGroupsWebservice&object&\PHPUnit\Framework\MockObject\MockObject)|(ContactGroupsWebservice&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    public $webservice;
+
     /**
      * {@inheritdoc}
      */

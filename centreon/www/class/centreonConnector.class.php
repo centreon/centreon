@@ -72,8 +72,16 @@
  * //$connector->isNameAvailable('norExists');
  */
 
+/**
+ * Class
+ *
+ * @class CentreonConnector
+ */
 class CentreonConnector
 {
+
+    /** @var */
+    public $db;
     /**
      * The database connection
      * @var CentreonDB
@@ -81,10 +89,9 @@ class CentreonConnector
     protected $dbConnection;
 
     /**
-     * Constructor
+     * CentreonConnector constructor
      *
      * @param CentreonDB $dbConnection
-     * @return void
      */
     public function __construct($dbConnection)
     {
@@ -95,8 +102,8 @@ class CentreonConnector
      * Adds a connector to the database
      *
      * @param array $connector
-     * @param boolean $returnId
-     * @return CentreonConnector|integer
+     * @param bool $returnId
+     * @return CentreonConnector|int
      * @throws InvalidArgumentException
      * @throws RuntimeException
      */
@@ -192,7 +199,11 @@ class CentreonConnector
      * Reads the connector
      *
      * @param int $id
+     *
      * @return array
+     * @throws InvalidArgumentException
+     * @throws PDOException
+     * @throws RuntimeException
      */
     public function read($id)
     {
@@ -247,7 +258,6 @@ class CentreonConnector
      * @param int $connectorId
      * @param array $connector
      *
-     * @throws InvalidArgumentException
      * @throws RuntimeException
      *
      * @return CentreonConnector
@@ -330,7 +340,10 @@ class CentreonConnector
      * Deletes connector
      *
      * @param int $id
+     *
      * @return CentreonConnector
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public function delete($id)
     {
@@ -349,10 +362,10 @@ class CentreonConnector
     /**
      * Gets list of connectors
      *
-     * @param boolean $onlyEnabled
-     * @param int|boolean $page When false all connectors are returned
+     * @param bool $onlyEnabled
+     * @param int|bool $page When false all connectors are returned
      * @param int $perPage Ignored if $page == false
-     * @param boolean $usedByCommand
+     * @param bool $usedByCommand
      * @throws InvalidArgumentException
      * @throws RuntimeException
      */
@@ -424,9 +437,9 @@ class CentreonConnector
     /**
      * Copies existing connector
      *
-     * @param inr $id
-     * @param inr $numberOfcopies
-     * @param boolean $returnIds
+     * @param int $id
+     * @param int $numberOfcopies
+     * @param bool $returnIds
      * @return CentreonConnector|array
      * @throws RuntimeException
      */
@@ -470,7 +483,7 @@ class CentreonConnector
     /**
      * Counts total number of connectors
      *
-     * @param boolean $onlyEnabled
+     * @param bool $onlyEnabled
      * @return int
      * @throws InvalidArgumentException
      * @throws RuntimeException
@@ -504,7 +517,11 @@ class CentreonConnector
      * Verifies if connector exists by name
      *
      * @param string $name
-     * @return boolean
+     * @param null $connectorId
+     *
+     * @return bool
+     * @throws InvalidArgumentException
+     * @throws PDOException
      * @throws RuntimeException
      */
     public function isNameAvailable($name, $connectorId = null)
@@ -540,7 +557,7 @@ class CentreonConnector
 
     /**
      *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -589,7 +606,7 @@ class CentreonConnector
         $query = "SELECT id, name FROM connector " .
             "WHERE id IN (" . $listValues . ") ORDER BY name ";
 
-        $stmt = $this->db->prepare($query);
+        $stmt = $this->db->prepare($query); // FIXME to ckeck because not initialised no ?
 
         if (!empty($queryValues)) {
             foreach ($queryValues as $key => $id) {

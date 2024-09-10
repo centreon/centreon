@@ -38,16 +38,31 @@ require_once _CENTREON_PATH_ . '/www/class/centreonHost.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonService.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wikiApi.class.php';
 
+/**
+ * Class
+ *
+ * @class ProceduresProxy
+ */
 class ProceduresProxy
 {
+
+    /** @var procedures */
+    public $proc;
+    /** @var */
     private $DB;
+    /** @var mixed */
     private $wikiUrl;
+    /** @var CentreonHost */
     private $hostObj;
+    /** @var CentreonService */
     private $serviceObj;
 
     /**
-     * ProceduresProxy constructor.
+     * ProceduresProxy constructor
+     *
      * @param $pearDB
+     *
+     * @throws PDOException
      */
     public function __construct($pearDB)
     {

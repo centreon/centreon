@@ -45,16 +45,16 @@ require_once _CENTREON_PATH_ . "www/class/centreonService.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
 
-/*
- * Class for XML/Ajax request
+/**
+ * Class
  *
+ * @class CentreonGraph
+ * @description Class for XML/Ajax request
  */
-
 class CentreonGraph
 {
-    /**
+    /*
      * Percentage over Max limit
-     *
      */
     const OVER_MAX_LIMIT_PCT = 3;
 
@@ -64,73 +64,121 @@ class CentreonGraph
     const ENGINE_HIGH_INFINITE = 340282346638528860000000000000000000000;
     const ENGINE_LOW_INFINITE = -340282346638528860000000000000000000000;
 
+    /** @var null */
+    public $colorCache;
+    /** @var */
+    public $listMetricsId;
+    /** @var */
+    public $areaNb;
+
     /*
      * Objects
      */
+    /** @var CentreonDB */
     protected $DB;
+    /** @var CentreonDB */
     protected $DBC;
 
+    /** @var */
     public $XML;
+    /** @var CentreonGMT */
     public $GMT;
 
+    /** @var CentreonHost */
     protected $hostObj;
+    /** @var CentreonService */
     protected $serviceObj;
 
     /*
      * private vars
      */
+    /** @var array */
     protected $RRDoptions;
+    /** @var array */
     protected $arguments;
+    /** @var int */
     protected $argcount;
+    /** @var array */
     protected $options;
+    /** @var array */
     protected $colors;
+    /** @var array */
     protected $fonts;
+    /** @var int */
     protected $flag;
+    /** @var */
     protected $maxLimit;
 
     /*
      * Variables
      */
+    /** @var int */
     protected $debug;
+    /** @var int|mixed */
     protected $compress;
+    /** @var */
     public $user_id;
+    /** @var */
     protected $generalOpt;
+    /** @var array|string|string[] */
     protected $filename;
+    /** @var */
     protected $commandLine;
+    /** @var mixed */
     protected $dbPath;
+    /** @var mixed */
     protected $dbStatusPath;
+    /** @var string */
     protected $index;
+    /** @var string[] */
     protected $indexData = [
         "host_name" => "",
         "service_description" => ""
     ];
+    /** @var */
     protected $templateId;
+    /** @var array */
     protected $templateInformations;
+    /** @var */
     protected $gprintScaleOption;
+    /** @var */
     protected $graphID;
+    /** @var array */
     protected $metricsEnabled;
+    /** @var array */
     protected $rmetrics;
+    /** @var array */
     protected $vmetrics;
+    /** @var int[] */
     protected $mpointer;
+    /** @var array */
     protected $mlist;
+    /** @var array */
     protected $vname;
+    /** @var array */
     protected $metrics;
+    /** @var */
     protected $longer;
+    /** @var */
     protected $rrdCachedOptions;
+    /** @var bool */
     public $onecurve;
+    /** @var false */
     public $checkcurve;
 
-    /*
-     * Class constructor
+    /**
+     * CentreonGraph constructor
      *
      * <code>
-     * $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
+     *  $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
      * </code>
      *
-     * $user_id     char    The user id
-     * $dbneeds     bool    flag for enable ndo connexion
-     * $headType    bool    send XML header
-     * $debug       bool    debug flag.
+     * @param string $user_id
+     * @param int $index
+     * @param int $debug
+     * @param int $compress
+     *
+     * @throws PDOException
      */
     public function __construct($user_id, $index = null, $debug = 0, $compress = null)
     {

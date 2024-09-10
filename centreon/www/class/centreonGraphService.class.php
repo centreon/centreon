@@ -36,18 +36,23 @@
 require_once 'centreonGraph.class.php';
 
 /**
- * Class for get metrics for a service and return this on JSON
+ * Class
  *
+ * @class CentreonGraphService
+ * @description Class for get metrics for a service and return this on JSON
  */
 class CentreonGraphService extends CentreonGraph
 {
+    public $listMetricsId;
     protected $legends = array();
 
     /**
-     * Constructor
+     * CentreonGraphService Constructor
      *
      * @param int $index The index data id
-     * @param string $sid The session id
+     * @param string $userId The session id
+     *
+     * @throws PDOException
      */
     public function __construct($index, $userId)
     {
@@ -57,8 +62,10 @@ class CentreonGraphService extends CentreonGraph
     /**
      * Get the metrics
      *
-     * @param integer $rows The number of points returned (Default: 200)
-     * @param array
+     * @param int $rows The number of points returned (Default: 200)
+     *
+     * @return array
+     * @throws RuntimeException
      */
     public function getData($rows = 200)
     {
@@ -310,7 +317,7 @@ class CentreonGraphService extends CentreonGraph
     /**
      * Get limits lower and upper for a chart
      *
-     * This values are defined on chart template
+     * These values are defined on chart template
      *
      * @return array
      */

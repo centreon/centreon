@@ -34,25 +34,49 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Dependency
+ */
 class Dependency extends AbstractObject
 {
+    /** @var */
+    public $dependency_cache;
     # Not done system without cache. TODO
+    /** @var int */
     private $use_cache = 1;
+    /** @var int */
     private $done_cache = 0;
+    /** @var int */
     private $has_dependency = 1; # by default, we have.
+    /** @var array */
     private $generated_dependencies = array();
+    /** @var array */
     private $dependency_linked_host_parent_cache = array();
+    /** @var array */
     private $dependency_linked_host_child_cache = array();
+    /** @var array */
     private $dependency_linked_hg_parent_cache = array();
+    /** @var array */
     private $dependency_linked_hg_child_cache = array();
+    /** @var array */
     private $dependency_linked_service_parent_cache = array();
+    /** @var array */
     private $dependency_linked_service_child_cache = array();
+    /** @var array */
     private $dependency_linked_sg_parent_cache = array();
+    /** @var array */
     private $dependency_linked_sg_child_cache = array();
+    /** @var array */
     private $dependency_linked_meta_parent_cache = array();
+    /** @var array */
     private $dependency_linked_meta_child_cache = array();
+    /** @var string */
     protected $generate_filename = 'dependencies.cfg';
+    /** @var string */
     protected $object_name = 'hostdependency';
+    /** @var string */
     protected $attributes_select = "
         dep_id,
         dep_name as ';dependency_name',
@@ -60,12 +84,14 @@ class Dependency extends AbstractObject
         notification_failure_criteria,
         inherits_parent
     ";
+    /** @var string[] */
     protected $attributes_write = array(
         ';dependency_name',
         'execution_failure_criteria',
         'notification_failure_criteria',
         'inherits_parent',
     );
+    /** @var string[] */
     protected $attributes_array = array(
         'dependent_host_name',
         'host_name',
@@ -76,11 +102,22 @@ class Dependency extends AbstractObject
         'dependent_servicegroup_name',
         'servicegroup_name',
     );
+    /** @var Host|null */
     protected $host_instance = null;
+    /** @var Service|null */
     protected $service_instance = null;
+    /** @var Hostgroup|null */
     protected $hg_instance = null;
+    /** @var Servicegroup|null */
     protected $sg_instance = null;
 
+    /**
+     * Dependency constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     *
+     * @throws PDOException
+     */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
@@ -91,6 +128,10 @@ class Dependency extends AbstractObject
         $this->buildCache();
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getDependencyCache()
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
@@ -105,6 +146,10 @@ class Dependency extends AbstractObject
         }
     }
 
+    /**
+     * @return int|void
+     * @throws PDOException
+     */
     private function getDependencyLinkedCache()
     {
         if ($this->has_dependency == 0) {
@@ -182,6 +227,10 @@ class Dependency extends AbstractObject
         $this->dependency_linked_service_child_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @return int|void
+     * @throws PDOException
+     */
     private function buildCache()
     {
         if ($this->done_cache == 1) {
@@ -193,6 +242,10 @@ class Dependency extends AbstractObject
         $this->done_cache = 1;
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function doHost()
     {
         $this->object_name = 'hostdependency';
@@ -223,6 +276,10 @@ class Dependency extends AbstractObject
         }
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function doService()
     {
         $this->object_name = 'servicedependency';
@@ -263,6 +320,10 @@ class Dependency extends AbstractObject
         }
     }
 
+    /**
+     * @return int|void
+     * @throws Exception
+     */
     public function doMetaService()
     {
         $meta_instance = MetaService::getInstance($this->dependencyInjector);
@@ -296,6 +357,10 @@ class Dependency extends AbstractObject
         }
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function doHostgroup()
     {
         $this->object_name = 'hostdependency';
@@ -329,6 +394,10 @@ class Dependency extends AbstractObject
         }
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function doServicegroup()
     {
         $this->object_name = 'servicedependency';
@@ -361,6 +430,10 @@ class Dependency extends AbstractObject
         }
     }
 
+    /**
+     * @return int|void
+     * @throws Exception
+     */
     public function generateObjects()
     {
         if ($this->has_dependency == 0) {
@@ -374,17 +447,27 @@ class Dependency extends AbstractObject
         $this->doMetaService();
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function reset()
     {
         $this->generated_dependencies = array();
         parent::reset();
     }
 
+    /**
+     * @return int
+     */
     public function hasDependency()
     {
         return $this->has_dependency;
     }
 
+    /**
+     * @return array
+     */
     public function getGeneratedDependencies()
     {
         return $this->generated_dependencies;

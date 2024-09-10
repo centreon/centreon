@@ -36,13 +36,35 @@
 
 require_once __DIR__ . "/../List.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorPoller
+ */
 class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
 {
+
+    /** @var int */
+    public $userId;
+
+    /**
+     * CentreonWidgetParamsConnectorPoller constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param int $userId
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @param $paramId
+     *
+     * @return mixed|null[]
+     * @throws PDOException
+     */
     public function getListValues($paramId)
     {
         static $tab;

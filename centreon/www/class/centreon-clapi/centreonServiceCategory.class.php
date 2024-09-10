@@ -44,20 +44,26 @@ require_once "Centreon/Object/Relation/Host/Service.php";
 require_once "Centreon/Object/Relation/Service/Category/Service.php";
 
 /**
- * Class for managing service categories
+ * Class
  *
- * @author sylvestre
+ * @class CentreonServiceCategory
+ * @package CentreonClapi
+ * @description Class for managing service categories
  */
 class CentreonServiceCategory extends CentreonSeverityAbstract
 {
+    /** @var string[] */
     public static $aDepends = array(
         'SERVICE'
     );
 
+    /** @var string */
+    public $action;
+
     /**
-     * Constructor
+     * CentreonServiceCategory constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -77,6 +83,8 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -140,9 +148,10 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
     }
 
     /**
+     * @param $name
+     * @param $arg
      *
-     * @param type $name
-     * @param type $arg
+     * @return void
      * @throws CentreonClapiException
      */
     public function __call($name, $arg)
@@ -270,12 +279,13 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
     }
 
     /**
+     * @param $args
+     * @param $relobj
+     * @param $categoryId
+     * @param $hostServiceRel
+     * @param $obj
      *
-     * @param type $args
-     * @param type $relobj
-     * @param type $categoryId
-     * @param type $hostServiceRel
-     * @param type $obj
+     * @return void
      * @throws CentreonClapiException
      */
     private function setService($args, $relobj, $categoryId, $hostServiceRel, $obj)
@@ -331,11 +341,12 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
     }
 
     /**
+     * @param $args
+     * @param $relobj
+     * @param $obj
+     * @param $categoryId
      *
-     * @param type $args
-     * @param type $relobj
-     * @param type $obj
-     * @param type $categoryId
+     * @return void
      * @throws CentreonClapiException
      */
     private function setServiceTemplate($args, $relobj, $obj, $categoryId)
@@ -386,7 +397,10 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
     /**
      * Export
      *
+     * @param null $filterName
+     *
      * @return void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {

@@ -47,9 +47,11 @@ require_once "Centreon/Object/Relation/Contact/Command/Host.php";
 require_once "Centreon/Object/Relation/Contact/Command/Service.php";
 
 /**
- * Class for managing Contact configuration
+ * Class
  *
- * @author sylvestre
+ * @class CentreonContact
+ * @package CentreonClapi
+ * @description Class for managing Contact configuration
  */
 class CentreonContact extends CentreonObject
 {
@@ -71,12 +73,13 @@ class CentreonContact extends CentreonObject
     public const CONTACT_LOCATION = "timezone";
     public const UNKNOWN_NOTIFICATION_OPTIONS = "Invalid notifications options";
 
-    protected $register;
+    /** @var string[] */
     public static $aDepends = array(
         'CONTACTTPL',
         'CMD',
         'TP'
     );
+
     /**
      *
      * @var array
@@ -102,27 +105,21 @@ class CentreonContact extends CentreonObject
         )
     );
 
-    /**
-     *
-     * @var CentreonTimePeriod
-     */
+    /** @var string */
+    public $action;
+    /** @var int */
+    protected $register;
+    /** @var CentreonTimePeriod */
     protected $tpObject;
-
-    /**
-     *
-     * @var Timezone
-     */
+    /** @var Timezone */
     protected $timezoneObject;
-
-    /**
-     * @var array<string,mixed>
-     */
+    /** @var array<string,mixed> */
     protected $addParams = [];
 
     /**
-     * Constructor
+     * CentreonContact constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

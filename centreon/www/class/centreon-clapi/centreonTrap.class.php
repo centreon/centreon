@@ -44,8 +44,10 @@ require_once "Centreon/Object/Trap/Matching.php";
 require_once "Centreon/Object/Relation/Trap/Service.php";
 
 /**
+ * Class
  *
- * @author sylvestre
+ * @class CentreonTrap
+ * @package CentreonClapi
  */
 class CentreonTrap extends CentreonObject
 {
@@ -54,12 +56,19 @@ class CentreonTrap extends CentreonObject
     const UNKNOWN_STATUS = "Unknown status";
     const INCORRECT_PARAMETER = "Incorrect parameter";
 
+    /** @var string[] */
     public static $aDepends = array(
         'VENDOR'
     );
 
+    /** @var CentreonManufacturer */
+    public $manufacturerObj;
+    /** @var string */
+    public $action;
+
     /**
-     * CentreonTrap constructor.
+     * CentreonTrap constructor
+     *
      * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
@@ -159,6 +168,8 @@ class CentreonTrap extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -322,7 +333,10 @@ class CentreonTrap extends CentreonObject
     /**
      * Export
      *
-     * @return void
+     * @param null $filterName
+     *
+     * @return false|void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {

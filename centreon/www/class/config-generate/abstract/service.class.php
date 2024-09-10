@@ -36,9 +36,17 @@
 
 require_once dirname(__FILE__) . '/object.class.php';
 
+/**
+ * Class
+ *
+ * @class AbstractService
+ */
 abstract class AbstractService extends AbstractObject
 {
+    /** @var */
+    public $service_cache;
     // no flap_detection_options attribute
+    /** @var string */
     protected $attributes_select = '
         service_id,
         service_template_model_stm_id,
@@ -85,6 +93,7 @@ abstract class AbstractService extends AbstractObject
         esi_icon_image_alt as icon_image_alt,
         service_acknowledgement_timeout as acknowledgement_timeout
     ';
+    /** @var string[] */
     protected $attributes_write = array(
         'host_name',
         'service_description',
@@ -117,6 +126,7 @@ abstract class AbstractService extends AbstractObject
         'icon_image_alt',
         'acknowledgement_timeout'
     );
+    /** @var string[] */
     protected $attributes_default = array(
         'is_volatile',
         'active_checks_enabled',
@@ -130,20 +140,32 @@ abstract class AbstractService extends AbstractObject
         'retain_status_information',
         'retain_nonstatus_information',
     );
+    /** @var string[] */
     protected $attributes_array = [
         'use',
         'category_tags',
         'group_tags',
     ];
+    /** @var string[] */
     protected $attributes_hash = array(
         'macros'
     );
+    /** @var array */
     protected $loop_stpl = array(); # To be reset
+    /** @var null */
     protected $stmt_macro = null;
+    /** @var null */
     protected $stmt_stpl = null;
+    /** @var null */
     protected $stmt_contact = null;
+    /** @var null */
     protected $stmt_service = null;
 
+    /**
+     * @param $service
+     *
+     * @return void
+     */
     protected function getImages(&$service)
     {
         $media = Media::getInstance($this->dependencyInjector);
@@ -153,6 +175,11 @@ abstract class AbstractService extends AbstractObject
         }
     }
 
+    /**
+     * @param $service
+     *
+     * @return int
+     */
     protected function getMacros(&$service)
     {
         if (isset($service['macros'])) {
@@ -164,6 +191,11 @@ abstract class AbstractService extends AbstractObject
         return 0;
     }
 
+    /**
+     * @param $service
+     *
+     * @return void
+     */
     protected function getServiceTemplates(&$service)
     {
         $service['use'] = array(
@@ -194,6 +226,12 @@ abstract class AbstractService extends AbstractObject
         }
     }
 
+    /**
+     * @param $service_id
+     * @param $command_label
+     *
+     * @return mixed|null
+     */
     protected function findCommandName($service_id, $command_label)
     {
         $loop = array();
@@ -220,6 +258,14 @@ abstract class AbstractService extends AbstractObject
         return null;
     }
 
+    /**
+     * @param $service
+     * @param $result_name
+     * @param $command_id_label
+     * @param $command_arg_label
+     *
+     * @return int
+     */
     protected function getServiceCommand(&$service, $result_name, $command_id_label, $command_arg_label)
     {
         $command_name = Command::getInstance($this->dependencyInjector)
@@ -251,12 +297,22 @@ abstract class AbstractService extends AbstractObject
         return 0;
     }
 
+    /**
+     * @param $service
+     *
+     * @return void
+     */
     protected function getServiceCommands(&$service)
     {
         $this->getServiceCommand($service, 'check_command', 'check_command_id', 'check_command_arg');
         $this->getServiceCommand($service, 'event_handler', 'event_handler_id', 'event_handler_arg');
     }
 
+    /**
+     * @param $service
+     *
+     * @return void
+     */
     protected function getServicePeriods(&$service)
     {
         $period = Timeperiod::getInstance($this->dependencyInjector);
@@ -266,6 +322,12 @@ abstract class AbstractService extends AbstractObject
         $service['notification_period'] = $period->generateFromTimeperiodId($service['notification_period_id']);
     }
 
+    /**
+     * @param $service_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
     public function getString($service_id, $attr)
     {
         if (isset($this->service_cache[$service_id][$attr])) {

@@ -43,21 +43,20 @@ require_once __DIR__ . '/centreonSession.class.php';
 require_once __DIR__ . '/../include/common/common-Func.php';
 
 /**
- * Singleton Class for topological sorting
+ * Class
  *
- **/
+ * @class MetricUtils
+ * @description Singleton Class for topological sorting
+ */
 class MetricUtils
 {
+    /** @var null */
     private static $instance = null;
 
     /**
-     * Constructor
-     *
-     * @return void
+     * MetricUtils constructor
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     /**
      * Singleton create method
@@ -128,40 +127,76 @@ class MetricUtils
     }
 }
 
+/**
+ * Class
+ *
+ * @class CentreonGraphNg
+ */
 class CentreonGraphNg
 {
+    /** @var array */
+    public $listMetricsId;
+    /** @var array */
+    public $vmetrics;
+    /** @var false */
+    public $multipleServices;
+    /** @var */
     protected $db;
+    /** @var */
     protected $dbCs;
+    /** @var MetricUtils|null */
     protected $metricUtils;
 
+    /** @var */
     protected $rrdOptions;
+    /** @var array */
     protected $arguments;
 
+    /** @var */
     protected $debug;
+    /** @var int */
     protected $userId;
+    /** @var */
     protected $generalOpt;
+    /** @var mixed */
     protected $dbPath;
+    /** @var mixed */
     protected $dbStatusPath;
+    /** @var null[] */
     protected $indexData = [
         'host_id' => null,
         'host_name' => null,
         'service_id' => null,
         'service_description' => null,
     ];
+    /** @var */
     protected $templateId;
+    /** @var array */
     protected $templateInformations;
+    /** @var array */
     protected $metrics;
+    /** @var array */
     protected $indexIds;
 
+    /** @var null */
     protected $dsDefault;
+    /** @var null */
     protected $colorCache;
+    /** @var null */
     protected $componentsDsCache;
+    /** @var array */
     protected $extraDatas;
+    /** @var array */
     protected $cacheAllMetrics;
+    /** @var array */
     protected $vnodes;
+    /** @var array */
     protected $vnodesDependencies;
+    /** @var array */
     protected $vmetricsOrder;
+    /** @var */
     protected $graphData;
+    /** @var */
     protected $rrdCachedOptions;
 
     /**
@@ -176,11 +211,9 @@ class CentreonGraphNg
     }
 
     /**
-     * Constructor
+     * CentreonGraphNg constructor
      *
      * @param int $userId
-     *
-     * @return void
      */
     public function __construct($userId)
     {

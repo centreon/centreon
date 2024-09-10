@@ -42,25 +42,30 @@ require_once __DIR__ . "/../../../lib/Centreon/Object/Contact/Group.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Contact/Group/Contact.php";
 
 /**
- * Class for managing contact groups
+ * Class
  *
- * @author sylvestre
+ * @class CentreonContactGroup
+ * @package CentreonClapi
+ * @description Class for managing contact groups
  */
 class CentreonContactGroup extends CentreonObject
 {
     public const ORDER_UNIQUENAME = 0;
     public const ORDER_ALIAS = 1;
 
+    /** @var string[] */
     public static $aDepends = array(
         'CMD',
         'TP',
         'CONTACT'
     );
+    /** @var string */
+    public $action;
 
     /**
-     * Constructor
+     * CentreonContactGroup constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -93,6 +98,8 @@ class CentreonContactGroup extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws \Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -111,7 +118,7 @@ class CentreonContactGroup extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters)
@@ -228,7 +235,10 @@ class CentreonContactGroup extends CentreonObject
     /**
      * Export
      *
+     * @param null $filterName
+     *
      * @return void
+     * @throws \Exception
      */
     public function export($filterName = null)
     {

@@ -30,6 +30,11 @@ use CentreonLegacy\Core\Module\Healthcheck;
  */
 class LicenseTest extends TestCase
 {
+    /** @var \CentreonLegacy\Core\Module\Healthcheck|(\CentreonLegacy\Core\Module\Healthcheck&object&\PHPUnit\Framework\MockObject\MockObject)|(\CentreonLegacy\Core\Module\Healthcheck&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    public $container;
+    /** @var License */
+    public $service;
+
     public function setUp(): void
     {
         $this->container = new ServiceContainer();

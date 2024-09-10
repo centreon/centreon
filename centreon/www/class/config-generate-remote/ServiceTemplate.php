@@ -23,17 +23,36 @@ namespace ConfigGenerateRemote;
 use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractService;
 
+/**
+ * Class
+ *
+ * @class ServiceTemplate
+ * @package ConfigGenerateRemote
+ */
 class ServiceTemplate extends AbstractService
 {
+
+    /** @var */
+    public $loop_stpl;
+    /** @var null */
     protected $hosts = null;
+    /** @var string */
     protected $table = 'service';
+    /** @var string */
     protected $generateFilename = 'serviceTemplates.infile';
+    /** @var array */
     public $serviceCache = [];
+    /** @var null */
     public $currentHostId = null;
+    /** @var null */
     public $currentHostName = null;
+    /** @var null */
     public $currentServiceDescription = null;
+    /** @var null */
     public $currentServiceId = null;
+    /** @var array */
     protected $loopTpl = [];
+    /** @var string */
     protected $attributesSelect = '
         service_id,
         service_template_model_stm_id,
@@ -65,6 +84,7 @@ class ServiceTemplate extends AbstractService
         service_acknowledgement_timeout,
         graph_id
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'service_id',
         'service_template_model_stm_id',
@@ -94,7 +114,7 @@ class ServiceTemplate extends AbstractService
     /**
      * Get linked service groups and generate relations
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return void
      */
     private function getServiceGroups(int $serviceId)
@@ -123,7 +143,7 @@ class ServiceTemplate extends AbstractService
     /**
      * Get service template from id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return void
      */
     private function getServiceFromId(int $serviceId)
@@ -146,7 +166,7 @@ class ServiceTemplate extends AbstractService
     /**
      * Get severity from service id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return void|int
      */
     private function getSeverity(int $serviceId)
@@ -166,7 +186,7 @@ class ServiceTemplate extends AbstractService
     /**
      * Generate service template
      *
-     * @param null|integer $serviceId
+     * @param null|int $serviceId
      * @return void
      */
     public function generateFromServiceId(?int $serviceId)
@@ -235,7 +255,7 @@ class ServiceTemplate extends AbstractService
     /**
      * Reset object
      *
-     * @param boolean $createfile
+     * @param bool $createfile
      * @return void
      */
     public function reset($createfile = false): void

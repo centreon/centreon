@@ -41,8 +41,17 @@ use Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata;
 use Centreon\Tests\Resources\Mock\EntityMock;
 use PDO;
 
+/**
+ * Class
+ *
+ * @class ClassMetadataTest
+ * @package Centreon\Tests\Infrastructure\CentreonLegacyDB\Mapping
+ */
 class ClassMetadataTest extends TestCase
 {
+    /** @var ClassMetadata */
+    public $metadata;
+
     public function setUp(): void
     {
         $this->metadata = new ClassMetadata;

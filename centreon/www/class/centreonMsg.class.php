@@ -39,11 +39,23 @@
  *  and the horizontal menu
  */
 
+/**
+ * Class
+ *
+ * @class CentreonMsg
+ */
 class CentreonMsg
 {
+    /** @var string */
+    public $color;
+    /** @var string */
     public $div;
 
-    /* Constructor */
+    /**
+     * CentreonMsg constructor
+     *
+     * @param $divId
+     */
     public function __construct($divId = null)
     {
         if (empty($divId)) {
@@ -54,57 +66,85 @@ class CentreonMsg
         $this->color = "#FFFFFF";
     }
 
-    /*
- 	 *  Sets style of text inside Div
- 	 */
+    /**
+     * Sets style of text inside Div
+     *
+     * @param $style
+     *
+     * @return void
+     */
     public function setTextStyle($style)
     {
         echo "<script type=\"text/javascript\">_setTextStyle(\"$this->div\", \"$style\")</script>";
     }
 
-    /*
- 	 *  Sets text color
- 	 */
+    /**
+     * @param $color
+     *
+     * @return void
+     */
     public function setTextColor($color)
     {
         echo "<script type=\"text/javascript\">_setTextColor(\"$this->div\", \"$color\")</script>";
     }
 
-    /*
- 	 *  Sets text align
- 	 */
+    /**
+     * @param $align
+     *
+     * @return void
+     */
     public function setAlign($align)
     {
         echo "<script type=\"text/javascript\">_setAlign(\"$this->div\", \"$align\")</script>";
     }
 
-    /*
- 	 *  Sets vertical align
- 	 */
+    /**
+     * @param $align
+     *
+     * @return void
+     */
     public function setValign($align)
     {
         echo "<script type=\"text/javascript\">_setValign(\"$this->div\", \"$align\")</script>";
     }
 
-    /* Sets background color of Div */
+    /**
+     * @param $color
+     *
+     * @return void
+     */
     public function setBackgroundColor($color)
     {
         echo "<script type=\"text/javascript\">_setBackgroundColor(\"$this->div\", \"$color\")</script>";
     }
 
-    /* Sets text in Div */
+    /**
+     * @param $str
+     *
+     * @return void
+     */
     public function setText($str)
     {
         echo "<script type=\"text/javascript\">_setText(\"$this->div\", \"$str\")</script>";
     }
 
-    /* Sets image in Div */
+    /**
+     * @param $img_url
+     *
+     * @return void
+     */
     public function setImage($img_url)
     {
         echo "<script type=\"text/javascript\">_setImage(\"$this->div\", \"$img_url\")</script>";
     }
 
-    /* If you want to display your message for a limited time period, just call this function */
+    /**
+     * If you want to display your message for a limited time period, just call this function
+     *
+     * @param $sec
+     *
+     * @return void
+     */
     public function setTimeOut($sec)
     {
         echo "<script type=\"text/javascript\">"
@@ -112,12 +152,18 @@ class CentreonMsg
             . "</script>";
     }
 
-    /* Clear message box */
+    /**
+     * Clear message box
+     * @return void
+     */
     public function clear()
     {
         echo "<script type=\"text/javascript\">_clear(\"$this->div\")</script>";
     }
 
+    /**
+     * @return void
+     */
     public function nextLine()
     {
         echo "<script type=\"text/javascript\">_nextLine(\"$this->div\")</script>";

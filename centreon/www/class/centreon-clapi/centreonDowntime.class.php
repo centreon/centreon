@@ -47,42 +47,36 @@ require_once "Centreon/Object/Relation/Downtime/Hostgroup.php";
 require_once "Centreon/Object/Relation/Downtime/Servicegroup.php";
 
 /**
- * Class for managing recurring downtime objects
+ * Class
  *
- * @author sylvestre
+ * @class CentreonDowntime
+ * @package CentreonClapi
+ * @description Class for managing recurring downtime objects
  */
 class CentreonDowntime extends CentreonObject
 {
     const ORDER_UNIQUENAME = 0;
     const ORDER_ALIAS = 1;
 
-    /**
-     *
-     * @var array
-     */
+
+    /** @var string */
+    public $action;
+    /** @var int[] */
     protected $weekDays;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonService */
     protected $serviceObj;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var string[] */
     protected $availableCycles;
-
+    /** @var string[] */
     public static $aDepends = array(
         'SERVICE',
         'HOST'
     );
 
     /**
-     * Constructor
+     * CentreonDowntime constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -200,7 +194,7 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param null $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters = null)
@@ -573,6 +567,8 @@ class CentreonDowntime extends CentreonObject
      * Add host to downtime
      *
      * @param string $parameters | downtime name; host names separated by "|" character
+     *
+     * @throws CentreonClapiException
      */
     public function addhost($parameters)
     {
@@ -602,6 +598,8 @@ class CentreonDowntime extends CentreonObject
      * Delete host from downtime
      *
      * @param string $parameters | downtime name; host names separated by "|" character
+     *
+     * @throws CentreonClapiException
      */
     public function delhost($parameters)
     {
@@ -613,6 +611,8 @@ class CentreonDowntime extends CentreonObject
      * Add host group to downtime
      *
      * @param string $parameters | downtime name; host group names separated by "|" character
+     *
+     * @throws CentreonClapiException
      */
     public function addhostgroup($parameters)
     {
@@ -642,6 +642,8 @@ class CentreonDowntime extends CentreonObject
      * Delete host groups
      *
      * @param string $parameters | downtime name; host group names separated by "|" character
+     *
+     * @throws CentreonClapiException
      */
     public function delhostgroup($parameters)
     {
@@ -800,6 +802,8 @@ class CentreonDowntime extends CentreonObject
      * Add service group to downtime
      *
      * @param string $parameters | downtime name; service group names separated by "|" character
+     *
+     * @throws CentreonClapiException
      */
     public function addservicegroup($parameters)
     {
@@ -829,6 +833,8 @@ class CentreonDowntime extends CentreonObject
      * Delete service group from downtime
      *
      * @param string $parameters | downtime name; service group names separated by "|" character
+     *
+     * @throws CentreonClapiException
      */
     public function delservicegroup($parameters)
     {
@@ -863,7 +869,7 @@ class CentreonDowntime extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportPeriods()
     {
@@ -911,7 +917,7 @@ class CentreonDowntime extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportHostRel()
     {
@@ -923,7 +929,7 @@ class CentreonDowntime extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportHostgroupRel()
     {
@@ -935,7 +941,7 @@ class CentreonDowntime extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportServiceRel()
     {
@@ -948,7 +954,7 @@ class CentreonDowntime extends CentreonObject
     }
 
     /**
-     *
+     * @return void
      */
     protected function exportServicegroupRel()
     {
@@ -960,7 +966,6 @@ class CentreonDowntime extends CentreonObject
     }
 
     /**
-     *
      * @param string $actionType | addhost, addhostgroup, addservice or addservicegroup
      * @param string $sql | query
      */
