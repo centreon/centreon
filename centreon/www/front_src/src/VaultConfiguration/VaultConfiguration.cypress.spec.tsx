@@ -1,9 +1,17 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import i18next from 'i18next';
+import { Provider, createStore } from 'jotai';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
 import VaultConfiguration from './VaultConfiguration';
 import { vaultConfigurationEndpoint } from './api/endpoints';
 import {
   labelAddressIsNotAnUrl,
+  labelExecuteThisCommandAsRoot,
   labelFormWillBeCleared,
+  labelMigrate,
+  labelMigrationCanTakeSeveralMinutes,
+  labelMigrationScript,
+  labelMigrationScriptExportCredentials,
   labelPort,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
@@ -19,6 +27,14 @@ import {
 } from './translatedLabels';
 
 const initialize = (): void => {
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    fallbackLng: 'en',
+    resources: { en: { translationsNS: {} } }
+  });
+
+  const store = createStore();
+
   cy.interceptAPIRequest({
     method: Method.GET,
     path: `./api/latest${vaultConfigurationEndpoint}`,
@@ -42,11 +58,15 @@ const initialize = (): void => {
 
   cy.mount({
     Component: (
-      <TestQueryProvider>
-        <SnackbarProvider>
-          <VaultConfiguration />
-        </SnackbarProvider>
-      </TestQueryProvider>
+      <Provider store={store}>
+        <I18nextProvider i18n={i18next}>
+          <TestQueryProvider>
+            <SnackbarProvider>
+              <VaultConfiguration />
+            </SnackbarProvider>
+          </TestQueryProvider>
+        </I18nextProvider>
+      </Provider>
     )
   });
 };
@@ -188,6 +208,27 @@ describe('Vault configuration', () => {
 
     cy.findByLabelText(labelSecretID).should('have.value', '');
     cy.findByLabelText(labelVaultAddress).should('have.value', 'localhost');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a modal when the vault configuration is valid and the button is clicked', () => {
+    initialize();
+
+    cy.waitForRequest('@getVaultConfiguration');
+
+    cy.contains(labelMigrate).click();
+
+    cy.contains(labelMigrationScript).should('be.visible');
+    cy.contains(labelMigrationScriptExportCredentials).should('be.visible');
+    cy.contains(
+      'By executing this script, your platform will be in a locked mode and you not be able to do'
+    ).should('be.visible');
+    cy.contains(labelMigrationCanTakeSeveralMinutes).should('be.visible');
+    cy.contains(`# ${labelExecuteThisCommandAsRoot}`).should('be.visible');
+    cy.contains('/usr/share/centreon/bin/migrateCredentials.php').should(
+      'be.visible'
+    );
 
     cy.makeSnapshot();
   });

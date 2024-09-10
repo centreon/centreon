@@ -24,7 +24,6 @@ export const useUpdateVaultConfiguration = () => {
   const setCanMigrate = useSetAtom(canMigrateAtom);
 
   const { mutateAsync } = useMutationQuery({
-    baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     getEndpoint: () => vaultConfigurationEndpoint,
     method: Method.PUT,
     onMutate: ({ _meta }) => {
