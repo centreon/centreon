@@ -19,19 +19,24 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response;
+namespace Core\Common\Domain;
 
-final class NotifiableContactGroupDto
+class NotEmptyString
 {
-    /**
-     * @param int $id
-     * @param string $name
-     */
-    public function __construct(
-        public int $id = 0,
-        public string $name = '',
-    ) {
+    public readonly string $value;
+
+    public function __construct(string|\Stringable $value)
+    {
+        $this->value = trim((string) $value);
+        if ($this->value === '') {
+            throw new \InvalidArgumentException('The string must not be empty');
+        }
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
     }
 }

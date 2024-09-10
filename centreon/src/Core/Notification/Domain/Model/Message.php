@@ -25,13 +25,13 @@ namespace Core\Notification\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 
-class NotificationMessage
+class Message
 {
     public const MAX_SUBJECT_LENGTH = 255,
                  MAX_MESSAGE_LENGTH = 65535;
 
     /**
-     * @param NotificationChannel $channel
+     * @param Channel $channel
      * @param string $subject
      * @param string $message
      * @param string $formattedMessage
@@ -39,7 +39,7 @@ class NotificationMessage
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
-        protected NotificationChannel $channel,
+        protected Channel $channel,
         protected string $subject = '',
         protected string $message = '',
         protected string $formattedMessage = ''
@@ -57,7 +57,7 @@ class NotificationMessage
         Assertion::maxLength($this->formattedMessage, self::MAX_MESSAGE_LENGTH, "{$shortName}::formattedMessage");
     }
 
-    public function getChannel(): NotificationChannel
+    public function getChannel(): Channel
     {
         return $this->channel;
     }

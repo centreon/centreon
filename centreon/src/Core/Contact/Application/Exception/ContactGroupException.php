@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,19 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Notification\Domain\Model;
+namespace Core\Contact\Application\Exception;
 
-enum NotificationServiceEvent
+class ContactGroupException extends \Exception
 {
-    case Ok;
-    case Warning;
-    case Critical;
-    case Unknown;
+    public static function errorWhileSearchingForContactGroups(): self
+    {
+        return new self(_('Impossible to get contact groups from data storage'));
+    }
+
+    public static function notAllowed(): self
+    {
+        return new self(_('You are not allowed to access contact groups'));
+    }
 }

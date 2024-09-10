@@ -23,9 +23,42 @@ declare(strict_types=1);
 
 namespace Core\Notification\Domain\Model;
 
-enum NotificationHostEvent
+use Centreon\Domain\Common\Assertion\Assertion;
+
+class TimePeriod
 {
-    case Up;
-    case Down;
-    case Unreachable;
+    public const ALL_TIME_PERIOD = '24x7';
+
+    /**
+     * @param int $id
+     * @param string $name
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public function __construct(
+        private readonly int $id,
+        private readonly string $name
+    ) {
+        Assertion::positiveInt($id, 'timePeriod::id');
+    }
+
+    /**
+     * Get the time period id.
+     *
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the time period name.
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
 }
