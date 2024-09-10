@@ -8,7 +8,7 @@ ARG VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint /usr/share/centreon
-COPY --chown=apache:apache ./.github/docker/centreon-web/bullseye/configuration /usr/share/centreon/www/install/tmp
+COPY --chown=www-data:www-data ./.github/docker/centreon-web/bullseye/configuration /usr/share/centreon/www/install/tmp
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
