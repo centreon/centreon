@@ -260,6 +260,12 @@ jobs:
               };
             }
 
+            matrix = {
+              "main": [alma9_mariadb],
+              "operating_systems": [alma9_mariadb, alma8_mariadb],
+              "databases": [alma9_mariadb],
+            };
+
             console.log(matrix);
 
             return matrix;
