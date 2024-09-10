@@ -11,7 +11,7 @@ security:
     requirements:
         base_uri: ".*"
 core:
-    resource: "./../../src/Core/**/Infrastructure/API/**/*Route.yaml"
+    resource: "./../../src/Core/**/Infrastructure/A*/**/*Route.yaml"
     prefix: "{base_uri}api/{version}"
     defaults:
         version: "latest"

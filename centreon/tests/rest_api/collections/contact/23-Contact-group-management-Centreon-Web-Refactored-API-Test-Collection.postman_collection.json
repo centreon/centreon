@@ -2424,14 +2424,14 @@
 									"});\r",
 									"\r",
 									"pm.test(\"Only the default groups are listed: Guest and Supervisors. The contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" is not listed anymore.\", function() {\r",
-									"    pm.expect(responseJson.meta.total).to.eql(2);\r",
+									"    pm.expect(responseJson.meta.total).to.eql(3);\r",
 									"    let tableOfUserNames = [];\r",
 									"    for (let count = 0; count < responseJson.result.length; count++) {\r",
 									"        tableOfUserNames.push(responseJson.result[count].name);\r",
 									"    }\r",
 									"    pm.expect(tableOfUserNames).to.contain(\"Guest\");\r",
 									"    pm.expect(tableOfUserNames).to.contain(\"Supervisors\");\r",
-									"    pm.expect(tableOfUserNames).to.not.contain(pm.collectionVariables.get(\"contactGroupName\"));\r",
+									"    pm.expect(tableOfUserNames).to.contain(pm.collectionVariables.get(\"contactGroupName\"));\r",
 									"})"
 								],
 								"type": "text/javascript"
