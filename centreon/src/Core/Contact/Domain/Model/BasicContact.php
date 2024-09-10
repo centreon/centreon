@@ -19,57 +19,52 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Notification\Domain\Model;
+namespace Core\Contact\Domain\Model;
 
-use Assert\AssertionFailedException;
-use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Common\Domain\NotEmptyString;
+use Core\Common\Domain\PositiveInteger;
 
-class ConfigurationUser
+class BasicContact
 {
-    /**
-     * @param int $id
-     * @param string $name
-     * @param string $email
-     *
-     * @throws AssertionFailedException
-     */
     public function __construct(
-        private readonly int $id,
-        private readonly string $name,
-        private readonly string $email,
+        private readonly PositiveInteger $id,
+        private readonly NotEmptyString $name,
+        private readonly NotEmptyString $alias,
+        private readonly NotEmptyString $email,
+        private readonly bool $isAdmin,
+        private readonly bool $isActive,
     ) {
-        Assertion::positiveInt($id, 'User::id');
     }
 
-    /**
-     * Get the user id.
-     *
-     * @return int
-     */
     public function getId(): int
     {
-        return $this->id;
+        return $this->id->getValue();
     }
 
-    /**
-     * Get the username, ie "full name".
-     *
-     * @return string
-     */
     public function getName(): string
     {
-        return $this->name;
+        return (string) $this->name;
     }
 
-    /**
-     * Get the email.
-     *
-     * @return string
-     */
+    public function getAlias(): string
+    {
+        return (string) $this->alias;
+    }
+
     public function getEmail(): string
     {
-        return $this->email;
+        return (string) $this->email;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->isAdmin;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
     }
 }

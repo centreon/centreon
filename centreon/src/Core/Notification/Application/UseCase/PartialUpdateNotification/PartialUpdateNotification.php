@@ -160,6 +160,6 @@ final class PartialUpdateNotification
         }
         $notification->setIsActivated($request->isActivated);
 
-        $this->writeRepository->update($notification);
+        $this->writeRepository->updateNotification($notification);
     }
 }

@@ -19,21 +19,24 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
+namespace Core\Common\Domain;
 
-final class ChannelEmailResponseDto
+class PositiveInteger
 {
     /**
-     * @param list<ChannelEmailContactResponseDto> $contacts
-     * @param string $subject
-     * @param string $formattedMessage
+     * @param int $value Integer value >= 0
      */
-    public function __construct(
-        public array $contacts = [],
-        public string $subject = '',
-        public string $formattedMessage = '',
-    ) {
+    public function __construct(readonly private int $value)
+    {
+        if ($this->value <= 0) {
+            throw new \InvalidArgumentException('The integer must be positive');
+        }
+    }
+
+    public function getValue(): int
+    {
+        return $this->value;
     }
 }

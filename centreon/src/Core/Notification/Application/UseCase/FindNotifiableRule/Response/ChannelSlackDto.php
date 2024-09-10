@@ -21,16 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups;
+namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
 
-use Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response\NotifiableContactGroupDto;
-
-final class FindNotifiableContactGroupsResponse
+final class ChannelSlackDto
 {
-    /**
-     * @param array<NotifiableContactGroupDto> $notifiableContactGroups
-     */
-    public function __construct(public array $notifiableContactGroups = [])
-    {
+    public function __construct(
+        public string $slackChannel = '',
+        public string $message = '',
+    ) {
     }
 }

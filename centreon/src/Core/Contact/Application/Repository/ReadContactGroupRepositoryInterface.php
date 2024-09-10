@@ -23,18 +23,23 @@ declare(strict_types=1);
 
 namespace Core\Contact\Application\Repository;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Contact\Domain\Model\ContactGroup;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadContactGroupRepositoryInterface
 {
     /**
      * Get all contact groups.
      *
+     * @param RequestParametersInterface|null $requestParameters
+     *
      * @throws \Throwable
      *
      * @return array<ContactGroup>
      */
-    public function findAll(): array;
+    public function findAll(?RequestParametersInterface $requestParameters = null): array;
 
     /**
      * Get all contact groups of a contact.
@@ -70,16 +75,22 @@ interface ReadContactGroupRepositoryInterface
     public function findByIds(array $contactGroupIds): array;
 
     /**
-     * Get Contact groups by their ids and related user.
+     * Get Contact groups by access groups, user and request parameters.
      *
-     * @param int[] $contactGroupIds
-     * @param int $userId
+     * Be careful, it will return contact groups that are in the access groups
+     * and the contact groups of the user.
      *
-     * @throws \Throwable
+     * @param AccessGroup[] $accessGroups
+     * @param ContactInterface $user
+     * @param RequestParametersInterface|null $requestParameters
      *
      * @return ContactGroup[]
      */
-    public function findByIdsAndUserId(array $contactGroupIds, int $userId): array;
+    public function findByAccessGroupsAndUserAndRequestParameter(
+        array $accessGroups,
+        ContactInterface $user,
+        ?RequestParametersInterface $requestParameters = null
+    ): array;
 
     /**
      * Check existence of provided contact groups.
