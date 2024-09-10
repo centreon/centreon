@@ -56,7 +56,7 @@ beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
     $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
     $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
-    $this->contactGroup = new ContactGroup(1, 'contact_group');
+    $this->contactGroup = new ContactGroup(1, 'contact_group', 'contact_group');
     $this->contactTemplate = new ContactTemplate(1, 'contact_template');
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
     $this->configuration = $this->createMock(Configuration::class);
