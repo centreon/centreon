@@ -2,7 +2,8 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
-  checkServicesAreMonitored
+  checkServicesAreMonitored,
+  checkMetricsAreMonitored
 } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
@@ -127,6 +128,10 @@ before(() => {
     jsonName: 'admin'
   });
 
+  ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  })
+
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -140,7 +145,13 @@ before(() => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
-
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
   cy.logoutViaAPI();
   cy.applyAcl();
 });
@@ -323,11 +334,10 @@ Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
     cy.getCellContent(1, 2).then((myTableContent) => {
+      expect(myTableContent[1]).to.include('Critical');
+      expect(myTableContent[2]).to.include('Warning');
+      expect(myTableContent[3]).to.include('Unknown');
       expect(myTableContent[6]).to.include('Pending');
-      expect(myTableContent[7]).to.include('Pending');
-      expect(myTableContent[8]).to.include('Up');
-      expect(myTableContent[9]).to.include('Up');
-      expect(myTableContent[10]).to.include('Up');
     });
   }
 );
@@ -556,7 +566,7 @@ Given('a dashboard containing a resource table widget', () => {
 });
 
 When('the dashboard administrator clicks on a random resource from the resource table', () => {
-  cy.get('[aria-label^="Select row"]').eq(0).click()
+  cy.get('[aria-label^="Select row"]').eq(0).click({force:true})
 });
 
 Then('the dashboard administrator clicks on the downtime button and submits', () => {

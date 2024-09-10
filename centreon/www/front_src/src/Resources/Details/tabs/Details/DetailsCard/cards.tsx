@@ -1,46 +1,46 @@
-import { isEmpty, isNil, equals, includes } from 'ramda';
+import { equals, includes, isEmpty, isNil } from 'ramda';
 
 import { SeverityCode } from '@centreon/ui';
 
 import ChecksIcon from '../../../../ChecksIcon';
+import { CriteriaNames } from '../../../../Filter/Criterias/models';
+import { ResourceType } from '../../../../models';
 import {
-  labelCurrentStatusDuration,
-  labelMonitoringServer,
-  labelTimezone,
-  labelLastStatusChange,
-  labelLastCheck,
-  labelNextCheck,
-  labelCheckDuration,
-  labelLatency,
-  labelLastNotification,
-  labelCurrentNotificationNumber,
-  labelFqdn,
+  labelAcknowledgement,
   labelAlias,
-  labelGroups,
   labelCalculationType,
+  labelCategories,
   labelCheck,
+  labelCheckDuration,
+  labelCommand,
+  labelCurrentNotificationNumber,
+  labelCurrentStatusDuration,
+  labelDowntimeDuration,
+  labelFqdn,
+  labelGroups,
+  labelLastCheck,
+  labelLastCheckWithOkStatus,
+  labelLastNotification,
+  labelLastStatusChange,
+  labelLatency,
+  labelMonitoringServer,
+  labelNextCheck,
+  labelPerformanceData,
+  labelSeverity,
   labelStatusChangePercentage,
   labelStatusInformation,
-  labelDowntimeDuration,
-  labelAcknowledgement,
-  labelPerformanceData,
-  labelCommand,
-  labelLastCheckWithOkStatus,
-  labelCategories,
-  labelSeverity
+  labelTimezone
 } from '../../../../translatedLabels';
 import { ResourceDetails } from '../../../models';
 import ExpandableCard from '../ExpandableCard';
 import { ChangeExpandedCardsProps } from '../SortableCards/models';
-import { ResourceType } from '../../../../models';
-import { CriteriaNames } from '../../../../Filter/Criterias/models';
 
-import DetailsLine from './DetailsLine';
-import PercentStateChangeCard from './PercentStateChangeCard';
-import DowntimesCard from './DowntimesCard';
 import AcknowledgementCard from './AcknowledegmentCard';
 import CommandLineCard from './CommandLineCard';
+import DetailsLine from './DetailsLine';
+import DowntimesCard from './DowntimesCard';
 import GroupChips from './GroupChips';
+import PercentStateChangeCard from './PercentStateChangeCard';
 import SeverityCard from './SeverityCard';
 
 export interface DetailCardLine {

@@ -2,8 +2,8 @@ import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { Chip } from '@mui/material';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutline';
+import { Chip } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
 

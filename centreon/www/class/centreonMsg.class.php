@@ -67,7 +67,36 @@ class CentreonMsg
     }
 
     /**
-     * Sets style of text inside Div
+     * Display an information message.
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    public function info(string $message): void
+    {
+        $this->setTextStyle("bold");
+        $this->setText($message);
+        $this->setTimeOut("3");
+    }
+
+    /**
+     * Display an error message.
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    public function error(string $message): void
+    {
+        $this->setTextColor("rgb(255, 102, 102)");
+        $this->setTextStyle("bold");
+        $this->setText($message);
+        $this->setTimeOut("3");
+    }
+
+    /*
+ 	   * Sets style of text inside Div
      *
      * @param $style
      *

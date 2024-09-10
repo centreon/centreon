@@ -20,8 +20,13 @@
 
 namespace ConfigGenerateRemote\Relations;
 
+use CentreonDB;
+use CentreonDbException;
+use CentreonLog;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
+use PDO;
+use Pimple\Container;
 
 /**
  * Class
@@ -31,6 +36,8 @@ use Exception;
  */
 class MacroHost extends AbstractObject
 {
+    /** @var CentreonDB */
+    private CentreonDB $databaseConnection;
     /** @var string */
     protected $table = 'on_demand_macro_host';
     /** @var string */
@@ -45,20 +52,89 @@ class MacroHost extends AbstractObject
     ];
 
     /**
-     * Add relation
-     *
-     * @param array $object
-     * @param int $hostId
-     *
-     * @return void
-     * @throws Exception
+     * @param Container $dependencyInjector
      */
-    public function add(array $object, int $hostId)
+    public function __construct(Container $dependencyInjector)
     {
-        if ($this->checkGenerate($hostId)) {
-            return null;
+        try {
+            parent::__construct($dependencyInjector);
+            if (!isset($this->backendInstance->db)) {
+                throw new Exception('Database connection is not set');
+            }
+            $this->databaseConnection = $this->backendInstance->db;
+        } catch (Exception $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: 'Cannot connect to database: ' . $ex->getMessage(),
+                exception: $ex
+            );
         }
 
-        $this->generateObjectInFile($object, $hostId);
+    }
+
+    /**
+     * Get host macro from host id
+     *
+     * @param int $hostId
+     * @return array<array{
+     *     "host_macro_id":int,
+     *     "host_macro_name":string,
+     *     "host_macro_value":string,
+     *     "is_password":null|int,
+     *     "description":null|string,
+     *     "host_host_id":int
+     * }>
+     */
+    public function getHostMacroByHostId(int $hostId): array
+    {
+        try {
+            $statement = $this->databaseConnection->prepareQuery(
+                "SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description, host_host_id
+                FROM on_demand_macro_host
+                WHERE host_host_id = :host_id"
+            );
+            $this->databaseConnection->executePreparedQuery($statement, ['host_id' => $hostId]);
+            $macros = $statement->fetchAll(PDO::FETCH_ASSOC);
+            $this->writeMacrosHost($hostId, $macros);
+            CentreonLog::create()->info(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: 'Host macros generated',
+                customContext: [$macros]
+            );
+            return $macros;
+        } catch (CentreonDbException $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $ex->getMessage(),
+                customContext: ['host_id' => $hostId],
+                exception: $ex,
+            );
+        }
+    }
+
+    /**
+     * Generate host macros
+     *
+     * @param int $hostId
+     * @param array<array{
+     *      "host_macro_id":int,
+     *      "host_macro_name":string,
+     *      "host_macro_value":string,
+     *      "is_password":null|int,
+     *      "description":null|string,
+     *      "host_host_id":int
+     *  }> $macros
+     *
+     * @throws Exception
+     */
+    private function writeMacrosHost(int $hostId, array $macros): void
+    {
+        if ($this->checkGenerate($hostId)) {
+            return;
+        }
+
+        foreach ($macros as $value) {
+            $this->generateObjectInFile($value, $hostId);
+        }
     }
 }

@@ -1,19 +1,19 @@
-import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 import {
+  T,
   cond,
   equals,
   flatten,
   identity,
   includes,
   isNil,
-  split,
-  T
+  split
 } from 'ramda';
-import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import { alpha, Box, FormHelperText, Typography } from '@mui/material';
+import { Box, FormHelperText, Typography, alpha } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 

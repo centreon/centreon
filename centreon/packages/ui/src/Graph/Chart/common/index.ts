@@ -1,7 +1,7 @@
-import * as Curve from '@visx/curve';
 import { always, cond, equals, isNil } from 'ramda';
 
 import { alpha } from '@mui/material';
+import { curveCatmullRom, curveLinear, curveStep } from '@visx/curve';
 
 const commonTickLabelProps = {
   fontFamily: 'Roboto, sans-serif',
@@ -32,11 +32,11 @@ const maxLinesDisplayedLegend = 11;
 
 const getCurveFactory = (
   curve: 'linear' | 'step' | 'natural'
-): typeof Curve.curveLinear => {
+): typeof curveLinear => {
   return cond([
-    [equals('linear'), always(Curve.curveLinear)],
-    [equals('step'), always(Curve.curveStep)],
-    [equals('natural'), always(Curve.curveCatmullRom)]
+    [equals('linear'), always(curveLinear)],
+    [equals('step'), always(curveStep)],
+    [equals('natural'), always(curveCatmullRom)]
   ])(curve);
 };
 

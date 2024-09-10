@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 
-import { complement, isEmpty, pluck } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { complement, isEmpty, pluck } from 'ramda';
 
 import { filtersAtom, searchAtom } from '../../atom';
 

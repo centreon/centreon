@@ -1,81 +1,81 @@
-import { equals, reject, path } from 'ramda';
-import axios from 'axios';
-import mockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
+import axios from 'axios';
 import { Provider, createStore } from 'jotai';
+import mockDate from 'mockdate';
+import { path, equals, reject } from 'ramda';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
-  setUrlQueryParameters,
+  getSearchQueryParameterValue,
   getUrlQueryParameters,
-  getSearchQueryParameterValue
+  setUrlQueryParameters
 } from '@centreon/ui';
-import {
-  render,
-  waitFor,
-  fireEvent,
-  RenderResult,
-  act,
-  screen
-} from '@centreon/ui/test/testRenderer';
 import {
   ListingVariant,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
-
 import {
-  labelStatusInformation,
-  labelLastCheck,
-  label7Days,
+  RenderResult,
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from '@centreon/ui/test/testRenderer';
+
+import { CriteriaNames } from '../Filter/Criterias/models';
+import { defaultGraphOptions } from '../Graph/Performance/ExportableGraphWithTimeline/graphOptionsAtoms';
+import { buildResourcesEndpoint } from '../Listing/api/endpoint';
+import useListing from '../Listing/useListing';
+import { ResourceType } from '../models';
+import { cancelTokenRequestParam } from '../testUtils';
+import Context, { ResourceContext } from '../testUtils/Context';
+import useFilter from '../testUtils/useFilter';
+import useLoadDetails from '../testUtils/useLoadDetails';
+import {
   label1Day,
+  label7Days,
   label31Days,
-  labelCopy,
+  labelAcknowledgement,
+  labelAvg,
+  labelBackward,
+  labelBeforeLastYear,
   labelCommand,
   labelComment,
+  labelCompactTimePeriod,
   labelConfigure,
+  labelCopy,
+  labelCopyLink,
   labelDetails,
+  labelDisplayEvents,
+  labelDowntime,
+  labelEndDateGreaterThanStartDate,
+  labelExportToCSV,
+  labelForward,
+  labelGraph,
+  labelLastCheck,
+  labelLastMonth,
+  labelLastWeek,
+  labelLastYear,
+  labelMax,
+  labelMin,
+  labelMonitoringServer,
+  labelNotificationStatus,
+  labelServices,
+  labelStatusInformation,
+  labelThisWeek,
+  labelToday,
   labelViewLogs,
   labelViewReport,
-  labelCopyLink,
-  labelServices,
-  labelAcknowledgement,
-  labelDowntime,
-  labelDisplayEvents,
-  labelForward,
-  labelBackward,
-  labelEndDateGreaterThanStartDate,
-  labelMin,
-  labelMax,
-  labelAvg,
-  labelCompactTimePeriod,
-  labelMonitoringServer,
-  labelToday,
-  labelYesterday,
-  labelThisWeek,
-  labelLastWeek,
-  labelLastMonth,
-  labelLastYear,
-  labelBeforeLastYear,
-  labelGraph,
-  labelNotificationStatus,
-  labelExportToCSV
+  labelYesterday
 } from '../translatedLabels';
-import Context, { ResourceContext } from '../testUtils/Context';
-import useListing from '../Listing/useListing';
-import { buildResourcesEndpoint } from '../Listing/api/endpoint';
-import { cancelTokenRequestParam } from '../testUtils';
-import { defaultGraphOptions } from '../Graph/Performance/ExportableGraphWithTimeline/graphOptionsAtoms';
-import useFilter from '../testUtils/useFilter';
-import { CriteriaNames } from '../Filter/Criterias/models';
-import { ResourceType } from '../models';
-import useLoadDetails from '../testUtils/useLoadDetails';
 
+import { DetailsUrlQueryParameters } from './models';
 import { CustomTimePeriodProperty } from './tabs/Graph/models';
+import { getTypeIds } from './tabs/Timeline/Event';
 import { buildListTimelineEventsEndpoint } from './tabs/Timeline/api';
 import useDetails from './useDetails';
-import { getTypeIds } from './tabs/Timeline/Event';
-import { DetailsUrlQueryParameters } from './models';
 
 import Details from '.';
 

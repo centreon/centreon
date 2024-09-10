@@ -1,15 +1,15 @@
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
 
+import { DisplayType as DisplayTypeEnum } from '../../models';
 import {
+  labelAll,
   labelDisplayView,
   labelViewByHost,
-  labelViewByService,
-  labelAll
+  labelViewByService
 } from '../../translatedLabels';
-import { DisplayType as DisplayTypeEnum } from '../../models';
 
 import Option from './Option';
 import { useStyles } from './displayType.styles';

@@ -135,6 +135,8 @@ before(() => {
     jsonName: 'admin'
   });
 
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -481,7 +483,7 @@ Then(
   'a message should be displayed indicating that thresholds are disabled',
   () => {
     cy.contains(
-      'Thresholds are automatically hidden as soon as you select 2 metric units.'
+      'Thresholds are automatically hidden when you select several metrics with different units.'
     ).should('exist');
   }
 );

@@ -4,6 +4,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { generatePath } from 'react-router';
 
+import routeMap from '../../../../reactRoutes/routeMap';
 import {
   Dashboard,
   DashboardRole,
@@ -13,14 +14,13 @@ import {
 import { useDeleteAccessRightsContact } from '../../../api/useDeleteAccessRightsContact';
 import { useDeleteAccessRightsContactGroup } from '../../../api/useDeleteAccessRightsContactGroup';
 import { routerHooks } from '../../../routerHooks';
-import routeMap from '../../../../reactRoutes/routeMap';
 
 import {
-  pageAtom,
+  askBeforeRevokeAtom,
   limitAtom,
-  sortOrderAtom,
+  pageAtom,
   sortFieldAtom,
-  askBeforeRevokeAtom
+  sortOrderAtom
 } from './atom';
 import { formatListingData } from './utils';
 

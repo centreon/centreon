@@ -22,4 +22,5 @@ systemctl stop cbd
 systemctl stop php8.1-fpm
 systemctl stop apache2
 
-rm -f /tmp/gorgone/*.ipc /var/log/centreon*/*.log /var/lib/centreon-gorgone/history.sdb
+rm -f /tmp/gorgone/*.ipc /var/lib/centreon-gorgone/history.sdb
+bash -c "find /var/log/centreon{,-engine,-broker,-gorgone} /var/lib/centreon-{engine,broker} /var/lib/centreon/{centcore,metrics,status} -type f -delete"

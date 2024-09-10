@@ -4,12 +4,12 @@ import { closestCenter } from '@dnd-kit/core';
 import { verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 
-import { InputPropsWithoutGroup } from '../models';
 import { SortableItems, Subtitle } from '../../..';
+import { InputPropsWithoutGroup } from '../models';
 
-import { useList } from './useList';
-import { useListStyles } from './List.styles';
 import Content, { ContentProps } from './Content';
+import { useListStyles } from './List.styles';
+import { useList } from './useList';
 
 const List = ({
   list,

@@ -1,74 +1,84 @@
 import { Fragment, useMemo } from 'react';
 
-import * as R from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
+import { makeStyles } from 'tss-react/mui';
 
 import { Divider, Typography } from '@mui/material';
 
-import CollapsibleGroup from '../CollapsibleGroup';
 import { GroupDirection } from '..';
+import CollapsibleGroup from '../CollapsibleGroup';
 
-import { Group, InputProps, InputPropsWithoutGroup, InputType } from './models';
+import {
+  T,
+  always,
+  any,
+  ascend,
+  cond,
+  equals,
+  filter,
+  find,
+  groupBy,
+  isEmpty,
+  isNil,
+  keys,
+  last,
+  not,
+  pluck,
+  prop,
+  propEq,
+  reduce,
+  sort,
+  toPairs
+} from 'ramda';
 import Autocomplete from './Autocomplete';
-import SwitchInput from './Switch';
-import RadioInput from './Radio';
-import TextInput from './Text';
+import Checkbox from './Checkbox';
+import CheckboxGroup from './CheckboxGroup';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
+import Custom from './Custom';
 import FieldsTable from './FieldsTable/FieldsTable';
 import Grid from './Grid';
-import CheckboxGroup from './CheckboxGroup';
-import Checkbox from './Checkbox';
-import Custom from './Custom';
-import LoadingSkeleton from './LoadingSkeleton';
 import List from './List/List';
+import LoadingSkeleton from './LoadingSkeleton';
+import RadioInput from './Radio';
+import SwitchInput from './Switch';
+import TextInput from './Text';
+import { Group, InputProps, InputPropsWithoutGroup, InputType } from './models';
 
-export const getInput = R.cond<
+export const getInput = cond<
   Array<InputType>,
   (props: InputPropsWithoutGroup) => JSX.Element | null
 >([
+  [equals(InputType.Switch) as (b: InputType) => boolean, always(SwitchInput)],
+  [equals(InputType.Radio) as (b: InputType) => boolean, always(RadioInput)],
   [
-    R.equals(InputType.Switch) as (b: InputType) => boolean,
-    R.always(SwitchInput)
+    equals(InputType.SingleAutocomplete) as (b: InputType) => boolean,
+    always(Autocomplete)
   ],
   [
-    R.equals(InputType.Radio) as (b: InputType) => boolean,
-    R.always(RadioInput)
+    equals(InputType.MultiAutocomplete) as (b: InputType) => boolean,
+    always(Autocomplete)
   ],
   [
-    R.equals(InputType.SingleAutocomplete) as (b: InputType) => boolean,
-    R.always(Autocomplete)
+    equals(InputType.MultiConnectedAutocomplete) as (b: InputType) => boolean,
+    always(ConnectedAutocomplete)
   ],
   [
-    R.equals(InputType.MultiAutocomplete) as (b: InputType) => boolean,
-    R.always(Autocomplete)
+    equals(InputType.SingleConnectedAutocomplete) as (b: InputType) => boolean,
+    always(ConnectedAutocomplete)
   ],
   [
-    R.equals(InputType.MultiConnectedAutocomplete) as (b: InputType) => boolean,
-    R.always(ConnectedAutocomplete)
+    equals(InputType.FieldsTable) as (b: InputType) => boolean,
+    always(FieldsTable)
   ],
+  [equals(InputType.Grid) as (b: InputType) => boolean, always(Grid)],
+  [equals(InputType.Custom) as (b: InputType) => boolean, always(Custom)],
+  [equals(InputType.Checkbox) as (b: InputType) => boolean, always(Checkbox)],
   [
-    R.equals(InputType.SingleConnectedAutocomplete) as (
-      b: InputType
-    ) => boolean,
-    R.always(ConnectedAutocomplete)
+    equals(InputType.CheckboxGroup) as (b: InputType) => boolean,
+    always(CheckboxGroup)
   ],
-  [
-    R.equals(InputType.FieldsTable) as (b: InputType) => boolean,
-    R.always(FieldsTable)
-  ],
-  [R.equals(InputType.Grid) as (b: InputType) => boolean, R.always(Grid)],
-  [R.equals(InputType.Custom) as (b: InputType) => boolean, R.always(Custom)],
-  [
-    R.equals(InputType.Checkbox) as (b: InputType) => boolean,
-    R.always(Checkbox)
-  ],
-  [
-    R.equals(InputType.CheckboxGroup) as (b: InputType) => boolean,
-    R.always(CheckboxGroup)
-  ],
-  [R.equals(InputType.List) as (b: InputType) => boolean, R.always(List)],
-  [R.T, R.always(TextInput)]
+  [equals(InputType.List) as (b: InputType) => boolean, always(List)],
+  [T, always(TextInput)]
 ]);
 
 interface StylesProps {
@@ -86,13 +96,13 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
     justifyContent: 'flex-end'
   },
   divider: {
-    margin: R.equals(groupDirection, GroupDirection.Horizontal)
+    margin: equals(groupDirection, GroupDirection.Horizontal)
       ? theme.spacing(0, 2)
       : theme.spacing(2, 0)
   },
   groups: {
     display: 'flex',
-    flexDirection: R.equals(groupDirection, GroupDirection.Horizontal)
+    flexDirection: equals(groupDirection, GroupDirection.Horizontal)
       ? 'row'
       : 'column'
   },
@@ -129,9 +139,9 @@ const Inputs = ({
   const { classes, cx } = useStyles({ groupDirection });
   const formikContext = useFormikContext<FormikValues>();
 
-  const groupsName = R.pluck('name', groups);
+  const groupsName = pluck('name', groups);
 
-  const visibleInputs = R.filter(
+  const visibleInputs = filter(
     ({ hideInput }) =>
       formikContext ? !hideInput?.(formikContext?.values) || false : true,
     inputs
@@ -139,30 +149,30 @@ const Inputs = ({
 
   const inputsByGroup = useMemo(
     () =>
-      R.groupBy(
-        ({ group }) => R.find(R.equals(group), groupsName) as string,
+      groupBy(
+        ({ group }) => find(equals(group), groupsName) as string,
         visibleInputs
       ),
     [visibleInputs]
   ) as Record<string, Array<InputProps>>;
 
   const sortedGroupNames = useMemo(() => {
-    const sortedGroups = R.sort(R.ascend(R.prop('order')), groups);
+    const sortedGroups = sort(ascend(prop('order')), groups);
 
-    const usedGroups = R.filter(
-      ({ name }) => R.any(R.equals(name), R.keys(inputsByGroup)),
+    const usedGroups = filter(
+      ({ name }) => any(equals(name), keys(inputsByGroup)),
       sortedGroups
     );
 
-    return R.pluck('name', usedGroups);
+    return pluck('name', usedGroups);
   }, []);
 
   const sortedInputsByGroup = useMemo(
     () =>
-      R.reduce<string, Record<string, Array<InputProps>>>(
+      reduce<string, Record<string, Array<InputProps>>>(
         (acc, value) => ({
           ...acc,
-          [value]: R.sort(
+          [value]: sort(
             (a, b) => (b?.required ? 1 : 0) - (a?.required ? 1 : 0),
             inputsByGroup[value]
           )
@@ -173,24 +183,24 @@ const Inputs = ({
     [visibleInputs]
   );
 
-  const lastGroup = useMemo(() => R.last(sortedGroupNames), []);
+  const lastGroup = useMemo(() => last(sortedGroupNames), []);
 
   const normalizedInputsByGroup = (
-    R.isEmpty(sortedInputsByGroup)
+    isEmpty(sortedInputsByGroup)
       ? [[null, visibleInputs]]
-      : R.toPairs(sortedInputsByGroup)
+      : toPairs(sortedInputsByGroup)
   ) as Array<[string | null, Array<InputProps>]>;
 
   return (
     <div className={classes.groups}>
       {normalizedInputsByGroup.map(([groupName, groupedInputs], index) => {
-        const hasGroupTitle = R.not(R.isNil(groupName));
+        const hasGroupTitle = not(isNil(groupName));
 
         const groupProps = hasGroupTitle
-          ? R.find(R.propEq(groupName, 'name'), groups)
+          ? find(propEq(groupName, 'name'), groups)
           : ({} as Group);
 
-        const isFirstElement = areGroupsOpen || R.equals(index, 0);
+        const isFirstElement = areGroupsOpen || equals(index, 0);
 
         return (
           <Fragment key={groupName}>
@@ -240,18 +250,17 @@ const Inputs = ({
                 </div>
               </CollapsibleGroup>
             </div>
-            {hasGroupTitle &&
-              R.not(R.equals(lastGroup, groupName as string)) && (
-                <Divider
-                  flexItem
-                  className={classes.divider}
-                  orientation={
-                    R.equals(groupDirection, GroupDirection.Horizontal)
-                      ? 'vertical'
-                      : 'horizontal'
-                  }
-                />
-              )}
+            {hasGroupTitle && not(equals(lastGroup, groupName as string)) && (
+              <Divider
+                flexItem
+                className={classes.divider}
+                orientation={
+                  equals(groupDirection, GroupDirection.Horizontal)
+                    ? 'vertical'
+                    : 'horizontal'
+                }
+              />
+            )}
           </Fragment>
         );
       })}

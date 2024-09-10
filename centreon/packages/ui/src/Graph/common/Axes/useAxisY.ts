@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { isNil } from 'ramda';
 import { Axis } from '@visx/visx';
+import { isNil } from 'ramda';
 
 import { useTheme } from '@mui/material';
 

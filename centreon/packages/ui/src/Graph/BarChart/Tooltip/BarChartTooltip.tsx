@@ -1,5 +1,7 @@
 import { useAtomValue } from 'jotai';
 import {
+  path,
+  T,
   always,
   cond,
   equals,
@@ -7,20 +9,18 @@ import {
   gt,
   has,
   isNil,
-  path,
   prop,
   reverse,
-  sortBy,
-  T
+  sortBy
 } from 'ramda';
 
 import { Box, Typography } from '@mui/material';
 
-import { TimeValue } from '../../common/timeSeries/models';
 import { useLocaleDateTimeFormat } from '../../../utils';
-import { formatMetricValueWithUnit } from '../../common/timeSeries';
-import { tooltipDataAtom } from '../atoms';
 import { Tooltip } from '../../Chart/models';
+import { formatMetricValueWithUnit } from '../../common/timeSeries';
+import { TimeValue } from '../../common/timeSeries/models';
+import { tooltipDataAtom } from '../atoms';
 
 import { useBarChartTooltipStyles } from './useBarChartTooltipStyles';
 

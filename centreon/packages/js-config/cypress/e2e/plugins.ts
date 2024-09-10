@@ -31,7 +31,6 @@ export default (
 
       launchOptions.args.push(`--window-size=${width},${height}`);
     }
-    launchOptions.args.push(`--window-size=${width},${height}`);
 
     return launchOptions;
   });

@@ -4,10 +4,10 @@ import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelAuthor,
-  labelFixed,
-  labelStartTime,
+  labelComment,
   labelEndTime,
-  labelComment
+  labelFixed,
+  labelStartTime
 } from '../../../translatedLabels';
 import useStyles from '../State.styles';
 

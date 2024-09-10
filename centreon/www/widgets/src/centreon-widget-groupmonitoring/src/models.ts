@@ -1,6 +1,6 @@
 import { SeverityCode } from '@centreon/ui';
 
-import { Data, CommonWidgetProps, SortOrder, NamedEntity } from '../../models';
+import { CommonWidgetProps, Data, NamedEntity, SortOrder } from '../../models';
 
 export interface PanelOptions {
   limit?: number;

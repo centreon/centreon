@@ -35,6 +35,9 @@
  */
 
 // file centreon.config.php may not exist in test environment
+
+use App\Kernel;
+use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -74,6 +77,7 @@ require_once dirname(__FILE__) . '/severity.class.php';
 require_once dirname(__FILE__) . '/timeperiod.class.php';
 require_once dirname(__FILE__) . '/timezone.class.php';
 require_once dirname(__FILE__) . '/vault.class.php';
+require_once dirname(__FILE__) . '/AdditionalConnectorVmWareV6.class.php';
 
 /**
  * Class
@@ -291,6 +295,14 @@ class Generate
         Resource::getInstance($this->dependencyInjector)->reset();
         Engine::getInstance($this->dependencyInjector)->reset();
         Broker::getInstance($this->dependencyInjector)->reset();
+
+        $kernel = Kernel::createForWeb();
+        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        (new AdditionalConnectorVmWareV6(
+            Backend::getInstance($this->dependencyInjector),
+            $readAdditionalConnectorRepository
+        ))->reset();
         $this->resetModuleObjects();
     }
 
@@ -309,6 +321,13 @@ class Generate
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
+        $kernel = Kernel::createForWeb();
+        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        (new AdditionalConnectorVmWareV6(
+            Backend::getInstance($this->dependencyInjector),
+            $readAdditionalConnectorRepository
+        ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         Host::getInstance($this->dependencyInjector)->generateFromPollerId(

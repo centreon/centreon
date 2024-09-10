@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 

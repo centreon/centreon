@@ -132,7 +132,7 @@ class Backend
      * @return string
      * @throws Exception
      */
-    protected function createDirectories($paths)
+    public function createDirectories($paths)
     {
         $dir = '';
         $dir_append = '';

@@ -1,31 +1,14 @@
-import { not, prop } from 'ramda';
 import { FormikValues } from 'formik';
+import { not, prop } from 'ramda';
 
 import { InputType } from '@centreon/ui';
 import type { InputProps } from '@centreon/ui';
 
 import {
-  labelBothIdentityProviderAndCentreonUI,
-  labelCentreonUIOnly,
-  labelCertificate,
-  labelDefineRelationBetweenRolesAndAclAccessGroups,
-  labelEmailAttribute,
-  labelEnableSAMLAuthentication,
-  labelFullNameAttribute,
-  labelEntityIdURL,
-  labelLogoutFrom,
-  labelLogoutUrl,
-  labelRemoteLoginUrl,
-  labelSAMLOnly,
-  labelUserIdAttribute
-} from '../translatedLabels';
-import {
-  labelActivation,
-  labelAuthenticationConditions,
-  labelAutoImportUsers,
-  labelGroupsMapping,
-  labelIdentityProvider
-} from '../../translatedLabels';
+  accessGroupsEndpoint,
+  contactGroupsEndpoint,
+  contactTemplatesEndpoint
+} from '../../api/endpoints';
 import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
@@ -48,10 +31,27 @@ import {
   labelRolesMapping
 } from '../../shared/translatedLabels';
 import {
-  accessGroupsEndpoint,
-  contactGroupsEndpoint,
-  contactTemplatesEndpoint
-} from '../../api/endpoints';
+  labelActivation,
+  labelAuthenticationConditions,
+  labelAutoImportUsers,
+  labelGroupsMapping,
+  labelIdentityProvider
+} from '../../translatedLabels';
+import {
+  labelBothIdentityProviderAndCentreonUI,
+  labelCentreonUIOnly,
+  labelCertificate,
+  labelDefineRelationBetweenRolesAndAclAccessGroups,
+  labelEmailAttribute,
+  labelEnableSAMLAuthentication,
+  labelEntityIdURL,
+  labelFullNameAttribute,
+  labelLogoutFrom,
+  labelLogoutUrl,
+  labelRemoteLoginUrl,
+  labelSAMLOnly,
+  labelUserIdAttribute
+} from '../translatedLabels';
 
 const isAutoImportDisabled = (values: FormikValues): boolean =>
   not(prop('autoImport', values));

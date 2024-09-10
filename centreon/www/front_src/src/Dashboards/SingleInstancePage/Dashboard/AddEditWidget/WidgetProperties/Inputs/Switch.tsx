@@ -1,18 +1,18 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { Box, FormControlLabel, Typography } from '@mui/material';
 
 import { Switch } from '@centreon/ui/components';
 
-import { Widget, WidgetPropertyProps } from '../../models';
-import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../components/Subtitle';
+import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
+import { Widget, WidgetPropertyProps } from '../../models';
 
-import { getProperty } from './utils';
 import { useSwitchStyles } from './Inputs.styles';
+import { getProperty } from './utils';
 
 const WidgetSwitch = ({
   propertyName,

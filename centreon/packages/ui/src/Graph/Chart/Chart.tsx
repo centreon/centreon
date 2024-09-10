@@ -1,24 +1,30 @@
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type MutableRefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
-import { equals, flatten, isNil, pluck, reject } from 'ramda';
 import { useAtom } from 'jotai';
+import { equals, flatten, isNil, pluck, reject } from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
+import { useDeepCompare } from '../../utils';
+import BarGroup from '../BarChart/BarGroup';
+import BaseChart from '../common/BaseChart/BaseChart';
+import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
+import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
+import Thresholds from '../common/Thresholds/Thresholds';
+import type { Thresholds as ThresholdsModel } from '../common/models';
 import {
   getUnits,
   getXScale,
   getXScaleBand,
   getYScalePerUnit
 } from '../common/timeSeries';
-import { Line } from '../common/timeSeries/models';
-import { Thresholds as ThresholdsModel } from '../common/models';
-import BaseChart from '../common/BaseChart/BaseChart';
-import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
-import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
-import Thresholds from '../common/Thresholds/Thresholds';
-import { useDeepCompare } from '../../utils';
-import BarGroup from '../BarChart/BarGroup';
+import type { Line } from '../common/timeSeries/models';
 
 import Lines from './BasicComponents/Lines';
 import {
@@ -27,15 +33,20 @@ import {
   lowerLineName,
   upperLineName
 } from './BasicComponents/Lines/Threshold/models';
+import { useChartStyles } from './Chart.styles';
 import InteractionWithGraph from './InteractiveComponents';
+import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import { margin } from './common';
-import { Data, GlobalAreaLines, GraphInterval, LineChartProps } from './models';
-import { useIntersection } from './useChartIntersection';
-import { useChartStyles } from './Chart.styles';
-import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 import { thresholdTooltipAtom } from './graphAtoms';
+import type {
+  Data,
+  GlobalAreaLines,
+  GraphInterval,
+  LineChartProps
+} from './models';
+import { useIntersection } from './useChartIntersection';
 
 interface Props extends LineChartProps {
   graphData: Data;
@@ -95,6 +106,7 @@ const Chart = ({
   const [linesGraph, setLinesGraph] = useState<Array<Line>>(
     filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
   );
+
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const [thresholdTooltip, setThresholdTooltip] = useAtom(thresholdTooltipAtom);
@@ -190,7 +202,7 @@ const Chart = ({
         filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
       );
     },
-    useDeepCompare([lines])
+    useDeepCompare([lines, shapeLines?.areaThresholdLines])
   );
 
   const graphTooltipData = useGraphTooltip({
@@ -219,7 +231,7 @@ const Chart = ({
 
   return (
     <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
-      <>
+      <div className={classes.baseWrapper}>
         <BaseChart
           base={baseAxis}
           graphWidth={graphWidth}
@@ -329,7 +341,7 @@ const Chart = ({
           </GraphValueTooltip>
         </BaseChart>
         {displayTooltip && <GraphTooltip {...tooltip} {...graphTooltipData} />}
-      </>
+      </div>
     </ClickAwayListener>
   );
 };

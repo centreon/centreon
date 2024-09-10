@@ -9,11 +9,11 @@ import ReplayIcon from '@mui/icons-material/Replay';
 
 import { IconButton } from '../Button';
 
-import { minimapScale, radius } from './constants';
-import { useZoom } from './useZoom';
-import { useZoomStyles } from './Zoom.styles';
 import Minimap from './Minimap';
+import { useZoomStyles } from './Zoom.styles';
+import { minimapScale, radius } from './constants';
 import { ChildrenProps, MinimapPosition, ZoomState } from './models';
+import { useZoom } from './useZoom';
 
 export interface Props {
   children: ({ width, height, transformMatrix }: ChildrenProps) => JSX.Element;

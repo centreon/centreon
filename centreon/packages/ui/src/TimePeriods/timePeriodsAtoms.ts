@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { atom } from 'jotai';
-import { always, cond, gte, isNil, T } from 'ramda';
+import { T, always, cond, gte, isNil } from 'ramda';
 
 import {
   defaultTimePeriod,

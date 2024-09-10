@@ -72,13 +72,13 @@ export const labelCriticalThreshold = 'Critical threshold';
 export const labelDefault = 'Default';
 export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
-  'Thresholds are automatically hidden as soon as you select 2 metric units.';
+  'Thresholds are automatically hidden when you select several metrics with different units.';
 export const labelDisplayAs = 'Display as';
 export const labelText = 'Text';
 export const labelGauge = 'Gauge';
 export const labelBar = 'Bar chart';
 export const labelDefaultValueIsDefinedByFirstMetricUsed =
-  'The default value is the value defined for the first metric used.';
+  'The default value is the value defined for the first selected metric.';
 export const labelNone = 'none';
 export const labelValueFormat = 'Value format';
 export const labelRawValue = 'Raw value';
@@ -131,3 +131,8 @@ export const labelDiscard = 'Discard';
 export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
 export const labelIfYouClickOnDiscard =
   'If you click on Discard, your changes will not be saved.';
+export const labelSelectTimezone = 'Select time zone';
+export const labelSelectTimeFormat = 'Select time format';
+export const labelBackgroundColor = 'Background color';
+export const label12Hours = '12 hours';
+export const label24Hours = '24 hours';

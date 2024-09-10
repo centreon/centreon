@@ -2,8 +2,8 @@ import { path } from 'ramda';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { labelInDowntime, labelAcknowledged } from '../../translatedLabels';
 import { Resource } from '../../models';
+import { labelAcknowledged, labelInDowntime } from '../../translatedLabels';
 import HoverChip from '../HoverChip';
 
 import AcknowledgeChip from './Chip/Acknowledge';

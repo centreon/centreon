@@ -17289,8 +17289,45 @@ msgstr "Erweiterter Modus"
 #  msgid "Error while searching for available pollers for type '%s'"
 #  msgstr ""
 
+# msgid "Select time zone"
+# msgstr ""
+
+# msgid "Select time format"
+# msgstr ""
+
+# msgid "12 hours"
+# msgstr ""
+
+# msgid "24 hours"
+# msgstr ""
+
+# msgid "Ends at"
+# msgstr ""
+
+# msgid "Time zone"
+# msgstr ""
+
+# msgid "Date format"
+# msgstr ""
+
+# msgid "Time format"
+# msgstr ""
+
+# msgid "Countdown"
+# msgstr ""
+
+# msgid "Timer"
+# msgstr ""
+
+# msgid "Show time zone"
+# msgstr ""
+
+# msgid "Show date"
+# msgstr ""
+
 #  msgid "Error while updating an additional connector configuration"
 #  msgstr ""
 
 #  msgid "Changing type of an existing additional connector configuration is not allowed"
 #  msgstr ""
+
