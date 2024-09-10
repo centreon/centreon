@@ -10,6 +10,6 @@ Feature: Additional Connector Configuration
     Then a pop-up menu with the form is displayed
     And all of the informations of the additional connector configuration are correct
     When the user udpates some informations
-    And the user clicks on Save
+    And the user clicks on Update
     Then the form is closed
     And the informations are successfully saved
