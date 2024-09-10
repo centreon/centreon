@@ -20,8 +20,10 @@
 
 namespace ConfigGenerateRemote\Relations;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Pimple\Container;
 
 /**
  * Class
@@ -62,9 +64,9 @@ class TrapsGroup extends AbstractObject
     /**
      * TrapsGroup constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
@@ -129,10 +131,12 @@ class TrapsGroup extends AbstractObject
     /**
      * Generate trap group
      *
-     * @param integer $trapId
+     * @param int $trapId
      * @param array $trapLinkedCache
      * @param array $object
+     *
      * @return void
+     * @throws Exception
      */
     public function generateObject(int $trapId, array $trapLinkedCache, array &$object)
     {
@@ -148,8 +152,10 @@ class TrapsGroup extends AbstractObject
     /**
      * Get trap linked trap groups
      *
-     * @param integer $trapId
+     * @param int $trapId
+     *
      * @return void
+     * @throws Exception
      */
     public function getTrapGroupsByTrapId(int $trapId)
     {

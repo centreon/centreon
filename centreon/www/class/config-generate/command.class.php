@@ -34,13 +34,23 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Command
+ */
 class Command extends AbstractObject
 {
+    /** @var null */
     private $commands = null;
 
+    /** @var null */
     private $mail_bin = null;
+    /** @var string */
     protected $generate_filename = 'commands.cfg';
-    protected $object_name = 'command';
+    /** @var string */
+    protected string $object_name = 'command';
+    /** @var string */
     protected $attributes_select = '
         command_id,
         command_name,
@@ -48,6 +58,7 @@ class Command extends AbstractObject
         connector.name as connector,
         enable_shell
     ';
+    /** @var string[] */
     protected $attributes_write = array(
         'command_name',
         'command_line',
@@ -67,6 +78,10 @@ class Command extends AbstractObject
         $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getMailBin()
     {
         $stmt = $this->backend_instance->db->prepare("SELECT
@@ -82,6 +97,15 @@ class Command extends AbstractObject
         }
     }
 
+    /**
+     * @param $command_id
+     *
+     * @return mixed|null
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     public function generateFromCommandId($command_id)
     {
         $name = null;

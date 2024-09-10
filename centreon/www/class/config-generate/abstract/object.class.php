@@ -33,6 +33,12 @@
  *
  */
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 /**
  * Class
  *
@@ -43,8 +49,8 @@ abstract class AbstractObject
 
     protected const VAULT_PATH_REGEX = '/^secret::[^:]*::/';
 
-    /** @var */
-    public $object_name;
+    /** @var string */
+    protected string $object_name;
 
     /** @var Backend|null  */
     protected $backend_instance = null;
@@ -72,7 +78,7 @@ abstract class AbstractObject
     protected $engine = true;
     /** @var bool */
     protected $broker = false;
-    /** @var \Pimple\Container */
+    /** @var Container */
     protected $dependencyInjector;
 
     /** @var bool */
@@ -83,17 +89,17 @@ abstract class AbstractObject
      *
      * @return void
      * @throws LogicException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function getVaultConfigurationStatus(): void
     {
-        $kernel = \App\Kernel::createForWeb();
+        $kernel = Kernel::createForWeb();
         $readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
         $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-        $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+        $logger = $kernel->getContainer()->get(Logger::class);
         $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null) {
             $this->isVaultEnabled = true;
@@ -101,10 +107,10 @@ abstract class AbstractObject
     }
 
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      * @return static
      */
-    public static function getInstance(\Pimple\Container $dependencyInjector): static
+    public static function getInstance(Container $dependencyInjector): static
     {
         /**
          * @var array<string, static>
@@ -125,9 +131,9 @@ abstract class AbstractObject
     /**
      * AbstractObject constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    protected function __construct(\Pimple\Container $dependencyInjector)
+    protected function __construct(Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);

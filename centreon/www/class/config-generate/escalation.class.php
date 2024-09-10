@@ -34,6 +34,10 @@
  *
  */
 
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 /**
  * Class
  *
@@ -72,7 +76,7 @@ class Escalation extends AbstractObject
     /** @var string */
     protected $generate_filename = 'escalations.cfg';
     /** @var string */
-    protected $object_name = 'hostescalation';
+    protected string $object_name = 'hostescalation';
     /** @var string */
     protected $attributes_select = "
         esc_id,
@@ -129,9 +133,11 @@ class Escalation extends AbstractObject
     /**
      * Escalation constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->host_instance = Host::getInstance($this->dependencyInjector);
@@ -232,6 +238,10 @@ class Escalation extends AbstractObject
      * @param $esc_id
      *
      * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function generateSubObjects(&$escalation, $esc_id)
     {
@@ -497,7 +507,10 @@ class Escalation extends AbstractObject
 
     /**
      * @return void
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function generateHosts()
     {
@@ -514,7 +527,10 @@ class Escalation extends AbstractObject
 
     /**
      * @return void
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function generateServices()
     {
@@ -538,7 +554,10 @@ class Escalation extends AbstractObject
 
     /**
      * @return void
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function generateHostgroups()
     {
@@ -559,7 +578,10 @@ class Escalation extends AbstractObject
 
     /**
      * @return void
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function generateServicegroups()
     {
@@ -580,7 +602,10 @@ class Escalation extends AbstractObject
 
     /**
      * @return void
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function doHostService()
     {
@@ -598,7 +623,10 @@ class Escalation extends AbstractObject
 
     /**
      * @return void
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function doHostgroup()
     {
@@ -612,7 +640,10 @@ class Escalation extends AbstractObject
 
     /**
      * @return void
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function doServicegroup()
     {
@@ -626,7 +657,10 @@ class Escalation extends AbstractObject
 
     /**
      * @return int|void
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function doMetaService()
     {
@@ -650,7 +684,10 @@ class Escalation extends AbstractObject
 
     /**
      * @return int|void
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function generateObjects()
     {

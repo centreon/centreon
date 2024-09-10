@@ -54,7 +54,7 @@ class ClassMetadataTest extends TestCase
 
     public function setUp(): void
     {
-        $this->metadata = new ClassMetadata;
+        $this->metadata = new ClassMetadata();
         EntityMock::loadMetadata($this->metadata);
     }
 
@@ -70,7 +70,7 @@ class ClassMetadataTest extends TestCase
 
     public function testGetPrimaryKeyColumn(): void
     {
-        $this->assertEquals('id_column', $this->metadata->getPrimaryKeyColumn('id'));
+        $this->assertEquals('id_column', $this->metadata->getPrimaryKeyColumn());
     }
 
     public function testGetType(): void

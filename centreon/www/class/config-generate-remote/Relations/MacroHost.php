@@ -21,11 +21,21 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class MacroHost
+ * @package ConfigGenerateRemote\Relations
+ */
 class MacroHost extends AbstractObject
 {
+    /** @var string */
     protected $table = 'on_demand_macro_host';
+    /** @var string */
     protected $generateFilename = 'on_demand_macro_host.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'host_host_id',
         'host_macro_name',
@@ -38,8 +48,10 @@ class MacroHost extends AbstractObject
      * Add relation
      *
      * @param array $object
-     * @param integer $hostId
+     * @param int $hostId
+     *
      * @return void
+     * @throws Exception
      */
     public function add(array $object, int $hostId)
     {

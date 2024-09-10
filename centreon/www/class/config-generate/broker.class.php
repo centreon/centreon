@@ -34,15 +34,25 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Broker
+ */
 class Broker extends AbstractObjectJSON
 {
     private const STREAM_BBDO_SERVER = 'bbdo_server';
     private const STREAM_BBDO_CLIENT = 'bbdo_client';
 
+    /** @var null */
     protected $engine = null;
+    /** @var null */
     protected $broker = null;
+    /** @var null */
     protected $generate_filename = null;
+    /** @var null */
     protected $object_name = null;
+    /** @var string */
     protected $attributes_select = '
         config_id,
         config_name,
@@ -62,6 +72,7 @@ class Broker extends AbstractObjectJSON
         pool_size,
         bbdo_version
     ';
+    /** @var string */
     protected $attributes_select_parameters = '
         config_group,
         config_group_id,
@@ -73,6 +84,7 @@ class Broker extends AbstractObjectJSON
         parent_grp_id,
         fieldIndex
     ';
+    /** @var string */
     protected $attributes_engine_parameters = '
         id,
         name,
@@ -80,20 +92,38 @@ class Broker extends AbstractObjectJSON
         centreonbroker_cfg_path,
         centreonbroker_logs_path
     ';
+    /** @var string[] */
     protected $exclude_parameters = array(
         'blockId'
     );
+    /** @var string[] */
     protected $authorized_empty_field = array(
         'db_password'
     );
+    /** @var null */
     protected $stmt_engine = null;
+    /** @var null */
     protected $stmt_broker = null;
+    /** @var null */
     protected $stmt_broker_parameters = null;
+    /** @var null */
     protected $stmt_engine_parameters = null;
+    /** @var null */
     protected $cacheExternalValue = null;
+    /** @var null */
     protected $cacheLogValue = null;
+    /** @var object|null */
     protected $readVaultConfigurationRepository = null;
 
+    /**
+     * Broker constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     *
+     * @throws LogicException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
@@ -105,6 +135,10 @@ class Broker extends AbstractObjectJSON
         );
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getExternalValues()
     {
         if (!is_null($this->cacheExternalValue)) {
@@ -125,6 +159,10 @@ class Broker extends AbstractObjectJSON
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getLogsValues(): void
     {
         if (!is_null($this->cacheLogValue)) {
@@ -145,6 +183,14 @@ class Broker extends AbstractObjectJSON
         }
     }
 
+    /**
+     * @param $poller_id
+     * @param $localhost
+     *
+     * @return void
+     * @throws PDOException
+     * @throws RuntimeException
+     */
     private function generate($poller_id, $localhost)
     {
         $this->getExternalValues();
@@ -435,6 +481,12 @@ class Broker extends AbstractObjectJSON
         return $config;
     }
 
+    /**
+     * @param $poller_id
+     *
+     * @return void
+     * @throws PDOException
+     */
     private function getEngineParameters($poller_id)
     {
         if (is_null($this->stmt_engine_parameters)) {
@@ -458,11 +510,24 @@ class Broker extends AbstractObjectJSON
         }
     }
 
+    /**
+     * @param $poller
+     *
+     * @return void
+     * @throws PDOException
+     * @throws RuntimeException
+     */
     public function generateFromPoller($poller)
     {
         $this->generate($poller['id'], $poller['localhost']);
     }
 
+    /**
+     * @param $string
+     *
+     * @return array|false|mixed|string
+     * @throws PDOException
+     */
     private function getInfoDb($string)
     {
         /*
@@ -545,6 +610,12 @@ class Broker extends AbstractObjectJSON
         return $infos;
     }
 
+    /**
+     * @param $rpn
+     * @param $val
+     *
+     * @return float|int|mixed|string
+     */
     private function rpnCalc($rpn, $val)
     {
         if (!is_numeric($val)) {
@@ -561,6 +632,13 @@ class Broker extends AbstractObjectJSON
         }
     }
 
+    /**
+     * @param $result
+     * @param $item
+     *
+     * @return array|mixed
+     * @throws InvalidArgumentException
+     */
     private function rpnOperation($result, $item)
     {
         if (in_array($item, array('+', '-', '*', '/'))) {

@@ -21,6 +21,11 @@
 
 declare(strict_types=1);
 
+/**
+ * Interface
+ *
+ * @class ExternalModuleGenerationInterface
+ */
 interface ExternalModuleGenerationInterface
 {
     /**

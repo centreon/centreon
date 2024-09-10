@@ -34,6 +34,10 @@
  *
  */
 
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 /**
  * Class
  *
@@ -51,22 +55,22 @@ class Macro extends AbstractObject
     private $macro_service_cache = array();
     /** @var null */
     protected $generate_filename = null;
-    /** @var null */
-    protected $object_name = null;
+    /** @var string */
+    protected string $object_name;
     /** @var null */
     protected $stmt_service = null;
 
     /**
      * Macro constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      *
      * @throws LogicException
      * @throws PDOException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
 

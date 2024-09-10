@@ -21,8 +21,10 @@
 
 namespace ConfigGenerateRemote;
 
+use Exception;
 use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
 
 /**
  * Class
@@ -32,7 +34,7 @@ use ConfigGenerateRemote\Abstracts\AbstractObject;
  */
 class Broker extends AbstractObject
 {
-    /** @var */
+    /** @var PDOStatement|null */
     public $stmtEngine;
     /** @var string */
     protected $table = 'cfg_centreonbroker';
@@ -73,14 +75,16 @@ class Broker extends AbstractObject
         'daemon',
         'pool_size',
     ];
-    /** @var null */
+    /** @var PDOStatement|null */
     protected $stmtBroker = null;
 
     /**
      * Generate broker configuration from poller id
      *
-     * @param int $poller
+     * @param int $pollerId
+     *
      * @return void
+     * @throws Exception
      */
     private function generate(int $pollerId)
     {
@@ -107,7 +111,9 @@ class Broker extends AbstractObject
      * Generate engine configuration from poller
      *
      * @param array $poller
+     *
      * @return void
+     * @throws Exception
      */
     public function generateFromPoller(array $poller)
     {

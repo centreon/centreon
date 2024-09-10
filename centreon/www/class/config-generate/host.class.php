@@ -37,23 +37,44 @@
 require_once dirname(__FILE__) . '/abstract/host.class.php';
 require_once dirname(__FILE__) . '/abstract/service.class.php';
 
+/**
+ * Class
+ *
+ * @class Host
+ */
 class Host extends AbstractHost
 {
     public const VERTICAL_NOTIFICATION = 1;
     public const CLOSE_NOTIFICATION = 2;
     public const CUMULATIVE_NOTIFICATION = 3;
 
+    /** @var array */
     protected $hosts_by_name = array();
+    /** @var array|null */
     protected $hosts = null;
+    /** @var string */
     protected $generate_filename = 'hosts.cfg';
-    protected $object_name = 'host';
+    /** @var string */
+    protected string $object_name = 'host';
+    /** @var null */
     protected $stmt_hg = null;
+    /** @var null */
     protected $stmt_parent = null;
+    /** @var null */
     protected $stmt_service = null;
+    /** @var null */
     protected $stmt_service_sg = null;
+    /** @var array */
     protected $generated_parentship = array();
+    /** @var array */
     protected $generatedHosts = array();
 
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws PDOException
+     */
     private function getHostGroups(&$host)
     {
         $host['group_tags'] = $host['group_tags'] ?? [];
@@ -78,6 +99,12 @@ class Host extends AbstractHost
         }
     }
 
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws PDOException
+     */
     private function getParents(&$host)
     {
         if (is_null($this->stmt_parent)) {
@@ -99,6 +126,12 @@ class Host extends AbstractHost
         }
     }
 
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws PDOException
+     */
     private function getServices(&$host)
     {
         if (is_null($this->stmt_service)) {
@@ -118,6 +151,12 @@ class Host extends AbstractHost
         }
     }
 
+    /**
+     * @param $host
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     private function getServicesByHg(&$host)
     {
         if (count($host['hg']) == 0) {
@@ -393,11 +432,22 @@ class Host extends AbstractHost
         return $results;
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return mixed
+     */
     public function getSeverityForService($host_id)
     {
         return $this->hosts[$host_id]['severity_id_for_services'];
     }
 
+    /**
+     * @param $host_id_arg
+     *
+     * @return void
+     * @throws PDOException
+     */
     protected function getSeverity($host_id_arg)
     {
         $host_id = null;
@@ -458,11 +508,23 @@ class Host extends AbstractHost
         $this->hosts[$host_id_arg]['severity_id_for_services'] = $severity_instance->getHostSeverityById($severity_id);
     }
 
+    /**
+     * @param $host_id
+     * @param $attr
+     *
+     * @return void
+     */
     public function addHost($host_id, $attr = array())
     {
         $this->hosts[$host_id] = $attr;
     }
 
+    /**
+     * @param $poller_id
+     *
+     * @return void
+     * @throws PDOException
+     */
     private function getHosts($poller_id)
     {
         # We use host_register = 1 because we don't want _Module_* hosts
@@ -478,6 +540,16 @@ class Host extends AbstractHost
         $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @param $host
+     * @param $generateConfigurationFile
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     public function processingFromHost(&$host, $generateConfigurationFile = true): void
     {
         $this->getImages($host);
@@ -504,6 +576,15 @@ class Host extends AbstractHost
 
     }
 
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     public function generateFromHostId(&$host)
     {
         $this->processingFromHost($host);
@@ -515,6 +596,16 @@ class Host extends AbstractHost
         $this->addGeneratedHost($host['host_id']);
     }
 
+    /**
+     * @param $poller_id
+     * @param $localhost
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     public function generateFromPollerId($poller_id, $localhost = 0)
     {
         if (is_null($this->hosts)) {
@@ -542,6 +633,11 @@ class Host extends AbstractHost
         ServiceCategory::getInstance($this->dependencyInjector)->generateObjects();
     }
 
+    /**
+     * @param $host_name
+     *
+     * @return mixed|null
+     */
     public function getHostIdByHostName($host_name)
     {
         if (isset($this->hosts_by_name[$host_name])) {
@@ -550,16 +646,27 @@ class Host extends AbstractHost
         return null;
     }
 
+    /**
+     * @return array
+     */
     public function getGeneratedParentship()
     {
         return $this->generated_parentship;
     }
 
+    /**
+     * @param $hostId
+     *
+     * @return void
+     */
     public function addGeneratedHost($hostId)
     {
         $this->generatedHosts[] = $hostId;
     }
 
+    /**
+     * @return array
+     */
     public function getGeneratedHosts()
     {
         return $this->generatedHosts;
@@ -599,6 +706,10 @@ class Host extends AbstractHost
         return $this->manageNotificationInheritance($host, false);
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function reset()
     {
         $this->hosts_by_name = array();

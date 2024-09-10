@@ -22,17 +22,33 @@ namespace ConfigGenerateRemote;
 
 use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
 
+/**
+ * Class
+ *
+ * @class Contact
+ * @package ConfigGenerateRemote
+ */
 class Contact extends AbstractObject
 {
+    /** @var int */
     protected $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
+    /** @var array */
     private $contactsServiceLinkedCache = [];
+    /** @var array */
     protected $contactsCache = [];
+    /** @var array */
     protected $contacts = [];
+    /** @var string */
     protected $table = 'contact';
+    /** @var string */
     protected $generateFilename = 'contacts.infile';
+    /** @var string */
     protected $objectName = 'contact';
+    /** @var string */
     protected $attributesSelect = '
         contact_id,
         contact_template_id,
@@ -49,6 +65,7 @@ class Contact extends AbstractObject
         reach_api,
         reach_api_rt
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'contact_id',
         'contact_template_id',
@@ -64,8 +81,11 @@ class Contact extends AbstractObject
         'reach_api_rt',
         'contact_register'
     ];
+    /** @var PDOStatement|null */
     protected $stmtContact = null;
+    /** @var <string,PDOStatement[]> */
     protected $stmtCommands = ['host' => null, 'service' => null];
+    /** @var PDOStatement|null */
     protected $stmtContactService = null;
 
     /**
@@ -164,7 +184,7 @@ class Contact extends AbstractObject
     /**
      * Generate notification commands linked to contact id
      *
-     * @param integer $contactId
+     * @param int $contactId
      * @param string $label
      * @param object $instance
      * @return void|null
@@ -200,7 +220,7 @@ class Contact extends AbstractObject
     /**
      * Build contact cache
      *
-     * @return integer|null
+     * @return int|null
      */
     protected function buildCache(): ?int
     {
@@ -216,8 +236,10 @@ class Contact extends AbstractObject
     /**
      * Generation configuration from a contact id
      *
-     * @param null|integer $contactId
+     * @param null|int $contactId
+     *
      * @return string|null the contact name or alias
+     * @throws \Exception
      */
     public function generateFromContactId(?int $contactId): ?string
     {

@@ -20,7 +20,7 @@
 
 namespace ConfigGenerateRemote\Abstracts;
 
-use \PDO;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 use ConfigGenerateRemote\Command;
 use ConfigGenerateRemote\Contact;
@@ -33,6 +33,7 @@ use ConfigGenerateRemote\Relations\ContactGroupHostRelation;
 use ConfigGenerateRemote\Relations\HostTemplateRelation;
 use ConfigGenerateRemote\Relations\HostPollerRelation;
 use ConfigGenerateRemote\Relations\MacroHost;
+use PDOStatement;
 
 /**
  * Class
@@ -42,10 +43,10 @@ use ConfigGenerateRemote\Relations\MacroHost;
  */
 abstract class AbstractHost extends AbstractObject
 {
-    /** @var */
-    public $stmt_htpl;
-    /** @var */
-    public $hosts;
+    /** @var PDOStatement */
+    protected $stmt_htpl;
+    /** @var array */
+    protected $hosts;
     /** @var string */
     protected $attributesSelect = '
         host_id,
@@ -317,9 +318,9 @@ abstract class AbstractHost extends AbstractObject
     /**
      * Check if a host id is a host template
      *
-     * @param integer $hostId
-     * @param integer $hostTplId
-     * @return boolean
+     * @param int $hostId
+     * @param int $hostTplId
+     * @return bool
      */
     public function isHostTemplate(int $hostId, int $hostTplId): bool
     {
@@ -358,7 +359,7 @@ abstract class AbstractHost extends AbstractObject
      *
      * @param array $host
      * @param string $commandIdLabel
-     * @return integer
+     * @return int
      */
     protected function getHostCommand(array &$host, string $commandIdLabel): int
     {
@@ -395,7 +396,7 @@ abstract class AbstractHost extends AbstractObject
     /**
      * Get host attribute
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @param string $attr
      * @return string|null
      */

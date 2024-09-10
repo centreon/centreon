@@ -33,6 +33,10 @@
  *
  */
 
+use App\Kernel;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 /**
  * Class
  *
@@ -46,8 +50,8 @@ class Engine extends AbstractObject
     protected $engine = null;
     /** @var null */
     protected $generate_filename = null; # it's in 'cfg_nagios' table
-    /** @var null */
-    protected $object_name = null;
+    /** @var string */
+    protected string $object_name;
     /** @var string */
     protected $attributes_select = '
         nagios_id,
@@ -360,12 +364,12 @@ class Engine extends AbstractObject
     /**
      * @return void
      * @throws LogicException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function setEngineNotificationState(): void
     {
-        $kernel = \App\Kernel::createForWeb();
+        $kernel = Kernel::createForWeb();
         $featureFlags = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
 
         $this->engine['enable_notifications'] =
@@ -381,8 +385,8 @@ class Engine extends AbstractObject
      * @return void
      * @throws LogicException
      * @throws PDOException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function generate($poller_id)
     {
@@ -447,8 +451,8 @@ class Engine extends AbstractObject
      * @return void
      * @throws LogicException
      * @throws PDOException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function generateFromPoller($poller)
     {

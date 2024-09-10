@@ -43,8 +43,8 @@ require_once dirname(__FILE__) . '/object.class.php';
  */
 abstract class AbstractService extends AbstractObject
 {
-    /** @var */
-    public $service_cache;
+    /** @var array */
+    protected $service_cache;
     // no flap_detection_options attribute
     /** @var string */
     protected $attributes_select = '

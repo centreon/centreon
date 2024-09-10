@@ -34,10 +34,18 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class MetaTimeperiod
+ */
 class MetaTimeperiod extends AbstractObject
 {
+    /** @var string */
     protected $generate_filename = 'meta_timeperiod.cfg';
-    protected $object_name = 'timeperiod';
+    /** @var string */
+    protected string $object_name = 'timeperiod';
+    /** @var string[] */
     protected $attributes_write = array(
         'timeperiod_name',
         'alias',
@@ -50,6 +58,10 @@ class MetaTimeperiod extends AbstractObject
         'saturday',
     );
 
+    /**
+     * @return int|void
+     * @throws Exception
+     */
     public function generateObjects()
     {
         if ($this->checkGenerate(0)) {

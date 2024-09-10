@@ -34,6 +34,8 @@
  *
  */
 
+use Pimple\Container;
+
 /**
  * Class
  *
@@ -75,7 +77,7 @@ class Dependency extends AbstractObject
     /** @var string */
     protected $generate_filename = 'dependencies.cfg';
     /** @var string */
-    protected $object_name = 'hostdependency';
+    protected string $object_name = 'hostdependency';
     /** @var string */
     protected $attributes_select = "
         dep_id,
@@ -114,11 +116,11 @@ class Dependency extends AbstractObject
     /**
      * Dependency constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      *
      * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->host_instance = Host::getInstance($this->dependencyInjector);

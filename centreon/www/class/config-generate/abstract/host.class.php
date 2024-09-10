@@ -47,8 +47,8 @@ abstract class AbstractHost extends AbstractObject
     const TYPE_TEMPLATE = 0;
     const TYPE_VIRTUAL_HOST = 2;
 
-    /** @var */
-    public $hosts;
+    /** @var array */
+    protected $hosts;
 
     /** @var string */
     protected $attributes_select = '

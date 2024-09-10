@@ -25,12 +25,22 @@ use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
 use Exception;
 use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
 
+/**
+ * Class
+ *
+ * @class PlatformTopology
+ * @package ConfigGenerateRemote
+ */
 class PlatformTopology extends AbstractObject
 {
+    /** @var string */
     protected $table = 'platform_topology';
+    /** @var string */
     protected $generateFilename = 'platform_topology.infile';
 
+    /** @var string */
     protected $attributesSelect = '
         id,
         address,
@@ -40,6 +50,7 @@ class PlatformTopology extends AbstractObject
         parent_id,
         server_id
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'id',
         'address',
@@ -49,13 +60,16 @@ class PlatformTopology extends AbstractObject
         'parent_id',
         'server_id'
     ];
+    /** @var PDOStatement */
     protected $stmtPlatformTopology = null;
 
     /**
      * Generate topology configuration from remote server id
      *
      * @param int $remoteServerId
+     *
      * @return void
+     * @throws Exception
      */
     private function generate(int $remoteServerId)
     {
@@ -82,7 +96,9 @@ class PlatformTopology extends AbstractObject
      * Generate topology configuration from remote server id
      *
      * @param int $remoteServerId
+     *
      * @return void
+     * @throws Exception
      */
     public function generateFromRemoteServerId(int $remoteServerId)
     {

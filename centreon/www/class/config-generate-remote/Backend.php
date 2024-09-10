@@ -20,7 +20,11 @@
 
 namespace ConfigGenerateRemote;
 
+use CentreonDB;
 use Exception;
+use PDOException;
+use PDOStatement;
+use Pimple\Container;
 
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
@@ -36,17 +40,18 @@ if ($configFile !== false) {
  */
 class Backend
 {
+    /** @var Backend|null */
+    private static $instance = null;
+
     /** @var string */
     public $generatePath;
-    /** @var */
+    /** @var string */
     public $engine_sub;
-    /** @var */
+    /** @var PDOStatement */
     public $stmtCentralPoller;
-    /** @var null */
-    private static $instance = null;
-    /** @var mixed|null */
+    /** @var CentreonDB|null */
     public $db = null;
-    /** @var mixed|null */
+    /** @var CentreonDB|null */
     public $dbCs = null;
 
     /** @var string[] */
@@ -60,13 +65,13 @@ class Backend
     /** @var string */
     private $tmpDirPrefix = 'tmpdir_';
 
-    /** @var null */
+    /** @var string|null */
     private $tmpFile = null;
-    /** @var null */
+    /** @var string|null */
     private $tmpDir = null;
     /** @var string */
     private $tmpDirSuffix = '.d';
-    /** @var null */
+    /** @var string|null */
     private $fullPath = null;
     /** @var string */
     private $whoaim = 'unknown';
@@ -74,18 +79,18 @@ class Backend
     /** @var bool */
     private $exportContact = false;
 
-    /** @var null */
+    /** @var int|null */
     private $pollerId = null;
-    /** @var null */
+    /** @var int|null */
     private $centralPollerId = null;
 
 
     /**
      * Backend constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    private function __construct(\Pimple\Container $dependencyInjector)
+    private function __construct(Container $dependencyInjector)
     {
         $this->generatePath = _CENTREON_CACHEDIR_ . '/config/export';
         $this->db = $dependencyInjector['configuration_db'];
@@ -95,10 +100,11 @@ class Backend
     /**
      * Get backend singleton
      *
-     * @param \Pimple\Container $dependencyInjector
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @return Backend|null
      */
-    public static function getInstance(\Pimple\Container $dependencyInjector)
+    public static function getInstance(Container $dependencyInjector)
     {
         if (is_null(self::$instance)) {
             self::$instance = new Backend($dependencyInjector);
@@ -138,7 +144,9 @@ class Backend
      * Create multiple directories
      *
      * @param array $paths
+     *
      * @return string created directory path
+     * @throws Exception
      */
     public function createDirectories(array $paths): string
     {
@@ -179,7 +187,9 @@ class Backend
      * Create directories to generation configuration
      *
      * @param int $pollerId
+     *
      * @return void
+     * @throws Exception
      */
     public function initPath(int $pollerId): void
     {
@@ -207,7 +217,7 @@ class Backend
     /**
      * fieldSeparatorInfile getter
      *
-     * @return void
+     * @return string
      */
     public function getFieldSeparatorInfile()
     {
@@ -217,7 +227,7 @@ class Backend
     /**
      * lineSeparatorInfile getter
      *
-     * @return void
+     * @return string
      */
     public function getLineSeparatorInfile()
     {
@@ -227,7 +237,7 @@ class Backend
     /**
      * exportContact getter
      *
-     * @return boolean
+     * @return bool
      */
     public function isExportContact()
     {
@@ -237,7 +247,7 @@ class Backend
     /**
      * fullPath getter
      *
-     * @return void
+     * @return string|null
      */
     public function getPath()
     {
@@ -247,7 +257,7 @@ class Backend
     /**
      * Move poller directory
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
     public function movePath(int $pollerId)
@@ -297,7 +307,7 @@ class Backend
     /**
      * poller id setter
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
     public function setPollerId(int $pollerId): void
@@ -319,6 +329,7 @@ class Backend
      * Get id of central server
      *
      * @return int
+     * @throws PDOException
      */
     public function getCentralPollerId(): int
     {

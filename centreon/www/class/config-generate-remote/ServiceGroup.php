@@ -20,40 +20,60 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class ServiceGroup
+ * @package ConfigGenerateRemote
+ */
 class ServiceGroup extends AbstractObject
 {
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
 
+    /** @var array */
     private $sg = [];
+    /** @var array */
     private $sgRelationCache = [];
+    /** @var string */
     protected $table = 'servicegroup';
+    /** @var string */
     protected $generateFilename = 'servicegroups.infile';
+    /** @var string */
     protected $attributesSelect = '
         sg_id,
         sg_name,
         sg_alias,
         geo_coords
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'sg_id',
         'sg_name',
         'sg_alias',
         'geo_coords'
     ];
+    /** @var PDOStatement */
     protected $stmtSg = null;
+    /** @var PDOStatement */
     protected $stmtServiceSg = null;
+    /** @var PDOStatement */
     protected $stmtStplSg = null;
 
     /**
-     * Constructor
+     * ServiceGroup constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
@@ -62,7 +82,7 @@ class ServiceGroup extends AbstractObject
     /**
      * Get servicegroup frm id
      *
-     * @param integer $sgId
+     * @param int $sgId
      * @return void
      */
     private function getServicegroupFromId(int $sgId)
@@ -88,12 +108,14 @@ class ServiceGroup extends AbstractObject
     /**
      * Generate service group
      *
-     * @param integer $sgId
-     * @param integer $serviceId
+     * @param int $sgId
+     * @param int $serviceId
      * @param string $serviceDescription
-     * @param integer $hostId
+     * @param int $hostId
      * @param string $hostName
-     * @return void
+     *
+     * @return int
+     * @throws Exception
      */
     public function addServiceInSg(int $sgId, int $serviceId, string $serviceDescription, int $hostId, string $hostName)
     {
@@ -139,7 +161,7 @@ class ServiceGroup extends AbstractObject
     /**
      * Get service group from service template id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return void
      */
     public function getServiceGroupsForStpl(int $serviceId)
@@ -172,8 +194,8 @@ class ServiceGroup extends AbstractObject
     /**
      * Get service linked service groups
      *
-     * @param integer $hostId
-     * @param integer $serviceId
+     * @param int $hostId
+     * @param int $serviceId
      * @return void
      */
     public function getServiceGroupsForService(int $hostId, int $serviceId)
@@ -208,8 +230,10 @@ class ServiceGroup extends AbstractObject
     /**
      * Generate object
      *
-     * @param integer $sgId
+     * @param int $sgId
+     *
      * @return void
+     * @throws Exception
      */
     public function generateObject(int $sgId)
     {
@@ -224,6 +248,7 @@ class ServiceGroup extends AbstractObject
      * Generate objects
      *
      * @return void
+     * @throws Exception
      */
     public function generateObjects()
     {
@@ -257,8 +282,10 @@ class ServiceGroup extends AbstractObject
     /**
      * Reset object
      *
-     * @param boolean $createfile
+     * @param bool $createfile
+     *
      * @return void
+     * @throws Exception
      */
     public function reset($createfile = false): void
     {
@@ -269,7 +296,7 @@ class ServiceGroup extends AbstractObject
     /**
      * Get servicegroup attribute
      *
-     * @param integer $sgId
+     * @param int $sgId
      * @param string $attr
      * @return void
      */

@@ -20,17 +20,30 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractService;
 
+/**
+ * Class
+ *
+ * @class Service
+ * @package ConfigGenerateRemote
+ */
 class Service extends AbstractService
 {
+    /** @var int */
     private $useCache = 0;
+    /** @var int */
     private $useCachePoller = 1;
+    /** @var int */
     private $doneCache = 0;
+    /** @var array|null */
     protected $serviceCache = null;
+    /** @var string */
     protected $table = 'service';
+    /** @var string */
     protected $generateFilename = 'services.infile';
+    /** @var int|null */
     public $pollerId = null; // for by poller cache
 
     /**
@@ -46,8 +59,8 @@ class Service extends AbstractService
     /**
      * Get servicegroups
      *
-     * @param integer $serviceId
-     * @param integer $hostId
+     * @param int $serviceId
+     * @param int $hostId
      * @param string $hostName
      * @return void
      */
@@ -110,7 +123,7 @@ class Service extends AbstractService
     /**
      * Add service in cache
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @param array $attr
      * @return void
      */
@@ -122,7 +135,7 @@ class Service extends AbstractService
     /**
      * Get service from service id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return void
      */
     private function getServiceFromId(int $serviceId)
@@ -142,8 +155,8 @@ class Service extends AbstractService
     /**
      * Get severity from service id
      *
-     * @param integer $hostId
-     * @param integer $serviceId
+     * @param int $hostId
+     * @param int $serviceId
      * @return void
      */
     protected function getSeverity($hostId, int $serviceId)
@@ -192,10 +205,10 @@ class Service extends AbstractService
     /**
      * Generate service object from service id
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @param string $hostName
-     * @param null|integer $serviceId
-     * @param integer $by_hg
+     * @param null|int $serviceId
+     * @param int $by_hg
      * @return void
      */
     public function generateFromServiceId(int $hostId, string $hostName, ?int $serviceId, $by_hg = 0)
@@ -259,7 +272,7 @@ class Service extends AbstractService
     /**
      * Set poller
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
     public function setPoller(int $pollerId)
@@ -270,8 +283,8 @@ class Service extends AbstractService
     /**
      * Reset object
      *
-     * @param boolean $resetParent
-     * @param boolean $createfile
+     * @param bool $resetParent
+     * @param bool $createfile
      * @return void
      */
     public function reset($resetParent = false, $createfile = false): void

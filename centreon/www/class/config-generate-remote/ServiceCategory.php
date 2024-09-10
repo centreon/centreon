@@ -20,23 +20,42 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class ServiceCategory
+ * @package ConfigGenerateRemote
+ */
 class ServiceCategory extends AbstractObject
 {
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
 
+    /** @var array */
     private $serviceSeverityCache = [];
+    /** @var array */
     private $serviceSeverityByNameCache = [];
+    /** @var array */
     private $serviceLinkedCache = [];
 
+    /** @var string */
     protected $table = 'service_categories';
+    /** @var string */
     protected $generateFilename = 'servicecategories.infile';
+    /** @var PDOStatement */
     protected $stmtService = null;
+    /** @var PDOStatement */
     protected $stmtHcName = null;
 
+    /** @var string[] */
     protected $attributesWrite = [
         'sc_id',
         'sc_name',
@@ -46,11 +65,11 @@ class ServiceCategory extends AbstractObject
     ];
 
     /**
-     * Constructor
+     * ServiceCategory constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
@@ -123,8 +142,10 @@ class ServiceCategory extends AbstractObject
     /**
      * Generate object
      *
-     * @param null|integer $scId
+     * @param null|int $scId
+     *
      * @return void
+     * @throws Exception
      */
     public function generateObject(?int $scId)
     {
@@ -143,8 +164,10 @@ class ServiceCategory extends AbstractObject
     /**
      * Get severity by service id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
+     *
      * @return void
+     * @throws Exception
      */
     public function getServiceSeverityByServiceId(int $serviceId)
     {
@@ -198,7 +221,7 @@ class ServiceCategory extends AbstractObject
     /**
      * Get severity by id
      *
-     * @param null|integer $scId
+     * @param null|int $scId
      * @return void
      */
     public function getServiceSeverityById(?int $scId)
@@ -217,7 +240,7 @@ class ServiceCategory extends AbstractObject
      * Get mapping with host severity name
      *
      * @param string $hcName
-     * @return null|integer
+     * @return null|int
      */
     public function getServiceSeverityMappingHostSeverityByName(string $hcName)
     {

@@ -21,11 +21,21 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class ContactHostRelation
+ * @package ConfigGenerateRemote\Relations
+ */
 class ContactHostRelation extends AbstractObject
 {
+    /** @var string */
     protected $table = 'contact_host_relation';
+    /** @var string */
     protected $generateFilename = 'contact_host_relation.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'host_host_id',
         'contact_id',
@@ -34,9 +44,11 @@ class ContactHostRelation extends AbstractObject
     /**
      * Add relation
      *
-     * @param integer $hostId
-     * @param integer $contactId
+     * @param int $hostId
+     * @param int $contactId
+     *
      * @return void
+     * @throws Exception
      */
     public function addRelation(int $hostId, int $contactId)
     {

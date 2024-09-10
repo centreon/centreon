@@ -34,13 +34,27 @@
  *
  */
 
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class MetaService
+ */
 class MetaService extends AbstractObject
 {
+    /** @var int */
     private $has_meta_services = 0;
+    /** @var array */
     private $meta_services = array();
+    /** @var array */
     private $generated_services = array(); # for index_data build
+    /** @var string */
     protected $generate_filename = 'meta_services.cfg';
-    protected $object_name = 'service';
+    /** @var string */
+    protected string $object_name = 'service';
+    /** @var string */
     protected $attributes_select = '
         meta_id,
         meta_name as display_name,
@@ -53,6 +67,7 @@ class MetaService extends AbstractObject
         notification_options,
         notifications_enabled
     ';
+    /** @var string[] */
     protected $attributes_write = array(
         'service_description',
         'display_name',
@@ -69,19 +84,33 @@ class MetaService extends AbstractObject
         'notification_options',
         'register',
     );
+    /** @var string[] */
     protected $attributes_default = array(
         'notifications_enabled',
     );
+    /** @var string[] */
     protected $attributes_hash = array(
         'macros'
     );
+    /** @var string[] */
     protected $attributes_array = array(
         'contact_groups',
         'contacts'
     );
+    /** @var null */
     private $stmt_cg = null;
+    /** @var null */
     private $stmt_contact = null;
 
+    /**
+     * @param $meta_id
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     private function getCtFromMetaId($meta_id)
     {
         if (is_null($this->stmt_contact)) {
@@ -100,6 +129,15 @@ class MetaService extends AbstractObject
         }
     }
 
+    /**
+     * @param $meta_id
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     private function getCgFromMetaId($meta_id)
     {
         if (is_null($this->stmt_cg)) {
@@ -118,6 +156,13 @@ class MetaService extends AbstractObject
         }
     }
 
+    /**
+     * @param $meta_id
+     * @param $meta_name
+     *
+     * @return mixed
+     * @throws PDOException
+     */
     private function getServiceIdFromMetaId($meta_id, $meta_name)
     {
         $composed_name = 'meta_' . $meta_id;
@@ -141,6 +186,10 @@ class MetaService extends AbstractObject
         return $service_id;
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function buildCacheMetaServices()
     {
         $query = "SELECT $this->attributes_select FROM meta_service WHERE meta_activate = '1'";
@@ -155,6 +204,13 @@ class MetaService extends AbstractObject
         }
     }
 
+    /**
+     * @return int|void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     public function generateObjects()
     {
         $this->buildCacheMetaServices();
@@ -193,16 +249,25 @@ class MetaService extends AbstractObject
         }
     }
 
+    /**
+     * @return array
+     */
     public function getMetaServices()
     {
         return $this->meta_services;
     }
 
+    /**
+     * @return int
+     */
     public function hasMetaServices()
     {
         return $this->has_meta_services;
     }
 
+    /**
+     * @return array
+     */
     public function getGeneratedServices()
     {
         return $this->generated_services;

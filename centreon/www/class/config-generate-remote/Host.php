@@ -20,27 +20,48 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractHost;
+use PDOException;
+use PDOStatement;
 
+/**
+ * Class
+ *
+ * @class Host
+ * @package ConfigGenerateRemote
+ */
 class Host extends AbstractHost
 {
+    /** @var array */
     protected $hostsByName = [];
+    /** @var array|null */
     protected $hosts = null;
+    /** @var string */
     protected $table = 'host';
+    /** @var string */
     protected $generateFilename = 'hosts.infile';
+    /** @var PDOStatement|null */
     protected $stmtHg = null;
+    /** @var PDOStatement|null */
     protected $stmtParent = null;
+    /** @var PDOStatement|null */
     protected $stmtService = null;
+    /** @var PDOStatement|null */
     protected $stmtServiceSg = null;
+    /** @var array */
     protected $generatedParentship = [];
+    /** @var array */
     protected $generatedHosts = [];
 
     /**
      * Get linked host groups
      *
      * @param array $host
+     *
      * @return void
+     * @throws PDOException
      */
     private function getHostGroups(array &$host)
     {
@@ -73,7 +94,9 @@ class Host extends AbstractHost
      * Get linked services
      *
      * @param array $host
+     *
      * @return void
+     * @throws PDOException
      */
     private function getServices(array &$host)
     {
@@ -100,7 +123,9 @@ class Host extends AbstractHost
      * Get linked services by host group
      *
      * @param array $host
+     *
      * @return void
+     * @throws PDOException
      */
     private function getServicesByHg(array &$host)
     {
@@ -154,7 +179,7 @@ class Host extends AbstractHost
     /**
      * Get linked hosts to poller id
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
     private function getHosts(int $pollerId)
@@ -230,8 +255,8 @@ class Host extends AbstractHost
     /**
      * Generate from poller id
      *
-     * @param integer $pollerId
-     * @param integer $localhost
+     * @param int $pollerId
+     * @param int $localhost
      * @return void
      */
     public function generateFromPollerId(int $pollerId, int $localhost = 0)
@@ -289,7 +314,7 @@ class Host extends AbstractHost
     /**
      * Add generated host
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @return void
      */
     public function addGeneratedHost(int $hostId)
@@ -310,9 +335,11 @@ class Host extends AbstractHost
     /**
      * Reset object
      *
-     * @param boolean $resetParent
-     * @param boolean $createfile
+     * @param bool $resetParent
+     * @param bool $createfile
+     *
      * @return void
+     * @throws Exception
      */
     public function reset($resetParent = false, $createfile = false): void
     {

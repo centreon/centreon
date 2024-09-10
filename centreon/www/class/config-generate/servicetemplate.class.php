@@ -36,17 +36,32 @@
 
 require_once dirname(__FILE__) . '/abstract/service.class.php';
 
+/**
+ * Class
+ *
+ * @class ServiceTemplate
+ */
 class ServiceTemplate extends AbstractService
 {
+    /** @var null */
     protected $hosts = null;
+    /** @var string */
     protected $generate_filename = 'serviceTemplates.cfg';
-    protected $object_name = 'service';
-    public $service_cache = array();
+    /** @var string */
+    protected string $object_name = 'service';
+    /** @var array */
+    public $service_cache = [];
+    /** @var null */
     public $current_host_id = null;
+    /** @var null */
     public $current_host_name = null;
+    /** @var null */
     public $current_service_description = null;
+    /** @var null */
     public $current_service_id = null;
+    /** @var array */
     protected $loop_tpl = array();
+    /** @var string */
     protected $attributes_select = '
         service_id,
         service_template_model_stm_id,
@@ -93,6 +108,7 @@ class ServiceTemplate extends AbstractService
         esi_icon_image_alt as icon_image_alt,
         service_acknowledgement_timeout as acknowledgement_timeout
     ';
+    /** @var string[] */
     protected $attributes_write = array(
         'service_description',
         'name',
@@ -126,6 +142,12 @@ class ServiceTemplate extends AbstractService
         'acknowledgement_timeout'
     );
 
+    /**
+     * @param $serviceId
+     *
+     * @return void
+     * @throws PDOException
+     */
     private function getServiceGroups($serviceId)
     {
         $host = Host::getInstance($this->dependencyInjector);
@@ -148,6 +170,8 @@ class ServiceTemplate extends AbstractService
 
     /**
      * @param int $serviceId
+     *
+     * @throws PDOException
      */
     public function getServiceFromId(int $serviceId): void
     {
@@ -166,6 +190,12 @@ class ServiceTemplate extends AbstractService
         $this->service_cache[$serviceId] = array_pop($results);
     }
 
+    /**
+     * @param $service_id
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     private function getSeverity($service_id)
     {
         if (isset($this->service_cache[$service_id]['severity_id'])) {
@@ -190,6 +220,12 @@ class ServiceTemplate extends AbstractService
         }
     }
 
+    /**
+     * @param $service_id
+     *
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function generateFromServiceId($service_id)
     {
         if (is_null($service_id)) {
@@ -239,11 +275,18 @@ class ServiceTemplate extends AbstractService
         return $this->service_cache[$service_id]['name'];
     }
 
+    /**
+     * @return void
+     */
     public function resetLoop()
     {
         $this->loop_tpl = array();
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function reset()
     {
         $this->current_host_id = null;

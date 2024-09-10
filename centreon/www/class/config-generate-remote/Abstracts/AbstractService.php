@@ -40,8 +40,8 @@ use ConfigGenerateRemote\Relations\ContactGroupServiceRelation;
  */
 abstract class AbstractService extends AbstractObject
 {
-    /** @var */
-    public $serviceCache;
+    /** @var array */
+    protected $serviceCache;
     /** @var string */
     protected $attributesSelect = '
         service_id,

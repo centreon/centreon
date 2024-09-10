@@ -33,31 +33,56 @@
  *
  */
 
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class Contactgroup
+ */
 class Contactgroup extends AbstractObject
 {
+    /** @var int */
     protected $use_cache = 1;
+    /** @var int */
     private $done_cache = 0;
+    /** @var array */
     private $cg_service_linked_cache = array();
+    /** @var array */
     protected $cg_cache = array();
+    /** @var null */
     protected $cg = null;
+    /** @var string */
     protected $generate_filename = 'contactgroups.cfg';
-    protected $object_name = 'contactgroup';
+    /** @var string */
+    protected string $object_name = 'contactgroup';
+    /** @var string */
     protected $attributes_select = '
         cg_id,
         cg_name as contactgroup_name,
         cg_alias as alias
     ';
+    /** @var string[] */
     protected $attributes_write = array(
         'contactgroup_name',
         'alias',
     );
+    /** @var string[] */
     protected $attributes_array = array(
         'members'
     );
+    /** @var null */
     protected $stmt_cg = null;
+    /** @var null */
     protected $stmt_contact = null;
+    /** @var null */
     protected $stmt_cg_service = null;
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     protected function getCgCache()
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
@@ -107,7 +132,9 @@ class Contactgroup extends AbstractObject
 
     /**
      * @param int $serviceId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCgForService(int $serviceId) : array
     {
@@ -139,7 +166,9 @@ class Contactgroup extends AbstractObject
 
     /**
      * @param int $cgId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCgFromId(int $cgId): array
     {
@@ -159,6 +188,11 @@ class Contactgroup extends AbstractObject
 
     /**
      * @param int $cgId
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function getContactFromCgId(int $cgId): void
     {
@@ -188,7 +222,12 @@ class Contactgroup extends AbstractObject
 
     /**
      * @param int $cgId
+     *
      * @return string|null contactgroup_name
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function generateFromCgId(int $cgId): ?string
     {

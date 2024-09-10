@@ -34,10 +34,18 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class MetaHost
+ */
 class MetaHost extends AbstractObject
 {
+    /** @var string */
     protected $generate_filename = 'meta_host.cfg';
-    protected $object_name = 'host';
+    /** @var string */
+    protected string $object_name = 'host';
+    /** @var string[] */
     protected $attributes_write = array(
         'host_name',
         'alias',
@@ -54,10 +62,17 @@ class MetaHost extends AbstractObject
         'notifications_enabled',
         'register',
     );
+    /** @var string[] */
     protected $attributes_hash = array(
         'macros'
     );
 
+    /**
+     * @param $host_name
+     *
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function getHostIdByHostName($host_name)
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
@@ -71,6 +86,12 @@ class MetaHost extends AbstractObject
         return array_pop($result);
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return int|void
+     * @throws Exception
+     */
     public function generateObject($host_id)
     {
         if ($this->checkGenerate($host_id)) {

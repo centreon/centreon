@@ -20,21 +20,36 @@
 
 namespace ConfigGenerateRemote\Relations;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 use ConfigGenerateRemote\ServiceCategory;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class TrapsMatching
+ * @package ConfigGenerateRemote\Relations
+ */
 class TrapsMatching extends AbstractObject
 {
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
 
+    /** @var array */
     private $trapMatchCache = [];
 
+    /** @var string */
     protected $table = 'traps_matching_properties';
+    /** @var string */
     protected $generateFilename = 'traps_matching_properties.infile';
+    /** @var null */
     protected $stmtTrap = null;
 
+    /** @var string[] */
     protected $attributesWrite = [
         'tmo_id',
         'trap_id',
@@ -46,11 +61,11 @@ class TrapsMatching extends AbstractObject
     ];
 
     /**
-     * Constructor
+     * TrapsMatching constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
@@ -96,9 +111,11 @@ class TrapsMatching extends AbstractObject
     /**
      * Generate object
      *
-     * @param integer $trapId
+     * @param int $trapId
      * @param array $trapMatchCache
+     *
      * @return void
+     * @throws Exception
      */
     public function generateObject($trapId, $trapMatchCache)
     {
@@ -114,8 +131,10 @@ class TrapsMatching extends AbstractObject
     /**
      * Get trap matching from trap id
      *
-     * @param integer $trapId
+     * @param int $trapId
+     *
      * @return void
+     * @throws Exception
      */
     public function getTrapMatchingByTrapId(int $trapId)
     {

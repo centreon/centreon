@@ -22,6 +22,7 @@ namespace ConfigGenerateRemote;
 
 use PDO;
 use Exception;
+use Pimple\Container;
 
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
@@ -81,21 +82,33 @@ require_once __DIR__ . '/Relations/TrapsPreexec.php';
 require_once __DIR__ . '/Relations/NagiosServer.php';
 require_once __DIR__ . '/Relations/CfgResourceInstanceRelation.php';
 
+/**
+ * Class
+ *
+ * @class Generate
+ * @package ConfigGenerateRemote
+ */
 class Generate
 {
+    /** @var array */
     private $pollerCache = [];
+    /** @var Backend|null */
     private $backendInstance = null;
+    /** @var array|null */
     private $currentPoller = null;
+    /** @var array|null */
     private $installedModules = null;
+    /** @var array|null */
     private $moduleObjects = null;
+    /** @var Container|null */
     protected $dependencyInjector = null;
 
     /**
      * Constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backendInstance = Backend::getInstance($this->dependencyInjector);
@@ -121,8 +134,10 @@ class Generate
     /**
      * Get poller information
      *
-     * @param integer $pollerId
+     * @param int $pollerId
+     *
      * @return void
+     * @throws Exception
      */
     private function getPollerFromId(int $pollerId)
     {
@@ -142,7 +157,7 @@ class Generate
     /**
      * Get pollers information
      *
-     * @param integer $remoteId
+     * @param int $remoteId
      * @return void
      */
     private function getPollersFromRemote(int $remoteId)
@@ -204,7 +219,9 @@ class Generate
      *
      * @param int $remoteServerId
      * @param string $username
+     *
      * @return void
+     * @throws Exception
      */
     public function configRemoteServerFromId(int $remoteServerId, $username = 'unknown')
     {

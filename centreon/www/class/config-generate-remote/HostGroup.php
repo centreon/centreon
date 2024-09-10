@@ -23,11 +23,21 @@ namespace ConfigGenerateRemote;
 use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class HostGroup
+ * @package ConfigGenerateRemote
+ */
 class HostGroup extends AbstractObject
 {
+    /** @var array */
     private $hg = [];
+    /** @var string */
     protected $table = 'hostgroup';
+    /** @var string */
     protected $generateFilename = 'hostgroups.infile';
+    /** @var string */
     protected $attributesSelect = '
         hg_id,
         hg_name,
@@ -40,6 +50,7 @@ class HostGroup extends AbstractObject
         geo_coords,
         hg_rrd_retention
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'hg_id',
         'hg_name',
@@ -52,12 +63,13 @@ class HostGroup extends AbstractObject
         'geo_coords',
         'hg_rrd_retention'
     ];
+    /** @var null */
     protected $stmtHg = null;
 
     /**
      * Get host group from id
      *
-     * @param integer $hgId
+     * @param int $hgId
      * @return void
      */
     private function getHostgroupFromId(int $hgId)
@@ -82,10 +94,12 @@ class HostGroup extends AbstractObject
     /**
      * Add host in host group
      *
-     * @param integer $hgId
-     * @param integer $hostId
+     * @param int $hgId
+     * @param int $hostId
      * @param string $hostName
-     * @return void
+     *
+     * @return int
+     * @throws \Exception
      */
     public function addHostInHg(int $hgId, int $hostId, string $hostName)
     {
@@ -107,6 +121,7 @@ class HostGroup extends AbstractObject
      * Generate objects
      *
      * @return void
+     * @throws \Exception
      */
     public function generateObjects()
     {
@@ -140,8 +155,10 @@ class HostGroup extends AbstractObject
     /**
      * Reset object
      *
-     * @param boolean $createfile
+     * @param bool $createfile
+     *
      * @return void
+     * @throws \Exception
      */
     public function reset($createfile = false): void
     {
@@ -152,7 +169,7 @@ class HostGroup extends AbstractObject
     /**
      * Get host group attribute
      *
-     * @param integer $hgId
+     * @param int $hgId
      * @param string $attr
      * @return string|null
      */

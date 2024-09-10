@@ -36,21 +36,28 @@
 
 declare(strict_types=1);
 
+use Pimple\Container;
+
+/**
+ * Trait
+ *
+ * @class SingletonTrait
+ */
 trait SingletonTrait
 {
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      * @return static
      */
-    public static function getInstance(\Pimple\Container $dependencyInjector): static
+    public static function getInstance(Container $dependencyInjector): static
     {
         /**
-         * @var array<string, static>
+         * @var array<string, static> $instances
          */
         static $instances = [];
 
         /**
-         * @var class-string<static>
+         * @var class-string<static> $calledClass
          */
         $calledClass = get_called_class();
 

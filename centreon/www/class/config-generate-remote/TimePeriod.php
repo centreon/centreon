@@ -20,14 +20,25 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class TimePeriod
+ * @package ConfigGenerateRemote
+ */
 class TimePeriod extends AbstractObject
 {
+    /** @var null */
     private $timeperiods = null;
+    /** @var string */
     protected $table = 'timeperiod';
+    /** @var string */
     protected $generateFilename = 'timeperiods.infile';
+    /** @var string */
     protected $attributesSelect = '
         tp_id,
         tp_name,
@@ -40,6 +51,7 @@ class TimePeriod extends AbstractObject
         tp_friday,
         tp_saturday
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'tp_id',
         'tp_name',
@@ -52,6 +64,7 @@ class TimePeriod extends AbstractObject
         'tp_friday',
         'tp_saturday',
     ];
+    /** @var null[] */
     protected $stmtExtend = [
         'include' => null,
         'exclude' => null
@@ -73,7 +86,7 @@ class TimePeriod extends AbstractObject
     /**
      * Get timeperiod exceptions from id
      *
-     * @param integer $timeperiodId
+     * @param int $timeperiodId
      * @return void|int
      */
     protected function getTimeperiodExceptionFromId(int $timeperiodId)
@@ -97,8 +110,10 @@ class TimePeriod extends AbstractObject
     /**
      * Generate timeperiod from id
      *
-     * @param null|integer $timeperiodId
+     * @param null|int $timeperiodId
+     *
      * @return null|string
+     * @throws Exception
      */
     public function generateFromTimeperiodId(?int $timeperiodId)
     {

@@ -34,10 +34,20 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Media
+ */
 class Media extends AbstractObject
 {
+    /** @var null */
     private $medias = null;
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getMedias()
     {
         $query = "SELECT img_id, img_name, img_path, dir_name FROM view_img, view_img_dir_relation, view_img_dir " .
@@ -48,6 +58,12 @@ class Media extends AbstractObject
         $this->medias = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @param $media_id
+     *
+     * @return string|null
+     * @throws PDOException
+     */
     public function getMediaPathFromId($media_id)
     {
         if (is_null($this->medias)) {

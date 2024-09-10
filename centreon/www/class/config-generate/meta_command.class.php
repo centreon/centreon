@@ -34,15 +34,27 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class MetaCommand
+ */
 class MetaCommand extends AbstractObject
 {
+    /** @var string */
     protected $generate_filename = 'meta_commands.cfg';
-    protected $object_name = 'command';
+    /** @var string */
+    protected string $object_name = 'command';
+    /** @var string[] */
     protected $attributes_write = array(
         'command_name',
         'command_line',
     );
 
+    /**
+     * @return int|void
+     * @throws Exception
+     */
     public function generateObjects()
     {
         if ($this->checkGenerate(0)) {

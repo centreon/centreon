@@ -21,11 +21,21 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class TimePeriodExceptions
+ * @package ConfigGenerateRemote\Relations
+ */
 class TimePeriodExceptions extends AbstractObject
 {
+    /** @var string */
     protected $table = 'timeperiod_exceptions';
+    /** @var string */
     protected $generateFilename = 'timeperiod_exceptions.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'timeperiod_id',
         'days',
@@ -36,8 +46,10 @@ class TimePeriodExceptions extends AbstractObject
      * Add relation
      *
      * @param array $object
-     * @param integer $tpId
+     * @param int $tpId
+     *
      * @return void
+     * @throws Exception
      */
     public function add(array $object, int $tpId)
     {

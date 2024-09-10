@@ -20,9 +20,10 @@
 
 namespace ConfigGenerateRemote\Abstracts;
 
-use \Exception;
+use Exception;
 use ConfigGenerateRemote\Backend;
 use ConfigGenerateRemote\Manifest;
+use Pimple\Container;
 
 /**
  * Class
@@ -32,21 +33,21 @@ use ConfigGenerateRemote\Manifest;
  */
 abstract class AbstractObject
 {
-    /** @var */
+    /** @var array */
     public $attributes_array;
-    /** @var */
+    /** @var array */
     public $attributes_hash;
-    /** @var */
+    /** @var array */
     public $attributes_default;
     /** @var Backend|null */
     protected $backendInstance = null;
-    /** @var null */
+    /** @var string|null */
     protected $generateFilename = null;
-    /** @var null */
+    /** @var string|null */
     protected $table = null;
     /** @var array */
     protected $exported = [];
-    /** @var null */
+    /** @var string|null */
     protected $fp = null;
     /** @var string */
     protected $type = 'infile';
@@ -62,7 +63,7 @@ abstract class AbstractObject
     protected $engine = true;
     /** @var bool */
     protected $broker = false;
-    /** @var \Pimple\Container */
+    /** @var Container */
     protected $dependencyInjector;
 
     /** @var string|null */
@@ -73,10 +74,10 @@ abstract class AbstractObject
     /**
      * Get instance singleton
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      * @return object
      */
-    public static function getInstance(\Pimple\Container $dependencyInjector)
+    public static function getInstance(Container $dependencyInjector)
     {
         static $instances = [];
         $calledClass = get_called_class();
@@ -91,9 +92,9 @@ abstract class AbstractObject
     /**
      * Constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    protected function __construct(\Pimple\Container $dependencyInjector)
+    protected function __construct(Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backendInstance = Backend::getInstance($this->dependencyInjector);

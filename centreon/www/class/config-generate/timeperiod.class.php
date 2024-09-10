@@ -34,11 +34,20 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Timeperiod
+ */
 class Timeperiod extends AbstractObject
 {
+    /** @var null */
     private $timeperiods = null;
+    /** @var string */
     protected $generate_filename = 'timeperiods.cfg';
-    protected $object_name = 'timeperiod';
+    /** @var string */
+    protected string $object_name = 'timeperiod';
+    /** @var string */
     protected $attributes_select = '
         tp_id,
         tp_name as timeperiod_name,
@@ -51,6 +60,7 @@ class Timeperiod extends AbstractObject
         tp_friday as friday,
         tp_saturday as saturday
     ';
+    /** @var string[] */
     protected $attributes_write = array(
         'name',
         'timeperiod_name',
@@ -63,15 +73,22 @@ class Timeperiod extends AbstractObject
         'friday',
         'saturday',
     );
+    /** @var string[] */
     protected $attributes_array = array(
         'use',
         'exclude'
     );
+    /** @var string[] */
     protected $attributes_hash = array(
         'exceptions'
     );
+    /** @var null[] */
     protected $stmt_extend = array('include' => null, 'exclude' => null);
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     public function getTimeperiods()
     {
         $query = "SELECT $this->attributes_select FROM timeperiod";
@@ -80,6 +97,12 @@ class Timeperiod extends AbstractObject
         $this->timeperiods = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @param $timeperiod_id
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     protected function getTimeperiodExceptionFromId($timeperiod_id)
     {
         if (isset($this->timeperiods[$timeperiod_id]['exceptions'])) {
@@ -98,6 +121,14 @@ class Timeperiod extends AbstractObject
         }
     }
 
+    /**
+     * @param $timeperiod_id
+     * @param $db_label
+     * @param $label
+     *
+     * @return void
+     * @throws PDOException
+     */
     protected function getTimeperiodExtendFromId($timeperiod_id, $db_label, $label)
     {
         if (!isset($this->timeperiods[$timeperiod_id][$label . '_cache'])) {
@@ -118,6 +149,12 @@ class Timeperiod extends AbstractObject
         }
     }
 
+    /**
+     * @param $timeperiod_id
+     *
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function generateFromTimeperiodId($timeperiod_id)
     {
         if (is_null($timeperiod_id)) {

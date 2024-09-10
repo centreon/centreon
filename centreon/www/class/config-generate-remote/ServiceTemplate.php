@@ -20,7 +20,8 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractService;
 
 /**
@@ -34,7 +35,7 @@ class ServiceTemplate extends AbstractService
 
     /** @var */
     public $loop_stpl;
-    /** @var null */
+    /** @var array|null */
     protected $hosts = null;
     /** @var string */
     protected $table = 'service';
@@ -42,13 +43,13 @@ class ServiceTemplate extends AbstractService
     protected $generateFilename = 'serviceTemplates.infile';
     /** @var array */
     public $serviceCache = [];
-    /** @var null */
+    /** @var int|null */
     public $currentHostId = null;
-    /** @var null */
+    /** @var string|null */
     public $currentHostName = null;
-    /** @var null */
+    /** @var string|null */
     public $currentServiceDescription = null;
-    /** @var null */
+    /** @var int|null */
     public $currentServiceId = null;
     /** @var array */
     protected $loopTpl = [];
@@ -187,7 +188,9 @@ class ServiceTemplate extends AbstractService
      * Generate service template
      *
      * @param null|int $serviceId
+     *
      * @return void
+     * @throws Exception
      */
     public function generateFromServiceId(?int $serviceId)
     {
@@ -256,7 +259,9 @@ class ServiceTemplate extends AbstractService
      * Reset object
      *
      * @param bool $createfile
+     *
      * @return void
+     * @throws Exception
      */
     public function reset($createfile = false): void
     {

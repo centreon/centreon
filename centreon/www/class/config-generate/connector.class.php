@@ -38,7 +38,7 @@ class Connector extends AbstractObject
 {
     private $connectors = null;
     protected $generate_filename = 'connectors.cfg';
-    protected $object_name = 'connector';
+    protected string $object_name = 'connector';
     protected $attributes_select = '
         id,
         name as connector_name,

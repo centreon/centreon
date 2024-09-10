@@ -34,13 +34,25 @@
  *
  */
 
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 require_once dirname(__FILE__) . '/abstract/host.class.php';
 
+/**
+ * Class
+ *
+ * @class HostTemplate
+ */
 class HostTemplate extends AbstractHost
 {
+    /** @var array|null */
     public $hosts = null;
+    /** @var string */
     protected $generate_filename = 'hostTemplates.cfg';
-    protected $object_name = 'host';
+    /** @var string */
+    protected string $object_name = 'host';
+    /** @var string */
     protected $attributes_select = '
         host_id,
         command_command_id as check_command_id,
@@ -91,6 +103,7 @@ class HostTemplate extends AbstractHost
         ehi_3d_coords as 3d_coords,
         host_acknowledgement_timeout as acknowledgement_timeout
     ';
+    /** @var string[] */
     protected $attributes_write = array(
         'name',
         'alias',
@@ -127,6 +140,7 @@ class HostTemplate extends AbstractHost
         '3d_coords',
         'acknowledgement_timeout'
     );
+    /** @var string[] */
     protected $attributes_array = [
         'use',
         'category_tags',
@@ -134,6 +148,8 @@ class HostTemplate extends AbstractHost
 
     /**
      * @param int $hostId
+     *
+     * @throws PDOException
      */
     public function addCacheHostTpl(int $hostId): void
     {
@@ -153,6 +169,10 @@ class HostTemplate extends AbstractHost
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getHosts()
     {
         $stmt = $this->backend_instance->db->prepare(
@@ -165,6 +185,12 @@ class HostTemplate extends AbstractHost
         $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     private function getSeverity($host_id)
     {
         if (isset($this->hosts[$host_id]['severity_id'])) {
@@ -187,6 +213,15 @@ class HostTemplate extends AbstractHost
         }
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return mixed|null
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     public function generateFromHostId($host_id)
     {
         if (is_null($this->hosts)) {
@@ -227,6 +262,10 @@ class HostTemplate extends AbstractHost
         return $this->hosts[$host_id]['name'];
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function reset()
     {
         $this->loop_htpl = array();

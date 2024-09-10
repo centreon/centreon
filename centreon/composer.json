@@ -16,6 +16,7 @@
     "ext-phar": "*",
     "ext-zip": "*",
     "ext-pdo": "*",
+    "ext-posix": "*",
     "friendsofsymfony/rest-bundle": "^3.0",
     "jms/serializer-bundle": "^5.4",
     "justinrainbow/json-schema": "^5.2",

@@ -22,15 +22,25 @@ namespace ConfigGenerateRemote;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class Manifest
+ * @package ConfigGenerateRemote
+ */
 class Manifest extends AbstractObject
 {
+    /** @var string */
     protected $generateFilename = 'manifest.json';
+    /** @var array */
     protected $manifest = [];
+    /** @var string */
     protected $type = 'manifest';
+    /** @var string */
     protected $subdir = '';
 
     /**
-     * Constructor
+     * Manifest constructor
      *
      * @param \Pimple\Container $dependencyInjector
      */
@@ -78,7 +88,7 @@ class Manifest extends AbstractObject
     /**
      * Add remote server
      *
-     * @param integer $remoteId
+     * @param int $remoteId
      * @return void
      */
     public function addRemoteServer(int $remoteId)
@@ -89,7 +99,7 @@ class Manifest extends AbstractObject
     /**
      * Add poller
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
     public function addPoller(int $pollerId)

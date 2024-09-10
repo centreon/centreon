@@ -36,21 +36,37 @@
 
 require_once dirname(__FILE__) . '/abstract/service.class.php';
 
+/**
+ * Class
+ *
+ * @class Service
+ */
 class Service extends AbstractService
 {
     const VERTICAL_NOTIFICATION = 1;
     const CLOSE_NOTIFICATION = 2;
     const CUMULATIVE_NOTIFICATION = 3;
 
+    /** @var int */
     private $use_cache = 0;
+    /** @var int */
     private $use_cache_poller = 1;
+    /** @var int */
     private $done_cache = 0;
+    /** @var array|null */
     protected $service_cache = null;
+    /** @var array */
     protected $generated_services = array(); // for index_data build and escalation
+    /** @var string */
     protected $generate_filename = 'services.cfg';
-    protected $object_name = 'service';
+    /** @var string */
+    protected string $object_name = 'service';
+    /** @var null */
     public $poller_id = null; // for by poller cache
 
+    /**
+     * @return void
+     */
     public function use_cache() : void
     {
         $this->use_cache = 1;
@@ -80,6 +96,10 @@ class Service extends AbstractService
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function generateServiceCacheByPollerCache() : void
     {
         $query = "SELECT $this->attributes_select FROM ns_host_relation, host_service_relation, service " .
@@ -96,6 +116,10 @@ class Service extends AbstractService
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function generateServiceCache() : void
     {
         $query = "SELECT $this->attributes_select FROM service " .
@@ -479,6 +503,11 @@ class Service extends AbstractService
         }
     }
 
+    /**
+     * @param $service
+     *
+     * @return void
+     */
     protected function clean(&$service)
     {
         if ($service['severity_from_host'] == 1) {
@@ -508,6 +537,10 @@ class Service extends AbstractService
         return $this->generated_services;
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function buildCache() : void
     {
         if ($this->done_cache == 1 || ($this->use_cache == 0 && $this->use_cache_poller == 0)) {
@@ -599,6 +632,11 @@ class Service extends AbstractService
         return $this->service_cache[$serviceId]['service_description'];
     }
 
+    /**
+     * @param $pollerId
+     *
+     * @return void
+     */
     public function set_poller($pollerId) : void
     {
         $this->poller_id = $pollerId;
@@ -639,6 +677,10 @@ class Service extends AbstractService
         return $this->manageNotificationInheritance($this->service_cache[$serviceId], false);
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function reset()
     {
         # We reset it by poller (dont need all. We save memory)
@@ -650,6 +692,11 @@ class Service extends AbstractService
         parent::reset();
     }
 
+    /**
+     * @param int $serviceId
+     *
+     * @return array|null
+     */
     public function getServiceFromCache(int $serviceId): ?array
     {
         if ($this->service_cache !== null && ! array_key_exists($serviceId, $this->service_cache)) {

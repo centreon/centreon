@@ -21,7 +21,14 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class HostPollerRelation
+ * @package ConfigGenerateRemote\Relations
+ */
 class HostPollerRelation extends AbstractObject
 {
     protected $table = 'ns_host_relation';
@@ -34,9 +41,11 @@ class HostPollerRelation extends AbstractObject
     /**
      * Add relation between host and poller
      *
-     * @param integer $pollerId
-     * @param integer $hostId
+     * @param int $pollerId
+     * @param int $hostId
+     *
      * @return void
+     * @throws Exception
      */
     public function addRelation(int $pollerId, int $hostId)
     {

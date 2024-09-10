@@ -21,11 +21,21 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class CfgResourceInstanceRelation
+ * @package ConfigGenerateRemote\Relations
+ */
 class CfgResourceInstanceRelation extends AbstractObject
 {
+    /** @var string */
     protected $table = 'cfg_resource_instance_relations';
+    /** @var string */
     protected $generateFilename = 'cfg_resource_instance_relations.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'resource_id',
         'instance_id',
@@ -34,9 +44,11 @@ class CfgResourceInstanceRelation extends AbstractObject
     /**
      * Add relation
      *
-     * @param integer $resourceId
-     * @param integer $instanceId
+     * @param int $resourceId
+     * @param int $instanceId
+     *
      * @return void
+     * @throws Exception
      */
     public function addRelation(int $resourceId, int $instanceId)
     {
