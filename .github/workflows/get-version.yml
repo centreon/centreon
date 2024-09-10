@@ -44,9 +44,9 @@ jobs:
       release_cloud: ${{ steps.get_version.outputs.release_cloud}}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: shivammathur/setup-php@2e947f1f6932d141d076ca441d0e1e881775e95b # v2.31.0
+      - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         if: ${{ endsWith(inputs.version_file, '.php') }}
         with:
           php-version: 8.2
@@ -194,7 +194,7 @@ jobs:
           esac
 
           case "$BRANCHNAME" in
-            develop | dev-[2-9][0-9].[0-9][0-9].x)
+            develop | dev-[2-9][0-9].[0-9][0-9].x |prepare-release-cloud*)
               STABILITY="unstable"
               ENV="development"
               ;;

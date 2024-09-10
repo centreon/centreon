@@ -1,6 +1,6 @@
+import dayjs from 'dayjs';
 import { equals, isEmpty, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 
 import {
   Box,
@@ -16,20 +16,20 @@ import {
   usePluralizedTranslation
 } from '@centreon/ui';
 
-import { CalculationMethodType, ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
-import { getColor } from '../utils';
+import { CalculationMethodType, ResourceData } from '../models';
 import {
-  labelCriticalThreshold,
   labelAllKPIsAreWorkingFine,
   labelAreWorkingFine,
   labelCalculationMethod,
-  labelStateInformation,
-  labelWarningThreshold,
-  labelHealth,
   labelCriticalKPIs,
-  labelParent
+  labelCriticalThreshold,
+  labelHealth,
+  labelParent,
+  labelStateInformation,
+  labelWarningThreshold
 } from '../translatedLabels';
+import { getColor } from '../utils';
 
 import useBATooltipContent from './useBATooltipContent';
 

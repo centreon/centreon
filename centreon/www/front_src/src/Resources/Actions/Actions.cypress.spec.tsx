@@ -1,15 +1,16 @@
 import { Provider, createStore } from 'jotai';
 import { pick } from 'ramda';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
-  userAtom,
-  refreshIntervalAtom,
-  downtimeAtom,
   acknowledgementAtom,
-  aclAtom
+  aclAtom,
+  downtimeAtom,
+  refreshIntervalAtom,
+  userAtom
 } from '@centreon/ui-context';
 
+import { resourcesEndpoint } from '../api/endpoint';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
@@ -37,10 +38,9 @@ import {
   labelUnreachable,
   labelUp
 } from '../translatedLabels';
-import { resourcesEndpoint } from '../api/endpoint';
 
-import { selectedResourcesAtom } from './actionsAtoms';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
+import { selectedResourcesAtom } from './actionsAtoms';
 import {
   acknowledgeEndpoint,
   checkEndpoint,

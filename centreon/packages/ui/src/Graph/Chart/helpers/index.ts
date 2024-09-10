@@ -1,16 +1,16 @@
 import dayjs from 'dayjs';
-import { gt, gte, isEmpty, isNil, prop, propEq, reject, sortBy } from 'ramda';
 import durationPlugin from 'dayjs/plugin/duration';
+import { gt, gte, isEmpty, isNil, prop, propEq, reject, sortBy } from 'ramda';
 
-import { LinesData } from '../BasicComponents/Lines/models';
-import { dateFormat, timeFormat } from '../common';
-import { GetDate, GraphInterval } from '../models';
+import { LineChartData } from '../../common/models';
 import {
   getLineData,
   getTimeSeries,
   getTimeValue
 } from '../../common/timeSeries';
-import { LineChartData } from '../../common/models';
+import { LinesData } from '../BasicComponents/Lines/models';
+import { dateFormat, timeFormat } from '../common';
+import { GetDate, GraphInterval } from '../models';
 
 dayjs.extend(durationPlugin);
 

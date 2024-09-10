@@ -1,6 +1,6 @@
+import dayjs from 'dayjs';
 import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 
 import {
   Box,
@@ -12,18 +12,18 @@ import {
 
 import { SeverityCode, useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
-import { getColor } from '../utils';
+import { ResourceData } from '../models';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
   labelParent,
   labelValue
 } from '../translatedLabels';
+import { getColor } from '../utils';
 
-import useServiceTooltipContent from './useServiceTooltipContent';
 import States from './States';
+import useServiceTooltipContent from './useServiceTooltipContent';
 
 interface Props {
   data: ResourceData;

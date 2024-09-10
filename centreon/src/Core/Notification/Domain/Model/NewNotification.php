@@ -31,14 +31,14 @@ class NewNotification
 
     /**
      * @param string $name
-     * @param ConfigurationTimePeriod $timePeriod
+     * @param TimePeriod $timePeriod
      * @param bool $isActivated
      *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
         protected string $name,
-        protected ConfigurationTimePeriod $timePeriod,
+        protected TimePeriod $timePeriod,
         protected bool $isActivated = true
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
@@ -53,7 +53,7 @@ class NewNotification
         return $this->name;
     }
 
-    public function getTimePeriod(): ConfigurationTimePeriod
+    public function getTimePeriod(): TimePeriod
     {
         return $this->timePeriod;
     }

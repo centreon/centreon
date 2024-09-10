@@ -1,21 +1,21 @@
 import { useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Button, Typography } from '@mui/material';
-import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
 
+import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
+import { ServerType } from '../models';
 import {
   labelAddACentreonPoller,
   labelAddACentreonRemoteServer,
-  labelNext,
-  labelChoseServerType
+  labelChoseServerType,
+  labelNext
 } from '../translatedLabels';
-import { ServerType } from '../models';
-import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
 
 interface Props {
   changeServerType: (type: ServerType) => void;

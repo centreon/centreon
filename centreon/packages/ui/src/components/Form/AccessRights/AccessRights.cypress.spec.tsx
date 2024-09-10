@@ -108,15 +108,15 @@ describe('Access rights', () => {
   it('displays a removed chip when the corresponding icon is clicked', () => {
     initialize({});
 
-    cy.findByTestId(`remove-Kathy Schmitt`).should(
+    cy.findByTestId('remove-Kathy Schmitt').should(
       'have.attr',
       'data-removed',
       'false'
     );
 
-    cy.findByTestId(`remove-Kathy Schmitt`).click();
+    cy.findByTestId('remove-Kathy Schmitt').click();
 
-    cy.findByTestId(`remove-Kathy Schmitt`).should(
+    cy.findByTestId('remove-Kathy Schmitt').should(
       'have.attr',
       'data-removed',
       'true'
@@ -129,9 +129,9 @@ describe('Access rights', () => {
   it('restores the contact when the contact is removed and the corresponding icon is clicked', () => {
     initialize({});
 
-    cy.findByTestId(`remove-Kathy Schmitt`).click();
+    cy.findByTestId('remove-Kathy Schmitt').click();
 
-    cy.findByTestId(`remove-Kathy Schmitt`).should(
+    cy.findByTestId('remove-Kathy Schmitt').should(
       'have.attr',
       'data-removed',
       'false'
@@ -144,9 +144,9 @@ describe('Access rights', () => {
   it('submits the new acces rights list without the removed contact', () => {
     const { save } = initialize({});
 
-    cy.findByTestId(`remove-Kathy Schmitt`).click();
+    cy.findByTestId('remove-Kathy Schmitt').click();
 
-    cy.findByTestId(`remove-Kathy Schmitt`).should(
+    cy.findByTestId('remove-Kathy Schmitt').should(
       'have.attr',
       'data-removed',
       'true'
@@ -166,8 +166,8 @@ describe('Access rights', () => {
   it('submits the new acces rights list with the updated contact', () => {
     const { save } = initialize({});
 
-    cy.findByTestId(`remove-Kathy Schmitt`).click();
-    cy.findByTestId(`role-Kathy Schmitt`).parent().click();
+    cy.findByTestId('remove-Kathy Schmitt').click();
+    cy.findByTestId('role-Kathy Schmitt').parent().click();
 
     cy.get('li[data-value="editor"]').click();
     cy.contains(labels.list.updated).should('be.visible');
@@ -185,7 +185,7 @@ describe('Access rights', () => {
   it('removes the updated chip when the contact role is updated and its initial role is assigned back', () => {
     initialize({});
 
-    cy.findByTestId(`role-Kathy Schmitt`).parent().click();
+    cy.findByTestId('role-Kathy Schmitt').parent().click();
 
     cy.get('li[data-value="editor"]').click();
     cy.contains(labels.list.updated).should('be.visible');
@@ -275,7 +275,7 @@ describe('Access rights', () => {
 
     cy.contains('Entity Group 10').should('be.visible');
 
-    cy.findByTestId(`role-Kathy Schmitt`).parent().click();
+    cy.findByTestId('role-Kathy Schmitt').parent().click();
     cy.get('li[data-value="editor"]').click();
 
     cy.findByTestId('remove-Linda Schultz').click();

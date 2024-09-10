@@ -5,11 +5,11 @@ import { makeStyles } from 'tss-react/mui';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { labelInDowntime, labelAcknowledged } from '../../../translatedLabels';
-import { Resource } from '../../../models';
-import HoverChip from '../HoverChip';
-import DowntimeChip from '../../../Chip/Downtime';
 import AcknowledgeChip from '../../../Chip/Acknowledge';
+import DowntimeChip from '../../../Chip/Downtime';
+import { Resource } from '../../../models';
+import { labelAcknowledged, labelInDowntime } from '../../../translatedLabels';
+import HoverChip from '../HoverChip';
 
 import AcknowledgementDetailsTable from './DetailsTable/Acknowledgement';
 import DowntimeDetailsTable from './DetailsTable/Downtime';

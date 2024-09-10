@@ -2,8 +2,8 @@ import { Box, useTheme } from '@mui/material';
 
 import { AcknowledgementIcon, DowntimeIcon } from '@centreon/ui';
 
-import { getColor } from './utils';
 import { useTileStyles } from './StatusGrid.styles';
+import { getColor } from './utils';
 
 interface Props {
   isAcknowledged?: boolean;

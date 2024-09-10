@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 
 import BarStack from './BarStack';
-import { BarType, BarStackProps } from './models';
+import { BarStackProps, BarType } from './models';
 
 const defaultData = [
   { color: '#88B922', label: 'Ok', value: 148 },

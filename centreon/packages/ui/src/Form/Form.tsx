@@ -4,12 +4,13 @@ import {
   FormikSharedConfig,
   FormikValues
 } from 'formik';
-import * as Yup from 'yup';
 
+import { ComponentType } from 'react';
+import { Schema } from 'yup';
+import { useStyles } from './Form.styles';
 import FormButtons from './FormButtons';
 import Inputs from './Inputs';
 import { Group, InputProps } from './Inputs/models';
-import { useStyles } from './Form.styles';
 
 export enum GroupDirection {
   Horizontal = 'horizontal',
@@ -17,7 +18,7 @@ export enum GroupDirection {
 }
 
 export type FormProps<T> = {
-  Buttons?: React.ComponentType;
+  Buttons?: ComponentType;
   areGroupsOpen?: boolean;
   children?: JSX.Element;
   className?: string;
@@ -30,7 +31,7 @@ export type FormProps<T> = {
   isLoading?: boolean;
   submit: (values: T, bag: FormikHelpers<T>) => void | Promise<void>;
   validate?: (values: FormikValues) => void;
-  validationSchema: Yup.SchemaOf<T>;
+  validationSchema: Schema<T>;
 } & Omit<FormikSharedConfig<T>, 'isInitialValid'>;
 
 const Form = <T extends object>({

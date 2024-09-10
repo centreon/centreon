@@ -1,6 +1,7 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { mergeRegister } from '@lexical/utils';
 import {
   $getSelection,
   $isRangeSelection,
@@ -8,10 +9,9 @@ import {
   SELECTION_CHANGE_COMMAND,
   TextFormatType
 } from 'lexical';
-import { mergeRegister } from '@lexical/utils';
 
-import FormatTextIcon from '@mui/icons-material/FormatColorText';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatTextIcon from '@mui/icons-material/FormatColorText';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
 import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';

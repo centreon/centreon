@@ -4,8 +4,9 @@
   "description": "Centreon UI Components",
   "scripts": {
     "update:deps": "pnpx npm-check-updates -i --format group",
-    "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
-    "eslint:fix": "pnpm eslint --fix",
+    "lint": "biome check ./src/ --error-on-warnings",
+    "lint:fix": "pnpm lint --fix",
+    "lint:ci": "biome ci ./src/ --error-on-warnings",
     "storybook": "storybook dev -p 9001 -c .storybook",
     "build:storybook": "storybook build -c .storybook -o .out",
     "test": "jest",
@@ -22,10 +23,7 @@
     "type": "git",
     "url": "git+https://github.com/centreon/centreon.git"
   },
-  "keywords": [
-    "centreon",
-    "react"
-  ],
+  "keywords": ["centreon", "react"],
   "author": {
     "name": "centreon@centreon.com"
   },
@@ -41,12 +39,7 @@
     "./fonts/*": "./src/fonts/*",
     "./test/testRenderer": "./test/testRenderer.tsx"
   },
-  "files": [
-    "package.json",
-    "src/*",
-    "public/*",
-    "test/*"
-  ],
+  "files": ["package.json", "src/*", "public/*", "test/*"],
   "devDependencies": {
     "@cypress/react": "^8.0.2",
     "@cypress/webpack-dev-server": "^3.10.1",
@@ -151,8 +144,6 @@
     "output": "./junit.xml"
   },
   "msw": {
-    "workerDirectory": [
-      "public"
-    ]
+    "workerDirectory": ["public"]
   }
 }

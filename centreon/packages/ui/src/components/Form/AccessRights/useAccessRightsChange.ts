@@ -5,8 +5,8 @@ import { useAtomValue } from 'jotai';
 import { useDeepCompare } from '../../../utils';
 
 import { valuesAtom } from './atoms';
-import { formatValueForSubmition } from './utils';
 import { AccessRightInitialValues } from './models';
+import { formatValueForSubmition } from './utils';
 
 export const useAccessRightsChange = (
   onChange?: (values: Array<AccessRightInitialValues>) => void

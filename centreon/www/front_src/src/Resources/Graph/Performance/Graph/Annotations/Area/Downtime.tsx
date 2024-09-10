@@ -4,8 +4,8 @@ import { useTheme } from '@mui/material';
 
 import { DowntimeIcon } from '@centreon/ui';
 
-import { labelDowntime } from '../../../../../translatedLabels';
 import { Props } from '..';
+import { labelDowntime } from '../../../../../translatedLabels';
 import EventAnnotations from '../EventAnnotations';
 
 const DowntimeAnnotations = (props: Props): JSX.Element => {

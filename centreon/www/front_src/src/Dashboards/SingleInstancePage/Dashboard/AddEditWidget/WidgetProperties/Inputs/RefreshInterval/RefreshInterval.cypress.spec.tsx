@@ -2,15 +2,15 @@ import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
 import {
-  labelDashboardGlobalInterval,
-  labelInterval,
-  labelRefreshInterval
-} from '../../../../translatedLabels';
-import {
   dashboardRefreshIntervalAtom,
   hasEditPermissionAtom,
   isEditingAtom
 } from '../../../../atoms';
+import {
+  labelDashboardGlobalInterval,
+  labelInterval,
+  labelRefreshInterval
+} from '../../../../translatedLabels';
 
 import RefreshInterval from './RefreshInterval';
 

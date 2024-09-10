@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 
-import { filter, intersection, isNil, map, pipe, toUpper } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { filter, intersection, isNil, map, pipe, toUpper } from 'ramda';
 
 import { SeverityCode, useFetchQuery, useRefreshInterval } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { StatusGridProps } from '../StatusGridStandard/models';
 import { SeverityStatus, StatusDetail, StatusType } from '../../../models';
 import {
   formatStatus,
@@ -14,6 +13,7 @@ import {
   getWidgetEndpoint,
   severityCodeBySeverityStatus
 } from '../../../utils';
+import { StatusGridProps } from '../StatusGridStandard/models';
 import { buildCondensedViewEndpoint } from '../api/endpoints';
 
 import { getStatusesEndpoint } from './api/endpoints';

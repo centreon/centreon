@@ -12,21 +12,22 @@ import { useLocaleDateTimeFormat } from '@centreon/ui';
 import TimePeriod from '../../TimePeriods';
 import { LineChartData } from '../common/models';
 import annotationData from '../mockedData/annotationData.json';
+import dataCurvesSameColor from '../mockedData/curvesWithSameColor.json';
 import exclusionPeriodFirstPeriod from '../mockedData/exclusionPeriodFirstPeriod.json';
 import exclusionPeriodSecondPeriod from '../mockedData/exclusionPeriodSecondPeriod.json';
 import exclusionPeriodThirdPeriod from '../mockedData/exclusionPeriodThirdPeriod.json';
+import dataLastDay from '../mockedData/lastDay.json';
 import dataLastDayForword from '../mockedData/lastDayForward.json';
 import dataLastDayThreshold from '../mockedData/lastDayThreshold.json';
+import dataLastDayWithLotOfUnits from '../mockedData/lastDayWithLotOfUnits.json';
 import dataLastMonth from '../mockedData/lastMonth.json';
 import dataLastWeek from '../mockedData/lastWeek.json';
-import dataZoomPreview from '../mockedData/zoomPreview.json';
-import dataLastDay from '../mockedData/lastDay.json';
-import dataCurvesSameColor from '../mockedData/curvesWithSameColor.json';
-import dataLastDayWithLotOfUnits from '../mockedData/lastDayWithLotOfUnits.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
-import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
+import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
+import dataZoomPreview from '../mockedData/zoomPreview.json';
 
+import { dateTimeFormat } from './common';
 import {
   argTypes,
   args as argumentsData,
@@ -37,7 +38,6 @@ import {
   lastDayForwardDate,
   zoomPreviewDate
 } from './helpers/doc';
-import { dateTimeFormat } from './common';
 import { Interval, ThresholdType, TooltipData } from './models';
 
 import WrapperChart from '.';

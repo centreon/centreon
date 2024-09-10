@@ -38,6 +38,7 @@ services:
             - '../../src/Core/Media/*'
             - '../../src/Core/Command/*'
             - '../../src/Core/ResourceAccess/*'
+            - '../../src/Core/TimePeriod/*'
             - '../../src/Core/Service/*'
             - '../../src/Core/HostGroup/*'
             - '../../src/Core/ServiceGroup/*'
@@ -45,6 +46,7 @@ services:
             - '../../src/Core/Broker/*'
             - '../../src/Core/AdditionalConnectorConfiguration/*'
             - '../../src/Core/Security/Vault/*'
+            - '../../src/Core/Contact/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 

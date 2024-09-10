@@ -2,15 +2,15 @@ import { equals, flatten } from 'ramda';
 
 import { useInfiniteScrollListing } from '@centreon/ui';
 
-import { ResourceStatus } from '../../StatusGridStandard/models';
+import { Resource } from '../../../../models';
 import { tooltipPageAtom } from '../../StatusGridStandard/Tooltip/atoms';
+import { ResourceStatus } from '../../StatusGridStandard/models';
 import {
   baIndicatorsEndpoint,
   businessActivitiesEndpoint,
   getListingCustomQueryParameters,
   resourcesEndpoint
 } from '../../api/endpoints';
-import { Resource } from '../../../../models';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;

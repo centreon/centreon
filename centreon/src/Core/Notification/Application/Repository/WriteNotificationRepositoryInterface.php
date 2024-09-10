@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace Core\Notification\Application\Repository;
 
 use Centreon\Domain\Repository\RepositoryException;
+use Core\Notification\Domain\Model\Message;
 use Core\Notification\Domain\Model\NewNotification;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationMessage;
 
 interface WriteNotificationRepositoryInterface
 {
@@ -40,17 +40,17 @@ interface WriteNotificationRepositoryInterface
      *
      * @return int
      */
-    public function add(NewNotification $notification): int;
+    public function addNewNotification(NewNotification $notification): int;
 
     /**
      * Add messages to a notification.
      *
      * @param int $notificationId
-     * @param NotificationMessage[] $messages
+     * @param Message[] $messages
      *
      * @throws \Throwable
      */
-    public function addMessages(int $notificationId, array $messages): void;
+    public function addMessagesToNotification(int $notificationId, array $messages): void;
 
     /**
      * Add users to a notification.
@@ -60,7 +60,7 @@ interface WriteNotificationRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function addUsers(int $notificationId, array $userIds): void;
+    public function addUsersToNotification(int $notificationId, array $userIds): void;
 
     /**
      * Add Contact Groups to a notification.
@@ -70,7 +70,7 @@ interface WriteNotificationRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function addContactGroups(int $notificationId, array $contactGroupIds): void;
+    public function addContactGroupsToNotification(int $notificationId, array $contactGroupIds): void;
 
     /**
      * Update notification.
@@ -79,7 +79,7 @@ interface WriteNotificationRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function update(Notification $notification): void;
+    public function updateNotification(Notification $notification): void;
 
     /**
      * delete all the messages of a notification.
@@ -88,7 +88,7 @@ interface WriteNotificationRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function deleteMessages(int $notificationId): void;
+    public function deleteNotificationMessages(int $notificationId): void;
 
     /**
      * delete all the users of a notification.
@@ -97,19 +97,19 @@ interface WriteNotificationRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function deleteUsers(int $notificationId): void;
+    public function deleteUsersFromNotification(int $notificationId): void;
 
     /**
-     * delete all the contactgroups of a notification.
+     * delete all the contactGroups of a notification.
      *
      * @param int $notificationId
      *
      * @throws \Throwable
      */
-    public function deleteContactGroups(int $notificationId): void;
+    public function deleteContactGroupsFromNotification(int $notificationId): void;
 
     /**
-     * delete the given contactgroups of a notification.
+     * delete the given contactGroups of a notification.
      *
      * @param int $notificationId
      * @param int[] $contactGroupsIds
@@ -130,5 +130,5 @@ interface WriteNotificationRepositoryInterface
      *
      * @return int
      */
-    public function delete(int $notificationId): int;
+    public function deleteNotification(int $notificationId): int;
 }

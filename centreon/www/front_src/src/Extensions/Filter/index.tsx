@@ -1,44 +1,44 @@
 import {
   KeyboardEvent,
-  lazy,
   RefObject,
   Suspense,
+  lazy,
   useEffect,
   useRef,
   useState
 } from 'react';
 
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
-  isEmpty,
-  equals,
-  last,
-  inc,
-  length,
   dec,
+  dropLast,
+  equals,
+  inc,
+  isEmpty,
   isNil,
-  dropLast
+  last,
+  length
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import CloseIcon from '@mui/icons-material/Close';
 import { ClickAwayListener, MenuItem, Paper, Popper } from '@mui/material';
 
 import {
-  MemoizedFilter,
-  SearchField,
   IconButton,
-  LoadingSkeleton
+  LoadingSkeleton,
+  MemoizedFilter,
+  SearchField
 } from '@centreon/ui';
 
-import { labelSearch, labelClearFilter } from '../translatedLabels';
+import { labelClearFilter, labelSearch } from '../translatedLabels';
 
 import { getAutocompleteSuggestions } from './Criterias/searchQueryLanguage';
 import {
-  currentFilterCriteriasAtom,
   applyCurrentFilterDerivedAtom,
   clearFilterDerivedAtom,
+  currentFilterCriteriasAtom,
   searchAtom
 } from './filterAtoms';
 

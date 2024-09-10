@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 

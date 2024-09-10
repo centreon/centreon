@@ -1,21 +1,22 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { type RefObject, useEffect, useRef, useState } from 'react';
 
+import { useAtomValue } from 'jotai';
 import {
-  always,
-  isNil,
-  isEmpty,
-  cond,
   T,
+  always,
   concat,
-  gt,
+  cond,
   equals,
-  not,
-  length
+  gt,
+  isEmpty,
+  isNil,
+  length,
+  not
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   CircularProgress,
   Fab,
@@ -23,16 +24,16 @@ import {
   LinearProgress,
   Tooltip
 } from '@mui/material';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import { useIntersectionObserver } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
 
-import NoResultsMessage from '../NoResultsMessage';
 import memoizeComponent from '../../memoizedComponent';
 import { labelScrollToTop } from '../../translatedLabels';
+import NoResultsMessage from '../NoResultsMessage';
 import { selectedResourcesDetailsAtom } from '../detailsAtoms';
-import { ResourceDetails } from '../models';
+import type { ResourceDetails } from '../models';
+import type { GraphTimeParameters } from '../tabs/Graph/models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -94,6 +95,7 @@ interface Props<TEntity> {
   sendListingRequest?: (parameters: {
     atPage?: number;
   }) => Promise<ListingModel<TEntity>>;
+  graphTimeParameters?: GraphTimeParameters;
 }
 
 const InfiniteScrollContent = <TEntity extends { id: number }>({
@@ -105,7 +107,8 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
   preventReloadWhen = false,
   sendListingRequest,
   children,
-  details
+  details,
+  graphTimeParameters
 }: Props<TEntity>): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -248,7 +251,13 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
               [isEmpty, always(<NoResultsMessage />)],
               [
                 T,
-                always(<>{children({ entities, infiniteScrollTriggerRef })}</>)
+                always(
+                  children({
+                    entities,
+                    infiniteScrollTriggerRef,
+                    graphTimeParameters
+                  })
+                )
               ]
             ])(entities)}
           </div>
@@ -281,7 +290,8 @@ const MemoizedInfiniteScrollContent = memoizeComponent({
     'loading',
     'preventReloadWhen',
     'filter',
-    'details'
+    'details',
+    'graphTimeParameters'
   ]
 }) as typeof InfiniteScrollContent;
 

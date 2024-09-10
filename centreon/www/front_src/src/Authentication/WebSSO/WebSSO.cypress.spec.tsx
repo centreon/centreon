@@ -1,15 +1,15 @@
-import { TestQueryProvider, Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { authenticationProvidersEndpoint } from '../api/endpoints';
-import { Provider } from '../models';
-import { labelActivation } from '../translatedLabels';
-import { labelMixed } from '../shared/translatedLabels';
 import {
   labelDoYouWantToResetTheForm,
   labelReset,
   labelResetTheForm,
   labelSave
 } from '../Local/translatedLabels';
+import { authenticationProvidersEndpoint } from '../api/endpoints';
+import { Provider } from '../models';
+import { labelMixed } from '../shared/translatedLabels';
+import { labelActivation } from '../translatedLabels';
 
 import { retrievedWebSSOConfiguration } from './defaults';
 import {

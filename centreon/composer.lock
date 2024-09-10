@@ -7106,12 +7106,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "d686936d55f7d2d20ee3ebcece13c12c6e6001db"
+                "reference": "67cb5c7117a04459c48453edb98413fda6a7183a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/d686936d55f7d2d20ee3ebcece13c12c6e6001db",
-                "reference": "d686936d55f7d2d20ee3ebcece13c12c6e6001db",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/67cb5c7117a04459c48453edb98413fda6a7183a",
+                "reference": "67cb5c7117a04459c48453edb98413fda6a7183a",
                 "shasum": ""
             },
             "require": {
@@ -7161,7 +7161,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2024-06-03T09:51:01+00:00"
+            "time": "2024-08-30T15:03:34+00:00"
         },
         {
             "name": "clue/ndjson-react",

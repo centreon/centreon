@@ -182,24 +182,8 @@ abstract class AbstractHost extends AbstractObject
         if (isset($host['macros'])) {
             return 1;
         }
-
-        if (is_null($this->stmtMacro)) {
-            $this->stmtMacro = $this->backendInstance->db->prepare(
-                "SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description, host_host_id
-                FROM on_demand_macro_host
-                WHERE host_host_id = :host_id"
-            );
-        }
-        $this->stmtMacro->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $this->stmtMacro->execute();
-        $macros = $this->stmtMacro->fetchAll(PDO::FETCH_ASSOC);
-
-        $host['macros'] = [];
-        foreach ($macros as $macro) {
-            $host['macros'][$macro['host_macro_name']] = $macro['host_macro_value'];
-            MacroHost::getInstance($this->dependencyInjector)->add($macro, $host['host_id']);
-        }
-
+        $host['macros'] = MacroHost::getInstance($this->dependencyInjector)
+            ->getHostMacroByHostId($host['host_id']);
         return 0;
     }
 

@@ -1,17 +1,17 @@
-import { useSetAtom, useAtomValue, useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { cond, equals, has } from 'ramda';
 
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { selectedVisualizationAtom } from '../actionsAtoms';
-import { ResourceListing, Visualization } from '../../models';
-import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
 import { CriteriaNames } from '../../Filter/Criterias/models';
-import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
+import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from '../../Listing/columns/index';
+import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
+import { ResourceListing, Visualization } from '../../models';
+import { selectedVisualizationAtom } from '../actionsAtoms';
 
 interface Props {
   type: Visualization;

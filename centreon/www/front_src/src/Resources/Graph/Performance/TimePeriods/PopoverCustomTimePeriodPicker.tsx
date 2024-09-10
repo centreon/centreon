@@ -19,12 +19,12 @@ import {
 } from '../../../translatedLabels';
 
 import {
+  AnchorReferenceEnum,
   CustomStyle,
   OriginHorizontalEnum,
   OriginVerticalEnum,
   PickersData,
-  PopoverData,
-  anchorReferenceEnum
+  PopoverData
 } from './models';
 
 const useStyles = makeStyles()((theme) => ({
@@ -43,7 +43,7 @@ const defaultPopoverData = {
     vertical: OriginVerticalEnum.top
   },
   anchorPosition: undefined,
-  anchorReference: anchorReferenceEnum.none,
+  anchorReference: AnchorReferenceEnum.none,
   onClose: (): void => undefined,
   transformOrigin: {
     horizontal: OriginHorizontalEnum.center,
