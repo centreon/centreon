@@ -1,9 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-before(() => {
-  cy.startContainers();
-  cy.executeCommandsViaClapi('resources/clapi/config-ACL/ACC-acl-user.json');
-});
+// before(() => {
+//   cy.startContainers();
+//   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
+//   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
+//   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+// });
 
 beforeEach(() => {
   cy.intercept({
@@ -12,14 +14,55 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '...'
+    url: '/centreon/api/latest/configuration/additional-connector-configurations?*'
   }).as('getConnectorPage');
   cy.intercept({
-    method: 'GET',
-    url: '...'
-  }).as('getConnectorDetail');
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/additional-connector-configurations'
+  }).as('addAdditionalConnector');
+  cy.intercept({
+    method: 'DELETE',
+    url: '/centreon/api/latest/configuration/additional-connector-configurations/*'
+  }).as('deleteConnector');
 });
 
-after(() => {
-  cy.stopContainers();
+// after(() => {
+//   cy.stopContainers();
+// });
+
+Given('a non-admin user is in the Specific Connector Configuration page', () => {
+  cy.loginByTypeOfUser({
+    jsonName: 'user-non-admin-for-ACC',
+    loginViaApi: false
+  });
+  cy.visit('/centreon/configuration/additional-connector-configurations');
+  cy.wait('@getConnectorPage');
+});
+
+Given('an additional connector configuration is already created', () => {
+  cy.getByLabel({ label: 'Add', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-001');
+  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
+  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
+  cy.contains('Central').click();
+  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
+  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
+  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
+  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
+  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.getByLabel({ label: 'Create', tag: 'button' }).click();
+  cy.wait('@addAdditionalConnector');
+});
+
+When('the user deletes the additional connector configuration', () => {
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).eq(0).click();
+});
+
+When('the user confirms on the pop-up', () => {
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).eq(1).click();
+});
+
+Then('the additional connector configuration is no longer displayed in the listing page', () => {
+  cy.wait('@deleteConnector');
+  cy.get('*[class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-122biyf-root-emptyDataCell"]').eq(0).should('contain', 'No result found');
 });

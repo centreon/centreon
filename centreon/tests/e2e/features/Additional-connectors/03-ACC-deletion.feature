@@ -7,5 +7,6 @@ Feature: Delete an Additional Connector Configuration
     Given a non-admin user is in the Specific Connector Configuration page
     And an additional connector configuration is already created
     When the user deletes the additional connector configuration
+    And the user confirms on the pop-up
     Then the additional connector configuration is no longer displayed in the listing page
 #    And its parameters should no longer be saved in vault
