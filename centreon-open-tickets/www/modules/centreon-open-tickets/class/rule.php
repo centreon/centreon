@@ -168,19 +168,28 @@ class Centreon_OpenTickets_Rule
             $db_storage = new CentreonDB('centstorage');
         }
 
-        $selected_values = explode(',', $selection);
-        $selected = array('host_selected' => array(), 'service_selected' => array());
+        
+        $selected = ['host_selected' => [], 'service_selected' => []];
 
+        if (empty($selection)) {
+            return $selected;
+        }
+
+        $selected_values = explode(',', $selection);
+        
         if ($cmd == 3) {
             $selected_str = '';
             $selected_str2 = '';
             $selected_str_append = '';
-            foreach ($selected_values as $value) {
+            $query_params = [];
+            foreach ($selected_values as $key => $value) {
                 $str = explode(';', $value);
                 $selected_str .= $selected_str_append .
-                    'services.host_id = ' . $str[0] .
-                    ' AND services.service_id = ' . $str[1];
-                $selected_str2 .= $selected_str_append . 'host_id = ' . $str[0] . ' AND service_id = ' . $str[1];
+                'services.host_id = :host_id_' . $key .
+                ' AND services.service_id = :service_id_' . $key;
+                $selected_str2 .= $selected_str_append . 'host_id = :host_id_' . $key . ' AND service_id = :service_id_' . $key;
+                $query_params['host_id_' . $key] = $str[0];
+                $query_params['service_id_' . $key] = $str[1];
                 $selected_str_append = ' OR ';
             }
 
@@ -195,26 +204,33 @@ class Centreon_OpenTickets_Rule
             $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
             if (!$centreon_bg->is_admin) {
                 $query_where .= " AND EXISTS(
-                    SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . "
+                    SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (:group_ids
                     ) AND hosts.host_id = centreon_acl.host_id AND services.service_id = centreon_acl.service_id
                 )";
+                $query_params["group_ids"] = $centreon_bg->grouplistStr;
             }
 
-            $dbResult = $db_storage->query($query . $query_where);
+            $pdostmt = $db_storage->prepareQuery($query . $query_where);
+            $db_storage->executePreparedQuery($pdostmt, $query_params);
 
-            $dbResult_graph = $db_storage->query(
-                "SELECT host_id, service_id, COUNT(*) AS num_metrics 
+            $query_graph = "SELECT
+                    host_id,
+                    service_id,
+                    COUNT(*) AS num_metrics
                 FROM index_data, metrics 
                 WHERE (" . $selected_str2 . ")
                 AND index_data.id = metrics.index_id 
-                GROUP BY host_id, service_id"
-            );
-            $datas_graph = array();
-            while (($row = $dbResult_graph->fetch())) {
+                GROUP BY host_id, service_id";
+
+            $pdostmt_graph = $db_storage->prepareQuery($query_graph);
+            $db_storage->executePreparedQuery($pdostmt_graph, $query_params);
+
+            $datas_graph = [];
+            while (($row = $pdostmt_graph->fetch())) {
                 $datas_graph[$row['host_id'] . '.' . $row['service_id']] = $row['num_metrics'];
             }
 
-            while (($row = $dbResult->fetch())) {
+            while (($row = $pdostmt->fetch())) {
                 $row['service_state'] = $row['state'];
                 $row['state_str'] = $this->getServiceStateStr($row['state']);
                 $row['last_state_change_duration'] = CentreonDuration::toString(
@@ -223,17 +239,17 @@ class Centreon_OpenTickets_Rule
                 $row['last_hard_state_change_duration'] = CentreonDuration::toString(
                     time() - $row['last_hard_state_change']
                 );
-                $row['num_metrics'] = isset(
-                    $datas_graph[$row['host_id'] . '.' . $row['service_id']]
-                ) ? $datas_graph[$row['host_id'] . '.' . $row['service_id']] : 0;
+                $row['num_metrics'] = $datas_graph[$row['host_id'] . '.' . $row['service_id']] ?? 0;
                 $selected['service_selected'][] = $row;
             }
         } elseif ($cmd == 4) {
             $hosts_selected_str = '';
             $hosts_selected_str_append = '';
-            foreach ($selected_values as $value) {
+            $query_params = [];
+            foreach ($selected_values as $key => $value) {
                 $str = explode(';', $value);
-                $hosts_selected_str .= $hosts_selected_str_append . $str[0];
+                $hosts_selected_str .= $hosts_selected_str_append . ':host_id_' . $key;
+                $query_params[':host_id_' . $key] = $str[0];
                 $hosts_selected_str_append = ', ';
             }
 
@@ -242,13 +258,16 @@ class Centreon_OpenTickets_Rule
             if (!$centreon_bg->is_admin) {
                 $query_where .= " AND EXISTS(
                     SELECT * FROM centreon_acl
-                    WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ")
+                    WHERE centreon_acl.group_id IN (:group_ids)
                     AND hosts.host_id = centreon_acl.host_id
                 )";
+                $query_params['group_ids'] = $centreon_bg->grouplistStr;
             }
 
-            $dbResult = $db_storage->query($query . $query_where);
-            while (($row = $dbResult->fetch())) {
+            $pdostmt = $db_storage->prepareQuery($query . $query_where);
+            $db_storage->executePreparedQuery($pdostmt, $query_params);
+
+            while (($row = $pdostmt->fetch())) {
                 $row['host_state'] = $row['state'];
                 $row['state_str'] = $this->getHostStateStr($row['state']);
                 $row['last_state_change_duration'] = CentreonDuration::toString(
