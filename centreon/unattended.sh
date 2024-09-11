@@ -333,7 +333,7 @@ function get_os_information() {
 			;;
 		*)
 			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
-			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distributions (v8 and v9), Ubuntu Jammy and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distributions (v8 and v9), Ubuntu 22.04 and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 	esac
 
@@ -395,8 +395,8 @@ function set_mariadb_repos() {
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version"
 	elif [[ "${detected_os_release}" =~ ubuntu-release-.* ]]; then
-		. /etc/lsb-release
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$DISTRIB_CODENAME" --mariadb-server-version="$detected_mariadb_version"
+		distrib_codename=$(awk -F'=' '/DISTRIB_CODENAME/ {print $2}' /etc/lsb-release)
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$distrib_codename" --mariadb-server-version="$detected_mariadb_version"
 	else
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version"
 	fi
@@ -577,7 +577,7 @@ function set_required_prerequisite() {
 				fi
 				;;
 			*)
-				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9), Debian 11/12 and Ubuntu Jammy. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9), Debian 11/12 and Ubuntu 22.04. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 				;;
 			esac
 			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
