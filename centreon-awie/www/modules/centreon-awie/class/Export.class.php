@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Copyright 2021 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
