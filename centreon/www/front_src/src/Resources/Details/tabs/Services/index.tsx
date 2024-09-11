@@ -9,9 +9,9 @@ import { Resource } from '../../../models';
 import InfiniteScroll from '../../InfiniteScroll';
 import { detailsAtom, selectResourceDerivedAtom } from '../../detailsAtoms';
 
+import { has } from 'ramda';
 import ServiceList from './List';
 import LoadingSkeleton from './LoadingSkeleton';
-import { has } from 'ramda';
 
 const ServicesTab = (): JSX.Element => {
   const { sendRequest, sending } = useRequest({
