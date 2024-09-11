@@ -69,7 +69,7 @@ final class AddService
     use LoggerTrait,VaultTrait;
 
     /** @var AccessGroup[] */
-    private array $accessGroups;
+    private array $accessGroups = [];
 
     public function __construct(
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
@@ -123,8 +123,12 @@ final class AddService
             $this->assertParameters($request);
             $newServiceId = $this->createService($request);
 
-            if (isset($this->accessGroups) && $this->accessGroups !== []) {
-                $this->writeRealTimeServiceRepository->addServiceToResourceAcls($request->hostId, $newServiceId, $this->accessGroups);
+            if ($this->accessGroups !== []) {
+                $this->writeRealTimeServiceRepository->addServiceToResourceAcls(
+                    $request->hostId,
+                    $newServiceId,
+                    $this->accessGroups
+                );
             }
 
             $this->info('New service created', ['service_id' => $newServiceId]);

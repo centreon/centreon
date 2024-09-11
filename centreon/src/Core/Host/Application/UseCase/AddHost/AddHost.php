@@ -107,6 +107,8 @@ final class AddHost
                 return;
             }
 
+            $accessGroups = [];
+
             if (! $this->user->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $this->validation->accessGroups = $accessGroups;
@@ -120,7 +122,7 @@ final class AddHost
                 $this->linkHostGroups($request, $hostId);
                 $this->linkParentTemplates($request, $hostId);
                 $this->addMacros($request, $hostId);
-                if (isset($accessGroups) && $accessGroups !== []) {
+                if ($accessGroups !== []) {
                     $this->writeRealTimeHostRepository->addHostToResourceAcls($hostId, $accessGroups);
                 }
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($request->monitoringServerId);
