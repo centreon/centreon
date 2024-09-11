@@ -4,7 +4,15 @@ before(() => {
   cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json');
+  cy.execInContainer({
+    command: `mysql centreon -uroot -pcentreon`,
+    name: 'db'
+  });
+  cy.execInContainer({
+    command: `UPDATE topology SET topology_show = '1' WHERE topology_name = 'Additional Connector Configuration';`,
+    name: 'db'
+  });
 });
 
 beforeEach(() => {
