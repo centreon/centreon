@@ -209,10 +209,6 @@ while ($row = $dbResult->fetch()) {
         continue;
     }    
     /* Percentage by status */
-    $duration = $row["OKTimeScheduled"]
-        + $row["WARNINGTimeScheduled"]
-        + $row["UNKNOWNTimeScheduled"]
-        + $row["CRITICALTimeScheduled"];
     $row["OK_MP"] = round($row["OKTimeScheduled"] * 100 / $duration, 2);
     $row["WARNING_MP"] = round($row["WARNINGTimeScheduled"] * 100 / $duration, 2);
     $row["UNKNOWN_MP"] = round($row["UNKNOWNTimeScheduled"] * 100 / $duration, 2);
