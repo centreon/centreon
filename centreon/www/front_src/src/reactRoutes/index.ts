@@ -61,7 +61,7 @@ const reactRoutes = [
   },
   {
     comp: lazy(() => import('../AgentConfiguration/Page')),
-    path: routeMap.agentConfiguration
+    path: routeMap.agentConfigurations
   }
 ];
 

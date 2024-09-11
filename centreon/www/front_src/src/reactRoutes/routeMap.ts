@@ -20,7 +20,7 @@ const routeMap = {
   resourceAccessManagement: '/administration/resource-access/rules',
   resources: '/monitoring/resources',
   upgrade: '/install/upgrade.php',
-  agentConfiguration: '/configuration/pollers/agents-configuration'
+  agentConfigurations: '/configuration/pollers/agent-configurations'
 };
 
 export default routeMap;

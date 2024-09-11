@@ -1,7 +1,7 @@
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 import { useTranslation } from 'react-i18next';
 import { labelCreate } from '../Dashboards/translatedLabels';
-import { useGetAgentsConfigurations } from './hooks/useGetAgentsConfigurations';
+import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
 import {
   labelAgentsConfigurations,
   labelWelcomeToTheAgentsConfigurationPage
@@ -10,7 +10,7 @@ import {
 const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const { isEmpty, isLoading } = useGetAgentsConfigurations();
+  const { isEmpty, isLoading } = useGetAgentConfigurations();
 
   return (
     <PageLayout>
