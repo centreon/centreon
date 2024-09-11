@@ -73,7 +73,7 @@ export const labelForcedCheckDescription =
 export const labelCheckDescription =
   'Check selected resources only within configured check period';
 export const labelCheck = 'Check';
-export const labelTicket = 'Ticket';
+export const labelTicket = 'Tickets';
 export const labelOpenTicketForHost = 'Open ticket for host';
 export const labelOpenTicketForService = 'Open ticket for service';
 export const labelCloseTicket = 'Close ticket';
