@@ -120,7 +120,6 @@ final class AddHost
                 $this->linkHostGroups($request, $hostId);
                 $this->linkParentTemplates($request, $hostId);
                 $this->addMacros($request, $hostId);
-                // Note: host is not linked to any ACLsResource
                 if (isset($accessGroups) && $accessGroups !== []) {
                     $this->writeRealTimeHostRepository->addHostToResourceAcls($hostId, $accessGroups);
                 }
