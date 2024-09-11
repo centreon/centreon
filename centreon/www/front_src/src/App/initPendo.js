@@ -22,7 +22,7 @@ const initPendo = (data) => {
         })(v[w]);
       y = e.createElement(n);
       y.async = !0;
-      y.src = `https://cdn.eu.pendo.io/agent/static/${apiKey}/pendo.js`;
+      y.src = `https://guide.centreon.com/agent/static/${apiKey}/pendo.js`;
       z = e.getElementsByTagName(n)[0];
       z.parentNode.insertBefore(y, z);
     })(window, document, 'script', 'pendo');
