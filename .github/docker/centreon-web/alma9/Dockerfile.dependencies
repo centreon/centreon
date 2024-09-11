@@ -28,7 +28,6 @@ else
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el9/centreon-${VERSION}.repo
 fi
 dnf config-manager --set-enabled 'centreon*'
-dnf config-manager --disable 'centreon-plugins*-stable*' --disable 'centreon-plugins*-testing*'
 
 #############################
 # install base dependencies #
