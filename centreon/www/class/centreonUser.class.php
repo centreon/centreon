@@ -44,31 +44,31 @@ require_once __DIR__ . '/centreonAuth.class.php';
  */
 class CentreonUser
 {
-    /** @var mixed */
+    /** @var int|string|null */
     public $user_id;
-    /** @var string */
+    /** @var string|null */
     public $name;
-    /** @var string */
+    /** @var string|null */
     public $alias;
     /** @var mixed|null */
     public $passwd;
-    /** @var string */
+    /** @var string|null */
     public $email;
-    /** @var mixed */
+    /** @var mixed|null */
     public $lang;
     /** @var string */
     public $charset;
     /** @var int */
     public $version;
-    /** @var mixed */
+    /** @var mixed|null */
     public $admin;
     /** @var */
     public $limit;
     /** @var */
     public $num;
-    /** @var mixed */
+    /** @var mixed|null */
     public $gmt;
-    /** @var null */
+    /** @var bool|null */
     public $is_admin;
     /** @var */
     public $groupList;
@@ -78,13 +78,13 @@ class CentreonUser
     public $access;
     /** @var CentreonUserLog */
     public $log;
-    /** @var mixed */
+    /** @var mixed|null */
     protected $token;
     /** @var int|mixed */
     public $default_page;
     /** @var bool */
     private $showDeprecatedPages;
-    /** @var */
+    /** @var int */
     private $currentPage;
     /** @var mixed|string */
     public $theme;
@@ -111,22 +111,25 @@ class CentreonUser
      *
      * @param array $user
      */
-    public function __construct($user = array())
+    public function __construct($user = [])
     {
         global $pearDB;
 
-        $this->user_id = $user["contact_id"];
-        $this->name = html_entity_decode($user["contact_name"], ENT_QUOTES, "UTF-8");
-        $this->alias = html_entity_decode($user["contact_alias"], ENT_QUOTES, "UTF-8");
-        $this->email = html_entity_decode($user["contact_email"], ENT_QUOTES, "UTF-8");
-        $this->lang = $user["contact_lang"];
+        $this->user_id = $user["contact_id"] ?? null;
+        $this->name = isset($user["contact_name"]) ?
+            html_entity_decode($user["contact_name"], ENT_QUOTES, "UTF-8") : null;
+        $this->alias = isset($user["contact_alias"]) ?
+            html_entity_decode($user["contact_alias"], ENT_QUOTES, "UTF-8") : null;
+        $this->email = isset($user["contact_email"]) ?
+            html_entity_decode($user["contact_email"], ENT_QUOTES, "UTF-8") : null;
+        $this->lang = $user["contact_lang"] ?? null;
         $this->charset = "UTF-8";
         $this->passwd = $user["contact_passwd"] ?? null;
-        $this->token = $user['contact_autologin_key'];
-        $this->admin = $user["contact_admin"];
+        $this->token = $user['contact_autologin_key'] ?? null;
+        $this->admin = $user["contact_admin"] ?? null;
         $this->version = 3;
         $this->default_page = $user["default_page"] ?? CentreonAuth::DEFAULT_PAGE;
-        $this->gmt = $user["contact_location"];
+        $this->gmt = $user["contact_location"] ?? null;
         $this->showDeprecatedPages = (bool) $user["show_deprecated_pages"];
         $this->is_admin = null;
         $this->theme = $user["contact_theme"] ?? 'light';
@@ -194,7 +197,7 @@ class CentreonUser
      * Check if user is admin or had ACL
      *
      * @param string $sid
-     * @param \CentreonDB $pearDB
+     * @param CentreonDB $pearDB
      */
     public function checkUserStatus($sid, $pearDB)
     {
@@ -204,15 +207,15 @@ class CentreonUser
         $statement = $pearDB->prepare($query1);
         $statement->bindValue(':session_id', $sid);
         $statement->execute();
-        $admin = $statement->fetch(\PDO::FETCH_ASSOC);
+        $admin = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
         $query2 = "SELECT count(*) FROM `acl_group_contacts_relations` " .
             "WHERE contact_contact_id = :contact_id";
         $statement = $pearDB->prepare($query2);
-        $statement->bindValue(':contact_id', (int)$admin["contact_id"], \PDO::PARAM_INT);
+        $statement->bindValue(':contact_id', (int)$admin["contact_id"], PDO::PARAM_INT);
         $statement->execute();
-        $admin2 = $statement->fetch(\PDO::FETCH_ASSOC);
+        $admin2 = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
         if ($admin["contact_admin"]) {
@@ -282,7 +285,7 @@ class CentreonUser
         // Get locale from browser
         if ($lang === 'browser') {
             if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-                $lang = \Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+                $lang = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
             }
 
             // check that the variable value end with .UTF-8 or add it
