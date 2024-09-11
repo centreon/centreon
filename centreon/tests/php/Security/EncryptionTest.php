@@ -24,19 +24,19 @@ namespace Tests\Security;
 use PHPUnit\Framework\TestCase;
 use Security\Encryption;
 
+/**
+ * Class
+ *
+ * @class EncryptionTest
+ * @package Tests\Security
+ */
 class EncryptionTest extends TestCase
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $firstKey;
-    /**
-     * @var string
-     */
+    /** @var string */
     private $secondKey;
-    /**
-     * @var string
-     */
+    /** @var string */
     private $falseKey;
 
     public function setUp(): void

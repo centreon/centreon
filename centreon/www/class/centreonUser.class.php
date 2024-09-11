@@ -37,49 +37,79 @@ require_once __DIR__ . '/centreonACL.class.php';
 require_once __DIR__ . '/centreonLog.class.php';
 require_once __DIR__ . '/centreonAuth.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonUser
+ */
 class CentreonUser
 {
+    /** @var mixed */
     public $user_id;
+    /** @var string */
     public $name;
+    /** @var string */
     public $alias;
+    /** @var mixed|null */
     public $passwd;
+    /** @var string */
     public $email;
+    /** @var mixed */
     public $lang;
+    /** @var string */
     public $charset;
+    /** @var int */
     public $version;
+    /** @var mixed */
     public $admin;
+    /** @var */
     public $limit;
+    /** @var */
     public $num;
+    /** @var mixed */
     public $gmt;
+    /** @var null */
     public $is_admin;
+    /** @var */
     public $groupList;
+    /** @var */
     public $groupListStr;
+    /** @var CentreonACL */
     public $access;
+    /** @var CentreonUserLog */
     public $log;
+    /** @var mixed */
     protected $token;
+    /** @var int|mixed */
     public $default_page;
+    /** @var bool */
     private $showDeprecatedPages;
+    /** @var */
     private $currentPage;
+    /** @var mixed|string */
     public $theme;
 
+    /** @var bool */
     protected $restApi;
+    /** @var bool */
     protected $restApiRt;
 
     # User LCA
     # Array with elements ID for loop test
+    /** @var array|mixed */
     public $lcaTopo;
 
     # String with elements ID separated by commas for DB requests
+    /** @var mixed|string */
     public $lcaTStr;
 
+    /** @var mixed|string */
     public $authType;
 
     /**
-     * CentreonUser constructor.
-     * @param array $user
+     * CentreonUser constructor
      *
-     * @global type $pearDB
-     * @param type $user
+     * @param array $user
      */
     public function __construct($user = array())
     {
@@ -124,10 +154,9 @@ class CentreonUser
     }
 
     /**
+     * @param $div_name
      *
-     * @global type $pearDB
-     * @param type $div_name
-     * @return int
+     * @return int|mixed
      */
     public function showDiv($div_name = null)
     {
@@ -144,9 +173,9 @@ class CentreonUser
     }
 
     /**
+     * @param CentreonDB $pearDB
      *
-     * @param \CentreonDB $pearDB
-     * @return int
+     * @return array
      */
     public function getAllTopology($pearDB)
     {
@@ -198,6 +227,9 @@ class CentreonUser
 
     // Get
 
+    /**
+     * @return mixed
+     */
     public function get_id()
     {
         return $this->user_id;
