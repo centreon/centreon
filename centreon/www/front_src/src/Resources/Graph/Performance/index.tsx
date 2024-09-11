@@ -1,6 +1,6 @@
 import {
-  MutableRefObject,
-  ReactNode,
+  type MutableRefObject,
+  type ReactNode,
   useEffect,
   useRef,
   useState
@@ -29,7 +29,7 @@ import { makeStyles } from 'tss-react/mui';
 import { Skeleton, Typography } from '@mui/material';
 
 import {
-  LineChartData,
+  type LineChartData,
   ParentSize,
   getData,
   timeFormat,
@@ -37,11 +37,11 @@ import {
   useRequest
 } from '@centreon/ui';
 
-import { CommentParameters } from '../../Actions/api';
+import type { CommentParameters } from '../../Actions/api';
 import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
-import { ResourceDetails } from '../../Details/models';
-import { TimelineEvent } from '../../Details/tabs/Timeline/models';
-import { Resource } from '../../models';
+import type { ResourceDetails } from '../../Details/models';
+import type { TimelineEvent } from '../../Details/tabs/Timeline/models';
+import type { Resource } from '../../models';
 import { labelNoDataForThisPeriod } from '../../translatedLabels';
 
 import Graph from './Graph';
@@ -51,7 +51,7 @@ import {
 } from './Graph/mouseTimeValueAtoms';
 import Legend from './Legend';
 import LoadingSkeleton from './LoadingSkeleton';
-import {
+import type {
   FilterLines,
   GraphData,
   Line as LineModel,
