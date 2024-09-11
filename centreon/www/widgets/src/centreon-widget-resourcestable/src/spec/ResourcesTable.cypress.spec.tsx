@@ -420,7 +420,6 @@ describe('View by service', () => {
 
     cy.makeSnapshot();
   });
-  
   it('executes a listing request with limit from widget properties', () => {
     cy.contains(20);
 
