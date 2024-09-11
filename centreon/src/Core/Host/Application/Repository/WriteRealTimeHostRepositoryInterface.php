@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+
 namespace Core\Host\Application\Repository;
 
 interface WriteRealTimeHostRepositoryInterface
