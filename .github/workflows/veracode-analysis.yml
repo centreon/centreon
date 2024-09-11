@@ -74,7 +74,7 @@ jobs:
           else
             FAIL_BUILD="$ENABLE_QG"
             DEVELOPMENT_STAGE="Development"
-            DISPLAY_SUMMARY="true"
+            DISPLAY_SUMMARY="$ENABLE_QG"
           fi
 
           # skip analysis of draft PR and analysis on development branches using workflow dispatch
