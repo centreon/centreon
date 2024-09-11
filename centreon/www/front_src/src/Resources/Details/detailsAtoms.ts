@@ -65,7 +65,7 @@ export const setGraphTabParametersDerivedAtom = atom(
   }
 );
 
-export const selectedResourcesDetailsAtom = atom<null>(null);
+export const selectedResourcesDetailsAtom = atom<ResourceDetailsAtom | null>(null);
 
 export const selectedResourceDetailsEndpointDerivedAtom = atom((get) => {
   const selectedResourceDetails = get(selectedResourcesDetailsAtom);
