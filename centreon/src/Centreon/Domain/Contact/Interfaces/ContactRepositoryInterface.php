@@ -37,7 +37,9 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Contact\Interfaces;
 
+use Centreon\Domain\Contact\BasicContact;
 use Centreon\Domain\Contact\Contact;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ContactRepositoryInterface
 {
@@ -81,13 +83,4 @@ interface ContactRepositoryInterface
      * @return Contact|null
      */
     public function findByAuthenticationToken(string $token): ?Contact;
-
-    /**
-     * Check existence of provided contacts
-     * Return an array of the existing user IDs out of the provided ones.
-     *
-     * @param int[] $contactIds
-     * @return int[]
-     */
-    public function exist(array $contactIds): array;
 }
