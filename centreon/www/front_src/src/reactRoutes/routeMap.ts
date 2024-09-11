@@ -19,7 +19,8 @@ const routeMap = {
   resetPassword: '/reset-password',
   resourceAccessManagement: '/administration/resource-access/rules',
   resources: '/monitoring/resources',
-  upgrade: '/install/upgrade.php'
+  upgrade: '/install/upgrade.php',
+  agentConfiguration: '/configuration/pollers/agents-configuration'
 };
 
 export default routeMap;

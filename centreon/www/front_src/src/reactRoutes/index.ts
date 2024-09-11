@@ -58,6 +58,10 @@ const reactRoutes = [
   {
     comp: lazy(() => import('../AdditionalConnectorConfiguration')),
     path: routeMap.additionalConnectorConfiguration
+  },
+  {
+    comp: lazy(() => import('../AgentConfiguration/Page')),
+    path: routeMap.agentConfiguration
   }
 ];
 
