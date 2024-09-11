@@ -48,18 +48,25 @@ class DbWriteRealTimeServiceRepository extends AbstractRepositoryRDB implements 
             $accessGroups
         );
 
+        $request = <<<'SQL'
+            INSERT INTO `:dbstg`.`centreon_acl`(`group_id`, `host_id`, `service_id`)
+            VALUES
+            SQL;
+
         foreach ($accessGroupIds as $accessGroupId) {
-            $request = <<<'SQL'
-                INSERT INTO `:dbstg`.`centreon_acl`(`group_id`, `host_id`, `service_id`)
-                VALUES(:group_id, :host_id, :service_id)
+            $request .= <<<SQL
+                (:group_{$accessGroupId}, :host_id, :service_id),
                 SQL;
-
-            $statement = $this->db->prepare($this->translateDbName($request));
-            $statement->bindValue(':group_id', $accessGroupId, \PDO::PARAM_INT);
-            $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
-            $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
-
-            $statement->execute();
         }
+
+        $statement = $this->db->prepare($this->translateDbName(trim($request, ',')));
+
+        foreach ($accessGroupIds as $accessGroupId) {
+            $statement->bindValue(':group_' . $accessGroupId, $accessGroupId, \PDO::PARAM_INT);
+        }
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+
+        $statement->execute();
     }
 }
