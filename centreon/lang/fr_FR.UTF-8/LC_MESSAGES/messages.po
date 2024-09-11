@@ -19453,3 +19453,21 @@ msgstr "La configuration du Vaul a été mise à jour"
 msgid "Post must start from 1"
 msgstr "Le port doit commencé à 1"
 
+msgid "Migrate"
+msgstr "Migrer"
+
+msgid "Migration script"
+msgstr "Script de migration"
+
+msgid "Execute this script as root on the central."
+msgstr "Script à exécuter en tant que root sur le central."
+
+msgid "The following script will migrate all your credentials from Centreon, Auto-discovery and the database."
+msgstr "Le script suivant migrera vos identifiances de Centreon, Auto-discovery ainsi que de la base de données."
+
+msgid "By executing this script, your platform will be in a locked mode and you not be able to do <strong>anything</strong> during the migration process (example: exporting your configuration, updating administration parameters, etc...)."
+msgstr "En exécutant ce script, votre plateforme entrera sera vérouillé and vous ne pourrez plus <strong>rien modifier</strong> durant le processus de migration (exemple: exporter la configuration, mettre les paramètres d'administration, etc...)."
+
+msgid "The migration process can take several minutes depending on your configuration."
+msgstr "Le processus de migration peut prendre plusieurs minutes selon votre configuration."
+
