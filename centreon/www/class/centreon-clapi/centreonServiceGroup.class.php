@@ -35,6 +35,16 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_DependencyServicegroupParent;
+use Centreon_Object_Relation_Host_Group_Service;
+use Centreon_Object_Relation_Host_Service;
+use Centreon_Object_Relation_Service_Group_Host_Group_Service;
+use Centreon_Object_Relation_Service_Group_Service;
+use Centreon_Object_Service_Group;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonConfigurationChange.class.php";
 require_once "centreonACL.class.php";
@@ -54,8 +64,8 @@ require_once "Centreon/Object/Dependency/DependencyServicegroupParent.php";
  */
 class CentreonServiceGroup extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
     public const INVALID_GEO_COORDS = "Invalid geo coords";
 
     /** @var string[] */
@@ -64,18 +74,17 @@ class CentreonServiceGroup extends CentreonObject
         'SERVICE'
     );
 
-    /** @var string */
-    public $action;
-
     /**
      * CentreonServiceGroup constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Service_Group($dependencyInjector);
+        $this->object = new Centreon_Object_Service_Group($dependencyInjector);
         $this->params = array('sg_activate' => '1');
         $this->insertParams = array('sg_name', 'sg_alias');
         $this->exportExcludedParams = array_merge($this->insertParams, array($this->object->getPrimaryKey()));
@@ -88,7 +97,7 @@ class CentreonServiceGroup extends CentreonObject
      * @param null $parameters
      * @param array $filters
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -116,8 +125,10 @@ class CentreonServiceGroup extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     *
+     * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function initInsertParameters($parameters)
     {
@@ -254,13 +265,13 @@ class CentreonServiceGroup extends CentreonObject
             $sgId = $sgIds[0];
 
             if ($matches[2] == "service") {
-                $relobj = new \Centreon_Object_Relation_Service_Group_Service($this->dependencyInjector);
-                $obj = new \Centreon_Object_Relation_Host_Service($this->dependencyInjector);
+                $relobj = new Centreon_Object_Relation_Service_Group_Service($this->dependencyInjector);
+                $obj = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
                 $existingRelationIds = $relobj->getHostIdServiceIdFromServicegroupId($sgId);
                 $hstring = "host_id";
             } else {
-                $relobj = new \Centreon_Object_Relation_Service_Group_Host_Group_Service($this->dependencyInjector);
-                $obj = new \Centreon_Object_Relation_Host_Group_Service($this->dependencyInjector);
+                $relobj = new Centreon_Object_Relation_Service_Group_Host_Group_Service($this->dependencyInjector);
+                $obj = new Centreon_Object_Relation_Host_Group_Service($this->dependencyInjector);
                 $existingRelationIds = $relobj->getHostGroupIdServiceIdFromServicegroupId($sgId);
                 $hstring = "hostgroup_id";
             }
@@ -451,7 +462,7 @@ class CentreonServiceGroup extends CentreonObject
         $hostIds = $centreonConfig->findHostsForConfigChangeFlagFromServiceGroupId($sgId);
         $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds($hostIds);
 
-        $parentDependency = new \Centreon_Object_DependencyServicegroupParent($this->dependencyInjector);
+        $parentDependency = new Centreon_Object_DependencyServicegroupParent($this->dependencyInjector);
         $parentDependency->removeRelationLastServicegroupDependency($sgId);
         parent::del($objectName);
 
@@ -536,7 +547,7 @@ class CentreonServiceGroup extends CentreonObject
      * @param null $filterName
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -558,10 +569,10 @@ class CentreonServiceGroup extends CentreonObject
             'ASC',
             $filters
         );
-        $relobjSvc = new \Centreon_Object_Relation_Service_Group_Service($this->dependencyInjector);
-        $objSvc = new \Centreon_Object_Relation_Host_Service($this->dependencyInjector);
-        $relobjHgSvc = new \Centreon_Object_Relation_Service_Group_Host_Group_Service($this->dependencyInjector);
-        $objHgSvc = new \Centreon_Object_Relation_Host_Group_Service($this->dependencyInjector);
+        $relobjSvc = new Centreon_Object_Relation_Service_Group_Service($this->dependencyInjector);
+        $objSvc = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
+        $relobjHgSvc = new Centreon_Object_Relation_Service_Group_Host_Group_Service($this->dependencyInjector);
+        $objHgSvc = new Centreon_Object_Relation_Host_Group_Service($this->dependencyInjector);
 
         foreach ($sgs as $sg) {
             $sgId = $sg[$this->object->getPrimaryKey()];

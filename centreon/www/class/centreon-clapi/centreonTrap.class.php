@@ -35,6 +35,12 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Trap;
+use Centreon_Object_Trap_Matching;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonManufacturer.class.php";
 require_once "centreonHost.class.php";
@@ -51,30 +57,29 @@ require_once "Centreon/Object/Relation/Trap/Service.php";
  */
 class CentreonTrap extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_OID = 1;
-    const UNKNOWN_STATUS = "Unknown status";
-    const INCORRECT_PARAMETER = "Incorrect parameter";
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_OID = 1;
+    public const UNKNOWN_STATUS = "Unknown status";
+    public const INCORRECT_PARAMETER = "Incorrect parameter";
 
     /** @var string[] */
     public static $aDepends = array(
         'VENDOR'
     );
-
     /** @var CentreonManufacturer */
     public $manufacturerObj;
-    /** @var string */
-    public $action;
 
     /**
      * CentreonTrap constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Trap($dependencyInjector);
+        $this->object = new Centreon_Object_Trap($dependencyInjector);
         $this->manufacturerObj = new CentreonManufacturer($dependencyInjector);
         $this->params = array();
         $this->insertParams = array('traps_name', 'traps_oid');
@@ -84,7 +89,7 @@ class CentreonTrap extends CentreonObject
 
     /**
      * @param null $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters = null)
@@ -169,7 +174,7 @@ class CentreonTrap extends CentreonObject
      * @param null $parameters
      * @param array $filters
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -212,7 +217,7 @@ class CentreonTrap extends CentreonObject
         if (!$trapId) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $parameters);
         }
-        $matchObj = new \Centreon_Object_Trap_Matching($this->dependencyInjector);
+        $matchObj = new Centreon_Object_Trap_Matching($this->dependencyInjector);
         $params = array('tmo_id', 'tmo_string', 'tmo_regexp', 'tmo_status', 'tmo_order');
         $elements = $matchObj->getList(
             $params,
@@ -254,7 +259,7 @@ class CentreonTrap extends CentreonObject
         $string = $params[1];
         $regexp = $params[2];
         $status = $this->getStatusInt($params[3]);
-        $matchObj = new \Centreon_Object_Trap_Matching($this->dependencyInjector);
+        $matchObj = new Centreon_Object_Trap_Matching($this->dependencyInjector);
         $elements = $matchObj->getList(
             "*",
             -1,
@@ -294,7 +299,7 @@ class CentreonTrap extends CentreonObject
         if (!is_numeric($parameters)) {
             throw new CentreonClapiException('Incorrect id parameters');
         }
-        $matchObj = new \Centreon_Object_Trap_Matching($this->dependencyInjector);
+        $matchObj = new Centreon_Object_Trap_Matching($this->dependencyInjector);
         $matchObj->delete($parameters);
     }
 
@@ -326,7 +331,7 @@ class CentreonTrap extends CentreonObject
         if ($key == 'tmo_status') {
             $value = $this->getStatusInt($value);
         }
-        $matchObj = new \Centreon_Object_Trap_Matching($this->dependencyInjector);
+        $matchObj = new Centreon_Object_Trap_Matching($this->dependencyInjector);
         $matchObj->update($matchingId, array($key => $value));
     }
 
@@ -336,7 +341,7 @@ class CentreonTrap extends CentreonObject
      * @param null $filterName
      *
      * @return false|void
-     * @throws \Exception
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -383,7 +388,7 @@ class CentreonTrap extends CentreonObject
                     }
                 }
             }
-            $matchingObj = new \Centreon_Object_Trap_Matching($this->dependencyInjector);
+            $matchingObj = new Centreon_Object_Trap_Matching($this->dependencyInjector);
             $matchingProps = $matchingObj->getList(
                 "*",
                 -1,

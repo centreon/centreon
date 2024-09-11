@@ -36,6 +36,17 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_RtDowntime;
+use CentreonClapi\Validator\RtValidator;
+use CentreonExternalCommand;
+use CentreonGMT;
+use CentreonHostgroups;
+use CentreonServiceGroups;
+use DateTime;
+use PDOException;
+use Pimple\Container;
+use Throwable;
+
 require_once "centreonObject.class.php";
 require_once "centreonHost.class.php";
 require_once "centreonService.class.php";
@@ -63,18 +74,17 @@ require_once __DIR__ . "/Validator/RtValidator.php";
  */
 class CentreonRtDowntime extends CentreonObject
 {
-    /** @var \CentreonHostgroups */
+    /** @var CentreonHostgroups */
     public $hgObject;
-    /** @var \CentreonServiceGroups */
+    /** @var CentreonServiceGroups */
     public $sgObject;
     /** @var \CentreonInstance */
     public $instanceObject;
-    /** @var \CentreonGMT */
+    /** @var CentreonGMT */
     public $GMTObject;
-    /** @var \CentreonExternalCommand */
+    /** @var CentreonExternalCommand */
     public $externalCmdObj;
-    /** @var string */
-    public $action;
+
     /** @var string[] */
     protected $downtimeType = array(
         'HOST',
@@ -97,23 +107,25 @@ class CentreonRtDowntime extends CentreonObject
     /**
      * CentreonRtDowntime constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_RtDowntime($dependencyInjector);
-        $this->hgObject = new \CentreonHostgroups($this->db);
-        $this->hostObject = new \CentreonClapi\CentreonHost($dependencyInjector);
-        $this->serviceObject = new \CentreonClapi\CentreonService($dependencyInjector);
-        $this->sgObject = new \CentreonServiceGroups($this->db);
+        $this->object = new Centreon_Object_RtDowntime($dependencyInjector);
+        $this->hgObject = new CentreonHostgroups($this->db);
+        $this->hostObject = new CentreonHost($dependencyInjector);
+        $this->serviceObject = new CentreonService($dependencyInjector);
+        $this->sgObject = new CentreonServiceGroups($this->db);
         $this->instanceObject = new \CentreonInstance($this->db);
-        $this->GMTObject = new \CentreonGMT();
-        $this->externalCmdObj = new \CentreonExternalCommand();
+        $this->GMTObject = new CentreonGMT();
+        $this->externalCmdObj = new CentreonExternalCommand();
         $this->action = "RTDOWNTIME";
         $this->externalCmdObj->setUserAlias(CentreonUtils::getUserName());
         $this->externalCmdObj->setUserId(CentreonUtils::getUserId());
-        $this->rtValidator = new \CentreonClapi\Validator\RtValidator($this->hostObject, $this->serviceObject);
+        $this->rtValidator = new RtValidator($this->hostObject, $this->serviceObject);
     }
 
     /**
@@ -123,7 +135,7 @@ class CentreonRtDowntime extends CentreonObject
      */
     private function validateDate($date, $format = 'Y/m/d H:i')
     {
-        $d = \DateTime::createFromFormat($format, $date);
+        $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
     }
 
@@ -648,7 +660,7 @@ class CentreonRtDowntime extends CentreonObject
      * @param string $comment
      *
      * @throws CentreonClapiException
-     * @throws \Throwable
+     * @throws Throwable
      */
     private function addSgDowntime(
         string $resource,
@@ -709,7 +721,7 @@ class CentreonRtDowntime extends CentreonObject
      * @param $comment
      *
      * @throws CentreonClapiException
-     * @throws \PDOException
+     * @throws PDOException
      */
     private function addInstanceDowntime(
         $resource,

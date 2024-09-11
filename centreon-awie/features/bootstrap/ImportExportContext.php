@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Class ImportExportContext
+ * Class
+ *
+ * @class ImportExportContext
  */
 class ImportExportContext extends CentreonAwieContext
 {

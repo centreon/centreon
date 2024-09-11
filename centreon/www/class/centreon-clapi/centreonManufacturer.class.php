@@ -35,6 +35,10 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Manufacturer;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonUtils.class.php";
 require_once "Centreon/Object/Manufacturer/Manufacturer.php";
@@ -47,22 +51,21 @@ require_once "Centreon/Object/Manufacturer/Manufacturer.php";
  */
 class CentreonManufacturer extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
-    const FILE_NOT_FOUND = "Could not find file";
-
-    /** @var string */
-    public $action;
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
+    public const FILE_NOT_FOUND = "Could not find file";
 
     /**
      * CentreonManufacturer constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Manufacturer($dependencyInjector);
+        $this->object = new Centreon_Object_Manufacturer($dependencyInjector);
         $this->params = array();
         $this->insertParams = array('name', 'alias');
         $this->action = "VENDOR";
@@ -71,7 +74,7 @@ class CentreonManufacturer extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters)

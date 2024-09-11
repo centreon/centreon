@@ -28,9 +28,21 @@ require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Acl/Group/Action.
 require_once __DIR__ . "/Repository/AclGroupRepository.php";
 require_once __DIR__ . "/Repository/SessionRepository.php";
 
+use App\Kernel;
+use Centreon_Object_Acl_Action;
+use Centreon_Object_Acl_Group;
+use Centreon_Object_Relation_Acl_Group_Action;
 use CentreonClapi\Repository\SessionRepository;
 use CentreonClapi\Repository\AclGroupRepository;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
+use Exception;
+use InvalidArgumentException;
+use LogicException;
+use PDOException;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Throwable;
 
 /**
  * Class
@@ -41,15 +53,13 @@ use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
  */
 class CentreonACLAction extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_DESCRIPTION = 1;
-    const UNKNOWN_ACTION = "Unknown action";
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_DESCRIPTION = 1;
+    public const UNKNOWN_ACTION = "Unknown action";
 
-    /** @var string */
-    public $action;
-    /** @var \Centreon_Object_Relation_Acl_Group_Action */
+    /** @var Centreon_Object_Relation_Acl_Group_Action */
     protected $relObject;
-    /** @var \Centreon_Object_Acl_Group */
+    /** @var Centreon_Object_Acl_Group */
     protected $aclGroupObj;
     /** @var string[] */
     protected $availableActions;
@@ -61,17 +71,19 @@ class CentreonACLAction extends CentreonObject
     /**
      * CentreonACLAction constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $db = $dependencyInjector["configuration_db"];
         $this->aclGroupRepository = new AclGroupRepository($db);
         $this->sessionRepository = new SessionRepository($db);
-        $this->object = new \Centreon_Object_Acl_Action($dependencyInjector);
-        $this->aclGroupObj = new \Centreon_Object_Acl_Group($dependencyInjector);
-        $this->relObject = new \Centreon_Object_Relation_Acl_Group_Action($dependencyInjector);
+        $this->object = new Centreon_Object_Acl_Action($dependencyInjector);
+        $this->aclGroupObj = new Centreon_Object_Acl_Group($dependencyInjector);
+        $this->relObject = new Centreon_Object_Relation_Acl_Group_Action($dependencyInjector);
         $this->params = array('acl_action_activate' => '1');
         $this->nbOfCompulsoryParams = 2;
         $this->availableActions = array(
@@ -170,6 +182,8 @@ class CentreonACLAction extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -234,7 +248,9 @@ class CentreonACLAction extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function grant($parameters)
     {
@@ -268,7 +284,9 @@ class CentreonACLAction extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function revoke($parameters)
     {
@@ -297,7 +315,9 @@ class CentreonACLAction extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -343,7 +363,9 @@ class CentreonACLAction extends CentreonObject
     /**
      * @param $aclActionRuleId
      * @param $aclActionName
+     *
      * @return string
+     * @throws PDOException
      */
     private function exportGrantActions($aclActionRuleId, $aclActionName)
     {
@@ -429,7 +451,7 @@ class CentreonACLAction extends CentreonObject
     /**
      * Updates ACL actions for an authentified user from ACL Action ID
      *
-     * @param integer $aclActionId
+     * @param int $aclActionId
      */
     private function updateAclActionsForAuthentifiedUsers(int $aclActionId): void
     {
@@ -441,6 +463,9 @@ class CentreonACLAction extends CentreonObject
      * This method flags updated ACL for authentified users.
      *
      * @param int[] $aclGroupIds
+     *
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     private function flagUpdatedAclForAuthentifiedUsers(array $aclGroupIds): void
     {
@@ -456,10 +481,13 @@ class CentreonACLAction extends CentreonObject
      * This method gets SessionRepository from Service container
      *
      * @return ReadSessionRepositoryInterface
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function getReadSessionRepository(): ReadSessionRepositoryInterface
     {
-        $kernel = \App\Kernel::createForWeb();
+        $kernel = Kernel::createForWeb();
         $readSessionRepository = $kernel->getContainer()->get(
             ReadSessionRepositoryInterface::class
         );

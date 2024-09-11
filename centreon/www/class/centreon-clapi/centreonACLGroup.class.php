@@ -36,9 +36,19 @@ require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Acl/Group/Contact
 require_once __DIR__ . "/Repository/AclGroupRepository.php";
 require_once __DIR__ . "/Repository/SessionRepository.php";
 
+use App\Kernel;
+use Centreon_Object_Acl_Group;
 use CentreonClapi\Repository\SessionRepository;
 use CentreonClapi\Repository\AclGroupRepository;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
+use Exception;
+use InvalidArgumentException;
+use LogicException;
+use PDOException;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Throwable;
 
 /**
  * Class
@@ -49,11 +59,8 @@ use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
  */
 class CentreonACLGroup extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
-
-    /** @var string */
-    public $action;
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
 
     /** @var string[] */
     public $aDepends = array(
@@ -75,14 +82,16 @@ class CentreonACLGroup extends CentreonObject
     private SessionRepository $sessionRepository;
 
     /**
-     * Constructor
+     * CentreonACLGroup constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Acl_Group($dependencyInjector);
+        $this->object = new Centreon_Object_Acl_Group($dependencyInjector);
         $db = $dependencyInjector['configuration_db'];
         $this->aclGroupRepository = new AclGroupRepository($db);
         $this->sessionRepository = new SessionRepository($db);
@@ -138,6 +147,8 @@ class CentreonACLGroup extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -170,7 +181,8 @@ class CentreonACLGroup extends CentreonObject
      * Magic method
      *
      * @param string $name
-     * @param array $args
+     * @param array $arg
+     *
      * @return void
      * @throws CentreonClapiException
      */
@@ -277,7 +289,9 @@ class CentreonACLGroup extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -320,7 +334,9 @@ class CentreonACLGroup extends CentreonObject
     /**
      * @param $aclGroupId
      * @param $aclGroupName
+     *
      * @return string
+     * @throws CentreonClapiException
      */
     private function exportLinkedObjects($aclGroupId, $aclGroupName)
     {
@@ -413,6 +429,9 @@ class CentreonACLGroup extends CentreonObject
      * This method flags updated ACL for authentified users.
      *
      * @param int[] $aclGroupIds
+     *
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     private function flagUpdatedAclForAuthentifiedUsers(array $aclGroupIds): void
     {
@@ -428,10 +447,13 @@ class CentreonACLGroup extends CentreonObject
      * This method gets SessionRepository from Service container
      *
      * @return ReadSessionRepositoryInterface
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function getReadSessionRepository(): ReadSessionRepositoryInterface
     {
-        $kernel = \App\Kernel::createForWeb();
+        $kernel = Kernel::createForWeb();
         $readSessionRepository = $kernel->getContainer()->get(
             ReadSessionRepositoryInterface::class
         );

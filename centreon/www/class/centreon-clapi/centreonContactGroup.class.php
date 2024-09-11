@@ -35,6 +35,13 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Contact;
+use Centreon_Object_Contact_Group;
+use Centreon_Object_Relation_Contact_Group_Contact;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonACL.class.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Contact/Contact.php";
@@ -59,18 +66,18 @@ class CentreonContactGroup extends CentreonObject
         'TP',
         'CONTACT'
     );
-    /** @var string */
-    public $action;
 
     /**
      * CentreonContactGroup constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Contact_Group($dependencyInjector);
+        $this->object = new Centreon_Object_Contact_Group($dependencyInjector);
         $this->params = array('cg_activate' => '1');
         $this->insertParams = array('cg_name', 'cg_alias');
         $this->exportExcludedParams = array_merge($this->insertParams, array($this->object->getPrimaryKey()));
@@ -99,7 +106,7 @@ class CentreonContactGroup extends CentreonObject
      * @param null $parameters
      * @param array $filters
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -118,8 +125,10 @@ class CentreonContactGroup extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function initInsertParameters($parameters)
     {
@@ -172,8 +181,8 @@ class CentreonContactGroup extends CentreonObject
         $name = strtolower($name);
         /* Get the action and the object */
         if (preg_match("/^(get|set|add|del)contact$/", $name, $matches)) {
-            $relobj = new \Centreon_Object_Relation_Contact_Group_Contact($this->dependencyInjector);
-            $obj = new \Centreon_Object_Contact($this->dependencyInjector);
+            $relobj = new Centreon_Object_Relation_Contact_Group_Contact($this->dependencyInjector);
+            $obj = new Centreon_Object_Contact($this->dependencyInjector);
 
             /* Parse arguments */
             if (!isset($arg[0])) {
@@ -224,7 +233,7 @@ class CentreonContactGroup extends CentreonObject
                         }
                     }
                 }
-                $acl = new \CentreonClapi\CentreonACL($this->dependencyInjector);
+                $acl = new CentreonACL($this->dependencyInjector);
                 $acl->reload(true);
             }
         } else {
@@ -237,8 +246,8 @@ class CentreonContactGroup extends CentreonObject
      *
      * @param null $filterName
      *
-     * @return void
-     * @throws \Exception
+     * @return false|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -246,8 +255,8 @@ class CentreonContactGroup extends CentreonObject
             return false;
         }
 
-        $relObj = new \Centreon_Object_Relation_Contact_Group_Contact($this->dependencyInjector);
-        $contactObj = new \Centreon_Object_Contact($this->dependencyInjector);
+        $relObj = new Centreon_Object_Relation_Contact_Group_Contact($this->dependencyInjector);
+        $contactObj = new Centreon_Object_Contact($this->dependencyInjector);
         $cgFieldName = $this->object->getUniqueLabelField();
         $cFieldName = $contactObj->getUniqueLabelField();
         $filters = array();

@@ -36,6 +36,17 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Command;
+use Centreon_Object_Contact;
+use Centreon_Object_Relation_Contact_Command_Host;
+use Centreon_Object_Relation_Contact_Command_Service;
+use Centreon_Object_Timezone;
+use CentreonAuth;
+use Exception;
+use PDOException;
+use Pimple\Container;
+use Throwable;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once "centreonObject.class.php";
 require_once "centreonUtils.class.php";
@@ -105,8 +116,6 @@ class CentreonContact extends CentreonObject
         )
     );
 
-    /** @var string */
-    public $action;
     /** @var int */
     protected $register;
     /** @var CentreonTimePeriod */
@@ -119,15 +128,17 @@ class CentreonContact extends CentreonObject
     /**
      * CentreonContact constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->dependencyInjector = $dependencyInjector;
         $this->tpObject = new CentreonTimePeriod($dependencyInjector);
-        $this->object = new \Centreon_Object_Contact($dependencyInjector);
-        $this->timezoneObject = new \Centreon_Object_Timezone($dependencyInjector);
+        $this->object = new Centreon_Object_Contact($dependencyInjector);
+        $this->timezoneObject = new Centreon_Object_Timezone($dependencyInjector);
         $this->params = array(
             'contact_host_notification_options' => 'n',
             'contact_service_notification_options' => 'n',
@@ -203,6 +214,8 @@ class CentreonContact extends CentreonObject
      * Delete action
      *
      * @param string $parameters
+     *
+     * @throws CentreonClapiException
      */
     public function del($parameters)
     {
@@ -215,6 +228,8 @@ class CentreonContact extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -295,6 +310,8 @@ class CentreonContact extends CentreonObject
      * Initialize user information
      *
      * @param array<int,mixed> $params
+     *
+     * @throws PDOException
      */
     protected function initUserInformation(array $params): void
     {
@@ -306,19 +323,21 @@ class CentreonContact extends CentreonObject
      * Initialize password
      *
      * @param array<int,mixed> $params
+     *
+     * @throws CentreonClapiException
      */
     protected function initPassword(array $params): void
     {
-        if (password_needs_rehash($params[static::ORDER_PASS], \CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
+        if (password_needs_rehash($params[static::ORDER_PASS], CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
             $contact = new \CentreonContact($this->db);
             try {
                 $contact->respectPasswordPolicyOrFail($params[static::ORDER_PASS], null);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 throw new CentreonClapiException($e->getMessage(), $e->getCode(), $e);
             }
             $this->addParams['contact_passwd'] = password_hash(
                 $params[static::ORDER_PASS],
-                \CentreonAuth::PASSWORD_HASH_ALGORITHM
+                CentreonAuth::PASSWORD_HASH_ALGORITHM
             );
         } else {
             $this->addParams['contact_passwd'] = $params[static::ORDER_PASS];
@@ -343,9 +362,11 @@ class CentreonContact extends CentreonObject
     }
 
     /**
-     * Initialize user langage
+     * Initialize user language
      *
      * @param array<int,mixed> $params
+     *
+     * @throws CentreonClapiException
      */
     protected function initLang(array $params): void
     {
@@ -452,14 +473,14 @@ class CentreonContact extends CentreonObject
                     $params[2] = $completeLanguage;
                 } elseif ($params[1] === "password") {
                     $params[1] = "passwd";
-                    if (password_needs_rehash($params[2], \CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
+                    if (password_needs_rehash($params[2], CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
                         $contact = new \CentreonContact($this->db);
                         try {
                             $contact->respectPasswordPolicyOrFail($params[2], $objectId);
-                        } catch (\Throwable $e) {
+                        } catch (Throwable $e) {
                             throw new CentreonClapiException($e->getMessage(), $e->getCode(), $e);
                         }
-                        $params[2] = password_hash($params[2], \CentreonAuth::PASSWORD_HASH_ALGORITHM);
+                        $params[2] = password_hash($params[2], CentreonAuth::PASSWORD_HASH_ALGORITHM);
                     }
                 } elseif ($params[1] == "hostnotifopt") {
                     $params[1] = "host_notification_options";
@@ -516,7 +537,7 @@ class CentreonContact extends CentreonObject
     {
         $cmds = explode("|", $commands);
         $cmdIds = array();
-        $cmdObject = new \Centreon_Object_Command($this->dependencyInjector);
+        $cmdObject = new Centreon_Object_Command($this->dependencyInjector);
         foreach ($cmds as $commandName) {
             $tmp = $cmdObject->getIdByParameter($cmdObject->getUniqueLabelField(), $commandName);
             if (count($tmp)) {
@@ -526,9 +547,9 @@ class CentreonContact extends CentreonObject
             }
         }
         if ($type == self::HOST_NOTIF_CMD) {
-            $relObj = new \Centreon_Object_Relation_Contact_Command_Host($this->dependencyInjector);
+            $relObj = new Centreon_Object_Relation_Contact_Command_Host($this->dependencyInjector);
         } else {
-            $relObj = new \Centreon_Object_Relation_Contact_Command_Service($this->dependencyInjector);
+            $relObj = new Centreon_Object_Relation_Contact_Command_Service($this->dependencyInjector);
         }
         $relObj->delete($contactId);
         foreach ($cmdIds as $cmdId) {
@@ -542,15 +563,17 @@ class CentreonContact extends CentreonObject
      * @param string $objType
      * @param int $contactId
      * @param string $contactName
+     *
      * @return void
+     * @throws Exception
      */
     private function exportNotifCommands($objType, $contactId, $contactName)
     {
-        $commandObj = new \Centreon_Object_Command($this->dependencyInjector);
+        $commandObj = new Centreon_Object_Command($this->dependencyInjector);
         if ($objType == self::HOST_NOTIF_CMD) {
-            $obj = new \Centreon_Object_Relation_Contact_Command_Host($this->dependencyInjector);
+            $obj = new Centreon_Object_Relation_Contact_Command_Host($this->dependencyInjector);
         } else {
-            $obj = new \Centreon_Object_Relation_Contact_Command_Service($this->dependencyInjector);
+            $obj = new Centreon_Object_Relation_Contact_Command_Service($this->dependencyInjector);
         }
 
         $cmds = $obj->getMergedParameters(
@@ -583,7 +606,9 @@ class CentreonContact extends CentreonObject
      * Export data
      *
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {

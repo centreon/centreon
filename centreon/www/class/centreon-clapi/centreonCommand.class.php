@@ -35,6 +35,12 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Command;
+use Centreon_Object_Graph_Template;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonUtils.class.php";
 require_once "Centreon/Object/Command/Command.php";
@@ -55,8 +61,6 @@ class CentreonCommand extends CentreonObject
     public const ORDER_COMMAND = 2;
     public const UNKNOWN_CMD_TYPE = "Unknown command type";
 
-    /** @var string */
-    public $action;
     /** @var array[] */
     public $aTypeCommand = array(
         'host' => array(
@@ -74,12 +78,14 @@ class CentreonCommand extends CentreonObject
     /**
      * CentreonCommand constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Command($dependencyInjector);
+        $this->object = new Centreon_Object_Command($dependencyInjector);
         $this->params = array();
         $this->insertParams = array("command_name", "command_type", "command_line");
         $this->exportExcludedParams = array_merge(
@@ -103,6 +109,8 @@ class CentreonCommand extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -123,7 +131,9 @@ class CentreonCommand extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function initInsertParameters($parameters)
     {
@@ -176,7 +186,7 @@ class CentreonCommand extends CentreonObject
                     $params[2] = $this->typeConversion[$params[2]];
                 }
             } elseif ($params[1] == "graph_id") {
-                $graphObject = new \Centreon_Object_Graph_Template($this->dependencyInjector);
+                $graphObject = new Centreon_Object_Graph_Template($this->dependencyInjector);
                 $tmp = $graphObject->getIdByParameter($graphObject->getUniqueLabelField(), $params[2]);
                 if (!count($tmp)) {
                     throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
@@ -248,7 +258,7 @@ class CentreonCommand extends CentreonObject
 
                     switch ($paramSearch) {
                         case "graph":
-                            $graphObj = new \Centreon_Object_Graph_Template($this->dependencyInjector);
+                            $graphObj = new Centreon_Object_Graph_Template($this->dependencyInjector);
                             $field = $graphObj->getUniqueLabelField();
                             $ret = $graphObj->getParameters($ret, $field);
                             $ret = $ret[$field];
@@ -276,7 +286,9 @@ class CentreonCommand extends CentreonObject
      * Get command arguments descriptions
      *
      * @param string $objUniqueName
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function getargumentdesc($objUniqueName)
     {
@@ -297,7 +309,9 @@ class CentreonCommand extends CentreonObject
      * Set command arguments descriptions
      *
      * @param string $descriptions
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function setargumentdescr($descriptions)
     {
@@ -330,7 +344,7 @@ class CentreonCommand extends CentreonObject
      */
     public function getId($commandName)
     {
-        $obj = new \Centreon_Object_Command($this->dependencyInjector);
+        $obj = new Centreon_Object_Command($this->dependencyInjector);
         $tmp = $obj->getIdByParameter($obj->getUniqueLabelField(), $commandName);
         if (count($tmp)) {
             $id = $tmp[0];
@@ -391,7 +405,7 @@ class CentreonCommand extends CentreonObject
                     }
                 }
                 if ($parameter == "graph_id" && !empty($value)) {
-                    $graphObject = new \Centreon_Object_Graph_Template($this->dependencyInjector);
+                    $graphObject = new Centreon_Object_Graph_Template($this->dependencyInjector);
                     $tmp = $graphObject->getParameters($value, array($graphObject->getUniqueLabelField()));
 
                     if (!count($tmp)) {
@@ -441,11 +455,13 @@ class CentreonCommand extends CentreonObject
 
     /**
      * This method gat the list of command containt a specific macro
+     *
      * @param int $iIdCommand
      * @param string $sType
      * @param int $iWithFormatData
      *
      * @return array
+     * @throws PDOException
      */
     public function getMacroByIdAndType($iIdCommand, $sType, $iWithFormatData = 1)
     {
@@ -499,9 +515,10 @@ class CentreonCommand extends CentreonObject
 
 
     /**
+     * @param $iIdCmd
      *
-     * @param type $iIdCmd
-     * @return string
+     * @return array
+     * @throws PDOException
      */
     public function getMacroDescription($iIdCmd)
     {
@@ -523,9 +540,11 @@ class CentreonCommand extends CentreonObject
 
     /**
      * Export command_arg_description
+     *
      * @param int $command_id
      *
      * @return array
+     * @throws PDOException
      */
     protected function getArgsDescriptions($command_id)
     {

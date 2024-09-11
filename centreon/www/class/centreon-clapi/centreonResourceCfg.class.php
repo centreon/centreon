@@ -35,6 +35,12 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Relation_Instance_Resource;
+use Centreon_Object_Resource;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonInstance.class.php";
 require_once "Centreon/Object/Resource/Resource.php";
@@ -59,11 +65,9 @@ class CentreonResourceCfg extends CentreonObject
         'INSTANCE'
     );
 
-    /** @var string */
-    public $action;
     /** @var CentreonInstance */
     protected $instanceObj;
-    /** @var \Centreon_Object_Relation_Instance_Resource */
+    /** @var Centreon_Object_Relation_Instance_Resource */
     protected $relObj;
     /** @var */
     protected $instanceIds;
@@ -71,14 +75,16 @@ class CentreonResourceCfg extends CentreonObject
     /**
      * CentreonResourceCfg constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->instanceObj = new CentreonInstance($dependencyInjector);
-        $this->relObj = new \Centreon_Object_Relation_Instance_Resource($dependencyInjector);
-        $this->object = new \Centreon_Object_Resource($dependencyInjector);
+        $this->relObj = new Centreon_Object_Relation_Instance_Resource($dependencyInjector);
+        $this->object = new Centreon_Object_Resource($dependencyInjector);
         $this->params = array(
             'resource_line' => '',
             'resource_comment' => '',
@@ -104,6 +110,7 @@ class CentreonResourceCfg extends CentreonObject
      *
      * @return bool
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function isUnique($macro, $pollerId)
     {
@@ -134,8 +141,10 @@ class CentreonResourceCfg extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     *
+     * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function initInsertParameters($parameters)
     {
@@ -220,7 +229,9 @@ class CentreonResourceCfg extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addPoller($parameters)
     {
@@ -287,7 +298,7 @@ class CentreonResourceCfg extends CentreonObject
      * @param null $parameters
      * @param array $filters
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -338,8 +349,8 @@ class CentreonResourceCfg extends CentreonObject
     /**
      * @param null $filterName
      *
-     * @return bool|int|void
-     * @throws \Exception
+     * @return int|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {

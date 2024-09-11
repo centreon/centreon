@@ -35,6 +35,12 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Instance;
+use Centreon_Object_Relation_Instance_Host;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreon.Config.Poller.class.php";
 require_once "Centreon/Object/Instance/Instance.php";
@@ -49,28 +55,28 @@ require_once "Centreon/Object/Relation/Instance/Host.php";
  */
 class CentreonInstance extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ADDRESS = 1;
-    const ORDER_SSH_PORT = 2;
-    const ORDER_GORGONE_PROTOCOL = 3;
-    const ORDER_GORGONE_PORT = 4;
-    const GORGONE_COMMUNICATION = array('ZMQ' => '1', 'SSH' => '2');
-    const INCORRECTIPADDRESS = "Invalid IP address format";
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ADDRESS = 1;
+    public const ORDER_SSH_PORT = 2;
+    public const ORDER_GORGONE_PROTOCOL = 3;
+    public const ORDER_GORGONE_PORT = 4;
+    public const GORGONE_COMMUNICATION = array('ZMQ' => '1', 'SSH' => '2');
+    public const INCORRECTIPADDRESS = "Invalid IP address format";
 
-    /** @var string */
-    public $action;
     /** @var CentreonConfigPoller */
     public $centreonConfigPoller;
 
     /**
      * CentreonInstance constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Instance($dependencyInjector);
+        $this->object = new Centreon_Object_Instance($dependencyInjector);
         $this->params = [
             'localhost' => '0',
             'ns_activate' => '1',
@@ -104,7 +110,7 @@ class CentreonInstance extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters)
@@ -186,7 +192,7 @@ class CentreonInstance extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
-     * @throws \Exception
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -267,11 +273,11 @@ class CentreonInstance extends CentreonObject
      * @param string $instanceName
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function getHosts($instanceName)
     {
-        $relObj = new \Centreon_Object_Relation_Instance_Host($this->dependencyInjector);
+        $relObj = new Centreon_Object_Relation_Instance_Host($this->dependencyInjector);
         $fields = array('host_id', 'host_name', 'host_address');
         $elems = $relObj->getMergedParameters(
             array(),

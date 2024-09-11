@@ -37,6 +37,12 @@ namespace CentreonClapi;
 
 require_once "centreonObject.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonSeverityAbstract
+ * @package CentreonClapi
+ */
 abstract class CentreonSeverityAbstract extends CentreonObject
 {
     const ORDER_UNIQUENAME = 0;

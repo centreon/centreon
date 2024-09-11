@@ -22,6 +22,11 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Contact;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonUtils.class.php";
 require_once "centreonTimePeriod.class.php";
@@ -50,23 +55,23 @@ class CentreonLDAPContactRelation extends CentreonObject
     ];
     /** @var CentreonLdap */
     public $ldap;
-    /** @var \Centreon_Object_Contact */
+    /** @var Centreon_Object_Contact */
     public $contact;
-    /** @var string */
-    public $action;
     /** @var int */
     protected $register;
 
     /**
      * CentreonLDAPContactRelation constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->ldap = new CentreonLdap($dependencyInjector);
-        $this->contact = new \Centreon_Object_Contact($dependencyInjector);
+        $this->contact = new Centreon_Object_Contact($dependencyInjector);
         $this->action = "LDAPCONTACT";
         $this->register = 1;
         $this->activateField = 'contact_activate';
@@ -91,7 +96,7 @@ class CentreonLDAPContactRelation extends CentreonObject
      * @param null $filterName
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function export($filterName = null): bool
     {

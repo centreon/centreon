@@ -36,6 +36,13 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_RtAcknowledgement;
+use CentreonClapi\Validator\RtValidator;
+use CentreonExternalCommand;
+use CentreonGMT;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonHost.class.php";
 require_once "centreonService.class.php";
@@ -49,10 +56,11 @@ require_once dirname(__FILE__, 2) . '/centreonGMT.class.php';
 require_once __DIR__ . "/Validator/RtValidator.php";
 
 /**
- * Manage Acknowledgement with clapi
+ * Class
  *
- * Class CentreonRtAcknowledgement
+ * @class CentreonRtAcknowledgement
  * @package CentreonClapi
+ * @description Manage Acknowledgement with clapi
  */
 class CentreonRtAcknowledgement extends CentreonObject
 {
@@ -62,8 +70,6 @@ class CentreonRtAcknowledgement extends CentreonObject
         'SVC'
     );
 
-    /** @var string */
-    public $action;
     /** @var */
     protected $aHosts;
     /** @var */
@@ -72,30 +78,33 @@ class CentreonRtAcknowledgement extends CentreonObject
     protected $hostObject;
     /** @var CentreonService */
     protected $serviceObject;
-    /** @var \CentreonGMT */
+    /** @var CentreonGMT */
     protected $GMTObject;
-    /** @var \CentreonExternalCommand */
+    /** @var CentreonExternalCommand */
     protected $externalCmdObj;
     /** @var string */
     protected $author;
-    /** @var \CentreonClapi\Validator\RtValidator */
+    /** @var RtValidator */
     protected $rtValidator;
 
     /**
      * CentreonRtAcknowledgement constructor.
-     * @param \Pimple\Container $dependencyInjector
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_RtAcknowledgement($dependencyInjector);
-        $this->hostObject = new \CentreonClapi\CentreonHost($dependencyInjector);
-        $this->serviceObject = new \CentreonClapi\CentreonService($dependencyInjector);
-        $this->GMTObject = new \CentreonGMT();
-        $this->externalCmdObj = new \CentreonExternalCommand();
+        $this->object = new Centreon_Object_RtAcknowledgement($dependencyInjector);
+        $this->hostObject = new CentreonHost($dependencyInjector);
+        $this->serviceObject = new CentreonService($dependencyInjector);
+        $this->GMTObject = new CentreonGMT();
+        $this->externalCmdObj = new CentreonExternalCommand();
         $this->action = "RTACKNOWLEDGEMENT";
         $this->author = CentreonUtils::getUserName();
-        $this->rtValidator = new \CentreonClapi\Validator\RtValidator($this->hostObject, $this->serviceObject);
+        $this->rtValidator = new RtValidator($this->hostObject, $this->serviceObject);
 
         $this->externalCmdObj->setUserAlias($this->author);
         $this->externalCmdObj->setUserId(CentreonUtils::getUserId());
@@ -366,7 +375,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      * redirect on SVC or HOST
      *
      * @param null $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function add($parameters = null)

@@ -35,6 +35,13 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Downtime;
+use Centreon_Object_Host;
+use Centreon_Object_Host_Group;
+use Centreon_Object_Service_Group;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonHost.class.php";
 require_once "centreonService.class.php";
@@ -55,12 +62,9 @@ require_once "Centreon/Object/Relation/Downtime/Servicegroup.php";
  */
 class CentreonDowntime extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
 
-
-    /** @var string */
-    public $action;
     /** @var int[] */
     protected $weekDays;
     /** @var CentreonService */
@@ -76,13 +80,15 @@ class CentreonDowntime extends CentreonObject
     /**
      * CentreonDowntime constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->serviceObj = new CentreonService($dependencyInjector);
-        $this->object = new \Centreon_Object_Downtime($dependencyInjector);
+        $this->object = new Centreon_Object_Downtime($dependencyInjector);
         $this->action = "DOWNTIME";
         $this->insertParams = array('dt_name', 'dt_description');
         $this->exportExcludedParams = array_merge(
@@ -391,8 +397,10 @@ class CentreonDowntime extends CentreonObject
     /**
      * Delete period from downtime
      *
-     * @param  string $parameters | downtime_name;position to delete
+     * @param string $parameters | downtime_name;position to delete
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function delperiod($parameters)
     {
@@ -424,7 +432,9 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param $downtimeId
+     *
      * @return string
+     * @throws PDOException
      */
     public function listHosts($downtimeId)
     {
@@ -444,7 +454,9 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param $downtimeId
+     *
      * @return string
+     * @throws PDOException
      */
     public function listHostGroups($downtimeId)
     {
@@ -464,7 +476,9 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param $downtimeId
+     *
      * @return string
+     * @throws PDOException
      */
     public function listServices($downtimeId)
     {
@@ -485,7 +499,9 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param $downtimeId
+     *
      * @return string
+     * @throws PDOException
      */
     public function listServiceGroups($downtimeId)
     {
@@ -506,7 +522,9 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param $downtimeId
+     *
      * @return string
+     * @throws PDOException
      */
     public function listResources($downtimeId)
     {
@@ -572,13 +590,15 @@ class CentreonDowntime extends CentreonObject
      */
     public function addhost($parameters)
     {
-        $object = new \Centreon_Object_Host($this->dependencyInjector);
+        $object = new Centreon_Object_Host($this->dependencyInjector);
         $this->addGenericRelation($parameters, $object, 'downtime_host_relation', 'host_host_id');
     }
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function sethost($parameters)
     {
@@ -603,7 +623,7 @@ class CentreonDowntime extends CentreonObject
      */
     public function delhost($parameters)
     {
-        $object = new \Centreon_Object_Host($this->dependencyInjector);
+        $object = new Centreon_Object_Host($this->dependencyInjector);
         $this->delGenericRelation($parameters, $object, 'downtime_host_relation', 'host_host_id');
     }
 
@@ -616,13 +636,15 @@ class CentreonDowntime extends CentreonObject
      */
     public function addhostgroup($parameters)
     {
-        $object = new \Centreon_Object_Host_Group($this->dependencyInjector);
+        $object = new Centreon_Object_Host_Group($this->dependencyInjector);
         $this->addGenericRelation($parameters, $object, 'downtime_hostgroup_relation', 'hg_hg_id');
     }
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function sethostgroup($parameters)
     {
@@ -647,7 +669,7 @@ class CentreonDowntime extends CentreonObject
      */
     public function delhostgroup($parameters)
     {
-        $object = new \Centreon_Object_Host_Group($this->dependencyInjector);
+        $object = new Centreon_Object_Host_Group($this->dependencyInjector);
         $this->delGenericRelation($parameters, $object, 'downtime_hostgroup_relation', 'hg_hg_id');
     }
 
@@ -655,7 +677,9 @@ class CentreonDowntime extends CentreonObject
      * Add service to downtime
      *
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addservice($parameters)
     {
@@ -720,7 +744,9 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function setservice($parameters)
     {
@@ -738,7 +764,9 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function delservice($parameters)
     {
@@ -807,13 +835,15 @@ class CentreonDowntime extends CentreonObject
      */
     public function addservicegroup($parameters)
     {
-        $object = new \Centreon_Object_Service_Group($this->dependencyInjector);
+        $object = new Centreon_Object_Service_Group($this->dependencyInjector);
         $this->addGenericRelation($parameters, $object, 'downtime_servicegroup_relation', 'sg_sg_id');
     }
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function setservicegroup($parameters)
     {
@@ -838,12 +868,16 @@ class CentreonDowntime extends CentreonObject
      */
     public function delservicegroup($parameters)
     {
-        $object = new \Centreon_Object_Service_Group($this->dependencyInjector);
+        $object = new Centreon_Object_Service_Group($this->dependencyInjector);
         $this->delGenericRelation($parameters, $object, 'downtime_servicegroup_relation', 'sg_sg_id');
     }
 
     /**
      * Export
+     *
+     * @param $filterName
+     *
+     * @return false|void
      */
     public function export($filterName = null)
     {
@@ -870,6 +904,7 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportPeriods()
     {
@@ -968,6 +1003,8 @@ class CentreonDowntime extends CentreonObject
     /**
      * @param string $actionType | addhost, addhostgroup, addservice or addservicegroup
      * @param string $sql | query
+     *
+     * @throws PDOException
      */
     protected function exportGenericRel($actionType, $sql)
     {
@@ -991,7 +1028,9 @@ class CentreonDowntime extends CentreonObject
      * Add period
      *
      * @param $p
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function insertPeriod($p)
     {
@@ -1043,8 +1082,10 @@ class CentreonDowntime extends CentreonObject
      *
      * @param $downtimeId
      * @param null $position
+     *
      * @return mixed
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function getPeriods($downtimeId, $position = null)
     {
@@ -1076,7 +1117,9 @@ class CentreonDowntime extends CentreonObject
      * @param $object
      * @param $relTable
      * @param $relField
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function addGenericRelation($parameters, $object, $relTable, $relField)
     {
@@ -1123,7 +1166,9 @@ class CentreonDowntime extends CentreonObject
      * @param $object
      * @param $relTable
      * @param $relField
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function delGenericRelation($parameters, $object, $relTable, $relField)
     {

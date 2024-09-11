@@ -35,6 +35,22 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object;
+use Centreon_Object_Dependency;
+use Centreon_Object_Host;
+use Centreon_Object_Host_Group;
+use Centreon_Object_Meta_Service;
+use Centreon_Object_Relation;
+use Centreon_Object_Relation_Dependency_Parent_Host;
+use Centreon_Object_Relation_Dependency_Parent_Hostgroup;
+use Centreon_Object_Relation_Dependency_Parent_Metaservice;
+use Centreon_Object_Relation_Dependency_Parent_Servicegroup;
+use Centreon_Object_Service_Group;
+use Exception;
+use PDO;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonHost.class.php";
 require_once "centreonService.class.php";
@@ -57,31 +73,31 @@ require_once "Centreon/Object/Relation/Dependency/Parent/Metaservice.php";
  */
 class CentreonDependency extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
-    const ORDER_DEP_TYPE = 2;
-    const ORDER_PARENTS = 3;
-    const DEP_TYPE_HOST = 'HOST';
-    const DEP_TYPE_HOSTGROUP = 'HG';
-    const DEP_TYPE_SERVICE = 'SERVICE';
-    const DEP_TYPE_SERVICEGROUP = 'SG';
-    const DEP_TYPE_META = 'META';
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
+    public const ORDER_DEP_TYPE = 2;
+    public const ORDER_PARENTS = 3;
+    public const DEP_TYPE_HOST = 'HOST';
+    public const DEP_TYPE_HOSTGROUP = 'HG';
+    public const DEP_TYPE_SERVICE = 'SERVICE';
+    public const DEP_TYPE_SERVICEGROUP = 'SG';
+    public const DEP_TYPE_META = 'META';
 
     /** @var CentreonService */
     protected $serviceObj;
-    /** @var string */
-    public $action;
 
     /**
      * CentreonDependency constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->serviceObj = new CentreonService($dependencyInjector);
-        $this->object = new \Centreon_Object_Dependency($dependencyInjector);
+        $this->object = new Centreon_Object_Dependency($dependencyInjector);
         $this->action = "DEP";
         $this->insertParams = array(
             'dep_name',
@@ -96,7 +112,7 @@ class CentreonDependency extends CentreonObject
      * @param null $parameters
      * @param array $filters
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -178,7 +194,9 @@ class CentreonDependency extends CentreonObject
      * Return the type of dependency
      *
      * @param string $dependencyName
+     *
      * @return string
+     * @throws PDOException
      */
     protected function getDependencyType($dependencyName)
     {
@@ -216,13 +234,15 @@ class CentreonDependency extends CentreonObject
 
     /**
      * @param int $dependencyId
+     *
      * @return string
+     * @throws PDOException
      */
     protected function getDependencyName(int $dependencyId): string
     {
         $sql = "SELECT `dep_name` FROM `dependency` WHERE `dep_id` = :depId";
         $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':depId', $dependencyId, \PDO::PARAM_INT);
+        $stmt->bindParam(':depId', $dependencyId, PDO::PARAM_INT);
         $stmt->execute();
         $row = $stmt->fetch();
         if (isset($row['dep_name'])) {
@@ -238,7 +258,9 @@ class CentreonDependency extends CentreonObject
      * @param string $description
      * @param Centreon_Object $parentObj
      * @param string $parentString
-     * @param Centreon_Object_Relation
+     * @param Centreon_Object_Relation $relationObj
+     *
+     * @return void
      * @throws CentreonClapiException
      */
     protected function insertDependency($name, $description, $parentObj, $parentString, $relationObj)
@@ -283,8 +305,8 @@ class CentreonDependency extends CentreonObject
      */
     protected function addHostDependency($params)
     {
-        $obj = new \Centreon_Object_Host($this->dependencyInjector);
-        $relObj = new \Centreon_Object_Relation_Dependency_Parent_Host($this->dependencyInjector);
+        $obj = new Centreon_Object_Host($this->dependencyInjector);
+        $relObj = new Centreon_Object_Relation_Dependency_Parent_Host($this->dependencyInjector);
         $this->insertDependency(
             $params['dep_name'],
             $params['dep_description'],
@@ -303,8 +325,8 @@ class CentreonDependency extends CentreonObject
      */
     protected function addHostGroupDependency($params)
     {
-        $obj = new \Centreon_Object_Host_Group($this->dependencyInjector);
-        $relObj = new \Centreon_Object_Relation_Dependency_Parent_Hostgroup($this->dependencyInjector);
+        $obj = new Centreon_Object_Host_Group($this->dependencyInjector);
+        $relObj = new Centreon_Object_Relation_Dependency_Parent_Hostgroup($this->dependencyInjector);
         $this->insertDependency(
             $params['dep_name'],
             $params['dep_description'],
@@ -316,7 +338,9 @@ class CentreonDependency extends CentreonObject
 
     /**
      * @param $params
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function addServiceDependency($params)
     {
@@ -365,8 +389,8 @@ class CentreonDependency extends CentreonObject
      */
     protected function addServiceGroupDependency($params)
     {
-        $obj = new \Centreon_Object_Service_Group($this->dependencyInjector);
-        $relObj = new \Centreon_Object_Relation_Dependency_Parent_Servicegroup($this->dependencyInjector);
+        $obj = new Centreon_Object_Service_Group($this->dependencyInjector);
+        $relObj = new Centreon_Object_Relation_Dependency_Parent_Servicegroup($this->dependencyInjector);
         $this->insertDependency(
             $params['dep_name'],
             $params['dep_description'],
@@ -385,8 +409,8 @@ class CentreonDependency extends CentreonObject
      */
     protected function addMetaDependency($params)
     {
-        $obj = new \Centreon_Object_Meta_Service($this->dependencyInjector);
-        $relObj = new \Centreon_Object_Relation_Dependency_Parent_Metaservice($this->dependencyInjector);
+        $obj = new Centreon_Object_Meta_Service($this->dependencyInjector);
+        $relObj = new Centreon_Object_Relation_Dependency_Parent_Metaservice($this->dependencyInjector);
         $this->insertDependency(
             $params['dep_name'],
             $params['dep_description'],
@@ -426,7 +450,9 @@ class CentreonDependency extends CentreonObject
      * List dependencies
      *
      * @param string $parameters | dependency name
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function listdep($parameters)
     {
@@ -466,6 +492,8 @@ class CentreonDependency extends CentreonObject
      * List host group dependency
      *
      * @param int $depId
+     *
+     * @throws PDOException
      */
     protected function listhostgroupdep($depId)
     {
@@ -502,6 +530,8 @@ class CentreonDependency extends CentreonObject
      * List service dependency
      *
      * @param int $depId
+     *
+     * @throws PDOException
      */
     protected function listservicedep($depId)
     {
@@ -553,6 +583,8 @@ class CentreonDependency extends CentreonObject
      * List service group dependency
      *
      * @param int $depId
+     *
+     * @throws PDOException
      */
     protected function listservicegroupdep($depId)
     {
@@ -589,6 +621,8 @@ class CentreonDependency extends CentreonObject
      * List meta service dependency
      *
      * @param int $depId
+     *
+     * @throws PDOException
      */
     protected function listmetadep($depId)
     {
@@ -625,6 +659,8 @@ class CentreonDependency extends CentreonObject
      * List host dependency
      *
      * @param int $depId
+     *
+     * @throws PDOException
      */
     protected function listhostdep($depId)
     {
@@ -676,7 +712,9 @@ class CentreonDependency extends CentreonObject
      *
      * @param $parameters
      * @param string $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function addRelations($parameters, $relType = 'parent')
     {
@@ -720,12 +758,14 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToInsert
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function addHostgroupRelations($depId, $objectToInsert, $relType)
     {
         $table = "dependency_hostgroup" . ucfirst($relType) . "_relation";
-        $obj = new \Centreon_Object_Host_Group($this->dependencyInjector);
+        $obj = new Centreon_Object_Host_Group($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), array($objectToInsert));
         if (!count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find host group %s', $objectToInsert));
@@ -742,8 +782,8 @@ class CentreonDependency extends CentreonObject
         }
         $sql = "INSERT INTO {$table} (dependency_dep_id, hostgroup_hg_id) VALUES (:depId, :hgId)";
         $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':depId', $depId, \PDO::PARAM_INT);
-        $stmt->bindParam(':hgId', $ids[0], \PDO::PARAM_INT);
+        $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
+        $stmt->bindParam(':hgId', $ids[0], PDO::PARAM_INT);
         $stmt->execute();
     }
 
@@ -751,12 +791,14 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToInsert
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function addServicegroupRelations($depId, $objectToInsert, $relType)
     {
         $table = "dependency_servicegroup" . ucfirst($relType) . "_relation";
-        $obj = new \Centreon_Object_Service_Group($this->dependencyInjector);
+        $obj = new Centreon_Object_Service_Group($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), array($objectToInsert));
         if (!count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find service group %s', $objectToInsert));
@@ -773,8 +815,8 @@ class CentreonDependency extends CentreonObject
         }
         $sql = "INSERT INTO {$table} (dependency_dep_id, servicegroup_sg_id) VALUES (:depId, :sgId)";
         $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':depId', $depId, \PDO::PARAM_INT);
-        $stmt->bindParam(':sgId', $ids[0], \PDO::PARAM_INT);
+        $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
+        $stmt->bindParam(':sgId', $ids[0], PDO::PARAM_INT);
         $stmt->execute();
     }
 
@@ -782,12 +824,14 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToInsert
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function addMetaRelations($depId, $objectToInsert, $relType)
     {
         $table = "dependency_metaservice" . ucfirst($relType) . "_relation";
-        $obj = new \Centreon_Object_Meta_Service($this->dependencyInjector);
+        $obj = new Centreon_Object_Meta_Service($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), array($objectToInsert));
         if (!count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find meta service %s', $objectToInsert));
@@ -804,8 +848,8 @@ class CentreonDependency extends CentreonObject
         }
         $sql = "INSERT INTO {$table} (dependency_dep_id, meta_service_meta_id) VALUES (:depId, :metaId)";
         $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':depId', $depId, \PDO::PARAM_INT);
-        $stmt->bindParam(':metaId', $ids[0], \PDO::PARAM_INT);
+        $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
+        $stmt->bindParam(':metaId', $ids[0], PDO::PARAM_INT);
         $stmt->execute();
     }
 
@@ -813,12 +857,14 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToInsert
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function addHostRelations($depId, $objectToInsert, $relType)
     {
         if ($relType == 'parent') {
-            $hostObj = new \Centreon_Object_Host($this->dependencyInjector);
+            $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), array($objectToInsert));
             if (!count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToInsert));
@@ -836,8 +882,8 @@ class CentreonDependency extends CentreonObject
             $sql = "INSERT INTO dependency_hostParent_relation (dependency_dep_id, host_host_id)
                     VALUES (:depId, :hostId)";
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':depId', $depId, \PDO::PARAM_INT);
-            $stmt->bindParam(':hostId', $hostIds[0], \PDO::PARAM_INT);
+            $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
+            $stmt->bindParam(':hostId', $hostIds[0], PDO::PARAM_INT);
             $stmt->execute();
         } elseif ($relType == 'child' && strstr($objectToInsert, ',')) { // service child
             list($host, $service) = explode(",", $objectToInsert);
@@ -863,12 +909,12 @@ class CentreonDependency extends CentreonObject
             $sql = "INSERT INTO dependency_serviceChild_relation (dependency_dep_id, host_host_id, service_service_id)
                     VALUES (:depId, :hostId, :svcId)";
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':depId', $depId, \PDO::PARAM_INT);
-            $stmt->bindParam(':hostId', $idTab[0], \PDO::PARAM_INT);
-            $stmt->bindParam(':svcId', $idTab[1], \PDO::PARAM_INT);
+            $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
+            $stmt->bindParam(':hostId', $idTab[0], PDO::PARAM_INT);
+            $stmt->bindParam(':svcId', $idTab[1], PDO::PARAM_INT);
             $stmt->execute();
         } elseif ($relType == 'child') { // host child
-            $hostObj = new \Centreon_Object_Host($this->dependencyInjector);
+            $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), array($objectToInsert));
             if (!count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToInsert));
@@ -886,8 +932,8 @@ class CentreonDependency extends CentreonObject
             $sql = "INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
                     VALUES (:depId, :hostId)";
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':depId', $depId, \PDO::PARAM_INT);
-            $stmt->bindParam(':hostId', $hostIds[0], \PDO::PARAM_INT);
+            $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
+            $stmt->bindParam(':hostId', $hostIds[0], PDO::PARAM_INT);
             $stmt->execute();
         }
     }
@@ -896,7 +942,9 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToInsert
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function addServiceRelations($depId, $objectToInsert, $relType)
     {
@@ -927,9 +975,9 @@ class CentreonDependency extends CentreonObject
             $sql = "INSERT INTO dependency_serviceParent_relation (dependency_dep_id, host_host_id, service_service_id)
                 VALUES (:depId, :hostId, :svcId)";
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':depId', $depId, \PDO::PARAM_INT);
-            $stmt->bindParam(':hostId', $idTab[0], \PDO::PARAM_INT);
-            $stmt->bindParam(':svcId', $idTab[1], \PDO::PARAM_INT);
+            $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
+            $stmt->bindParam(':hostId', $idTab[0], PDO::PARAM_INT);
+            $stmt->bindParam(':svcId', $idTab[1], PDO::PARAM_INT);
             $stmt->execute();
         } elseif ($relType == 'child' && strstr($objectToInsert, ',')) { // service child
             list($host, $service) = explode(",", $objectToInsert);
@@ -957,12 +1005,12 @@ class CentreonDependency extends CentreonObject
             $sql = "INSERT INTO dependency_serviceChild_relation (dependency_dep_id, host_host_id, service_service_id)
                 VALUES (:depId, :hostId, :svcId)";
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':depId', $depId, \PDO::PARAM_INT);
-            $stmt->bindParam(':hostId', $idTab[0], \PDO::PARAM_INT);
-            $stmt->bindParam(':svcId', $idTab[1], \PDO::PARAM_INT);
+            $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
+            $stmt->bindParam(':hostId', $idTab[0], PDO::PARAM_INT);
+            $stmt->bindParam(':svcId', $idTab[1], PDO::PARAM_INT);
             $stmt->execute();
         } elseif ($relType == 'child') { // host child
-            $hostObj = new \Centreon_Object_Host($this->dependencyInjector);
+            $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), array($objectToInsert));
             if (!count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToInsert));
@@ -980,8 +1028,8 @@ class CentreonDependency extends CentreonObject
             $sql = "INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
                     VALUES (:depId, :hostId)";
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':depId', $depId, \PDO::PARAM_INT);
-            $stmt->bindParam(':hostId', $hostIds[0], \PDO::PARAM_INT);
+            $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
+            $stmt->bindParam(':hostId', $hostIds[0], PDO::PARAM_INT);
             $stmt->execute();
         }
     }
@@ -989,7 +1037,9 @@ class CentreonDependency extends CentreonObject
     /**
      * @param $parameters
      * @param string $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function deleteRelations($parameters, $relType = 'parent')
     {
@@ -1032,7 +1082,9 @@ class CentreonDependency extends CentreonObject
     /**
      * @param string $table
      * @param array $dataField
+     *
      * @return bool
+     * @throws PDOException
      */
     protected function isExistingDependency(string $table, array $dataField): bool
     {
@@ -1051,7 +1103,9 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToDelete
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function delHostgroupRelations($depId, $objectToDelete, $relType)
     {
@@ -1059,7 +1113,7 @@ class CentreonDependency extends CentreonObject
         $sql = "DELETE FROM {$table}
             WHERE dependency_dep_id = ?
             AND hostgroup_hg_id = ?";
-        $obj = new \Centreon_Object_Host_Group($this->dependencyInjector);
+        $obj = new Centreon_Object_Host_Group($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), array($objectToDelete));
         if (!count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find host group %s', $objectToDelete));
@@ -1071,7 +1125,9 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToDelete
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function delServicegroupRelations($depId, $objectToDelete, $relType)
     {
@@ -1079,7 +1135,7 @@ class CentreonDependency extends CentreonObject
         $sql = "DELETE FROM {$table}
             WHERE dependency_dep_id = ?
             AND servicegroup_sg_id = ?";
-        $obj = new \Centreon_Object_Service_Group($this->dependencyInjector);
+        $obj = new Centreon_Object_Service_Group($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), array($objectToDelete));
         if (!count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find service group %s', $objectToDelete));
@@ -1091,7 +1147,9 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToDelete
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function delMetaRelations($depId, $objectToDelete, $relType)
     {
@@ -1100,7 +1158,7 @@ class CentreonDependency extends CentreonObject
         $sql = "DELETE FROM {$table}
             WHERE dependency_dep_id = ?
             AND meta_service_meta_id = ?";
-        $obj = new \Centreon_Object_Meta_Service($this->dependencyInjector);
+        $obj = new Centreon_Object_Meta_Service($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), array($objectToDelete));
         if (!count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find meta service %s', $objectToDelete));
@@ -1112,7 +1170,9 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToDelete
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function delHostRelations($depId, $objectToDelete, $relType)
     {
@@ -1120,7 +1180,7 @@ class CentreonDependency extends CentreonObject
             $sql = "DELETE FROM dependency_hostParent_relation
                 WHERE dependency_dep_id = ?
                 AND host_host_id = ?";
-            $hostObj = new \Centreon_Object_Host($this->dependencyInjector);
+            $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), array($objectToDelete));
             if (!count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToDelete));
@@ -1141,7 +1201,7 @@ class CentreonDependency extends CentreonObject
             $sql = "DELETE FROM dependency_hostChild_relation
                 WHERE dependency_dep_id = ?
                 AND host_host_id = ?";
-            $hostObj = new \Centreon_Object_Host($this->dependencyInjector);
+            $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), array($objectToDelete));
             if (!count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToDelete));
@@ -1155,7 +1215,9 @@ class CentreonDependency extends CentreonObject
      * @param $depId
      * @param $objectToDelete
      * @param $relType
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function delServiceRelations($depId, $objectToDelete, $relType)
     {
@@ -1188,7 +1250,7 @@ class CentreonDependency extends CentreonObject
             $sql = "DELETE FROM dependency_hostChild_relation
                 WHERE dependency_dep_id = ?
                 AND host_host_id = ?";
-            $hostObj = new \Centreon_Object_Host($this->dependencyInjector);
+            $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), array($objectToDelete));
             if (!count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToDelete));
@@ -1202,6 +1264,7 @@ class CentreonDependency extends CentreonObject
      * @param $parameters
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function delparent($parameters)
     {
@@ -1214,6 +1277,7 @@ class CentreonDependency extends CentreonObject
      * @param string $parameters | dep_name;children_to_delete
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function delchild($parameters)
     {
@@ -1223,9 +1287,10 @@ class CentreonDependency extends CentreonObject
     /**
      * Add parent
      *
-     * @param string
+     * @param $parameters
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addparent($parameters)
     {
@@ -1234,6 +1299,12 @@ class CentreonDependency extends CentreonObject
 
     /**
      * Add child
+     *
+     * @param $parameters
+     *
+     * @return void
+     * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addchild($parameters)
     {
@@ -1243,6 +1314,9 @@ class CentreonDependency extends CentreonObject
     /**
      * Export
      *
+     * @param $filterName
+     *
+     * @return void
      */
     public function export($filterName = null)
     {
@@ -1255,6 +1329,7 @@ class CentreonDependency extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportHostDep()
     {
@@ -1363,6 +1438,7 @@ class CentreonDependency extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportServiceDep()
     {
@@ -1473,6 +1549,7 @@ class CentreonDependency extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportHostgroupDep()
     {
@@ -1560,6 +1637,7 @@ class CentreonDependency extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportServicegroupDep()
     {
@@ -1647,6 +1725,7 @@ class CentreonDependency extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportMetaDep()
     {

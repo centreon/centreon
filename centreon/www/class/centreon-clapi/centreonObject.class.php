@@ -36,6 +36,13 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object;
+use Centreon_Object_Contact;
+use CentreonDB;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonAPI.class.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Contact/Contact.php";
 require_once "centreonClapiException.class.php";
@@ -62,13 +69,11 @@ abstract class CentreonObject
     public const SINGLE_VALUE = 0;
     public const MULTIPLE_VALUE = 1;
 
-    /** @var string */
-    public $action;
-    /** @var \CentreonClapi\CentreonApi */
+    /** @var CentreonApi */
     public $api;
     /** @var null */
     private $centreon_api = null;
-    /** @var */
+    /** @var array */
     protected static $instances;
 
     /**
@@ -77,7 +82,8 @@ abstract class CentreonObject
      * @var CentreonDB
      */
     protected $db;
-
+    /** @var string */
+    protected string $action;
     /** @var */
     protected $dependencyInjector;
 
@@ -139,9 +145,11 @@ abstract class CentreonObject
     /**
      * CentreonObject constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->db = $dependencyInjector['configuration_db'];
         $this->dependencyInjector = $dependencyInjector;
@@ -186,7 +194,10 @@ abstract class CentreonObject
      * Checks if object exists
      *
      * @param string $name
+     * @param null $updateId
+     *
      * @return bool
+     * @throws Exception
      */
     protected function objectExists($name, $updateId = null)
     {
@@ -292,7 +303,7 @@ abstract class CentreonObject
     /**
      * @param $parameters
      *
-     * @return mixed
+     * @return void
      * @throws CentreonClapiException
      */
     public function add($parameters)
@@ -595,7 +606,7 @@ abstract class CentreonObject
         }
         $objType = $objectTypes[$objType];
 
-        $contactObj = new \Centreon_Object_Contact($this->dependencyInjector);
+        $contactObj = new Centreon_Object_Contact($this->dependencyInjector);
         $contact = $contactObj->getIdByParameter('contact_alias', CentreonUtils::getUserName());
         $userId = $contact[0];
 
@@ -642,7 +653,7 @@ abstract class CentreonObject
                         $actionId
                     )
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 throw $e;
             }
         }
@@ -653,7 +664,9 @@ abstract class CentreonObject
      * Check illegal char defined into nagios.cfg file
      *
      * @param string $name The string to sanitize
+     *
      * @return string The string sanitized
+     * @throws PDOException
      */
     public function checkIllegalChar($name)
     {

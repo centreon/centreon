@@ -35,29 +35,38 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Timezone;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once _CENTREON_PATH_ . "/lib/Centreon/Object/Timezone/Timezone.php";
 require_once _CENTREON_PATH_ . "/lib/Centreon/Object/Object.php";
 
 /**
- * Centreon Settings
+ * Class
  *
- * @author Sylvestre Ho
+ * @class CentreonSettings
+ * @package CentreonClapi
  */
 class CentreonSettings extends CentreonObject
 {
-    const ISSTRING = 0;
-    const ISNUM = 1;
-    const KEYNOTALLOWED = "This parameter cannot be modified";
-    const VALUENOTALLOWED = "This parameter value is not valid";
+    public const ISSTRING = 0;
+    public const ISNUM = 1;
+    public const KEYNOTALLOWED = "This parameter cannot be modified";
+    public const VALUENOTALLOWED = "This parameter value is not valid";
+
+    /** @var array */
     protected $authorizedOptions;
 
     /**
-     * Constructor
+     * CentreonSettings constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
 
@@ -99,6 +108,8 @@ class CentreonSettings extends CentreonObject
     /**
      * @param null $params
      * @param array $filters
+     *
+     * @throws PDOException
      */
     public function show($params = null, $filters = array())
     {
@@ -119,7 +130,7 @@ class CentreonSettings extends CentreonObject
 
     /**
      * @param null $parameters
-     * @return int|mixed|void
+     * @return void
      */
     public function add($parameters = null)
     {
@@ -137,8 +148,10 @@ class CentreonSettings extends CentreonObject
     /**
      * Set parameters
      *
-     * @param string $parameters
+     * @param null $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function setparam($parameters = null)
     {
@@ -183,7 +196,7 @@ class CentreonSettings extends CentreonObject
      */
     private function getTimezoneIdFromName($value)
     {
-        $timezone = new \Centreon_Object_Timezone($this->dependencyInjector);
+        $timezone = new Centreon_Object_Timezone($this->dependencyInjector);
         $timezoneId = $timezone->getIdByParameter('timezone_name', $value);
         if (!isset($timezoneId[0])) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND);
@@ -198,7 +211,7 @@ class CentreonSettings extends CentreonObject
      */
     private function getTimezonenameFromId($value)
     {
-        $timezone = new \Centreon_Object_Timezone($this->dependencyInjector);
+        $timezone = new Centreon_Object_Timezone($this->dependencyInjector);
         $timezoneName = $timezone->getParameters($value, array('timezone_name'));
         if (!isset($timezoneName['timezone_name'])) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND);

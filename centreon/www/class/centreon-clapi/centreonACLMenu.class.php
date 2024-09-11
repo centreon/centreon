@@ -35,6 +35,14 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Acl_Group;
+use Centreon_Object_Acl_Menu;
+use Centreon_Object_Relation_Acl_Group_Menu;
+use CentreonTopology;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Acl/Group.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Acl/Menu.php";
@@ -51,37 +59,38 @@ require_once _CENTREON_PATH_ . '/www/class/centreonTopology.class.php';
  */
 class CentreonACLMenu extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
-    const LEVEL_1 = 0;
-    const LEVEL_2 = 1;
-    const LEVEL_3 = 2;
-    const LEVEL_4 = 3;
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
+    public const LEVEL_1 = 0;
+    public const LEVEL_2 = 1;
+    public const LEVEL_3 = 2;
+    public const LEVEL_4 = 3;
 
-    /** @var string */
-    public $action;
-    /** @var \Centreon_Object_Relation_Acl_Group_Menu */
+    /** @var Centreon_Object_Relation_Acl_Group_Menu */
     protected $relObject;
-    /** @var \Centreon_Object_Acl_Group */
+    /** @var Centreon_Object_Acl_Group */
     protected $aclGroupObj;
-    /** @var \CentreonTopology */
+    /** @var CentreonTopology */
     protected $topologyObj;
 
     /**
      * CentreonACLMenu constructor.
-     * @param \Pimple\Container $dependencyInjector
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Acl_Menu($dependencyInjector);
-        $this->aclGroupObj = new \Centreon_Object_Acl_Group($dependencyInjector);
-        $this->relObject = new \Centreon_Object_Relation_Acl_Group_Menu($dependencyInjector);
+        $this->object = new Centreon_Object_Acl_Menu($dependencyInjector);
+        $this->aclGroupObj = new Centreon_Object_Acl_Group($dependencyInjector);
+        $this->relObject = new Centreon_Object_Relation_Acl_Group_Menu($dependencyInjector);
         $this->params = array('acl_topo_activate' => '1');
         $this->nbOfCompulsoryParams = 2;
         $this->activateField = "acl_topo_activate";
         $this->action = "ACLMENU";
-        $this->topologyObj = new \CentreonTopology($dependencyInjector['configuration_db']);
+        $this->topologyObj = new CentreonTopology($dependencyInjector['configuration_db']);
     }
 
     /**
@@ -132,6 +141,8 @@ class CentreonACLMenu extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -166,8 +177,10 @@ class CentreonACLMenu extends CentreonObject
      * Split params
      *
      * @param string $parameters
+     *
      * @return array
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function splitParams($parameters)
     {
@@ -251,7 +264,8 @@ class CentreonACLMenu extends CentreonObject
     /**
      * Get Acl Group
      *
-     * @param string $parameters
+     * @param string $aclMenuName
+     *
      * @return void
      * @throws CentreonClapiException
      */
@@ -279,9 +293,11 @@ class CentreonACLMenu extends CentreonObject
      * Recursive method
      *
      * @param string $action
-     * @param int $aclMenuId
-     * @param int $parentTopologyId
+     * @param null $aclMenuId
+     * @param null $parentTopologyId
+     *
      * @return void
+     * @throws PDOException
      */
     protected function processChildrenOf(
         $action = "grant",
@@ -327,7 +343,10 @@ class CentreonACLMenu extends CentreonObject
      * Grant menu
      *
      * @param string $parameters
+     *
      * @return void
+     * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function grantRw($parameters)
     {
@@ -351,7 +370,10 @@ class CentreonACLMenu extends CentreonObject
      * Grant menu
      *
      * @param string $parameters
+     *
      * @return void
+     * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function grantRo($parameters)
     {
@@ -375,7 +397,10 @@ class CentreonACLMenu extends CentreonObject
      * Revoke menu
      *
      * @param string $parameters
+     *
      * @return void
+     * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function revoke($parameters)
     {
@@ -393,7 +418,9 @@ class CentreonACLMenu extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -440,7 +467,9 @@ class CentreonACLMenu extends CentreonObject
     /**
      * @param int $aclTopoId
      * @param string $aclTopoName
+     *
      * @return string
+     * @throws PDOException
      */
     private function grantMenu($aclTopoId, $aclTopoName)
     {

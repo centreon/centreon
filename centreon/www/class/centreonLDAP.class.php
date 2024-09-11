@@ -34,28 +34,46 @@
  *
  */
 
+use LDAP\Connection;
+
 /**
- * The utils class for LDAP
+ * Class
+ *
+ * @class CentreonLDAP
  */
 class CentreonLDAP
 {
+    /** @var CentreonLog|null */
     public $centreonLog;
+    /** @var */
     private $ds;
+    /** @var CentreonDB */
     private $db = null;
+    /** @var */
     private $linkId;
+    /** @var array */
     private $ldapHosts = array();
+    /** @var null */
     private $ldap = null;
+    /** @var array */
     private $constuctCache = array();
+    /** @var null */
     private $userSearchInfo = null;
+    /** @var null */
     private $groupSearchInfo = null;
+    /** @var bool */
     private $debugImport = false;
+    /** @var string */
     private $debugPath = "";
 
     /**
-     * Constructor
-     * @param \CentreonDB $pearDB The database connection
-     * @param \CentreonLog $centreonLog The logging object
-     * @param string|null $arId
+     * CentreonLDAP constructor
+     *
+     * @param CentreonDB $pearDB The database connection
+     * @param CentreonLog|null $centreonLog The logging object
+     * @param null $arId
+     *
+     * @throws PDOException
      */
     public function __construct($pearDB, $centreonLog = null, $arId = null)
     {
@@ -157,10 +175,11 @@ class CentreonLDAP
     }
 
     /**
-     *
      * @param int $arId
      * @param string $filter
+     *
      * @return array<int, array<string, string>>
+     * @throws PDOException
      */
     public function getLdapHostParameters($arId, $filter = ''): array
     {
@@ -232,6 +251,8 @@ class CentreonLDAP
 
     /**
      * Close LDAP Connexion
+     *
+     * @return void
      */
     public function close(): void
     {
@@ -274,7 +295,7 @@ class CentreonLDAP
     /**
      * Send back the ldap resource
      *
-     * @return \LDAP\Connection|resource
+     * @return Connection|resource
      */
     public function getDs()
     {
@@ -629,7 +650,7 @@ class CentreonLDAP
      * Validate the filter string
      *
      * @param string $filter The filter string to validate
-     * @return boolean
+     * @return bool
      */
     public static function validateFilterPattern($filter): bool
     {
@@ -639,8 +660,10 @@ class CentreonLDAP
     /**
      * Load the search information
      *
-     * @param int $ldapHostId
+     * @param null $ldapHostId
+     *
      * @return void
+     * @throws PDOException
      */
     private function loadSearchInfo($ldapHostId = null): void
     {
@@ -724,7 +747,9 @@ class CentreonLDAP
      * Get the information from the database for a ldap connection
      *
      * @param int $id | id of ldap host
+     *
      * @return array<string, mixed>
+     * @throws PDOException
      */
     private function getInfoConnect($id): array
     {
@@ -740,6 +765,7 @@ class CentreonLDAP
      * Get the information from the database for a ldap connection
      *
      * @return array<string, string>
+     * @throws PDOException
      */
     private function getInfoUseDnsConnect(): array
     {
@@ -761,7 +787,9 @@ class CentreonLDAP
      * Get bind information for connection
      *
      * @param int $id The auth resource id
+     *
      * @return array<string, string>
+     * @throws PDOException
      */
     private function getBindInfo($id): array
     {
@@ -801,7 +829,7 @@ class CentreonLDAP
      * @param string $errstr The error message
      * @param string $errfile The error file
      * @param int $errline The error line
-     * @return boolean
+     * @return bool
      */
     private function errorLdapHandler($errno, $errstr, $errfile, $errline): bool
     {
@@ -867,7 +895,7 @@ class CentreonLDAP
                 "SELECT ari_value FROM auth_ressource_info " .
                 "WHERE ari_name LIKE 'ldap_default_cg' AND ar_id = :arId"
             );
-            $resLdap->bindValue(':arId', $arId, \PDO::PARAM_INT);
+            $resLdap->bindValue(':arId', $arId, PDO::PARAM_INT);
             $resLdap->execute();
             while ($result = $resLdap->fetch()) {
                 $ldapCg = $result['ari_value'];
@@ -884,8 +912,8 @@ class CentreonLDAP
                 "WHERE contact_contact_id = :contactId " .
                 "AND contactgroup_cg_id = :ldapCg"
             );
-            $resCgExist->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
-            $resCgExist->bindValue(':ldapCg', $ldapCg, \PDO::PARAM_INT);
+            $resCgExist->bindValue(':contactId', $contactId, PDO::PARAM_INT);
+            $resCgExist->bindValue(':ldapCg', $ldapCg, PDO::PARAM_INT);
             $resCgExist->execute();
             $row = $resCgExist->fetch();
             unset($resCgExist);
@@ -900,11 +928,11 @@ class CentreonLDAP
                 "(contactgroup_cg_id, contact_contact_id) " .
                 "VALUES (:ldapDefaultCg, :contactId)"
             );
-            $resCg->bindValue(':ldapDefaultCg', $ldapCg, \PDO::PARAM_INT);
-            $resCg->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
+            $resCg->bindValue(':ldapDefaultCg', $ldapCg, PDO::PARAM_INT);
+            $resCg->bindValue(':contactId', $contactId, PDO::PARAM_INT);
             $resCg->execute();
             unset($resCg);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             return false;
         }
         return true;
@@ -926,10 +954,10 @@ class CentreonLDAP
             WHERE contact_id = :contactId"
         );
         try {
-            $stmt->bindValue(':currentTime', time(), \PDO::PARAM_INT);
-            $stmt->bindValue(':contactId', $currentUser['contact_id'], \PDO::PARAM_INT);
+            $stmt->bindValue(':currentTime', time(), PDO::PARAM_INT);
+            $stmt->bindValue(':contactId', $currentUser['contact_id'], PDO::PARAM_INT);
             $stmt->execute();
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $this->centreonLog->insertLog(
                 3,
                 "LDAP MANUAL SYNC : Failed to update ldap_last_sync's values for " . $currentUser['contact_alias']
@@ -956,7 +984,7 @@ class CentreonLDAP
                 'SELECT `contact_name`, `contact_ldap_required_sync`, `contact_ldap_last_sync`
                 FROM contact WHERE contact_id = :contactId'
             );
-            $stmtManualRequest->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
+            $stmtManualRequest->bindValue(':contactId', $contactId, PDO::PARAM_INT);
             $stmtManualRequest->execute();
             $contactData = $stmtManualRequest->fetch();
             // check if a manual override was set for this user
@@ -974,7 +1002,7 @@ class CentreonLDAP
                 WHERE ari_name IN ('ldap_auto_sync', 'ldap_sync_interval')
                 AND ar_id = :arId"
             );
-            $stmtSyncState->bindValue(':arId', $arId, \PDO::PARAM_INT);
+            $stmtSyncState->bindValue(':arId', $arId, PDO::PARAM_INT);
             $stmtSyncState->execute();
             $syncState = array();
             while ($row = $stmtSyncState->fetch()) {
@@ -987,7 +1015,7 @@ class CentreonLDAP
                     'SELECT ar_sync_base_date AS `referenceDate` FROM auth_ressource
                     WHERE ar_id = :arId'
                 );
-                $stmtLdapBaseSync->bindValue(':arId', $arId, \PDO::PARAM_INT);
+                $stmtLdapBaseSync->bindValue(':arId', $arId, PDO::PARAM_INT);
                 $stmtLdapBaseSync->execute();
                 $ldapBaseSync = $stmtLdapBaseSync->fetch();
 
@@ -1006,7 +1034,7 @@ class CentreonLDAP
                     return true;
                 }
             }
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $this->centreonLog->insertLog(
                 3,
                 'Error while getting automatic synchronization value for LDAP Id : ' . $arId

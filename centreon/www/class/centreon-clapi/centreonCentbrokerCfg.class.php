@@ -35,6 +35,12 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Broker;
+use CentreonConfigCentreonBroker;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonInstance.class.php";
 require_once "Centreon/Object/Broker/Broker.php";
@@ -51,35 +57,34 @@ require_once _CENTREON_PATH_ . "www/class/centreonConfigCentreonBroker.php";
  */
 class CentreonCentbrokerCfg extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_INSTANCE = 1;
-    const UNKNOWNCOMBO = "Unknown combination";
-    const INVALIDFIELD = "Invalid field";
-    const NOENTRYFOUND = "No entry found";
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_INSTANCE = 1;
+    public const UNKNOWNCOMBO = "Unknown combination";
+    public const INVALIDFIELD = "Invalid field";
+    public const NOENTRYFOUND = "No entry found";
 
-    /** @var string */
-    public $action;
     /** @var CentreonInstance */
     protected $instanceObj;
-    /** @var \CentreonConfigCentreonBroker */
+    /** @var CentreonConfigCentreonBroker */
     protected $brokerObj;
     /** @var string[] */
     public static $aDepends = array(
         'INSTANCE'
     );
 
-
     /**
      * CentreonCentbrokerCfg constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->instanceObj = new CentreonInstance($dependencyInjector);
-        $this->brokerObj = new \CentreonConfigCentreonBroker($dependencyInjector['configuration_db']);
-        $this->object = new \Centreon_Object_Broker($dependencyInjector);
+        $this->brokerObj = new CentreonConfigCentreonBroker($dependencyInjector['configuration_db']);
+        $this->object = new Centreon_Object_Broker($dependencyInjector);
         $this->params = array(
             'config_filename' => 'central-broker.json',
             'config_activate' => '1'
@@ -153,7 +158,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param null $parameters
      * @param array $filters
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -183,6 +188,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * get list of multi select fields
      *
      * @return array
+     * @throws PDOException
      */
     protected function getMultiselect()
     {
@@ -255,6 +261,8 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param $configId
      * @param $tagName
      * @param $args
+     *
+     * @throws PDOException
      */
     private function listFlow($configId, $tagName, $args)
     {
@@ -278,7 +286,9 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param $configId
      * @param $tagName
      * @param $args
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     private function getFlow($configId, $tagName, $args)
     {
@@ -308,7 +318,9 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param $configId
      * @param $tagName
      * @param $args
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     private function setFlow($configId, $tagName, $args)
     {
@@ -386,7 +398,9 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param $configId
      * @param $tagName
      * @param $args
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     private function addFlow($configId, $tagName, $args)
     {
@@ -486,7 +500,9 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param $configId
      * @param $tagName
      * @param $args
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     private function delFlow($configId, $tagName, $args)
     {
@@ -505,7 +521,9 @@ class CentreonCentbrokerCfg extends CentreonObject
      * Get list from tag
      *
      * @param string $tagName
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function getTypeList($tagName = "")
     {
@@ -535,7 +553,9 @@ class CentreonCentbrokerCfg extends CentreonObject
      * Get Field list from Type
      *
      * @param $typeName
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function getFieldList($typeName)
     {
@@ -568,7 +588,9 @@ class CentreonCentbrokerCfg extends CentreonObject
      * Get Value list from Selectbox name
      *
      * @param $selectName
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function getValueList($selectName)
     {
@@ -597,8 +619,10 @@ class CentreonCentbrokerCfg extends CentreonObject
      *
      * @param string $tagName
      * @param string $typeName
+     *
      * @return string
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     protected function getBlockId($tagName, $typeName)
     {
@@ -622,7 +646,9 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param int $configId
      * @param string $tagName
      * @param array $args | index 1 => config group id, 2 => config_key, 3 => config_value
+     *
      * @return bool
+     * @throws PDOException
      */
     protected function fieldIsValid($configId, $tagName, $args)
     {
@@ -721,7 +747,9 @@ class CentreonCentbrokerCfg extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws PDOException
      */
     public function export($filterName = null)
     {
