@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "46eed5b14dcbbba465a0716bd33128fc",
+    "content-hash": "ba94a1d477806fcb9e1f007308edf6d4",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -7102,20 +7102,22 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-master",
+            "version": "dev-MON-147667-upgrade-to-php-8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "67cb5c7117a04459c48453edb98413fda6a7183a"
+                "reference": "7ee4119f6afe43715658e077a99cb3b890523bfc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/67cb5c7117a04459c48453edb98413fda6a7183a",
-                "reference": "67cb5c7117a04459c48453edb98413fda6a7183a",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/7ee4119f6afe43715658e077a99cb3b890523bfc",
+                "reference": "7ee4119f6afe43715658e077a99cb3b890523bfc",
                 "shasum": ""
             },
             "require": {
                 "behat/behat": "^3.0",
+                "ext-curl": "*",
+                "ext-pdo": "*",
                 "friendsofphp/php-cs-fixer": "^3.10",
                 "guzzlehttp/guzzle": "^7.3",
                 "justinrainbow/json-schema": "^5.2",
@@ -7129,12 +7131,16 @@
                 "symfony/property-access": "^6.4.0",
                 "webmozart/assert": "^1.9"
             },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "phpcompatibility/php-compatibility": "^9.3",
+                "rector/rector": "^1.0"
+            },
             "suggest": {
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -7159,9 +7165,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-147667-upgrade-to-php-8.2"
             },
-            "time": "2024-08-30T15:03:34+00:00"
+            "time": "2024-09-11T13:46:38+00:00"
         },
         {
             "name": "clue/ndjson-react",
@@ -13038,7 +13044,8 @@
         "ext-openssl": "*",
         "ext-phar": "*",
         "ext-zip": "*",
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "ext-posix": "*"
     },
     "platform-dev": [],
     "platform-overrides": {
