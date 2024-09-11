@@ -28,7 +28,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 interface WriteRealTimeServiceRepositoryInterface
 {
     /**
-     * Link service to Resource ACLs
+     * Link service to Resource ACLs.
      *
      * @param int $hostId
      * @param int $serviceId

@@ -26,7 +26,7 @@ namespace Core\Host\Application\Repository;
 interface WriteRealTimeHostRepositoryInterface
 {
     /**
-     * Link host to Resource ACLs
+     * Link host to Resource ACLs.
      *
      * @param int $hostId
      * @param AccessGroup[] $accessGroups
