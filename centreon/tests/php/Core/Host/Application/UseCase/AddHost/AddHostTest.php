@@ -41,6 +41,7 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
+use Core\Host\Application\Repository\WriteRealTimeHostRepositoryInterface;
 use Core\Host\Application\UseCase\AddHost\AddHost;
 use Core\Host\Application\UseCase\AddHost\AddHostRequest;
 use Core\Host\Application\UseCase\AddHost\AddHostResponse;
@@ -85,6 +86,7 @@ beforeEach(function (): void {
         optionService: $this->optionService = $this->createMock(OptionService::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         validation: $this->validation = $this->createMock(AddHostValidation::class),
+        writeRealTimeHostRepository: $this->writeRealTimeHostRepository = $this->createMock(WriteRealTimeHostRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();
