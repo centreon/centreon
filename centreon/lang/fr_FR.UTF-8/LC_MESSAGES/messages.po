@@ -19195,7 +19195,7 @@ msgid "Ticket subject"
 msgstr "Sujet du ticket"
 
 msgid "Opened on"
-msgstr "Date d'ouverture"
+msgstr "Ouvert le"
 
 msgid "Create a ticket"
 msgstr "Créer un ticket"

@@ -246,7 +246,16 @@
         },
         "alias": "Monitoring Server",
         "fqdn": "127.0.0.1",
-        "monitoring_server_name": null
+        "monitoring_server_name": null,
+        "extra": {
+          "open_tickets": {
+            "tickets": {
+              "id": 12,
+              "subject": "description for host",
+              "created_at": "2024-09-11T14:35:17+01:00"
+            }
+          }
+        }
       },
       "status": {
         "code": 0,

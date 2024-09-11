@@ -80,14 +80,13 @@ export const labelCloseTicket = 'Close ticket';
 
 export const labelTicketID = 'Ticket ID';
 export const labelTicketSubject = 'Ticket subject';
-export const labelTicketOpenTime = 'Opened on';
+export const labelOpenedOn = 'Opened on';
 
 export const labelSubject = 'Subject';
-export const labelOpenTime = 'Open time';
 export const labelCreateticket = 'Create a ticket';
 export const labelCloseATicket = 'Close a ticket';
 export const labelConfirm = 'Confirm';
 export const labelTicketWillBeClosedInTheProvider =
-  'The ticket will be closed on the selected ticket provider';
+  'The ticket will be closed for the selected ticket provider';
 export const labelTicketCreated = 'Ticket created';
 export const labelTicketClosed = 'Ticket closed';

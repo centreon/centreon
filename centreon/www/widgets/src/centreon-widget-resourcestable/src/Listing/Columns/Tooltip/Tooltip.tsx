@@ -8,7 +8,7 @@ import { useLocaleDateTimeFormat } from '@centreon/ui';
 import {
   labelOpenTicketForHost,
   labelOpenTicketForService,
-  labelOpenTime,
+  labelOpenedOn,
   labelSubject,
   labelTicketID
 } from '../../translatedLabels';
@@ -53,7 +53,7 @@ const TooltipContent = ({
           <strong>{t(labelSubject)}: </strong> {subject}
         </Typography>
         <Typography className={classes.listContainer} variant="body2">
-          <strong>{t(labelOpenTime)}: </strong> {created_at}
+          <strong>{t(labelOpenedOn)}: </strong> {format({date : created_at , formatString : "L"})}
         </Typography>
       </Box>
 

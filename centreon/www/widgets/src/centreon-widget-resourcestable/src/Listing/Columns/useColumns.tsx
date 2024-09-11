@@ -26,6 +26,7 @@ import {
   labelHost,
   labelInformation,
   labelLastCheck,
+  labelOpenedOn,
   labelParent,
   labelResource,
   labelService,
@@ -35,7 +36,6 @@ import {
   labelStatus,
   labelTicket,
   labelTicketID,
-  labelTicketOpenTime,
   labelTicketSubject,
   labelTries
 } from '../translatedLabels';
@@ -198,7 +198,7 @@ const useColumns = ({
                   })
                 : '',
             id: 'ticket_open_time',
-            label: t(labelTicketOpenTime),
+            label: t(labelOpenedOn),
             type: ColumnType.string
           }
         ]
