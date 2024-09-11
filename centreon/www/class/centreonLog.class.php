@@ -161,6 +161,16 @@ class CentreonLog
         }
     }
 
+    /**
+     * Factory
+     * @param array $customLogs
+     * @return CentreonLog
+     */
+    public static function create(array $customLogs = []): CentreonLog
+    {
+        return new CentreonLog($customLogs);
+    }
+
     /*
      * Function for writing logs
      */
