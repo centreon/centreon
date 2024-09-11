@@ -44,6 +44,7 @@ use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
+use Core\Service\Application\Repository\WriteRealTimeServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Application\UseCase\AddService\AddService;
 use Core\Service\Application\UseCase\AddService\AddServiceRequest;
@@ -85,6 +86,7 @@ beforeEach(function (): void {
         $this->isCloudPlatform = false,
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->writeRealTimeServiceRepository = $this->createMock(WriteRealTimeServiceRepositoryInterface::class),
     );
 
     $this->request = new AddServiceRequest();
