@@ -1,5 +1,5 @@
 import { useRefreshInterval } from '@centreon/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Preview from './Preview';
 import type { WebPageProps } from './models';
@@ -9,12 +9,10 @@ import { useIframeStyles } from './useWebPage.styles';
 const getIframeSrc = (url: string) =>
   /^http/.test(url) ? url : `http://${url}`;
 
-const refreshIframe = (id) => {
-  const iframe = document.getElementById(`Webpage_${id}`);
-
-  if (iframe) {
+const refreshIframe = (iframeRef) => {
+  if (iframeRef.current) {
     // biome-ignore lint/correctness/noSelfAssign: <explanation>
-    iframe.src = iframe?.src;
+    iframeRef.current.src = iframeRef.current?.src;
   }
 };
 
@@ -26,7 +24,8 @@ const WebPage = ({
   const { classes } = useIframeStyles();
   const { t } = useTranslation();
 
-  const [intervalId, setIntervalId] = useState(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [intervalId, setIntervalId] = useState<number | null>(null);
 
   const { url, refreshInterval, refreshIntervalCustom } = panelOptions;
 
@@ -42,7 +41,7 @@ const WebPage = ({
         clearInterval(intervalId);
         setIntervalId(null);
       }
-      
+
       return;
     }
 
@@ -50,7 +49,10 @@ const WebPage = ({
       clearInterval(intervalId);
     }
 
-    const id = setInterval(() => refreshIframe(widgetId), refreshIntervalToUse);
+    const id = window.setInterval(
+      () => refreshIframe(iframeRef),
+      refreshIntervalToUse
+    );
     setIntervalId(id);
 
     return () => clearInterval(id);
@@ -63,6 +65,7 @@ const WebPage = ({
   return (
     <div className={classes.container}>
       <iframe
+        ref={iframeRef}
         src={getIframeSrc(url)}
         className={classes.iframe}
         title={t(labelWebpageDisplay)}
