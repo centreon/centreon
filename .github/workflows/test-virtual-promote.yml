@@ -1,0 +1,41 @@
+name: test-virtual-promote
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  promote:
+    needs: [get-version]
+    # if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability)  && github.event_name != 'workflow_dispatch' }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el9]
+        # distrib: [el8, el9, bullseye, bookworm]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: web
+          distrib: ${{ matrix.distrib }}
+          major_version: "24.04"
+          minor_version: "6"
+          stability: stable
+          # stability: ${{ needs.get-version.outputs.stability }}
+          github_ref_name: ${{ github.ref_name }}
+          release_type: release
+          release_cloud: 0
