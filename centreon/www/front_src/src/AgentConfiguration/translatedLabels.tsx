@@ -13,3 +13,4 @@ export const labelSearch = 'Search';
 export const labelFilters = 'Filters';
 export const labelAgentTypes = 'Agent types';
 export const labelPollers = 'Pollers';
+export const labelClear = 'Clear';

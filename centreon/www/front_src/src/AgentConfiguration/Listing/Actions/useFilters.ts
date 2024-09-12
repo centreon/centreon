@@ -21,6 +21,7 @@ interface UseFiltersProps {
   pollers: Array<SelectEntry>;
   changeEntries: (field: string) => (_, newEntries: Array<SelectEntry>) => void;
   deleteEntry: (field: string) => (_, entry: SelectEntry) => void;
+  clearFilters: () => void;
 }
 
 export const useFilters = (): UseFiltersProps => {
@@ -42,9 +43,15 @@ export const useFilters = (): UseFiltersProps => {
     []
   );
 
+  const clearFilters = (): void => {
+    changeFilter({ field: 'agentTypes', newEntries: [] });
+    changeFilter({ field: 'pollers', newEntries: [] });
+  };
+
   return {
     ...filters,
     changeEntries,
-    deleteEntry
+    deleteEntry,
+    clearFilters
   };
 };

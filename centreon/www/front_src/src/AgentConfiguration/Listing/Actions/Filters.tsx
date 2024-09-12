@@ -3,11 +3,13 @@ import {
   MultiConnectedAutocompleteField,
   PopoverMenu
 } from '@centreon/ui';
+import { Button } from '@centreon/ui/components';
 import { Tune } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { getPollersEndpoint } from '../../api/endpoints';
 import {
   labelAgentTypes,
+  labelClear,
   labelFilters,
   labelPollers
 } from '../../translatedLabels';
@@ -18,7 +20,8 @@ const Filters = (): JSX.Element => {
   const { classes } = useActionsStyles();
   const { t } = useTranslation();
 
-  const { agentTypes, pollers, changeEntries, deleteEntry } = useFilters();
+  const { agentTypes, pollers, changeEntries, deleteEntry, clearFilters } =
+    useFilters();
 
   return (
     <PopoverMenu title={t(labelFilters)} icon={<Tune />}>
@@ -43,6 +46,14 @@ const Filters = (): JSX.Element => {
           field="name"
           onChange={changeEntries('pollers')}
         />
+        <Button
+          onClick={clearFilters}
+          variant="ghost"
+          className={classes.clearButton}
+          size="small"
+        >
+          {t(labelClear)}
+        </Button>
       </div>
     </PopoverMenu>
   );
