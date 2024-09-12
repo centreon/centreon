@@ -2,6 +2,7 @@ import { SearchField } from '@centreon/ui';
 import { useTranslation } from 'react-i18next';
 import { labelSearch } from '../../translatedLabels';
 import { useActionsStyles } from './Actions.styles';
+import Filters from './Filters';
 import { useSearch } from './useSearch';
 
 const Search = (): JSX.Element => {
@@ -18,6 +19,7 @@ const Search = (): JSX.Element => {
       dataTestId={labelSearch}
       placeholder={t(labelSearch)}
       onChange={change}
+      EndAdornment={Filters}
     />
   );
 };

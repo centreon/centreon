@@ -10,3 +10,5 @@ export const labelExpand = 'Expand';
 export const labelCollapse = 'Collapse';
 export const labelAddNewAgent = 'Add';
 export const labelSearch = 'Search';
+export const labelFilters = 'Filters';
+export const labelAgentTypes = 'Agent types';

@@ -35,8 +35,6 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
 
-  console.log(search);
-
   const { data, isLoading } = useFetchQuery<
     ListingModel<AgentConfigurationListing>
   >({
