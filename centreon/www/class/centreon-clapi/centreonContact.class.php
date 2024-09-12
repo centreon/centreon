@@ -120,7 +120,7 @@ class CentreonContact extends CentreonObject
     protected $register;
     /** @var CentreonTimePeriod */
     protected $tpObject;
-    /** @var Timezone */
+    /** @var Centreon_Object_Timezone */
     protected $timezoneObject;
     /** @var array<string,mixed> */
     protected $addParams = [];
@@ -213,16 +213,16 @@ class CentreonContact extends CentreonObject
     /**
      * Delete action
      *
-     * @param string $parameters
+     * @param $objectName
      *
      * @throws CentreonClapiException
      */
-    public function del($parameters)
+    public function del($objectName)
     {
-        if (isset($parameters)) {
-            $parameters = str_replace(" ", "_", $parameters);
+        if (isset($objectName)) {
+            $parameters = str_replace(" ", "_", $objectName);
         }
-        parent::del($parameters);
+        parent::del($objectName);
     }
 
     /**
@@ -269,7 +269,9 @@ class CentreonContact extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function initInsertParameters($parameters)
     {

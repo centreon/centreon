@@ -416,7 +416,9 @@ abstract class CentreonObject
      *
      * @param array $params
      * @param array $filters
+     *
      * @return void
+     * @throws Exception
      */
     public function show($params = array(), $filters = array())
     {

@@ -468,13 +468,13 @@ class CentreonServiceTemplate extends CentreonObject
     /**
      * Delete service template
      *
-     * @param string $parameters
+     * @param string $objectName
      * @return void
      * @throws CentreonClapiException
      */
-    public function del($parameters)
+    public function del($objectName)
     {
-        $serviceDesc = $parameters;
+        $serviceDesc = $objectName;
         $elements = $this->object->getList(
             "service_id",
             -1,

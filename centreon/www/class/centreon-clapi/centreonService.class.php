@@ -368,13 +368,13 @@ class CentreonService extends CentreonObject
     /**
      * Delete service
      *
-     * @param string $parameters
+     * @param string $objectName
      * @return void
      * @throws CentreonClapiException
      */
-    public function del($parameters)
+    public function del($objectName)
     {
-        $params = explode($this->delim, $parameters);
+        $params = explode($this->delim, $objectName);
         if (count($params) < 2) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }

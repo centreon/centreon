@@ -138,7 +138,9 @@ class CentreonSettings extends CentreonObject
     }
 
     /**
-     * @param null $objectName
+     * @param string|null $objectName
+     *
+     * @return void
      */
     public function del($objectName = null)
     {

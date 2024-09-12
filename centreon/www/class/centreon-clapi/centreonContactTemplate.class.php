@@ -35,6 +35,9 @@
 
 namespace CentreonClapi;
 
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonContact.class.php";
 
 /**
@@ -59,16 +62,15 @@ class CentreonContactTemplate extends CentreonContact
         'CMD',
         'TP'
     );
-    /** @var string */
-    public $action;
-
 
     /**
      * CentreonContactTemplate constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->params['contact_register'] = 0;
@@ -88,7 +90,9 @@ class CentreonContactTemplate extends CentreonContact
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function initInsertParameters($parameters)
     {

@@ -36,6 +36,14 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Host;
+use Centreon_Object_Host_Category;
+use Centreon_Object_Relation_Host_Category_Host;
+use Exception;
+use PDO;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonSeverityAbstract.class.php";
 require_once "centreonACL.class.php";
@@ -57,18 +65,17 @@ class CentreonHostCategory extends CentreonSeverityAbstract
         'HOST'
     );
 
-    /** @var string */
-    public $action;
-
     /**
      * CentreonHostCategory constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Host_Category($dependencyInjector);
+        $this->object = new Centreon_Object_Host_Category($dependencyInjector);
         $this->params = array('hc_activate' => '1');
         $this->insertParams = array('hc_name', 'hc_alias');
         $this->exportExcludedParams = array_merge(
@@ -84,7 +91,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      * @param null $parameters
      * @param array $filters
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -113,7 +120,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters)
@@ -187,8 +194,8 @@ class CentreonHostCategory extends CentreonSeverityAbstract
         $name = strtolower($name);
         /* Get the action and the object */
         if (preg_match("/^(get|set|add|del)member$/", $name, $matches)) {
-            $relobj = new \Centreon_Object_Relation_Host_Category_Host($this->dependencyInjector);
-            $obj = new \Centreon_Object_Host($this->dependencyInjector);
+            $relobj = new Centreon_Object_Relation_Host_Category_Host($this->dependencyInjector);
+            $obj = new Centreon_Object_Host($this->dependencyInjector);
 
             /* Parse arguments */
             if (!isset($arg[0])) {
@@ -250,7 +257,10 @@ class CentreonHostCategory extends CentreonSeverityAbstract
     /**
      * Export
      *
+     * @param null $filterName
+     *
      * @return void
+     * @throws PDOException
      */
     public function export($filterName = null)
     {
@@ -290,6 +300,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
 
     /**
      * @return array<array{name: string, host_name: string, level: int|null, img_path: string|null}>
+     * @throws PDOException
      */
     private function findHostCategories(): array
     {
@@ -311,7 +322,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
             SQL
         );
         $hostCategories = [];
-        while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        while (($result = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
             $hostCategories[] = [
                 'name' => $result['hc_name'],
                 'host_name' => $result['host_name'],

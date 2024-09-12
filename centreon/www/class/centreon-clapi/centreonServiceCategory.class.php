@@ -35,6 +35,14 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Relation_Host_Service;
+use Centreon_Object_Relation_Service_Category_Service;
+use Centreon_Object_Service;
+use Centreon_Object_Service_Category;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonSeverityAbstract.class.php";
 require_once "centreonACL.class.php";
@@ -57,18 +65,17 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
         'SERVICE'
     );
 
-    /** @var string */
-    public $action;
-
     /**
      * CentreonServiceCategory constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Service_Category($dependencyInjector);
+        $this->object = new Centreon_Object_Service_Category($dependencyInjector);
         $this->params = array('sc_activate' => '1');
         $this->insertParams = array('sc_name', 'sc_description');
         $this->exportExcludedParams = array_merge(
@@ -84,7 +91,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      * @param null $parameters
      * @param array $filters
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function show($parameters = null, $filters = array())
     {
@@ -106,7 +113,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters)
@@ -171,9 +178,9 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
             }
             $categoryId = $hcIds[0];
 
-            $obj = new \Centreon_Object_Service($this->dependencyInjector);
-            $relobj = new \Centreon_Object_Relation_Service_Category_Service($this->dependencyInjector);
-            $hostServiceRel = new \Centreon_Object_Relation_Host_Service($this->dependencyInjector);
+            $obj = new Centreon_Object_Service($this->dependencyInjector);
+            $relobj = new Centreon_Object_Relation_Service_Category_Service($this->dependencyInjector);
+            $hostServiceRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
             if ($matches[1] == "get") {
                 $tab = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $hcIds);
                 if ($matches[2] == "servicetemplate") {
@@ -399,8 +406,8 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      *
      * @param null $filterName
      *
-     * @return void
-     * @throws \Exception
+     * @return false|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -421,9 +428,9 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
             'ASC',
             $filters
         );
-        $relobj = new \Centreon_Object_Relation_Service_Category_Service($this->dependencyInjector);
-        $hostServiceRel = new \Centreon_Object_Relation_Host_Service($this->dependencyInjector);
-        $svcObj = new \Centreon_Object_Service($this->dependencyInjector);
+        $relobj = new Centreon_Object_Relation_Service_Category_Service($this->dependencyInjector);
+        $hostServiceRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
+        $svcObj = new Centreon_Object_Service($this->dependencyInjector);
         foreach ($scs as $sc) {
             $scId = $sc[$this->object->getPrimaryKey()];
             $scName = $sc[$labelField];

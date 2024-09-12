@@ -140,7 +140,7 @@ class CentreonACLAction extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters)
@@ -250,7 +250,9 @@ class CentreonACLAction extends CentreonObject
      * @param $parameters
      *
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
      * @throws PDOException
+     * @throws Throwable
      */
     public function grant($parameters)
     {
@@ -286,7 +288,9 @@ class CentreonACLAction extends CentreonObject
      * @param $parameters
      *
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
      * @throws PDOException
+     * @throws Throwable
      */
     public function revoke($parameters)
     {
@@ -389,7 +393,11 @@ class CentreonACLAction extends CentreonObject
      * Del Action
      *
      * @param string $objectName
+     *
+     * @return void
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     public function del($objectName): void
     {
@@ -410,7 +418,10 @@ class CentreonACLAction extends CentreonObject
 
     /**
      * @param array $parameters
+     *
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     public function setparam($parameters = array()): void
     {
@@ -452,6 +463,9 @@ class CentreonACLAction extends CentreonObject
      * Updates ACL actions for an authentified user from ACL Action ID
      *
      * @param int $aclActionId
+     *
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     private function updateAclActionsForAuthentifiedUsers(int $aclActionId): void
     {
