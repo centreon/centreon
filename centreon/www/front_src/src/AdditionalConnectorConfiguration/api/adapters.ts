@@ -1,4 +1,4 @@
-import { pluck } from 'ramda';
+import { omit, pluck } from 'ramda';
 
 import {
   AdditionalConnectorConfiguration,
@@ -11,7 +11,7 @@ export const adaptFormDataToApiPayload = (
   formData: AdditionalConnectorConfiguration
 ): Payload => {
   return {
-    ...formData,
+    ...omit(['id'], formData),
     parameters: {
       ...formData.parameters,
       vcenters: formData.parameters.vcenters.map((vcenter) => ({
