@@ -18,12 +18,14 @@ on:
 
 jobs:
   get-environment:
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize:
     needs: [get-environment]
+    if: needs.get-version.outputs.pull_request_environment == 'internal_contributor'
     runs-on: ubuntu-24.04
 
     steps:

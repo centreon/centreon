@@ -8,6 +8,7 @@ on:
 
 jobs:
   get-environment:
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql

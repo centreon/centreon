@@ -15,6 +15,7 @@ on:
 
 jobs:
   get-environment:
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
@@ -22,7 +23,12 @@ jobs:
   dockerize-stable:
     needs: [get-environment]
     runs-on: ubuntu-24.04
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability == 'stable' && github.ref_name == 'master' }}
+    if: |
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.ref_name == 'master'
 
     env:
       project: centreon-web
