@@ -789,10 +789,8 @@ function updateContactHostCommands($contactId = null, $fields = [])
 {
     global $form, $pearDB;
 
-<<<<<<< HEAD
     $contactId = (int) $contactId;
-=======
->>>>>>> 24.04.x
+
     if ($contactId <= 0) {
         return;
     }
@@ -820,17 +818,11 @@ function updateContactHostCommands($contactId = null, $fields = [])
             );
         }
     } catch (CentreonDbException $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and host commands",
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "Error while updating the relationship between contacts and host commands | {$e->toJson()}"
->>>>>>> 24.04.x
         );
         return;
     }
@@ -844,10 +836,8 @@ function updateContactHostCommands_MC($contactId = null, $ret = [])
 {
     global $form, $pearDB;
 
-<<<<<<< HEAD
     $contactId = (int) $contactId;
-=======
->>>>>>> 24.04.x
+
     if ($contactId <= 0) {
         return;
     }
@@ -873,17 +863,11 @@ function updateContactHostCommands_MC($contactId = null, $ret = [])
             }
         }
     } catch (CentreonDbException $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and host commands by massive change",
             ['contact_id' => $contactId],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "Error while updating the relationship between contacts and host commands by massive change | {$e->toJson()}"
->>>>>>> 24.04.x
         );
         return;
     }
@@ -898,10 +882,8 @@ function updateContactServiceCommands($contactId = null, array $fields = [])
 {
     global $form, $pearDB;
 
-<<<<<<< HEAD
     $contactId = (int) $contactId;
-=======
->>>>>>> 24.04.x
+
     if ($contactId <= 0) {
         return;
     }
@@ -929,17 +911,11 @@ function updateContactServiceCommands($contactId = null, array $fields = [])
             );
         }
     } catch (CentreonDbException $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and service commands",
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "Error while updating the relationship between contacts and service commands | {$e->toJson()}"
->>>>>>> 24.04.x
         );
         return;
     }
@@ -956,10 +932,8 @@ function updateContactServiceCommands_MC($contactId = null, $ret = [])
 {
     global $form, $pearDB;
 
-<<<<<<< HEAD
     $contactId = (int) $contactId;
-=======
->>>>>>> 24.04.x
+
     if ($contactId <= 0) {
         return;
     }
@@ -985,17 +959,11 @@ function updateContactServiceCommands_MC($contactId = null, $ret = [])
             }
         }
     } catch (CentreonDbException $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and service commands",
             ['contact_id' => $contactId],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "Error while updating the relationship between contacts and service commands | {$e->toJson()}"
->>>>>>> 24.04.x
         );
         return;
     }
@@ -1010,10 +978,8 @@ function updateContactContactGroup($contactId = null, array $fields = [])
 {
     global $centreon, $form, $pearDB;
 
-<<<<<<< HEAD
     $contactId = (int) $contactId;
-=======
->>>>>>> 24.04.x
+
     if ($contactId <= 0) {
         return;
     }
@@ -1049,17 +1015,11 @@ function updateContactContactGroup($contactId = null, array $fields = [])
             );
         }
     } catch (CentreonDbException $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and contact groups",
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "Error while updating the relationship between contacts and contact groups | {$e->toJson()}"
->>>>>>> 24.04.x
         );
         return;
     }
@@ -1067,17 +1027,11 @@ function updateContactContactGroup($contactId = null, array $fields = [])
     try {
         CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
     } catch (Exception $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "CentreonCustomView::syncContactGroupCustomView failed with contact_id : $contactId",
             ['contact_id' => $contactId],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}, exception message : {$e->getMessage()}"
->>>>>>> 24.04.x
         );
         return;
     }
@@ -1094,10 +1048,8 @@ function updateContactContactGroup_MC($contactId = null, $ret = [])
 {
     global $centreon, $form, $pearDB;
 
-<<<<<<< HEAD
     $contactId = (int) $contactId;
-=======
->>>>>>> 24.04.x
+
     if ($contactId <= 0) {
         return;
     }
@@ -1123,17 +1075,11 @@ function updateContactContactGroup_MC($contactId = null, $ret = [])
             }
         }
     } catch (CentreonDbException $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and contact groups by massive change",
             ['contact_id' => $contactId],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "Error while updating the relationship between contacts and contact groups by massive change | {$e->toJson()}"
->>>>>>> 24.04.x
         );
         return;
     }
@@ -1141,17 +1087,11 @@ function updateContactContactGroup_MC($contactId = null, $ret = [])
     try {
         CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
     } catch (Exception $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "CentreonCustomView::syncContactGroupCustomView failed with contact_id : $contactId",
             ['contact_id' => $contactId],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}, exception message : {$e->getMessage()}"
->>>>>>> 24.04.x
         );
         return;
     }
@@ -1273,14 +1213,12 @@ function insertLdapContactInDB($tmpContacts = array())
  * @param array $fields
  * @return void
  */
-function updateAccessGroupLinks(int $contactId, array $fields = [])
+function updateAccessGroupLinks($contactId = null, array $fields = [])
 {
     global $form, $pearDB;
 
-<<<<<<< HEAD
     $contactId = (int) $contactId;
-=======
->>>>>>> 24.04.x
+
     if ($contactId <= 0) {
         return;
     }
@@ -1308,17 +1246,11 @@ function updateAccessGroupLinks(int $contactId, array $fields = [])
             $pearDB->executePreparedQuery($pdoSth, ['contact_id' => $contactId, 'acl_group_id' => (int)$aclGroupId]);
         }
     } catch (CentreonDbException $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and acl groups",
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "Error while updating the relationship between contacts and acl groups | {$e->toJson()}"
->>>>>>> 24.04.x
         );
         return;
     }
@@ -1335,10 +1267,8 @@ function updateAccessGroupLinks_MC($contactId, $flag)
 {
     global $form, $pearDB;
 
-<<<<<<< HEAD
     $contactId = (int) $contactId;
-=======
->>>>>>> 24.04.x
+
     if ($contactId <= 0) {
         return;
     }
@@ -1368,17 +1298,11 @@ function updateAccessGroupLinks_MC($contactId, $flag)
         }
 
     } catch (CentreonDbException $e) {
-<<<<<<< HEAD
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and acl groups by massive change",
             ['contact_id' => $contactId, 'flag' => $flag],
             $e
-=======
-        CentreonLog::create()->insertLog(
-            2,
-            "Error while updating the relationship between contacts and acl groups by massive change | {$e->toJson()}"
->>>>>>> 24.04.x
         );
         return;
     }
