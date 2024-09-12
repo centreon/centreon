@@ -1,0 +1,30 @@
+on:
+  workflow_call:
+    outputs:
+      pull_request_environment:
+        description: "Environment for workflow run deployment"
+        value: ${{ jobs.set-pr-environment.outputs.pull_request_environment }}
+
+jobs:
+  set-pr-environment:
+    runs-on: ubuntu-22.04
+    outputs:
+      pull_request_environment: ${{ steps.set-pr-environment.outputs.pull_request_environment }}
+    steps:
+      - name: Determine whether the contribution is internal or external
+        id: set-pr-environment
+        run: |
+          PULL_REQUEST_ENVIRONMENT="external_contributor"
+          if [[ "${{ github.event_name }}" == 'pull_request_target' ]] &&
+            [[ "${{ github.event.pull_request.author_association }}" == "MEMBER" ||
+                "${{ github.event.pull_request.author_association }}" == "CONTRIBUTOR" ||
+                "${{ github.event.pull_request.author_association }}" == "OWNER" ]]
+          then
+            # Not requiring internal approvals if the author is from the Centreon organization
+            PULL_REQUEST_ENVIRONMENT="internal_contributor"
+          elif [[ "${{ github.event_name }}" != 'pull_request_target' && "${{ github.event_name }}" != 'pull_request' ]]; then
+            # Not requiring internal approvals for push and workflow_dispatch triggers
+            PULL_REQUEST_ENVIRONMENT="internal_contributor"
+          fi
+          echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
+        shell: bash
