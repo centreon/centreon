@@ -37,7 +37,11 @@ const Page = (): JSX.Element => {
 
     formData.append('data', JSON.stringify(payload));
     transformFileListToArray(files).forEach((file, index) => {
-      formData.append(`file_${index}_${file.name}`, file, file.name);
+      formData.append(
+        `file_${index}_${file.name}`,
+        new Blob([file]),
+        file.name
+      );
     });
 
     mutateAsync({
