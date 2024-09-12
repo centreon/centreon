@@ -68,7 +68,7 @@ class CentreonExternalCommand
         global $centreon;
 
         $rq = "SELECT id FROM `nagios_server` WHERE localhost = '1'";
-        $DBRES = CentreonDBInstance::getConfInstance()->query($rq);
+        $DBRES = CentreonDBInstance::getDbCentreonInstance()->query($rq);
         while ($row = $DBRES->fetchRow()) {
             $this->localhostTab[$row['id']] = "1";
         }
@@ -80,7 +80,7 @@ class CentreonExternalCommand
          * Init GMT classes
          */
         $this->GMT = new CentreonGMT();
-        $this->GMT->getMyGMTFromSession(session_id(), CentreonDBInstance::getConfInstance());
+        $this->GMT->getMyGMTFromSession(session_id(), CentreonDBInstance::getDbCentreonInstance());
 
         if (!is_null($centreon)) {
             $this->userId = $centreon->user->get_id();
@@ -281,7 +281,7 @@ class CentreonExternalCommand
         if (!isset($host)) {
             return 0;
         }
-        $db = CentreonDBInstance::getMonInstance();
+        $db = CentreonDBInstance::getDbCentreonStorageInstance();
         /*
          * Check if $host is an id or a name
          */

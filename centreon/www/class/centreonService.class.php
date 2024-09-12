@@ -100,7 +100,7 @@ class CentreonService
     {
         $this->db = $db;
         if (is_null($dbMon)) {
-            $this->dbMon = \CentreonDBInstance::getMonInstance();
+            $this->dbMon = \CentreonDBInstance::getDbCentreonStorageInstance();
         } else {
             $this->dbMon = $dbMon;
         }

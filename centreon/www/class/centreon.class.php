@@ -181,7 +181,7 @@ class Centreon
     {
         $this->modules = array();
         $query = "SELECT `name` FROM `modules_informations`";
-        $dbResult = CentreonDBInstance::getConfInstance()->query($query);
+        $dbResult = CentreonDBInstance::getDbCentreonInstance()->query($query);
         while ($result = $dbResult->fetch()) {
             $this->modules[$result["name"]] = array(
                 "name" => $result["name"],
@@ -258,7 +258,7 @@ class Centreon
          * We don't check activate because we can a server without a engine on localhost running
          * (but we order to get if we have one)
          */
-        $DBRESULT = CentreonDBInstance::getConfInstance()->query(
+        $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query(
             "SELECT illegal_object_name_chars, cfg_dir FROM cfg_nagios, nagios_server
             WHERE nagios_server.id = cfg_nagios.nagios_server_id
             AND nagios_server.localhost = '1'
@@ -277,7 +277,7 @@ class Centreon
     public function initOptGen()
     {
         $this->optGen = array();
-        $DBRESULT = CentreonDBInstance::getConfInstance()->query("SELECT * FROM `options`");
+        $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query("SELECT * FROM `options`");
         while ($opt = $DBRESULT->fetch()) {
             $this->optGen[$opt["key"]] = $opt["value"];
         }
@@ -294,7 +294,7 @@ class Centreon
     public function initInformations(): void
     {
         $this->informations = [];
-        $result = CentreonDBInstance::getConfInstance()->query("SELECT * FROM `informations`");
+        $result = CentreonDBInstance::getDbCentreonInstance()->query("SELECT * FROM `informations`");
         while ($row = $result->fetch()) {
             $this->informations[$row["key"]] = $row["value"];
         }
@@ -310,7 +310,7 @@ class Centreon
      */
     public function checkIllegalChar($name)
     {
-        $DBRESULT = CentreonDBInstance::getConfInstance()->query("SELECT illegal_object_name_chars FROM cfg_nagios");
+        $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query("SELECT illegal_object_name_chars FROM cfg_nagios");
         while ($data = $DBRESULT->fetchColumn()) {
             $name = str_replace(str_split($data), '', $name);
         }

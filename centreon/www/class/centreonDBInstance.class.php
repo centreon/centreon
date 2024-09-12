@@ -48,11 +48,10 @@ require_once realpath(dirname(__FILE__) . "/centreonDB.class.php");
  */
 class CentreonDBInstance
 {
-    /** @var */
-    private static $confInstance;
-    /** @var */
-    private static $monInstance;
-
+    /** @var CentreonDBInstance */
+    private static $dbCentreonInstance;
+    /** @var CentreonDBInstance */
+    private static $dbCentreonStorageInstance;
     /** @var CentreonDB */
     private $instance;
 
@@ -79,22 +78,22 @@ class CentreonDBInstance
     /**
      * @return CentreonDB
      */
-    public static function getConfInstance()
+    public static function getDbCentreonInstance()
     {
-        if (is_null(self::$confInstance)) {
-            self::$confInstance = new \CentreonDBInstance('centreon');
+        if (is_null(self::$dbCentreonInstance)) {
+            self::$dbCentreonInstance = new \CentreonDBInstance('centreon');
         }
-        return self::$confInstance->getInstance();
+        return self::$dbCentreonInstance->getInstance();
     }
 
     /**
      * @return CentreonDB
      */
-    public static function getMonInstance()
+    public static function getDbCentreonStorageInstance()
     {
-        if (is_null(self::$monInstance)) {
-            self::$monInstance = new \CentreonDBInstance('centstorage');
+        if (is_null(self::$dbCentreonStorageInstance)) {
+            self::$dbCentreonStorageInstance = new \CentreonDBInstance('centstorage');
         }
-        return self::$monInstance->getInstance();
+        return self::$dbCentreonStorageInstance->getInstance();
     }
 }

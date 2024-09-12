@@ -316,7 +316,7 @@ class CentreonGMT
             $query = "SELECT `contact_location` FROM `contact`, `session` " .
                 "WHERE `session`.`user_id` = `contact`.`contact_id` " .
                 "AND `session_id` = :session_id LIMIT 1";
-            $statement = CentreonDBInstance::getConfInstance()->prepare($query);
+            $statement = CentreonDBInstance::getDbCentreonInstance()->prepare($query);
             $statement->bindValue(':session_id', $sid, \PDO::PARAM_STR);
             $statement->execute();
             if ($info = $statement->fetch()) {
@@ -339,7 +339,7 @@ class CentreonGMT
     {
         if (!empty($userId)) {
             try {
-                $DBRESULT = CentreonDBInstance::getConfInstance()->query("SELECT `contact_location` FROM `contact` " .
+                $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query("SELECT `contact_location` FROM `contact` " .
                     "WHERE `contact`.`contact_id` = " . $userId . " LIMIT 1");
                 $info = $DBRESULT->fetchRow();
                 $DBRESULT->closeCursor();
@@ -431,7 +431,7 @@ class CentreonGMT
     {
         $queryList = "SELECT timezone_id, timezone_name, timezone_offset FROM timezone ORDER BY timezone_name asc";
         try {
-            $res = CentreonDBInstance::getConfInstance()->query($queryList);
+            $res = CentreonDBInstance::getDbCentreonInstance()->query($queryList);
         } catch (\PDOException $e) {
             return [];
         }
@@ -471,7 +471,7 @@ class CentreonGMT
         $query = "SELECT timezone_id, timezone_name FROM timezone "
             . "WHERE timezone_id IN (" . $listValues . ") ORDER BY timezone_name ";
 
-        $stmt = CentreonDBInstance::getConfInstance()->prepare($query);
+        $stmt = CentreonDBInstance::getDbCentreonInstance()->prepare($query);
 
         if (!empty($queryValues)) {
             foreach ($queryValues as $key => $id) {
@@ -506,7 +506,7 @@ class CentreonGMT
 
         $query = 'SELECT host_id, instance_id, timezone FROM hosts WHERE enabled = 1 ';
         try {
-            $res = CentreonDBInstance::getMonInstance()->query($query);
+            $res = CentreonDBInstance::getDbCentreonStorageInstance()->query($query);
             while ($row = $res->fetchRow()) {
                 if ($row['timezone'] == "" && isset($this->pollerLocations[$row['instance_id']])) {
                     $this->hostLocations[$row['host_id']] = $this->pollerLocations[$row['instance_id']];
@@ -536,7 +536,7 @@ class CentreonGMT
             'AND cfgn.nagios_server_id = ns.id ' .
             'AND cfgn.use_timezone = t.timezone_id ';
         try {
-            $res = CentreonDBInstance::getConfInstance()->query($query);
+            $res = CentreonDBInstance::getDbCentreonInstance()->query($query);
             while ($row = $res->fetchRow()) {
                 $this->pollerLocations[$row['id']] = $row['timezone_name'];
             }
@@ -559,7 +559,7 @@ class CentreonGMT
 
             $query = "SELECT `value` FROM `options` WHERE `key` = 'gmt' LIMIT 1";
             try {
-                $res = CentreonDBInstance::getConfInstance()->query($query);
+                $res = CentreonDBInstance::getDbCentreonInstance()->query($query);
                 $row = $res->fetchRow();
                 $sTimezone = $row["value"];
             } catch (\Exception $e) {
