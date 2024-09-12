@@ -213,7 +213,8 @@ When('the dashboard administrator user starts to edit the dashboard', () => {
 });
 
 Then("creates a new dashboard on the previous dashboard's edition page", () => {
-  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).click({multiple: true});
+  cy.get("button[type=button]").contains("Add a widget").should("be.visible");
+  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).click();
   cy.contains('Create a dashboard').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(dashboards.default.name);
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
