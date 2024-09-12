@@ -982,6 +982,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/medias:
     $ref: './latest/onPremise/Configuration/Media/AddAndFindMedia.yaml'
+  /configuration/medias/{media_id}/content:
+    $ref: './latest/onPremise/Configuration/Media/UpdateMedia.yaml'
   /configuration/proxy:
     get:
       tags:

@@ -21,31 +21,17 @@
 
 declare(strict_types = 1);
 
-namespace Core\Media\Application\Repository;
+namespace Core\Media\Application\UseCase\UpdateMedia;
 
-use Core\Media\Domain\Model\Media;
-use Core\Media\Domain\Model\NewMedia;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-interface WriteMediaRepositoryInterface
+final class UpdateMediaRequest
 {
     /**
-     * @param NewMedia $media
-     *
-     * @throws \Throwable
-     *
-     * @return int
+     * @param UploadedFile $file
      */
-    public function add(NewMedia $media): int;
-
-    /**
-     * @param Media $media
-     *
-     * @throws \Throwable
-     */
-    public function delete(Media $media): void;
-
-    /**
-     * @param Media $media
-     */
-    public function update(Media $media): void;
+    public function __construct(public UploadedFile $file)
+    {
+    }
 }
+

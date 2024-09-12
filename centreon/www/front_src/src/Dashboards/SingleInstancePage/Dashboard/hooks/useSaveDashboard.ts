@@ -1,7 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
 import { toBlob } from 'html-to-image';
 import { useTheme } from '@mui/material';
 

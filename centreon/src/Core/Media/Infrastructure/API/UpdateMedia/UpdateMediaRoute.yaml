@@ -1,0 +1,7 @@
+UpdateMedia:
+  methods: POST
+  path: /configuration/medias/{mediaId}/content
+  controller: 'Core\Media\Infrastructure\API\UpdateMedia\UpdateMediaController'
+  requirements:
+    mediaId: '\d+'
+  condition: "request.attributes.get('version') >= 24.04"

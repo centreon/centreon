@@ -42,6 +42,35 @@ class DbWriteMediaRepository extends AbstractRepositoryRDB implements WriteMedia
     /**
      * @inheritDoc
      */
+    public function update(Media $media): void
+    {
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+        try {
+            $directoryId = $this->findDirectoryByName($media->getDirectory());
+
+            if ($directoryId === null) {
+                throw new \Exception('Directory linked to the media not found');
+            }
+
+            $this->unlinkMediaToDirectory($media, $directoryId);
+            $this->deleteMedia($media);
+
+            $this->db->commit();
+        } catch (\Throwable $ex) {
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function delete(Media $media): void
     {
         $alreadyInTransaction = $this->db->inTransaction();

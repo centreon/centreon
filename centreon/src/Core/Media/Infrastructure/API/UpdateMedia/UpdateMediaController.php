@@ -21,50 +21,41 @@
 
 declare(strict_types = 1);
 
-namespace Core\Media\Infrastructure\API\AddMedia;
+namespace Core\Media\Infrastructure\API\UpdateMedia;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Common\Infrastructure\Upload\FileCollection;
-use Core\Media\Application\UseCase\AddMedia\AddMedia;
-use Core\Media\Application\UseCase\AddMedia\AddMediaRequest;
+use Core\Media\Application\UseCase\UpdateMedia\UpdateMedia;
+use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaRequest;
+use Core\Media\Infrastructure\API\AddMedia\AddMediaValidator;
 use Core\Media\Infrastructure\API\Exception\MediaException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-final class AddMediaController extends AbstractController
+final class UpdateMediaController extends AbstractController
 {
     use LoggerTrait;
 
-    public function __invoke(Request $request, AddMedia $useCase, AddMediaPresenter $presenter): Response
+    public function __invoke(int $mediaId, Request $request, UpdateMedia $useCase, UpdateMediaPresenter $presenter): Response
     {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-        $uploadedFile = '';
-        $filesToDeleteAfterProcessing = [];
+        $uploadedFileName = '';
         try {
             $assertion = new AddMediaValidator($request);
             $assertion->assertFilesSent();
-            $assertion->assertDirectory();
 
-            $fileIterator = new FileCollection();
-
-            /** @var UploadedFile|list<UploadedFile> $files */
-            $files = $request->files->get('data');
-            if (is_array($files)) {
-                foreach ($files as $file) {
-                    $fileIterator->addFile($file);
-                    $filesToDeleteAfterProcessing[] = $file->getPathname();
-                }
-            } else {
-                $fileIterator->addFile($files);
-                $filesToDeleteAfterProcessing[] = $files->getPathname();
+            if (is_array($request->files->get('data'))) {
+                throw MediaException::moreThanOneFileNotAllowed();
             }
-            $addMediaRequest = new AddMediaRequest($fileIterator->getFiles());
-            $addMediaRequest->directory = (string) $request->request->get('directory');
 
-            $useCase($addMediaRequest, $presenter);
+            /** @var UploadedFile $file */
+            $file = $request->files->get('data');
+            $uploadedFileName = $file->getPathname();
+
+            $updateMediaRequest = new UpdateMediaRequest($file);
+
+            $useCase($mediaId, $updateMediaRequest, $presenter);
         } catch (MediaException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
@@ -72,18 +63,22 @@ final class AddMediaController extends AbstractController
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(
                 new ErrorResponse(
-                    MediaException::errorUploadingFile($uploadedFile)->getMessage()
+                    MediaException::errorUploadingFile($uploadedFileName)->getMessage()
                 )
             );
         } finally {
-            foreach ($filesToDeleteAfterProcessing as $fileToDelete) {
-                if (is_file($fileToDelete)) {
-                    unlink($fileToDelete);
-                    $this->debug('Deleting the uploaded file', ['filename' => $fileToDelete]);
+            if (is_file($uploadedFileName)) {
+                if (! unlink($uploadedFileName)) {
+                    $this->error(
+                        'Failed to delete the temporary uploaded file',
+                        ['filename' => $uploadedFileName],
+                    );
                 }
+                $this->debug('Deleting the uploaded file', ['filename' => $uploadedFileName]);
             }
         }
 
         return $presenter->show();
     }
 }
+

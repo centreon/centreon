@@ -21,31 +21,19 @@
 
 declare(strict_types = 1);
 
-namespace Core\Media\Application\Repository;
+namespace Tests\Core\Media\Infrastructure\API\UpdateMedia;
 
-use Core\Media\Domain\Model\Media;
-use Core\Media\Domain\Model\NewMedia;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaPresenterInterface;
+use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaResponse;
 
-interface WriteMediaRepositoryInterface
+class UpdateMediaPresenterStub extends AbstractPresenter implements UpdateMediaPresenterInterface
 {
-    /**
-     * @param NewMedia $media
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewMedia $media): int;
+    public UpdateMediaResponse|ResponseStatusInterface $response;
 
-    /**
-     * @param Media $media
-     *
-     * @throws \Throwable
-     */
-    public function delete(Media $media): void;
-
-    /**
-     * @param Media $media
-     */
-    public function update(Media $media): void;
+    public function presentResponse(UpdateMediaResponse|ResponseStatusInterface $response): void
+    {
+        $this->response = $response;
+    }
 }

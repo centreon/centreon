@@ -36,6 +36,15 @@ class FileProxyWriteMediaRepository implements WriteMediaRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function update(Media $media): void
+    {
+        $this->dbWriteMediaRepository->update($media);
+        $this->fileWriteMediaRepository->update($media);
+    }
+
+    /**
      * Creates the file in the directory after it has been saved in the databases.
      *
      * {@inheritDoc}

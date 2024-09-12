@@ -54,6 +54,24 @@ class FileWriteMediaRepository implements WriteMediaRepositoryInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function update(Media $media): void
+    {
+        if ($media->getData() === null) {
+            throw new \Exception('File content cannot be empty on update');
+        }
+
+        if (! $this->engine->addFile(
+                $media->getDirectory() . DIRECTORY_SEPARATOR . $media->getFilename(),
+                $media->getData()
+            )
+        ) {
+            throw new \Exception($this->engine->getLastError());
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     public function delete(Media $media): void
