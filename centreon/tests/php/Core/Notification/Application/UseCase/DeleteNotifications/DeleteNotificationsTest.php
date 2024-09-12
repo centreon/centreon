@@ -58,7 +58,7 @@ it('should present a Multi-Status Response when a bulk delete action is executed
 
     $this->writeRepository
         ->expects($this->exactly(3))
-        ->method('delete')
+        ->method('deleteNotification')
         ->will($this->onConsecutiveCalls(1, 0, $this->throwException(new \Exception())));
 
     (new DeleteNotifications($contact, $this->writeRepository)) ($request, $this->presenter);

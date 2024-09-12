@@ -1,0 +1,32 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Contact group ID"
+    example: 1
+    nullable: false
+  name:
+    type: string
+    description: "Contact group name"
+    example: "Contact group"
+    nullable: false
+  alias:
+    type: string
+    description: "Contact group alias"
+    example: "Contact group alias"
+    nullable: false
+  comments:
+    type: string
+    description: "Contact group comments"
+    example: "Contact group comments"
+    nullable: false
+  type:
+    type: string
+    description: "Contact group types"
+    enum: [ local, ldap ]
+    example: "local"
+    nullable: false
+  is_activated:
+    type: boolean
+    description: "Contact group activation status"
+    example: true
