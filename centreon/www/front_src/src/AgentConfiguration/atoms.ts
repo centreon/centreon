@@ -1,6 +1,6 @@
+import { SelectEntry } from '@centreon/ui';
 import { atom } from 'jotai';
-import { SelectEntry } from 'packages/ui/src';
-import { findIndex, remove } from 'ramda';
+import { equals, findIndex, remove } from 'ramda';
 
 export const pageAtom = atom(0);
 export const limitAtom = atom(10);
@@ -27,10 +27,10 @@ interface ChangeFilterProps {
 
 export const changeFilterAtom = atom(
   null,
-  (get, set, { field, newValue }: ChangeFilterProps) => {
+  (get, set, { field, newEntries }: ChangeFilterProps) => {
     set(filtersAtom, {
       ...get(filtersAtom),
-      [field]: newValue
+      [field]: newEntries
     });
   }
 );

@@ -1,7 +1,16 @@
-import { MultiAutocompleteField, PopoverMenu } from '@centreon/ui';
+import {
+  MultiAutocompleteField,
+  MultiConnectedAutocompleteField,
+  PopoverMenu
+} from '@centreon/ui';
 import { Tune } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { labelAgentTypes, labelFilters } from '../../translatedLabels';
+import { getPollersEndpoint } from '../../api/endpoints';
+import {
+  labelAgentTypes,
+  labelFilters,
+  labelPollers
+} from '../../translatedLabels';
 import { useActionsStyles } from './Actions.styles';
 import { agentTypeOptions, useFilters } from './useFilters';
 
@@ -9,20 +18,30 @@ const Filters = (): JSX.Element => {
   const { classes } = useActionsStyles();
   const { t } = useTranslation();
 
-  const { agentTypesFilter, changeAgentTypesFilter, deleteAgentTypesFilter } =
-    useFilters();
+  const { agentTypes, pollers, changeEntries, deleteEntry } = useFilters();
 
   return (
     <PopoverMenu title={t(labelFilters)} icon={<Tune />}>
       <div className={classes.filtersContainer}>
         <MultiAutocompleteField
           options={agentTypeOptions}
-          value={agentTypesFilter}
-          onChange={changeAgentTypesFilter}
+          value={agentTypes}
+          onChange={changeEntries('agentTypes')}
           label={t(labelAgentTypes)}
           chipProps={{
-            onDelete: deleteAgentTypesFilter
+            onDelete: deleteEntry('agentTypes')
           }}
+        />
+        <MultiConnectedAutocompleteField
+          chipProps={{
+            onDelete: deleteEntry('pollers')
+          }}
+          dataTestId={labelPollers}
+          getEndpoint={getPollersEndpoint}
+          label={t(labelPollers)}
+          value={pollers}
+          field="name"
+          onChange={changeEntries('pollers')}
         />
       </div>
     </PopoverMenu>

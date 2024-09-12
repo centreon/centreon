@@ -1,3 +1,4 @@
+import { SelectEntry } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback } from 'react';
@@ -15,14 +16,21 @@ export const agentTypeOptions = [
   }
 ];
 
-export const useFilters = () => {
+interface UseFiltersProps {
+  agentTypes: Array<SelectEntry>;
+  pollers: Array<SelectEntry>;
+  changeEntries: (field: string) => (_, newEntries: Array<SelectEntry>) => void;
+  deleteEntry: (field: string) => (_, entry: SelectEntry) => void;
+}
+
+export const useFilters = (): UseFiltersProps => {
   const filters = useAtomValue(filtersAtom);
   const changeFilter = useSetAtom(changeFilterAtom);
   const deleteFilter = useSetAtom(deleteFilterEntryAtom);
 
   const changeEntries = useCallback(
     (field) => (_, newEntries) => {
-      changeFilters({ field, newValue: newEntries });
+      changeFilter({ field, newEntries });
     },
     []
   );
@@ -35,8 +43,8 @@ export const useFilters = () => {
   );
 
   return {
-    agentTypesFilter: filters.agentTypes,
-    changeAgentTypesFilter,
-    deleteAgentTypesFilter
+    ...filters,
+    changeEntries,
+    deleteEntry
   };
 };

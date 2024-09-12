@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import {
+  filtersAtom,
   limitAtom,
   pageAtom,
   searchAtom,
@@ -13,6 +14,16 @@ export const useListingQueryKey = (): Array<string | number> => {
   const search = useAtomValue(searchAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
+  const filters = useAtomValue(filtersAtom);
 
-  return ['agent-configurations', limit, page, search, sortField, sortOrder];
+  return [
+    'agent-configurations',
+    limit,
+    page,
+    search,
+    sortField,
+    sortOrder,
+    `agentTypes-${filters.agentTypes}`,
+    `pollers-${filters.pollers}`
+  ];
 };

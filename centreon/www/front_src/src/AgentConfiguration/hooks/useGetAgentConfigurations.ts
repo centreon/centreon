@@ -4,11 +4,12 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
-import { isEmpty } from 'ramda';
-import { useRef } from 'react';
+import { isEmpty, pluck } from 'ramda';
+import { useMemo, useRef } from 'react';
 import { agentConfigurationsListingDecoder } from '../api/decoders';
 import { getAgentConfigurationsEndpoint } from '../api/endpoints';
 import {
+  filtersAtom,
   limitAtom,
   pageAtom,
   searchAtom,
@@ -34,6 +35,37 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
   const search = useAtomValue(searchAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
+  const filters = useAtomValue(filtersAtom);
+
+  const agentTypesConditions = useMemo(
+    () =>
+      filters.agentTypes
+        ? [
+            {
+              field: 'type',
+              values: {
+                $in: pluck('id', filters.agentTypes)
+              }
+            }
+          ]
+        : [],
+    [filters.agentTypes]
+  );
+
+  const pollersConditions = useMemo(
+    () =>
+      filters.pollers
+        ? [
+            {
+              field: 'poller.id',
+              values: {
+                $in: pluck('id', filters.pollers)
+              }
+            }
+          ]
+        : [],
+    [filters.pollers]
+  );
 
   const { data, isLoading } = useFetchQuery<
     ListingModel<AgentConfigurationListing>
@@ -54,7 +86,8 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
             regex: {
               fields: ['name'],
               value: search
-            }
+            },
+            conditions: [...agentTypesConditions, ...pollersConditions]
           }
         }
       }),

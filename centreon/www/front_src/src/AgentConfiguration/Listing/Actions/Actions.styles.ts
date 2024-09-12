@@ -6,6 +6,9 @@ export const useActionsStyles = makeStyles()((theme) => ({
   },
   filtersContainer: {
     width: theme.spacing(30),
-    padding: theme.spacing(2, 3)
+    padding: theme.spacing(2, 3),
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2)
   }
 }));
