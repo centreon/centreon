@@ -1,6 +1,7 @@
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 import { useTranslation } from 'react-i18next';
 import { labelCreate } from '../Dashboards/translatedLabels';
+import ACListing from './Listing/Listing';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
 import {
   labelAgentsConfigurations,
@@ -10,7 +11,7 @@ import {
 const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const { isEmpty, isLoading } = useGetAgentConfigurations();
+  const { isDataEmpty, isLoading, total, data } = useGetAgentConfigurations();
 
   return (
     <PageLayout>
@@ -20,8 +21,8 @@ const AgentConfigurationPage = (): JSX.Element => {
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <DataTable isEmpty={isEmpty} variant="listing">
-          {isEmpty && !isLoading && (
+        <DataTable isEmpty={isDataEmpty} variant="listing">
+          {isDataEmpty && !isLoading ? (
             <DataTable.EmptyState
               aria-label="create"
               data-testid="create-agent-configuration"
@@ -33,6 +34,8 @@ const AgentConfigurationPage = (): JSX.Element => {
               }}
               onCreate={() => undefined}
             />
+          ) : (
+            <ACListing rows={data} total={total} isLoading={isLoading} />
           )}
         </DataTable>
       </PageLayout.Body>
