@@ -13,10 +13,7 @@ const Page = (): JSX.Element => {
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => '/test',
-    method: Method.POST,
-    fetchHeaders: {
-      'Content-Type': 'multipart/form-data'
-    }
+    method: Method.POST
   });
 
   const send = (): void => {
