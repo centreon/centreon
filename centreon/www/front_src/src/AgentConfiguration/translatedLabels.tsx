@@ -14,3 +14,7 @@ export const labelFilters = 'Filters';
 export const labelAgentTypes = 'Agent types';
 export const labelPollers = 'Pollers';
 export const labelClear = 'Clear';
+export const labelDeletePoller = 'Delete poller';
+export const labelDeleteAgent = 'Delete Agent';
+export const labelCancel = 'Cancel';
+export const labelDelete = 'Delete';

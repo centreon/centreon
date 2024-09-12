@@ -40,7 +40,8 @@ export const useColumns = (): Array<Column> => {
       id: 'actions',
       label: t(labelAction),
       getRenderComponentOnRowUpdateCondition: T,
-      Component: Action
+      Component: Action,
+      width: '80px'
     }
   ];
 };
