@@ -35,6 +35,17 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Host_Extended;
+use Centreon_Object_Host_Macro_Custom;
+use Centreon_Object_Relation_Contact_Group_Host;
+use Centreon_Object_Relation_Contact_Host;
+use Centreon_Object_Relation_Host_Group_Host;
+use Centreon_Object_Relation_Host_Service;
+use Centreon_Object_Relation_Host_Template_Host;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonHost.class.php";
 
 /**
@@ -53,15 +64,14 @@ class CentreonHostTemplate extends CentreonHost
         'INSTANCE'
     );
 
-    /** @var string */
-    public $action;
-
     /**
      * CentreonHostTemplate constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->params['host_register'] = '0';
@@ -85,7 +95,7 @@ class CentreonHostTemplate extends CentreonHost
      * @param mixed|null $filterName
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function export(mixed $filterName = null): void
     {
@@ -107,8 +117,8 @@ class CentreonHostTemplate extends CentreonHost
             $filters,
             "AND"
         );
-        $extendedObj = new \Centreon_Object_Host_Extended($this->dependencyInjector);
-        $macroObj = new \Centreon_Object_Host_Macro_Custom($this->dependencyInjector);
+        $extendedObj = new Centreon_Object_Host_Extended($this->dependencyInjector);
+        $macroObj = new Centreon_Object_Host_Macro_Custom($this->dependencyInjector);
 
         foreach ($elements as $element) {
             // add host template
@@ -215,7 +225,7 @@ class CentreonHostTemplate extends CentreonHost
         }
 
         // contact groups linked
-        $cgRel = new \Centreon_Object_Relation_Contact_Group_Host($this->dependencyInjector);
+        $cgRel = new Centreon_Object_Relation_Contact_Group_Host($this->dependencyInjector);
         $filters_cgRel = array("host_register" => $this->register);
         if (!is_null($filterName)) {
             $filters_cgRel['host_name'] = $filterName;
@@ -239,7 +249,7 @@ class CentreonHostTemplate extends CentreonHost
         }
 
         // contacts linked
-        $contactRel = new \Centreon_Object_Relation_Contact_Host($this->dependencyInjector);
+        $contactRel = new Centreon_Object_Relation_Contact_Host($this->dependencyInjector);
         $filters_contactRel = array("host_register" => $this->register);
         if (!is_null($filterName)) {
             $filters_contactRel['host_name'] = $filterName;
@@ -263,7 +273,7 @@ class CentreonHostTemplate extends CentreonHost
         }
 
         // host templates linked
-        $htplRel = new \Centreon_Object_Relation_Host_Template_Host($this->dependencyInjector);
+        $htplRel = new Centreon_Object_Relation_Host_Template_Host($this->dependencyInjector);
         $filters_htplRel = array("h.host_register" => $this->register);
         if (!is_null($filterName)) {
             $filters_htplRel['h.host_name'] = $filterName;
@@ -289,7 +299,7 @@ class CentreonHostTemplate extends CentreonHost
         // Filter only
         if (!is_null($filterName)) {
             // service templates linked
-            $hostRel = new \Centreon_Object_Relation_Host_Service($this->dependencyInjector);
+            $hostRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
             $helements = $hostRel->getMergedParameters(
                 array("host_name"),
                 array('service_description', 'service_id'),
@@ -305,7 +315,7 @@ class CentreonHostTemplate extends CentreonHost
             }
 
             // services linked
-            $hostRel = new \Centreon_Object_Relation_Host_Service($this->dependencyInjector);
+            $hostRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
             $helements = $hostRel->getMergedParameters(
                 array("host_name"),
                 array('service_description', 'service_id'),
@@ -321,7 +331,7 @@ class CentreonHostTemplate extends CentreonHost
             }
 
             // service hg linked and hostgroups
-            $hostRel = new \Centreon_Object_Relation_Host_Group_Host($this->dependencyInjector);
+            $hostRel = new Centreon_Object_Relation_Host_Group_Host($this->dependencyInjector);
             $helements = $hostRel->getMergedParameters(
                 array("hg_name", "hg_id"),
                 array('*'),

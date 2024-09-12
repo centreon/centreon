@@ -38,10 +38,12 @@ require_once _CENTREON_PATH_ . 'www/class/centreonInstance.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonService.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonHost.class.php';
 
-/*
- *  Class that contains various methods for managing hosts
+/**
+ * Class
+ *
+ * @class CentreonHosttemplates
+ * @description Class that contains various methods for managing hosts
  */
-
 class CentreonHosttemplates extends CentreonHost
 {
     /**
