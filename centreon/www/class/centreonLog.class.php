@@ -208,20 +208,9 @@ class CentreonLog
     /**
      * Factory
      * @param array $customLogs
-<<<<<<< HEAD
      * @param string $pathLogFile
      * @return CentreonLog
-=======
-     * @return CentreonLog
-     */
-    public static function create(array $customLogs = []): CentreonLog
-    {
-        return new CentreonLog($customLogs);
-    }
 
-    /*
-     * Function for writing logs
->>>>>>> 23.04.x
      */
     public static function create(array $customLogs = [], string $pathLogFile = ''): CentreonLog
     {
