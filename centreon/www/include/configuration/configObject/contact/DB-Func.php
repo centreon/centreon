@@ -1209,7 +1209,7 @@ function insertLdapContactInDB($tmpContacts = array())
  * @param array $fields
  * @return void
  */
-function updateAccessGroupLinks(int $contactId, array $fields = [])
+function updateAccessGroupLinks($contactId = null, array $fields = [])
 {
     global $form, $pearDB;
 
