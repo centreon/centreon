@@ -34,14 +34,19 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonEscalation
  */
 class CentreonEscalation
 {
+    /** @var CentreonDB */
     protected $db;
 
-    /*
-     * constructor
+    /**
+     * CentreonEscalation constructor
+     *
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -50,7 +55,7 @@ class CentreonEscalation
 
     /**
      *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -113,7 +118,9 @@ class CentreonEscalation
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {

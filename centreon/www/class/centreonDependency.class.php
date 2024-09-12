@@ -33,11 +33,14 @@
  *
  */
 
- /*
-  *  Class for manage dependencies
-  */
+/**
+ * Class
+ *
+ * @class CentreonDependency
+ */
 class CentreonDependency
 {
+    /** @var CentreonDB|null */
     protected $db = null;
 
     /**
@@ -195,6 +198,8 @@ class CentreonDependency
      * Purge obsolete dependencies that are no longer used
      *
      * @param CentreonDB $db
+     *
+     * @throws PDOException
      */
     public static function purgeObsoleteDependencies($db)
     {
@@ -226,7 +231,7 @@ class CentreonDependency
     
     /**
      *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)

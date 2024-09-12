@@ -33,7 +33,6 @@
  *
  */
 
-
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(dirname(__FILE__) . "/../../config/centreon.config.php");
 if ($configFile !== false) {
@@ -42,25 +41,28 @@ if ($configFile !== false) {
 
 require_once realpath(dirname(__FILE__) . "/centreonDB.class.php");
 
+/**
+ * Class
+ *
+ * @class CentreonDBStatement
+ */
 class CentreonDBStatement extends \PDOStatement
 {
     /**
      * When data is retrieved from `numRows()` method, it is stored in `allFetched`
      * in order to be usable later without requesting one more time the database.
      *
-     * @var mixed[]|null
+     * @var array|null
      */
     public $allFetched;
 
-    /**
-     * @var CentreonLog
-     */
+    /** @var CentreonLog */
     private $log;
 
     /**
-     * Constructor
+     * CentreonDBStatement constructor
      *
-     * @param CentreonLog $log
+     * @param CentreonLog|null $log
      */
     protected function __construct(CentreonLog $log = null)
     {
@@ -72,7 +74,11 @@ class CentreonDBStatement extends \PDOStatement
      * This method overloads PDO `fetch` in order to use the possible already
      * loaded data available in `allFetched`.
      *
-     * {@inheritDoc}
+     * @param int $mode
+     * @param int $cursorOrientation
+     * @param int $cursorOffset
+     *
+     * @return mixed
      */
     public function fetch(
         int $mode = \PDO::FETCH_DEFAULT,
@@ -99,6 +105,8 @@ class CentreonDBStatement extends \PDOStatement
 
     /**
      * Free resources.
+     *
+     * @return void
      */
     public function free(): void
     {
@@ -122,7 +130,11 @@ class CentreonDBStatement extends \PDOStatement
 
     /**
      * This method wraps the PDO `execute` method and manages failures logging
-     * {@inheritDoc}
+     *
+     * @param $parameters
+     *
+     * @return bool
+     * @throws PDOException
      */
     public function execute($parameters = null): bool
     {

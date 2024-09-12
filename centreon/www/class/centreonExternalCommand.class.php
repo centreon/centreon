@@ -43,25 +43,37 @@ require_once __DIR__ . '/centreonDB.class.php';
 require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
 require_once __DIR__ . '/../include/common/common-Func.php';
 
-/*
- *  This class allows the user to send external commands to Nagios
+/**
+ * Class
+ *
+ * @class CentreonExternalCommand
+ * @description This class allows the user to send external commands to Nagios
  */
-
 class CentreonExternalCommand
 {
+    /** @var CentreonDB */
     protected $DB;
+    /** @var CentreonDB */
     protected $DBC;
+    /** @var array */
     protected $cmdTab = array();
+    /** @var array */
     protected $pollerTab;
+    /** @var array */
     public $localhostTab = array();
+    /** @var array */
     protected $actions = array();
+    /** @var CentreonGMT */
     protected $GMT;
+    /** @var int */
     public $debug = 0;
+    /** @var string|null */
     protected $userAlias;
+    /** @var int|mixed|string|null */
     protected $userId;
 
     /**
-     * CentreonExternalCommand constructor.
+     * CentreonExternalCommand constructor
      */
     public function __construct()
     {
@@ -90,6 +102,8 @@ class CentreonExternalCommand
 
     /**
      * @param $newUserId
+     *
+     * @return void
      */
     public function setUserId($newUserId)
     {
@@ -98,6 +112,8 @@ class CentreonExternalCommand
 
     /**
      * @param $newUserAlias
+     *
+     * @return void
      */
     public function setUserAlias($newUserAlias)
     {
@@ -105,8 +121,9 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Write command in Nagios or Centcore Pipe.
+     *
+     * @return int
      */
     public function write()
     {
@@ -142,8 +159,11 @@ class CentreonExternalCommand
         return $return_remote;
     }
 
-    /*
-     *  set basic process commands
+    /**
+     * @param $command
+     * @param $poller
+     *
+     * @return void
      */
     public function setProcessCommand($command, $poller)
     {
@@ -156,10 +176,11 @@ class CentreonExternalCommand
         $this->pollerTab[] = $poller;
     }
 
-    /*
-     *  set list of external commands
+    /**
+     * set list of external commands
+     *
+     * @return void
      */
-
     private function setExternalCommandList()
     {
         # Services Actions
@@ -269,10 +290,12 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Get poller id where the host is hosted
+     *
      * @param null $host
+     *
      * @return int
+     * @throws PDOException
      * @internal param $pearDB
      * @internal param $host_name
      */
@@ -314,8 +337,9 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * get list of external commands
+     *
+     * @return array
      */
     public function getExternalCommandList()
     {
@@ -328,6 +352,8 @@ class CentreonExternalCommand
 
     /**
      * @param $hostName
+     *
+     * @throws PDOException
      */
     public function scheduleForcedCheckHost($hostName)
     {
@@ -344,6 +370,8 @@ class CentreonExternalCommand
     /**
      * @param $hostName
      * @param $serviceDescription
+     *
+     * @throws PDOException
      */
     public function scheduleForcedCheckService($hostName, $serviceDescription)
     {
@@ -363,12 +391,13 @@ class CentreonExternalCommand
 
     /**
      * @param $hostName
-     * @param $serviceDescription
      * @param $sticky
      * @param $notify
      * @param $persistent
      * @param $author
      * @param $comment
+     *
+     * @throws PDOException
      */
     public function acknowledgeHost(
         $hostName,
@@ -397,6 +426,8 @@ class CentreonExternalCommand
      * @param $persistent
      * @param $author
      * @param $comment
+     *
+     * @throws PDOException
      */
     public function acknowledgeService(
         $hostName,
@@ -419,10 +450,12 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Delete acknowledgement.
+     *
      * @param string $type (HOST/SVC)
      * @param array $hosts
+     *
+     * @throws PDOException
      */
     public function deleteAcknowledgement($type, $hosts = array())
     {
@@ -438,11 +471,18 @@ class CentreonExternalCommand
         $this->write();
     }
 
-
     /************
      * Downtime
      ***********/
 
+    /**
+     * @param $date
+     * @param $timezone
+     * @param $start
+     *
+     * @return int
+     * @throws Exception
+     */
     private function getDowntimeTimestampFromDate($date = 'now', $timezone = '', $start = true)
     {
         $inputDate = new \DateTime($date . ' GMT');
@@ -483,10 +523,12 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Delete downtimes.
+     *
      * @param string $type
      * @param array $hosts
+     *
+     * @throws PDOException
      */
     public function deleteDowntime($type, $hosts = array())
     {
@@ -500,13 +542,18 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Add a host downtime
+     *
      * @param string $host
      * @param string $comment
      * @param string $start
      * @param string $end
      * @param int $persistant
+     * @param null $duration
+     * @param bool $withServices
+     * @param string $hostOrCentreonTime
+     *
+     * @throws PDOException
      */
     public function addHostDowntime(
         $host,
@@ -575,14 +622,18 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Add Service Downtime
+     *
      * @param string $host
      * @param string $service
      * @param string $comment
      * @param string $start
      * @param string $end
      * @param int $persistant
+     * @param null $duration
+     * @param string $hostOrCentreonTime
+     *
+     * @throws PDOException
      */
     public function addSvcDowntime(
         $host,

@@ -34,6 +34,8 @@
  */
 
 /**
+ * Class
+ *
  * Manage new feature
  *
  * Format:
@@ -43,14 +45,17 @@
  * 'description' => 'New header design user experience',
  * 'visible' => true))
  *
+ * @class CentreonFeature
  */
 class CentreonFeature
 {
+    /** @var CentreonDB */
     protected $db;
+    /** @var array */
     protected static $availableFeatures = array();
 
     /**
-     * Constructor
+     * CentreonFeature constructor
      *
      * @param CentreonDB $db - The centreon database
      */
@@ -63,7 +68,9 @@ class CentreonFeature
      * Return the list of new feature to test
      *
      * @param int $userId - The user id
+     *
      * @return array - The list of new feature to ask at the user
+     * @throws PDOException
      */
     public function toAsk($userId)
     {
@@ -113,7 +120,9 @@ class CentreonFeature
      * Return the list of feature for an user and the activated value
      *
      * @param int $userId - The user id
+     *
      * @return array
+     * @throws PDOException
      */
     public function userFeaturesValue($userId)
     {
@@ -138,6 +147,8 @@ class CentreonFeature
      *
      * @param int $userId - The user id
      * @param array $features - The list of features
+     *
+     * @throws PDOException
      */
     public function saveUserFeaturesValue($userId, $features)
     {
@@ -161,8 +172,10 @@ class CentreonFeature
      *
      * @param string $name - The feature name
      * @param string $version - The feature version
-     * @param int|null $userId - The user id if check for an user
+     * @param null $userId - The user id if check for an user
+     *
      * @return bool
+     * @throws Exception
      */
     public function featureActive($name, $version, $userId = null)
     {

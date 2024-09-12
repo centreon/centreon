@@ -33,40 +33,57 @@
  *
  */
 
+use Pimple\Container;
+
 /**
- * Created by PhpStorm.
- * User: loic
- * Date: 31/10/17
- * Time: 11:55
+ * Class
+ *
+ * @class CentreonFileManager
  */
 class CentreonFileManager implements iFileManager
 {
+    /** @var mixed */
     protected $rawFile;
+    /** @var Container */
     protected $dependencyInjector;
+    /** @var string */
     protected $comment;
+    /** @var mixed */
     protected $tmpFile;
+    /** @var */
     protected $mediaPath;
+    /** @var string */
     protected $destinationPath;
+    /** @var mixed */
     protected $destinationDir;
+    /** @var mixed */
     protected $originalFile;
+    /** @var mixed */
     protected $fileName;
+    /** @var mixed */
     protected $size;
+    /** @var array|string */
     protected $extension;
+    /** @var string */
     protected $newFile;
+    /** @var string */
     protected $completePath;
+    /** @var array */
     protected $legalExtensions;
+    /** @var int */
     protected $legalSize;
 
     /**
-     * centreonFileManager constructor.
-     * @param \Pimple\Container $dependencyInjector
+     * CentreonFileManager constructor
+     *
+     * @param Container $dependencyInjector
      * @param $rawFile
      * @param $mediaPath
      * @param $destinationDir
      * @param string $comment
      */
     public function __construct(
-        \Pimple\Container $dependencyInjector,
+        Container $dependencyInjector,
         $rawFile,
         $mediaPath,
         $destinationDir,
@@ -92,7 +109,7 @@ class CentreonFileManager implements iFileManager
     }
 
     /**
-     * @return mixed
+     * @return array|bool|void
      */
     public function upload()
     {
@@ -123,7 +140,8 @@ class CentreonFileManager implements iFileManager
 
     /**
      * @param $text
-     * @return mixed
+     *
+     * @return array|string|string[]|null
      */
     protected function secureName($text)
     {
@@ -201,7 +219,8 @@ class CentreonFileManager implements iFileManager
     }
 
     /**
-     * @param $dir
+     *
+     * @return void
      */
     protected function dirExist($dir)
     {
@@ -211,7 +230,7 @@ class CentreonFileManager implements iFileManager
     }
 
     /**
-     * @return mixed
+     * @return void
      */
     protected function moveFile()
     {

@@ -33,7 +33,6 @@
  *
  */
 
-
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(dirname(__FILE__) . "/../../config/centreon.config.php");
 if ($configFile !== false) {
@@ -42,53 +41,47 @@ if ($configFile !== false) {
 
 require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
 
+/**
+ * Class
+ *
+ * @class CentreonGMT
+ */
 class CentreonGMT
 {
+    /** @var array|null */
     protected $timezoneById = null;
+    /** @var array */
     protected $timezones;
+    /** @var string|null */
     protected $myGMT = null;
+    /** @var int */
     public $use;
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     protected $aListTimezone;
-
-    /**
-     *
-     * @param array $myTimezone
-     */
+    /** @var array */
     protected $myTimezone;
-
-    /**
-     *
-     * @param array $hostLocations
-     */
+    /** @var array */
     protected $hostLocations = [];
-
-    /**
-     *
-     * @param array $pollerLocations
-     */
+    /** @var array */
     protected $pollerLocations = [];
 
     /**
      * Default timezone setted in adminstration/options
-     * @var string $sDefaultTimezone
+     * @var string|null
      */
     protected $sDefaultTimezone = null;
 
+    /**
+     * CentreonGMT constructor
+     */
     public function __construct()
     {
-        /*
-         * Flag activ / inactiv
-         */
+        // Flag activ / inactiv
         $this->use = 1;
     }
 
     /**
-     *
-     * @return string
+     * @return int
      */
     public function used()
     {
@@ -96,8 +89,9 @@ class CentreonGMT
     }
 
     /**
+     * @param $value
      *
-     * @param string $value
+     * @return void
      */
     public function setMyGMT($value)
     {
@@ -105,7 +99,6 @@ class CentreonGMT
     }
 
     /**
-     *
      * @return array
      */
     public function getGMTList()
@@ -117,8 +110,7 @@ class CentreonGMT
     }
 
     /**
-     *
-     * @return string
+     * @return string|null
      */
     public function getMyGMT()
     {
@@ -155,11 +147,12 @@ class CentreonGMT
     }
 
     /**
-     *
-     * @param type $format
+     * @param string $format
      * @param string $date
-     * @param type $gmt
+     * @param string|null $gmt
+     *
      * @return string
+     * @throws Exception
      */
     public function getDate($format, $date, $gmt = null)
     {
@@ -190,13 +183,14 @@ class CentreonGMT
     }
 
     /**
-     * @param $date
-     * @param null $gmt
+     * @param string $date
+     * @param string|null $gmt
+     *
      * @return int|string
+     * @throws Exception
      */
     public function getCurrentTime($date = "N/A", $gmt = null)
     {
-        $return = "";
         if ($date == "N/A") {
             return $date;
         }
@@ -208,16 +202,18 @@ class CentreonGMT
         $sDate = new DateTime();
         $sDate->setTimestamp($date);
         $sDate->setTimezone(new DateTimeZone($this->getActiveTimezone($gmt)));
-        $return = $sDate->getTimestamp();
-        return $return;
+
+        return $sDate->getTimestamp();
     }
 
     /**
      *
-     * @param type $date
-     * @param type $gmt
-     * @param type $reverseOffset
+     * @param string $date
+     * @param string|null $gmt
+     * @param int $reverseOffset
+     *
      * @return string
+     * @throws Exception
      */
     public function getUTCDate($date, $gmt = null, $reverseOffset = 1)
     {
@@ -245,10 +241,12 @@ class CentreonGMT
     }
 
     /**
+     * @param string $date
+     * @param string|null $gmt
+     * @param int $reverseOffset
      *
-     * @param type $date
-     * @param type $gmt
      * @return string
+     * @throws Exception
      */
     public function getUTCDateFromString($date, $gmt = null, $reverseOffset = 1)
     {
@@ -283,8 +281,7 @@ class CentreonGMT
 
 
     /**
-     *
-     * @param type $gmt
+     * @param $gmt
      * @return string
      */
     public function getDelaySecondsForRRD($gmt)
@@ -300,11 +297,9 @@ class CentreonGMT
     }
 
     /**
+     * @param $sid
      *
-     * @global type $pearDB
-     * @param type $sid
-     * @param type $DB
-     * @return int
+     * @return int|void
      */
     public function getMyGMTFromSession($sid = null)
     {
@@ -330,10 +325,10 @@ class CentreonGMT
     }
 
     /**
+     * @param $userId
+     * @param CentreonDB $DB
      *
-     * @global type $pearDB
-     * @param int $userId
-     * @param type $DB
+     * @return int|mixed|string|null
      */
     public function getMyGTMFromUser($userId, $DB = null)
     {
@@ -355,10 +350,11 @@ class CentreonGMT
     }
 
     /**
+     * @param string|int $host_id
+     * @param string $date_format
      *
-     * @param type $host_id
-     * @param type $date_format
-     * @return \DateTime
+     * @return DateTime
+     * @throws Exception
      */
     public function getHostCurrentDatetime($host_id, $date_format = 'c')
     {
@@ -370,12 +366,13 @@ class CentreonGMT
     }
 
     /**
+     * @param $date
+     * @param string|int $hostId
+     * @param string $dateFormat
+     * @param int $reverseOffset
      *
-     * @param type $date
-     * @param type $hostId
-     * @param type $dateFormat
-     * @param type $reverseOffset
      * @return string
+     * @throws Exception
      */
     public function getUTCDateBasedOnHostGMT($date, $hostId, $dateFormat = 'c', $reverseOffset = 1)
     {
@@ -389,11 +386,12 @@ class CentreonGMT
     }
 
     /**
+     * @param string $date
+     * @param string|int $hostId
+     * @param string $dateFormat
      *
-     * @param type $date
-     * @param type $hostId
-     * @param type $dateFormat
-     * @return string
+     * @return float|int|string
+     * @throws Exception
      */
     public function getUTCTimestampBasedOnHostGMT($date, $hostId, $dateFormat = 'c')
     {
@@ -407,9 +405,9 @@ class CentreonGMT
     }
 
     /**
+     * @param $hostId
      *
-     * @param type $hostId
-     * @return array
+     * @return mixed|null
      */
     public function getUTCLocationHost($hostId)
     {
@@ -449,7 +447,9 @@ class CentreonGMT
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {
