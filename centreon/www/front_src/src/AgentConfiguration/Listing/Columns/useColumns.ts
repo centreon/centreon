@@ -1,7 +1,13 @@
 import { Column, ColumnType } from '@centreon/ui';
 import { T, isNil, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { labelAgentType, labelName, labelPoller } from '../../translatedLabels';
+import {
+  labelAction,
+  labelAgentType,
+  labelName,
+  labelPoller
+} from '../../translatedLabels';
+import Action from './Action';
 import Poller from './Poller';
 
 export const useColumns = (): Array<Column> => {
@@ -28,6 +34,13 @@ export const useColumns = (): Array<Column> => {
       Component: Poller,
       displaySubItemsCaret: true,
       getRenderComponentOnRowUpdateCondition: T
+    },
+    {
+      type: ColumnType.component,
+      id: 'actions',
+      label: t(labelAction),
+      getRenderComponentOnRowUpdateCondition: T,
+      Component: Action
     }
   ];
 };

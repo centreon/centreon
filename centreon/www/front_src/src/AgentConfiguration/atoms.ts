@@ -11,6 +11,9 @@ export const filtersAtom = atom({
   agentTypes: [],
   pollers: []
 });
+export const itemToDeleteAtom = atom<{ id: number; pollerId?: number } | null>(
+  null
+);
 
 export const changeSortAtom = atom(
   null,
