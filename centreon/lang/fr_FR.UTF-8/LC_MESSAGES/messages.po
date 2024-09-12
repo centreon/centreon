@@ -19433,10 +19433,10 @@ msgid "Root path"
 msgstr "Chemin de la racine"
 
 msgid "Role ID"
-msgstr "Identité du Role"
+msgstr "Role ID"
 
 msgid "Secret ID"
-msgstr "Identité du secret"
+msgstr "Secret ID"
 
 msgid "Reset configuration"
 msgstr "Réinitialiser la configuration"
@@ -19445,13 +19445,13 @@ msgid "The form will be cleared and all data will be lost. Do you want to procee
 msgstr "Le formulaire sera réinitialisé et les données modifiées seront perdues. Souhaitez-vous continuer ?"
 
 msgid "Port expected at most 65535"
-msgstr "Le port maximum attendu est 65535"
+msgstr "Le numéro de port maximum attendu est 65535"
 
 msgid "Vault configuration updated"
-msgstr "La configuration du Vaul a été mise à jour"
+msgstr "La configuration du Vault a été mise à jour"
 
 msgid "Post must start from 1"
-msgstr "Le port doit commencé à 1"
+msgstr "Le numéro de port doit être au moins 1"
 
 msgid "Migrate"
 msgstr "Migrer"
@@ -19460,13 +19460,13 @@ msgid "Migration script"
 msgstr "Script de migration"
 
 msgid "Execute this script as root on the central."
-msgstr "Script à exécuter en tant que root sur le central."
+msgstr "Exécuter ce script en tant que root sur le serveur central."
 
 msgid "The following script will migrate all your credentials from Centreon, Auto-discovery and the database."
-msgstr "Le script suivant migrera vos identifiances de Centreon, Auto-discovery ainsi que de la base de données."
+msgstr "Le script suivant migrera vos identifiants de Centreon, d'Auto-discovery ainsi que de la base de données."
 
-msgid "By executing this script, your platform will be in a locked mode and you not be able to do <strong>anything</strong> during the migration process (example: exporting your configuration, updating administration parameters, etc...)."
-msgstr "En exécutant ce script, votre plateforme entrera sera vérouillé and vous ne pourrez plus <strong>rien modifier</strong> durant le processus de migration (exemple: exporter la configuration, mettre les paramètres d'administration, etc...)."
+msgid "By executing this script, your platform will be in a locked mode and you will not be able to do <strong>anything</strong> during the migration process (example: deploying your configuration, updating administration parameters, etc...)."
+msgstr "En exécutant ce script, votre plateforme sera verrouillée and vous ne pourrez plus <strong>rien modifier</strong> durant le processus de migration (exemple: déployer la configuration, modifier les paramètres d'administration, etc...)."
 
 msgid "The migration process can take several minutes depending on your configuration."
 msgstr "Le processus de migration peut prendre plusieurs minutes selon votre configuration."
