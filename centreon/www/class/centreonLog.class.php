@@ -210,7 +210,6 @@ class CentreonLog
      * @param array $customLogs
      * @param string $pathLogFile
      * @return CentreonLog
-
      */
     public static function create(array $customLogs = [], string $pathLogFile = ''): CentreonLog
     {
