@@ -8,6 +8,7 @@ on:
 
 jobs:
   get-version:
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql

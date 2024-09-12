@@ -17,14 +17,15 @@ on:
 
 jobs:
   get-version:
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   create-and-push-docker:
     needs: [get-version]
+    if: needs.get-version.outputs.pull_request_environment == 'internal_contributor'
     runs-on: ubuntu-22.04
-
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7

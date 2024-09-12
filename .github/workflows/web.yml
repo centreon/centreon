@@ -15,7 +15,7 @@ on:
         type: boolean
   schedule:
     - cron: "0 3 * * 1-5"
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - synchronize
@@ -51,8 +51,14 @@ env:
   widgets_directory: centreon/www/widgets
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
   changes:
     runs-on: ubuntu-22.04
+    needs: [get-version]
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
@@ -100,7 +106,7 @@ jobs:
   gherkin-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    if: needs.changes.outputs.has_features_changes == 'true'
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
@@ -109,7 +115,11 @@ jobs:
           features_path: centreon/tests/e2e/features
 
   dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
+    if: |
+      github.run_attempt == 1 &&
+      github.event_name == 'schedule' &&
+      github.ref_name == 'develop' &&
+      github.event.pull_request.base.repo.name == 'centreon'
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
@@ -124,11 +134,6 @@ jobs:
         shell: bash
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  get-version:
-    uses: ./.github/workflows/get-version.yml
-    with:
-      version_file: centreon/www/install/insertBaseConf.sql
 
   veracode-analysis:
     needs: [get-version]
@@ -225,8 +230,9 @@ jobs:
   frontend-web-lint:
     runs-on: ubuntu-22.04
     needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
+    if: |
+      needs.changes.outputs.has_frontend_changes == 'true' &&
+      needs.get-version.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
@@ -241,7 +247,9 @@ jobs:
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
     needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      needs.changes.outputs.has_frontend_changes == 'true' &&
+      needs.get-version.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -255,7 +263,9 @@ jobs:
   frontend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      needs.changes.outputs.has_frontend_changes == 'true' &&
+      needs.get-version.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -290,7 +300,9 @@ jobs:
 
   frontend-component-test:
     needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      needs.changes.outputs.has_frontend_changes == 'true' &&
+      needs.get-version.outputs.stability != 'stable'
     uses: ./.github/workflows/cypress-component-parallelization.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
@@ -304,7 +316,9 @@ jobs:
   backend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      needs.changes.outputs.has_backend_changes == 'true' &&
+      needs.get-version.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -336,7 +350,9 @@ jobs:
   backend-lint:
     runs-on: ubuntu-22.04
     needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      needs.changes.outputs.has_backend_changes == 'true' &&
+      needs.get-version.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -390,7 +406,11 @@ jobs:
         frontend-unit-test,
         frontend-component-test,
       ]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-version.outputs.stability != 'stable'
 
     strategy:
       fail-fast: false
@@ -532,7 +552,11 @@ jobs:
   dockerize:
     runs-on: ubuntu-22.04
     needs: [get-version, package]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-version.outputs.stability != 'stable'
 
     env:
       project: centreon-web
@@ -661,7 +685,12 @@ jobs:
 
   create-xray-test-plan-and-test-execution:
     needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    if: |
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) &&
+      github.event.pull_request.base.repo.name  == 'centreon'
     strategy:
       fail-fast: false
       matrix:
@@ -681,7 +710,11 @@ jobs:
 
   newman-test:
     needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    if: |
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.has_backend_changes == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -712,7 +745,12 @@ jobs:
 
   legacy-e2e-test:
     needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.has_backend_changes == 'true' &&
+      needs.get-version.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -735,7 +773,11 @@ jobs:
 
   e2e-test:
     needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-version.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -770,7 +812,11 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-version.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -799,7 +845,9 @@ jobs:
           dependencies_lock_file: centreon/pnpm-lock.yaml
 
       - name: Publish report to S3
-        if: ${{ github.event_name == 'push' }}
+        if: |
+          github.event_name == 'push' &&
+          github.event.pull_request.base.repo.name  == 'centreon'
         uses: ./.github/actions/lighthouse-to-s3
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
@@ -823,8 +871,13 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
-
+    if: |
+      !cancelled() &&
+      contains(fromJson('["stable"]'), needs.get-version.outputs.stability) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      github.event_name != 'workflow_dispatch' &&
+      github.event.pull_request.base.repo.name  == 'centreon'
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -850,7 +903,13 @@ jobs:
   publish-openapi-documentation:
     runs-on: [self-hosted, infra]
     needs: [get-version]
-    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: |
+      !cancelled() &&
+      contains(fromJson('["stable"]'), needs.get-version.outputs.stability) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      github.event_name != 'workflow_dispatch' &&
+      github.event.pull_request.base.repo.name  == 'centreon'
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -932,10 +991,14 @@ jobs:
         get-version,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-
+    if: |
+      !cancelled() &&
+      contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.base.repo.name  == 'centreon'
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
@@ -965,10 +1028,14 @@ jobs:
         get-version,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-
+    if: |
+      !cancelled() &&
+      contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.base.repo.name  == 'centreon'
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
@@ -997,8 +1064,11 @@ jobs:
       (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.base.repo.name  == 'centreon' &&
+      needs.get-version.outputs.environment == 'internal_contributor'
     runs-on: [self-hosted, common]
+
     strategy:
       matrix:
         distrib: [el8, el9, bullseye, bookworm]
