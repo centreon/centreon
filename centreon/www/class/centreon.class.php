@@ -42,56 +42,80 @@ require_once __DIR__ . '/centreonHostgroups.class.php';
 require_once __DIR__ . '/centreonDBInstance.class.php';
 
 /**
- * Class for load application Centreon
+ * Class
+ *
+ * @class Centreon
+ * @description Class for load application Centreon
  */
 class Centreon
 {
+    /** @var */
     public $Nagioscfg;
+    /** @var */
     public $optGen;
+    /** @var */
     public $informations;
+    /** @var */
     public $redirectTo;
+    /** @var */
     public $modules;
+    /** @var */
     public $hooks;
 
     /*
      * @var array : saved user's pagination filter value
      */
+    /** @var */
     public $historyPage;
 
     /*
      * @var string : saved last page's file name
      */
+    /** @var */
     public $historyLastUrl;
 
     /*
      * @var array : saved user's filters
      */
+    /** @var */
     public $historySearch;
 
+    /** @var */
     public $historySearchService;
+    /** @var */
     public $historySearchOutput;
+    /** @var */
     public $historyLimit;
+    /** @var */
     public $search_type_service;
+    /** @var */
     public $search_type_host;
+    /** @var int */
     public $poller;
+    /** @var */
     public $template;
+    /** @var */
     public $hostgroup;
+    /** @var */
     public $host_id;
+    /** @var */
     public $host_group_search;
+    /** @var */
     public $host_list_search;
 
-    /**
-     * @var \CentreonUser
-     */
+    /** @var CentreonUser */
     public $user;
+    /** @var CentreonGMT */
     public $CentreonGMT;
+    /** @var CentreonLogAction */
     public $CentreonLogAction;
+    /** @var CentreonExternalCommand */
     public $extCmd;
 
     /**
      * Class constructor
      *
-     * @param object $user User objects
+     * @param object $userInfos User objects
      */
     public function __construct($userInfos)
     {
@@ -151,7 +175,7 @@ class Centreon
     /**
      * Create a list of all module installed into Centreon
      *
-     * @param $pearDB The database connection to centreon database
+     * @throws PDOException
      */
     public function creatModuleList()
     {
@@ -172,6 +196,9 @@ class Centreon
         $dbResult = null;
     }
 
+    /**
+     * @return void
+     */
     public function initHooks()
     {
         $this->hooks = array();
@@ -222,7 +249,7 @@ class Centreon
     /**
      * Initiate nagios option list
      *
-     * @param $pearDB The database connection to centreon database
+     * @throws PDOException
      */
     public function initNagiosCFG()
     {
@@ -245,7 +272,7 @@ class Centreon
     /**
      * Initiate general option list
      *
-     * @param $pearDB The database connection to centreon database
+     * @throws PDOException
      */
     public function initOptGen()
     {
@@ -262,6 +289,7 @@ class Centreon
      * Store centreon informations in session
      *
      * @return void
+     * @throws PDOException
      */
     public function initInformations(): void
     {
@@ -276,7 +304,9 @@ class Centreon
      * Check illegal char defined into nagios.cfg file
      *
      * @param string $name The string to sanitize
+     *
      * @return string The string sanitized
+     * @throws PDOException
      */
     public function checkIllegalChar($name)
     {

@@ -37,6 +37,11 @@
 require_once __DIR__ . '/centreonContact.class.php';
 require_once __DIR__ . '/centreonAuth.LDAP.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonAuth
+ */
 class CentreonAuth
 {
     /**
@@ -61,39 +66,55 @@ class CentreonAuth
     public const AUTH_TYPE_LDAP = 'ldap';
 
     // Declare Values
+    /** @var array */
     public $userInfos;
+    /** @var string */
     protected $login;
+    /** @var string */
     protected $password;
+    /** @var */
     protected $enable;
+    /** @var */
     protected $userExists;
+    /** @var int */
     protected $cryptEngine;
+    /** @var int */
     protected $autologin;
+    /** @var string[] */
     protected $cryptPossibilities;
 
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDB;
 
+    /** @var int */
     protected $debug;
+    /** @var */
     protected $dependencyInjector;
 
     // Flags
+    /** @var */
     public $passwdOk;
+    /** @var */
     protected $authType;
+    /** @var array */
     protected $ldap_auto_import;
+    /** @var array */
     protected $ldap_store_password;
+    /** @var int */
     protected $default_page;
 
     // keep log class
+    /** @var CentreonUserLog */
     protected $CentreonLog;
 
     // Error Message
+    /** @var */
     protected $error;
 
     /**
-     * Constructor
+     * CentreonAuth constructor
      *
+     * @param $dependencyInjector
      * @param string $username
      * @param string $password
      * @param int $autologin
@@ -101,7 +122,8 @@ class CentreonAuth
      * @param CentreonUserLog $CentreonLog
      * @param int $encryptType
      * @param string $token | for autologin
-     * @return void
+     *
+     * @throws PDOException
      */
     public function __construct(
         $dependencyInjector,
@@ -147,6 +169,7 @@ class CentreonAuth
      * Log enabled
      *
      * @return int
+     * @throws PDOException
      */
     protected function getLogFlag()
     {
@@ -163,8 +186,10 @@ class CentreonAuth
      *
      * @param string $password
      * @param string $token
-     * @param boolean $autoImport
+     * @param bool $autoImport
+     *
      * @return void
+     * @throws PDOException
      */
     protected function checkPassword($password, $token = "", $autoImport = false)
     {
@@ -230,6 +255,8 @@ class CentreonAuth
      *
      * @param string $password
      * @param bool $autoImport
+     *
+     * @throws PDOException
      */
     private function checkLdapPassword($password, $autoImport): void
     {
@@ -304,6 +331,8 @@ class CentreonAuth
      * Check local user password
      *
      * @param string $password
+     *
+     * @throws PDOException
      */
     private function checkLocalPassword($password)
     {
@@ -346,7 +375,9 @@ class CentreonAuth
      * @param string $username
      * @param string $password
      * @param string $token
+     *
      * @return void
+     * @throws PDOException
      */
     protected function checkUser($username, $password, $token)
     {
@@ -384,7 +415,7 @@ class CentreonAuth
             /*
              * Check password matching
              */
-            $this->getCryptFunction();
+            $this->getCryptFunction(); // FIXME expression not used
             $this->checkPassword($password, $token);
             if ($this->passwdOk == self::PASSWORD_VALID) {
                 $this->CentreonLog->setUID($this->userInfos["contact_id"]);
@@ -440,30 +471,29 @@ class CentreonAuth
         }
     }
 
-    /*
+    /**
      * Check crypt system
+     * @return string
      */
     protected function getCryptFunction()
     {
         if (isset($this->cryptEngine)) {
             switch ($this->cryptEngine) {
-                case self::ENCRYPT_MD5:
-                    return "MD5";
-                    break;
                 case self::ENCRYPT_SHA1:
                     return "SHA1";
-                    break;
                 default:
                     return "MD5";
-                    break;
             }
         } else {
             return "MD5";
         }
     }
 
-    /*
+    /**
      * Crypt String
+     * @param $str
+     *
+     * @return mixed
      */
     protected function myCrypt($str)
     {
@@ -472,39 +502,51 @@ class CentreonAuth
             switch ($this->cryptEngine) {
                 case 1:
                     return $this->dependencyInjector['utils']->encodePass($str, 'md5');
-                    break;
                 case 2:
                     return $this->dependencyInjector['utils']->encodePass($str, 'sha1');
-                    break;
                 default:
                     return $this->dependencyInjector['utils']->encodePass($str, 'md5');
-                    break;
             }
         } else {
             return $str;
         }
     }
 
+    /**
+     * @return int
+     */
     protected function getCryptEngine()
     {
         return $this->cryptEngine;
     }
 
+    /**
+     * @return mixed
+     */
     protected function userExists()
     {
         return $this->userExists;
     }
 
+    /**
+     * @return mixed
+     */
     protected function userIsEnable()
     {
         return $this->enable;
     }
 
+    /**
+     * @return mixed
+     */
     protected function passwordIsOk()
     {
         return $this->passwdOk;
     }
 
+    /**
+     * @return mixed
+     */
     protected function getAuthType()
     {
         return $this->authType;
@@ -516,6 +558,8 @@ class CentreonAuth
      * @param string $authenticationType
      * @param string|bool $username
      * @param string $reason
+     *
+     * @return void
      */
     private function setAuthenticationError(string $authenticationType, $username, string $reason): void
     {

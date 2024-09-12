@@ -41,27 +41,44 @@ if ($configFile !== false) {
 
 require_once realpath(dirname(__FILE__) . "/centreonDB.class.php");
 
+/**
+ * Class
+ *
+ * @class CentreonDBInstance
+ */
 class CentreonDBInstance
 {
+    /** @var */
     private static $confInstance;
+    /** @var */
     private static $monInstance;
 
+    /** @var CentreonDB */
     private $instance;
 
     /**
      * CentreonDBInstance constructor.
+     *
      * @param string $db
+     *
+     * @throws Exception
      */
     private function __construct($db = "centreon")
     {
         $this->instance = new \CentreonDB($db);
     }
 
+    /**
+     * @return CentreonDB
+     */
     public function getInstance()
     {
         return $this->instance;
     }
 
+    /**
+     * @return CentreonDB
+     */
     public static function getConfInstance()
     {
         if (is_null(self::$confInstance)) {
@@ -70,6 +87,9 @@ class CentreonDBInstance
         return self::$confInstance->getInstance();
     }
 
+    /**
+     * @return CentreonDB
+     */
     public static function getMonInstance()
     {
         if (is_null(self::$monInstance)) {

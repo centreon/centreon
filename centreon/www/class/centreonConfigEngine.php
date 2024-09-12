@@ -34,16 +34,17 @@
  */
 
 /**
- * Class for Engine configuration
+ * Class
  *
- * @author Sylvestre Ho <sho@centreon.com>
+ * @class CentreonConfigEngine
  */
 class CentreonConfigEngine
 {
+    /** @var CentreonDB */
     protected $db;
     
     /**
-     * Constructor
+     * CentreonConfigEngine constructor
      *
      * @param CentreonDB $db
      */
@@ -51,13 +52,15 @@ class CentreonConfigEngine
     {
         $this->db = $db;
     }
-    
+
     /**
      * Insert one or multiple broker directives
      *
      * @param int $serverId | id of monitoring server
      * @param array $directives | event broker directives
+     *
      * @return void
+     * @throws PDOException
      */
     public function insertBrokerDirectives($serverId, $directives = array())
     {
@@ -71,12 +74,14 @@ class CentreonConfigEngine
             }
         }
     }
-    
+
     /**
      * Used by form only
      *
-     * @param int $serverId
+     * @param null $serverId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getBrokerDirectives($serverId = null)
     {
@@ -99,6 +104,12 @@ class CentreonConfigEngine
         return $arr;
     }
 
+    /**
+     * @param $engineId
+     *
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function getTimezone($engineId = null)
     {
         $timezone = null;

@@ -43,9 +43,7 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
  * @class CentreonCustomViewException
  * @description Centreon Custom View Exception
  */
-class CentreonCustomViewException extends Exception
-{
-}
+class CentreonCustomViewException extends Exception {}
 
 /**
  * Class
@@ -71,7 +69,7 @@ class CentreonCustomView
     protected $userId;
     /** @var array */
     protected $userGroups;
-    /** @var */
+    /** @var CentreonDB */
     protected $db;
     /** @var */
     protected $customViews;
@@ -84,7 +82,7 @@ class CentreonCustomView
      * CentreonCustomView constructor.
      *
      * @param $centreon
-     * @param $db
+     * @param CentreonDB $db
      * @param null $userId
      * @throws Exception
      */
@@ -125,6 +123,7 @@ class CentreonCustomView
     /**
      * @return mixed
      * @throws CentreonCustomViewException
+     * @throws PDOException
      */
     protected function getLastViewId()
     {
@@ -533,11 +532,13 @@ class CentreonCustomView
      * @param int $viewId
      * @param string $viewName
      * @param string $layout
-     * @param int $public
+     * @param int|null $public
      * @param bool $permission
      * @param bool $authorized
+     *
      * @return int $customViewId
-     * @throws Exception
+     * @throws CentreonCustomViewException
+     * @throws PDOException
      */
     public function updateCustomView(
         int $viewId,
@@ -669,10 +670,13 @@ class CentreonCustomView
 
     /**
      * Loads the Custom View attached to the viewLoadId
-     * @param int $viewLoad
+     *
+     * @param int $viewLoadId
      * @param bool $authorized
+     *
      * @return int $viewLoad
-     * @throws Exception
+     * @throws CentreonCustomViewException
+     * @throws PDOException
      */
     public function loadCustomView(int $viewLoadId, bool $authorized): int
     {
@@ -787,11 +791,12 @@ class CentreonCustomView
      * @param int[] $unlockedUsers
      * @param int[] $lockedUsergroups
      * @param int[] $unlockedUsergroups
+     * @param int $userId
      * @param bool $permission
      * @param bool $authorized
-     * @param $userId
-     * @throws Exception
-     * @throws CentreonCustomViewExpection
+     *
+     * @throws CentreonCustomViewException
+     * @throws PDOException
      */
     public function shareCustomView(
         int $customViewId,

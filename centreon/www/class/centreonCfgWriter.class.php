@@ -33,18 +33,25 @@
  *
  */
 
-/*
- *  Class that allows to write Nagios configuration files
+/**
+ * Class
+ *
+ * @class CentreonCfgWriter
+ * @description Class that allows to write Nagios configuration files
  */
 class CentreonCfgWriter
 {
+    /** @var string */
     private $buffer;
+    /** @var CentreonXML */
     private $xmlBuffer;
+    /** @var Centreon */
     private $centreon;
+    /** @var string */
     private $file_path;
 
     /**
-     *  Constructor
+     *  CentreonCfgWriter constructor
      *
      *  @param Centreon $centreon
      *  @param string $file_full_path
@@ -73,7 +80,8 @@ class CentreonCfgWriter
      *  Returns the length of written text
      *
      *  @param string $text
-     *  @return string
+     *
+     *  @return int
      */
     protected function writeText($text)
     {

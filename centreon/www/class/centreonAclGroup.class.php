@@ -34,18 +34,17 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonAclGroup
  */
 class CentreonAclGroup
 {
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonDB */
     protected $db;
 
     /**
-     *  Constructor
+     *  CentreonAclGroup constructor
      *
      * @param CentreonDB $db
      */
@@ -57,7 +56,9 @@ class CentreonAclGroup
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {

@@ -49,9 +49,9 @@ class CentreonData
     /**
      * Instance of Centreon Template
      *
-     * @var Centreon_Template
+     * @var CentreonData
      */
-    static private $instance = null;
+    private static $instance = null;
 
     /**
      * List of javascript data
@@ -59,11 +59,6 @@ class CentreonData
      * @var array
      */
     private $jsData = array();
-
-    /**
-     * CentreonData constructor
-     */
-    public function __construct() {}
 
     /**
      * Pass data to javascript
@@ -96,7 +91,7 @@ class CentreonData
     /**
      * Get a instance of Centreon_Template
      *
-     * @return Centreon_Template
+     * @return CentreonData
      */
     public static function getInstance()
     {

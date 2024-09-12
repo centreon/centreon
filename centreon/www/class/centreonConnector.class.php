@@ -82,10 +82,7 @@ class CentreonConnector
 
     /** @var */
     public $db;
-    /**
-     * The database connection
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $dbConnection;
 
     /**
@@ -109,7 +106,7 @@ class CentreonConnector
      */
     public function create(array $connector, $returnId = false)
     {
-        /**
+        /*
          * Checking data
          */
         if (!isset($connector['name'])) {
@@ -132,7 +129,7 @@ class CentreonConnector
             $connector['enabled'] = true;
         }
 
-        /**
+        /*
          * Inserting into database
          */
         try {
@@ -156,11 +153,11 @@ class CentreonConnector
                 $now = time(),
                 $now
             ]);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new RuntimeException('Cannot insert connector; Check the database schema');
         }
 
-        /**
+        /*
          * in case last inserted id needed
          */
         if ($returnId) {
@@ -169,7 +166,7 @@ class CentreonConnector
                     'SELECT `id` FROM `connector` WHERE `name` = ? LIMIT 1'
                 );
                 $lastIdQueryResult->execute([$connector['name']]);
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 throw new RuntimeException('Cannot get last insert ID');
             }
             $lastId = $lastIdQueryResult->fetchRow();
@@ -181,10 +178,10 @@ class CentreonConnector
                         "SET connector_id = :conId WHERE `command_id` = :value");
                     foreach ($connector["command_id"] as $key => $value) {
                         try {
-                            $statement->bindValue(':conId', (int) $lastId['id'], \PDO::PARAM_INT);
-                            $statement->bindValue(':value', (int) $value, \PDO::PARAM_INT);
+                            $statement->bindValue(':conId', (int) $lastId['id'], PDO::PARAM_INT);
+                            $statement->bindValue(':value', (int) $value, PDO::PARAM_INT);
                             $statement->execute();
-                        } catch (\PDOException $e) {
+                        } catch (PDOException $e) {
                             throw new RuntimeException('Cannot update connector');
                         }
                     }
@@ -230,7 +227,7 @@ class CentreonConnector
                     SQL
             );
             $result->execute([$id]);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new RuntimeException('Cannot select connector');
         }
 
@@ -305,7 +302,7 @@ class CentreonConnector
                         LIMIT 1
                         SQL
                 );
-                $statement->bindValue(':id', (int) $connectorId, \PDO::PARAM_INT);
+                $statement->bindValue(':id', (int) $connectorId, PDO::PARAM_INT);
                 foreach ($bindValues as $fieldName => $fieldValue) {
                     $statement->bindValue($fieldName, $fieldValue);
                 }
@@ -315,7 +312,7 @@ class CentreonConnector
             $statement = $this->dbConnection->prepare(
                 "UPDATE `command` SET connector_id = NULL WHERE `connector_id` = :id"
             );
-            $statement->bindValue(':id', (int) $connectorId, \PDO::PARAM_INT);
+            $statement->bindValue(':id', (int) $connectorId, PDO::PARAM_INT);
             $statement->execute();
 
             $commandIds = $connector["command_id"] ?? [];
@@ -323,12 +320,12 @@ class CentreonConnector
                 $statement = $this->dbConnection->prepare(
                     "UPDATE `command` SET `connector_id` = :id WHERE `command_id` = :command_id"
                 );
-                $statement->bindValue(':id', (int) $connectorId, \PDO::PARAM_INT);
-                $statement->bindValue(':command_id', (int) $commandId, \PDO::PARAM_INT);
+                $statement->bindValue(':id', (int) $connectorId, PDO::PARAM_INT);
+                $statement->bindValue(':command_id', (int) $commandId, PDO::PARAM_INT);
                 $statement->execute();
             }
             $this->dbConnection->commit();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $this->dbConnection->rollBack();
             throw new RuntimeException('Cannot update connector');
         }
@@ -353,7 +350,7 @@ class CentreonConnector
         try {
             $result = $this->dbConnection->prepare('DELETE FROM `connector` WHERE `id` = ? LIMIT 1');
             $result->execute([$id]);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new RuntimeException('Cannot delete connector');
         }
         return $this;
@@ -420,7 +417,7 @@ class CentreonConnector
 
         try {
             $connectorsResult = $this->dbConnection->query($sql);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new RuntimeException('Cannot select connectors');
         }
         $connectors = array();
@@ -440,7 +437,10 @@ class CentreonConnector
      * @param int $id
      * @param int $numberOfcopies
      * @param bool $returnIds
+     *
      * @return CentreonConnector|array
+     * @throws InvalidArgumentException
+     * @throws PDOException
      * @throws RuntimeException
      */
     public function copy($id, $numberOfcopies = 1, $returnIds = false)
@@ -502,7 +502,7 @@ class CentreonConnector
             } else {
                 $countResult = $this->dbConnection->query('SELECT COUNT(*) \'count\' FROM `connector`');
             }
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $error = true;
         }
 
@@ -547,7 +547,7 @@ class CentreonConnector
                 'SELECT `id` FROM `connector` WHERE `name` = ? LIMIT 1'
             );
             $existsResult->execute([$name]);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new RuntimeException(
                 'Cannot verify if connector name already in use; Query not valid; Check the database schema'
             );

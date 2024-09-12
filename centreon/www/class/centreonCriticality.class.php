@@ -34,28 +34,36 @@
  */
 
 /**
- * Class for managing criticality object
+ * Class
  *
- * @author Sylvestre Ho
+ * @class CentreonCriticality
+ * @description Class for managing criticality object
  */
 class CentreonCriticality
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
+    /** @var array */
     protected $tree;
-    
+
+    /**
+     * CentreonCriticality constructor
+     *
+     * @param CentreonDB $db
+     */
     public function __construct($db)
     {
         $this->db = $db;
     }
-    
+
     /**
      * Get data of a criticality object
      *
      * @param int $critId
+     * @param bool $service
+     *
      * @return array
+     * @throws PDOException
      */
     public function getData($critId, $service = false)
     {
@@ -69,7 +77,9 @@ class CentreonCriticality
      * Get data of a criticality object for hosts
      *
      * @param int $critId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getDataForHosts($critId)
     {
@@ -93,12 +103,14 @@ class CentreonCriticality
         }
         return null;
     }
-    
+
     /**
      * Get data of a criticality object for services
      *
      * @param int $critId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getDataForServices($critId)
     {
@@ -216,12 +228,14 @@ class CentreonCriticality
     /**
      * Get list of host criticalities
      *
-     * @param type $searchString
-     * @param type $orderBy
-     * @param type $sort
-     * @param type $offset
-     * @param type $limit
-     * @return type
+     * @param null $searchString
+     * @param string $orderBy
+     * @param string $sort
+     * @param null $offset
+     * @param null $limit
+     *
+     * @return array
+     * @throws PDOException
      */
     protected function getListForHosts(
         $searchString = null,
@@ -253,16 +267,18 @@ class CentreonCriticality
         }
         return $elements;
     }
-    
+
     /**
      * Get list of service criticalities
      *
-     * @param type $searchString
-     * @param type $orderBy
-     * @param type $sort
-     * @param type $offset
-     * @param type $limit
-     * @return type
+     * @param null $searchString
+     * @param string $orderBy
+     * @param string $sort
+     * @param null $offset
+     * @param null $limit
+     *
+     * @return array
+     * @throws PDOException
      */
     protected function getListForServices(
         $searchString = null,
@@ -298,8 +314,11 @@ class CentreonCriticality
     /**
      * Create a buffer with all criticality informations
      *
-     * @param type service_id
+     * @param $service_id
      * return array
+     *
+     * @return int|mixed
+     * @throws PDOException
      */
     public function criticitiesConfigOnSTpl($service_id)
     {
@@ -318,12 +337,15 @@ class CentreonCriticality
         }
         return 0;
     }
-    
+
     /**
      * Get service criticality
      *
-     * @param type service_id
+     * @param $service_id
      * return array
+     *
+     * @return int|mixed
+     * @throws PDOException
      */
     protected function getServiceCriticality($service_id)
     {

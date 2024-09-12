@@ -947,8 +947,6 @@ class CentreonDB extends PDO
     }
 
     /**
-     *
-     *
      * Escapes a string for query
      *
      * @access public
@@ -1029,7 +1027,7 @@ class CentreonDB extends PDO
      * @param string $query_string query
      * @param array<mixed> $placeHolders
      *
-     * @return mixed[]|false  getAll result
+     * @return array|false  getAll result
      *
      * @throws PDOException
      *

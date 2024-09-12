@@ -33,16 +33,22 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonBroker
+ */
 class CentreonBroker
 {
+
+    /** @var CentreonDB */
     private $db;
 
-    /*
-	 * Constructor class
-	 *
-	 * @access public
-	 * @return 	object	object session
-	 */
+    /**
+     * CentreonBroker constructor
+     *
+     * @param CentreonDB $db
+     */
     public function __construct($db)
     {
         $this->db = $db;
@@ -51,8 +57,8 @@ class CentreonBroker
     /**
      * Reload centreon broker process
      *
-     * @param string $action
      * @return void
+     * @throws PDOException
      */
     public function reload()
     {
@@ -65,6 +71,7 @@ class CentreonBroker
      * Get command to reload centreon broker
      *
      * @return string|null the command
+     * @throws PDOException
      */
     private function getReloadCommand(): ?string
     {

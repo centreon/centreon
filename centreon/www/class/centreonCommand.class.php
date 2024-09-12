@@ -34,15 +34,23 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonCommand
+ */
 class CentreonCommand
 {
+    /** @var CentreonDB */
     protected $db;
 
+    /** @var string[] */
     public $aTypeMacro = array(
         '1' => 'HOST',
         '2' => 'SERVICE'
     );
 
+    /** @var array[] */
     public $aTypeCommand = array(
         'host' => array(
             'key' => '$_HOST',
@@ -55,7 +63,7 @@ class CentreonCommand
     );
 
     /**
-     * Constructor
+     * CentreonCommand constructor
      *
      * @param CentreonDB $db
      */
@@ -92,6 +100,7 @@ class CentreonCommand
      * Get list of check commands
      *
      * @return array
+     * @throws Exception
      */
     public function getCheckCommands()
     {
@@ -102,6 +111,7 @@ class CentreonCommand
      * Get list of notification commands
      *
      * @return array
+     * @throws Exception
      */
     public function getNotificationCommands()
     {
@@ -112,6 +122,7 @@ class CentreonCommand
      * Get list of misc commands
      *
      * @return array
+     * @throws Exception
      */
     public function getMiscCommands()
     {
@@ -122,6 +133,7 @@ class CentreonCommand
      * Returns array of locked commands
      *
      * @return array
+     * @throws PDOException
      */
     public function getLockedCommands()
     {
@@ -275,7 +287,9 @@ class CentreonCommand
      * @param $iCommandId
      * @param $sStr
      * @param $sType
+     *
      * @return array
+     * @throws Exception
      */
     public function matchObject($iCommandId, $sStr, $sType)
     {
@@ -315,7 +329,9 @@ class CentreonCommand
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {
