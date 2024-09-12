@@ -66,7 +66,7 @@ export const setGraphTabParametersDerivedAtom = atom(
 );
 
 export const selectedResourcesDetailsAtom = atom<ResourceDetailsAtom | null>(
-  null
+  null,
 );
 
 export const selectedResourceDetailsEndpointDerivedAtom = atom((get) => {
