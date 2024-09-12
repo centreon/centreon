@@ -85,7 +85,7 @@ runs:
 
           # Build target path based on ARCH
           echo "[DEBUG] - Build $ARCH target path."
-          TARGET_PATH="$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module }}/"
+          TARGET_PATH="$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH/RPMS/${{ inputs.module }}/"
           echo "[DEBUG] - Target path: $TARGET_PATH"
 
           # Download candidates for promote
@@ -95,10 +95,15 @@ runs:
             jf rt download $ARTIFACT --flat
           done
 
+          DRY_RUN_FLAG="--dry-run"
+          if [ "${{ inputs.stability }}" == "stable" ]; then
+            DRY_RUN_FLAG=""
+          fi
+
           # Upload previously downloaded candidates to TARGET_PATH
           for ARTIFACT_DL in $(dir|grep -E "*.rpm"); do
             echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat
+            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat $DRY_RUN_FLAG
           done
 
           # Cleanup before next round of candidates
@@ -142,7 +147,7 @@ runs:
         fi
 
         echo "[DEBUG] - Build target path."
-        TARGET_PATH="$ROOT_REPO_PATH-${{ inputs.stability }}/pool/${{ inputs.module }}/"
+        TARGET_PATH="$ROOT_REPO_PATH-stable/pool/${{ inputs.module }}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
@@ -160,10 +165,15 @@ runs:
             ;;
         esac
 
+        DRY_RUN_FLAG="--dry-run"
+        if [ "${{ inputs.stability }}" == "stable" ]; then
+          DRY_RUN_FLAG=""
+        fi
+
         for ARTIFACT_DL in $(dir -1|grep -E $ARTIFACT_SEARCH_PATTERN); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
           echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat
+          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat $DRY_RUN_FLAG
         done
 
         rm -f *.deb
