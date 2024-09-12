@@ -10,8 +10,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 COPY *.deb /tmp/debs-centreon/
 
-COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint /tmp/entrypoint
-COPY --chown=www-data:www-data ./.github/docker/centreon-web/bullseye/configuration /tmp/configuration
+COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /tmp/entrypoint
+COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /tmp/configuration
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
