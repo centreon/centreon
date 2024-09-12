@@ -222,7 +222,7 @@ describe('Vault configuration', () => {
     cy.contains(labelMigrationScript).should('be.visible');
     cy.contains(labelMigrationScriptExportCredentials).should('be.visible');
     cy.contains(
-      'By executing this script, your platform will be in a locked mode and you not be able to do'
+      'By executing this script, your platform will be in a locked mode and you will not be able to do'
     ).should('be.visible');
     cy.contains(labelMigrationCanTakeSeveralMinutes).should('be.visible');
     cy.contains(`# ${labelExecuteThisCommandAsRoot}`).should('be.visible');
