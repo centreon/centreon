@@ -37,4 +37,15 @@ interface WriteRealTimeServiceRepositoryInterface
      * @throws \Throwable
      */
     public function addServiceToResourceAcls(int $hostId, int $serviceId, array $accessGroups): void;
+
+    /**
+     * Link services to Resource ACLs.
+     *
+     * @param int $hostId
+     * @param Service[] $services
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     */
+    public function addServicesToResourceAcls(int $hostId, array $services, array $accessGroups): void;
 }
