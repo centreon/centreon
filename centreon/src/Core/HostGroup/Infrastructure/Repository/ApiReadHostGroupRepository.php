@@ -97,7 +97,7 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): \Traversable&\Countable
+    public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): \Traversable&\Countable
     {
         throw RepositoryException::notYetImplemented();
     }
@@ -178,6 +178,14 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
      * @inheritDoc
      */
     public function findByIds(int ...$hostGroupIds): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasAccessToAllHostGroups(array $accessGroupIds): bool
     {
         throw RepositoryException::notYetImplemented();
     }

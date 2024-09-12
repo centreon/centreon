@@ -18,6 +18,18 @@ services:
     Core\Host\Application\Repository\ReadHostRepositoryInterface:
         class: Core\Host\Infrastructure\Repository\DbReadHostRepository
 
+    Core\Host\Application\Repository\WriteHostRepositoryInterface:
+        class: Core\Host\Infrastructure\Repository\DbWriteHostRepository
+
     Core\Host\Infrastructure\Repository\ApiReadHostRepository:
         arguments:
             $logger: '@Centreon\Domain\Log\Logger'
+
+    Core\Host\Infrastructure\Repository\DbWriteHostLogRepository:
+        decorates: Core\Host\Application\Repository\WriteHostRepositoryInterface
+        arguments:
+          - '@.inner'
+          - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+          - '@Core\Host\Application\Repository\ReadHostRepositoryInterface'
+          - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+          - '@Centreon\Infrastructure\DatabaseConnection'

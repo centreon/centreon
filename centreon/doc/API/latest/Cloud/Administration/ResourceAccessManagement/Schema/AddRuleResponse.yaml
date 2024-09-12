@@ -6,17 +6,31 @@ properties:
     description: "Resource access rule name"
     example: "Rule for viewers"
   contacts:
-    type: array
-    items:
-      type: integer
-    description: "Define contacts that should be linked to the resource access rule"
-    example: [1, 2, 3]
+    type: object
+    properties:
+      ids:
+        type: array
+        items:
+          type: integer
+        description: "Define contacts that should be linked to the resource access rule"
+        example: [1, 2, 3]
+      all:
+        type: boolean
+        description: "Indicates that the rule should be applied to all current / future contacts"
+        example: true
   contact_groups:
-    type: array
-    items:
-      type: integer
-    description: "Define contact groups that should be linked to the resource access rule"
-    example: [4, 6]
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+          description: "Define contact groups that should be linked to the resource access rule"
+          example: [1, 2, 3]
+        all:
+          type: boolean
+          description: "Indicates that the rule should be applied to all current / future contact groups"
+          example: true
   description:
     type: string
     nullable: true

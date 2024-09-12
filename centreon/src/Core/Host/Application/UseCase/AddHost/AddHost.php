@@ -97,6 +97,11 @@ final class AddHost
                 return;
             }
 
+            if (! $this->user->isAdmin()) {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $this->validation->accessGroups = $accessGroups;
+            }
+
             try {
                 $this->dataStorageEngine->startTransaction();
 

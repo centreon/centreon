@@ -14,6 +14,8 @@ on:
       - ready_for_review
     paths:
       - "centreon-awie/**"
+      - "!centreon-awie/features/**"
+      - "!centreon-awie/behat.yml"
       - "!centreon-awie/veracode.json"
       - "!centreon-awie/.veracode-exclusions"
   push:
@@ -24,6 +26,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-awie/**"
+      - "!centreon-awie/features/**"
+      - "!centreon-awie/behat.yml"
       - "!centreon-awie/veracode.json"
       - "!centreon-awie/.veracode-exclusions"
 
@@ -84,7 +88,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bullseye, bookworm, jammy]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -183,7 +187,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm]
+        distrib: [bullseye, bookworm, jammy]
 
     steps:
       - name: Checkout sources
@@ -207,7 +211,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bullseye, bookworm, jammy]
 
     steps:
       - name: Checkout sources

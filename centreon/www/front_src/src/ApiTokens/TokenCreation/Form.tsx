@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import {
   Dialog,
@@ -13,6 +14,7 @@ import {
   TextField,
   useResizeObserver
 } from '@centreon/ui';
+import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
@@ -71,6 +73,16 @@ const FormCreation = ({
     data,
     values
   });
+
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
+  const { canManageApiTokens, isAdmin } = useAtomValue(userAtom);
+
+  const getUsersEndpoint = (): string =>
+    platformFeatures?.isCloudPlatform && !isAdmin
+      ? getEndpointConfiguredUser({
+          search: { regex: { fields: ['is_admin'], value: '0' } }
+        })
+      : getEndpointConfiguredUser({});
 
   const close = (): void => {
     resetForm();
@@ -157,9 +169,9 @@ const FormCreation = ({
       <SingleConnectedAutocompleteField
         className={classes.input}
         dataTestId={labelUser}
-        disabled={Boolean(token)}
+        disabled={Boolean(token) || !canManageApiTokens}
         field="name"
-        getEndpoint={getEndpointConfiguredUser}
+        getEndpoint={getUsersEndpoint}
         id="user"
         label={t(labelUser)}
         required={!token}

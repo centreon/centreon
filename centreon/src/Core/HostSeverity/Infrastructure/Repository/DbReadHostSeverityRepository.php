@@ -29,6 +29,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostSeverity\Domain\Model\HostSeverity;
@@ -36,7 +37,7 @@ use Utility\SqlConcatenator;
 
 class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements ReadHostSeverityRepositoryInterface
 {
-    use LoggerTrait;
+    use LoggerTrait, SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -150,8 +151,6 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
             return false;
         }
 
-        $concat = new SqlConcatenator();
-
         $accessGroupIds = array_map(
             fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
@@ -164,8 +163,10 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
             return $this->exists($hostSeverityId);
         }
 
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
+
         $request = $this->translateDbName(
-            <<<'SQL'
+            <<<SQL
                 SELECT 1
                 FROM `:db`.hostcategories hc
                 INNER JOIN `:db`.acl_resources_hc_relations arhr
@@ -176,23 +177,17 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
                     ON res.acl_res_id = argr.acl_res_id
                 INNER JOIN `:db`.acl_groups ag
                     ON argr.acl_group_id = ag.acl_group_id
-                SQL
-        );
-        $concat->appendWhere(
-            <<<'SQL'
-                WHERE hc.hc_id = :hostSeverityId
-                  AND hc.level IS NOT NULL
+                WHERE hc.hc_id = :host_severity_id
+                    AND hc.level IS NOT NULL
+                    AND ag.acl_group_id IN ({$bindQuery})
                 SQL
         );
 
-        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
-            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
-
-        $statement = $this->db->prepare($this->translateDbName($request . ' ' . $concat));
-        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
-            $statement->bindValue($param, $value, $type);
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':host_severity_id', $hostSeverityId, \PDO::PARAM_INT);
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }
-        $statement->bindValue(':hostSeverityId', $hostSeverityId, \PDO::PARAM_INT);
 
         $statement->execute();
 

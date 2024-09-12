@@ -455,34 +455,56 @@ class CentreonStatistics
         $data = [];
         $statement = $this->dbConfig->query(
             <<<SQL
-                SELECT dp.name as playlist_name, dp.rotation_time,
-                    GROUP_CONCAT(dplr.dashboard_id) as dashboards,
-                    GROUP_CONCAT(dpcr.contact_id) as contacts,
-                    GROUP_CONCAT(dpcgr.contactgroup_id) as contactgroups
-                FROM dashboard_playlist dp
-                    LEFT JOIN dashboard_playlist_relation dplr
-                        ON dplr.playlist_id = dp.id
-                    LEFT JOIN dashboard_playlist_contact_relation dpcr
-                        ON dpcr.playlist_id = dp.id
-                    LEFT JOIN dashboard_playlist_contactgroup_relation dpcgr
-                        ON dpcgr.playlist_id = dp.id
-                GROUP BY dp.name
-                SQL
+                SELECT
+                    dp.name,
+                    dp.rotation_time,
+                    COALESCE(viewer_contacts.viewer_count, 0) AS viewer_contacts,
+                    COALESCE(editor_contacts.editor_count, 0) AS editor_contacts,
+                    COALESCE(viewer_contactgroups.viewer_group_count, 0) AS viewer_contactgroups,
+                    COALESCE(editor_contactgroups.editor_group_count, 0) AS editor_contactgroups,
+                    COALESCE(dashboard_rels.dashboard_count, 0) AS dashboard_count
+                FROM
+                    dashboard_playlist dp
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS viewer_count
+                    FROM dashboard_playlist_contact_relation
+                    WHERE role = 'viewer'
+                    GROUP BY playlist_id
+                ) AS viewer_contacts ON dp.id = viewer_contacts.playlist_id
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS editor_count
+                    FROM dashboard_playlist_contact_relation
+                    WHERE role = 'editor'
+                    GROUP BY playlist_id
+                ) AS editor_contacts ON dp.id = editor_contacts.playlist_id
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS viewer_group_count
+                    FROM dashboard_playlist_contactgroup_relation
+                    WHERE role = 'viewer'
+                    GROUP BY playlist_id
+                ) AS viewer_contactgroups ON dp.id = viewer_contactgroups.playlist_id
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS editor_group_count
+                    FROM dashboard_playlist_contactgroup_relation
+                    WHERE role = 'editor'
+                    GROUP BY playlist_id
+                ) AS editor_contactgroups ON dp.id = editor_contactgroups.playlist_id
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS dashboard_count
+                    FROM dashboard_playlist_relation
+                    GROUP BY playlist_id
+                ) AS dashboard_rels ON dp.id = dashboard_rels.playlist_id
+            SQL
         );
+
         while (false !== ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $dashboardsCount = $record['dashboards'] !== null
-                ? count(explode(',', $record['dashboards']))
-                : 0;
-            $contactsCount = $record['contacts'] !== null
-                ? count(explode(',', $record['contacts']))
-                : 0;
-            $contactGroupsCount = $record['contactgroups'] !== null
-                ? count(explode(',', $record['contactgroups']))
-                : 0;
-            $data[$record['playlist_name']] = [
+            $data[$record['name']] = [
                 'rotation_time' => $record['rotation_time'],
-                'dashboards_count' => $dashboardsCount,
-                'shared_users_groups_count' => $contactsCount + $contactGroupsCount,
+                'dashboards_count' => $record['dashboard_count'],
+                'shared_viewer_contacts' => $record['viewer_contacts'],
+                'shared_editor_contacts' => $record['editor_contacts'],
+                'shared_viewer_contactgroups' => $record['viewer_contactgroups'],
+                'shared_editor_contactgroups' => $record['editor_contactgroups'],
             ];
         }
 

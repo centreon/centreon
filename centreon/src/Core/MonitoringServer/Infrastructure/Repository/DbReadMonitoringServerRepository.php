@@ -27,6 +27,8 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Host\Infrastructure\Repository\HostRepositoryTrait;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Utility\SqlConcatenator;
@@ -39,7 +41,7 @@ use Utility\SqlConcatenator;
  */
 class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements ReadMonitoringServerRepositoryInterface
 {
-    use LoggerTrait;
+    use HostRepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -65,6 +67,57 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $monitoringServerId, array $accessGroups): bool
+    {
+        $this->debug(
+            'Check existence of monitoring server with',
+            ['id' => $monitoringServerId, 'access_groups' => $accessGroups]
+        );
+
+        if ($accessGroups === []) {
+            $this->debug('Access groups array is empty');
+
+            return false;
+        }
+
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if ($this->hasAccessToAllHosts($accessGroupIds)) {
+            return $this->exists($monitoringServerId);
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`nagios_server` ns
+                INNER JOIN `:db`.`acl_resources_poller_relations` arpr
+                    ON arpr.`poller_id` = ns.`id`
+                INNER JOIN `:db`.`acl_res_group_relations` argr
+                    ON argr.`acl_res_id` = arpr.`acl_res_id`
+                INNER JOIN `:db`.`acl_groups` ag
+                    ON ag.`acl_group_id` = argr.`acl_group_id`
+                WHERE `id` = :monitoring_server_id
+                    AND ag.`acl_group_id` IN ({$bindQuery})
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':monitoring_server_id', $monitoringServerId, \PDO::PARAM_INT);
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         return (bool) $statement->fetchColumn();

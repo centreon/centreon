@@ -1,16 +1,14 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
-import { Provider, createStore, useAtomValue } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { equals } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import useListing from '../Listing/useListing';
-import useLoadResources from '../Listing/useLoadResources';
+import { enabledAutorefreshAtom } from '../Listing/listingAtoms';
 import { resourcesEndpoint } from '../api/endpoint';
 import { Visualization } from '../models';
-import { defaultStatuses } from '../testUtils';
+import { defaultStatuses, retrievedUser } from '../testUtils';
 import {
   labelAcknowledged,
   labelAll,
@@ -21,6 +19,7 @@ import {
   labelHostSeverity,
   labelMetaService,
   labelMonitoringServer,
+  labelNewFilter,
   labelOk,
   labelSearch,
   labelSearchOptions,
@@ -33,11 +32,14 @@ import {
   labelUp
 } from '../translatedLabels';
 
+import getDefaultCriterias from './Criterias/default';
+import { categoryHostStatus } from './criteriasNewInterface/model';
 import {
   informationLabel,
   labelShowMoreFilters
 } from './criteriasNewInterface/translatedLabels';
-import useFilter from './useFilter';
+import { applyFilterDerivedAtom } from './filterAtoms';
+import { allFilter, unhandledProblemsFilter } from './models';
 
 import Filter from '.';
 
@@ -66,91 +68,186 @@ enum Type {
   text = 'text'
 }
 
-const CriteriaParams = [
-  [
-    'Basic criterias',
+interface Filter {
+  store: ReturnType<typeof createStore>;
+}
+
+const allViews = [Visualization.All, Visualization.Host, Visualization.Service];
+
+const newFilter = {
+  criterias: getDefaultCriterias(),
+  id: '',
+  name: labelNewFilter
+};
+
+const formattedValue = (value: string): RegExp => {
+  const splittedValue = value.split(' ');
+
+  return new RegExp(
+    `(?:${splittedValue.join('.*')}|${splittedValue.reverse().join('.*')})`
+  );
+};
+
+const getSearchValue = ({ value, viewName }): RegExp => {
+  if (equals(viewName, Visualization.All)) {
+    return formattedValue(value);
+  }
+  if (equals(viewName, Visualization.Service)) {
+    return formattedValue(`${value} type:service,metaservice`);
+  }
+
+  return formattedValue(`${value} type:host `);
+};
+
+const getValueByTypeSelecton = ({ criteria, view, value }): string => {
+  if (
+    equals(view, Visualization.All) &&
+    [labelHost, labelService].includes(criteria)
+  ) {
+    return equals(criteria, labelHost)
+      ? `${value} type:host`
+      : `${value} type:service`;
+  }
+
+  return value;
+};
+const CriteriaParams = ({ view }): Array<unknown> => {
+  return [
     [
-      {
-        criteria: labelHost,
-        requestToWait: '@GetResourcesByHostType',
-        searchValue: `parent_name:${resourcesByHostTypeName} type:host `,
-        type: Type.select,
-        value: resourcesByHostTypeName
-      },
-      {
-        criteria: labelService,
-        requestToWait: '@GetResourcesByServiceType',
-        searchValue: `name:${resourcesByServiceTypeName} type:service `,
-        type: Type.select,
-        value: resourcesByServiceTypeName
-      },
-      {
-        criteria: labelState,
-        searchValue: 'state:acknowledged ',
-        type: Type.checkbox,
-        value: labelAcknowledged
-      },
-      {
-        criteria: labelStatus,
-        searchValue: 'status:ok ',
-        type: Type.checkbox,
-        value: labelOk
-      },
-      {
-        criteria: labelStatus,
-        searchValue: 'status:up ',
-        type: Type.checkbox,
-        value: labelUp
-      },
-      {
-        criteria: labelType,
-        searchValue: 'type:metaservice ',
-        type: Type.checkbox,
-        value: labelMetaService
-      },
-      {
-        criteria: labelHostGroup,
-        requestToWait: '@hostGroupsRequest',
-        searchValue: `host_group:${linuxServersHostGroupName} `,
-        type: Type.select,
-        value: linuxServersHostGroupName
-      },
-      {
-        criteria: labelServiceGroup,
-        requestToWait: '@serviceGroupsRequest',
-        searchValue: `service_group:${webAccessServiceGroupName} `,
-        type: Type.select,
-        value: webAccessServiceGroupName
-      },
-      {
-        criteria: labelMonitoringServer,
-        requestToWait: '@pollersRequest',
-        searchValue: `monitoring_server:${pollerName} `,
-        type: Type.select,
-        value: pollerName
-      }
-    ]
-  ],
-  [
-    'Extended criterias',
+      'Basic criterias',
+      [
+        {
+          criteria: labelHost,
+          requestToWait: '@GetResourcesByHostType',
+          searchValue: getSearchValue({
+            value: getValueByTypeSelecton({
+              criteria: labelHost,
+              value: `parent_name:${resourcesByHostTypeName}`,
+              view
+            }),
+            viewName: view
+          }),
+          type: Type.select,
+          value: resourcesByHostTypeName,
+          views: allViews
+        },
+        {
+          criteria: labelService,
+          requestToWait: '@GetResourcesByServiceType',
+          searchValue: getSearchValue({
+            value: getValueByTypeSelecton({
+              criteria: labelService,
+              value: `name:${resourcesByServiceTypeName}`,
+              view
+            }),
+            viewName: view
+          }),
+          type: Type.select,
+          value: resourcesByServiceTypeName,
+          views: allViews
+        },
+        {
+          criteria: labelState,
+          searchValue: getSearchValue({
+            value: 'state:acknowledged',
+            viewName: view
+          }),
+          testId: 'states',
+          type: Type.checkbox,
+          value: labelAcknowledged,
+          views: allViews
+        },
+        {
+          criteria: labelStatus,
+          searchValue: getSearchValue({ value: 'status:ok', viewName: view }),
+          testId: 'statuses-service',
+          type: Type.checkbox,
+          value: labelOk,
+          views: allViews
+        },
+        {
+          criteria: labelStatus,
+          searchValue: getSearchValue({ value: 'status:up', viewName: view }),
+          testId: 'statuses-host',
+          type: Type.checkbox,
+          value: labelUp,
+          views: [Visualization.All, Visualization.Service]
+        },
+        {
+          criteria: labelType,
+          searchValue: getSearchValue({
+            value: 'type:metaservice',
+            viewName: view
+          }),
+          testId: 'resource_types',
+          type: Type.checkbox,
+          value: labelMetaService,
+          views: [Visualization.All]
+        },
+        {
+          criteria: labelHostGroup,
+          requestToWait: '@hostGroupsRequest',
+          searchValue: getSearchValue({
+            value: `host_group:${linuxServersHostGroupName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: linuxServersHostGroupName,
+          views: allViews
+        },
+        {
+          criteria: labelServiceGroup,
+          requestToWait: '@serviceGroupsRequest',
+          searchValue: getSearchValue({
+            value: `service_group:${webAccessServiceGroupName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: webAccessServiceGroupName,
+          views: allViews
+        },
+        {
+          criteria: labelMonitoringServer,
+          requestToWait: '@pollersRequest',
+          searchValue: getSearchValue({
+            value: `monitoring_server:${pollerName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: pollerName,
+          views: allViews
+        }
+      ]
+    ],
     [
-      {
-        criteria: labelHostCategory,
-        requestToWait: '@hostCategoryRequest',
-        searchValue: `host_category:${hostCategoryName} `,
-        type: Type.select,
-        value: hostCategoryName
-      },
-      {
-        criteria: labelHostSeverity,
-        requestToWait: '@hostSeverityRequest',
-        searchValue: `host_severity:${hostSeverityName} `,
-        type: Type.select,
-        value: hostSeverityName
-      }
+      'Extended criterias',
+      [
+        {
+          criteria: labelHostCategory,
+          requestToWait: '@hostCategoryRequest',
+          searchValue: getSearchValue({
+            value: `host_category:${hostCategoryName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: hostCategoryName,
+          views: allViews
+        },
+        {
+          criteria: labelHostSeverity,
+          requestToWait: '@hostSeverityRequest',
+          searchValue: getSearchValue({
+            value: `host_severity:${hostSeverityName}`,
+            viewName: view
+          }),
+          type: Type.select,
+          value: hostSeverityName,
+          views: allViews
+        }
+      ]
     ]
-  ]
-];
+  ];
+};
 
 const customFilters = [
   [
@@ -175,36 +272,15 @@ const customFilters = [
   ]
 ];
 
-const store = createStore();
-const FilterWithLoading = (): JSX.Element => {
-  useLoadResources();
+const getStore = (): ReturnType<typeof createStore> => {
+  const store = createStore();
+  store.set(userAtom, retrievedUser);
+  store.set(selectedVisualizationAtom, Visualization.All);
+  store.set(applyFilterDerivedAtom, allFilter);
+  store.set(enabledAutorefreshAtom, false);
 
-  return (
-    <Provider store={store}>
-      <Filter />
-    </Provider>
-  );
+  return store;
 };
-
-const FilterTest = (): JSX.Element | null => {
-  useListing();
-  useFilter();
-
-  return <FilterWithLoading />;
-};
-
-const FilterWithProvider = (): JSX.Element => (
-  <TestQueryProvider>
-    <FilterTest />
-  </TestQueryProvider>
-);
-
-before(() => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-});
 
 interface SetupIntercept {
   alias: string;
@@ -242,17 +318,6 @@ const setupIntercept = ({
 };
 
 const initializeRequests = (): void => {
-  setupIntercept({ alias: 'filterRequest', path: '**/events-view*' });
-
-  setupIntercept({
-    alias: 'getResources',
-    path: `${resourcesEndpoint}**`,
-    query: {
-      name: 'page',
-      value: '1'
-    }
-  });
-
   setupIntercept({
     alias: 'GetResourcesByHostType',
     fixtureFile: 'resources/filter/resourcesByHostType.json',
@@ -304,26 +369,96 @@ const initializeRequests = (): void => {
   });
 };
 
+const setView = ({ store, name }): ReturnType<typeof createStore> => {
+  store.set(selectedVisualizationAtom, name);
+  if (equals(name, Visualization.All)) {
+    return store;
+  }
+
+  const resourceTypeValue = equals(name, Visualization.Host)
+    ? [{ id: 'host', name: labelHost }]
+    : [
+        { id: 'service', name: labelService },
+        { id: 'metaservice', name: labelMetaService }
+      ];
+
+  store.set(applyFilterDerivedAtom, {
+    ...newFilter,
+    criterias: [
+      ...newFilter.criterias,
+      {
+        name: 'resource_types',
+        object_type: null,
+        type: 'multi_select',
+        value: resourceTypeValue
+      }
+    ]
+  });
+
+  return store;
+};
+const views = [
+  { initSearch: '', name: Visualization.All },
+  { ids: [labelHost], initSearch: 'type:host ', name: Visualization.Host },
+  {
+    ids: [labelService, labelMetaService],
+    initSearch: 'type:service,metaservice ',
+    name: Visualization.Service
+  }
+];
+
+const checkInterfaceByView = ({ ids, initSearch }): void => {
+  ids.forEach((id) => {
+    cy.findByTestId('resource_types').find(`#${id}`).should('be.checked');
+  });
+  cy.findByPlaceholderText(labelSearch).should('have.value', initSearch);
+};
+
+const initialize = (): void => {
+  cy.findByLabelText(labelSearchOptions).click();
+  cy.findByPlaceholderText(labelSearch).clear();
+};
+
+const FilterWrapper = ({ store }: Filter): JSX.Element => {
+  return (
+    <TestQueryProvider>
+      <Provider store={store}>
+        <Filter />
+      </Provider>
+    </TestQueryProvider>
+  );
+};
+
+const mount = ({ store }: Filter): void => {
+  initializeRequests();
+
+  cy.mount({
+    Component: <FilterWrapper store={store} />
+  });
+
+  cy.viewport(1200, 1000);
+};
+
+const initializeCustomFilterStore = (store): ReturnType<typeof createStore> => {
+  store.set(applyFilterDerivedAtom, unhandledProblemsFilter);
+
+  return store;
+};
+
 describe('Custom filters', () => {
   beforeEach(() => {
-    initializeRequests();
-
-    cy.mount({
-      Component: <FilterWithProvider />
-    });
-
-    cy.viewport(1200, 1000);
+    const updatedStore = initializeCustomFilterStore(getStore());
+    mount({ store: updatedStore });
   });
 
   customFilters.forEach(([filterGroup, criterias, search]) => {
     it(`executes a listing request with ${filterGroup} parameters when ${JSON.stringify(
       criterias
     )} filter is set`, () => {
-      cy.waitForRequest('@filterRequest');
-
       cy.findByLabelText(labelStateFilter).click();
 
       cy.findByText(filterGroup).click();
+      cy.contains(filterGroup);
 
       cy.findByPlaceholderText(labelSearch).should('have.value', search);
 
@@ -332,127 +467,122 @@ describe('Custom filters', () => {
   });
 });
 
-describe('Criterias', () => {
-  beforeEach(() => {
-    initializeRequests();
+views.forEach(({ name, initSearch, ids }) => {
+  describe(`Criterias, view by ${name}`, () => {
+    beforeEach(() => {
+      const updatedStore = setView({ name, store: getStore() });
 
-    cy.mount({
-      Component: <FilterWithProvider />
+      mount({ store: updatedStore });
     });
 
-    cy.viewport(1200, 1000);
-  });
+    it(`displays the criterias interface `, () => {
+      cy.findByLabelText(labelSearchOptions).click();
+      cy.findByText(labelShowMoreFilters).click();
 
-  it(`displays the basic criterias interface`, () => {
-    cy.waitForRequest('@filterRequest');
+      if (
+        equals(name, Visualization.Host) ||
+        equals(name, Visualization.Service)
+      ) {
+        checkInterfaceByView({ ids, initSearch });
+      }
 
-    cy.findByPlaceholderText(labelSearch).clear();
-    cy.findByLabelText(labelSearchOptions).click();
+      if (equals(name, Visualization.Host)) {
+        [
+          categoryHostStatus.UP,
+          categoryHostStatus.DOWN,
+          categoryHostStatus.UNREACHABLE
+        ].forEach((status) => {
+          cy.get(`#${status}`).should('not.exist');
+        });
+      }
 
-    cy.makeSnapshot();
+      cy.makeSnapshot();
+      initialize();
+    });
 
-    cy.findByLabelText(labelSearchOptions).click();
-  });
-  it(`displays more criterias interface when the corresponding button is clicked`, () => {
-    cy.waitForRequest('@filterRequest');
+    CriteriaParams({ view: name }).forEach(([label, data]) => {
+      data.forEach((element) => {
+        const {
+          criteria,
+          value,
+          type,
+          searchValue,
+          requestToWait,
+          views: arrayViews,
+          testId
+        } = element;
 
-    cy.findByPlaceholderText(labelSearch).clear();
-    cy.findByLabelText(labelSearchOptions).click();
-
-    cy.findByText(labelShowMoreFilters).click();
-
-    cy.makeSnapshot();
-
-    cy.findByLabelText(labelSearchOptions).click();
-  });
-
-  CriteriaParams.forEach(([label, data]) => {
-    data.forEach((element) => {
-      const { criteria, value, type, searchValue, requestToWait } = element;
-
-      it(`synchronize the search bar with ${label} interface when selecting ${criteria} criteria value `, () => {
-        cy.waitForRequest('@filterRequest');
-        cy.waitForRequest('@getResources');
-        cy.get('[data-testid="Filter options"]').click();
-
-        if (equals(label, 'Extended criterias')) {
-          cy.findByText(labelShowMoreFilters).click();
-        }
-
-        if (equals(type, Type.select)) {
-          cy.findByTestId(criteria).click();
-          cy.waitForRequest(requestToWait);
-          cy.findByText(value).click();
-          cy.findByPlaceholderText(labelSearch).should(
-            'have.value',
-            searchValue
-          );
-
-          cy.makeSnapshot();
-
+        it(`synchronize the search bar with ${label} interface when selecting ${criteria} criteria value`, () => {
           cy.findByLabelText(labelSearchOptions).click();
-          cy.findByPlaceholderText(labelSearch).clear();
 
-          return;
-        }
-        if (equals(type, Type.checkbox)) {
-          cy.findByText(value).click();
-          cy.findByTestId('CheckBoxIcon').should('be.visible');
-          cy.findByPlaceholderText(labelSearch).should(
-            'have.value',
-            searchValue
-          );
-          cy.makeSnapshot();
+          if (equals(label, 'Extended criterias')) {
+            cy.findByText(labelShowMoreFilters).click();
+          }
 
-          cy.findByText(value).click();
-          cy.findByTestId('CheckBoxIcon').should('not.exist');
+          if (equals(type, Type.select) && arrayViews?.includes(name)) {
+            cy.findByTestId(criteria).click();
+            cy.waitForRequest(requestToWait);
+            cy.findByText(value).click();
+            cy.findByPlaceholderText(labelSearch)
+              .invoke('val')
+              .should('match', searchValue);
 
-          cy.findByPlaceholderText(labelSearch).should(
-            'not.have.value',
-            searchValue
-          );
+            cy.makeSnapshot();
 
-          cy.findByLabelText(labelSearchOptions).click();
-          cy.findByPlaceholderText(labelSearch).clear();
-        }
+            initialize();
+          }
+          if (equals(type, Type.checkbox) && arrayViews?.includes(name)) {
+            cy.findByText(value).click();
+            cy.findByTestId(testId).find(`#${value}`).should('be.checked');
+
+            cy.findByPlaceholderText(labelSearch)
+              .invoke('val')
+              .should('match', searchValue);
+
+            cy.makeSnapshot();
+
+            cy.findByText(value).click();
+            cy.get(`#${value}`).should('not.be.checked');
+
+            cy.findByPlaceholderText(labelSearch).should(
+              'not.have.value',
+              searchValue
+            );
+            initialize();
+          }
+        });
       });
     });
-  });
 
-  it('syncs the information fields with the search bar', () => {
-    cy.waitForRequest('@filterRequest');
+    it(`syncs the information fields with the search bar`, () => {
+      const matchedValue = getSearchValue({
+        value: 'information:Information',
+        viewName: name
+      });
 
-    cy.findByPlaceholderText(labelSearch).clear();
-    cy.findByLabelText(labelSearchOptions).click();
+      const clearedMatchedValue = equals(name, Visualization.Host)
+        ? 'type:host  '
+        : 'type:service,metaservice  ';
 
-    cy.findByText(labelShowMoreFilters).click();
+      cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByPlaceholderText(informationLabel).type('Information');
+      cy.findByText(labelShowMoreFilters).click();
 
-    cy.findByPlaceholderText(labelSearch).should(
-      'have.value',
-      ' information:Information'
-    );
+      cy.findByPlaceholderText(informationLabel).type('Information');
 
-    cy.findByPlaceholderText(informationLabel).clear();
+      cy.findByPlaceholderText(labelSearch)
+        .invoke('val')
+        .should('match', matchedValue);
 
-    cy.findByPlaceholderText(labelSearch).should('have.value', ' ');
+      cy.findByPlaceholderText(informationLabel).clear();
 
-    cy.findByLabelText(labelSearchOptions).click();
-  });
+      cy.findByPlaceholderText(labelSearch).should(
+        'have.value',
+        equals(name, Visualization.All) ? ' ' : clearedMatchedValue
+      );
 
-  it('does not display the host select and host statuses when the view by host is enabled', () => {
-    store.set(selectedVisualizationAtom, Visualization.Host);
-
-    cy.findByPlaceholderText(labelSearch).clear();
-    cy.findByLabelText(labelSearchOptions).click();
-
-    cy.findByTestId('Host').should('not.exist');
-    cy.findByText(labelUp, { exact: true }).should('not.exist');
-
-    cy.makeSnapshot();
-
-    cy.findByLabelText(labelSearchOptions).click();
+      initialize();
+    });
   });
 });
 
@@ -460,16 +590,10 @@ describe('Keyboard actions', () => {
   beforeEach(() => {
     initializeRequests();
 
-    cy.mount({
-      Component: <FilterWithProvider />
-    });
-
-    cy.viewport(1200, 1000);
+    mount({ store: getStore() });
   });
 
   it('accepts the selected autocomplete suggestion when the beginning of a criteria is input and the "enter" key is pressed', () => {
-    cy.waitForRequest('@getResources');
-
     const searchBar = cy.findByPlaceholderText(labelSearch);
 
     searchBar.clear();

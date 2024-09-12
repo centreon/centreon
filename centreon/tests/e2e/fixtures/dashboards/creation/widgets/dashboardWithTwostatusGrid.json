@@ -1,94 +1,100 @@
 {
-   "panels": [
+   "panels":[
       {
-         "id": null,
-         "layout": {
-            "height": 3,
-            "min_height": 3,
-            "min_width": 3,
-            "width": 12,
-            "x": 0,
-            "y": 0
+         "id":null,
+         "layout":{
+            "height":3,
+            "min_height":3,
+            "min_width":3,
+            "width":12,
+            "x":0,
+            "y":0
          },
-         "name": "centreon-widget-statusgrid",
-         "widget_settings": {
-            "data": {
-               "resources": [
+         "name":"centreon-widget-statusgrid",
+         "widget_settings":{
+            "data":{
+               "resources":[
                   {
-                     "resourceType": "host-group",
-                     "resources": [
+                     "resourceType":"host-group",
+                     "resources":[
                         {
-                           "id": 53,
-                           "name": "Linux-Servers"
+                           "id":53,
+                           "name":"Linux-Servers"
                         }
                      ]
                   }
                ]
             },
-            "options": {
-               "resourceType": "host",
-               "viewMode": "standard",
-               "statuses": [
+            "options":{
+               "viewMode":"standard",
+               "resourceType":"host",
+               "statuses":[
                   "up",
-                  "down"
+                  "down",
+                  "success"
                ],
-               "states": [],
-               "sortBy": "status_severity_code",
-               "tiles": 100,
-               "refreshInterval": "default",
-               "description": {
-                  "content": "{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Descirption for status grid\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                  "enabled": true
+               "sortBy":"status_severity_code",
+               "tiles":100,
+               "refreshInterval":"default",
+               "states":[
+
+               ],
+               "description":{
+                  "content":"{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Descirption for status grid\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                  "enabled":true
                },
-               "name": "Title For status grid"
+               "name":"Title For status grid"
             }
          },
-         "widget_type": "/widgets/statusgrid"
+         "widget_type":"/widgets/statusgrid"
       },
       {
-         "id": null,
-         "layout": {
-            "height": 3,
-            "min_height": 3,
-            "min_width": 3,
-            "width": 12,
-            "x": 0,
-            "y": 0
+         "id":null,
+         "layout":{
+            "height":3,
+            "min_height":3,
+            "min_width":3,
+            "width":12,
+            "x":0,
+            "y":3
          },
-         "name": "centreon-widget-statusgrid",
-         "widget_settings": {
-            "data": {
-               "resources": [
+         "name":"centreon-widget-statusgrid",
+         "widget_settings":{
+            "data":{
+               "resources":[
                   {
-                     "resourceType": "host-group",
-                     "resources": [
+                     "resourceType":"host-group",
+                     "resources":[
                         {
-                           "id": 53,
-                           "name": "Linux-Servers"
+                           "id":53,
+                           "name":"Linux-Servers"
                         }
                      ]
                   }
                ]
             },
-            "options": {
-               "resourceType": "host",
-               "viewMode": "standard",
-               "statuses": [
+            "options":{
+               "viewMode":"standard",
+               "resourceType":"host",
+               "statuses":[
                   "up",
-                  "down"
+                  "down",
+                  "success"
                ],
-               "states": [],
-               "sortBy": "status_severity_code",
-               "tiles": 100,
-               "refreshInterval": "default",
-               "description": {
-                  "content": "{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Descirption for status grid\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                  "enabled": true
+               "sortBy":"status_severity_code",
+               "tiles":100,
+               "refreshInterval":"default",
+               "states":[
+
+               ],
+               "description":{
+                  "content":"{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Descirption for status grid\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                  "enabled":true
                },
-               "name": "Title For status grid"
+               "name":"Title For status grid"
             }
          },
-         "widget_type": "/widgets/statusgrid"
+         "widget_type":"/widgets/statusgrid"
       }
    ]
 }

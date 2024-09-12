@@ -134,7 +134,7 @@ it('does not find host notification policy when host is not found by acl user', 
 
 it('returns users, user groups and notification status', function () {
     $this->contact
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
 

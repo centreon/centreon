@@ -16,59 +16,88 @@ on:
 
 jobs:
   check-status:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
       - name: Check workflow statuses and display token usage
-        run: |
-          display_token_usage () {
-            echo "current token usage :"
-            curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .rate
-            echo ""
-          }
-
-          display_token_usage
-          sleep 30s
-
-          ITERATIONS=1
-          while [[ $ITERATIONS -le 60 ]]; do
-              CHECK_SUITES=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r '.conclusion // "pending"') || true
-
-              if [ $(echo $CHECK_SUITES | grep -o -i 'pending' | wc -l) -eq 0 ]; then
-                  echo "Cannot get pull request check status"
-                  exit 1
-              fi
-
-              if [ $(echo $CHECK_SUITES | wc -w) -eq 1 ]; then
-                  echo "this job is the only triggered one"
-                  exit 0
-              fi
-
-              if [ $(echo $CHECK_SUITES | grep -o -i 'failure' | wc -l) -gt 0 ]; then
-                  echo "some jobs have failed"
-                  exit 1
-              fi
-
-              # only remaining pending job should be check-status itself
-              if [ $(echo $CHECK_SUITES | grep -o -i 'pending' | wc -l) -eq 1 ]; then
-                  echo "all jobs have passed"
-                  exit 0
-              fi
-
-              if [ $ITERATIONS -lt 60 ]; then
-                  echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/60)"
-                  sleep 30s
-                  display_token_usage
-                  sleep 30s
-                  display_token_usage
-              fi
-
-              ITERATIONS=$((ITERATIONS+1))
-          done
-
-          echo "Timeout : some jobs are still in progress"
-          exit 1
-        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "current rest api rate usage:"
+          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .rate
+          echo ""
+          echo ""
+          echo "current graphql rate usage:"
+          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .resources.graphql
+          echo ""
+          echo ""
+
+      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}
+        with:
+          script: |
+            await exec.exec("sleep 20s");
+
+            for (let i = 0; i < 60; i++) {
+              const failure = [];
+              const cancelled = [];
+              const pending = [];
+
+              const result = await github.rest.checks.listSuitesForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: "${{ github.event.pull_request.head.sha }}"
+              });
+              result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
+                if (slug === 'github-actions') {
+                  if (conclusion === 'failure' || conclusion === 'cancelled') {
+                    failure.push(id);
+                  } else if (conclusion === null) {
+                    pending.push(id);
+                  }
+                  console.log(`check suite ${id} => ${conclusion === null ? 'pending' : conclusion}`);
+                }
+              });
+
+              if (pending.length === 0) {
+                core.setFailed("Cannot get pull request check status");
+                return;
+              }
+
+              if (failure.length > 0) {
+                let failureMessage = '';
+                const failedCheckRuns = [];
+                for await (const suite_id of failure) {
+                  const resultCheckRuns = await github.rest.checks.listForSuite({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    check_suite_id: suite_id
+                  });
+
+                  resultCheckRuns.data.check_runs.forEach(({ conclusion, name, html_url }) => {
+                    if (conclusion === 'failure' || conclusion === 'cancelled') {
+                      failedCheckRuns.push(`<a href="${html_url}">${name} (${conclusion})</a>`);
+                    }
+                  });
+                }
+
+                core.summary.addRaw(`${failedCheckRuns.length} job(s) failed:`, true)
+                core.summary.addList(failedCheckRuns);
+                core.summary.write()
+
+                core.setFailed(`${failure.length} workflow(s) failed`);
+                return;
+              }
+
+              if (pending.length === 1) {
+                core.info("All workflows are ok");
+                return;
+              }
+
+              core.info(`${pending.length} workflows in progress`);
+
+              await exec.exec("sleep 30s");
+            }
+
+            core.setFailed("Timeout: some jobs are still in progress");
