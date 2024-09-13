@@ -63,7 +63,7 @@
     "symfony/uid": "6.4.*",
     "symfony/mime": "6.4.*",
     "monolog/monolog": "^3.3",
-    "symfony/security-core": "6.4.*",
+    "symfony/security-core": "6.4.*"
   },
   "require-dev": {
     "behat/behat": "^3.10",
