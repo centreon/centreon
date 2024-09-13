@@ -462,7 +462,7 @@ class CentreonDB extends PDO
     public function execute(PDOStatement $pdoStatement, ?array $bindParams = null)
     {
         try {
-            if (is_array($bindParams) && empty($bindParams)) {
+            if ($bindParams === []) {
                 throw new CentreonDbException(
                     "To execute the query, bindParams must to be an array filled or null, empty array given",
                     ['bind_params' => $bindParams]
