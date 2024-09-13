@@ -106,7 +106,7 @@ $compound-name = 'compound';
 //good
 $compoundName = 'compound';
 ```
-* For the casting, please use (int)$var instead of intval($var) method.
+* For casting, please use (int)$var instead of intval($var) method.
 
 ```php
 $b = true;
