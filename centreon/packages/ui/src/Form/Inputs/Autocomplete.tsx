@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, isNil, map, not, prop, type } from 'ramda';
+import { equals, isNil, map, not, path, prop, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FormHelperText, Stack } from '@mui/material';
@@ -53,7 +53,8 @@ const Autocomplete = ({
 
   const [inputText, setInputText] = useState('');
 
-  const { values, setFieldValue, errors } = useFormikContext<FormikValues>();
+  const { values, setFieldValue, errors, touched } =
+    useFormikContext<FormikValues>();
 
   const isMultiple = equals(inputType, InputType.MultiAutocomplete);
 
@@ -83,6 +84,10 @@ const Autocomplete = ({
   );
 
   const getError = useCallback((): Array<string> | undefined => {
+    if (!path([...fieldName.split('.')], touched)) {
+      return undefined;
+    }
+
     const error = path([...fieldName.split('.')], errors) as
       | Array<string>
       | string
@@ -111,7 +116,7 @@ const Autocomplete = ({
     const filteredError = formattedError?.filter(Boolean);
 
     return (filteredError as Array<string>) || undefined;
-  }, [errors, fieldName, isMultiple, selectedValues]);
+  }, [errors, fieldName, isMultiple, selectedValues, touched]);
 
   const textChange = useCallback(
     (event): void => setInputText(event.target.value),

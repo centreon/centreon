@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, isEmpty, propEq, reject, split } from 'ramda';
+import { equals, isEmpty, path, propEq, reject, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -64,12 +64,6 @@ const ConnectedAutocomplete = ({
       }
 
       setFieldValue(fieldName, value);
-
-      if (path(fieldNamePath, touched)) {
-        return;
-      }
-
-      setFieldTouched(fieldName, true);
     },
     [fieldName, touched, additionalMemoProps]
   );

@@ -2,11 +2,11 @@ import { ChangeEvent, useCallback, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
 import {
-  path,
   equals,
   gt,
   isEmpty,
   not,
+  path,
   split,
   type as variableType
 } from 'ramda';
@@ -36,15 +36,21 @@ const Text = ({
 
   const [isVisible, setIsVisible] = useState(false);
 
-  const { values, setFieldValue, touched, errors, handleBlur } =
-    useFormikContext<FormikValues>();
+  const {
+    values,
+    setFieldValue,
+    setFieldTouched,
+    touched,
+    errors,
+    handleBlur
+  } = useFormikContext<FormikValues>();
 
   const fieldNamePath = split('.', fieldName);
 
   const changeText = (event: ChangeEvent<HTMLInputElement>): void => {
     const { value } = event.target;
     if (change) {
-      change({ setFieldValue, value });
+      change({ setFieldValue, setFieldTouched, value });
 
       return;
     }

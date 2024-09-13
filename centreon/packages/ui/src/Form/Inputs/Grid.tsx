@@ -2,6 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { InputPropsWithoutGroup } from './models';
 
+import { Typography } from '@mui/material';
 import { getInput } from '.';
 
 interface StylesProps {
@@ -36,7 +37,20 @@ const Grid = ({ grid }: InputPropsWithoutGroup): JSX.Element => {
       {grid?.columns.map((field) => {
         const Input = getInput(field.type);
 
-        return <Input key={field.fieldName} {...field} />;
+        return (
+          <div key={field.fieldName}>
+            {field.additionalLabel && (
+              <Typography
+                sx={{ marginBottom: 0.5, color: 'primary.main' }}
+                className={cx(field?.additionalLabelClassName)}
+                variant="h6"
+              >
+                {field.additionalLabel}
+              </Typography>
+            )}
+            <Input {...field} />
+          </div>
+        );
       })}
     </div>
   );

@@ -1,8 +1,12 @@
 import { PageSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
+import { useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import AddModal from './Form/AddModal';
 import ACListing from './Listing/Listing';
+import { openFormModalAtom } from './atoms';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
 import {
   labelAddNewAgent,
@@ -14,6 +18,10 @@ const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
 
   const { isDataEmpty, isLoading, total, data } = useGetAgentConfigurations();
+
+  const setOpenFormModal = useSetAtom(openFormModalAtom);
+
+  const add = useCallback(() => setOpenFormModal('add'), []);
 
   if (isLoading && isNil(data)) {
     return <PageSkeleton displayHeaderAndNavigation={false} />;
@@ -27,7 +35,10 @@ const AgentConfigurationPage = (): JSX.Element => {
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <DataTable isEmpty={isDataEmpty} variant="listing">
+        <DataTable
+          isEmpty={isDataEmpty}
+          variant={isDataEmpty ? 'grid' : 'listing'}
+        >
           {isDataEmpty && !isLoading ? (
             <DataTable.EmptyState
               aria-label="create"
@@ -38,13 +49,14 @@ const AgentConfigurationPage = (): JSX.Element => {
                   create: t(labelAddNewAgent)
                 }
               }}
-              onCreate={() => undefined}
+              onCreate={add}
             />
           ) : (
             <ACListing rows={data} total={total} isLoading={isLoading} />
           )}
         </DataTable>
       </PageLayout.Body>
+      <AddModal />
     </PageLayout>
   );
 };

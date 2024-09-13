@@ -1,6 +1,7 @@
 import { SelectEntry } from '@centreon/ui';
 import { atom } from 'jotai';
 import { equals, findIndex, remove } from 'ramda';
+import { AgentType } from './models';
 
 export const pageAtom = atom(0);
 export const limitAtom = atom(10);
@@ -15,6 +16,8 @@ export const itemToDeleteAtom = atom<{
   agent: SelectEntry;
   poller?: SelectEntry;
 } | null>(null);
+export const agentTypeFormAtom = atom<AgentType | null>(null);
+export const openFormModalAtom = atom<number | 'add' | null>(null);
 
 export const changeSortAtom = atom(
   null,

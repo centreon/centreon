@@ -3,9 +3,11 @@ import { buildListingEndpoint } from '@centreon/ui';
 export const getAgentConfigurationsEndpoint =
   '/configuration/agent_configurations';
 
+export const pollersEndpoint = '/configuration/monitoring-servers';
+
 export const getPollersEndpoint = (parameters): string =>
   buildListingEndpoint({
-    baseEndpoint: '/configuration/monitoring-servers',
+    baseEndpoint: pollersEndpoint,
     parameters
   });
 
