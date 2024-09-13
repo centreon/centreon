@@ -49,7 +49,9 @@ jobs:
           context: .
           build-args: |
             "VERSION=${{ needs.get-version.outputs.major_version }}"
-            "RELEASE_CLOUD=${{ needs.get-version.outputs.release_cloud }}"
+            "RELEASE_CLOUD=1"
+            #  temporary force release_cloud
+            # "RELEASE_CLOUD=${{ needs.get-version.outputs.release_cloud }}"
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ needs.get-version.outputs.stability == 'unstable' && needs.get-version.outputs.major_version || github.head_ref || github.ref_name }}
