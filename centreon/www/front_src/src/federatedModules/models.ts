@@ -1,4 +1,4 @@
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
@@ -126,4 +126,8 @@ export interface FederatedWidgetProperties {
   singleMetricSelection?: boolean;
   singleResourceSelection?: boolean;
   title: string;
+  message?: {
+    label: string;
+    icon?: string;
+  };
 }
