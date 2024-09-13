@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
@@ -6,9 +6,9 @@ import {
   ClickAwayListener,
   Paper,
   Popper,
-  PopperPlacementType
+  type PopperPlacementType
 } from '@mui/material';
-import { PopperProps } from '@mui/material/Popper';
+import type { PopperProps } from '@mui/material/Popper';
 
 import { IconButton } from '..';
 
@@ -80,7 +80,7 @@ const PopoverMenu = ({
   };
 
   useEffect(() => {
-    if (!canOpen) {
+    if (!canOpen && isOpen) {
       close();
     }
   }, [canOpen]);
