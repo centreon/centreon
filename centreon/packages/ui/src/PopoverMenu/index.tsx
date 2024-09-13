@@ -70,7 +70,7 @@ const PopoverMenu = ({
   };
 
   useEffect(() => {
-    if (!canOpen & isOpen) {
+    if (!canOpen && isOpen) {
       close();
     }
   }, [canOpen]);
