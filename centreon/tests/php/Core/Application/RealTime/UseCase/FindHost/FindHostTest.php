@@ -44,7 +44,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadHostRepositoryInterface::class);
     $this->hostgroupRepository = $this->createMock(ReadHostgroupRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -72,7 +72,7 @@ beforeEach(function () {
     $this->severity = new Severity(1, 'severityName', 10, Severity::HOST_SEVERITY_TYPE_ID, $icon);
 });
 
-it('FindHost not found response as admin', function () {
+it('FindHost not found response as admin', function (): void {
     $findHost = new FindHost(
         $this->repository,
         $this->hostgroupRepository,
@@ -104,7 +104,7 @@ it('FindHost not found response as admin', function () {
     );
 });
 
-it('should present a not found response as non admin', function () {
+it('should present a not found response as non admin', function (): void {
     $findHost = new FindHost(
         $this->repository,
         $this->hostgroupRepository,
@@ -141,7 +141,7 @@ it('should present a not found response as non admin', function () {
     );
 });
 
-it('should find the host as admin', function () {
+it('should find the host as admin', function (): void {
     $findHost = new FindHost(
         $this->repository,
         $this->hostgroupRepository,
@@ -248,7 +248,7 @@ it('should find the host as admin', function () {
     expect($severity['icon']['url'])->toBe($this->severity->getIcon()->getUrl());
 });
 
-it('should find the host as non admin', function () {
+it('should find the host as non admin', function (): void {
     $findHost = new FindHost(
         $this->repository,
         $this->hostgroupRepository,

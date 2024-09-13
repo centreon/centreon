@@ -73,7 +73,7 @@ class LicenseTest extends TestCase
             ->getMock();
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_HEALTHCHECK]
             ->method('check')
-            ->will($this->returnCallback(function () {
+            ->will($this->returnCallback(function (): void {
                     throw new \Exception;
                 }));
 

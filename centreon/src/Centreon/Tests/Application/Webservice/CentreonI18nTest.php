@@ -93,7 +93,7 @@ class CentreonI18nTest extends TestCase
     {
         $this->container->offsetGet(ServiceProvider::CENTREON_I18N_SERVICE)
             ->method('getTranslation')
-            ->will($this->returnCallback(function () {
+            ->will($this->returnCallback(function (): void {
                 throw new \Exception('');
             }));
 

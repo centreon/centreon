@@ -200,7 +200,7 @@ class RequestParameters implements RequestParametersInterface
             self::OPERATOR_NOT_IN
         ];
         $names = [];
-        $searchIn = function ($data) use (&$searchIn, &$names, $notAllowedKeys) {
+        $searchIn = function ($data) use (&$searchIn, &$names, $notAllowedKeys): void {
             foreach ($data as $key => $value) {
                 if (!in_array($key, $names) && !in_array($key, $notAllowedKeys) && !is_int($key)) {
                     $names[] = $key;
@@ -262,7 +262,7 @@ class RequestParameters implements RequestParametersInterface
     {
         $parameters = $this->search;
 
-        $extractFunction = function (string $parameterToExtract, &$parameters) use (&$extractFunction) {
+        $extractFunction = function (string $parameterToExtract, &$parameters) use (&$extractFunction): void {
             foreach ($parameters as $key => &$value) {
                 if ($key === $parameterToExtract) {
                     unset($parameters[$key]);

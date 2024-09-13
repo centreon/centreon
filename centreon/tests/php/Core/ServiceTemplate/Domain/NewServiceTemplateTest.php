@@ -49,7 +49,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} is an empty string",
-        function () use ($field) {
+        function () use ($field): void {
             $template = createNewServiceTemplate();
             call_user_func_array(array($template, 'set' . ucfirst($field)), ['']);
         }
@@ -61,7 +61,7 @@ foreach (
     $tooLongString = str_repeat('a', $length + 1);
     it(
         "should throw an exception when service template {$field} is too long",
-        function () use ($field, $tooLongString) {
+        function () use ($field, $tooLongString): void {
             $template = createNewServiceTemplate();
             call_user_func_array(array($template, 'set' . ucfirst($field)), [$tooLongString]);
         }
@@ -92,7 +92,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} is less than 0",
-        function () use ($field) {
+        function () use ($field): void {
             $template = createNewServiceTemplate();
             call_user_func_array(array($template, 'set' . ucfirst($field)), [-1]);
         }
@@ -120,7 +120,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} is less than 1",
-        function () use ($field) {
+        function () use ($field): void {
             $template = createNewServiceTemplate();
             call_user_func_array(array($template, 'set' . ucfirst($field)), [0]);
         }
@@ -137,7 +137,7 @@ foreach (
 foreach (['commandArgument', 'eventHandlerArgument'] as $field) {
     it(
         "should retrieve all arguments to the {$field} field that were previously added",
-        function () use ($field) {
+        function () use ($field): void {
             $arguments = ['1', '2', '3'];
             $serviceTemplate = createNewServiceTemplate();
             $methodName = 'get' . ucfirst($field) . 's';
@@ -152,7 +152,7 @@ foreach (['commandArgument', 'eventHandlerArgument'] as $field) {
 
 it(
     "should retrieve all notificationTypes that were previously added",
-    function () {
+    function (): void {
         $serviceTemplate = createNewServiceTemplate();
         $notificationTypes = [
             NotificationType::Unknown,
@@ -193,7 +193,7 @@ it(
 
 it(
     "should remove spaces that are too long in the alias",
-    function () {
+    function (): void {
         $serviceTemplate = new NewServiceTemplate('fake_name', '   fake   alias       ok    ');
         expect($serviceTemplate->getAlias())->toBe('fake alias ok');
     }

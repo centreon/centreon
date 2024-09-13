@@ -113,7 +113,7 @@ $eventDispatcher->addEventHandler(
     (function () {
         // We define an event to delete a list of contacts
         $handler = new EventHandler();
-        $handler->setProcessing(function ($arguments) {
+        $handler->setProcessing(function ($arguments): void {
             if (isset($arguments['contact_ids'])) {
                 deleteContactInDB($arguments['contact_ids']);
             }

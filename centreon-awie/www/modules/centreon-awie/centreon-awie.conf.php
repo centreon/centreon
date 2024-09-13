@@ -24,7 +24,7 @@ if (!defined('_MODULE_PATH_')) {
 
 // Autoload
 $sAppPath = _MODULE_PATH_ . '/core/class/';
-spl_autoload_register(function ($sClass) use ($sAppPath) {
+spl_autoload_register(function ($sClass) use ($sAppPath): void {
     $sFilePath = '';
 
     $explodedClassname = explode('\\', $sClass);

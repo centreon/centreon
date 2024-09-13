@@ -123,7 +123,7 @@ function askQuestion($question, $hidden = false)
  * @param string $message Message to show
  * @param bool $showStep Set to true if you want showing steps
  */
-$logs = function ($message, $showStep = true) use (&$currentStep, &$partitionName)
+$logs = function ($message, $showStep = true) use (&$currentStep, &$partitionName): void
 {
     if ($showStep && $currentStep) {
         if (! empty($partitionName)) {

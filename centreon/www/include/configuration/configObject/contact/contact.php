@@ -134,7 +134,7 @@ $eventDispatcher->addEventHandler(
  */
 $deleteEventHandler = new EventHandler();
 $deleteEventHandler->setProcessing(
-    function ($arguments) {
+    function ($arguments): void {
         if (isset($arguments['contact_ids'])) {
             deleteContactInDB($arguments['contact_ids']);
         }
@@ -155,7 +155,7 @@ $eventDispatcher->addEventHandler(
  */
 $synchronizeEventHandler = new EventHandler();
 $synchronizeEventHandler->setProcessing(
-    function ($arguments) {
+    function ($arguments): void {
         if (isset($arguments['contact_ids'])) {
             synchronizeContactWithLdap($arguments['contact_ids']);
         }

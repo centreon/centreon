@@ -179,7 +179,7 @@ abstract class ServiceEntityRepository
 
         // removing
         foreach ($listRemove as $pollerId) {
-            (function () use ($id, $pollerId, $tableName, $columnA, $columnB) {
+            (function () use ($id, $pollerId, $tableName, $columnA, $columnB): void {
                 $sql = "DELETE FROM `{$tableName}` WHERE `{$columnA}` = :{$columnA} AND `{$columnB}` = :{$columnB}";
                 $stmt = $this->db->prepare($sql);
                 $stmt->bindValue(":{$columnA}", $id, \PDO::PARAM_INT);
@@ -191,7 +191,7 @@ abstract class ServiceEntityRepository
 
         // adding
         foreach ($listAdd as $pollerId) {
-            (function () use ($id, $pollerId, $tableName, $columnA, $columnB) {
+            (function () use ($id, $pollerId, $tableName, $columnA, $columnB): void {
                 $sql = "INSERT INTO `{$tableName}` (`{$columnA}`, `{$columnB}`)  VALUES (:{$columnA}, :$columnB)";
                 $stmt = $this->db->prepare($sql);
                 $stmt->bindValue(":{$columnA}", $id, \PDO::PARAM_INT);

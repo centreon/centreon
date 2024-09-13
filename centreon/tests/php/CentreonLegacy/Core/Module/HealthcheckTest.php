@@ -108,7 +108,7 @@ class HealthcheckTest extends TestCase
             ->method('getRequirements')
             ->will($this->returnCallback(function (
                     $checklistDir, &$message, &$customAction, &$warning, &$critical, &$licenseExpiration
-                    ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV) {
+                    ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV): void {
                     $message = $messageV ?: [];
                     $customAction = $customActionV;
                     $warning = $warningV;
@@ -280,7 +280,7 @@ class HealthcheckTest extends TestCase
             ->method('getRequirements')
             ->will($this->returnCallback(function (
                     $checklistDir, &$message, &$customAction, &$warning, &$critical, &$licenseExpiration
-                    ) use ($valueException) {
+                    ) use ($valueException): void {
                     throw new \Exception($valueException);
                 }
         ));

@@ -156,7 +156,7 @@ class CentreonModuleWebserviceTest extends TestCase
             }));
         $container[ServiceProvider::CENTREON_MODULE]
             ->method('remove')
-            ->will($this->returnCallback(function () {
+            ->will($this->returnCallback(function (): void {
                     $funcArgs = func_get_args();
 
                 if ($funcArgs[0] === '' && $funcArgs[1] === '') {
