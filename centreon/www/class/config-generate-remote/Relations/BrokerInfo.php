@@ -76,7 +76,7 @@ class BrokerInfo extends AbstractObject
      *
      * @return void
      */
-    private function cacheBrokerInfo()
+    private function cacheBrokerInfo(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT *
@@ -98,7 +98,7 @@ class BrokerInfo extends AbstractObject
      *
      * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache === 0) {
             $this->cacheBrokerInfo();
@@ -115,7 +115,7 @@ class BrokerInfo extends AbstractObject
      * @return void
      * @throws \Exception
      */
-    public function generateObject(int $configId, array $brokerInfoCache)
+    public function generateObject(int $configId, array $brokerInfoCache): void
     {
         foreach ($brokerInfoCache[$configId] as $value) {
             $this->generateObjectInFile($value);

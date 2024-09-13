@@ -76,7 +76,7 @@ class CentreonTraps
      *
      * @throws PDOException
      */
-    private function setMatchingOptions(int $trapId)
+    private function setMatchingOptions(int $trapId): void
     {
         if ($trapId > 0) {
             $query = "DELETE FROM traps_matching_properties WHERE trap_id = :trapId";
@@ -153,7 +153,7 @@ class CentreonTraps
      *
      * @param $form
      */
-    public function setForm($form)
+    public function setForm($form): void
     {
         $this->form = $form;
     }
@@ -180,7 +180,7 @@ class CentreonTraps
      *
      * @throws PDOException
      */
-    public function delete($traps = [])
+    public function delete($traps = []): void
     {
         $querySelect = "SELECT traps_name FROM `traps` WHERE `traps_id` = :trapsId LIMIT 1";
         $queryDelete = "DELETE FROM traps WHERE traps_id = :trapsId ";
@@ -232,7 +232,7 @@ class CentreonTraps
      *
      * @throws PDOException
      */
-    public function duplicate($traps = [], $nbrDup = [])
+    public function duplicate($traps = [], $nbrDup = []): void
     {
         $querySelectTrap = "SELECT * FROM traps WHERE traps_id = :trapsId LIMIT 1";
         $queryInsertTrapServiceRelation = "

@@ -78,7 +78,7 @@ class HostCategory extends AbstractObject
      *
      * @return void
      */
-    private function cacheHostSeverity()
+    private function cacheHostSeverity(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT hc_name, hc_alias, hc_id, level, icon_id
@@ -98,7 +98,7 @@ class HostCategory extends AbstractObject
      *
      * @return void
      */
-    private function cacheHostSeverityLinked()
+    private function cacheHostSeverityLinked(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             'SELECT hc_id, host_host_id ' .

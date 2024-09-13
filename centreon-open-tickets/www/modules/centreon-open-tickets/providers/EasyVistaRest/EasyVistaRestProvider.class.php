@@ -501,7 +501,7 @@ class EasyVistaRestProvider extends AbstractProvider
         return $result;
     }
 
-    public static function test($info)
+    public static function test($info): void
     {
         // not implemented because there's no known url to test the api connection
     }
@@ -693,7 +693,7 @@ class EasyVistaRestProvider extends AbstractProvider
     *
     * @return void
     */
-    public function closeTicket(&$tickets)
+    public function closeTicket(&$tickets): void
     {
         if ($this->doCloseTicket()) {
             foreach ($tickets as $k => $v) {

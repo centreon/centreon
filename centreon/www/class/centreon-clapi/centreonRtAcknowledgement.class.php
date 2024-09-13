@@ -184,7 +184,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @param array $filter
      * @throws CentreonClapiException
      */
-    public function show($parameters = null, $filter = array())
+    public function show($parameters = null, $filter = array()): void
     {
         if ($parameters !== '') {
             $parsedParameters = $this->parseShowparameters($parameters);
@@ -219,7 +219,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @param $hostList
      * @throws CentreonClapiException
      */
-    public function showHost($hostList)
+    public function showHost($hostList): void
     {
         $fields = array(
             'id',
@@ -290,7 +290,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @param $svcList
      * @throws CentreonClapiException
      */
-    public function showSvc($svcList)
+    public function showSvc($svcList): void
     {
         $serviceAcknowledgementList = array();
         $unknownService = array();
@@ -378,7 +378,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function add($parameters = null)
+    public function add($parameters = null): void
     {
         $parsedParameters = $this->parseParameters($parameters);
 
@@ -408,7 +408,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         $sticky,
         $notify,
         $persistent
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -449,7 +449,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         $sticky,
         $notify,
         $persistent
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -491,7 +491,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function cancel($parameters = null)
+    public function cancel($parameters = null): void
     {
         if (empty($parameters) || is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);

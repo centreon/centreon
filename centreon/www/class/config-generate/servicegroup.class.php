@@ -94,7 +94,7 @@ class Servicegroup extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function getServicegroupFromId($sg_id)
+    private function getServicegroupFromId($sg_id): void
     {
         if (is_null($this->stmt_sg)) {
             $this->stmt_sg = $this->backend_instance->db->prepare("SELECT
@@ -327,7 +327,7 @@ class Servicegroup extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function reset()
+    public function reset(): void
     {
         parent::reset();
         foreach ($this->sg as &$value) {

@@ -151,7 +151,7 @@ class CentreonACLResource extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -193,7 +193,7 @@ class CentreonACLResource extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -226,7 +226,7 @@ class CentreonACLResource extends CentreonObject
      * @param $aclResName
      * @throws CentreonClapiException
      */
-    public function getaclgroup($aclResName)
+    public function getaclgroup($aclResName): void
     {
         if (!isset($aclResName) || !$aclResName) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -422,7 +422,7 @@ class CentreonACLResource extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function addhostexclusion($parameters)
+    public function addhostexclusion($parameters): void
     {
         $this->grant("excludehost", $parameters);
     }
@@ -435,7 +435,7 @@ class CentreonACLResource extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function delhostexclusion($parameters)
+    public function delhostexclusion($parameters): void
     {
         $this->revoke("excludehost", $parameters);
     }

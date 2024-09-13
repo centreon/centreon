@@ -148,7 +148,7 @@ class ServiceTemplate extends AbstractService
      * @return void
      * @throws PDOException
      */
-    private function getServiceGroups($serviceId)
+    private function getServiceGroups($serviceId): void
     {
         $host = Host::getInstance($this->dependencyInjector);
         $servicegroup = Servicegroup::getInstance($this->dependencyInjector);
@@ -278,7 +278,7 @@ class ServiceTemplate extends AbstractService
     /**
      * @return void
      */
-    public function resetLoop()
+    public function resetLoop(): void
     {
         $this->loop_tpl = array();
     }
@@ -287,7 +287,7 @@ class ServiceTemplate extends AbstractService
      * @return void
      * @throws Exception
      */
-    public function reset()
+    public function reset(): void
     {
         $this->current_host_id = null;
         $this->current_host_name = null;

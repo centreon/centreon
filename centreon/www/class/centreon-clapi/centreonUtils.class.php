@@ -127,7 +127,7 @@ class CentreonUtils
         return false;
     }
 
-    public static function setUserName($userName)
+    public static function setUserName($userName): void
     {
         self::$clapiUserName = $userName;
     }
@@ -137,7 +137,7 @@ class CentreonUtils
         return self::$clapiUserName;
     }
 
-    public static function setUserId($userId)
+    public static function setUserId($userId): void
     {
         self::$clapiUserId = $userId;
     }

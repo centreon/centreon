@@ -276,7 +276,7 @@ class Centreon_OpenTickets_Rule
         return $this->_provider->getFormatPopup($args);
     }
 
-    public function save($rule_id, $datas)
+    public function save($rule_id, $datas): void
     {
         $this->_db->beginTransaction();
 
@@ -404,7 +404,7 @@ class Centreon_OpenTickets_Rule
      * @param array $select
      * @return void
      */
-    public function enable($select)
+    public function enable($select): void
     {
         $this->_setActivate($select, 1);
     }
@@ -415,7 +415,7 @@ class Centreon_OpenTickets_Rule
      * @param array $select
      * @return void
      */
-    public function disable($select)
+    public function disable($select): void
     {
         $this->_setActivate($select, 0);
     }
@@ -427,7 +427,7 @@ class Centreon_OpenTickets_Rule
      * @param array $duplicateNb
      * @return void
      */
-    public function duplicate($select = array(), $duplicateNb = array())
+    public function duplicate($select = array(), $duplicateNb = array()): void
     {
         $this->_db->beginTransaction();
         foreach ($select as $ruleId => $val) {

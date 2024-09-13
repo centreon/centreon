@@ -185,7 +185,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testUpgrade()
+    public function testUpgrade(): void
     {
         $query = 'UPDATE widget_models SET ' .
             'title = :title, ' .

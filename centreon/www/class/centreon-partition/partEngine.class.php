@@ -52,7 +52,7 @@ class PartEngine
         ;
     }
 
-    private function createMaxvaluePartition($db, $tableName, $table)
+    private function createMaxvaluePartition($db, $tableName, $table): void
     {
         if ($this->hasMaxValuePartition($db, $table) === false) {
             try {
@@ -118,7 +118,7 @@ class PartEngine
         return $current_time;
     }
 
-    private function updateDailyPartitions($db, $tableName, $table, $lastTime)
+    private function updateDailyPartitions($db, $tableName, $table, $lastTime): void
     {
         $hasMaxValuePartition = $this->hasMaxValuePartition($db, $table);
 
@@ -362,7 +362,7 @@ class PartEngine
      * Load data into new table
      * Delete old table
      */
-    public function migrate($table, $db)
+    public function migrate($table, $db): void
     {
         $tableName = "`" . $table->getSchema() . "`." . $table->getName();
 
@@ -409,7 +409,7 @@ class PartEngine
     /**
      * Update a partitionned table to add new partitions
      */
-    public function updateParts($table, $db)
+    public function updateParts($table, $db): void
     {
         $tableName = "`" . $table->getSchema() . "`." . $table->getName();
 
@@ -481,7 +481,7 @@ class PartEngine
      *
      * @param MysqlTable $table
      */
-    public function backupParts($table, $db)
+    public function backupParts($table, $db): void
     {
         $tableName = "`" . $table->getSchema() . "`." . $table->getName();
         if (!$table->exists()) {

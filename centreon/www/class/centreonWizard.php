@@ -103,7 +103,7 @@ class Centreon_Wizard
      *
      * @return void
      */
-    public function addValues($step, $post)
+    public function addValues($step, $post): void
     {
         /* Reinit */
         $this->_values[$step] = array();

@@ -173,7 +173,7 @@ class HostTemplate extends AbstractHost
      * @return void
      * @throws PDOException
      */
-    private function getHosts()
+    private function getHosts(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             "SELECT {$this->attributes_select}
@@ -266,7 +266,7 @@ class HostTemplate extends AbstractHost
      * @return void
      * @throws Exception
      */
-    public function reset()
+    public function reset(): void
     {
         $this->loop_htpl = array();
         parent::reset();

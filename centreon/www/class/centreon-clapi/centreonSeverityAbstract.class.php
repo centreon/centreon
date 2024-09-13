@@ -54,7 +54,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
      * @param string $parameters
      * @throws CentreonClapiException
      */
-    public function setseverity($parameters)
+    public function setseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         $uniqueLabel = $params[self::ORDER_UNIQUENAME];
@@ -95,7 +95,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
      * @param string $parameters
      * @throws CentreonClapiException
      */
-    public function unsetseverity($parameters)
+    public function unsetseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         $uniqueLabel = $params[self::ORDER_UNIQUENAME];

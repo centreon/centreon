@@ -146,7 +146,7 @@ class CentreonResourceCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -180,7 +180,7 @@ class CentreonResourceCfg extends CentreonObject
     /**
      * @param $resourceId
      */
-    public function insertRelations($resourceId)
+    public function insertRelations($resourceId): void
     {
         $this->setRelations($resourceId, $this->instanceIds);
     }
@@ -233,7 +233,7 @@ class CentreonResourceCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function addPoller($parameters)
+    public function addPoller($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -276,7 +276,7 @@ class CentreonResourceCfg extends CentreonObject
      * @param string $objectName
      * @throws CentreonClapiException
      */
-    public function del($objectName)
+    public function del($objectName): void
     {
         if (is_numeric($objectName)) {
             $objectId = $objectName;
@@ -300,7 +300,7 @@ class CentreonResourceCfg extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {

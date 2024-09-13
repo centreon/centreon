@@ -100,7 +100,7 @@ class CentreonMainCfg
         $this->setEngineOptions();
     }
 
-    private function setBrokerOptions()
+    private function setBrokerOptions(): void
     {
         $this->aDefaultBrokerDirective = array(
             'ui' => '/usr/lib64/centreon-engine/externalcmd.so',
@@ -108,7 +108,7 @@ class CentreonMainCfg
         );
     }
 
-    private function setEngineOptions()
+    private function setEngineOptions(): void
     {
         $this->aInstanceDefaultValues = [
             'log_file' => '/var/log/centreon-engine/centengine.log',

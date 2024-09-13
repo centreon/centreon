@@ -49,7 +49,7 @@ class LicenseTest extends TestCase
         $this->container = null;
     }
 
-    public function testGetLicenseExpiration()
+    public function testGetLicenseExpiration(): void
     {
         $module = 'mod';
         $value = null;
@@ -59,7 +59,7 @@ class LicenseTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testGetLicenseExpirationWithException()
+    public function testGetLicenseExpirationWithException(): void
     {
         $module = 'mod';
         $value = null;
@@ -82,7 +82,7 @@ class LicenseTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testGetLicenseExpirationWithExpirationDate()
+    public function testGetLicenseExpirationWithExpirationDate(): void
     {
         $module = 'mod';
         $value = date(\DateTime::ISO8601);

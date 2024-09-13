@@ -49,7 +49,7 @@ class Connector extends AbstractObject
         'connector_line',
     );
 
-    private function getConnectors()
+    private function getConnectors(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
               $this->attributes_select

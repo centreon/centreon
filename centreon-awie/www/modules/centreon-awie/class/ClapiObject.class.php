@@ -50,7 +50,7 @@ class ClapiObject
      * @param string $value
      * @return void
      */
-    public function addClapiParameter($key, $value)
+    public function addClapiParameter($key, $value): void
     {
         $this->clapiParameters[$key] = $value;
     }
@@ -58,7 +58,7 @@ class ClapiObject
     /**
      * @return void
      */
-    private function connectToClapi()
+    private function connectToClapi(): void
     {
         \CentreonClapi\CentreonUtils::setUserName($this->clapiParameters['username']);
         $this->clapiConnector = \CentreonClapi\CentreonAPI::getInstance(

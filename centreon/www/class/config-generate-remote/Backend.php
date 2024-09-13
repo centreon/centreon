@@ -260,7 +260,7 @@ class Backend
      * @param int $pollerId
      * @return void
      */
-    public function movePath(int $pollerId)
+    public function movePath(int $pollerId): void
     {
         $subdir = dirname($this->fullPath);
         $this->deleteDir($subdir . '/' . $pollerId);

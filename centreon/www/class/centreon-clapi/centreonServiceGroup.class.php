@@ -99,7 +99,7 @@ class CentreonServiceGroup extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -130,7 +130,7 @@ class CentreonServiceGroup extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -149,7 +149,7 @@ class CentreonServiceGroup extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function getparam($parameters = null)
+    public function getparam($parameters = null): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -454,7 +454,7 @@ class CentreonServiceGroup extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function del($objectName)
+    public function del($objectName): void
     {
         $sgId = $this->getObjectId($objectName);
 
@@ -509,7 +509,7 @@ class CentreonServiceGroup extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function enable($objectName)
+    public function enable($objectName): void
     {
         parent::enable($objectName);
 
@@ -527,7 +527,7 @@ class CentreonServiceGroup extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function disable($objectName)
+    public function disable($objectName): void
     {
         parent::disable($objectName);
 

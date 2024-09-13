@@ -198,7 +198,7 @@ class CentreonHostGroupService extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array('service_register' => $this->register);
         if (isset($parameters)) {
@@ -257,7 +257,7 @@ class CentreonHostGroupService extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function del($objectName)
+    public function del($objectName): void
     {
         $params = explode($this->delim, $objectName);
         if (count($params) < 2) {
@@ -322,7 +322,7 @@ class CentreonHostGroupService extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -359,7 +359,7 @@ class CentreonHostGroupService extends CentreonObject
     /**
      * @param $serviceId
      */
-    public function insertRelations($serviceId)
+    public function insertRelations($serviceId): void
     {
         $relObject = new Centreon_Object_Relation_Host_Group_Service($this->dependencyInjector);
         $relObject->insert($this->hgId, $serviceId);
@@ -539,7 +539,7 @@ class CentreonHostGroupService extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getmacro($parameters)
+    public function getmacro($parameters): void
     {
         $tmp = explode($this->delim, $parameters);
         if (count($tmp) < 2) {
@@ -588,7 +588,7 @@ class CentreonHostGroupService extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function setmacro($parameters)
+    public function setmacro($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 4) {
@@ -645,7 +645,7 @@ class CentreonHostGroupService extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function delmacro($parameters)
+    public function delmacro($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 3) {
@@ -694,7 +694,7 @@ class CentreonHostGroupService extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function setseverity($parameters)
+    public function setseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 3) {
@@ -754,7 +754,7 @@ class CentreonHostGroupService extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function unsetseverity($parameters)
+    public function unsetseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {

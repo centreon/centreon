@@ -124,7 +124,7 @@ class CentreonPurgeEngine
      * @return void
      * @throws Exception
      */
-    private function readConfig()
+    private function readConfig(): void
     {
         $query = 'SELECT len_storage_mysql,archive_retention,reporting_retention, ' .
             'len_storage_downtimes, len_storage_comments, audit_log_retention FROM config';
@@ -157,7 +157,7 @@ class CentreonPurgeEngine
      * @return void
      * @throws Exception
      */
-    private function checkTablesPartitioned()
+    private function checkTablesPartitioned(): void
     {
         foreach ($this->tablesToPurge as $name => $value) {
             try {
@@ -183,7 +183,7 @@ class CentreonPurgeEngine
      * @return void
      * @throws Exception
      */
-    public function purge()
+    public function purge(): void
     {
         foreach ($this->tablesToPurge as $table => $parameters) {
             if ($parameters['retention'] > 0) {
@@ -244,7 +244,7 @@ class CentreonPurgeEngine
      * @return void
      * @throws Exception
      */
-    private function purgeOldData($table)
+    private function purgeOldData($table): void
     {
         if (isset($this->tablesToPurge[$table]['custom_query'])) {
             $request = str_replace(
@@ -269,7 +269,7 @@ class CentreonPurgeEngine
      * @return void
      * @throws Exception
      */
-    private function purgeIndexData()
+    private function purgeIndexData(): void
     {
         $request = "UPDATE index_data SET to_delete = '1' WHERE ";
         $request .= "NOT EXISTS(SELECT 1 FROM " . db . ".service WHERE service.service_id = index_data.service_id)";
@@ -285,7 +285,7 @@ class CentreonPurgeEngine
      * @return void
      * @throws Exception
      */
-    private function purgeLogActionModification()
+    private function purgeLogActionModification(): void
     {
         $request = "DELETE FROM log_action_modification WHERE action_log_id " .
             "NOT IN (SELECT action_log_id FROM log_action)";

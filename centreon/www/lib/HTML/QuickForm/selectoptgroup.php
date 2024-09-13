@@ -171,7 +171,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      *
      * @param array $attributes
      */
-    public function parseCustomAttributes(&$attributes)
+    public function parseCustomAttributes(&$attributes): void
     {
         // Check for
         if (isset($attributes['datasourceOrigin']) && ($attributes['datasourceOrigin'] == 'ajax')) {
@@ -378,7 +378,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      * @param string $event
      * @param string $callback
      */
-    public function addJsCallback($event, $callback)
+    public function addJsCallback($event, $callback): void
     {
         $this->_jsCallback .= ' jQuery("#' . $this->getName() . '").on("' . $event . '", function(){ '
             . $callback

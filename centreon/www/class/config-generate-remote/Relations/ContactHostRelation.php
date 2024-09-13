@@ -50,7 +50,7 @@ class ContactHostRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelation(int $hostId, int $contactId)
+    public function addRelation(int $hostId, int $contactId): void
     {
         $relation = [
             'host_host_id' => $hostId,

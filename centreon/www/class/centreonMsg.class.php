@@ -99,7 +99,7 @@ class CentreonMsg
      *
      * @return void
      */
-    public function setTextStyle($style)
+    public function setTextStyle($style): void
     {
         echo "<script type=\"text/javascript\">_setTextStyle(\"$this->div\", \"$style\")</script>";
     }
@@ -109,7 +109,7 @@ class CentreonMsg
      *
      * @return void
      */
-    public function setTextColor($color)
+    public function setTextColor($color): void
     {
         echo "<script type=\"text/javascript\">_setTextColor(\"$this->div\", \"$color\")</script>";
     }
@@ -119,7 +119,7 @@ class CentreonMsg
      *
      * @return void
      */
-    public function setAlign($align)
+    public function setAlign($align): void
     {
         echo "<script type=\"text/javascript\">_setAlign(\"$this->div\", \"$align\")</script>";
     }
@@ -129,7 +129,7 @@ class CentreonMsg
      *
      * @return void
      */
-    public function setValign($align)
+    public function setValign($align): void
     {
         echo "<script type=\"text/javascript\">_setValign(\"$this->div\", \"$align\")</script>";
     }
@@ -139,7 +139,7 @@ class CentreonMsg
      *
      * @return void
      */
-    public function setBackgroundColor($color)
+    public function setBackgroundColor($color): void
     {
         echo "<script type=\"text/javascript\">_setBackgroundColor(\"$this->div\", \"$color\")</script>";
     }
@@ -149,7 +149,7 @@ class CentreonMsg
      *
      * @return void
      */
-    public function setText($str)
+    public function setText($str): void
     {
         echo "<script type=\"text/javascript\">_setText(\"$this->div\", \"$str\")</script>";
     }
@@ -159,7 +159,7 @@ class CentreonMsg
      *
      * @return void
      */
-    public function setImage($img_url)
+    public function setImage($img_url): void
     {
         echo "<script type=\"text/javascript\">_setImage(\"$this->div\", \"$img_url\")</script>";
     }
@@ -171,7 +171,7 @@ class CentreonMsg
      *
      * @return void
      */
-    public function setTimeOut($sec)
+    public function setTimeOut($sec): void
     {
         echo "<script type=\"text/javascript\">"
             . "setTimeout(() => { jQuery(\"#" . $this->div . "\").toggle(); }, " . ($sec * 1000) . ");"
@@ -183,7 +183,7 @@ class CentreonMsg
      *
      * @return void
      */
-    public function clear()
+    public function clear(): void
     {
         echo "<script type=\"text/javascript\">_clear(\"$this->div\")</script>";
     }
@@ -191,7 +191,7 @@ class CentreonMsg
     /**
      * @return void
      */
-    public function nextLine()
+    public function nextLine(): void
     {
         echo "<script type=\"text/javascript\">_nextLine(\"$this->div\")</script>";
     }

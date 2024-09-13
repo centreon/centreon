@@ -51,7 +51,7 @@ class TimePeriodExceptions extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function add(array $object, int $tpId)
+    public function add(array $object, int $tpId): void
     {
         $this->generateObjectInFile($object, $tpId);
     }

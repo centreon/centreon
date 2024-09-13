@@ -184,7 +184,7 @@ class CentreonEngineCfg extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -283,7 +283,7 @@ class CentreonEngineCfg extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -396,7 +396,7 @@ class CentreonEngineCfg extends CentreonObject
      * @param $parameters
      * @throws CentreonClapiException
      */
-    public function addbrokermodule($parameters)
+    public function addbrokermodule($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -445,7 +445,7 @@ class CentreonEngineCfg extends CentreonObject
      * @param $parameters
      * @throws CentreonClapiException
      */
-    public function delbrokermodule($parameters)
+    public function delbrokermodule($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {

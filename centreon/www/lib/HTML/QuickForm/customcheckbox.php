@@ -54,7 +54,7 @@ class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
         return str_replace($matches, $replacements, $this->checkboxTemplate);
     }
 
-    public function setCheckboxTemplate($checkboxTemplate)
+    public function setCheckboxTemplate($checkboxTemplate): void
     {
         $this->checkboxTemplate = $checkboxTemplate;
     }

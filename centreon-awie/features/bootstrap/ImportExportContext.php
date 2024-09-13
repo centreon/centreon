@@ -10,7 +10,7 @@ class ImportExportContext extends CentreonAwieContext
     /**
      * @When I export an object
      */
-    public function iExportAnObject()
+    public function iExportAnObject(): void
     {
         $this->iAmOnTheExportPage();
         $this->assertFind('css', '#contact')->click();
@@ -20,7 +20,7 @@ class ImportExportContext extends CentreonAwieContext
     /**
      * @Then I have a file
      */
-    public function iHaveAFile()
+    public function iHaveAFile(): void
     {
         $mythis = $this;
 

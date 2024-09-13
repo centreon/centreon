@@ -204,7 +204,7 @@ class CentreonUser
      *
      * @throws PDOException
      */
-    public function checkUserStatus($sid, $pearDB)
+    public function checkUserStatus($sid, $pearDB): void
     {
         $query1 = "SELECT contact_admin, contact_id FROM session, contact " .
             "WHERE session.session_id = :session_id" .
@@ -332,7 +332,7 @@ class CentreonUser
      *
      * @return void
      */
-    public function setShowDeprecatedPages(bool $showDeprecatedPages)
+    public function setShowDeprecatedPages(bool $showDeprecatedPages): void
     {
         $this->showDeprecatedPages = $showDeprecatedPages;
     }
@@ -344,7 +344,7 @@ class CentreonUser
      *
      * @return void
      */
-    public function set_id($id)
+    public function set_id($id): void
     {
         $this->user_id = $id;
     }
@@ -354,7 +354,7 @@ class CentreonUser
      *
      * @return void
      */
-    public function set_name($name)
+    public function set_name($name): void
     {
         $this->name = $name;
     }
@@ -364,7 +364,7 @@ class CentreonUser
      *
      * @return void
      */
-    public function set_email($email)
+    public function set_email($email): void
     {
         $this->email = $email;
     }
@@ -374,7 +374,7 @@ class CentreonUser
      *
      * @return void
      */
-    public function set_lang($lang)
+    public function set_lang($lang): void
     {
         $this->lang = $lang;
     }
@@ -384,7 +384,7 @@ class CentreonUser
      *
      * @return void
      */
-    public function set_alias($alias)
+    public function set_alias($alias): void
     {
         $this->alias = $alias;
     }
@@ -394,7 +394,7 @@ class CentreonUser
      *
      * @return void
      */
-    public function set_version($version)
+    public function set_version($version): void
     {
         $this->version = $version;
     }
@@ -547,7 +547,7 @@ class CentreonUser
      * @param int $currentPage
      * @return void
      */
-    public function setCurrentPage($currentPage)
+    public function setCurrentPage($currentPage): void
     {
         $this->currentPage = $currentPage;
     }
@@ -568,7 +568,7 @@ class CentreonUser
      * @param string $theme
      * @return void
      */
-    public function setTheme($theme)
+    public function setTheme($theme): void
     {
         $this->theme = $theme;
     }
@@ -589,7 +589,7 @@ class CentreonUser
      * @param string $token
      * @return void
      */
-    public function setToken($token)
+    public function setToken($token): void
     {
         $this->token = $token;
     }

@@ -228,7 +228,7 @@ class CentreonRtDowntime extends CentreonObject
      * @param array $filter
      * @throws CentreonClapiException
      */
-    public function show($parameters = null, $filter = array())
+    public function show($parameters = null, $filter = array()): void
     {
         if ($parameters !== '') {
             $parsedParameters = $this->parseShowparameters($parameters);
@@ -264,7 +264,7 @@ class CentreonRtDowntime extends CentreonObject
      * @param $hostList
      * @throws CentreonClapiException
      */
-    public function showHost($hostList)
+    public function showHost($hostList): void
     {
         $unknownHost = [];
 
@@ -357,7 +357,7 @@ class CentreonRtDowntime extends CentreonObject
      * @param $svcList
      * @throws CentreonClapiException
      */
-    public function showSvc($svcList)
+    public function showSvc($svcList): void
     {
         $serviceDowntimesList = array();
         $unknownService = array();
@@ -467,7 +467,7 @@ class CentreonRtDowntime extends CentreonObject
      *
      * @throws CentreonClapiException
      */
-    public function add($parameters = null)
+    public function add($parameters = null): void
     {
         $parsedParameters = $this->parseParameters($parameters);
 
@@ -513,7 +513,7 @@ class CentreonRtDowntime extends CentreonObject
         $duration,
         $comment,
         $withServices = true
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -557,7 +557,7 @@ class CentreonRtDowntime extends CentreonObject
         $fixed,
         $duration,
         $comment
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -613,7 +613,7 @@ class CentreonRtDowntime extends CentreonObject
         $duration,
         $comment,
         $withServices = true
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -730,7 +730,7 @@ class CentreonRtDowntime extends CentreonObject
         $fixed,
         $duration,
         $comment
-    ) {
+    ): void {
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
@@ -774,7 +774,7 @@ class CentreonRtDowntime extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function cancel($parameters = null)
+    public function cancel($parameters = null): void
     {
         if (empty($parameters) || is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);

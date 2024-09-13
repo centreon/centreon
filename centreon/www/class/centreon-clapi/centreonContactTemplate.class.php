@@ -94,7 +94,7 @@ class CentreonContactTemplate extends CentreonContact
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {

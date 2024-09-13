@@ -79,7 +79,7 @@ class CentreonXML
      *
      * @return void
      */
-    public function startElement($element_tag)
+    public function startElement($element_tag): void
     {
         $this->buffer->startElement($element_tag);
     }
@@ -89,7 +89,7 @@ class CentreonXML
      *
      * @return void
      */
-    public function endElement()
+    public function endElement(): void
     {
         $this->buffer->endElement();
     }
@@ -103,7 +103,7 @@ class CentreonXML
      *
      * @return void
      */
-    public function text($txt, $cdata = true, $encode = 0)
+    public function text($txt, $cdata = true, $encode = 0): void
     {
         $txt = $this->cleanStr($txt);
         $txt = html_entity_decode($txt);
@@ -142,7 +142,7 @@ class CentreonXML
      *
      * @return void
      */
-    public function writeElement($element_tag, $element_value, $encode = 0)
+    public function writeElement($element_tag, $element_value, $encode = 0): void
     {
         $this->startElement($element_tag);
         $element_value = $this->cleanStr($element_value);
@@ -165,7 +165,7 @@ class CentreonXML
      *
      * @return void
      */
-    public function writeAttribute($att_name, $att_value, $encode = false)
+    public function writeAttribute($att_name, $att_value, $encode = false): void
     {
         $att_value = $this->cleanStr($att_value);
         if ($encode) {
@@ -180,7 +180,7 @@ class CentreonXML
      *
      * @return void
      */
-    public function output()
+    public function output(): void
     {
         $this->buffer->endDocument();
         print $this->buffer->outputMemory(true);
@@ -192,7 +192,7 @@ class CentreonXML
      * @return void
      * @throws RuntimeException
      */
-    public function outputFile($filename = null)
+    public function outputFile($filename = null): void
     {
         $this->buffer->endDocument();
         $content = $this->buffer->outputMemory(true);

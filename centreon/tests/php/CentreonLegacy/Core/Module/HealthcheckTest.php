@@ -118,7 +118,7 @@ class HealthcheckTest extends TestCase
         ));
     }
 
-    public function testCheckWithDotModuleName()
+    public function testCheckWithDotModuleName(): void
     {
         try {
             $this->service->check('.');
@@ -127,7 +127,7 @@ class HealthcheckTest extends TestCase
         }
     }
 
-    public function testCheckWithMissingModule()
+    public function testCheckWithMissingModule(): void
     {
         try {
             $this->service->check('mod');
@@ -136,7 +136,7 @@ class HealthcheckTest extends TestCase
         }
     }
 
-    public function testCheckWithWarning()
+    public function testCheckWithWarning(): void
     {
         $module = 'tmp';
 
@@ -149,7 +149,7 @@ class HealthcheckTest extends TestCase
         }
     }
 
-    public function testCheckWithCritical()
+    public function testCheckWithCritical(): void
     {
         $module = 'tmp';
         $valueMessages = [
@@ -169,7 +169,7 @@ class HealthcheckTest extends TestCase
         }
     }
 
-    public function testCheckWithoutRequirementsFile()
+    public function testCheckWithoutRequirementsFile(): void
     {
         $module = 'tmp1';
 
@@ -182,7 +182,7 @@ class HealthcheckTest extends TestCase
         }
     }
 
-    public function testCheck()
+    public function testCheck(): void
     {
         $module = 'tmp';
         $valueTime = time();
@@ -204,7 +204,7 @@ class HealthcheckTest extends TestCase
         );
     }
 
-    public function testCheckPrepareResponseWithNotFound()
+    public function testCheckPrepareResponseWithNotFound(): void
     {
         $module = 'mod';
         $value = [
@@ -216,7 +216,7 @@ class HealthcheckTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testCheckPrepareResponseWithCritical()
+    public function testCheckPrepareResponseWithCritical(): void
     {
         $module = 'tmp';
         $valueMessages = [
@@ -240,7 +240,7 @@ class HealthcheckTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testCheckPrepareResponseWithWarning()
+    public function testCheckPrepareResponseWithWarning(): void
     {
         $module = 'tmp';
         $valueMessages = [
@@ -264,7 +264,7 @@ class HealthcheckTest extends TestCase
         $this->assertEquals($value, $result);
     }
 
-    public function testCheckPrepareResponseWithException()
+    public function testCheckPrepareResponseWithException(): void
     {
         $module = 'tmp';
         $valueException = 'test exception';
@@ -290,7 +290,7 @@ class HealthcheckTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testCheckPrepareResponse()
+    public function testCheckPrepareResponse(): void
     {
         $module = 'tmp';
         $valueTime = time();
@@ -312,7 +312,7 @@ class HealthcheckTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testReset()
+    public function testReset(): void
     {
         $value = '';
 

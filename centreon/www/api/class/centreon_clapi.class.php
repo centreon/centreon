@@ -60,7 +60,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
     /**
      * {@inheritdoc}
      */
-    public function finalConstruct(\Pimple\Container $dependencyInjector)
+    public function finalConstruct(\Pimple\Container $dependencyInjector): void
     {
         $this->dependencyInjector = $dependencyInjector;
     }
@@ -234,7 +234,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      * Removes carriage returns from $item if string
      * @param $item variable to check
      */
-    private function clearCarriageReturns(&$item)
+    private function clearCarriageReturns(&$item): void
     {
         $item = (is_string($item)) ? str_replace(array("\n", "\t", "\r", "<br/>"), '', $item) : $item;
     }

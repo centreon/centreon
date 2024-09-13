@@ -82,7 +82,7 @@ class Command extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function getMailBin()
+    private function getMailBin(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT
               options.value

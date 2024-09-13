@@ -63,10 +63,10 @@ return RectorConfig::configure()
     ])->withRules([
 //        // ----------------- performance ----------------
 //        CountArrayToEmptyArrayComparisonRector::class, // Change count array comparison to empty array comparison to improve performance
-        ForRepeatedCountToOwnVariableRector::class, // Change count() in for function to own variable
+//        ForRepeatedCountToOwnVariableRector::class, // Change count() in for function to own variable
 //        // -------------- coding quality ----------
 //        CompleteDynamicPropertiesRector::class, // Add missing dynamic properties
-//        AddVoidReturnTypeWhereNoReturnRector::class, // Add return type void to function like without any return
+        AddVoidReturnTypeWhereNoReturnRector::class, // Add return type void to function like without any return
 //        AddClosureVoidReturnTypeWhereNoReturnRector::class, // Add closure return type void if there is no return
 //        AddParamTypeSplFixedArrayRector::class, // Add exact fixed array type in known cases
 //        NestedAnnotationToAttributeRector::class, // Changed nested annotations to attributes

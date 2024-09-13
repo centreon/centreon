@@ -334,7 +334,7 @@ class CentreonAuth
      *
      * @throws PDOException
      */
-    private function checkLocalPassword($password)
+    private function checkLocalPassword($password): void
     {
         if (empty($password)) {
             $this->passwdOk = self::PASSWORD_INVALID;

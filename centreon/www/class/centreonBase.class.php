@@ -130,7 +130,7 @@ class CentreonBase
      *
      * @return void
      */
-    public function setGeneralOption($options)
+    public function setGeneralOption($options): void
     {
         $this->general_opt = $options;
     }

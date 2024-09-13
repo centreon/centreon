@@ -50,7 +50,7 @@ class TrapsServiceRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelation(int $trapsId, int $serviceId)
+    public function addRelation(int $trapsId, int $serviceId): void
     {
         $relation = [
             'traps_id' => $trapsId,

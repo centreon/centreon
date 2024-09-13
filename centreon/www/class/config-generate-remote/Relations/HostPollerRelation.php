@@ -47,7 +47,7 @@ class HostPollerRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelation(int $pollerId, int $hostId)
+    public function addRelation(int $pollerId, int $hostId): void
     {
         $relation = [
             'nagios_server_id' => $pollerId,

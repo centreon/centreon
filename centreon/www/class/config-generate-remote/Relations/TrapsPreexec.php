@@ -71,7 +71,7 @@ class TrapsPreexec extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrapPreexec()
+    private function cacheTrapPreexec(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT *
@@ -112,7 +112,7 @@ class TrapsPreexec extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function generateObject($trapId, $trapPreexecCache)
+    public function generateObject($trapId, $trapPreexecCache): void
     {
         foreach ($trapPreexecCache as $value) {
             $this->generateObjectInFile($value);

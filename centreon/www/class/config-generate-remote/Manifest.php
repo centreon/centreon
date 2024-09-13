@@ -91,7 +91,7 @@ class Manifest extends AbstractObject
      * @param int $remoteId
      * @return void
      */
-    public function addRemoteServer(int $remoteId)
+    public function addRemoteServer(int $remoteId): void
     {
         $this->manifest['remote_server'] = $remoteId;
     }
@@ -102,7 +102,7 @@ class Manifest extends AbstractObject
      * @param int $pollerId
      * @return void
      */
-    public function addPoller(int $pollerId)
+    public function addPoller(int $pollerId): void
     {
         $this->manifest['pollers'][] = $pollerId;
     }
@@ -116,7 +116,7 @@ class Manifest extends AbstractObject
      * @param array $columns
      * @return void
      */
-    public function addFile(string $filename, string $type, string $table, array $columns)
+    public function addFile(string $filename, string $type, string $table, array $columns): void
     {
         $this->manifest['import']['data'][$filename] = [
             'filename' => $filename,
@@ -131,7 +131,7 @@ class Manifest extends AbstractObject
      *
      * @return void
      */
-    public function clean()
+    public function clean(): void
     {
         $this->manifest['date'] = date('l jS \of F Y h:i:s A');
         $this->manifest['import']['data'] = [];

@@ -119,7 +119,7 @@ class WidgetTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testGetWidgetPath()
+    public function testGetWidgetPath(): void
     {
         $widget = new Widget(new Container($this->container), $this->information, 'MyWidget', $this->utils);
         $path = $widget->getWidgetPath('MyWidget');

@@ -103,7 +103,7 @@ class CentreonTimePeriod extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -145,7 +145,7 @@ class CentreonTimePeriod extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -194,7 +194,7 @@ class CentreonTimePeriod extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function setexception($parameters)
+    public function setexception($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (($tpId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) == 0) {
@@ -234,7 +234,7 @@ class CentreonTimePeriod extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function delexception($parameters)
+    public function delexception($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (($tpId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) == 0) {
@@ -268,7 +268,7 @@ class CentreonTimePeriod extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getexception($parameters)
+    public function getexception($parameters): void
     {
         if (($tpId = $this->getObjectId($parameters)) == 0) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $parameters);

@@ -73,7 +73,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      * @param int $skey
      * @return void
      */
-    public function insert($fkey, $skey = null)
+    public function insert($fkey, $skey = null): void
     {
         $sql = "SELECT MAX(`order`) as maxorder FROM " . $this->relationTable . " WHERE " . $this->secondKey . " = ?";
         $res = $this->db->query($sql, array($skey));

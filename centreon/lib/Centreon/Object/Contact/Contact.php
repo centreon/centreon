@@ -166,7 +166,7 @@ class Centreon_Object_Contact extends \Centreon_Object
     /**
      * @inheritDoc
      */
-    public function update($contactId, $params = array())
+    public function update($contactId, $params = array()): void
     {
         $sql = "UPDATE $this->table SET ";
         $sqlUpdate = "";

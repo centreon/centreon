@@ -122,7 +122,7 @@ class HostTemplate extends AbstractHost
      *
      * @return void
      */
-    private function getHosts()
+    private function getHosts(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT $this->attributesSelect

@@ -259,7 +259,7 @@ class CentreonXMLBGRequest
     /**
      * @return void
      */
-    private function isUserAdmin()
+    private function isUserAdmin(): void
     {
         $statement = $this->DB->prepare("SELECT contact_admin, contact_id FROM contact " .
             "WHERE contact.contact_id = :userId LIMIT 1");
@@ -326,7 +326,7 @@ class CentreonXMLBGRequest
      *
      * @return void
      */
-    public function header()
+    public function header(): void
     {
         /* Force no encoding compress */
         $encoding = false;
@@ -356,7 +356,7 @@ class CentreonXMLBGRequest
     /**
      * @return void
      */
-    public function getDefaultFilters()
+    public function getDefaultFilters(): void
     {
         $this->defaultPoller = -1;
         $this->defaultHostgroups = null;
@@ -380,7 +380,7 @@ class CentreonXMLBGRequest
      *
      * @return void
      */
-    public function setInstanceHistory($instance)
+    public function setInstanceHistory($instance): void
     {
         $_SESSION['monitoring_default_poller'] = $instance;
     }
@@ -390,7 +390,7 @@ class CentreonXMLBGRequest
      *
      * @return void
      */
-    public function setHostGroupsHistory($hg)
+    public function setHostGroupsHistory($hg): void
     {
         $_SESSION['monitoring_default_hostgroups'] = $hg;
     }
@@ -400,7 +400,7 @@ class CentreonXMLBGRequest
      *
      * @return void
      */
-    public function setServiceGroupsHistory($sg)
+    public function setServiceGroupsHistory($sg): void
     {
         $_SESSION['monitoring_default_servicegroups'] = $sg;
     }
@@ -410,7 +410,7 @@ class CentreonXMLBGRequest
      *
      * @return void
      */
-    public function setCriticality($criticality)
+    public function setCriticality($criticality): void
     {
         $_SESSION['criticality_id'] = $criticality;
     }

@@ -256,7 +256,7 @@ class Engine extends AbstractObject
      *
      * @return void
      */
-    private function buildCfgFile($poller_id)
+    private function buildCfgFile($poller_id): void
     {
         $this->engine['cfg_dir'] = preg_replace('/\/$/', '', $this->engine['cfg_dir']);
         $this->cfg_file = array(
@@ -303,7 +303,7 @@ class Engine extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function getBrokerModules()
+    private function getBrokerModules(): void
     {
         if (is_null($this->stmt_broker)) {
             $this->stmt_broker = $this->backend_instance->db->prepare(
@@ -321,7 +321,7 @@ class Engine extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function getIntervalLength()
+    private function getIntervalLength(): void
     {
         if (is_null($this->stmt_interval_length)) {
             $this->stmt_interval_length = $this->backend_instance->db->prepare(
@@ -388,7 +388,7 @@ class Engine extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    private function generate($poller_id)
+    private function generate($poller_id): void
     {
         if (is_null($this->stmt_engine)) {
             $this->stmt_engine = $this->backend_instance->db->prepare(
@@ -454,7 +454,7 @@ class Engine extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    public function generateFromPoller($poller)
+    public function generateFromPoller($poller): void
     {
         Connector::getInstance($this->dependencyInjector)->generateObjects($poller['centreonconnector_path']);
         Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
@@ -467,7 +467,7 @@ class Engine extends AbstractObject
      *
      * @return void
      */
-    public function addCfgPath($cfg_path)
+    public function addCfgPath($cfg_path): void
     {
         $this->add_cfg_files[] = $cfg_path;
     }
@@ -475,7 +475,7 @@ class Engine extends AbstractObject
     /**
      * @return void
      */
-    public function reset()
+    public function reset(): void
     {
         $this->add_cfg_files = array();
     }

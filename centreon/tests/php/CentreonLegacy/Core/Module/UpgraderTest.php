@@ -103,7 +103,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testUpgrader()
+    public function testUpgrader(): void
     {
         $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
             ->disableOriginalConstructor()

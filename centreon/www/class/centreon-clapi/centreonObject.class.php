@@ -175,7 +175,7 @@ abstract class CentreonObject
     /**
      * @param $dependencyInjector
      */
-    public function setDependencyInjector($dependencyInjector)
+    public function setDependencyInjector($dependencyInjector): void
     {
         $this->dependencyInjector = $dependencyInjector;
     }
@@ -306,7 +306,7 @@ abstract class CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function add($parameters)
+    public function add($parameters): void
     {
         $this->initInsertParameters($parameters);
 
@@ -344,7 +344,7 @@ abstract class CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function del($objectName)
+    public function del($objectName): void
     {
         $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($objectName));
         if (count($ids)) {
@@ -364,7 +364,7 @@ abstract class CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getparam($parameters = null)
+    public function getparam($parameters = null): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -378,7 +378,7 @@ abstract class CentreonObject
      * @param array $parameters
      * @throws CentreonClapiException
      */
-    public function setparam($parameters = array())
+    public function setparam($parameters = array()): void
     {
         if (method_exists($this, "initUpdateParameters")) {
             $params = $this->initUpdateParameters($parameters);
@@ -420,7 +420,7 @@ abstract class CentreonObject
      * @return void
      * @throws Exception
      */
-    public function show($params = array(), $filters = array())
+    public function show($params = array(), $filters = array()): void
     {
         echo str_replace("_", " ", implode($this->delim, $params)) . "\n";
         $elements = $this->object->getList(
@@ -468,7 +468,7 @@ abstract class CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function enable($objectName)
+    public function enable($objectName): void
     {
         $this->activate($objectName, '1');
     }
@@ -481,7 +481,7 @@ abstract class CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function disable($objectName)
+    public function disable($objectName): void
     {
         $this->activate($objectName, '0');
     }

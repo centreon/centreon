@@ -85,7 +85,7 @@ class Macro extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function cacheMacroService()
+    private function cacheMacroService(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
               svc_svc_id, svc_macro_name, svc_macro_value, is_password

@@ -77,7 +77,7 @@ class Graph extends AbstractObject
      *
      * @return void
      */
-    private function getGraph()
+    private function getGraph(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT $this->attributesSelect

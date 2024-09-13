@@ -98,7 +98,7 @@ class CentreonACLMenu extends CentreonObject
      * @return mixed|void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -144,7 +144,7 @@ class CentreonACLMenu extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -269,7 +269,7 @@ class CentreonACLMenu extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getaclgroup($aclMenuName)
+    public function getaclgroup($aclMenuName): void
     {
         if (!isset($aclMenuName) || !$aclMenuName) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -334,7 +334,7 @@ class CentreonACLMenu extends CentreonObject
      * @param string $parameters
      * @return void
      */
-    public function grant($parameters)
+    public function grant($parameters): void
     {
         $this->grantRw($parameters);
     }
@@ -348,7 +348,7 @@ class CentreonACLMenu extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function grantRw($parameters)
+    public function grantRw($parameters): void
     {
         list($aclMenuId, $menus, $topologies, $processChildren) = $this->splitParams($parameters);
         foreach ($menus as $level => $menuId) {
@@ -375,7 +375,7 @@ class CentreonACLMenu extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function grantRo($parameters)
+    public function grantRo($parameters): void
     {
         list($aclMenuId, $menus, $topologies, $processChildren) = $this->splitParams($parameters);
         foreach ($menus as $level => $menuId) {
@@ -402,7 +402,7 @@ class CentreonACLMenu extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function revoke($parameters)
+    public function revoke($parameters): void
     {
         list($aclMenuId, $menus, $topologies, $processChildren) = $this->splitParams($parameters);
         foreach ($menus as $level => $menuId) {

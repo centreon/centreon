@@ -71,7 +71,7 @@ abstract class Centreon_Object_Relation
      * @param int $skey
      * @return void
      */
-    public function insert($fkey, $skey = null)
+    public function insert($fkey, $skey = null): void
     {
         $sql = "INSERT INTO $this->relationTable ($this->firstKey, $this->secondKey) VALUES (?, ?)";
         $this->db->query($sql, array($fkey, $skey));
@@ -84,7 +84,7 @@ abstract class Centreon_Object_Relation
      * @param int $skey
      * @return void
      */
-    public function delete($fkey, $skey = null)
+    public function delete($fkey, $skey = null): void
     {
         if (isset($fkey) && isset($skey)) {
             $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ? AND $this->secondKey = ?";

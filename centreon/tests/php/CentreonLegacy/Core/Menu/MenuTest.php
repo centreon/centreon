@@ -52,7 +52,7 @@ class MenuTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    public function testGetGroups()
+    public function testGetGroups(): void
     {
         $this->db->addResultSet(
             'SELECT topology_name, topology_parent, topology_group FROM topology WHERE topology_show = "1" AND topology_page IS NULL ORDER BY topology_group, topology_order',
@@ -85,7 +85,7 @@ class MenuTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    public function testGetColor()
+    public function testGetColor(): void
     {
         $colorPageId3 = '#E4932C';
         $menu = new Menu($this->db);
@@ -99,7 +99,7 @@ class MenuTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    public function testGetMenuLevelOne()
+    public function testGetMenuLevelOne(): void
     {
         $result = array(
             "p2" => array(
@@ -152,7 +152,7 @@ class MenuTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    public function testGetMenuLevelTwo()
+    public function testGetMenuLevelTwo(): void
     {
         $result = array(
             "p2" => array(
@@ -206,7 +206,7 @@ class MenuTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    public function testGetMenuLevelThree()
+    public function testGetMenuLevelThree(): void
     {
         $result = array(
             "p2" => array(

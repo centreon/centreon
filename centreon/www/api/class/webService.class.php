@@ -193,7 +193,7 @@ class CentreonWebService
      * @param mixed $data The values
      * @param integer $code The HTTP code
      */
-    public static function sendResult($data, $code = 200, $format = null)
+    public static function sendResult($data, $code = 200, $format = null): void
     {
         switch ($code) {
             case 500:
@@ -282,7 +282,7 @@ class CentreonWebService
      * @param CentreonUser $user The current user
      * @param boolean $isInternal If the Rest API call is internal
      */
-    public static function router(\Pimple\Container $dependencyInjector, $user, $isInternal = false)
+    public static function router(\Pimple\Container $dependencyInjector, $user, $isInternal = false): void
     {
         global $pearDB;
 

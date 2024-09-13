@@ -56,7 +56,7 @@ class CentreonRestHttp
      *
      * @return void
      */
-    private function insertLog($output, $url, $type = 'RestInternalServerErrorException')
+    private function insertLog($output, $url, $type = 'RestInternalServerErrorException'): void
     {
         if (is_null($this->logObj)) {
             return;
@@ -208,7 +208,7 @@ class CentreonRestHttp
      *
      * @return void
      */
-    public function setProxy($url, $port)
+    public function setProxy($url, $port): void
     {
         if (isset($url) && !empty($url)) {
             $this->proxy = $url;
@@ -222,7 +222,7 @@ class CentreonRestHttp
      * @return void
      * @throws PDOException
      */
-    private function getProxy()
+    private function getProxy(): void
     {
         $db = new CentreonDB();
         $query = 'SELECT `key`, `value` '

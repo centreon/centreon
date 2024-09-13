@@ -201,7 +201,7 @@ class CentreonDependency
      *
      * @throws PDOException
      */
-    public static function purgeObsoleteDependencies($db)
+    public static function purgeObsoleteDependencies($db): void
     {
         $sql = "DELETE FROM dependency WHERE dep_id NOT IN (
             SELECT DISTINCT dep.dependency_dep_id from (

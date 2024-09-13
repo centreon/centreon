@@ -63,7 +63,7 @@ class Host extends AbstractHost
      * @return void
      * @throws PDOException
      */
-    private function getHostGroups(array &$host)
+    private function getHostGroups(array &$host): void
     {
         if (!isset($host['hg'])) {
             if (is_null($this->stmtHg)) {
@@ -98,7 +98,7 @@ class Host extends AbstractHost
      * @return void
      * @throws PDOException
      */
-    private function getServices(array &$host)
+    private function getServices(array &$host): void
     {
         if (is_null($this->stmtService)) {
             $this->stmtService = $this->backendInstance->db->prepare("SELECT
@@ -171,7 +171,7 @@ class Host extends AbstractHost
      * @param array $attr
      * @return void
      */
-    public function addHost(int $hostId, array $attr = [])
+    public function addHost(int $hostId, array $attr = []): void
     {
         $this->hosts[$hostId] = $attr;
     }
@@ -182,7 +182,7 @@ class Host extends AbstractHost
      * @param int $pollerId
      * @return void
      */
-    private function getHosts(int $pollerId)
+    private function getHosts(int $pollerId): void
     {
         // We use host_register = 1 because we don't want _Module_* hosts
         $stmt = $this->backendInstance->db->prepare(
@@ -205,7 +205,7 @@ class Host extends AbstractHost
      * @param array $host
      * @return void
      */
-    public function generateFromHostId(array &$host)
+    public function generateFromHostId(array &$host): void
     {
         $this->getImages($host);
         $this->getMacros($host);
@@ -259,7 +259,7 @@ class Host extends AbstractHost
      * @param int $localhost
      * @return void
      */
-    public function generateFromPollerId(int $pollerId, int $localhost = 0)
+    public function generateFromPollerId(int $pollerId, int $localhost = 0): void
     {
         if (is_null($this->hosts)) {
             $this->getHosts($pollerId);
@@ -317,7 +317,7 @@ class Host extends AbstractHost
      * @param int $hostId
      * @return void
      */
-    public function addGeneratedHost(int $hostId)
+    public function addGeneratedHost(int $hostId): void
     {
         $this->generatedHosts[] = $hostId;
     }

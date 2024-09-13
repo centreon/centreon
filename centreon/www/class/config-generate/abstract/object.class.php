@@ -142,7 +142,7 @@ abstract class AbstractObject
     /**
      * @return void
      */
-    public function close_file()
+    public function close_file(): void
     {
         if (!is_null($this->fp)) {
             fclose($this->fp);
@@ -154,7 +154,7 @@ abstract class AbstractObject
      * @return void
      * @throws Exception
      */
-    public function reset()
+    public function reset(): void
     {
         $this->close_file();
         $this->exported = array();
@@ -184,7 +184,7 @@ abstract class AbstractObject
     /**
      * @return void
      */
-    private function setHeader()
+    private function setHeader(): void
     {
         $header =
             "###################################################################\n" .
@@ -318,7 +318,7 @@ abstract class AbstractObject
      *
      * @return void
      */
-    private function writeNoObject($object)
+    private function writeNoObject($object): void
     {
         foreach ($this->attributes_array as &$attr) {
             if (isset($object[$attr]) && !is_null($object[$attr]) && is_array($object[$attr])) {

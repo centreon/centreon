@@ -68,7 +68,7 @@ class CentreonData
      * @return void
      * @throws Exception
      */
-    public function addJsData($key, $value)
+    public function addJsData($key, $value): void
     {
         if (isset($this->jsData[$key])) {
             throw new Exception(

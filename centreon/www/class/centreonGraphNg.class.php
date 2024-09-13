@@ -204,7 +204,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function initDatabase()
+    private function initDatabase(): void
     {
         $this->db = new CentreonDB(CentreonDB::LABEL_DB_CONFIGURATION);
         $this->dbCs = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
@@ -270,7 +270,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function setMultipleServices($multiple)
+    public function setMultipleServices($multiple): void
     {
         $this->multipleServices = $multiple;
     }
@@ -307,7 +307,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function init()
+    public function init(): void
     {
         $this->setRRDOption("imgformat", "JSONTIME");
         if (isset($this->templateInformations["vertical_label"])) {
@@ -476,7 +476,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function addRealMetric($metric, $hidden = null)
+    private function addRealMetric($metric, $hidden = null): void
     {
         if (!$this->CheckDBAvailability($metric["metric_id"])) {
             return ;
@@ -554,7 +554,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function addVirtualMetric($vmetric, $hidden = null)
+    private function addVirtualMetric($vmetric, $hidden = null): void
     {
         if (isset($this->vmetrics[$vmetric['vmetric_id']])) {
             return ;
@@ -603,7 +603,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function addServiceMetrics($hostId, $serviceId)
+    public function addServiceMetrics($hostId, $serviceId): void
     {
         $indexId = null;
         $stmt = $this->dbCs->prepare(
@@ -701,7 +701,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function addMetric($metricId, $isVirtual = 0)
+    public function addMetric($metricId, $isVirtual = 0): void
     {
         if ($isVirtual == 0) {
             $stmt = $this->dbCs->prepare(
@@ -761,7 +761,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function initCurveList()
+    private function initCurveList(): void
     {
         uasort($this->metrics, array("CentreonGraphNg", "cmpmultiple"));
 
@@ -790,7 +790,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function switchRRDLimitOption($lower = null, $upper = null)
+    private function switchRRDLimitOption($lower = null, $upper = null): void
     {
         if (is_null($lower)) {
             unset($this->rrdOptions["upper-limit"]);
@@ -830,7 +830,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function legendAddPrint($metric, $metricId, $isVirtual = 0)
+    private function legendAddPrint($metric, $metricId, $isVirtual = 0): void
     {
         $vdefs = "";
         $prints = "";
@@ -881,7 +881,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function createLegend()
+    public function createLegend(): void
     {
         foreach ($this->metrics as $metricId => $tm) {
             if ($tm['hidden'] == 1) {
@@ -908,7 +908,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function getDefaultGraphTemplate()
+    private function getDefaultGraphTemplate(): void
     {
         $templateId = $this->getServiceGraphID();
         if (!is_null($templateId) && $templateId != "") {
@@ -975,7 +975,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function getIndexData()
+    private function getIndexData(): void
     {
         if ($this->multipleServices) {
             return ;
@@ -1026,7 +1026,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function setTemplate($templateId = null)
+    public function setTemplate($templateId = null): void
     {
         if ($this->multipleServices) {
             return ;
@@ -1059,7 +1059,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function addArgument($arg)
+    public function addArgument($arg): void
     {
         $this->arguments[] = $arg;
     }
@@ -1072,7 +1072,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function setRRDOption($name, $value = null)
+    public function setRRDOption($name, $value = null): void
     {
         if ($value !== null && strpos($value, " ") !== false) {
             $value = "'" . $value . "'";
@@ -1087,7 +1087,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function formatByMetrics($rrdData)
+    private function formatByMetrics($rrdData): void
     {
         $this->graphData['times'] = [];
 
@@ -1398,7 +1398,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function log($message)
+    private function log($message): void
     {
         if (
             $this->generalOpt['debug_rrdtool']['value'] &&
@@ -1534,7 +1534,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function addIndexId($indexId)
+    private function addIndexId($indexId): void
     {
         if (!isset($this->indexIds[$indexId])) {
             $this->indexIds[$indexId] = 1;

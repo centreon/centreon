@@ -58,22 +58,22 @@ class CentreonExported
     {
     }
 
-    public function arianePush($object, $id, $name)
+    public function arianePush($object, $id, $name): void
     {
         array_push($this->ariane, $object . ':' . $name . ':' . $id);
     }
 
-    public function arianePop()
+    public function arianePop(): void
     {
         array_pop($this->ariane);
     }
 
-    public function setFilter($value = 1)
+    public function setFilter($value = 1): void
     {
         $this->filter = $value;
     }
 
-    public function setOptions($options)
+    public function setOptions($options): void
     {
         if (isset($options['filter-type'])) {
             $this->filter_type = $options['filter-type'];

@@ -140,7 +140,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function resetACL()
+    private function resetACL(): void
     {
         $this->parentTemplates = null;
         $this->resourceGroups = array();
@@ -169,7 +169,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function checkUpdateACL()
+    private function checkUpdateACL(): void
     {
         if (is_null($this->parentTemplates)) {
             $this->loadParentTemplates();
@@ -325,7 +325,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function setResourceGroups()
+    private function setResourceGroups(): void
     {
         $query = "SELECT acl.acl_res_id, acl.acl_res_name "
             . "FROM acl_resources acl, acl_res_group_relations argr "
@@ -345,7 +345,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function setHostGroups()
+    private function setHostGroups(): void
     {
         $this->hostGroups = [];
         $this->hostGroupsAlias = [];
@@ -409,7 +409,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function setPollers()
+    private function setPollers(): void
     {
         $pearDB = CentreonDBInstance::getDbCentreonInstance();
         $query = "SELECT ns.id, ns.name, arpr.acl_res_id "
@@ -441,7 +441,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function setServiceGroups()
+    private function setServiceGroups(): void
     {
         $aclSubRequest = '';
         $bindValues = [];
@@ -492,7 +492,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function setServiceCategories()
+    private function setServiceCategories(): void
     {
         $query = "SELECT sc.sc_id, sc.sc_name, arsr.acl_res_id "
             . "FROM service_categories sc, acl_resources_sc_relations arsr "
@@ -514,7 +514,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function setHostCategories()
+    private function setHostCategories(): void
     {
         $query = "SELECT hc.hc_id, hc.hc_name, arhr.acl_res_id "
             . "FROM hostcategories hc, acl_resources_hc_relations arhr "
@@ -534,7 +534,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function setMetaServices()
+    private function setMetaServices(): void
     {
         $query = "SELECT ms.meta_id, ms.meta_name, arsr.acl_res_id " .
             "FROM meta_service ms, acl_resources_meta_relations arsr " .
@@ -561,7 +561,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function setActions()
+    private function setActions(): void
     {
         $query = "SELECT ar.acl_action_name "
             . "FROM acl_group_actions_relations agar, acl_actions a, acl_actions_rules ar "
@@ -582,7 +582,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function setTopology()
+    private function setTopology(): void
     {
         $this->topology = [];
         $centreonDb = CentreonDBInstance::getDbCentreonInstance();
@@ -778,7 +778,7 @@ class CentreonACL
      *
      * @return void
      */
-    public function getACLStr()
+    public function getACLStr(): void
     {
         $this->topologyStr = empty($this->topology)
             ? "''"
@@ -1296,7 +1296,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function fillTemporaryTable($tmpName, $db, $rows, $fields)
+    private function fillTemporaryTable($tmpName, $db, $rows, $fields): void
     {
         $queryInsert = "INSERT INTO " . $tmpName . ' (';
         $queryValues = "";
@@ -1424,7 +1424,7 @@ class CentreonACL
      *
      * @return void
      */
-    public function destroyTemporaryTable($db, $name = false)
+    public function destroyTemporaryTable($db, $name = false): void
     {
         if (!$name) {
             foreach ($this->tempTableArray as $tmpTable) {
@@ -1787,7 +1787,7 @@ class CentreonACL
     /**
      * Update topologystr value
      */
-    public function updateTopologyStr()
+    public function updateTopologyStr(): void
     {
         $this->setTopology();
         $this->topologyStr = $this->getTopologyString();
@@ -2102,7 +2102,7 @@ class CentreonACL
      *
      * @return void
      */
-    public function updateACL($data = null)
+    public function updateACL($data = null): void
     {
         if (!$this->admin) {
             $groupIds = array_keys($this->accessGroups);
@@ -2262,7 +2262,7 @@ class CentreonACL
      *
      * @return void
      */
-    private function loadParentTemplates()
+    private function loadParentTemplates(): void
     {
         /* Get parents template */
         $this->parentTemplates = array();
@@ -3108,7 +3108,7 @@ class CentreonACL
      * @param array $hosts | hosts to duplicate
      * @return void
      */
-    public static function duplicateHostAcl($hosts = [])
+    public static function duplicateHostAcl($hosts = []): void
     {
         $sql = "INSERT INTO %s (host_host_id, acl_res_id)
             (SELECT %d, acl_res_id FROM %s WHERE host_host_id = %d)";
@@ -3127,7 +3127,7 @@ class CentreonACL
      *
      * @return void
      */
-    public static function duplicateHgAcl($hgs = array())
+    public static function duplicateHgAcl($hgs = array()): void
     {
         $sql = "INSERT INTO %s
                     (hg_hg_id, acl_res_id)
@@ -3147,7 +3147,7 @@ class CentreonACL
      *
      * @return void
      */
-    public static function duplicateSgAcl($sgs = array())
+    public static function duplicateSgAcl($sgs = array()): void
     {
         $sql = "INSERT INTO %s
                     (sg_id, acl_res_id)
@@ -3167,7 +3167,7 @@ class CentreonACL
      *
      * @return void
      */
-    public static function duplicateHcAcl($hcs = array())
+    public static function duplicateHcAcl($hcs = array()): void
     {
         $sql = "INSERT INTO %s
                     (hc_id, acl_res_id)
@@ -3187,7 +3187,7 @@ class CentreonACL
      *
      * @return void
      */
-    public static function duplicateScAcl($scs = array())
+    public static function duplicateScAcl($scs = array()): void
     {
         $sql = "INSERT INTO %s
                     (sc_id, acl_res_id)

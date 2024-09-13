@@ -165,7 +165,7 @@ class CentreonLang
      *
      *  @return void
      */
-    private function setCharsetList()
+    private function setCharsetList(): void
     {
         $this->charsetList = array(
             "ISO-8859-1",
@@ -220,7 +220,7 @@ class CentreonLang
      *
      *  @return void
      */
-    public function bindLang($domain = "messages", $path = "www/locale/")
+    public function bindLang($domain = "messages", $path = "www/locale/"): void
     {
         putenv("LANG=$this->lang");
         setlocale(LC_ALL, $this->lang);
@@ -235,7 +235,7 @@ class CentreonLang
      *  @param string $newLang
      *  @return void
      */
-    public function setLang($newLang)
+    public function setLang($newLang): void
     {
         $this->lang = $newLang;
     }
@@ -256,7 +256,7 @@ class CentreonLang
      *  @param string $newCharset
      *  @return void
      */
-    public function setCharset($newCharset)
+    public function setCharset($newCharset): void
     {
         $this->charset = $newCharset;
     }

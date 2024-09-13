@@ -100,7 +100,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -160,7 +160,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -264,7 +264,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      *
      * @throws PDOException
      */
-    private function listFlow($configId, $tagName, $args)
+    private function listFlow($configId, $tagName, $args): void
     {
         $query = "SELECT config_group_id as id, config_value as name "
             . "FROM cfg_centreonbroker_info "
@@ -290,7 +290,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    private function getFlow($configId, $tagName, $args)
+    private function getFlow($configId, $tagName, $args): void
     {
         if (!isset($args[1]) || $args[1] == '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -322,7 +322,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    private function setFlow($configId, $tagName, $args)
+    private function setFlow($configId, $tagName, $args): void
     {
         if (!isset($args[3])) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -402,7 +402,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    private function addFlow($configId, $tagName, $args)
+    private function addFlow($configId, $tagName, $args): void
     {
         if (!isset($args[2])) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -504,7 +504,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    private function delFlow($configId, $tagName, $args)
+    private function delFlow($configId, $tagName, $args): void
     {
         if (!isset($args[1]) || $args[1] == '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -525,7 +525,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function getTypeList($tagName = "")
+    public function getTypeList($tagName = ""): void
     {
         if ($tagName == "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -557,7 +557,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function getFieldList($typeName)
+    public function getFieldList($typeName): void
     {
         if ($typeName == "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -592,7 +592,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function getValueList($selectName)
+    public function getValueList($selectName): void
     {
         if ($selectName == "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);

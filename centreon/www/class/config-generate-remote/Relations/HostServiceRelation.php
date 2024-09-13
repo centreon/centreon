@@ -48,7 +48,7 @@ class HostServiceRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelationHostService(int $hostId, int $serviceId)
+    public function addRelationHostService(int $hostId, int $serviceId): void
     {
         $relation = [
             'host_host_id' => $hostId,

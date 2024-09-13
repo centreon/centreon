@@ -65,7 +65,7 @@ class CentreonWidgetParamsSelect2 extends CentreonWidgetParams
      * @return void
      * @throws HTML_QuickForm_Error
      */
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {

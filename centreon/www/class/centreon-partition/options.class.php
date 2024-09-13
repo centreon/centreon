@@ -193,7 +193,7 @@ class Options
     /*
      * Update verbose level of program
      */
-    private function updateVerboseLevel()
+    private function updateVerboseLevel(): void
     {
         if (isset($this->options) && isset($this->options["v"])) {
             $this->verbosity = $verbosity;
@@ -219,7 +219,7 @@ class Options
     /*
      * Print program usage
      */
-    public function printHelp()
+    public function printHelp(): void
     {
         echo "Version: $this->version\n";
         echo "Program options:\n";

@@ -400,7 +400,7 @@ class CentreonAPI
      * @param int $returnCode
      * @return void
      */
-    public function setReturnCode($returnCode)
+    public function setReturnCode($returnCode): void
     {
         $this->return_code = $returnCode;
     }
@@ -469,7 +469,7 @@ class CentreonAPI
      * Set user login
      * @param varchar $login
      */
-    public function setLogin($login)
+    public function setLogin($login): void
     {
         $this->login = $login;
     }
@@ -479,7 +479,7 @@ class CentreonAPI
      * Set password of the user
      * @param varchar $password
      */
-    public function setPassword($password)
+    public function setPassword($password): void
     {
         $this->password = trim($password);
     }
@@ -623,7 +623,7 @@ class CentreonAPI
      *
      * return (print) a "\n"
      */
-    public function endOfLine()
+    public function endOfLine(): void
     {
         print "\n";
     }
@@ -632,7 +632,7 @@ class CentreonAPI
      *
      * close the current action
      */
-    public function close()
+    public function close(): void
     {
         print "\n";
         exit($this->return_code);
@@ -644,7 +644,7 @@ class CentreonAPI
      * @param boolean $dbOk | whether db is ok
      * @param int $returnCode
      */
-    public function printHelp($dbOk = true, $returnCode = 0)
+    public function printHelp($dbOk = true, $returnCode = 0): void
     {
         if ($dbOk) {
             $this->printLegals();
@@ -698,7 +698,7 @@ class CentreonAPI
      *
      * Init XML Flow
      */
-    public function initXML()
+    public function initXML(): void
     {
         $this->xmlObj = new CentreonXML();
     }
@@ -969,7 +969,7 @@ class CentreonAPI
      * @param unknown_type $DB
      * @param unknown_type $objname
      */
-    private function iniObject($objname)
+    private function iniObject($objname): void
     {
         $className = '';
         if (
@@ -986,7 +986,7 @@ class CentreonAPI
     /**
      * Init All object instance in order to export all informations
      */
-    private function initAllObjects()
+    private function initAllObjects(): void
     {
         if (count($this->aExport) > 0) {
             foreach ($this->aExport as $oObjet) {
@@ -998,7 +998,7 @@ class CentreonAPI
     /**
      * Check if file exists
      */
-    private function fileExists($filename)
+    private function fileExists($filename): void
     {
         if (!file_exists($filename)) {
             print "$filename : File doesn't exists\n";
@@ -1010,7 +1010,7 @@ class CentreonAPI
      *
      * Print centreon version and legal use
      */
-    public function printLegals()
+    public function printLegals(): void
     {
         $DBRESULT = $this->DB->query("SELECT * FROM informations WHERE `key` = 'version'");
         $data = $DBRESULT->fetchRow();
@@ -1023,7 +1023,7 @@ class CentreonAPI
      *
      * Print centreon version
      */
-    public function printVersion()
+    public function printVersion(): void
     {
         $res = $this->DB->query("SELECT * FROM informations WHERE `key` = 'version'");
         $data = $res->fetchRow();
@@ -1150,7 +1150,7 @@ class CentreonAPI
     /**
      * This method sort the objects to export
      */
-    public function sortClassExport()
+    public function sortClassExport(): void
     {
         if (isset($this->relationObject) && is_array(($this->relationObject))) {
             $aObject = $this->relationObject;

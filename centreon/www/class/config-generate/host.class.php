@@ -75,7 +75,7 @@ class Host extends AbstractHost
      * @return void
      * @throws PDOException
      */
-    private function getHostGroups(&$host)
+    private function getHostGroups(&$host): void
     {
         $host['group_tags'] = $host['group_tags'] ?? [];
 
@@ -105,7 +105,7 @@ class Host extends AbstractHost
      * @return void
      * @throws PDOException
      */
-    private function getParents(&$host)
+    private function getParents(&$host): void
     {
         if (is_null($this->stmt_parent)) {
             $this->stmt_parent = $this->backend_instance->db->prepare("SELECT
@@ -132,7 +132,7 @@ class Host extends AbstractHost
      * @return void
      * @throws PDOException
      */
-    private function getServices(&$host)
+    private function getServices(&$host): void
     {
         if (is_null($this->stmt_service)) {
             $this->stmt_service = $this->backend_instance->db->prepare("SELECT
@@ -514,7 +514,7 @@ class Host extends AbstractHost
      *
      * @return void
      */
-    public function addHost($host_id, $attr = array())
+    public function addHost($host_id, $attr = array()): void
     {
         $this->hosts[$host_id] = $attr;
     }
@@ -525,7 +525,7 @@ class Host extends AbstractHost
      * @return void
      * @throws PDOException
      */
-    private function getHosts($poller_id)
+    private function getHosts($poller_id): void
     {
         # We use host_register = 1 because we don't want _Module_* hosts
         $stmt = $this->backend_instance->db->prepare("SELECT
@@ -585,7 +585,7 @@ class Host extends AbstractHost
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      */
-    public function generateFromHostId(&$host)
+    public function generateFromHostId(&$host): void
     {
         $this->processingFromHost($host);
 
@@ -606,7 +606,7 @@ class Host extends AbstractHost
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      */
-    public function generateFromPollerId($poller_id, $localhost = 0)
+    public function generateFromPollerId($poller_id, $localhost = 0): void
     {
         if (is_null($this->hosts)) {
             $this->getHosts($poller_id);
@@ -659,7 +659,7 @@ class Host extends AbstractHost
      *
      * @return void
      */
-    public function addGeneratedHost($hostId)
+    public function addGeneratedHost($hostId): void
     {
         $this->generatedHosts[] = $hostId;
     }
@@ -710,7 +710,7 @@ class Host extends AbstractHost
      * @return void
      * @throws Exception
      */
-    public function reset()
+    public function reset(): void
     {
         $this->hosts_by_name = array();
         $this->hosts = null;

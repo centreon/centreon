@@ -217,7 +217,7 @@ class CentreonContact extends CentreonObject
      *
      * @throws CentreonClapiException
      */
-    public function del($objectName)
+    public function del($objectName): void
     {
         if (isset($objectName)) {
             $parameters = str_replace(" ", "_", $objectName);
@@ -231,7 +231,7 @@ class CentreonContact extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array('contact_register' => $this->register);
         if (isset($parameters)) {
@@ -273,7 +273,7 @@ class CentreonContact extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -569,7 +569,7 @@ class CentreonContact extends CentreonObject
      * @return void
      * @throws Exception
      */
-    private function exportNotifCommands($objType, $contactId, $contactName)
+    private function exportNotifCommands($objType, $contactId, $contactName): void
     {
         $commandObj = new Centreon_Object_Command($this->dependencyInjector);
         if ($objType == self::HOST_NOTIF_CMD) {

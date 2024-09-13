@@ -47,7 +47,7 @@ class HostCategoriesRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelation(int $hcId, int $hostId)
+    public function addRelation(int $hcId, int $hostId): void
     {
         $relation = [
             'hostcategories_hc_id' => $hcId,

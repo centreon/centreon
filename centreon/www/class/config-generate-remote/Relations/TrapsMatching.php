@@ -76,7 +76,7 @@ class TrapsMatching extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrapMatch()
+    private function cacheTrapMatch(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT *
@@ -117,7 +117,7 @@ class TrapsMatching extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function generateObject($trapId, $trapMatchCache)
+    public function generateObject($trapId, $trapMatchCache): void
     {
         foreach ($trapMatchCache as $value) {
             if ($this->checkGenerate($value['tmo_id'])) {

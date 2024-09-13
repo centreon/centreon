@@ -111,7 +111,7 @@ class CentreonSettings extends CentreonObject
      *
      * @throws PDOException
      */
-    public function show($params = null, $filters = array())
+    public function show($params = null, $filters = array()): void
     {
         $sql = "SELECT `key`, `value` FROM `options` ORDER BY `key`";
         $stmt = $this->db->query($sql);
@@ -132,7 +132,7 @@ class CentreonSettings extends CentreonObject
      * @param null $parameters
      * @return void
      */
-    public function add($parameters = null)
+    public function add($parameters = null): void
     {
         $this->unsupportedMethod(__FUNCTION__);
     }
@@ -142,7 +142,7 @@ class CentreonSettings extends CentreonObject
      *
      * @return void
      */
-    public function del($objectName = null)
+    public function del($objectName = null): void
     {
         $this->unsupportedMethod(__FUNCTION__);
     }
@@ -155,7 +155,7 @@ class CentreonSettings extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function setparam($parameters = null)
+    public function setparam($parameters = null): void
     {
         if (is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);

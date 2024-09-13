@@ -75,7 +75,7 @@ class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInt
      *
      * @param \Pimple\Container $dependencyInjector
      */
-    public function finalConstruct(\Pimple\Container $dependencyInjector)
+    public function finalConstruct(\Pimple\Container $dependencyInjector): void
     {
         $this->dependencyInjector = $dependencyInjector;
     }

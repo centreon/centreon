@@ -126,7 +126,7 @@ class Contact extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function getContactCache()
+    private function getContactCache(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT
                     $this->attributes_select

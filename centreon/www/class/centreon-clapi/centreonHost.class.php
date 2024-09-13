@@ -243,7 +243,7 @@ class CentreonHost extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array('host_register' => $this->register);
 
@@ -274,7 +274,7 @@ class CentreonHost extends CentreonObject
      *
      * @throws Exception
      */
-    public function showbyaddress($parameters = null, $filters = array())
+    public function showbyaddress($parameters = null, $filters = array()): void
     {
         $filters = array('host_register' => $this->register);
 
@@ -305,7 +305,7 @@ class CentreonHost extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -370,7 +370,7 @@ class CentreonHost extends CentreonObject
      *
      * @return void
      */
-    public function insertRelations($hostId)
+    public function insertRelations($hostId): void
     {
         $i = 1;
         $templateRelationObject = new Centreon_Object_Relation_Host_Template_Host($this->dependencyInjector);
@@ -415,7 +415,7 @@ class CentreonHost extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function del($objectName)
+    public function del($objectName): void
     {
         $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
         $hostId = $this->getObjectId($objectName);
@@ -472,7 +472,7 @@ class CentreonHost extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function enable($objectName)
+    public function enable($objectName): void
     {
         parent::enable($objectName);
 
@@ -487,7 +487,7 @@ class CentreonHost extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function disable($objectName)
+    public function disable($objectName): void
     {
         parent::disable($objectName);
 
@@ -502,7 +502,7 @@ class CentreonHost extends CentreonObject
      * @param string $parameters
      * @throws CentreonClapiException
      */
-    public function showinstance($parameters)
+    public function showinstance($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if ($parameters == '') {
@@ -537,7 +537,7 @@ class CentreonHost extends CentreonObject
      * @param string $parameters
      * @throws CentreonClapiException
      */
-    public function setinstance($parameters)
+    public function setinstance($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -563,7 +563,7 @@ class CentreonHost extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function getparam($parameters = null)
+    public function getparam($parameters = null): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -856,7 +856,7 @@ class CentreonHost extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function setseverity($parameters)
+    public function setseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -899,7 +899,7 @@ class CentreonHost extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function unsetseverity($parameters)
+    public function unsetseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 1) {
@@ -951,7 +951,7 @@ class CentreonHost extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getmacro($hostName)
+    public function getmacro($hostName): void
     {
         if (($hostId = $this->getObjectId($hostName)) == 0) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $hostName);
@@ -984,7 +984,7 @@ class CentreonHost extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function setmacro($parameters)
+    public function setmacro($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) == 3) {
@@ -1076,7 +1076,7 @@ class CentreonHost extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function delmacro($parameters)
+    public function delmacro($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (($hostId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) == 0) {
@@ -1198,7 +1198,7 @@ class CentreonHost extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function applytpl($hostName)
+    public function applytpl($hostName): void
     {
         if (!$this->register) {
             throw new CentreonClapiException(self::UNKNOWN_METHOD);
@@ -1959,7 +1959,7 @@ class CentreonHost extends CentreonObject
      *
      * @return void
      */
-    private function addInfosToMacro($storedMacros, &$finalMacros)
+    private function addInfosToMacro($storedMacros, &$finalMacros): void
     {
         foreach ($finalMacros as &$finalMacro) {
             $sInput = $finalMacro['host_macro_name'];
@@ -2015,7 +2015,7 @@ class CentreonHost extends CentreonObject
      *
      * @return void
      */
-    private function setInheritedDescription(&$finalMacro, $description)
+    private function setInheritedDescription(&$finalMacro, $description): void
     {
         $finalMacro['description'] = $description;
         $finalMacro['description'] = $description;
@@ -2027,7 +2027,7 @@ class CentreonHost extends CentreonObject
      *
      * @return void
      */
-    private function setTplValue($tplValue, &$finalMacro)
+    private function setTplValue($tplValue, &$finalMacro): void
     {
         if ($tplValue) {
             $finalMacro['macroTplValue'] = $tplValue;

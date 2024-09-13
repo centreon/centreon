@@ -77,7 +77,7 @@ class TrapsGroup extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrapGroup()
+    private function cacheTrapGroup(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT *
@@ -96,7 +96,7 @@ class TrapsGroup extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrapLinked()
+    private function cacheTrapLinked(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT traps_group_id, traps_id
@@ -138,7 +138,7 @@ class TrapsGroup extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function generateObject(int $trapId, array $trapLinkedCache, array &$object)
+    public function generateObject(int $trapId, array $trapLinkedCache, array &$object): void
     {
         foreach ($trapLinkedCache as $trapGroupId) {
             trapsGroupRelation::getInstance($this->dependencyInjector)->addRelation($trapId, $trapGroupId);

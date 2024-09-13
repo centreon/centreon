@@ -150,7 +150,7 @@ class CentreonFeature
      *
      * @throws PDOException
      */
-    public function saveUserFeaturesValue($userId, $features)
+    public function saveUserFeaturesValue($userId, $features): void
     {
         if (!is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');

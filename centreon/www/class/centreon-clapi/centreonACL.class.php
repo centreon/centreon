@@ -64,7 +64,7 @@ class CentreonACL
      *
      * @return void
      */
-    public function reload($flagOnly = false)
+    public function reload($flagOnly = false): void
     {
         $this->db->query("UPDATE acl_groups SET acl_group_changed = 1");
         $this->db->query("UPDATE acl_resources SET changed = 1");
@@ -79,7 +79,7 @@ class CentreonACL
      *
      * @return void
      */
-    public function lastreload($timeformat = null)
+    public function lastreload($timeformat = null): void
     {
         $res = $this->db->query("SELECT time_launch FROM cron_operation WHERE name LIKE 'centAcl%'");
         $row = $res->fetch();

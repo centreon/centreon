@@ -114,7 +114,7 @@ class CentreonDependency extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -150,7 +150,7 @@ class CentreonDependency extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function add($parameters = null)
+    public function add($parameters = null): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -454,7 +454,7 @@ class CentreonDependency extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function listdep($parameters)
+    public function listdep($parameters): void
     {
         $type = $this->getDependencyType($parameters);
 
@@ -1266,7 +1266,7 @@ class CentreonDependency extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function delparent($parameters)
+    public function delparent($parameters): void
     {
         $this->deleteRelations($parameters, 'parent');
     }
@@ -1279,7 +1279,7 @@ class CentreonDependency extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function delchild($parameters)
+    public function delchild($parameters): void
     {
         $this->deleteRelations($parameters, 'child');
     }
@@ -1292,7 +1292,7 @@ class CentreonDependency extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function addparent($parameters)
+    public function addparent($parameters): void
     {
         $this->addRelations($parameters, 'parent');
     }
@@ -1306,7 +1306,7 @@ class CentreonDependency extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function addchild($parameters)
+    public function addchild($parameters): void
     {
         $this->addRelations($parameters, 'child');
     }
@@ -1318,7 +1318,7 @@ class CentreonDependency extends CentreonObject
      *
      * @return void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): void
     {
         $this->exportHostDep();
         $this->exportServiceDep();

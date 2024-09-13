@@ -71,7 +71,7 @@ class MacroService extends AbstractObject
      *
      * @return void
      */
-    private function cacheMacroService()
+    private function cacheMacroService(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT svc_macro_id, svc_svc_id, svc_macro_name, svc_macro_value, is_password, description

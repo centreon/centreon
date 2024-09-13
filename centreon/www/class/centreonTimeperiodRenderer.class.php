@@ -118,7 +118,7 @@ class CentreonTimeperiodRenderer
      *
      * @return void
      */
-    public function timeBars()
+    public function timeBars(): void
     {
         $coef = 4;
         foreach ($this->timerange as $day => $ranges) {

@@ -147,7 +147,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testInstall()
+    public function testInstall(): void
     {
         $query = 'INSERT INTO widget_models ' .
             '(title, description, url, version, is_internal, directory, author, ' .

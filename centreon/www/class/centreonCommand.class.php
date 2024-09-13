@@ -456,7 +456,7 @@ class CentreonCommand
      * @param bool $locked
      * @throws Exception
      */
-    public function insert($parameters, $locked = false)
+    public function insert($parameters, $locked = false): void
     {
         $queryValues = array();
         $sQuery = 'INSERT INTO command ' .
@@ -501,7 +501,7 @@ class CentreonCommand
      * @param $command
      * @throws Exception
      */
-    public function update($commandId, $command)
+    public function update($commandId, $command): void
     {
         $sQuery = 'UPDATE `command` SET `command_line` = :line, `command_type` = :cType WHERE `command_id` = :id';
         $stmt = $this->db->prepare($sQuery);
@@ -518,7 +518,7 @@ class CentreonCommand
      * @param $commandName
      * @throws Exception
      */
-    public function deleteCommandByName($commandName)
+    public function deleteCommandByName($commandName): void
     {
         $sQuery = 'DELETE FROM command WHERE command_name = :commandName';
         $stmt = $this->db->prepare($sQuery);

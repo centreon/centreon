@@ -196,7 +196,7 @@ abstract class AbstractProvider
      * @param int $widget_id
      * @return void
      */
-    public function setWidgetId($widget_id)
+    public function setWidgetId($widget_id): void
     {
         $this->widget_id = $widget_id;
     }
@@ -205,7 +205,7 @@ abstract class AbstractProvider
      * @param ?string $uniq_id
      * @return void
      */
-    public function setUniqId($uniq_id)
+    public function setUniqId($uniq_id): void
     {
         $this->uniq_id = $uniq_id;
     }
@@ -216,7 +216,7 @@ abstract class AbstractProvider
      * @param mixed $form
      * @return void
      */
-    public function setForm($form)
+    public function setForm($form): void
     {
         $this->submitted_config = $form;
     }
@@ -270,7 +270,7 @@ abstract class AbstractProvider
     /**
      * @return void
      */
-    public function clearUploadFiles()
+    public function clearUploadFiles(): void
     {
         $upload_files = $this->getUploadFiles();
         foreach ($upload_files as $file) {
@@ -928,7 +928,7 @@ Output: {$service.output|substr:0:1024}
     /**
      * @return void
      */
-    public function saveConfig()
+    public function saveConfig(): void
     {
         $this->checkConfigForm();
         $this->save_config = array('clones' => array(), 'simple' => array());
@@ -1757,7 +1757,7 @@ Output: {$service.output|substr:0:1024}
      * @param array<mixed> $tickets
      * @return void
      */
-    public function closeTicket(&$tickets)
+    public function closeTicket(&$tickets): void
     {
         // By default, yes tickets are removed (even no). -1 means a error
         foreach ($tickets as $k => $v) {

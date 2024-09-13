@@ -93,7 +93,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -116,7 +116,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -295,7 +295,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      * @return void
      * @throws CentreonClapiException
      */
-    private function setService($args, $relobj, $categoryId, $hostServiceRel, $obj)
+    private function setService($args, $relobj, $categoryId, $hostServiceRel, $obj): void
     {
         if (!isset($args[1])) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -356,7 +356,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      * @return void
      * @throws CentreonClapiException
      */
-    private function setServiceTemplate($args, $relobj, $obj, $categoryId)
+    private function setServiceTemplate($args, $relobj, $obj, $categoryId): void
     {
         if (!isset($args[1])) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);

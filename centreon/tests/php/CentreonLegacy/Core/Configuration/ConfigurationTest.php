@@ -47,7 +47,7 @@ class ConfigurationTest extends TestCase
         $this->service = new Configuration\Configuration($this->configuration, $this->centreonPath, new Finder());
     }
 
-    public function testGet()
+    public function testGet(): void
     {
         $key = 'opt1';
         $value = $this->configuration[$key];
@@ -57,7 +57,7 @@ class ConfigurationTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testGetWithCentreonPath()
+    public function testGetWithCentreonPath(): void
     {
         $key = Configuration\Configuration::CENTREON_PATH;
         $value = $this->centreonPath;
@@ -67,7 +67,7 @@ class ConfigurationTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testGetModulePath()
+    public function testGetModulePath(): void
     {
         $value = $this->centreonPath . ModuleSource::PATH;
         $result = $this->service->getModulePath();
@@ -75,7 +75,7 @@ class ConfigurationTest extends TestCase
         $this->assertEquals($result, $value);
     }
 
-    public function testGetWidgetPath()
+    public function testGetWidgetPath(): void
     {
         $value = $this->centreonPath . WidgetSource::PATH;
         $result = $this->service->getWidgetPath();

@@ -48,7 +48,7 @@ class FactoryTest extends TestCase
         $this->container = null;
     }
 
-    public function testNewUtils()
+    public function testNewUtils(): void
     {
         $factory = new Utils\Factory($this->container);
         $this->assertInstanceOf(Utils\Utils::class, $factory->newUtils());

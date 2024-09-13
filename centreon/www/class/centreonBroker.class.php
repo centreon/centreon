@@ -60,7 +60,7 @@ class CentreonBroker
      * @return void
      * @throws PDOException
      */
-    public function reload()
+    public function reload(): void
     {
         if ($command = $this->getReloadCommand()) {
             shell_exec("sudo $command");

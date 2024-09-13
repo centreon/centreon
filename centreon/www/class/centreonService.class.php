@@ -472,7 +472,7 @@ class CentreonService
         $isMassiveChange = false,
         $cmdId = false,
         $macroFrom = false
-    ) {
+    ): void {
         if (false === $isMassiveChange) {
             $this->db->query("DELETE FROM on_demand_macro_service
 							WHERE svc_svc_id = " . $this->db->escape($serviceId));
@@ -671,7 +671,7 @@ class CentreonService
      * @return void
      * @throws PDOException
      */
-    public function cleanServiceRelations($table = "", $host_id_field = "", $service_id_field = "")
+    public function cleanServiceRelations($table = "", $host_id_field = "", $service_id_field = ""): void
     {
         $sql = "DELETE FROM {$table}
                     WHERE NOT EXISTS (
@@ -747,7 +747,7 @@ class CentreonService
         $cmdId = false,
         $isMassiveChange = false,
         $macroFrom = false
-    ) {
+    ): void {
         $aListTemplate = getListTemplates($pearDB, $serviceId);
 
         if (!isset($cmdId)) {
@@ -986,7 +986,7 @@ class CentreonService
      *
      * @return void
      */
-    public function purgeOldMacroToForm(&$macroArray, &$form, $fromKey, $macrosArrayToCompare = null)
+    public function purgeOldMacroToForm(&$macroArray, &$form, $fromKey, $macrosArrayToCompare = null): void
     {
         if (isset($form["macroInput"]["#index#"])) {
             unset($form["macroInput"]["#index#"]);
@@ -1334,7 +1334,7 @@ class CentreonService
      *
      * @return void
      */
-    private function addInfosToMacro($storedMacros, &$finalMacros)
+    private function addInfosToMacro($storedMacros, &$finalMacros): void
     {
 
         foreach ($finalMacros as &$finalMacro) {
@@ -1391,7 +1391,7 @@ class CentreonService
      *
      * @return void
      */
-    private function setInheritedDescription(&$finalMacro, $description)
+    private function setInheritedDescription(&$finalMacro, $description): void
     {
         $finalMacro['macroDescription_#index#'] = $description;
         $finalMacro['macroDescription'] = $description;
@@ -1403,7 +1403,7 @@ class CentreonService
      *
      * @return void
      */
-    private function setTplValue($tplValue, &$finalMacro)
+    private function setTplValue($tplValue, &$finalMacro): void
     {
 
         if ($tplValue !== false) {
@@ -1581,7 +1581,7 @@ class CentreonService
      * @return void
      * @throws PDOException
      */
-    public function insertExtendInfo($aDatas)
+    public function insertExtendInfo($aDatas): void
     {
 
         if (empty($aDatas['service_service_id'])) {
@@ -1614,7 +1614,7 @@ class CentreonService
      * @return void
      * @throws PDOException
      */
-    public function update($service_id, $ret)
+    public function update($service_id, $ret): void
     {
         $rq = "UPDATE service SET ";
         $rq .= "service_template_model_stm_id = ";
@@ -1760,7 +1760,7 @@ class CentreonService
      * @return void
      * @throws Exception
      */
-    public function updateExtendedInfos($service_id, $ret)
+    public function updateExtendedInfos($service_id, $ret): void
     {
         $fields = array(
             'esi_notes' => 'esi_notes',
@@ -1909,7 +1909,7 @@ class CentreonService
      *
      * @throws Exception
      */
-    public function deleteServiceByDescription($service_description)
+    public function deleteServiceByDescription($service_description): void
     {
         $sQuery = 'DELETE FROM service '
             . 'WHERE service_description = "' . $this->db->escape($service_description) . '"';
@@ -1929,7 +1929,7 @@ class CentreonService
      *
      * @throws Exception
      */
-    public function setServiceDescription($serviceId, $serviceDescription)
+    public function setServiceDescription($serviceId, $serviceDescription): void
     {
         $query = 'UPDATE service '
             . 'SET service_description = "' . $this->db->escape($serviceDescription) . '" '
@@ -1950,7 +1950,7 @@ class CentreonService
      *
      * @throws Exception
      */
-    public function setServiceAlias($serviceId, $serviceAlias)
+    public function setServiceAlias($serviceId, $serviceAlias): void
     {
         $query = 'UPDATE service '
             . 'SET service_alias = "' . $this->db->escape($serviceAlias) . '" '

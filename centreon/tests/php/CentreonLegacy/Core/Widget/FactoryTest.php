@@ -73,25 +73,25 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testNewInformation()
+    public function testNewInformation(): void
     {
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Information::class, $factory->newInformation());
     }
 
-    public function testNewInstaller()
+    public function testNewInstaller(): void
     {
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Installer::class, $factory->newInstaller('MyWidget'));
     }
     
-    public function testNewUpgrader()
+    public function testNewUpgrader(): void
     {
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Upgrader::class, $factory->newUpgrader('MyWidget'));
     }
     
-    public function testNewRemover()
+    public function testNewRemover(): void
     {
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Remover::class, $factory->newRemover('MyWidget'));

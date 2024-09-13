@@ -831,7 +831,7 @@ class CentreonHost
         $macroDescription = array(),
         $isMassiveChange = false,
         $cmdId = false
-    ) {
+    ): void {
 
         if (false === $isMassiveChange) {
             $query = 'DELETE FROM on_demand_macro_host WHERE host_host_id = :hostId';
@@ -1037,7 +1037,7 @@ class CentreonHost
      * @param array $remaining
      * @throws Exception
      */
-    public function setTemplates($hostId, $templates = array(), $remaining = array())
+    public function setTemplates($hostId, $templates = array(), $remaining = array()): void
     {
         $queryValues = array();
         $explodedValues = '';
@@ -1148,7 +1148,7 @@ class CentreonHost
         &$macroValue,
         &$macroPassword,
         $cmdId = false
-    ) {
+    ): void {
         $aTemplates = $this->getTemplateChain($host_id, array(), -1, true, "host_name,host_id,command_command_id");
 
         if (!isset($cmdId)) {
@@ -1508,7 +1508,7 @@ class CentreonHost
     private function getHostChain(
         $hostId,
         &$alreadyProcessed
-    ) {
+    ): void {
         if (!in_array($hostId, $alreadyProcessed)) {
             $alreadyProcessed[$hostId] = $hostId;
             $query = 'SELECT host_host_id FROM host_template_relation htr
@@ -1718,7 +1718,7 @@ class CentreonHost
         &$form,
         $fromKey,
         $macrosArrayToCompare = null
-    ) {
+    ): void {
         if (isset($form["macroInput"]["#index#"])) {
             unset($form["macroInput"]["#index#"]);
         }
@@ -1816,7 +1816,7 @@ class CentreonHost
      *
      * @return void
      */
-    private function addInfosToMacro($storedMacros, &$finalMacros)
+    private function addInfosToMacro($storedMacros, &$finalMacros): void
     {
         foreach ($finalMacros as &$finalMacro) {
             $sInput = $finalMacro['macroInput_#index#'];
@@ -1872,7 +1872,7 @@ class CentreonHost
      *
      * @return void
      */
-    private function setInheritedDescription(&$finalMacro, $description)
+    private function setInheritedDescription(&$finalMacro, $description): void
     {
         $finalMacro['macroDescription_#index#'] = $description;
         $finalMacro['macroDescription'] = $description;
@@ -1884,7 +1884,7 @@ class CentreonHost
      *
      * @return void
      */
-    private function setTplValue($tplValue, &$finalMacro)
+    private function setTplValue($tplValue, &$finalMacro): void
     {
         if ($tplValue !== false) {
             $finalMacro['macroTplValue_#index#'] = $tplValue;
@@ -2076,7 +2076,7 @@ class CentreonHost
      * @param null $hostTemplateId
      * @throws Exception
      */
-    public function deployServices($hostId, $hostTemplateId = null)
+    public function deployServices($hostId, $hostTemplateId = null): void
     {
         global $centreon;
 
@@ -2286,7 +2286,7 @@ class CentreonHost
      *
      * @throws Exception
      */
-    public function insertExtendedInfos($ret)
+    public function insertExtendedInfos($ret): void
     {
         if (empty($ret['host_id'])) {
             return;
@@ -2327,7 +2327,7 @@ class CentreonHost
      *
      * @throws Exception
      */
-    public function insertRelHostService($iHostId, $iServiceId)
+    public function insertRelHostService($iHostId, $iServiceId): void
     {
         if (empty($iHostId) || empty($iServiceId)) {
             return;
@@ -2348,7 +2348,7 @@ class CentreonHost
      *
      * @throws Exception
      */
-    public function update($hostId, $ret)
+    public function update($hostId, $ret): void
     {
 
         if (isset($ret["command_command_id_arg1"]) && $ret["command_command_id_arg1"] != null) {
@@ -2496,7 +2496,7 @@ class CentreonHost
      *
      * @throws Exception
      */
-    public function updateExtendedInfos($hostId, $ret)
+    public function updateExtendedInfos($hostId, $ret): void
     {
         $fields = array(
             'ehi_notes' => 'ehi_notes',
@@ -2542,7 +2542,7 @@ class CentreonHost
      *
      * @throws Exception
      */
-    public function setPollerInstance($hostId, $pollerId)
+    public function setPollerInstance($hostId, $pollerId): void
     {
         $query = 'INSERT INTO ns_host_relation (host_host_id, nagios_server_id) VALUES (:host,:poller)';
         $stmt = $this->db->prepare($query);
@@ -2642,7 +2642,7 @@ class CentreonHost
      *
      * @throws Exception
      */
-    public function deleteHostByName($hostName)
+    public function deleteHostByName($hostName): void
     {
         $query = 'DELETE FROM host WHERE host_name = :hostName';
         $stmt = $this->db->prepare($query);

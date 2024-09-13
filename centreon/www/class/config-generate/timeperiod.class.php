@@ -89,7 +89,7 @@ class Timeperiod extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    public function getTimeperiods()
+    public function getTimeperiods(): void
     {
         $query = "SELECT $this->attributes_select FROM timeperiod";
         $stmt = $this->backend_instance->db->prepare($query);

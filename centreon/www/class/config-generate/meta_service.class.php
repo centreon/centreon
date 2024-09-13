@@ -111,7 +111,7 @@ class MetaService extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    private function getCtFromMetaId($meta_id)
+    private function getCtFromMetaId($meta_id): void
     {
         if (is_null($this->stmt_contact)) {
             $this->stmt_contact = $this->backend_instance->db->prepare("SELECT 
@@ -138,7 +138,7 @@ class MetaService extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    private function getCgFromMetaId($meta_id)
+    private function getCgFromMetaId($meta_id): void
     {
         if (is_null($this->stmt_cg)) {
             $this->stmt_cg = $this->backend_instance->db->prepare("SELECT 
@@ -190,7 +190,7 @@ class MetaService extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function buildCacheMetaServices()
+    private function buildCacheMetaServices(): void
     {
         $query = "SELECT $this->attributes_select FROM meta_service WHERE meta_activate = '1'";
         $stmt = $this->backend_instance->db->prepare($query);

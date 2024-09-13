@@ -66,7 +66,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testInstall()
+    public function testInstall(): void
     {
         $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
             ->disableOriginalConstructor()

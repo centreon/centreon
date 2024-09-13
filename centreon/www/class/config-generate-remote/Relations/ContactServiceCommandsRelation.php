@@ -50,7 +50,7 @@ class ContactServiceCommandsRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelation(int $contactId, int $cmdId)
+    public function addRelation(int $contactId, int $cmdId): void
     {
         $relation = [
             'contact_contact_id' => $contactId,

@@ -71,7 +71,7 @@ class Hostgroup extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function getHostgroupFromId($hg_id)
+    private function getHostgroupFromId($hg_id): void
     {
         if (is_null($this->stmt_hg)) {
             $this->stmt_hg = $this->backend_instance->db->prepare(
@@ -201,7 +201,7 @@ class Hostgroup extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function reset()
+    public function reset(): void
     {
         parent::reset();
         foreach ($this->hg as &$value) {

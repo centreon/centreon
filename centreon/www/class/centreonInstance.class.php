@@ -267,7 +267,7 @@ class CentreonInstance
      * @return void
      * @throws PDOException
      */
-    public function setCommands($pollerId, $commands)
+    public function setCommands($pollerId, $commands): void
     {
         $this->db->query("DELETE FROM poller_command_relations
                 WHERE poller_id = " . $this->db->escape($pollerId));

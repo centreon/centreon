@@ -426,7 +426,7 @@ class Generate
      * @return void
      * @throws PDOException
      */
-    public function getModuleObjects()
+    public function getModuleObjects(): void
     {
         $this->getInstalledModules();
 

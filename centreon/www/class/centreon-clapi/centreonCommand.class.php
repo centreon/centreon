@@ -112,7 +112,7 @@ class CentreonCommand extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         if (isset($parameters)) {
             $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
@@ -135,7 +135,7 @@ class CentreonCommand extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
 
@@ -207,7 +207,7 @@ class CentreonCommand extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function getparam($parameters = null)
+    public function getparam($parameters = null): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -290,7 +290,7 @@ class CentreonCommand extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function getargumentdesc($objUniqueName)
+    public function getargumentdesc($objUniqueName): void
     {
         if ($objUniqueName != "" && ($objectId = $this->getObjectId($objUniqueName)) != 0) {
             $sql = "SELECT macro_name, macro_description FROM command_arg_description WHERE cmd_id = ?";
@@ -313,7 +313,7 @@ class CentreonCommand extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function setargumentdescr($descriptions)
+    public function setargumentdescr($descriptions): void
     {
         $data = explode($this->delim, trim($descriptions, $this->delim));
         if (count($data) < 1) {

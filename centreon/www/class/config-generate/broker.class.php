@@ -139,7 +139,7 @@ class Broker extends AbstractObjectJSON
      * @return void
      * @throws PDOException
      */
-    private function getExternalValues()
+    private function getExternalValues(): void
     {
         if (!is_null($this->cacheExternalValue)) {
             return;
@@ -191,7 +191,7 @@ class Broker extends AbstractObjectJSON
      * @throws PDOException
      * @throws RuntimeException
      */
-    private function generate($poller_id, $localhost)
+    private function generate($poller_id, $localhost): void
     {
         $this->getExternalValues();
 
@@ -487,7 +487,7 @@ class Broker extends AbstractObjectJSON
      * @return void
      * @throws PDOException
      */
-    private function getEngineParameters($poller_id)
+    private function getEngineParameters($poller_id): void
     {
         if (is_null($this->stmt_engine_parameters)) {
             $this->stmt_engine_parameters = $this->backend_instance->db->prepare("SELECT
@@ -517,7 +517,7 @@ class Broker extends AbstractObjectJSON
      * @throws PDOException
      * @throws RuntimeException
      */
-    public function generateFromPoller($poller)
+    public function generateFromPoller($poller): void
     {
         $this->generate($poller['id'], $poller['localhost']);
     }

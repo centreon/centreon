@@ -118,7 +118,7 @@ class ServiceTemplate extends AbstractService
      * @param int $serviceId
      * @return void
      */
-    private function getServiceGroups(int $serviceId)
+    private function getServiceGroups(int $serviceId): void
     {
         $host = Host::getInstance($this->dependencyInjector);
         $servicegroup = ServiceGroup::getInstance($this->dependencyInjector);
@@ -147,7 +147,7 @@ class ServiceTemplate extends AbstractService
      * @param int $serviceId
      * @return void
      */
-    private function getServiceFromId(int $serviceId)
+    private function getServiceFromId(int $serviceId): void
     {
         if (is_null($this->stmtService)) {
             $this->stmtService = $this->backendInstance->db->prepare(
@@ -250,7 +250,7 @@ class ServiceTemplate extends AbstractService
      *
      * @return void
      */
-    public function resetLoop()
+    public function resetLoop(): void
     {
         $this->loopTpl = [];
     }

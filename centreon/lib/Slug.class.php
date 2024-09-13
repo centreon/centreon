@@ -139,7 +139,7 @@ class Slug implements ArrayAccess
     /**
      * Generate the slug.
      */
-    public function generateSlug()
+    public function generateSlug(): void
     {
         $str = $this->original;
         if ($this['to_lower']) {
@@ -215,7 +215,7 @@ class Slug implements ArrayAccess
      *
      * @param string $char_map The option name
      */
-    public function setCharMap($char_map)
+    public function setCharMap($char_map): void
     {
         $this->char_map = $char_map;
     }
@@ -226,7 +226,7 @@ class Slug implements ArrayAccess
      * @param string $offset The option name
      * @param string $value  The option value
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (is_null($offset)) {
             $this->options[] = $value;
@@ -251,7 +251,7 @@ class Slug implements ArrayAccess
      *
      * @param string $offset The option name
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->options[$offset] = null;
     }

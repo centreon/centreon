@@ -71,7 +71,7 @@ class PlatformTopology extends AbstractObject
      * @return void
      * @throws Exception
      */
-    private function generate(int $remoteServerId)
+    private function generate(int $remoteServerId): void
     {
         if (is_null($this->stmtPlatformTopology)) {
             $this->stmtPlatformTopology = $this->backendInstance->db->prepare(
@@ -100,7 +100,7 @@ class PlatformTopology extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function generateFromRemoteServerId(int $remoteServerId)
+    public function generateFromRemoteServerId(int $remoteServerId): void
     {
         $this->generate($remoteServerId);
     }

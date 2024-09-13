@@ -146,7 +146,7 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testRemove()
+    public function testRemove(): void
     {
         $query = 'DELETE FROM widget_models '
             . 'WHERE directory = :directory '

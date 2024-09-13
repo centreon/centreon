@@ -52,7 +52,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testGetConfiguration()
+    public function testGetConfiguration(): void
     {
         $expectedResult = array(
             'name' => 'MyModule',
@@ -77,7 +77,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($configuration, $expectedResult);
     }
 
-    public function testGetNameById()
+    public function testGetNameById(): void
     {
         $this->db->addResultSet(
             "SELECT name FROM modules_informations WHERE id = :id",
@@ -94,7 +94,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($name, 'MyModule');
     }
 
-    public function testGetList()
+    public function testGetList(): void
     {
         $expectedResult = array(
             'MyModule1' => array(

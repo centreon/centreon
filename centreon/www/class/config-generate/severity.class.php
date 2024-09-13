@@ -114,7 +114,7 @@ class Severity extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function cacheHostSeverity()
+    private function cacheHostSeverity(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             "SELECT hc_name, hc_id, level, icon_id
@@ -133,7 +133,7 @@ class Severity extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function cacheHostSeverityLinked()
+    private function cacheHostSeverityLinked(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             'SELECT hc_id, host_host_id ' .
@@ -222,7 +222,7 @@ class Severity extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function cacheServiceSeverity()
+    private function cacheServiceSeverity(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             "SELECT sc_name, sc_id, level, icon_id
@@ -242,7 +242,7 @@ class Severity extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function cacheServiceSeverityLinked()
+    private function cacheServiceSeverityLinked(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             'SELECT service_categories.sc_id, service_service_id ' .

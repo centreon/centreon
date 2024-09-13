@@ -65,7 +65,7 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
      * @return void
      * @throws HTML_QuickForm_Error
      */
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -99,7 +99,7 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
      * @throws HTML_QuickForm_Error
      * @throws PDOException
      */
-    public function setValue($params)
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {

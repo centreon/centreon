@@ -77,7 +77,7 @@ class CentreonManufacturer extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -94,7 +94,7 @@ class CentreonManufacturer extends CentreonObject
      * @param null $parameters
      * @param array $filters
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -126,7 +126,7 @@ class CentreonManufacturer extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function generatetraps($parameters = null)
+    public function generatetraps($parameters = null): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {

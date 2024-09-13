@@ -92,7 +92,7 @@ class CentreonTrap extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters = null)
+    public function initInsertParameters($parameters = null): void
     {
         if (is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -176,7 +176,7 @@ class CentreonTrap extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -208,7 +208,7 @@ class CentreonTrap extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getmatching($parameters = null)
+    public function getmatching($parameters = null): void
     {
         if (is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -243,7 +243,7 @@ class CentreonTrap extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function addmatching($parameters = null)
+    public function addmatching($parameters = null): void
     {
         if (is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -291,7 +291,7 @@ class CentreonTrap extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function delmatching($parameters = null)
+    public function delmatching($parameters = null): void
     {
         if (is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -307,7 +307,7 @@ class CentreonTrap extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function updatematching($parameters = null)
+    public function updatematching($parameters = null): void
     {
         if (is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);

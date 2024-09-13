@@ -134,7 +134,7 @@ class Dependency extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function getDependencyCache()
+    private function getDependencyCache(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
                     $this->attributes_select
@@ -248,7 +248,7 @@ class Dependency extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function doHost()
+    public function doHost(): void
     {
         $this->object_name = 'hostdependency';
         foreach ($this->dependency_cache as $dp_id => $dependency) {
@@ -282,7 +282,7 @@ class Dependency extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function doService()
+    public function doService(): void
     {
         $this->object_name = 'servicedependency';
         foreach ($this->dependency_cache as $dp_id => $dependency) {
@@ -363,7 +363,7 @@ class Dependency extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function doHostgroup()
+    public function doHostgroup(): void
     {
         $this->object_name = 'hostdependency';
         foreach ($this->dependency_cache as $dp_id => $dependency) {
@@ -400,7 +400,7 @@ class Dependency extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function doServicegroup()
+    public function doServicegroup(): void
     {
         $this->object_name = 'servicedependency';
         foreach ($this->dependency_cache as $dp_id => $dependency) {
@@ -453,7 +453,7 @@ class Dependency extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function reset()
+    public function reset(): void
     {
         $this->generated_dependencies = array();
         parent::reset();

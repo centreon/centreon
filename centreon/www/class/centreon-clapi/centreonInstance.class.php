@@ -113,7 +113,7 @@ class CentreonInstance extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -194,7 +194,7 @@ class CentreonInstance extends CentreonObject
      * @param array $filters
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -275,7 +275,7 @@ class CentreonInstance extends CentreonObject
      * @return void
      * @throws Exception
      */
-    public function getHosts($instanceName)
+    public function getHosts($instanceName): void
     {
         $relObj = new Centreon_Object_Relation_Instance_Host($this->dependencyInjector);
         $fields = array('host_id', 'host_name', 'host_address');

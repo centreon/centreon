@@ -63,7 +63,7 @@ class Media extends AbstractObject
      *
      * @return void
      */
-    private function getMedias()
+    private function getMedias(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT $this->attributesSelect

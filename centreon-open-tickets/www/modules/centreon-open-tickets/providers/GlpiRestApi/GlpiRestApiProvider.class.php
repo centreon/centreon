@@ -1622,7 +1622,7 @@ class GlpiRestApiProvider extends AbstractProvider
     *
     * @return void
     */
-    public function closeTicket(&$tickets)
+    public function closeTicket(&$tickets): void
     {
         if ($this->doCloseTicket()) {
             foreach ($tickets as $k => $v) {

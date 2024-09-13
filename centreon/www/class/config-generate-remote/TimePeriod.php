@@ -75,7 +75,7 @@ class TimePeriod extends AbstractObject
      *
      * @return void
      */
-    public function getTimeperiods()
+    public function getTimeperiods(): void
     {
         $query = "SELECT $this->attributesSelect FROM timeperiod";
         $stmt = $this->backendInstance->db->prepare($query);

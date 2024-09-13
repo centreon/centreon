@@ -172,7 +172,7 @@ class Backend
      * @return void
      * @throws Exception
      */
-    public function initPath($poller_id, $engine = 1)
+    public function initPath($poller_id, $engine = 1): void
     {
         if ($engine == 1) {
             $this->createDirectories(array($this->generate_path, $this->engine_sub));
@@ -211,7 +211,7 @@ class Backend
      *
      * @return void
      */
-    public function movePath($poller_id)
+    public function movePath($poller_id): void
     {
         $subdir = dirname($this->full_path);
         $this->deleteDir($subdir . '/' . $poller_id);
@@ -222,7 +222,7 @@ class Backend
     /**
      * @return void
      */
-    public function cleanPath()
+    public function cleanPath(): void
     {
         $subdir = dirname($this->full_path);
         if (is_dir($this->full_path)) {
@@ -237,7 +237,7 @@ class Backend
      *
      * @return void
      */
-    public function setUserName($username)
+    public function setUserName($username): void
     {
         $this->whoaim = $username;
     }
@@ -255,7 +255,7 @@ class Backend
      *
      * @return void
      */
-    public function setPollerId($poller_id)
+    public function setPollerId($poller_id): void
     {
         $this->poller_id = $poller_id;
     }

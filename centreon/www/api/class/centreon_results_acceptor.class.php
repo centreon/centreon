@@ -72,7 +72,7 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     /*
      * Get poller Listing
      */
-    private function getPollers()
+    private function getPollers(): void
     {
         if (!isset($this->hostServices)) {
             $query = 'SELECT h.host_id, h.host_name, ns.nagios_server_id AS poller_id ' .
@@ -90,7 +90,7 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
     }
 
-    private function getHostServiceInfo()
+    private function getHostServiceInfo(): void
     {
         if (!isset($this->hostServices)) {
             $query = 'SELECT host_name, service_description ' .
@@ -113,7 +113,7 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
     }
 
-    private function openPipe()
+    private function openPipe(): void
     {
         if ($this->fh = @fopen($this->centcore_file, 'a+')) {
             $this->pipeOpened = 1;
@@ -122,13 +122,13 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
     }
 
-    private function closePipe()
+    private function closePipe(): void
     {
         fclose($this->fh);
         $this->pipeOpened = 0;
     }
 
-    private function writeInPipe($string)
+    private function writeInPipe($string): void
     {
         if ($this->pipeOpened == 0) {
             throw new RestBadRequestException("Can't write results because pipe is closed");
@@ -139,7 +139,7 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
     }
 
-    private function sendResults($data)
+    private function sendResults($data): void
     {
         if (!isset($this->pollerHosts['name'][$data["host"]])) {
             throw new RestBadRequestException("Can't find poller_id for host: " . $data["host"]);

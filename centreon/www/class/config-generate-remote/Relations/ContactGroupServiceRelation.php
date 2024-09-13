@@ -50,7 +50,7 @@ class ContactGroupServiceRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelation(int $serviceId, int $cgId)
+    public function addRelation(int $serviceId, int $cgId): void
     {
         $relation = [
             'service_service_id' => $serviceId,

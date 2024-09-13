@@ -93,7 +93,7 @@ class Contact extends AbstractObject
      *
      * @return void
      */
-    private function getContactCache()
+    private function getContactCache(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT $this->attributesSelect
@@ -109,7 +109,7 @@ class Contact extends AbstractObject
      *
      * @return void
      */
-    private function getContactForServiceCache()
+    private function getContactForServiceCache(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT contact_id, service_service_id

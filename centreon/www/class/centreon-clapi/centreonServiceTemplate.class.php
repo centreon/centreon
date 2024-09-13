@@ -176,7 +176,7 @@ class CentreonServiceTemplate extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array('service_register' => $this->register);
         if (isset($parameters)) {
@@ -231,7 +231,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function getparam($parameters = null)
+    public function getparam($parameters = null): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -424,7 +424,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -458,7 +458,7 @@ class CentreonServiceTemplate extends CentreonObject
     /**
      * @param $serviceId
      */
-    public function insertRelations($serviceId)
+    public function insertRelations($serviceId): void
     {
         $extended = new Centreon_Object_Service_Extended($this->dependencyInjector);
         $extended->insert(array($extended->getUniqueLabelField() => $serviceId));
@@ -472,7 +472,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function del($objectName)
+    public function del($objectName): void
     {
         $serviceDesc = $objectName;
         $elements = $this->object->getList(
@@ -673,7 +673,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getmacro($parameters)
+    public function getmacro($parameters): void
     {
         $serviceDesc = $parameters;
         $elements = $this->object->getList(
@@ -717,7 +717,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function setmacro($parameters)
+    public function setmacro($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 3) {
@@ -787,7 +787,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function delmacro($parameters)
+    public function delmacro($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -832,7 +832,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function setseverity($parameters)
+    public function setseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -877,7 +877,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function unsetseverity($parameters)
+    public function unsetseverity($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 1) {

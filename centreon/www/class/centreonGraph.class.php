@@ -373,7 +373,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function setMetricList($metrics)
+    public function setMetricList($metrics): void
     {
         if (is_array($metrics) && count($metrics)) {
             $this->metricsEnabled = array_keys($metrics);
@@ -390,7 +390,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function init()
+    public function init(): void
     {
         $this->setRRDOption("interlaced");
         $this->setRRDOption("imgformat", "PNG");
@@ -477,7 +477,7 @@ class CentreonGraph
      * @return void
      * @throws PDOException
      */
-    public function initCurveList()
+    public function initCurveList(): void
     {
 
         // Check if metrics are enabled
@@ -933,7 +933,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function createLegend()
+    public function createLegend(): void
     {
         $currentColors = array(
             "Min" => "#19EE11",
@@ -1171,7 +1171,7 @@ class CentreonGraph
      * @return void
      * @throws PDOException
      */
-    private function getDefaultGraphTemplate()
+    private function getDefaultGraphTemplate(): void
     {
         $template_id = $this->getServiceGraphID();
         if ($template_id != "") {
@@ -1209,7 +1209,7 @@ class CentreonGraph
      * @return void
      * @throws PDOException
      */
-    public function setTemplate($template_id = null)
+    public function setTemplate($template_id = null): void
     {
         if (isset($template_id)) {
             $template_id = htmlentities($template_id, ENT_QUOTES, "UTF-8");
@@ -1285,7 +1285,7 @@ class CentreonGraph
      * @return void
      * @throws PDOException
      */
-    private function getIndexData()
+    private function getIndexData(): void
     {
         if (isset($this->metricsEnabled)) {
             $svc_instance = $this->metrics[$this->metricsEnabled[0]]["index_id"];
@@ -1343,7 +1343,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function addArgument($arg)
+    public function addArgument($arg): void
     {
         $this->arguments[$this->argcount++] = $arg;
     }
@@ -1351,7 +1351,7 @@ class CentreonGraph
     /**
      * @return void
      */
-    public static function displayError()
+    public static function displayError(): void
     {
         $image = imagecreate(250, 100);
         $fond = imagecolorallocate($image, 0xEF, 0xF2, 0xFB);
@@ -1373,7 +1373,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function setFont($name, $value)
+    public function setFont($name, $value): void
     {
         $this->fonts[$name] = $value;
     }
@@ -1384,7 +1384,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function setColor($name, $value)
+    public function setColor($name, $value): void
     {
         $this->colors[$name] = $value;
     }
@@ -1395,7 +1395,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function setRRDOption($name, $value = null)
+    public function setRRDOption($name, $value = null): void
     {
         $this->RRDoptions[$name] = $value;
     }
@@ -1406,7 +1406,7 @@ class CentreonGraph
      *
      * @return void
      */
-    private function switchRRDLimitOption($lower = null, $upper = null)
+    private function switchRRDLimitOption($lower = null, $upper = null): void
     {
         if (is_null($lower)) {
             unset($this->RRDoptions["upper-limit"]);
@@ -1425,7 +1425,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function setCommandLineTimeLimit($flag)
+    public function setCommandLineTimeLimit($flag): void
     {
         if (isset($flag)) {
             $this->flag = $flag;
@@ -1438,7 +1438,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function setOption($name, $bool = true)
+    public function setOption($name, $bool = true): void
     {
         $this->options[$name] = $bool;
     }
@@ -1462,7 +1462,7 @@ class CentreonGraph
      *
      * @return void
      */
-    public function setHeaders($encoding, $content_length = false)
+    public function setHeaders($encoding, $content_length = false): void
     {
         header("Content-Type: image/png");
         header("Content-Transfer-Encoding: binary");
@@ -1749,7 +1749,7 @@ class CentreonGraph
      * @return void
      * @throws PDOException
      */
-    private function manageVMetric($vId, $vName, $indexId)
+    private function manageVMetric($vId, $vName, $indexId): void
     {
         /* Recursif function */
 
@@ -1859,7 +1859,7 @@ class CentreonGraph
      *
      * @return void
      */
-    private function log($message)
+    private function log($message): void
     {
         if (isset($this->generalOpt['debug_rrdtool']) && is_writable($this->generalOpt['debug_path'])) {
             error_log(

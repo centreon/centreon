@@ -151,7 +151,7 @@ class Escalation extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function getEscalationCache()
+    private function getEscalationCache(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
                     $this->attributes_select
@@ -243,7 +243,7 @@ class Escalation extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    private function generateSubObjects(&$escalation, $esc_id)
+    private function generateSubObjects(&$escalation, $esc_id): void
     {
         $period = Timeperiod::getInstance($this->dependencyInjector);
         $cg = Contactgroup::getInstance($this->dependencyInjector);
@@ -512,7 +512,7 @@ class Escalation extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    private function generateHosts()
+    private function generateHosts(): void
     {
         $this->object_name = 'hostescalation';
         foreach ($this->hosts_build as $escalation_id => $values) {
@@ -532,7 +532,7 @@ class Escalation extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    private function generateServices()
+    private function generateServices(): void
     {
         $this->object_name = 'serviceescalation';
         foreach ($this->services_build as $escalation_id => $hosts) {
@@ -559,7 +559,7 @@ class Escalation extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    private function generateHostgroups()
+    private function generateHostgroups(): void
     {
         $this->object_name = 'hostescalation';
         foreach ($this->hg_build as $escalation_id => $values) {
@@ -583,7 +583,7 @@ class Escalation extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    private function generateServicegroups()
+    private function generateServicegroups(): void
     {
         $this->object_name = 'serviceescalation';
         foreach ($this->sg_build as $escalation_id => $values) {
@@ -607,7 +607,7 @@ class Escalation extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    public function doHostService()
+    public function doHostService(): void
     {
         $services = $this->service_instance->getGeneratedServices();
         foreach ($services as $host_id => &$values) {
@@ -628,7 +628,7 @@ class Escalation extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    public function doHostgroup()
+    public function doHostgroup(): void
     {
         $hostgroups = $this->hg_instance->getHostgroups();
         foreach ($hostgroups as $hg_id => &$value) {
@@ -645,7 +645,7 @@ class Escalation extends AbstractObject
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    public function doServicegroup()
+    public function doServicegroup(): void
     {
         $servicegroups = $this->sg_instance->getServicegroups();
         foreach ($servicegroups as $sg_id => &$value) {
@@ -704,7 +704,7 @@ class Escalation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function reset()
+    public function reset(): void
     {
         $this->hosts_build = array();
         $this->services_build = array();

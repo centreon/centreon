@@ -48,7 +48,7 @@ class Media extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    private function getMedias()
+    private function getMedias(): void
     {
         $query = "SELECT img_id, img_name, img_path, dir_name FROM view_img, view_img_dir_relation, view_img_dir " .
             "WHERE view_img.img_id = view_img_dir_relation.img_img_id " .

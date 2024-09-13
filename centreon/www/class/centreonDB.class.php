@@ -941,7 +941,7 @@ class CentreonDB extends PDO
      * @return void
      * @deprecated No longer used by internal code and not recommended
      */
-    public function autoCommit($val)
+    public function autoCommit($val): void
     {
         /* Deprecated */
     }

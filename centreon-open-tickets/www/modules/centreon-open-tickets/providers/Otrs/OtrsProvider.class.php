@@ -1003,7 +1003,7 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
-    public function closeTicket(&$tickets)
+    public function closeTicket(&$tickets): void
     {
         if ($this->doCloseTicket()) {
             foreach ($tickets as $k => $v) {

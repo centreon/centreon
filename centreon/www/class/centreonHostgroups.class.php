@@ -247,7 +247,7 @@ class CentreonHostgroups
      * @return void
      * @throws PDOException
      */
-    private function setHgHgCache()
+    private function setHgHgCache(): void
     {
         $this->relationCache = array();
         $DBRESULT = $this->DB->query("SELECT /* SQL_CACHE */ hg_parent_id, hg_child_id FROM hostgroup_hg_relation");
@@ -286,7 +286,7 @@ class CentreonHostgroups
     /**
      * @return void
      */
-    private function unsetCache()
+    private function unsetCache(): void
     {
         $this->dataTree = array();
     }

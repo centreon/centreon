@@ -127,7 +127,7 @@ abstract class Centreon_Object
      *
      * @param int $objectId
      */
-    public function delete($objectId)
+    public function delete($objectId): void
     {
         $sql = "DELETE FROM  $this->table WHERE $this->primaryKey = ?";
         $this->db->query($sql, array($objectId));
@@ -140,7 +140,7 @@ abstract class Centreon_Object
      * @param array $params
      * @return void
      */
-    public function update($objectId, $params = array())
+    public function update($objectId, $params = array()): void
     {
         $sql = "UPDATE $this->table SET ";
         $sqlUpdate = "";
@@ -188,7 +188,7 @@ abstract class Centreon_Object
      * @param int $duplicateEntries
      * @todo relations
      */
-    public function duplicate($sourceObjectId, $duplicateEntries = 1)
+    public function duplicate($sourceObjectId, $duplicateEntries = 1): void
     {
         $sourceParams = $this->getParameters($sourceObjectId, "*");
         if (isset($sourceParams[$this->primaryKey])) {

@@ -49,7 +49,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      *
      * @param object An HTML_QuickForm_Renderer object
      */
-    public function accept(&$renderer)
+    public function accept(&$renderer): void
     {
         $this->createSecurityToken();
         parent::accept($renderer);
@@ -83,7 +83,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
     /**
      * Create the CSRF Token to be set in every form using QuickForm
      */
-    public function createSecurityToken()
+    public function createSecurityToken(): void
     {
         if (!$this->elementExists('centreon_token')) {
             $token = bin2hex(openssl_random_pseudo_bytes(16));
@@ -146,7 +146,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
     /**
      * Empty all elapsed Token stored
      */
-    public function purgeToken()
+    public function purgeToken(): void
     {
         foreach ($_SESSION['x-centreon-token-generated-at'] as $key => $value) {
             $elapsedTime = time() - $value;
@@ -175,7 +175,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * @param    boolean    $force         Force the rule to be applied, even if the target form element does not exist
      * @throws   HTML_QuickForm_Error
      */
-    public function addRule($element, $message, $type, $format = null, $validation = 'server', $reset = false, $force = false)
+    public function addRule($element, $message, $type, $format = null, $validation = 'server', $reset = false, $force = false): void
     {
         if (!$force) {
             if (!is_array($element) && !$this->elementExists($element)) {
@@ -228,7 +228,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * @param    mixed     $filter        Callback, either function name or array(&$object, 'method')
      * @throws   HTML_QuickForm_Error
      */
-    public function applyFilter($element, $filter)
+    public function applyFilter($element, $filter): void
     {
         if (!is_callable($filter)) {
             trigger_error("Callback function '$filter' does not exist");
@@ -260,7 +260,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
     /**
      * Add additional custom element types to $GLOBALS
      */
-    private function loadCustomElementsInGlobal()
+    private function loadCustomElementsInGlobal(): void
     {
         // Add custom radio element type which will load our own radio HTML class
         if (!isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['radio_custom'])) {

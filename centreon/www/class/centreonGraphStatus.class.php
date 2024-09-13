@@ -334,7 +334,7 @@ class CentreonGraphStatus
      *
      * @return void
      */
-    private function log($message)
+    private function log($message): void
     {
         if ($this->generalOpt['debug_rrdtool'] &&
             is_writable($this->generalOpt['debug_path'])) {

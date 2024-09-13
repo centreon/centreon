@@ -157,7 +157,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @param array $params
      * @return void
      */
-    public function init($params)
+    public function init($params): void
     {
         $this->params = $params;
     }
@@ -171,7 +171,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @throws HTML_QuickForm_Error
      * @throws PDOException
      */
-    public function setValue($params)
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (in_array($params['ft_typename'], $this->multiType)) {

@@ -50,7 +50,7 @@ class CfgResourceInstanceRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelation(int $resourceId, int $instanceId)
+    public function addRelation(int $resourceId, int $instanceId): void
     {
         $relation = [
             'resource_id' => $resourceId,

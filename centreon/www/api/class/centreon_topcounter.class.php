@@ -91,7 +91,7 @@ class CentreonTopCounter extends CentreonWebService
      *
      * @return void
      */
-    private function initRefreshInterval()
+    private function initRefreshInterval(): void
     {
         $refreshInterval = 60;
 
@@ -107,7 +107,7 @@ class CentreonTopCounter extends CentreonWebService
     /**
      * @throws RestUnauthorizedException
      */
-    private function checkAccess()
+    private function checkAccess(): void
     {
         if ($this->centreon->user->access->admin == 0) {
             $tabActionACL = $this->centreon->user->access->getActions();
@@ -177,7 +177,7 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method PUT
      */
-    public function putAutoLoginToken()
+    public function putAutoLoginToken(): void
     {
         $userId = $this->arguments['userId'];
         $autoLoginKey = $this->arguments['token'];

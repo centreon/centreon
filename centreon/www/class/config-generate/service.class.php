@@ -681,7 +681,7 @@ class Service extends AbstractService
      * @return void
      * @throws Exception
      */
-    public function reset()
+    public function reset(): void
     {
         # We reset it by poller (dont need all. We save memory)
         if ($this->use_cache_poller == 1) {

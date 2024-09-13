@@ -99,7 +99,7 @@ class centreonGraphPoller
      *
      * @return void
      */
-    public function setPoller($pollerId, $graphName)
+    public function setPoller($pollerId, $graphName): void
     {
         $this->graphName = $graphName;
         $this->pollerId = $pollerId;
@@ -118,7 +118,7 @@ class centreonGraphPoller
      *
      * @return void
      */
-    private function initGraphOptions()
+    private function initGraphOptions(): void
     {
         $this->title = array(
             "active_host_check" => _("Host Check Execution Time"),
@@ -183,7 +183,7 @@ class centreonGraphPoller
      * @return void
      * @throws PDOException
      */
-    private function initRrd()
+    private function initRrd(): void
     {
         $DBRESULT = $this->db->query("SELECT * FROM `options`");
 
@@ -212,7 +212,7 @@ class centreonGraphPoller
      *
      * @param string $graphName
      */
-    public function setGraphName($graphName = '')
+    public function setGraphName($graphName = ''): void
     {
         $this->graphName = $graphName;
     }
@@ -224,7 +224,7 @@ class centreonGraphPoller
      *
      * @return void
      */
-    public function addArgument($arg)
+    public function addArgument($arg): void
     {
         $this->arguments[] = $arg;
     }
@@ -237,7 +237,7 @@ class centreonGraphPoller
      *
      * @return void
      */
-    public function setRRDOption($name, $value = null)
+    public function setRRDOption($name, $value = null): void
     {
         if (strpos($value, " ")!==false) {
             $value = "'".$value."'";
@@ -252,7 +252,7 @@ class centreonGraphPoller
      *
      * @return void
      */
-    private function log($message)
+    private function log($message): void
     {
         if ($this->generalOpt['debug_rrdtool'] &&
             is_writable($this->generalOpt['debug_path'])) {
@@ -274,7 +274,7 @@ class centreonGraphPoller
      *
      * @throws RuntimeException
      */
-    public function buildCommandLine($start, $end)
+    public function buildCommandLine($start, $end): void
     {
         $this->extraDatas['start'] = $start;
         $this->extraDatas['end'] = $end;
@@ -399,7 +399,7 @@ class centreonGraphPoller
      *
      * @return void
      */
-    private function formatByMetrics($rrdData)
+    private function formatByMetrics($rrdData): void
     {
         $this->graphData['times'] = array();
         $size = count($rrdData['data']);

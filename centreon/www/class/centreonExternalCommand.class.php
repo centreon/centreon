@@ -105,7 +105,7 @@ class CentreonExternalCommand
      *
      * @return void
      */
-    public function setUserId($newUserId)
+    public function setUserId($newUserId): void
     {
         $this->userId = $newUserId;
     }
@@ -115,7 +115,7 @@ class CentreonExternalCommand
      *
      * @return void
      */
-    public function setUserAlias($newUserAlias)
+    public function setUserAlias($newUserAlias): void
     {
         $this->userAlias = $newUserAlias;
     }
@@ -165,7 +165,7 @@ class CentreonExternalCommand
      *
      * @return void
      */
-    public function setProcessCommand($command, $poller)
+    public function setProcessCommand($command, $poller): void
     {
         if ($this->debug) {
             print "POLLER: $poller<br>";
@@ -181,7 +181,7 @@ class CentreonExternalCommand
      *
      * @return void
      */
-    private function setExternalCommandList()
+    private function setExternalCommandList(): void
     {
         # Services Actions
         $this->actions["service_checks"][0] = "ENABLE_SVC_CHECK";
@@ -355,7 +355,7 @@ class CentreonExternalCommand
      *
      * @throws PDOException
      */
-    public function scheduleForcedCheckHost($hostName)
+    public function scheduleForcedCheckHost($hostName): void
     {
         $pollerId = $this->getPollerID($hostName);
 
@@ -373,7 +373,7 @@ class CentreonExternalCommand
      *
      * @throws PDOException
      */
-    public function scheduleForcedCheckService($hostName, $serviceDescription)
+    public function scheduleForcedCheckService($hostName, $serviceDescription): void
     {
         $pollerId = $this->getPollerID($hostName);
 
@@ -406,7 +406,7 @@ class CentreonExternalCommand
         $persistent,
         $author,
         $comment
-    ) {
+    ): void {
         $pollerId = $this->getPollerID($hostName);
 
         $this->setProcessCommand(
@@ -437,7 +437,7 @@ class CentreonExternalCommand
         $persistent,
         $author,
         $comment
-    ) {
+    ): void {
         $pollerId = $this->getPollerID($hostName);
 
         $this->setProcessCommand(
@@ -457,7 +457,7 @@ class CentreonExternalCommand
      *
      * @throws PDOException
      */
-    public function deleteAcknowledgement($type, $hosts = array())
+    public function deleteAcknowledgement($type, $hosts = array()): void
     {
         foreach (array_keys($hosts) as $name) {
             $res = preg_split("/\;/", $name);
@@ -530,7 +530,7 @@ class CentreonExternalCommand
      *
      * @throws PDOException
      */
-    public function deleteDowntime($type, $hosts = array())
+    public function deleteDowntime($type, $hosts = array()): void
     {
         foreach ($hosts as $key => $value) {
             $res = preg_split("/\;/", $key);
@@ -564,7 +564,7 @@ class CentreonExternalCommand
         $duration = null,
         $withServices = false,
         $hostOrCentreonTime = "0"
-    ) {
+    ): void {
         global $centreon;
 
         if (is_null($centreon)) {
@@ -644,7 +644,7 @@ class CentreonExternalCommand
         $persistant,
         $duration = null,
         $hostOrCentreonTime = "0"
-    ) {
+    ): void {
         global $centreon;
 
         if (is_null($centreon)) {

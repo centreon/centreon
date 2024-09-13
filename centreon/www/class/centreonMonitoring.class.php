@@ -62,7 +62,7 @@ class CentreonMonitoring
      *
      * @return void
      */
-    public function setPoller($pollerId)
+    public function setPoller($pollerId): void
     {
         $this->poller = $pollerId;
     }

@@ -66,7 +66,7 @@ class CentreonWidgetParamsRange extends CentreonWidgetParams
      * @throws HTML_QuickForm_Error
      * @throws PDOException
      */
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {

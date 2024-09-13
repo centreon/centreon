@@ -50,7 +50,7 @@ class ViewImgDirRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelation(int $mediaId, int $dirId)
+    public function addRelation(int $mediaId, int $dirId): void
     {
         $relation = [
             'dir_dir_parent_id' => $dirId,

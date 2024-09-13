@@ -177,7 +177,7 @@ class Centreon
      *
      * @throws PDOException
      */
-    public function creatModuleList()
+    public function creatModuleList(): void
     {
         $this->modules = array();
         $query = "SELECT `name` FROM `modules_informations`";
@@ -199,7 +199,7 @@ class Centreon
     /**
      * @return void
      */
-    public function initHooks()
+    public function initHooks(): void
     {
         $this->hooks = array();
 
@@ -235,7 +235,7 @@ class Centreon
     /**
      * Create history list
      */
-    public function createHistory()
+    public function createHistory(): void
     {
         $this->historyPage = array();
         $this->historyLastUrl = '';
@@ -252,7 +252,7 @@ class Centreon
      *
      * @throws PDOException
      */
-    public function initNagiosCFG()
+    public function initNagiosCFG(): void
     {
         $this->Nagioscfg = array();
         /*
@@ -275,7 +275,7 @@ class Centreon
      *
      * @throws PDOException
      */
-    public function initOptGen()
+    public function initOptGen(): void
     {
         $this->optGen = array();
         $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query("SELECT * FROM `options`");

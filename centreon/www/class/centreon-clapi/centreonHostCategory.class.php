@@ -93,7 +93,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -123,7 +123,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -167,7 +167,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      * @param string $parameters
      * @throws CentreonClapiException
      */
-    public function setseverity($parameters)
+    public function setseverity($parameters): void
     {
         parent::setseverity($parameters);
     }
@@ -178,7 +178,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      * @param string $parameters
      * @throws CentreonClapiException
      */
-    public function unsetseverity($parameters)
+    public function unsetseverity($parameters): void
     {
         parent::unsetseverity($parameters);
     }
@@ -262,7 +262,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      * @return void
      * @throws PDOException
      */
-    public function export($filterName = null)
+    public function export($filterName = null): void
     {
         if (! parent::export($filterName)) {
             return;

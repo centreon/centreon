@@ -82,7 +82,7 @@ class CentreonMedia
      * @return void
      * @throws Exception
      */
-    public function setMediaDirectory($dirname)
+    public function setMediaDirectory($dirname): void
     {
         $this->mediadirectoryname = $dirname;
     }
@@ -455,7 +455,7 @@ class CentreonMedia
      * @param string $imagePath
      * @param string $binary
      */
-    private function createImage($directoryPath, $imagePath, $binary)
+    private function createImage($directoryPath, $imagePath, $binary): void
     {
         $fullPath = $directoryPath . '/' . $imagePath;
         $decodedBinary = base64_decode($binary);

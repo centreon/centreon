@@ -143,7 +143,7 @@ class CentreonTimeperiod
      * @param array $parameters Values to insert (command_name and command_line is mandatory)
      * @throws Exception
      */
-    public function insert($parameters)
+    public function insert($parameters): void
     {
         $sQuery = "INSERT INTO `timeperiod` "
             . "(`tp_name`, `tp_alias`, `tp_sunday`, `tp_monday`, `tp_tuesday`, `tp_wednesday`, "
@@ -175,7 +175,7 @@ class CentreonTimeperiod
      *
      * @throws Exception
      */
-    public function update($tp_id, $parameters)
+    public function update($tp_id, $parameters): void
     {
 
         $sQuery = "UPDATE `timeperiod` SET `tp_alias` = '" . $parameters['alias'] . "', "
@@ -202,7 +202,7 @@ class CentreonTimeperiod
      * @param array $parameters Values to insert (days and timerange)
      * @throws Exception
      */
-    public function setTimeperiodException($tpId, $parameters)
+    public function setTimeperiodException($tpId, $parameters): void
     {
         foreach ($parameters as $exception) {
             $sQuery = "INSERT INTO `timeperiod_exceptions` "
@@ -226,7 +226,7 @@ class CentreonTimeperiod
      * @param int $depId
      * @throws Exception
      */
-    public function setTimeperiodDependency($timeperiodId, $depId)
+    public function setTimeperiodDependency($timeperiodId, $depId): void
     {
         $sQuery = "INSERT INTO `timeperiod_include_relations` "
             . "(`timeperiod_id`,`timeperiod_include_id`) "
@@ -245,7 +245,7 @@ class CentreonTimeperiod
      * @param int $tpId
      * @throws Exception
      */
-    public function deleteTimeperiodException($tpId)
+    public function deleteTimeperiodException($tpId): void
     {
         $sQuery = "DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id` = " . (int)$tpId;
 
@@ -262,7 +262,7 @@ class CentreonTimeperiod
      * @param int $tpId
      * @throws Exception
      */
-    public function deleteTimeperiodInclude($tpId)
+    public function deleteTimeperiodInclude($tpId): void
     {
         $sQuery = "DELETE FROM `timeperiod_include_relations` WHERE `timeperiod_id` = " . (int)$tpId;
 
@@ -279,7 +279,7 @@ class CentreonTimeperiod
      * @param string $tp_name timperiod name
      * @throws Exception
      */
-    public function deleteTimeperiodByName($tp_name)
+    public function deleteTimeperiodByName($tp_name): void
     {
         $sQuery = 'DELETE FROM timeperiod '
             . 'WHERE tp_name = "' . $this->db->escape($tp_name) . '"';

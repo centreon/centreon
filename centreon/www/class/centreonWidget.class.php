@@ -272,7 +272,7 @@ class CentreonWidget
         string $widgetTitle,
         bool $permission,
         bool $authorized
-    ) {
+    ): void {
         if (!$authorized || !$permission) {
             throw new CentreonWidgetException('You are not allowed to add a widget.');
         }
@@ -522,7 +522,7 @@ class CentreonWidget
      *
      * @throws Exception
      */
-    public function updateViewWidgetRelations($viewId, array $widgetList = [])
+    public function updateViewWidgetRelations($viewId, array $widgetList = []): void
     {
         $query = 'DELETE FROM widget_views WHERE custom_view_id = :viewId';
         $stmt = $this->db->prepare($query);
@@ -606,7 +606,7 @@ class CentreonWidget
      * @throws CentreonWidgetException
      * @throws PDOException
      */
-    public function updateUserWidgetPreferences(array $params, bool $permission, bool $authorized)
+    public function updateUserWidgetPreferences(array $params, bool $permission, bool $authorized): void
     {
         if (!$authorized || !$permission) {
             throw new CentreonWidgetException('You are not allowed to set preferences on the widget');
@@ -733,7 +733,7 @@ class CentreonWidget
      *
      * @throws Exception
      */
-    public function deleteWidgetFromView(int $customViewId, int $widgetId, bool $authorized, bool $permission)
+    public function deleteWidgetFromView(int $customViewId, int $widgetId, bool $authorized, bool $permission): void
     {
         if (!$authorized || !$permission) {
             throw new CentreonWidgetException('You are not allowed to delete the widget');
@@ -760,7 +760,7 @@ class CentreonWidget
      * @throws CentreonWidgetException
      * @throws PDOException
      */
-    public function updateWidgetPositions(int $customViewId, bool $permission, array $positions = [])
+    public function updateWidgetPositions(int $customViewId, bool $permission, array $positions = []): void
     {
         if (!$permission) {
             throw new CentreonWidgetException('You are not allowed to change widget position');
@@ -997,7 +997,7 @@ class CentreonWidget
      *
      * @throws Exception
      */
-    public function install($widgetPath, $directory)
+    public function install($widgetPath, $directory): void
     {
         $config = $this->readConfigFile($widgetPath . "/" . $directory . "/configs.xml");
         if (!$config['autoRefresh']) {
@@ -1302,7 +1302,7 @@ class CentreonWidget
      *
      * @throws Exception
      */
-    public function upgrade($widgetPath, $directory)
+    public function upgrade($widgetPath, $directory): void
     {
         $config = $this->readConfigFile($widgetPath . "/" . $directory . "/configs.xml");
         if (!$config['autoRefresh']) {
@@ -1351,7 +1351,7 @@ class CentreonWidget
      *
      * @throws Exception
      */
-    public function uninstall($directory)
+    public function uninstall($directory): void
     {
         $query = 'DELETE FROM widget_models WHERE directory = :directory';
         $stmt = $this->db->prepare($query);

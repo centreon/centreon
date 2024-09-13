@@ -143,7 +143,7 @@ class CentreonACLAction extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -185,7 +185,7 @@ class CentreonACLAction extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = array()): void
     {
         $filters = array();
         if (isset($parameters)) {
@@ -227,7 +227,7 @@ class CentreonACLAction extends CentreonObject
      * @param $aclActionName
      * @throws CentreonClapiException
      */
-    public function getaclgroup($aclActionName)
+    public function getaclgroup($aclActionName): void
     {
         if (!isset($aclActionName) || !$aclActionName) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -254,7 +254,7 @@ class CentreonACLAction extends CentreonObject
      * @throws PDOException
      * @throws Throwable
      */
-    public function grant($parameters)
+    public function grant($parameters): void
     {
         list($aclActionId, $action) = $this->splitParams($parameters);
         if ($action == "*") {
@@ -292,7 +292,7 @@ class CentreonACLAction extends CentreonObject
      * @throws PDOException
      * @throws Throwable
      */
-    public function revoke($parameters)
+    public function revoke($parameters): void
     {
         list($aclActionId, $action) = $this->splitParams($parameters);
         if ($action == "*") {

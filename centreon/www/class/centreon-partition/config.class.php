@@ -81,7 +81,7 @@ class Config
      * @return void
      * @throws PDOException
      */
-    public function loadCentreonDefaultConfiguration()
+    public function loadCentreonDefaultConfiguration(): void
     {
         $queryOptions = 'SELECT `opt`.`key`, `opt`.`value` ' .
             'FROM `options` opt ' .
@@ -104,7 +104,7 @@ class Config
      * @return null
      * @throws Exception
      */
-    public function parseXML($xmlfile)
+    public function parseXML($xmlfile): void
     {
         if (!file_exists($xmlfile)) {
             throw new \Exception("Config file '" . $xmlfile . "' does not exist\n");

@@ -93,7 +93,7 @@ class CentreonGMT
      *
      * @return void
      */
-    public function setMyGMT($value)
+    public function setMyGMT($value): void
     {
         $this->myGMT = $value;
     }

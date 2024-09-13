@@ -54,7 +54,7 @@ class CentreonFeaturetesting extends CentreonWebService
      *
      * METHOD POST
      */
-    public function postEnabled()
+    public function postEnabled(): void
     {
         if (!isset($this->arguments['name']) ||
             !isset($this->arguments['version']) ||

@@ -65,7 +65,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      * @throws HTML_QuickForm_Error
      * @throws PDOException
      */
-    public function init($params)
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -184,7 +184,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      * @throws HTML_QuickForm_Error
      * @throws PDOException
      */
-    public function setValue($params)
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {

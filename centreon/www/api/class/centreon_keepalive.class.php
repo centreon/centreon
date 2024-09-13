@@ -54,7 +54,7 @@ class CentreonKeepalive extends CentreonWebService
      * Keep alive
      * @throws RestUnauthorizedException
      */
-    public function getKeepAlive()
+    public function getKeepAlive(): void
     {
         $session = new CentreonSession();
         if (!$session->updateSession($this->pearDB)) {

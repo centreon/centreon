@@ -66,7 +66,7 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testRemove()
+    public function testRemove(): void
     {
         $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
             ->disableOriginalConstructor()

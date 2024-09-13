@@ -462,7 +462,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @return void
      * @throws PDOException
      */
-    public function insertCache($downtime)
+    public function insertCache($downtime): void
     {
         $query = 'INSERT INTO downtime_cache '
             . '(downtime_id, start_timestamp, end_timestamp, '
@@ -484,7 +484,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @return void
      * @throws PDOException
      */
-    public function purgeCache()
+    public function purgeCache(): void
     {
         $query = 'DELETE FROM downtime_cache WHERE start_timestamp < ' . time();
         $this->db->query($query);
@@ -527,7 +527,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @return void The command return code
      * @throws PDOException
      */
-    public function setCommand($host_id, $cmd)
+    public function setCommand($host_id, $cmd): void
     {
         static $cmdData = null;
         static $remoteCommands = [];
@@ -558,7 +558,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      *
      * @return void
      */
-    public function sendCommands()
+    public function sendCommands(): void
     {
         $remoteCommands = implode(PHP_EOL, $this->remoteCommands);
         if ($remoteCommands) {

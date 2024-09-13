@@ -141,7 +141,7 @@ class Generate
      * @return void
      * @throws Exception
      */
-    private function getPollerFromId(int $pollerId)
+    private function getPollerFromId(int $pollerId): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT * FROM nagios_server
@@ -191,7 +191,7 @@ class Generate
      *
      * @return void
      */
-    public function resetObjectsEngine()
+    public function resetObjectsEngine(): void
     {
         Host::getInstance($this->dependencyInjector)->reset();
         Service::getInstance($this->dependencyInjector)->reset();
@@ -203,7 +203,7 @@ class Generate
      * @param string $username
      * @return void
      */
-    private function configPoller($username = 'unknown')
+    private function configPoller($username = 'unknown'): void
     {
         $this->resetObjectsEngine();
 
@@ -232,7 +232,7 @@ class Generate
      * @return void
      * @throws Exception
      */
-    public function configRemoteServerFromId(int $remoteServerId, $username = 'unknown')
+    public function configRemoteServerFromId(int $remoteServerId, $username = 'unknown'): void
     {
         try {
             $this->backendInstance->setUserName($username);
@@ -297,7 +297,7 @@ class Generate
      *
      * @return void
      */
-    public function getModuleObjects()
+    public function getModuleObjects(): void
     {
         $this->moduleObjects = [];
 
@@ -322,7 +322,7 @@ class Generate
      * @param int $remoteServerId
      * @return void
      */
-    public function generateModuleObjects(int $remoteServerId)
+    public function generateModuleObjects(int $remoteServerId): void
     {
         if (is_null($this->moduleObjects)) {
             $this->getModuleObjects();
@@ -339,7 +339,7 @@ class Generate
      *
      * @return void
      */
-    public function resetModuleObjects()
+    public function resetModuleObjects(): void
     {
         if (is_null($this->moduleObjects)) {
             $this->getModuleObjects();
@@ -356,7 +356,7 @@ class Generate
      *
      * @return void
      */
-    private function createFiles()
+    private function createFiles(): void
     {
         Host::getInstance($this->dependencyInjector)->reset(true, true);
         Service::getInstance($this->dependencyInjector)->reset(true, true);
@@ -416,7 +416,7 @@ class Generate
      *
      * @return void
      */
-    private function resetObjects()
+    private function resetObjects(): void
     {
         Host::getInstance($this->dependencyInjector)->reset(true);
         Service::getInstance($this->dependencyInjector)->reset(true);

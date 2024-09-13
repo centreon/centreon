@@ -103,7 +103,7 @@ class Curves extends AbstractObject
      *
      * @return void
      */
-    private function getCurves()
+    private function getCurves(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT $this->attributesSelect
@@ -119,7 +119,7 @@ class Curves extends AbstractObject
      * @return void
      * @throws \Exception
      */
-    public function generateObjects()
+    public function generateObjects(): void
     {
         if (is_null($this->curves)) {
             $this->getCurves();

@@ -187,7 +187,7 @@ class WikiApi
     /**
      * @return void
      */
-    public function logout()
+    public function logout(): void
     {
         $postfields = array(
             'action' => 'logout'
@@ -407,7 +407,7 @@ class WikiApi
     /**
      *
      */
-    public function synchronize()
+    public function synchronize(): void
     {
         // Get all pages title that where changed
         $listOfObjects = $this->detectCentreonObjects();
@@ -454,7 +454,7 @@ class WikiApi
     /**
      * @param $hostName
      */
-    public function updateLinkForHost($hostName)
+    public function updateLinkForHost($hostName): void
     {
         $resHost = $this->db->query(
             "SELECT host_id FROM host WHERE host_name LIKE '" . $hostName . "'"
@@ -479,7 +479,7 @@ class WikiApi
      * @param $hostName
      * @param $serviceDescription
      */
-    public function updateLinkForService($hostName, $serviceDescription)
+    public function updateLinkForService($hostName, $serviceDescription): void
     {
         $resService = $this->db->query(
             "SELECT service_id " .
@@ -507,7 +507,7 @@ class WikiApi
     /**
      * @param $serviceName
      */
-    public function updateLinkForServiceTemplate($serviceName)
+    public function updateLinkForServiceTemplate($serviceName): void
     {
         $resService = $this->db->query(
             "SELECT service_id FROM service " .

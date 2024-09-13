@@ -293,7 +293,7 @@ class CentreonCustomView
      * @param $viewId
      * @throws Exception
      */
-    public function setDefault($viewId)
+    public function setDefault($viewId): void
     {
         $query = 'DELETE FROM custom_view_default WHERE user_id = :userId ';
 
@@ -465,7 +465,7 @@ class CentreonCustomView
      * @param bool $authorized
      * @throws Exception
      */
-    public function deleteCustomView($customViewId, bool $authorized)
+    public function deleteCustomView($customViewId, bool $authorized): void
     {
         if (!$authorized) {
             throw new CentreonCustomViewException('You are not allowed to delete the view');
@@ -744,7 +744,7 @@ class CentreonCustomView
     * @param $userId
     * @throws Exception
     */
-    public function addPublicViewWidgetParams($viewId, $userId)
+    public function addPublicViewWidgetParams($viewId, $userId): void
     {
         //get all widget parameters from the view that is being added
         if (!empty($userId)) {
@@ -807,7 +807,7 @@ class CentreonCustomView
         int $userId,
         bool $permission,
         bool $authorized
-    ) {
+    ): void {
         if (!$authorized || !$permission) {
             throw new CentreonCustomViewException('You are not allowed to share the view');
         }
@@ -1209,7 +1209,7 @@ class CentreonCustomView
      * @param bool $permission
      * @throws Exception
      */
-    public function removeUserFromView(int $userId, int $customViewId, bool $permission)
+    public function removeUserFromView(int $userId, int $customViewId, bool $permission): void
     {
         if (!$permission) {
             throw new CentreonCustomViewException('You are not allowed to remove user from view');
@@ -1264,7 +1264,7 @@ class CentreonCustomView
      * @param int $userGroupId
      * @throws Exception
      */
-    public function removeUsergroupFromView(int $customViewId, int $userGroupId)
+    public function removeUsergroupFromView(int $customViewId, int $userGroupId): void
     {
         $query = 'DELETE FROM custom_view_user_relation ' .
             'WHERE usergroup_id = :groupId ' .

@@ -50,7 +50,7 @@ class ServiceCategoriesRelation extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function addRelation(int $scId, int $serviceId)
+    public function addRelation(int $scId, int $serviceId): void
     {
         $relation = [
             'sc_id' => $scId,

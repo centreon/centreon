@@ -250,7 +250,7 @@ class ServiceGroup extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function generateObjects()
+    public function generateObjects(): void
     {
         foreach ($this->sg as $id => &$value) {
             if (count($value['members_cache']) == 0) {

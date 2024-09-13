@@ -95,7 +95,7 @@ class Trap extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrap()
+    private function cacheTrap(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT * FROM traps
@@ -114,7 +114,7 @@ class Trap extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrapLinked()
+    private function cacheTrapLinked(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT traps_id, service_id
@@ -156,7 +156,7 @@ class Trap extends AbstractObject
      * @return void
      * @throws Exception
      */
-    public function generateObject(int $serviceId, array $serviceLinkedCache, array &$object)
+    public function generateObject(int $serviceId, array $serviceLinkedCache, array &$object): void
     {
         foreach ($serviceLinkedCache as $trapId) {
             Relations\TrapsServiceRelation::getInstance($this->dependencyInjector)->addRelation($trapId, $serviceId);

@@ -127,7 +127,7 @@ class CentreonSubmitResults extends CentreonWebService
     /**
      * Load the cache for pollers/hosts
      */
-    private function getPollers()
+    private function getPollers(): void
     {
         if (!isset($this->pollerHosts) || count($this->pollerHosts) === 0) {
             $query = 'SELECT h.host_id, h.host_name, ns.nagios_server_id AS poller_id ' .
@@ -148,7 +148,7 @@ class CentreonSubmitResults extends CentreonWebService
     /**
      * Load the cache for hosts/services
      */
-    private function getHostServiceInfo()
+    private function getHostServiceInfo(): void
     {
         if (!isset($this->hostServices)) {
             $query = "SELECT name, description " .
@@ -171,7 +171,7 @@ class CentreonSubmitResults extends CentreonWebService
     /**
      * Open the centcore pipe file
      */
-    private function openPipe()
+    private function openPipe(): void
     {
         if ($this->fh = @fopen($this->centcoreFile, 'a+')) {
             $this->pipeOpened = true;
@@ -183,7 +183,7 @@ class CentreonSubmitResults extends CentreonWebService
     /**
      * Close the centcore pipe file
      */
-    private function closePipe()
+    private function closePipe(): void
     {
         fclose($this->fh);
         $this->pipeOpened = false;

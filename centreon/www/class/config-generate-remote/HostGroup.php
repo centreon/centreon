@@ -123,7 +123,7 @@ class HostGroup extends AbstractObject
      * @return void
      * @throws \Exception
      */
-    public function generateObjects()
+    public function generateObjects(): void
     {
         foreach ($this->hg as $id => &$value) {
             if (count($value['members']) == 0) {

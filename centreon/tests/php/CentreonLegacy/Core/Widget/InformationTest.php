@@ -76,7 +76,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testGetConfiguration()
+    public function testGetConfiguration(): void
     {
         $expectedResult = $this->configuration;
         $expectedResult['autoRefresh'] = 0;
@@ -103,7 +103,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($configuration, $expectedResult);
     }
 
-    public function testGetTypes()
+    public function testGetTypes(): void
     {
         $expectedResult = array(
             'type1' => array(
@@ -132,7 +132,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($types, $expectedResult);
     }
 
-    public function testGetParameterIdByName()
+    public function testGetParameterIdByName(): void
     {
         $query = 'SELECT parameter_id ' .
             'FROM widget_parameters ' .
@@ -152,7 +152,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($id, 1);
     }
 
-    public function testGetParameters()
+    public function testGetParameters(): void
     {
         $expectedResult = array(
             'parameter1' => array(
@@ -196,7 +196,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($parameters, $expectedResult);
     }
 
-    public function testGetIdByName()
+    public function testGetIdByName(): void
     {
         $query = 'SELECT widget_model_id ' .
             'FROM widget_models ' .
@@ -216,7 +216,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($id, 1);
     }
 
-    public function testGetAvailableList()
+    public function testGetAvailableList(): void
     {
         $configuration = $this->configuration;
         $configuration['autoRefresh'] = 0;
@@ -264,7 +264,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($list, $expectedResult);
     }
 
-    public function testGetList()
+    public function testGetList(): void
     {
         $configuration = $this->configuration;
         $configuration['autoRefresh'] = 0;
