@@ -228,10 +228,7 @@ class Centreon_OpenTickets_Rule
                 SQL;
                 $queryParams["group_ids"] = $centreon_bg->grouplistStr;
             }
-
-            $hostServiceStatement = $dbStorage->prepareQuery($query);
-            $dbStorage->executePreparedQuery($hostServiceStatement, $queryParams);
-
+            
             $graphQuery = <<<SQL
                 SELECT
                     host_id,
@@ -244,25 +241,39 @@ class Centreon_OpenTickets_Rule
                 GROUP BY host_id, service_id
                 SQL;
 
-            $graphStatement = $dbStorage->prepareQuery($graphQuery);
-            $dbStorage->executePreparedQuery($graphStatement, $queryParams);
+            try {
+                $hostServiceStatement = $dbStorage->prepareQuery($query);
+                $dbStorage->executePreparedQuery($hostServiceStatement, $queryParams);
+            
+                $graphStatement = $dbStorage->prepareQuery($graphQuery);
+                $dbStorage->executePreparedQuery($graphStatement, $queryParams);
+                
+                $graphData = [];
+                while (($row = $dbStorage->fetch($graphStatement))) {
+                    $graphData[$row['host_id'] . '.' . $row['service_id']] = $row['num_metrics'];
+                }
 
-            $graphData = [];
-            while (($row = $graphStatement->fetch())) {
-                $graphData[$row['host_id'] . '.' . $row['service_id']] = $row['num_metrics'];
-            }
-
-            while (($row = $hostServiceStatement->fetch())) {
-                $row['service_state'] = $row['state'];
-                $row['state_str'] = $this->getServiceStateStr($row['state']);
-                $row['last_state_change_duration'] = CentreonDuration::toString(
-                    time() - $row['last_state_change']
+                while (($row = $dbStorage->fetch($hostServiceStatement))) {
+                    $row['service_state'] = $row['state'];
+                    $row['state_str'] = $this->getServiceStateStr($row['state']);
+                    $row['last_state_change_duration'] = CentreonDuration::toString(
+                        time() - $row['last_state_change']
+                    );
+                    $row['last_hard_state_change_duration'] = CentreonDuration::toString(
+                        time() - $row['last_hard_state_change']
+                    );
+                    $row['num_metrics'] = $graphData[$row['host_id'] . '.' . $row['service_id']] ?? 0;
+                    $selected['service_selected'][] = $row;
+                }
+            } catch (CentreonDbException $e) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_SQL,
+                    "rule:loadSelection Error while retrieving hosts and services",
+                    ['selection' => $selection],
+                    $e
                 );
-                $row['last_hard_state_change_duration'] = CentreonDuration::toString(
-                    time() - $row['last_hard_state_change']
-                );
-                $row['num_metrics'] = $graphData[$row['host_id'] . '.' . $row['service_id']] ?? 0;
-                $selected['service_selected'][] = $row;
+                
+                return $selected;
             }
         } elseif ($cmd == 4) {
             $hostsSelectedStr = '';
@@ -293,19 +304,30 @@ class Centreon_OpenTickets_Rule
                 $queryParams['group_ids'] = $centreon_bg->grouplistStr;
             }
 
-            $hostStatement = $dbStorage->prepareQuery($query);
-            $dbStorage->executePreparedQuery($hostStatement, $queryParams);
+            try {
+                $hostStatement = $dbStorage->prepareQuery($query);
+                $dbStorage->executePreparedQuery($hostStatement, $queryParams);
 
-            while (($row = $hostStatement->fetch())) {
-                $row['host_state'] = $row['state'];
-                $row['state_str'] = $this->getHostStateStr($row['state']);
-                $row['last_state_change_duration'] = CentreonDuration::toString(
-                    time() - $row['last_state_change']
+                while (($row = $dbStorage->fetch($hostStatement))) {
+                    $row['host_state'] = $row['state'];
+                    $row['state_str'] = $this->getHostStateStr($row['state']);
+                    $row['last_state_change_duration'] = CentreonDuration::toString(
+                        time() - $row['last_state_change']
+                    );
+                    $row['last_hard_state_change_duration'] = CentreonDuration::toString(
+                        time() - $row['last_hard_state_change']
+                    );
+                    $selected['host_selected'][] = $row;
+                }
+            } catch (CentreonDbException $e) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_SQL,
+                    "rule:loadSelection Error while retrieving hosts and services",
+                    ['selection' => $selection],
+                    $e
                 );
-                $row['last_hard_state_change_duration'] = CentreonDuration::toString(
-                    time() - $row['last_hard_state_change']
-                );
-                $selected['host_selected'][] = $row;
+
+                return $selected;
             }
         }
 
@@ -317,7 +339,7 @@ class Centreon_OpenTickets_Rule
         $infos = $this->getAliasAndProviderId($rule_id);
         $this->loadProvider($rule_id, $infos['provider_id'], $widget_id, $uniq_id);
 
-        $selected = $this->loadSelection(null, $cmd, $selection);
+        $selected = $this->loadSelection(null, (string) $cmd, (string) $selection);
         $args['host_selected'] = $selected['host_selected'];
         $args['service_selected'] = $selected['service_selected'];
 
