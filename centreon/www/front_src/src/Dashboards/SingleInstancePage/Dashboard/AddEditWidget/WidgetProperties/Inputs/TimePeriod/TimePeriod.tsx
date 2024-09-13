@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+dayjs.extend(isSameOrAfter);
 
 import { Typography } from '@mui/material';
 
