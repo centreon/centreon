@@ -48,11 +48,33 @@ $insertWebPageWidget = function (CentreonDB $pearDB) use (&$errorMessage): void 
     }
 };
 
+// Vault configuration
+$insertVaultConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve from topology table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `topology` WHERE `topology_name` = 'Vault'
+            SQL
+    );
+
+    $errorMessage = 'Unable to insert data into table topology';
+    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_feature_flag`)
+                VALUES ('Vault', '/administration/parameters/vault', '1', '1', 501, 50112, 100, 1, 'vault')
+                SQL
+        );
+    }
+};
+
 try {
-    // Tansactional queries
+    // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
+
+    $insertVaultConfiguration($pearDB);
     $insertWebPageWidget($pearDB);
 
     $pearDB->commit();
