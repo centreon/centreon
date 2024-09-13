@@ -1397,7 +1397,8 @@ function updateServiceHostForCloud($serviceId = null, $submittedValues = [], $is
     }
 
     if (count($ret2)) {
-        for ($i = 0; $i < count($ret2); $i++) {
+        $counter = count($ret2);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO host_service_relation ";
             $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
             $rq .= "VALUES ";
@@ -1406,7 +1407,8 @@ function updateServiceHostForCloud($serviceId = null, $submittedValues = [], $is
             setHostChangeFlag($pearDB, null, $ret2[$i]);
         }
     } elseif (count($ret1)) {
-        for ($i = 0; $i < count($ret1); $i++) {
+        $counter = count($ret1);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO host_service_relation ";
             $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
             $rq .= "VALUES ";
@@ -1443,7 +1445,8 @@ function updateServiceHost_MCForCloud($serviceId = null)
     $ret1 = $form->getSubmitValue("service_hPars");
     $ret2 = $form->getSubmitValue("service_hgPars");
     if (is_array($ret2)) {
-        for ($i = 0; $i < count($ret2); $i++) {
+        $counter = count($ret2);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hgsvs[$ret2[$i]])) {
                 $rq = "DELETE FROM host_service_relation ";
                 $rq .= "WHERE service_service_id = '" . $serviceId . "' AND host_host_id IS NOT NULL";
@@ -1457,7 +1460,8 @@ function updateServiceHost_MCForCloud($serviceId = null)
             }
         }
     } elseif (is_array($ret1)) {
-        for ($i = 0; $i < count($ret1); $i++) {
+        $counter = count($ret1);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hsvs[$ret1[$i]])) {
                 $rq = "DELETE FROM host_service_relation ";
                 $rq .= "WHERE service_service_id = '" . $serviceId . "' AND hostgroup_hg_id IS NOT NULL";
@@ -2801,7 +2805,8 @@ function updateServiceContactGroup($service_id = null, $ret = array())
     $cg = new CentreonContactgroup($pearDB);
 
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!is_numeric($ret[$i])) {
                 $res = $cg->insertLdapGroup($ret[$i]);
                 if ($res != 0) {
@@ -3016,7 +3021,8 @@ function updateServiceContactGroup_MC($service_id = null)
     $ret = $form->getSubmitValue("service_cgs");
     $cg = new CentreonContactgroup($pearDB);
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($cgs[$ret[$i]])) {
                 if (!is_numeric($ret[$i])) {
                     $res = $cg->insertLdapGroup($ret[$i]);
@@ -3056,7 +3062,8 @@ function updateServiceContact_MC($service_id = null)
     }
     $ret = $form->getSubmitValue("service_cs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($cs[$ret[$i]])) {
                 $rq = "INSERT INTO contact_service_relation ";
                 $rq .= "(contact_id, service_service_id) ";
@@ -3085,7 +3092,8 @@ function updateServiceServiceGroup($service_id = null, $ret = array())
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'service_sgs');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         /* We need to record each relation for host / hostgroup selected */
         if (isset($ret["service_hPars"])) {
             $ret1 = CentreonUtils::mergeWithInitialValues($form, 'service_hPars');
@@ -3138,7 +3146,8 @@ function updateServiceServiceGroup_MC($service_id = null)
     }
     $ret = $form->getSubmitValue("service_sgs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             /* We need to record each relation for host / hostgroup selected */
             $ret1 = getMyServiceHosts($service_id);
             $ret2 = getMyServiceHostGroups($service_id);
@@ -3185,7 +3194,8 @@ function updateServiceTrap($service_id = null, $ret = array())
     }
 
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO traps_service_relation ";
             $rq .= "(traps_id, service_id) ";
             $rq .= "VALUES ";
@@ -3213,7 +3223,8 @@ function updateServiceTrap_MC($service_id = null)
     }
     $ret = $form->getSubmitValue("service_traps");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($traps[$ret[$i]])) {
                 $rq = "INSERT INTO traps_service_relation ";
                 $rq .= "(traps_id, service_id) ";
@@ -3338,7 +3349,8 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     }
 
     if (count($ret2)) {
-        for ($i = 0; $i < count($ret2); $i++) {
+        $counter = count($ret2);
+        for ($i = 0; $i < $counter; $i++) {
             $statement = $pearDB->prepare(
                 <<<'SQL'
                     INSERT INTO host_service_relation
@@ -3352,7 +3364,8 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
             setHostChangeFlag($pearDB, null, $ret2[$i]);
         }
     } elseif (count($ret1)) {
-        for ($i = 0; $i < count($ret1); $i++) {
+        $counter = count($ret1);
+        for ($i = 0; $i < $counter; $i++) {
             $statement = $pearDB->prepare(
                 <<<'SQL'
                     INSERT INTO host_service_relation
@@ -3400,7 +3413,8 @@ function updateServiceHost_MC($service_id = null)
     $ret1 = $form->getSubmitValue("service_hPars");
     $ret2 = $form->getSubmitValue("service_hgPars");
     if (is_array($ret2)) {
-        for ($i = 0; $i < count($ret2); $i++) {
+        $counter = count($ret2);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hgsvs[$ret2[$i]])) {
                 $statement = $pearDB->prepare(
                     <<<'SQL'
@@ -3427,7 +3441,8 @@ function updateServiceHost_MC($service_id = null)
             }
         }
     } elseif (is_array($ret1)) {
-        for ($i = 0; $i < count($ret1); $i++) {
+        $counter = count($ret1);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hsvs[$ret1[$i]])) {
                 $statement = $pearDB->prepare(
                     <<<'SQL'
@@ -3580,7 +3595,8 @@ function updateServiceCategories_MC($service_id = null, $ret = array())
         $ret = $form->getSubmitValue("service_categories");
     }
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO service_categories_relation ";
             $rq .= "(sc_id, service_service_id) ";
             $rq .= "VALUES ";
@@ -3614,7 +3630,8 @@ function updateServiceCategories($service_id = null, $ret = array())
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'service_categories');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO service_categories_relation ";
         $rq .= "(sc_id, service_service_id) ";
         $rq .= "VALUES ";

@@ -399,11 +399,12 @@ class CentreonUtils
         }
 
         $tagOccurences = [];
-        /**
+        /*
          * Before to escape HTML, we will search and replace all HTML tags
          * allowed by specific tags to avoid they are processed
          */
-        for ($indexTag = 0; $indexTag < count($tagsNotToEscape); $indexTag++) {
+        $counter = count($tagsNotToEscape);
+        for ($indexTag = 0; $indexTag < $counter; $indexTag++) {
             $linkToken = "{{__TAG{$indexTag}x__}}";
             $currentTag = $tagsNotToEscape[$indexTag];
             if (!in_array($currentTag, self::$selfclosingHtmlTagsAllowed)) {
@@ -443,7 +444,8 @@ class CentreonUtils
          * replace all previous specifics tags by their original tag
          */
         foreach ($tagOccurences as $linkToken => $tagsFound) {
-            for ($indexTag = 0; $indexTag < count($tagsFound); $indexTag++) {
+            $counter = count($tagsFound);
+            for ($indexTag = 0; $indexTag < $counter; $indexTag++) {
                 $linkTag = str_replace('x', $indexTag, $linkToken);
                 $escapedString = str_replace($linkTag, $tagsFound[$indexTag], $escapedString);
             }

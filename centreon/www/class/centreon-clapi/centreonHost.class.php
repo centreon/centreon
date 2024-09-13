@@ -1844,7 +1844,8 @@ class CentreonHost extends CentreonObject
 
         if ($aMacroInCommande !== []) {
             $macroCommande = current($aMacroInCommande);
-            for ($i = 0; $i < count($macroCommande); $i++) {
+            $counter = count($macroCommande);
+            for ($i = 0; $i < $counter; $i++) {
                 $macroCommande[$i]['macroOldValue'] = $macroCommande[$i]["host_macro_value"];
                 $macroCommande[$i]['macroFrom'] = 'fromCommand';
                 $macroCommande[$i]['source'] = 'fromCommand';

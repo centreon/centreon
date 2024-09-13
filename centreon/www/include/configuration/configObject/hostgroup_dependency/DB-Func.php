@@ -348,7 +348,8 @@ function updateHostGroupDependencyHostGroupParents($dep_id = null, $ret = array(
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_hgParents');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_hostgroupParent_relation ";
         $rq .= "(dependency_dep_id, hostgroup_hg_id) ";
         $rq .= "VALUES ";
@@ -372,7 +373,8 @@ function updateHostGroupDependencyHostGroupChilds($dep_id = null, $ret = array()
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_hgChilds');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_hostgroupChild_relation ";
         $rq .= "(dependency_dep_id, hostgroup_hg_id) ";
         $rq .= "VALUES ";

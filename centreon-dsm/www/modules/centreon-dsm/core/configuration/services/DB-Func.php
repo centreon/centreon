@@ -654,8 +654,9 @@ function updatePoolContactGroup($pool_id = null, $ret = array())
     $pearDB->query("DELETE FROM mod_dsm_cg_relation WHERE pool_id = '" . $pool_id . "'");
 
     (isset($ret["pool_cg"])) ? $ret = $ret["pool_cg"] : $ret = $form->getSubmitValue("pool_cg");
+    $counter = count($ret);
 
-    for ($i = 0; $i < count($ret); $i++) {
+    for ($i = 0; $i < $counter; $i++) {
         $pearDB->query(
             "INSERT INTO mod_dsm_cg_relation (
                 pool_id, cg_cg_id
@@ -682,8 +683,9 @@ function updatePoolContact($pool_id = null, $ret = array())
     $pearDB->query("DELETE FROM mod_dsm_cct_relation WHERE pool_id = '" . $pool_id . "'");
 
     (isset($ret["pool_cct"])) ? $ret = $ret["pool_cct"] : $ret = $form->getSubmitValue("pool_cct");
+    $counter = count($ret);
 
-    for ($i = 0; $i < count($ret); $i++) {
+    for ($i = 0; $i < $counter; $i++) {
         $pearDB->query(
             "INSERT INTO mod_dsm_cct_relation (
                 pool_id, cct_cct_id

@@ -85,7 +85,8 @@ function testPollerDep($instanceId)
 
     $fieldsToBind = [];
     if (!in_array(false, $hostParents)) {
-        for ($index = 0; $index < count($hostParents); $index++) {
+        $counter = count($hostParents);
+        for ($index = 0; $index < $counter; $index++) {
             $fieldsToBind[':parent_' . $index] = $hostParents[$index];
         }
         $request .= " AND host_parent_hp_id IN (" .
@@ -123,7 +124,8 @@ function hostMacHandler()
     }
 
     $fieldsToBind = [];
-    for ($index = 0; $index < count($_POST['macroInput']); $index++) {
+    $counter = count($_POST['macroInput']);
+    for ($index = 0; $index < $counter; $index++) {
         $fieldsToBind[':macro_' . $index] =
             "'\$_HOST" . strtoupper($_POST['macroInput'][$index]) . "\$'";
     }
@@ -1689,8 +1691,9 @@ function updateHostHostParent($host_id = null, $ret = array())
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'host_parents');
     }
+    $counter = count($ret);
 
-    for ($i = 0; $i < count($ret); $i++) {
+    for ($i = 0; $i < $counter; $i++) {
         if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != "") {
             $rq = "INSERT INTO host_hostparent_relation ";
             $rq .= "(host_parent_hp_id, host_host_id) ";
@@ -1723,7 +1726,8 @@ function updateHostHostParent_MC($host_id = null, $ret = array())
 
     $ret = $form->getSubmitValue("host_parents");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hpars[$ret[$i]]) && isset($ret[$i])) {
                 if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != "") {
                     $rq = "INSERT INTO host_hostparent_relation ";
@@ -1751,7 +1755,8 @@ function updateHostHostChild($host_id = null)
 
     $ret = array();
     $ret = CentreonUtils::mergeWithInitialValues($form, 'host_childs');
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != "") {
             $rq = "INSERT INTO host_hostparent_relation ";
             $rq .= "(host_parent_hp_id, host_host_id) ";
@@ -1783,7 +1788,8 @@ function updateHostHostChild_MC($host_id = null)
 
     $ret = $form->getSubmitValue("host_childs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hchs[$ret[$i]]) && isset($ret[$i])) {
                 if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != "") {
                     $rq = "INSERT INTO host_hostparent_relation ";
@@ -1923,7 +1929,8 @@ function updateHostContactGroup($host_id, $ret = array())
 
     $ret = isset($ret["host_cgs"]) ? $ret["host_cgs"] : CentreonUtils::mergeWithInitialValues($form, 'host_cgs');
     $cg = new CentreonContactgroup($pearDB);
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         if (!is_numeric($ret[$i])) {
             $res = $cg->insertLdapGroup($ret[$i]);
             if ($res != 0) {
@@ -1958,7 +1965,8 @@ function updateHostContact($host_id, $ret = array())
     $dbResult = $pearDB->query($rq);
 
     $ret = isset($ret["host_cs"]) ? $ret["host_cs"] : CentreonUtils::mergeWithInitialValues($form, 'host_cs');
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO contact_host_relation ";
         $rq .= "(host_host_id, contact_id) ";
         $rq .= "VALUES ";
@@ -1988,7 +1996,8 @@ function updateHostContactGroup_MC($host_id, $ret = array())
     $ret = $form->getSubmitValue("host_cgs");
     if (is_array($ret)) {
         $cg = new CentreonContactgroup($pearDB);
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($cgs[$ret[$i]])) {
                 if (!is_numeric($ret[$i])) {
                     $res = $cg->insertLdapGroup($ret[$i]);
@@ -2030,7 +2039,8 @@ function updateHostContact_MC($host_id, $ret = array())
     }
     $ret = $form->getSubmitValue("host_cs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($cs[$ret[$i]])) {
                 $rq = "INSERT INTO contact_host_relation ";
                 $rq .= "(host_host_id, contact_id) ";
@@ -2290,7 +2300,8 @@ function updateHostHostGroup($host_id, $ret = array())
     $hgsNEW = array();
 
     if ($ret) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO hostgroup_relation ";
             $rq .= "(hostgroup_hg_id, host_host_id) ";
             $rq .= "VALUES ";
@@ -2347,7 +2358,8 @@ function updateHostHostGroup_MC($host_id, $ret = array())
 
     $ret = $form->getSubmitValue("host_hgs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hgs[$ret[$i]])) {
                 $rq = "INSERT INTO hostgroup_relation ";
                 $rq .= "(hostgroup_hg_id, host_host_id) ";
@@ -2382,8 +2394,9 @@ function updateHostHostCategory($host_id, $ret = array())
     if (!$ret) {
         return;
     }
+    $counter = count($ret);
 
-    for ($i = 0; $i < count($ret); $i++) {
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO hostcategories_relation ";
         $rq .= "(hostcategories_hc_id, host_host_id) ";
         $rq .= "VALUES ";
@@ -2413,7 +2426,8 @@ function updateHostHostCategory_MC($host_id, $ret = array())
     }
     $ret = $form->getSubmitValue("host_hcs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hcs[$ret[$i]])) {
                 $rq = "INSERT INTO hostcategories_relation ";
                 $rq .= "(hostcategories_hc_id, host_host_id) ";
@@ -2518,7 +2532,8 @@ function updateHostTemplateService($hostId = null)
         $pearDB->query($request);
         $ret = $form->getSubmitValue("host_svTpls");
         if ($ret) {
-            for ($i = 0; $i < count($ret); $i++) {
+            $counter = count($ret);
+            for ($i = 0; $i < $counter; $i++) {
                 if (isset($ret[$i]) && $ret[$i] != "") {
                     $request = "INSERT INTO host_service_relation ";
                     $request .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
@@ -2555,7 +2570,8 @@ function updateHostTemplateService_MC($host_id = null)
 
         $ret = $form->getSubmitValue("host_svTpls");
         if (!empty($ret)) {
-            for ($i = 0; $i < count($ret); $i++) {
+            $counter = count($ret);
+            for ($i = 0; $i < $counter; $i++) {
                 if (!isset($svtpls[$ret[$i]])) {
                     $rq = "INSERT INTO host_service_relation ";
                     $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";

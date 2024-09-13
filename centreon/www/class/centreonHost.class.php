@@ -1303,7 +1303,8 @@ class CentreonHost
 
         if (count($aMacroInCommande) > 0) {
             $macroCommande = $aMacroInCommande;
-            for ($i = 0; $i < count($macroCommande); $i++) {
+            $counter = count($macroCommande);
+            for ($i = 0; $i < $counter; $i++) {
                 $macroCommande[$i]['macroOldValue_#index#'] = $macroCommande[$i]["macroValue_#index#"];
                 $macroCommande[$i]['macroFrom_#index#'] = 'fromCommand';
                 $macroCommande[$i]['source'] = 'fromCommand';

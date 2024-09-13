@@ -213,7 +213,8 @@ function parseStatsFile($statfile)
                 /* manage peers input */
                 if (isset($json_stats[$key]['peers'])) {
                     $arrayPeers = explode(',', $json_stats[$key]['peers']);
-                    for ($i = 1; $i < count($arrayPeers); $i++) {
+                    $counter = count($arrayPeers);
+                    for ($i = 1; $i < $counter; $i++) {
                         $peerName = trim($arrayPeers[$i]);
                         $id = str_replace(':', '_', $peerName);
                         $id = str_replace('.', '_', $id);

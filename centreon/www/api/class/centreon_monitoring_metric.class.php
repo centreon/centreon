@@ -245,7 +245,8 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
             $serviceData = $graph->getData($rows);
 
             /* Replace NaN */
-            for ($i = 0; $i < count($serviceData); $i++) {
+            $counter = count($serviceData);
+            for ($i = 0; $i < $counter; $i++) {
                 if (isset($serviceData[$i]['data'])) {
                     $times = array_keys($serviceData[$i]['data']);
                     $values = array_map(

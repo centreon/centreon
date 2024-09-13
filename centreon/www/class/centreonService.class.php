@@ -856,7 +856,8 @@ class CentreonService
         //filter a macro
         $aTempMacro = array();
         if (count($aMacroInService) > 0) {
-            for ($i = 0; $i < count($aMacroInService); $i++) {
+            $counter = count($aMacroInService);
+            for ($i = 0; $i < $counter; $i++) {
                 $aMacroInService[$i]['macroOldValue_#index#'] = $aMacroInService[$i]["macroValue_#index#"];
                 $aMacroInService[$i]['macroFrom_#index#'] = 'fromService';
                 $aMacroInService[$i]['source'] = 'fromService';
@@ -943,7 +944,8 @@ class CentreonService
         $aTempMacro = array();
 
         if ($aMacroInService !== []) {
-            for ($i = 0; $i < count($aMacroInService); $i++) {
+            $counter = count($aMacroInService);
+            for ($i = 0; $i < $counter; $i++) {
                 $aMacroInService[$i]['macroOldValue_#index#'] = $aMacroInService[$i]["macroValue_#index#"];
                 $aMacroInService[$i]['macroFrom_#index#'] = 'fromService';
                 $aMacroInService[$i]['source'] = 'fromService';

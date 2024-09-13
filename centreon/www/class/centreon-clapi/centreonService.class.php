@@ -1685,7 +1685,8 @@ class CentreonService extends CentreonObject
         $aTempMacro = array();
         $serv = current($aMacroInService);
         if ($aMacroInService !== []) {
-            for ($i = 0; $i < count($serv); $i++) {
+            $counter = count($serv);
+            for ($i = 0; $i < $counter; $i++) {
                 $serv[$i]['macroOldValue_#index#'] = $serv[$i]["svc_macro_value"];
                 $serv[$i]['macroFrom_#index#'] = 'fromService';
                 $serv[$i]['source'] = 'fromService';

@@ -499,7 +499,8 @@ function updateHostCategoriesHosts($hcId, $ret = [])
     // build query to insert all relations
     if ($linkedObjects !== []) {
         $query = "INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id) VALUES ";
-        for ($i = 0; $i < count($linkedObjects); $i++) {
+        $counter = count($linkedObjects);
+        for ($i = 0; $i < $counter; $i++) {
             if ($i != 0) {
                 $query .= ", ";
             }

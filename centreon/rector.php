@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
+use Rector\CodeQuality\Rector\For_\ForRepeatedCountToOwnVariableRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveNullTagValueNodeRector;
@@ -61,8 +62,8 @@ return RectorConfig::configure()
         __DIR__ . '/../centreon-open-tickets/.php-cs-fixer.dist.php',
     ])->withRules([
 //        // ----------------- performance ----------------
-        CountArrayToEmptyArrayComparisonRector::class, // Change count array comparison to empty array comparison to improve performance
-//        ForRepeatedCountToOwnVariableRector::class, // Change count() in for function to own variable
+//        CountArrayToEmptyArrayComparisonRector::class, // Change count array comparison to empty array comparison to improve performance
+        ForRepeatedCountToOwnVariableRector::class, // Change count() in for function to own variable
 //        // -------------- coding quality ----------
 //        CompleteDynamicPropertiesRector::class, // Add missing dynamic properties
 //        AddVoidReturnTypeWhereNoReturnRector::class, // Add return type void to function like without any return

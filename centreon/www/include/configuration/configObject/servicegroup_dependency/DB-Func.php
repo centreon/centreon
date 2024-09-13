@@ -332,7 +332,8 @@ function updateServiceGroupDependencyServiceGroupParents($dep_id = null, $ret = 
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_sgParents');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_servicegroupParent_relation ";
         $rq .= "(dependency_dep_id, servicegroup_sg_id) ";
         $rq .= "VALUES ";
@@ -359,7 +360,8 @@ function updateServiceGroupDependencyServiceGroupChilds($dep_id = null, $ret = a
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_sgChilds');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_servicegroupChild_relation ";
         $rq .= "(dependency_dep_id, servicegroup_sg_id) ";
         $rq .= "VALUES ";

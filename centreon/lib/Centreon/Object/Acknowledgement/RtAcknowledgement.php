@@ -95,7 +95,8 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
         if (!empty($svcList)) {
             $serviceFilter = 'AND (';
             $filterTab = array();
-            for ($i = 0; $i < count($svcList); $i += 2) {
+            $counter = count($svcList);
+            for ($i = 0; $i < $counter; $i += 2) {
                 $hostname = $svcList[$i];
                 $serviceDescription = $svcList[$i + 1];
                 $filterTab[] = '(host.name = "'
