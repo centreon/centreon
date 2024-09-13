@@ -13,6 +13,7 @@ use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
 use Rector\EarlyReturn\Rector\If_\ChangeAndIfToEarlyReturnRector;
 use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
 use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
+use Rector\Php52\Rector\Property\VarToPublicPropertyRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
@@ -62,16 +63,16 @@ return RectorConfig::configure()
         __DIR__ . '/../centreon-open-tickets/.php-cs-fixer.dist.php',
     ])->withRules([
 //        // ----------------- performance ----------------
-//        CountArrayToEmptyArrayComparisonRector::class, // Change count array comparison to empty array comparison to improve performance
-//        ForRepeatedCountToOwnVariableRector::class, // Change count() in for function to own variable
+//        CountArrayToEmptyArrayComparisonRector::class, // OK / Change count array comparison to empty array comparison to improve performance
+//        ForRepeatedCountToOwnVariableRector::class, // OK / Change count() in for function to own variable
 //        // -------------- coding quality ----------
-//        CompleteDynamicPropertiesRector::class, // Add missing dynamic properties
-//        AddVoidReturnTypeWhereNoReturnRector::class, // Add return type void to function like without any return
-        AddClosureVoidReturnTypeWhereNoReturnRector::class, // Add closure return type void if there is no return
-//        AddParamTypeSplFixedArrayRector::class, // Add exact fixed array type in known cases
-//        NestedAnnotationToAttributeRector::class, // Changed nested annotations to attributes
-//        AttributeKeyToClassConstFetchRector::class, // Replace key value on specific attribute to class constant
-//        VarToPublicPropertyRector::class, // Change property modifier from var to public
+//        CompleteDynamicPropertiesRector::class, // OK / Add missing dynamic properties
+//        AddVoidReturnTypeWhereNoReturnRector::class, // OK / Add return type void to function like without any return
+//        AddClosureVoidReturnTypeWhereNoReturnRector::class, // OK / Add closure return type void if there is no return
+//        AddParamTypeSplFixedArrayRector::class, // KO / Add exact fixed array type in known cases
+//        NestedAnnotationToAttributeRector::class, // KO / Changed nested annotations to attributes
+//        AttributeKeyToClassConstFetchRector::class, // KO / Replace key value on specific attribute to class constant
+        VarToPublicPropertyRector::class, // Change property modifier from var to public
 //        RemoveUnusedPublicMethodParameterRector::class, // Remove unused parameter in public method on final class without extends and interface
 //        SimplifyEmptyArrayCheckRector::class, // Simplify is_array and empty functions combination into a simple identical check for an empty array
 //        SimplifyEmptyCheckOnEmptyArrayRector::class, // Simplify empty() functions calls on empty arrays

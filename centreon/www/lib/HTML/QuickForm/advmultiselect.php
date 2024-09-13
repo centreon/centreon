@@ -74,7 +74,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_jsPrefix;
+    public $_jsPrefix;
 
     /**
      * Postfix function name in javascript move selections
@@ -83,7 +83,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_jsPostfix;
+    public $_jsPostfix;
 
     /**
      * Associative array of the multi select container attributes
@@ -92,7 +92,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_tableAttributes;
+    public $_tableAttributes;
 
     /**
      * Associative array of the add button attributes
@@ -101,7 +101,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_addButtonAttributes;
+    public $_addButtonAttributes;
 
     /**
      * Associative array of the remove button attributes
@@ -110,7 +110,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_removeButtonAttributes;
+    public $_removeButtonAttributes;
 
     /**
      * Associative array of the select all button attributes
@@ -119,7 +119,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      1.1.0
      */
-    var $_allButtonAttributes;
+    public $_allButtonAttributes;
 
     /**
      * Associative array of the select none button attributes
@@ -128,7 +128,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      1.1.0
      */
-    var $_noneButtonAttributes;
+    public $_noneButtonAttributes;
 
     /**
      * Associative array of the toggle selection button attributes
@@ -137,7 +137,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      1.1.0
      */
-    var $_toggleButtonAttributes;
+    public $_toggleButtonAttributes;
 
     /**
      * Associative array of the move up button attributes
@@ -146,7 +146,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.5.0
      */
-    var $_upButtonAttributes;
+    public $_upButtonAttributes;
 
     /**
      * Associative array of the move up button attributes
@@ -155,7 +155,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.5.0
      */
-    var $_downButtonAttributes;
+    public $_downButtonAttributes;
 
     /**
      * Associative array of the move top button attributes
@@ -164,7 +164,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      1.5.0
      */
-    var $_topButtonAttributes;
+    public $_topButtonAttributes;
 
     /**
      * Associative array of the move bottom button attributes
@@ -173,7 +173,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      1.5.0
      */
-    var $_bottomButtonAttributes;
+    public $_bottomButtonAttributes;
 
     /**
      * Defines if both list (unselected, selected) will have their elements be
@@ -187,7 +187,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access private
      * @since  0.5.0
      */
-    var $_sort;
+    public $_sort;
 
     /**
      * Associative array of the unselected item box attributes
@@ -196,7 +196,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_attributesUnselected;
+    public $_attributesUnselected;
 
     /**
      * Associative array of the selected item box attributes
@@ -205,7 +205,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_attributesSelected;
+    public $_attributesSelected;
 
     /**
      * Associative array of the internal hidden box attributes
@@ -214,7 +214,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_attributesHidden;
+    public $_attributesHidden;
 
     /**
      * Default Element template string
@@ -223,7 +223,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_elementTemplate;
+    public $_elementTemplate;
 
     /**
      * Default Element stylesheet string
@@ -232,7 +232,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @access     private
      * @since      0.4.0
      */
-    var $_elementCSS = '
+    public $_elementCSS = '
 #qfams_{id} {
   font: 13.3px sans-serif;
   background-color: #fff;
