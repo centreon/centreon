@@ -17286,6 +17286,56 @@ msgstr "Erweiterter Modus"
 #  msgid "Changing type of an existing additional connector configuration is not allowed"
 #  msgstr ""
 
+# msgid "Vault configuration"
+# msgstr ""
+
+# msgid "The address is invalid"
+# msgstr ""
+
+# msgid "Vault address"
+# msgstr ""
+
+# msgid "Root path"
+# msgstr ""
+
+# msgid "Role ID"
+# msgstr ""
+
+# msgid "Secret ID"
+# msgstr ""
+
+# msgid "Reset configuration"
+# msgstr ""
+
+# msgid "The form will be cleared and all data will be lost. Do you want to proceed?"
+# msgstr ""
+
+# msgid "Port expected at most 65535"
+# msgstr ""
+
+# msgid "Vault configuration updated"
+# msgstr ""
+
+# msgid "Port must start from 1"
+# msgstr ""
+
+# msgid "Migrate"
+# msgstr ""
+
+# msgid "Migration script"
+# msgstr ""
+
+# msgid "Execute this script as root on the central."
+# msgstr ""
+
+# msgid "The following script will migrate all your credentials from Centreon, Auto-discovery and the database."
+# msgstr ""
+
+# msgid "By executing this script, your platform will be in a locked mode and you not be able to do <strong>anything</strong> during the migration process (example: exporting your configuration, updating administration parameters, etc...)."
+# msgstr ""
+
+# msgid "The migration process can take several minutes depending on your configuration."
+# msgstr ""
 
 #  msgid "Web page"
 #  msgstr ""
