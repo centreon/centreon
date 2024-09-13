@@ -93,7 +93,7 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-dnf module enable -y php:8.1
+dnf module enable -y php:8.2
 dnf install -y \
   php-common \
   php-cli \

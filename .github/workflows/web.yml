@@ -590,6 +590,12 @@ jobs:
           if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
             FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
             echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+          else
+            IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+            if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+              FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
+              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+            fi
           fi
           echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
         shell: bash
