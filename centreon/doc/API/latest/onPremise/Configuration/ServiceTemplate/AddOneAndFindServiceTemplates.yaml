@@ -56,12 +56,11 @@ post:
             - $ref: 'Schema/NewServiceTemplate.yaml'
   responses:
     '201':
-      allOf:
-        - $ref: '../../Common/Response/Created.yaml'
-        - content:
-            application/json:
-              schema:
-                $ref: 'Schema/AddServiceTemplateResponse.yaml'
+      description: "Indicates that the request was successful and a resource has been created"
+      content:
+        application/json:
+          schema:
+            $ref: Schema/AddServiceTemplateResponse.yaml
     '400':
       $ref: '../../Common/Response/BadRequest.yaml'
     '403':
