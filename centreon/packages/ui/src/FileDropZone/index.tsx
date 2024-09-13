@@ -154,12 +154,12 @@ const Dropzone = ({
             {hasCustomDropZoneContent ? (
               <CustomDropZoneContent openFileExplorer={openFileExplorer} />
             ) : (
-              <>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                 <PostAddIcon color="primary" fontSize="large" />
                 <Typography>
                   {t(labelDropOr)} {t(labelSelectAFile)}
                 </Typography>
-              </>
+              </Box>
             )}
             <input
               accept={accept}

@@ -109,7 +109,10 @@ export const useInputs = (): {
                     type: InputType.Text,
                     fieldName: 'configuration.otelServerPort',
                     required: true,
-                    label: t(labelPort)
+                    label: t(labelPort),
+                    text: {
+                      type: 'number'
+                    }
                   }
                 ]
               }

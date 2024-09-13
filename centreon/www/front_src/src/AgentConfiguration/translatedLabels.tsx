@@ -26,3 +26,6 @@ export const labelAddAgentConfiguration = 'Add agent configuration';
 export const labelOTelServer = 'OTel server';
 export const labelListeningAddress = 'Listening address';
 export const labelPort = 'Port';
+export const labelSave = 'Save';
+export const labelPortExpectedAtMost = 'Port number must be at most 65535';
+export const labelPortMustStartFrom1 = 'Port number must be at least 1';

@@ -3,6 +3,7 @@ import {
   AgentConfigurationForm as AgentConfigurationFormModel,
   FormVariant
 } from '../models';
+import Buttons from './Buttons';
 import { useInputs } from './useInputs';
 import { useValidationSchema } from './useValidationSchema';
 
@@ -40,6 +41,7 @@ const AgentConfigurationForm = ({
 
   return (
     <Form
+      Buttons={Buttons}
       validationSchema={validationSchema}
       groups={groups}
       isCollapsible

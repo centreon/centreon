@@ -5,7 +5,12 @@ import {
   AgentConfigurationConfigurationForm,
   AgentConfigurationForm
 } from '../models';
-import { labelAddressInvalid, labelRequired } from '../translatedLabels';
+import {
+  labelAddressInvalid,
+  labelPortExpectedAtMost,
+  labelPortMustStartFrom1,
+  labelRequired
+} from '../translatedLabels';
 
 const ipAddressRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
 export const portRegex = /:[0-9]+$/;
@@ -38,7 +43,10 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             address?.match(ipAddressRegex) && !address.match(portRegex)
         })
         .required(t(labelRequired)),
-      otelServerPort: requiredNumber,
+      otelServerPort: number()
+        .min(1, t(labelPortMustStartFrom1))
+        .max(65535, t(labelPortExpectedAtMost))
+        .required(t(labelRequired)),
       confServerPort: requiredNumber
     }),
     files: object({
