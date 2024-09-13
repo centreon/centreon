@@ -648,3 +648,25 @@ When(
 Then('the graph should be displayed as a bar chart', () => {
   cy.get('path[data-testid*="stacked-bar-"]').should('exist');
 });
+
+When(
+  'the dashboard administrator selects a custom time period for the graph',
+  () => {
+    cy.contains('Last hour').realClick()
+    cy.contains('Customize').realClick()
+  }
+);
+
+Then(
+  'the graph updates to reflect data for the selected time period',
+  () => {
+    cy.getByLabel({
+      label: 'From',
+      tag: 'div'
+    }).should('be.visible')
+    cy.getByLabel({
+      label: 'To',
+      tag: 'div'
+    }).should('be.visible')
+  }
+);
