@@ -17336,3 +17336,15 @@ msgstr "Erweiterter Modus"
 
 # msgid "The migration process can take several minutes depending on your configuration."
 # msgstr ""
+
+#  msgid "Web page"
+#  msgstr ""
+
+#  msgid "Displays a web page"
+#  msgstr ""
+
+#  msgid "Please note that domains outside your organization must be authorized in your Apache configuration."
+#  msgstr ""
+
+#  msgid "Web page preview"
+#  msgstr ""

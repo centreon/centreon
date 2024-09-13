@@ -19438,3 +19438,14 @@ msgstr "En exécutant ce script, votre plateforme sera verrouillée and vous ne 
 msgid "The migration process can take several minutes depending on your configuration."
 msgstr "Le processus de migration peut prendre plusieurs minutes selon votre configuration."
 
+msgid "Web page"
+msgstr "Page web"
+
+msgid "Displays a web page"
+msgstr "Affiche une page web"
+
+msgid "Please note that domains outside your organization must be authorized in your Apache configuration."
+msgstr "Attention, les domaines en dehors de votre organisation doivent être autorisés dans votre configuration Apache."
+
+msgid "Web page preview"
+msgstr "Aperçu de la page web"
