@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 dayjs.extend(isSameOrAfter);
 
 import { Typography } from '@mui/material';
@@ -24,6 +24,7 @@ const TimePeriod = ({
   isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useTimePeriodStyles();
+
   const { t } = useTranslation();
 
   const {
