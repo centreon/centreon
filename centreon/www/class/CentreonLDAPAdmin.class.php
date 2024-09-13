@@ -34,20 +34,23 @@
  *
  */
 
+
 /**
- * Ldap Administration class
+ * Class
+ *
+ * @class CentreonLdapAdmin
  */
 class CentreonLdapAdmin
 {
-    /**
-     * @object centreonLog
-     */
+
+    /** @var CentreonLog */
     public $centreonLog;
 
+    /** @var CentreonDB */
     private $db;
 
     /**
-     * Constructor
+     * CentreonLdapAdmin constructor
      *
      * @param CentreonDB $pearDB The database connection
      */
@@ -103,7 +106,9 @@ class CentreonLdapAdmin
     /**
      * Update Ldap servers
      *
-     * @param int $arId | auth resource id
+     * @param int $arId auth resource id
+     *
+     * @throws PDOException
      */
     protected function updateLdapServers($arId): void
     {
@@ -156,7 +161,9 @@ class CentreonLdapAdmin
      *
      * @param array<string, mixed> $options The list of options
      * @param int $arId
+     *
      * @return int resource auth id
+     * @throws PDOException
      */
     public function setGeneralOptions(array $options, $arId = 0): int
     {
@@ -279,7 +286,9 @@ class CentreonLdapAdmin
      * Get the general options
      *
      * @param int $arId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getGeneralOptions($arId)
     {
@@ -304,7 +313,9 @@ class CentreonLdapAdmin
      *
      * @param int $arId
      * @param array<string, mixed> $params
+     *
      * @return void
+     * @throws PDOException
      */
     public function addServer($arId, $params = []): void
     {
@@ -327,7 +338,9 @@ class CentreonLdapAdmin
      *
      * @param int $arId
      * @param array<string, mixed> $params
+     *
      * @return void
+     * @throws PDOException
      */
     public function modifyServer($arId, $params = array()): void
     {
@@ -401,7 +414,7 @@ class CentreonLdapAdmin
      * Modify a template
      * (Possibility of a dead code)
      *
-     * @param int The id of the template
+     * @param int $id The id of the template
      * @param array $options A hash table with options for connections and search in ldap
      * @return bool
      */
@@ -442,7 +455,9 @@ class CentreonLdapAdmin
      * Get the template information
      *
      * @param int $id The template id, if 0 get the template
+     *
      * @return array<string, string>
+     * @throws PDOException
      */
     public function getTemplate($id = 0): array
     {
@@ -528,9 +543,11 @@ class CentreonLdapAdmin
      * Get LDAP configuration list
      *
      * @param string $search
-     * @param string $offset
-     * @param int $limit
-     * @return mixed[]
+     * @param string|int|null $offset
+     * @param string|int|null $limit
+     *
+     * @return array
+     * @throws PDOException
      */
     public function getLdapConfigurationList($search = "", $offset = null, $limit = null): array
     {
@@ -563,8 +580,10 @@ class CentreonLdapAdmin
     /**
      * Delete ldap configuration
      *
-     * @param mixed[] $configList
+     * @param array $configList
+     *
      * @return void
+     * @throws PDOException
      */
     public function deleteConfiguration(array $configList = []): void
     {
@@ -587,8 +606,10 @@ class CentreonLdapAdmin
      * Enable/Disable ldap configuration
      *
      * @param int $status
-     * @param mixed[] $configList
+     * @param array $configList
+     *
      * @return void
+     * @throws PDOException
      */
     public function setStatus($status, $configList = array()): void
     {
@@ -615,7 +636,9 @@ class CentreonLdapAdmin
      * Get list of servers from resource id
      *
      * @param int $arId Auth resource id
+     *
      * @return array<int, array<string, mixed>>
+     * @throws PDOException
      */
     public function getServersFromResId($arId): array
     {
@@ -647,7 +670,9 @@ class CentreonLdapAdmin
      * Remove contact passwords if password storage is disabled
      *
      * @param int $arId Auth resource id
+     *
      * @return void
+     * @throws PDOException
      */
     private function manageContactPasswords($arId): void
     {

@@ -39,20 +39,22 @@ require_once __DIR__ . '/centreonDB.class.php';
 
 use Psr\Log\LoggerInterface;
 
+/**
+ * Class
+ *
+ * @class CentreonStatsModules
+ */
 class CentreonStatsModules
 {
-    /**
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     private $db;
-
-    /**
-     * @var LoggerInterface $logger
-     */
+    /** @var LoggerInterface $logger */
     private $logger;
 
     /**
-     * Constructor
+     * CentreonStatsModules constructor
+     *
+     * @param LoggerInterface $logger
      */
     public function __construct(LoggerInterface $logger)
     {
@@ -64,6 +66,7 @@ class CentreonStatsModules
      * Get list of installed modules
      *
      * @return array Return the names of installed modules [['name' => string], ...]
+     * @throws PDOException
      */
     private function getInstalledModules()
     {
@@ -99,7 +102,7 @@ class CentreonStatsModules
                         if (class_exists(ucfirst($fileName))) {
                             $moduleObjects[] = ucfirst($fileName);
                         }
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         $this->logger->error('Cannot get stats of module ' . $module);
                     }
                 }
@@ -113,6 +116,7 @@ class CentreonStatsModules
      * Get statistics from module
      *
      * @return array The statistics of each module
+     * @throws PDOException
      */
     public function getModulesStatistics()
     {
@@ -125,7 +129,7 @@ class CentreonStatsModules
                 try {
                     $oModuleObject = new $moduleObject();
                     $data[] = $oModuleObject->getStats();
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $this->logger->error($e->getMessage(), ['context' => $e]);
                 }
             }

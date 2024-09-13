@@ -38,7 +38,10 @@ require_once _CENTREON_PATH_ . 'www/class/centreonService.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonInstance.class.php';
 
 /**
- *  Class that contains various methods for managing services
+ * Class
+ *
+ * @class CentreonServicetemplates
+ * @description Class that contains various methods for managing services
  */
 class CentreonServicetemplates extends CentreonService
 {
@@ -46,6 +49,8 @@ class CentreonServicetemplates extends CentreonService
      *  Constructor
      *
      * @param CentreonDB $db
+     *
+     * @throws PDOException
      */
     public function __construct($db)
     {
@@ -53,8 +58,7 @@ class CentreonServicetemplates extends CentreonService
     }
 
     /**
-     *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -86,11 +90,12 @@ class CentreonServicetemplates extends CentreonService
     }
 
     /**
-     * @param array  $values
-     * @param array  $options
+     * @param array $values
+     * @param array $options
      * @param string $register
      *
-     * @return array|type
+     * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array(), $register = '1')
     {
@@ -169,6 +174,7 @@ class CentreonServicetemplates extends CentreonService
      * @param string $hostTemplateName linked host template
      *
      * @return array service ids
+     * @throws PDOException
      */
     public function getServiceIdsLinkedToSTAndCreatedByHT($serviceTemplateName, $hostTemplateName)
     {
@@ -196,8 +202,8 @@ class CentreonServicetemplates extends CentreonService
     }
 
     /**
+     * @param bool $enable
      *
-     * @param string $q
      * @return array
      */
     public function getList($enable = false)

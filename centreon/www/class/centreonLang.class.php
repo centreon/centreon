@@ -33,41 +33,30 @@
  *
  */
 
- /*
-  *  Language management class
-  */
+/**
+ * Class
+ *
+ * @class CentreonLang
+ */
 class CentreonLang
 {
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     protected $charset;
     
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     protected $lang;
     
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     protected $path;
     
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     protected $charsetList;
 
     /**
-     *  Constructor
+     * CentreonLang constructor
      *
      * @param string $centreon_path
      * @param Centreon $centreon
-     * @return void
      */
     public function __construct($centreon_path, $centreon = null)
     {
@@ -85,7 +74,10 @@ class CentreonLang
         $this->path = $centreon_path;
         $this->setCharsetList();
     }
-    
+
+    /**
+     * @return int|string|null
+     */
     private function parseHttpAcceptHeader()
     {
         $langs = array();

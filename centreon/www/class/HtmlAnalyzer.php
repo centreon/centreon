@@ -18,12 +18,21 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
+/**
+ * Class
+ *
+ * @class HtmlAnalyzer
+ */
 class HtmlAnalyzer
 {
+    /** @var int */
     private int $index;
+    /** @var mixed|string */
     private mixed $stringToSanitize;
+    /** @var int */
     private int $deepTag = 0;
 
     /**

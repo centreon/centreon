@@ -34,14 +34,19 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonHostcategories
  */
 class CentreonHostcategories
 {
+    /** @var CentreonDB */
     protected $db;
 
-    /*
-     * constructor
+    /**
+     * CentreonHostcategories constructor
+     *
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -49,8 +54,7 @@ class CentreonHostcategories
     }
 
     /**
-     *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -84,7 +88,9 @@ class CentreonHostcategories
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {

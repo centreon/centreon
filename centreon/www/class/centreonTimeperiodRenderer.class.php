@@ -33,33 +33,41 @@
  *
  */
 
-
 /**
- * Original author is Tensibai, cleaned up by sho.
- * Used for rendering time periods in order to make them more human-readable.
+ * Class
  *
- * @author Tensibai
- * @author Sylvestre Ho
+ * @class CentreonTimeperiodRenderer
+ * @description Used for rendering time periods in order to make them more human-readable
  */
 class CentreonTimeperiodRenderer
 {
+    /** @var CentreonDB|null */
     protected $db;
+    /** @var int */
     protected $tpid;
+    /** @var mixed */
     protected $tpname;
+    /** @var mixed */
     protected $tpalias;
+    /** @var array[] */
     protected $timerange;
+    /** @var array[] */
     protected $timeline;
+    /** @var array */
     protected $includedTp;
+    /** @var array */
     protected $excludedTp;
+    /** @var array */
     protected $exceptionList;
 
     /**
-     * Constructor
+     * CentreonTimeperiodRenderer constructor
      *
      * @param CentreonDB $db
      * @param int $tpid
-     * @param strign $inex
-     * @return void
+     * @param string $inex
+     *
+     * @throws PDOException
      */
     public function __construct($db, $tpid, $inex)
     {
@@ -258,6 +266,7 @@ class CentreonTimeperiodRenderer
      * Update Inclusions
      *
      * @return void
+     * @throws PDOException
      */
     protected function updateInclusions()
     {
@@ -278,6 +287,7 @@ class CentreonTimeperiodRenderer
      * Update Exclusions
      *
      * @return void
+     * @throws PDOException
      */
     protected function updateExclusions()
     {
@@ -385,9 +395,9 @@ class CentreonTimeperiodRenderer
     }
     
     /**
+     * @param string $field
      *
-     * @param type $field
-     * @return string
+     * @return array
      */
     public static function getDefaultValuesParameters($field)
     {

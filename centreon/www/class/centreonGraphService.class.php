@@ -160,7 +160,7 @@ class CentreonGraphService extends CentreonGraph
                     $info['negative'] = true;
                 }
                 if (isset($metric['stack'])) {
-                    $info['stack'] = $metric['stack'] == 1 ? true : false;
+                    $info['stack'] = $metric['stack'] == 1;
                 }
                 if (isset($metric['crit'])) {
                     $info['crit'] = $metric['crit'];

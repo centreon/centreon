@@ -34,20 +34,29 @@
  */
 require_once(__DIR__ . '/centreonAuth.class.php');
 
+/**
+ * Class
+ *
+ * @class CentreonLogAction
+ */
 class CentreonLogAction
 {
-    protected $logUser;
-    protected $uselessKey;
-
     /**
      * Const use to keep the changelog mechanism with hidden password values
      */
     public const PASSWORD_BEFORE = '*******';
     public const PASSWORD_AFTER = CentreonAuth::PWS_OCCULTATION;
-    /*
-     * Initializes variables
-     */
 
+    /** @var CentreonUser */
+    protected $logUser;
+    /** @var array */
+    protected $uselessKey;
+
+    /**
+     * CentreonLogAction constructor
+     *
+     * @param CentreonUser $usr
+     */
     public function __construct($usr)
     {
         $this->logUser = $usr;
@@ -61,10 +70,13 @@ class CentreonLogAction
         $this->uselessKey['plugins'] = 1;
     }
 
-    /*
-     *  Inserts configuration into DB
+    /**
+     * @param string|int $logId
+     * @param array $fields
+     *
+     * @return void
+     * @throws PDOException
      */
-
     public function insertFieldsNameValue($logId, $fields): void
     {
         global $pearDBO;
@@ -90,10 +102,18 @@ class CentreonLogAction
         $statement->execute();
     }
 
-    /*
-     *  Inserts logs : add, delete or modification of an object
+    /**
+     * Inserts logs : add, delete or modification of an object
+     *
+     * @param $object_type
+     * @param $object_id
+     * @param $object_name
+     * @param $action_type
+     * @param $fields
+     *
+     * @return void
+     * @throws PDOException
      */
-
     public function insertLog($object_type, $object_id, $object_name, $action_type, $fields = null): void
     {
         global $pearDBO;
@@ -122,10 +142,12 @@ class CentreonLogAction
         }
     }
 
-    /*
-     * returns the contact name
+    /**
+     * @param $id
+     *
+     * @return mixed
+     * @throws PDOException
      */
-
     public function getContactname($id): mixed
     {
         global $pearDB;
@@ -143,10 +165,15 @@ class CentreonLogAction
         return $name;
     }
 
-    /*
+    /**
      * returns the list of actions ("create","delete","change","mass change", "enable", "disable")
+     *
+     * @param $id
+     * @param $object_type
+     *
+     * @return array
+     * @throws PDOException
      */
-
     public function listAction($id, $object_type): array
     {
         global $pearDBO;
@@ -181,8 +208,13 @@ class CentreonLogAction
         return $list_actions;
     }
 
-    /*
-     *  returns list of host for this service
+    /**
+     * returns list of host for this service
+     *
+     * @param $service_id
+     *
+     * @return array|int
+     * @throws PDOException
      */
     public function getHostId($service_id): array|int
     {
@@ -226,6 +258,12 @@ class CentreonLogAction
         return -1;
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return mixed
+     * @throws PDOException
+     */
     public function getHostName($host_id): mixed
     {
         global $pearDB, $pearDBO;
@@ -254,6 +292,12 @@ class CentreonLogAction
         return $info['name'] ?? -1;
     }
 
+    /**
+     * @param $hg_id
+     *
+     * @return mixed
+     * @throws PDOException
+     */
     public function getHostGroupName($hg_id): mixed
     {
         global $pearDB, $pearDBO;
@@ -278,8 +322,14 @@ class CentreonLogAction
         return -1;
     }
 
-    /*
-     *  returns list of modifications
+    /**
+     * returns list of modifications
+     *
+     * @param int $id
+     * @param string $objectType
+     *
+     * @return array
+     * @throws PDOException
      */
     public function listModification(int $id, string $objectType): array
     {
@@ -321,7 +371,7 @@ class CentreonLogAction
             while ($field = $DBRESULT2->fetch(PDO::FETCH_ASSOC)) {
                 switch ($field['field_name']) {
                     case 'macroValue':
-                        /**
+                        /*
                          * explode the macroValue string to easily change any password to ****** on the "After" part
                          * of the changeLog
                          */
@@ -332,7 +382,7 @@ class CentreonLogAction
                             }
                         }
                         $field['field_value'] = implode(',', $macroValueArray);
-                        /**
+                        /*
                          * change any password to ****** on the "Before" part of the changeLog
                          * and don't change anything if the 'macroValue' string only contains commas
                          */
@@ -384,8 +434,12 @@ class CentreonLogAction
         return $list_modifications;
     }
 
-    /*
-     *  Display clear action labels
+    /**
+     * Display clear action labels
+     *
+     * @param string $action
+     *
+     * @return mixed
      */
     public function replaceActiontype($action): mixed
     {
@@ -405,8 +459,8 @@ class CentreonLogAction
         return $action;
     }
 
-    /*
-     *  list object types
+    /**
+     * @return array
      */
     public function listObjecttype(): array
     {
@@ -442,6 +496,11 @@ class CentreonLogAction
         return $object_type_tab;
     }
 
+    /**
+     * @param array $ret
+     *
+     * @return array
+     */
     public static function prepareChanges($ret): array
     {
         global $pearDB;

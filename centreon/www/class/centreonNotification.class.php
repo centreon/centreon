@@ -33,27 +33,37 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonNotification
+ */
 class CentreonNotification
 {
-    /**
-     * @var CentreonDB $db
-     */
+    public const HOST = 0;
+    public const SVC = 1;
+    public const HOST_ESC = 2;
+    public const SVC_ESC = 3;
+
+    /** @var CentreonDB $db */
     protected $db;
+    /** @var array */
     protected $svcTpl;
+    /** @var array */
     protected $svcNotifType;
+    /** @var array */
     protected $svcBreak;
+    /** @var array */
     protected $hostNotifType;
+    /** @var array */
     protected $notifiedHosts;
+    /** @var array */
     protected $hostBreak;
-    const     HOST = 0;
-    const     SVC = 1;
-    const     HOST_ESC = 2;
-    const     SVC_ESC = 3;
 
     /**
-     * Constructor
+     * CentreonNotification constructor
      *
-     * @return void
+     * @param CentreonDB $db
      */
     public function __construct($db)
     {
@@ -69,7 +79,8 @@ class CentreonNotification
     /**
      * Get list of contact
      *
-     * @return void
+     * @return array
+     * @throws PDOException
      */
     public function getList()
     {
@@ -86,7 +97,9 @@ class CentreonNotification
      * Checks if notification is enabled
      *
      * @param int $contactId
+     *
      * @return bool true if notification is enabled, false otherwise
+     * @throws PDOException
      */
     protected function isNotificationEnabled($contactId)
     {
@@ -105,7 +118,9 @@ class CentreonNotification
      * Get contact groups
      *
      * @param int $contactGroupId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getContactGroupsById($contactGroupId)
     {
@@ -124,7 +139,9 @@ class CentreonNotification
      * Get contact groups
      *
      * @param int $contactId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getContactGroups($contactId)
     {
@@ -145,7 +162,9 @@ class CentreonNotification
      *
      * @param int $notifType 0 for Hosts, 1 for Services, 2 for Host Escalations, 3 for Service Escalations
      * @param int $contactId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getNotifications($notifType, $contactId)
     {
@@ -164,13 +183,15 @@ class CentreonNotification
         }
         return $resources;
     }
-    
+
     /**
      * Get notifications
      *
      * @param int $notifType 0 for Hosts, 1 for Services, 2 for Host Escalations, 3 for Service Escalations
      * @param int $contactgroupId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getNotificationsContactGroup($notifType, $contactgroupId)
     {
@@ -187,15 +208,14 @@ class CentreonNotification
         }
         return $resources;
     }
-    
-    
-    
 
     /**
      * Get host escalatiosn
      *
      * @param array $escalations
+     *
      * @return array
+     * @throws PDOException
      */
     protected function getHostEscalations($escalations)
     {
@@ -222,7 +242,9 @@ class CentreonNotification
      * Get service escalations
      *
      * @param array $escalations
+     *
      * @return array
+     * @throws PDOException
      */
     protected function getServiceEscalations($escalations)
     {
@@ -254,8 +276,11 @@ class CentreonNotification
     /**
      * Get escalation notifications
      *
+     * @param $notifType
      * @param array $contactgroups
+     *
      * @return array
+     * @throws PDOException
      */
     protected function getEscalationNotifications($notifType, $contactgroups)
     {
@@ -281,13 +306,14 @@ class CentreonNotification
         }
     }
 
-
     /**
      * Get Host Notifications
      *
      * @param int $contactId
      * @param array $contactgroups
+     *
      * @return array
+     * @throws PDOException
      */
     protected function getHostNotifications($contactId, $contactgroups)
     {
@@ -337,7 +363,9 @@ class CentreonNotification
      *
      * @param int $hostId
      * @param array $templates
+     *
      * @return bool
+     * @throws PDOException
      */
     protected function getHostTemplateNotifications($hostId, $templates)
     {
@@ -348,9 +376,9 @@ class CentreonNotification
         		WHERE htr.host_host_id = :host_id 
         		ORDER BY `order`";
         $statement = $this->db->prepare($sql);
-        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
         $statement->execute();
-        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
             if ($row['contact_id']) {
                 $this->hostBreak[1] = true;
             }
@@ -376,7 +404,9 @@ class CentreonNotification
      *
      * @param int $contactId
      * @param array $contactGroups
+     *
      * @return array
+     * @throws PDOException
      */
     protected function getServiceNotifications($contactId, $contactGroups)
     {
@@ -508,7 +538,9 @@ class CentreonNotification
      *
      * @param int $serviceId
      * @param array $templates
+     *
      * @return bool
+     * @throws PDOException
      */
     protected function getServiceTemplateNotifications($serviceId, $templates)
     {

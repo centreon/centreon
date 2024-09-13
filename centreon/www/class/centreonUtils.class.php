@@ -33,10 +33,14 @@
  *
  */
 
-
 require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonUtils
+ */
 class CentreonUtils
 {
     /**
@@ -59,6 +63,8 @@ class CentreonUtils
 
     /**
      * Defines all self-closing html tags allowed
+     *
+     * @var string[]
      */
     public static $selfclosingHtmlTagsAllowed = ['br', 'hr'];
 
@@ -67,7 +73,8 @@ class CentreonUtils
      *
      * @param mixed $arrObjData
      * @param array $arrSkipIndices
-     * @return mixed
+     *
+     * @return array|string
      */
     public function objectIntoArray($arrObjData, $arrSkipIndices = array())
     {
@@ -159,7 +166,7 @@ class CentreonUtils
      * Convert operand to Mysql format
      *
      * @param string $str
-     * @return string;
+     * @return string
      */
     public static function operandToMysqlFormat($str)
     {
@@ -205,19 +212,21 @@ class CentreonUtils
     /**
      * Merge with initial values
      *
-     * @param Quickform $form
+     * @param HTML_QuickFormCustom $form
      * @param string $key
+     *
      * @return array
+     * @throws InvalidArgumentException
      */
     public static function mergeWithInitialValues($form, $key)
     {
         $init = array();
         try {
             $initForm = $form->getElement('initialValues');
-            $initForm = \HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
+            $initForm = HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
 
-            if ($initForm === false) {
-                throw new \InvalidArgumentException('Invalid Parameters');
+            if ($initForm === false) {// FIXME not a good test
+                throw new InvalidArgumentException('Invalid Parameters');
             }
 
             $initialValues = unserialize($initForm, ['allowed_classes' => false]);
@@ -260,11 +269,11 @@ class CentreonUtils
     }
 
     /**
-     *
      * @param string $currentVersion Original version
      * @param string $targetVersion Version to compare
      * @param string $delimiter Indicates the delimiter parameter for version
-     * @param integer $depth Indicates the depth of comparison, if 0 it means "unlimited"
+     *
+     * @param int $depth Indicates the depth of comparison, if 0 it means "unlimited"
      */
     public static function compareVersion($currentVersion, $targetVersion, $delimiter = ".", $depth = 0)
     {
@@ -309,6 +318,7 @@ class CentreonUtils
      *
      * @param string $stringToEscape String to escape
      * @param int $escapeMethod Escape method (default: ESCAPE_LEGACY_METHOD)
+     *
      * @return string Escaped string
      * @see CentreonUtils::ESCAPE_LEGACY_METHOD
      * @see CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
@@ -331,7 +341,7 @@ class CentreonUtils
                 $chars = (string) $_SESSION['centreon']->Nagioscfg['illegal_object_name_chars'];
                 return str_replace(str_split($chars), '', $stringToEscape);
         }
-    }
+    }// FIXME no return
 
     /**
      * Convert all html tags into HTML entities
@@ -347,7 +357,7 @@ class CentreonUtils
     /**
      * Protect a string and return it with single quotes around.
      *
-     * This is the same behaviour as {@see \PDO::quote()}.
+     * This is the same behaviour as {@see PDO::quote}.
      *
      * @see https://dev.mysql.com/doc/refman/5.7/en/mysql-real-escape-string.html
      * @see https://www.php.net/manual/fr/mysqli.real-escape-string.php
@@ -376,6 +386,7 @@ class CentreonUtils
      *
      * @param string $stringToEscape String (HTML) to escape
      * @param string[] $tagsNotToEscape List of tags not to escape
+     *
      * @return string HTML escaped
      */
     public static function escapeAllExceptSelectedTags(
@@ -427,7 +438,7 @@ class CentreonUtils
 
         $escapedString = htmlentities($stringToEscape, ENT_QUOTES, 'UTF-8');
 
-        /**
+        /*
          * After we escaped all unauthorized HTML tags, we will search and
          * replace all previous specifics tags by their original tag
          */
@@ -457,6 +468,7 @@ class CentreonUtils
      *
      * @param string $tag HTML tag to find
      * @param string $html HTML to analyse
+     *
      * @return array (('tag'=> html tag; 'start' => start position of tag,
      * 'length'=> length between start and end of tag), ...)
      */
@@ -486,8 +498,8 @@ class CentreonUtils
     }
 
     /**
+     * @param string $coords -90.0,180.0
      *
-     * @param $coords -90.0,180.0
      * @return bool
      */
     public static function validateGeoCoords($coords): bool

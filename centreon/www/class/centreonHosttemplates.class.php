@@ -47,12 +47,12 @@ require_once _CENTREON_PATH_ . 'www/class/centreonHost.class.php';
 class CentreonHosttemplates extends CentreonHost
 {
     /**
-     *
-     * @param array  $values
-     * @param array  $options
+     * @param array $values
+     * @param array $options
      * @param string $register
      *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = [], $options = [], $register = '1')
     {
@@ -66,7 +66,7 @@ class CentreonHosttemplates extends CentreonHost
      * @param bool   $checkTemplates
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getLinkedHostsByName($hostTemplateName, $checkTemplates = true)
     {
@@ -86,7 +86,7 @@ class CentreonHosttemplates extends CentreonHost
             AND ht.host_name = :hostTplName';
         try {
             $result = $this->db->prepare($query);
-            $result->bindValue(':register', $register, \PDO::PARAM_STR);
+            $result->bindValue(':register', $register, PDO::PARAM_STR);
             $result->bindValue(':hostTplName', $this->db->escape($hostTemplateName), PDO::PARAM_STR);
             $result->execute();
         } catch (PDOException $e) {

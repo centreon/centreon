@@ -33,20 +33,24 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonVersion
+ */
 class CentreonVersion
 {
-    /**
-     * @var CentreonDB
-     * @var CentreonDBStorage
-     */
+    /** @var CentreonDB */
     private $db;
+
+    /** @var CentreonDB|null */
     private $dbStorage;
 
     /**
-     * Constructor
+     * CentreonVersion constructor
      *
      * @param CentreonDB $db
-     * @param CentreonDBStorage $dbStorage
+     * @param CentreonDB|null $dbStorage
      */
     public function __construct($db, $dbStorage = null)
     {
@@ -61,6 +65,7 @@ class CentreonVersion
      * Get Centreon core version
      *
      * @return array
+     * @throws PDOException
      */
     public function getCore()
     {
@@ -97,6 +102,7 @@ class CentreonVersion
      * Get all Centreon modules
      *
      * @return array
+     * @throws PDOException
      */
     public function getModules()
     {
@@ -114,6 +120,7 @@ class CentreonVersion
      * Get all Centreon widgets
      *
      * @return array
+     * @throws PDOException
      */
     public function getWidgets()
     {
@@ -131,6 +138,7 @@ class CentreonVersion
      * Get versions of the system processus
      *
      * @return array
+     * @throws PDOException
      */
     public function getSystem()
     {
@@ -151,7 +159,6 @@ class CentreonVersion
      * get system information
      *
      * @return array $data An array composed with the name and version of the OS
-     * @throws Exception
      */
     public function getVersionSystem()
     {
@@ -174,6 +181,7 @@ class CentreonVersion
      * Get all Centreon widgets
      *
      * @return array $data Widgets statistics
+     * @throws PDOException
      */
     public function getWidgetsUsage()
     {

@@ -34,17 +34,19 @@
  */
 
 /**
+ * Class
  *
- * Enter description here ...
- * @author jmathis
- *
+ * @class CentreonGraphCurve
  */
 class CentreonGraphCurve
 {
+    /** @var CentreonDB */
     protected $db;
 
-    /*
-     * constructor
+    /**
+     * CentreonGraphCurve constructor
+     *
+     * @param $pearDB
      */
     public function __construct($pearDB)
     {
@@ -53,7 +55,7 @@ class CentreonGraphCurve
 
     /**
      *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -84,7 +86,9 @@ class CentreonGraphCurve
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {

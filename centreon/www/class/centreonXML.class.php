@@ -33,16 +33,20 @@
  *
  */
 
-/*
- *  Class that is used for writing XML in utf_8 only!
+/**
+ * Class
+ *
+ * @class CentreonXML
+ * @description Class that is used for writing XML in utf_8 only!
  */
-
 class CentreonXML
 {
+    /** @var XMLWriter */
     public $buffer;
 
     /**
-     * CentreonXML constructor.
+     * CentreonXML constructor
+     *
      * @param bool $indent
      */
     public function __construct($indent = false)
@@ -59,6 +63,7 @@ class CentreonXML
      * Clean string
      *
      * @param string $str
+     *
      * @return string
      */
     protected function cleanStr($str)
@@ -67,24 +72,36 @@ class CentreonXML
         return $str;
     }
 
-    /*
-     *  Starts an element that contains other elements
+    /**
+     * Starts an element that contains other elements
+     *
+     * @param string $element_tag
+     *
+     * @return void
      */
     public function startElement($element_tag)
     {
         $this->buffer->startElement($element_tag);
     }
 
-    /*
-     *  Ends an element (closes tag)
+    /**
+     * Ends an element (closes tag)
+     *
+     * @return void
      */
     public function endElement()
     {
         $this->buffer->endElement();
     }
 
-    /*
-     *  Simply puts text
+    /**
+     * Simply puts text
+     *
+     * @param string $txt
+     * @param bool $cdata
+     * @param int $encode
+     *
+     * @return void
      */
     public function text($txt, $cdata = true, $encode = 0)
     {
@@ -105,7 +122,8 @@ class CentreonXML
      * Checks if string is encoded
      *
      * @param string $string
-     * @return boolean
+     *
+     * @return int
      */
     protected function is_utf8($string)
     {
@@ -115,8 +133,14 @@ class CentreonXML
         return 0;
     }
 
-    /*
-     *  Creates a tag and writes data
+    /**
+     * Creates a tag and writes data
+     *
+     * @param string $element_tag
+     * @param string $element_value
+     * @param int $encode
+     *
+     * @return void
      */
     public function writeElement($element_tag, $element_value, $encode = 0)
     {
@@ -132,8 +156,14 @@ class CentreonXML
         $this->endElement();
     }
 
-    /*
-     *  Writes attribute
+    /**
+     * Writes attribute
+     *
+     * @param string $att_name
+     * @param string $att_value
+     * @param bool $encode
+     *
+     * @return void
      */
     public function writeAttribute($att_name, $att_value, $encode = false)
     {
@@ -145,8 +175,10 @@ class CentreonXML
         }
     }
 
-    /*
-     *  Output the whole XML buffer
+    /**
+     * Output the whole XML buffer
+     *
+     * @return void
      */
     public function output()
     {
@@ -154,6 +186,12 @@ class CentreonXML
         print $this->buffer->outputMemory(true);
     }
 
+    /**
+     * @param string|null $filename
+     *
+     * @return void
+     * @throws RuntimeException
+     */
     public function outputFile($filename = null)
     {
         $this->buffer->endDocument();

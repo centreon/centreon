@@ -34,20 +34,23 @@
  */
 
 /**
+ * Class
  *
- * Enter description here ...
- * @author jmathis
- *
+ * @class CentreonMonitoring
  */
 class CentreonMonitoring
 {
+    /** @var string */
     protected $poller;
+    /** @var CentreonDB */
     protected $DB;
+    /** @var */
     protected $objBroker;
 
     /**
+     * CentreonMonitoring constructor
      *
-     * Enter description here ...
+     * @param CentreonDB $DB
      */
     public function __construct($DB)
     {
@@ -55,9 +58,9 @@ class CentreonMonitoring
     }
 
     /**
+     * @param string $pollerId
      *
-     * Enter description here ...
-     * @param unknown_type $pollerId
+     * @return void
      */
     public function setPoller($pollerId)
     {
@@ -65,8 +68,7 @@ class CentreonMonitoring
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return string
      */
     public function getPoller()
     {
@@ -74,13 +76,13 @@ class CentreonMonitoring
     }
 
     /**
+     * @param $host_name
+     * @param $objXMLBG
+     * @param $o
+     * @param $status
+     * @param $obj
      *
-     * Proxy function
-     * @param unknown_type $hostList
-     * @param unknown_type $objXMLBG
-     * @param unknown_type $o
-     * @param unknown_type $instance
-     * @param unknown_type $hostgroups
+     * @return int|mixed
      */
     public function getServiceStatusCount($host_name, $objXMLBG, $o, $status, $obj)
     {

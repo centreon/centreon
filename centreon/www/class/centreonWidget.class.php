@@ -55,7 +55,7 @@ class CentreonWidget
     public $customView;
     /** @var int */
     protected $userId;
-    /** @var */
+    /** @var CentreonDB */
     protected $db;
     /** @var array */
     protected $widgets;
@@ -65,8 +65,8 @@ class CentreonWidget
     /**
      * CentreonWidget constructor
      *
-     * @param $centreon
-     * @param $db
+     * @param Centreon $centreon
+     * @param CentreonDB $db
      *
      * @throws Exception
      */
@@ -92,7 +92,7 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetModelId
+     * @param int $widgetModelId
      * @return array
      * @throws Exception
      */
@@ -118,9 +118,8 @@ class CentreonWidget
         return $tab;
     }
 
-
     /**
-     * @param $widgetId
+     * @param int $widgetId
      * @return null
      * @throws Exception
      */
@@ -140,7 +139,7 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetId
+     * @param int $widgetId
      * @return null
      * @throws Exception
      */
@@ -160,15 +159,15 @@ class CentreonWidget
     }
 
     /**
-     * @param $id
+     * @param int $widgetModelId
      * @return mixed
      * @throws Exception
      */
-    public function getWidgetDirectory($id)
+    public function getWidgetDirectory($widgetModelId)
     {
         $query = 'SELECT directory FROM widget_models WHERE widget_model_id = :id';
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':id', $widgetModelId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
             throw new \Exception("An error occured");
@@ -179,8 +178,8 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetModelId
-     * @param $name
+     * @param string|int $widgetModelId
+     * @param string $name
      * @return int
      * @throws Exception
      */
@@ -211,8 +210,10 @@ class CentreonWidget
 
     /**
      * @param string $type
-     * @param $param
-     * @return null
+     * @param string $param
+     *
+     * @return mixed|null
+     * @throws PDOException
      */
     public function getWidgetInfo($type = "id", $param = '')
     {
@@ -261,6 +262,7 @@ class CentreonWidget
      * @param string $widgetTitle
      * @param bool $permission
      * @param bool $authorized
+     *
      * @throws CentreonWidgetException
      * @throws Exception
      */
@@ -361,7 +363,9 @@ class CentreonWidget
      * Get Wiget Info By Id
      *
      * @param int $widgetModelId
+     *
      * @return mixed
+     * @throws PDOException
      */
     public function getWidgetInfoById($widgetModelId)
     {
@@ -372,7 +376,9 @@ class CentreonWidget
      * Get Widget Info By Directory
      *
      * @param string $directory
+     *
      * @return mixed
+     * @throws PDOException
      */
     public function getWidgetInfoByDirectory($directory)
     {
@@ -380,7 +386,7 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetId
+     * @param string|int $widgetId
      * @return mixed
      * @throws CentreonWidgetException
      * @throws Exception
@@ -406,7 +412,8 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetId
+     * @param string|int $widgetId
+     *
      * @return mixed
      * @throws CentreonWidgetException
      * @throws Exception
@@ -433,6 +440,7 @@ class CentreonWidget
 
     /**
      * @param int $viewId
+     *
      * @return array
      * @throws Exception
      */
@@ -467,6 +475,7 @@ class CentreonWidget
     /**
      * @param string $search
      * @param array $range
+     *
      * @return array
      * @throws Exception
      */
@@ -510,6 +519,7 @@ class CentreonWidget
     /**
      * @param int $viewId
      * @param array $widgetList
+     *
      * @throws Exception
      */
     public function updateViewWidgetRelations($viewId, array $widgetList = [])
@@ -547,8 +557,9 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetId
+     * @param string|int $widgetId
      * @param bool $hasPermission
+     *
      * @return array
      * @throws Exception
      */
@@ -593,6 +604,7 @@ class CentreonWidget
      * @param bool $authorized
      *
      * @throws CentreonWidgetException
+     * @throws PDOException
      */
     public function updateUserWidgetPreferences(array $params, bool $permission, bool $authorized)
     {
@@ -718,6 +730,7 @@ class CentreonWidget
      * @param int $widgetId
      * @param bool $authorized
      * @param bool $permission
+     *
      * @throws Exception
      */
     public function deleteWidgetFromView(int $customViewId, int $widgetId, bool $authorized, bool $permission)
@@ -745,6 +758,7 @@ class CentreonWidget
      * @param array $positions
      *
      * @throws CentreonWidgetException
+     * @throws PDOException
      */
     public function updateWidgetPositions(int $customViewId, bool $permission, array $positions = [])
     {
@@ -777,17 +791,19 @@ class CentreonWidget
      * Read Configuration File
      *
      * @param string $filename
+     *
      * @return array
      */
     public function readConfigFile($filename)
     {
         $xmlString = file_get_contents($filename);
         $xmlObj = simplexml_load_string($xmlString);
-        return CentreonUtils::objectIntoArray($xmlObj);
+        return CentreonUtils::objectIntoArray($xmlObj);// FIXME not a static method
     }
 
     /**
-     * @param $title
+     * @param string $title
+     *
      * @return mixed
      * @throws Exception
      */
@@ -805,9 +821,10 @@ class CentreonWidget
     }
 
     /**
-     * @param $directory
+     * @param string $directory
+     *
      * @return mixed
-     * @throws Exception
+     * @throws PDOException
      */
     protected function getLastInsertedWidgetModelId($directory)
     {
@@ -825,7 +842,8 @@ class CentreonWidget
     }
 
     /**
-     * @param $label
+     * @param string $label
+     *
      * @return mixed
      * @throws Exception
      */
@@ -848,6 +866,7 @@ class CentreonWidget
      * Get Parameter Type IDs
      *
      * @return array
+     * @throws PDOException
      */
     protected function getParameterTypeIds()
     {
@@ -865,9 +884,11 @@ class CentreonWidget
     }
 
     /**
-     * @param $lastId
-     * @param $config
+     * @param int $lastId
+     * @param array $config
+     *
      * @throws CentreonWidgetException
+     * @throws PDOException
      * @throws Exception
      */
     protected function insertWidgetPreferences($lastId, $config)
@@ -971,8 +992,9 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetPath
-     * @param $directory
+     * @param string $widgetPath
+     * @param string $directory
+     *
      * @throws Exception
      */
     public function install($widgetPath, $directory)
@@ -1012,9 +1034,10 @@ class CentreonWidget
 
 
     /**
-     * @param $paramId
-     * @param $attr
-     * @param $pref
+     * @param int $paramId
+     * @param array $attr
+     * @param array $pref
+     *
      * @throws Exception
      */
     protected function insertParameterOptions($paramId, $attr, $pref)
@@ -1065,8 +1088,9 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetModelId
-     * @param $config
+     * @param int $widgetModelId
+     * @param array $config
+     *
      * @throws CentreonWidgetException
      * @throws Exception
      */
@@ -1273,8 +1297,9 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetPath
-     * @param $directory
+     * @param string $widgetPath
+     * @param string $directory
+     *
      * @throws Exception
      */
     public function upgrade($widgetPath, $directory)
@@ -1322,7 +1347,8 @@ class CentreonWidget
     }
 
     /**
-     * @param $directory
+     * @param string $directory
+     *
      * @throws Exception
      */
     public function uninstall($directory)
@@ -1337,7 +1363,8 @@ class CentreonWidget
     }
 
     /**
-     * @param $widgetId
+     * @param int $widgetId
+     *
      * @return array
      * @throws Exception
      */
@@ -1412,6 +1439,7 @@ class CentreonWidget
      * @param string $newName widget new name
      *
      * @return string
+     * @throws PDOException
      */
     public function rename(int $widgetId, string $newName)
     {

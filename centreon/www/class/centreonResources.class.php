@@ -34,14 +34,19 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonResources
  */
 class CentreonResources
 {
+    /** @var CentreonDB */
     protected $db;
 
-    /*
-     * constructor
+    /**
+     * CentreonResources constructor
+     *
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -49,8 +54,8 @@ class CentreonResources
     }
     
     /**
+     * @param int $field
      *
-     * @param integer $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -75,9 +80,9 @@ class CentreonResources
     }
     
     /**
-     *
-     * @param \CentreonDB $db
+     * @param CentreonDB $db
      * @param string $name
+     *
      * @return array
      * @throws Exception
      */

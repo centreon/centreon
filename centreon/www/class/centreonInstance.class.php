@@ -41,15 +41,15 @@
  */
 class CentreonInstance
 {
-    /** @var */
+    /** @var array */
     public $paramsByName;
-    /** @var */
+    /** @var CentreonDB */ // FIXME three db connections ??
     public $DB;
     /** @var CentreonDB */
     protected $db;
     /** @var CentreonDB */
     protected $dbo;
-    /** @var */
+    /** @var array */
     protected $params;
     /** @var array */
     protected $instances;
@@ -61,6 +61,8 @@ class CentreonInstance
      *
      * @param CentreonDB $db
      * @param CentreonDB|null $dbo
+     *
+     * @throws PDOException
      */
     public function __construct($db, $dbo = null)
     {
@@ -77,6 +79,7 @@ class CentreonInstance
      * @param CentreonDB|null $dbo
      *
      * @return CentreonInstance
+     * @throws PDOException
      */
     public static function getInstance(CentreonDB $db, ?CentreonDB $dbo = null): CentreonInstance
     {
@@ -124,8 +127,10 @@ class CentreonInstance
     /**
      * Get instance_id and name from instances ids
      *
-     * @param  int[] $pollerIds
+     * @param int[] $pollerIds
+     *
      * @return array $pollers [['instance_id => integer, 'name' => string],...]
+     * @throws PDOException
      */
     public function getInstancesMonitoring($pollerIds = [])
     {
@@ -165,7 +170,6 @@ class CentreonInstance
 
         return $pollers;
     }
-
 
     /**
      * Get Parameter
@@ -350,7 +354,7 @@ class CentreonInstance
     }
 
     /**
-     * @param $instanceName
+     * @param string $instanceName
      *
      * @return array
      * @throws PDOException
@@ -377,7 +381,7 @@ class CentreonInstance
     }
 
     /**
-     * @param $instanceName
+     * @param string $instanceName
      *
      * @return mixed
      * @throws PDOException

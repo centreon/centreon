@@ -33,34 +33,22 @@
  *
  */
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of centreonGraphTemplate
+ * Class
  *
- * @author bsauveton
+ * @class CentreonGraphTemplate
  */
 class CentreonGraphTemplate
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonInstance */
     protected $instanceObj;
 
     /**
-     * CentreonGraphTemplate constructor.
-     * @param $db
+     * CentreonGraphTemplate constructor
+     *
+     * @param CentreonDB $db
      */
     public function __construct($db)
     {
@@ -72,7 +60,9 @@ class CentreonGraphTemplate
      * @param array $values
      * @param array $options
      * @param string $register
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array(), $register = '1')
     {

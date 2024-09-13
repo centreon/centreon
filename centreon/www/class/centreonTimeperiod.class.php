@@ -34,18 +34,17 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonTimeperiod
  */
 class CentreonTimeperiod
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
 
     /**
-     *  Constructor
+     * CentreonTimeperiod constructor
      *
      * @param CentreonDB $db
      */
@@ -57,7 +56,9 @@ class CentreonTimeperiod
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {
@@ -97,9 +98,10 @@ class CentreonTimeperiod
     }
 
     /**
-     *
      * @param string $name
+     *
      * @return string
+     * @throws PDOException
      */
     public function getTimperiodIdByName($name)
     {
@@ -117,9 +119,10 @@ class CentreonTimeperiod
     }
 
     /**
+     * @param int $tpId
      *
-     * @param integer $tpId
      * @return string
+     * @throws PDOException
      */
     public function getTimeperiodException($tpId)
     {
@@ -157,16 +160,19 @@ class CentreonTimeperiod
 
         try {
             $this->db->query($sQuery);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while insert timeperiod ' . $parameters['name']);
+        } catch (PDOException $e) {
+            throw new Exception('Error while insert timeperiod ' . $parameters['name']);
         }
     }
 
     /**
      * Update in database a command
      *
-     * @param int $command_id Id of command
-     * @param array $command Values to set
+     * @param string|int $tp_id
+     * @param array $parameters
+     *
+     * @return void
+     *
      * @throws Exception
      */
     public function update($tp_id, $parameters)
@@ -184,15 +190,15 @@ class CentreonTimeperiod
 
         try {
             $this->db->query($sQuery);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while update timeperiod ' . $parameters['name']);
+        } catch (PDOException $e) {
+            throw new Exception('Error while update timeperiod ' . $parameters['name']);
         }
     }
 
     /**
      * Insert in database a timeperiod exception
      *
-     * @param integer $tpId
+     * @param int $tpId
      * @param array $parameters Values to insert (days and timerange)
      * @throws Exception
      */
@@ -207,8 +213,8 @@ class CentreonTimeperiod
 
             try {
                 $this->db->query($sQuery);
-            } catch (\PDOException $e) {
-                throw new \Exception('Error while insert timeperiod exception' . $tpId);
+            } catch (PDOException $e) {
+                throw new Exception('Error while insert timeperiod exception' . $tpId);
             }
         }
     }
@@ -216,8 +222,8 @@ class CentreonTimeperiod
     /**
      * Insert in database a timeperiod dependency
      *
-     * @param integer $timeperiodId
-     * @param integer $depId
+     * @param int $timeperiodId
+     * @param int $depId
      * @throws Exception
      */
     public function setTimeperiodDependency($timeperiodId, $depId)
@@ -228,15 +234,15 @@ class CentreonTimeperiod
 
         try {
             $this->db->query($sQuery);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while insert timeperiod dependency' . $timeperiodId);
+        } catch (PDOException $e) {
+            throw new Exception('Error while insert timeperiod dependency' . $timeperiodId);
         }
     }
 
     /**
      * Delete in database a timeperiod exception
      *
-     * @param integer $tpId
+     * @param int $tpId
      * @throws Exception
      */
     public function deleteTimeperiodException($tpId)
@@ -245,15 +251,15 @@ class CentreonTimeperiod
 
         try {
             $res = $this->db->query($sQuery);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while delete timeperiod exception' . $tpId);
+        } catch (PDOException $e) {
+            throw new Exception('Error while delete timeperiod exception' . $tpId);
         }
     }
 
     /**
      * Delete in database a timeperiod include
      *
-     * @param integer $tpId
+     * @param int $tpId
      * @throws Exception
      */
     public function deleteTimeperiodInclude($tpId)
@@ -262,8 +268,8 @@ class CentreonTimeperiod
 
         try {
             $this->db->query($sQuery);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while delete timeperiod include' . $tpId);
+        } catch (PDOException $e) {
+            throw new Exception('Error while delete timeperiod include' . $tpId);
         }
     }
 
@@ -280,15 +286,19 @@ class CentreonTimeperiod
 
         try {
             $this->db->query($sQuery);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while delete timperiod ' . $tp_name);
+        } catch (PDOException $e) {
+            throw new Exception('Error while delete timperiod ' . $tp_name);
         }
     }
 
     /**
      * Returns array of Host linked to the timeperiod
      *
+     * @param string $timeperiodName
+     * @param bool $register
+     *
      * @return array
+     * @throws Exception
      */
     public function getLinkedHostsByName($timeperiodName, $register = false)
     {
@@ -306,8 +316,8 @@ class CentreonTimeperiod
 
         try {
             $result = $this->db->query($query);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while getting linked hosts of ' . $timeperiodName);
+        } catch (PDOException $e) {
+            throw new Exception('Error while getting linked hosts of ' . $timeperiodName);
         }
 
         while ($row = $result->fetchRow()) {
@@ -320,7 +330,11 @@ class CentreonTimeperiod
     /**
      * Returns array of Service linked to the timeperiod
      *
+     * @param string $timeperiodName
+     * @param bool $register
+     *
      * @return array
+     * @throws Exception
      */
     public function getLinkedServicesByName($timeperiodName, $register = false)
     {
@@ -338,8 +352,8 @@ class CentreonTimeperiod
 
         try {
             $result = $this->db->query($query);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while getting linked services of ' . $timeperiodName);
+        } catch (PDOException $e) {
+            throw new Exception('Error while getting linked services of ' . $timeperiodName);
         }
 
         while ($row = $result->fetchRow()) {
@@ -366,8 +380,8 @@ class CentreonTimeperiod
 
         try {
             $result = $this->db->query($query);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while getting linked contacts of ' . $timeperiodName);
+        } catch (PDOException $e) {
+            throw new Exception('Error while getting linked contacts of ' . $timeperiodName);
         }
 
         while ($row = $result->fetchRow()) {
@@ -402,8 +416,8 @@ class CentreonTimeperiod
 
         try {
             $result = $this->db->query($query);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while getting linked timeperiods of ' . $timeperiodName);
+        } catch (PDOException $e) {
+            throw new Exception('Error while getting linked timeperiods of ' . $timeperiodName);
         }
 
         while ($row = $result->fetchRow()) {

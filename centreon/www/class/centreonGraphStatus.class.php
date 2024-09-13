@@ -85,7 +85,7 @@ class CentreonGraphStatus
     /**
      * Get the metrics
      *
-     * @return mixed
+     * @return array|array[]
      * @throws RuntimeException
      */
     public function getData()

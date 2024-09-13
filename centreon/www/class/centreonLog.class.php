@@ -61,6 +61,8 @@ class CentreonUserLog
      *
      * @param int $uid
      * @param CentreonDB $pearDB
+     *
+     * @throws PDOException
      */
     public function __construct($uid, $pearDB)
     {

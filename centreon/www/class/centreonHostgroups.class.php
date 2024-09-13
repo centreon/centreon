@@ -34,35 +34,23 @@
  */
 
 /**
+ * Class
  *
- * Hostgroups objects
- * @author jmathis
- *
+ * @class CentreonHostgroups
  */
 class CentreonHostgroups
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     private $DB;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     private $relationCache = [];
-
-    /**
-     *
-     * @var type
-     */
+    /** @var array */
     private $dataTree;
 
     /**
+     * CentreonHostgroups constructor
      *
-     * Constructor
-     * @param $pearDB
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -83,11 +71,10 @@ class CentreonHostgroups
     }
 
     /**
+     * @param string|int|null $hg_id
      *
-     * Enter description here ...
-     * @param unknown_type $hg_id
-     * @param unknown_type $searchHost
-     * @param unknown_type $level
+     * @return array|void
+     * @throws PDOException
      */
     public function getHostGroupHosts($hg_id = null)
     {
@@ -105,7 +92,7 @@ class CentreonHostgroups
             "WHERE hgr.hostgroup_hg_id = :hgId " .
             "AND h.host_id = hgr.host_host_id " .
             "ORDER by h.host_name");
-        $statement->bindValue(':hgId', (int) $hg_id, \PDO::PARAM_INT);
+        $statement->bindValue(':hgId', (int) $hg_id, PDO::PARAM_INT);
         $statement->execute();
 
         while ($elem = $statement->fetchRow()) {
@@ -132,7 +119,9 @@ class CentreonHostgroups
      * Get Hostgroup Name
      *
      * @param int $hg_id
+     *
      * @return string
+     * @throws PDOException
      */
     public function getHostgroupName($hg_id)
     {
@@ -157,7 +146,9 @@ class CentreonHostgroups
      * Get Hostgroups ids and names from ids
      *
      * @param int[] $hostGroupsIds
+     *
      * @return array $hostsGroups [['id' => integer, 'name' => string],...]
+     * @throws PDOException
      */
     public function getHostsgroups($hostGroupsIds = []): array
     {
@@ -181,12 +172,12 @@ class CentreonHostgroups
                 );
 
                 foreach ($hgParams as $index => $value) {
-                    $stmt->bindValue($index, $value, \PDO::PARAM_INT);
+                    $stmt->bindValue($index, $value, PDO::PARAM_INT);
                 }
 
                 $stmt->execute();
 
-                while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $hostsGroups[] = [
                         'id' => $row['hg_id'],
                         'name' => $row['hg_name']
@@ -198,12 +189,13 @@ class CentreonHostgroups
         return $hostsGroups;
     }
 
-
     /**
      * Get Hostgroup Id
      *
      * @param string $hg_name
+     *
      * @return int
+     * @throws PDOException
      */
     public function getHostgroupId($hg_name)
     {
@@ -225,7 +217,9 @@ class CentreonHostgroups
 
     /**
      * @param null $hg_id
+     *
      * @return array|void
+     * @throws PDOException
      */
     public function getHostGroupHostGroups($hg_id = null)
     {
@@ -250,8 +244,8 @@ class CentreonHostgroups
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return void
+     * @throws PDOException
      */
     private function setHgHgCache()
     {
@@ -267,6 +261,12 @@ class CentreonHostgroups
         unset($data);
     }
 
+    /**
+     * @param $DB
+     *
+     * @return array
+     * @throws PDOException
+     */
     public function getAllHostgroupsInCache($DB)
     {
         $hostgroups = array();
@@ -284,7 +284,7 @@ class CentreonHostgroups
     }
 
     /**
-     *
+     * @return void
      */
     private function unsetCache()
     {
@@ -292,8 +292,7 @@ class CentreonHostgroups
     }
 
     /**
-     *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -324,7 +323,9 @@ class CentreonHostgroups
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {
@@ -405,7 +406,9 @@ class CentreonHostgroups
 
     /**
      * @param $hgName
+     *
      * @return array
+     * @throws PDOException
      */
     public function getHostsByHostgroupName($hgName)
     {

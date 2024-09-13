@@ -34,15 +34,24 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Centreon_Wizard
+ */
 class Centreon_Wizard
 {
+    /** @var string */
     private $_uuid = null;
+    /** @var string */
     private $_name = null;
+    /** @var array */
     private $_values = array();
+    /** @var int */
     private $_lastUpdate = 0;
 
     /**
-     * Constructor
+     * Centreon_Wizard constructor
      *
      * @param string $name The wizard name
      * @param string $uuid The wizard unique id
@@ -58,6 +67,7 @@ class Centreon_Wizard
      * Get values for a step
      *
      * @param int $step The step position
+     *
      * @return array
      */
     public function getValues($step)
@@ -74,6 +84,7 @@ class Centreon_Wizard
      * @param int $step The step position
      * @param string $name The variable name
      * @param string $default The default value
+     *
      * @return string
      */
     public function getValue($step, $name, $default = '')
@@ -89,6 +100,8 @@ class Centreon_Wizard
      *
      * @param int $step The step position
      * @param array $post The post with values
+     *
+     * @return void
      */
     public function addValues($step, $post)
     {
@@ -106,6 +119,7 @@ class Centreon_Wizard
      * Test if the uuid of wizard
      *
      * @param string $uuid The unique id
+     *
      * @return bool
      */
     public function testUuid($uuid)
@@ -118,6 +132,8 @@ class Centreon_Wizard
 
     /**
      * Magic method __sleep
+     *
+     * @return string[]
      */
     public function __sleep()
     {
@@ -127,6 +143,8 @@ class Centreon_Wizard
 
     /**
      * Magic method __wakeup
+     *
+     * @return void
      */
     public function __wakeup()
     {

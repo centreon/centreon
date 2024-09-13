@@ -34,18 +34,17 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonManufacturer
  */
 class CentreonManufacturer
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
 
     /**
-     *  Constructor
+     * CentreonManufacturer constructor
      *
      * @param CentreonDB $db
      */
@@ -57,7 +56,9 @@ class CentreonManufacturer
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {

@@ -34,15 +34,12 @@
  *
  */
 
-/*
- *  Class that displays any kind of information between the html header containing logo
- *  and the horizontal menu
- */
-
 /**
  * Class
  *
  * @class CentreonMsg
+ * @description Class that displays any kind of information between the html header containing logo
+ *              and the horizontal menu
  */
 class CentreonMsg
 {
@@ -54,7 +51,7 @@ class CentreonMsg
     /**
      * CentreonMsg constructor
      *
-     * @param $divId
+     * @param string|null $divId
      */
     public function __construct($divId = null)
     {
@@ -95,10 +92,10 @@ class CentreonMsg
         $this->setTimeOut("3");
     }
 
-    /*
- 	   * Sets style of text inside Div
+    /**
+     * Sets style of text inside Div
      *
-     * @param $style
+     * @param string $style
      *
      * @return void
      */
@@ -108,7 +105,7 @@ class CentreonMsg
     }
 
     /**
-     * @param $color
+     * @param string $color
      *
      * @return void
      */
@@ -118,7 +115,7 @@ class CentreonMsg
     }
 
     /**
-     * @param $align
+     * @param string $align
      *
      * @return void
      */
@@ -128,7 +125,7 @@ class CentreonMsg
     }
 
     /**
-     * @param $align
+     * @param string $align
      *
      * @return void
      */
@@ -138,7 +135,7 @@ class CentreonMsg
     }
 
     /**
-     * @param $color
+     * @param string $color
      *
      * @return void
      */
@@ -148,7 +145,7 @@ class CentreonMsg
     }
 
     /**
-     * @param $str
+     * @param string $str
      *
      * @return void
      */
@@ -158,7 +155,7 @@ class CentreonMsg
     }
 
     /**
-     * @param $img_url
+     * @param string $img_url
      *
      * @return void
      */
@@ -170,7 +167,7 @@ class CentreonMsg
     /**
      * If you want to display your message for a limited time period, just call this function
      *
-     * @param $sec
+     * @param int $sec
      *
      * @return void
      */
@@ -183,6 +180,7 @@ class CentreonMsg
 
     /**
      * Clear message box
+     *
      * @return void
      */
     public function clear()

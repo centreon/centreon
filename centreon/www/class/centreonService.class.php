@@ -32,35 +32,29 @@
  * For more information : contact@centreon.com
  *
  */
+
 require_once __DIR__ . '/centreonInstance.class.php';
 require_once __DIR__ . '/centreonDB.class.php';
 require_once __DIR__ . '/centreonHook.class.php';
 require_once __DIR__ . '/centreonDBInstance.class.php';
 
-
 /**
- *  Class that contains various methods for managing services
+ * Class
+ *
+ * @class CentreonService
+ * @description Class that contains various methods for managing services
  */
 class CentreonService
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    private const TABLE_SERVICE_CONFIGURATION = 'service';
+    private const TABLE_SERVICE_REALTIME = 'services';
+
+    /** @var CentreonDB */
     protected $db;
-
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $dbMon;
-
-    /**
-     *
-     * @var \CentreonInstance
-     */
+    /** @var CentreonInstance */
     protected $instanceObj;
-
     /**
      * Macros formatted by id
      * ex:
@@ -87,11 +81,8 @@ class CentreonService
      */
     private array $formattedMacros = [];
 
-    private const TABLE_SERVICE_CONFIGURATION = 'service',
-                  TABLE_SERVICE_REALTIME = 'services';
-
     /**
-     *  Constructor
+     * CentreonService constructor
      *
      * @param CentreonDB $db
      * @throws PDOException
@@ -100,7 +91,7 @@ class CentreonService
     {
         $this->db = $db;
         if (is_null($dbMon)) {
-            $this->dbMon = \CentreonDBInstance::getDbCentreonStorageInstance();
+            $this->dbMon = CentreonDBInstance::getDbCentreonStorageInstance();
         } else {
             $this->dbMon = $dbMon;
         }
@@ -138,7 +129,9 @@ class CentreonService
      *  Method that returns service description from serviceId
      *
      * @param int $serviceId
-     * @return ?string
+     *
+     * @return string|null
+     * @throws PDOException
      */
     public function getServiceDesc(int $serviceId): ?string
     {
@@ -165,8 +158,10 @@ class CentreonService
     /**
      * Get Service Template ID
      *
-     * @param string $templateName
+     * @param string|null $templateName
+     *
      * @return int
+     * @throws PDOException
      */
     public function getServiceTemplateId($templateName = null)
     {
@@ -189,9 +184,11 @@ class CentreonService
     /**
      *  Method that returns the id of a service
      *
-     * @param string $svc_desc
-     * @param string $host_name
+     * @param string|null $svc_desc
+     * @param string|null $host_name
+     *
      * @return int
+     * @throws PDOException
      */
     public function getServiceId($svc_desc = null, $host_name = null)
     {
@@ -232,7 +229,9 @@ class CentreonService
      *
      * @param string $service_desc
      * @param string $hgName
+     *
      * @return int
+     * @throws PDOException
      */
     public function getServiceIdFromHgName($service_desc, $hgName)
     {
@@ -259,7 +258,9 @@ class CentreonService
      * Get Service alias
      *
      * @param int $sid
+     *
      * @return string
+     * @throws PDOException
      */
     public function getServiceName($sid)
     {
@@ -285,8 +286,10 @@ class CentreonService
      * Gets the service description of a service
      *
      * @param int[] $serviceIds
+     *
      * @return array serviceDescriptions
      * ['service_id' => integer, 'description' => string, 'host_name' => string, 'host_id' => integer],...]
+     * @throws PDOException
      */
     public function getServicesDescr($serviceIds = []): array
     {
@@ -313,7 +316,7 @@ class CentreonService
                         INNER JOIN host h ON hsr.host_host_id = h.host_id
                         WHERE " . $where;
                     $res = $this->db->query($query);
-                    while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
+                    while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
                         $serviceDescriptions[] = [
                             'service_id' => $row['service_id'],
                             'description' => $row['service_description'],
@@ -332,7 +335,9 @@ class CentreonService
      * Check illegal char defined into nagios.cfg file
      *
      * @param string $name
+     *
      * @return string
+     * @throws PDOException
      */
     public function checkIllegalChar($name)
     {
@@ -349,9 +354,11 @@ class CentreonService
      *
      * @param int $svc_id
      * @param string $string
-     * @param int $antiLoop
-     * @param int $instanceId
+     * @param int|null $antiLoop
+     * @param int|null $instanceId
+     *
      * @return string
+     * @throws PDOException
      */
     public function replaceMacroInString($svc_id, $string, $antiLoop = null, $instanceId = null)
     {
@@ -364,7 +371,7 @@ class CentreonService
           WHERE service_id = :service_id LIMIT 1
         SQL;
         $statement = $this->db->prepare($query);
-        $statement->bindValue(':service_id', (int) $svc_id, \PDO::PARAM_INT);
+        $statement->bindValue(':service_id', (int) $svc_id, PDO::PARAM_INT);
         $statement->execute();
 
         if (!$statement->rowCount()) {
@@ -426,6 +433,7 @@ class CentreonService
      * Get list of service templates
      *
      * @return array
+     * @throws PDOException
      */
     public function getServiceTemplateList()
     {
@@ -449,7 +457,11 @@ class CentreonService
      * @param array $macroPassword
      * @param array $macroDescription
      * @param bool $isMassiveChange
+     * @param bool $cmdId
+     * @param bool $macroFrom
+     *
      * @return void
+     * @throws PDOException
      */
     public function insertMacro(
         $serviceId,
@@ -525,9 +537,11 @@ class CentreonService
 
     /**
      *
-     * @param integer $serviceId
-     * @param array $template
+     * @param int|null $serviceId
+     * @param array|null $template
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCustomMacroInDb($serviceId = null, $template = null)
     {
@@ -560,8 +574,11 @@ class CentreonService
     /**
      * Get service custom macro
      *
-     * @param int $serviceId
+     * @param int|null $serviceId
+     * @param bool $realKeys
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCustomMacro($serviceId = null, $realKeys = false)
     {
@@ -626,6 +643,7 @@ class CentreonService
      * Returns array of locked templates
      *
      * @return array
+     * @throws PDOException
      */
     public function getLockedServiceTemplates()
     {
@@ -649,7 +667,9 @@ class CentreonService
      * @param string $table
      * @param string $host_id_field
      * @param string $service_id_field
+     *
      * @return void
+     * @throws PDOException
      */
     public function cleanServiceRelations($table = "", $host_id_field = "", $service_id_field = "")
     {
@@ -675,7 +695,9 @@ class CentreonService
      * @param int $type | 0 = contact, 1 = contactgroup
      * @param array $cgSCache
      * @param array $cctSCache
+     *
      * @return bool
+     * @throws PDOException
      */
     public function serviceHasContact($service, $type = 0, $cgSCache = array(), $cctSCache = array())
     {
@@ -709,11 +731,13 @@ class CentreonService
 
     /**
      *
-     * @param type $pearDB
-     * @param integer $service_id
+     * @param CentreonDB $pearDB
+     * @param int $serviceId
      * @param string $macroInput
      * @param string $macroValue
-     * @param boolean $cmdId
+     * @param bool $cmdId
+     * @param bool $isMassiveChange
+     * @param bool $macroFrom
      */
     public function hasMacroFromServiceChanged(
         $pearDB,
@@ -750,6 +774,12 @@ class CentreonService
         }
     }
 
+    /**
+     * @param array $form
+     * @param string $fromKey
+     *
+     * @return array
+     */
     public function getMacroFromForm($form, $fromKey)
     {
 
@@ -778,8 +808,10 @@ class CentreonService
      * @param int $iServiceId
      * @param array $aListTemplate
      * @param int $iIdCommande
+     * @param array $form
      *
      * @return array
+     * @throws PDOException
      */
     public function getMacros($iServiceId, $aListTemplate, $iIdCommande, $form = array())
     {
@@ -857,6 +889,12 @@ class CentreonService
         return $aFinalMacro;
     }
 
+    /**
+     * @param array $form
+     *
+     * @return array
+     * @throws PDOException
+     */
     public function ajaxMacroControl($form)
     {
         $aMacroInService = array();
@@ -938,6 +976,14 @@ class CentreonService
         return $aFinalMacro;
     }
 
+    /**
+     * @param array $macroArray
+     * @param array $form
+     * @param string $fromKey
+     * @param array $macrosArrayToCompare
+     *
+     * @return void
+     */
     public function purgeOldMacroToForm(&$macroArray, &$form, $fromKey, $macrosArrayToCompare = null)
     {
         if (isset($form["macroInput"]["#index#"])) {
@@ -977,10 +1023,9 @@ class CentreonService
         }
     }
 
-
     /**
+     * @param int $field
      *
-     * @param integer $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -1109,7 +1154,9 @@ class CentreonService
      * @param array $values
      * @param array $options
      * @param string $register
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array(), $register = '1')
     {
@@ -1222,9 +1269,10 @@ class CentreonService
     }
 
     /**
-     * @param $macroA
-     * @param $macroB
+     * @param array $macroA
+     * @param array $macroB
      * @param bool $getFirst
+     *
      * @return mixed
      */
     private function comparaPriority($macroA, $macroB, $getFirst = true)
@@ -1246,6 +1294,11 @@ class CentreonService
         }
     }
 
+    /**
+     * @param array $aTempMacro
+     *
+     * @return array
+     */
     public function macroUnique($aTempMacro)
     {
 
@@ -1273,6 +1326,12 @@ class CentreonService
         return $finalMacros;
     }
 
+    /**
+     * @param array $storedMacros
+     * @param array $finalMacros
+     *
+     * @return void
+     */
     private function addInfosToMacro($storedMacros, &$finalMacros)
     {
 
@@ -1297,6 +1356,12 @@ class CentreonService
         }
     }
 
+    /**
+     * @param array $storedMacros
+     * @param array $finalMacro
+     *
+     * @return mixed|string
+     */
     private function getInheritedDescription($storedMacros, $finalMacro)
     {
         $description = "";
@@ -1318,12 +1383,24 @@ class CentreonService
         return $description;
     }
 
+    /**
+     * @param array $finalMacro
+     * @param string $description
+     *
+     * @return void
+     */
     private function setInheritedDescription(&$finalMacro, $description)
     {
         $finalMacro['macroDescription_#index#'] = $description;
         $finalMacro['macroDescription'] = $description;
     }
 
+    /**
+     * @param $tplValue
+     * @param array $finalMacro
+     *
+     * @return void
+     */
     private function setTplValue($tplValue, &$finalMacro)
     {
 
@@ -1336,6 +1413,12 @@ class CentreonService
         }
     }
 
+    /**
+     * @param array $storedMacro
+     * @param bool $getFirst
+     *
+     * @return false|mixed
+     */
     private function findTplValue($storedMacro, $getFirst = false)
     {
         if ($getFirst) {
@@ -1357,9 +1440,10 @@ class CentreonService
     }
 
     /**
+     * @param array $ret
      *
-     * @param type $ret
-     * @return type
+     * @return mixed
+     * @throws PDOException
      */
     public function insert($ret)
     {
@@ -1490,9 +1574,10 @@ class CentreonService
     }
 
     /**
+     * @param array $aDatas
      *
-     * @param type $aDatas
-     * @return type
+     * @return void
+     * @throws PDOException
      */
     public function insertExtendInfo($aDatas)
     {
@@ -1521,8 +1606,11 @@ class CentreonService
     }
 
     /**
-     *
+     * @param string|int $service_id
      * @param array $ret
+     *
+     * @return void
+     * @throws PDOException
      */
     public function update($service_id, $ret)
     {
@@ -1662,9 +1750,13 @@ class CentreonService
     }
 
     /**
-     *
      * update service extended informations in DB
      *
+     * @param $service_id
+     * @param array $ret
+     *
+     * @return void
+     * @throws Exception
      */
     public function updateExtendedInfos($service_id, $ret)
     {
@@ -1690,8 +1782,8 @@ class CentreonService
                 . 'WHERE service_service_id = "' . $service_id . '" ';
             try {
                 $this->db->query($query);
-            } catch (\PDOException $e) {
-                throw new \Exception('Error while updating extendeded infos of service ' . $service_id);
+            } catch (PDOException $e) {
+                throw new Exception('Error while updating extendeded infos of service ' . $service_id);
             }
         }
     }
@@ -1699,7 +1791,8 @@ class CentreonService
     /**
      * Returns the formatted string for command arguments
      *
-     * @param $argArray
+     * @param array $argArray
+     *
      * @return string
      */
     public function getCommandArgs($argArray = array(), $conf = array())
@@ -1735,9 +1828,10 @@ class CentreonService
      *
      * @param int $id
      * @param array $parameters
-     * @param boolean $monitoringDB
+     * @param bool $monitoringDB
      *
      * @return array
+     * @throws PDOException
      */
     public function getParameters($id, $parameters = [], $monitoringDB = false)
     {
@@ -1758,7 +1852,7 @@ class CentreonService
                 service_id = :serviceId
             SQL
         );
-        $statement->bindValue(':serviceId', (int) $id, \PDO::PARAM_INT);
+        $statement->bindValue(':serviceId', (int) $id, PDO::PARAM_INT);
         $statement->execute();
 
         $result = [];
@@ -1773,7 +1867,10 @@ class CentreonService
      * Return the list of template
      *
      * @param int $svcId The service ID
+     * @param array $alreadyProcessed
+     *
      * @return array
+     * @throws PDOException
      */
     public function getTemplatesChain($svcId, $alreadyProcessed = array())
     {
@@ -1786,11 +1883,11 @@ class CentreonService
             $statement = $this->db->prepare(
                 "SELECT service_template_model_stm_id FROM service WHERE service_id = :service_id"
             );
-            $statement->bindValue(':service_id', (int) $svcId, \PDO::PARAM_INT);
+            $statement->bindValue(':service_id', (int) $svcId, PDO::PARAM_INT);
             $statement->execute();
 
             if ($statement->rowCount()) {
-                $row = $statement->fetch(\PDO::FETCH_ASSOC);
+                $row = $statement->fetch(PDO::FETCH_ASSOC);
                 if (!empty($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] !== null) {
                     $svcTmpl = array_merge(
                         $svcTmpl,
@@ -1807,6 +1904,7 @@ class CentreonService
      * Delete service in database
      *
      * @param string $service_description Hostname
+     *
      * @throws Exception
      */
     public function deleteServiceByDescription($service_description)
@@ -1816,8 +1914,8 @@ class CentreonService
 
         try {
             $this->db->query($sQuery);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while delete service ' . $service_description);
+        } catch (PDOException $e) {
+            throw new Exception('Error while delete service ' . $service_description);
         }
     }
 
@@ -1826,6 +1924,7 @@ class CentreonService
      *
      * @param int $serviceId service id
      * @param string $serviceDescription service description
+     *
      * @throws Exception
      */
     public function setServiceDescription($serviceId, $serviceDescription)
@@ -1836,8 +1935,8 @@ class CentreonService
 
         try {
             $this->db->query($query);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while updating service ' . $serviceId);
+        } catch (PDOException $e) {
+            throw new Exception('Error while updating service ' . $serviceId);
         }
     }
 
@@ -1846,6 +1945,7 @@ class CentreonService
      *
      * @param int $serviceId service id
      * @param string $serviceAlias service alias
+     *
      * @throws Exception
      */
     public function setServiceAlias($serviceId, $serviceAlias)
@@ -1856,8 +1956,8 @@ class CentreonService
 
         try {
             $this->db->query($query);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while updating service ' . $serviceId);
+        } catch (PDOException $e) {
+            throw new Exception('Error while updating service ' . $serviceId);
         }
     }
 
@@ -1865,8 +1965,10 @@ class CentreonService
      * Return the list of linked hosts or host templates
      *
      * @param int $serviceDescription The service description
-     * @param bool $getHostNmae Defined method return (id or name)
+     * @param bool $getHostName
+     *
      * @return array
+     * @throws PDOException
      */
     public function getLinkedHostsByServiceDescription($serviceDescription, $getHostName = false)
     {
@@ -1899,6 +2001,13 @@ class CentreonService
         return $hosts;
     }
 
+    /**
+     * @param $serviceId
+     * @param $hostId
+     *
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function getMonitoringFullName($serviceId, $hostId = null)
     {
         $name = null;

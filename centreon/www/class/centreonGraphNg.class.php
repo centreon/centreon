@@ -50,7 +50,7 @@ require_once __DIR__ . '/../include/common/common-Func.php';
  */
 class MetricUtils
 {
-    /** @var null */
+    /** @var MetricUtils|null */
     private static $instance = null;
 
     /**
@@ -428,7 +428,7 @@ class CentreonGraphNg
             if (!isset($metric['ds_data']['ds_name']) || !preg_match('/DS/', $metric['ds_data']['ds_name'], $matches)) {
                 $legend = $this->cleanupDsNameForLegend($metric['metric']);
             } else {
-                $legend = (isset($metric['ds_data']['ds_name']) ? $metric['ds_data']['ds_name'] : "");
+                $legend = ($metric['ds_data']['ds_name'] ?? "");
             }
             $legend = str_replace(":", "\:", $legend);
         }
@@ -439,7 +439,7 @@ class CentreonGraphNg
     /**
      * Manage Virtual Metrics
      *
-     * @return void
+     * @return int|void
      */
     private function manageMetrics()
     {
@@ -1280,7 +1280,7 @@ class CentreonGraphNg
                 return htmlentities($defaultValue, ENT_QUOTES, "UTF-8");
             }
         }
-    }
+    } // FIXME return '' ??
 
     /**
      * Get curve color

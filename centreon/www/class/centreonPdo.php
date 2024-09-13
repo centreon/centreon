@@ -33,18 +33,33 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonPdo
+ */
 class CentreonPdo extends PDO
 {
+    /**
+     * CentreonPdo constructor
+     *
+     * @param $dsn
+     * @param $username
+     * @param $password
+     * @param $options
+     *
+     * @throws PDOException
+     */
     public function __construct($dsn, $username = null, $password = null, $options = array())
     {
         parent::__construct($dsn, $username, $password, $options);
         $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CentreonPdoStatement', array($this)));
     }
 
-    public function disconnect()
-    {
-        ;
-    }
+    /**
+     * @return void
+     */
+    public function disconnect() {}
 
     /**
      * returns error info

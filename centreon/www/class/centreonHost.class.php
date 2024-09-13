@@ -34,32 +34,28 @@
  *
  */
 
+use Centreon\LegacyContainer;
+use CentreonLicense\ServiceProvider;
+
 require_once __DIR__ . '/centreonInstance.class.php';
 require_once __DIR__ . '/centreonService.class.php';
 require_once __DIR__ . '/centreonCommand.class.php';
 require_once __DIR__ . '/centreonLogAction.class.php';
 
-/*
- *  Class that contains various methods for managing hosts
+/**
+ * Class
+ *
+ * @class CentreonHost
  */
 class CentreonHost
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
 
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonInstance */
     protected $instanceObj;
 
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonService */
     protected $serviceObj;
 
     /**
@@ -131,7 +127,7 @@ class CentreonHost
         }
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
         $listHost = array();
         while ($row = $stmt->fetch()) {
@@ -143,9 +139,10 @@ class CentreonHost
     /**
      * get the template currently saved for this host
      *
-     * @param $hostId
+     * @param string|int $hostId
      *
      * @return array
+     * @throws PDOException
      */
     public function getSavedTpl($hostId): array
     {
@@ -156,7 +153,7 @@ class CentreonHost
             WHERE host_host_id = :hostId
             AND host_tpl_id = host.host_id'
         );
-        $dbResult->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $dbResult->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult->execute();
         while ($multiTp = $dbResult->fetch()) {
             $mTp[$multiTp["host_tpl_id"]] = $multiTp["host_name"];
@@ -169,6 +166,7 @@ class CentreonHost
      *  get number of hosts
      *
      * @return int
+     * @throws PDOException
      */
     private function getHostNumber(): int
     {
@@ -193,6 +191,7 @@ class CentreonHost
      *  get list of inherited templates from plugin pack
      *
      * @return array
+     * @throws PDOException
      * @throws Exception
      */
     public function getLimitedList(): array
@@ -230,7 +229,9 @@ class CentreonHost
     /**
      * @param $hostId
      * @param bool $withHg
+     *
      * @return array
+     * @throws PDOException
      * @throws Exception
      */
     public function getHostChild($hostId, $withHg = false)
@@ -248,7 +249,7 @@ class CentreonHost
         $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
         $listHostChildren = array();
         while ($row = $stmt->fetch()) {
@@ -271,7 +272,7 @@ class CentreonHost
             'AND h.host_activate = "1"';
         $dbResult = $this->db->query($queryGetRelationTree);
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
         $listHostRelactionTree = array();
         while ($row = $dbResult->fetch()) {
@@ -309,7 +310,7 @@ class CentreonHost
         $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
         $listServices = array();
         while ($row = $stmt->fetch()) {
@@ -335,7 +336,7 @@ class CentreonHost
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
 
             while ($row = $stmt->fetch()) {
@@ -349,7 +350,10 @@ class CentreonHost
      * Get the relation tree for host / service
      *
      * @param bool $withHg With Hostgroup
+     *
      * @return array
+     * @throws PDOException
+     * @throws Exception
      */
     public function getHostServiceRelationTree($withHg = false)
     {
@@ -364,7 +368,7 @@ class CentreonHost
             'AND h.host_id = hsr.host_host_id ' .
             'AND h.host_register = "1" ' .
             'AND h.host_activate = "1" ';
-        if ($withHg == true) {
+        if ($withHg) {
             $query .= 'UNION ' .
                 'SELECT hgr.host_host_id, s.service_id, s.service_description ' .
                 'FROM service s, host_service_relation hsr, host h, hostgroup_relation hgr ' .
@@ -378,7 +382,7 @@ class CentreonHost
         }
         $res = $this->db->query($query);
         if (!$res) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
         $listServices = array();
         while ($row = $res->fetch()) {
@@ -393,8 +397,10 @@ class CentreonHost
     /**
      * Method that returns a hostname from host_id
      *
-     * @param int $host_id
+     * @param $hostId
+     *
      * @return string
+     * @throws PDOException
      */
     public function getHostName($hostId)
     {
@@ -403,7 +409,7 @@ class CentreonHost
         }
 
         $statement = $this->db->prepare('SELECT host_name FROM host WHERE host_id = :host_id');
-        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
         $statement->execute();
         if ($hostName = $statement->fetchColumn()) {
             return $hostName;
@@ -423,16 +429,18 @@ class CentreonHost
             $stmt = $this->db->prepare($query);
             $dbResult = $stmt->execute(array((int)$hostId));
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             $row = $stmt->fetch();
             return $row['host_name'];
         }
-    }
+    }// FIXME no return
 
     /**
      * @param int[] $hostId
+     *
      * @return array $hosts [['id' => integer, 'name' => string],...]
+     * @throws PDOException
      */
     public function getHostsNames($hostId = []): array
     {
@@ -457,12 +465,12 @@ class CentreonHost
                     'FROM host where host_id IN ( ' . implode(',', array_keys($hostParams)) . ' )');
 
                 foreach ($hostParams as $index => $value) {
-                    $stmt->bindValue($index, $value, \PDO::PARAM_INT);
+                    $stmt->bindValue($index, $value, PDO::PARAM_INT);
                 }
 
                 $dbResult = $stmt->execute();
 
-                while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $hosts[] = [
                         'id' => $row['host_id'],
                         'name' => $row['host_name']
@@ -486,12 +494,12 @@ class CentreonHost
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             $row = $stmt->fetch();
             return $row['command_command_id'];
         }
-    }
+    }// FIXME no return
 
     /**
      * @param $hostId
@@ -511,7 +519,7 @@ class CentreonHost
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             if ($stmt->rowCount()) {
                 $row = $stmt->fetch();
@@ -542,7 +550,7 @@ class CentreonHost
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             if ($stmt->rowCount()) {
                 $row = $stmt->fetch();
@@ -579,7 +587,7 @@ class CentreonHost
         $stmt->bindParam(':address', $address, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
         while ($row = $stmt->fetch()) {
             $hostList[] = $row;
@@ -608,7 +616,7 @@ class CentreonHost
             $stmt->bindParam(':hostName', $hostName, PDO::PARAM_STR);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
 
             if ($stmt->rowCount()) {
@@ -636,7 +644,7 @@ class CentreonHost
             $stmt->bindParam(':pollerId', $pollerId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
         } else {
             $stmt = $this->db->query('SELECT illegal_object_name_chars FROM cfg_nagios ');
@@ -664,7 +672,7 @@ class CentreonHost
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             if ($stmt->rowCount()) {
                 $row = $stmt->fetch();
@@ -707,7 +715,7 @@ class CentreonHost
               WHERE host_id = :hostId 
               LIMIT 1';
             $stmt = $this->db->prepare($query);
-            $stmt->bindValue(':hostId', (int) $hostParam, \PDO::PARAM_INT);
+            $stmt->bindValue(':hostId', (int) $hostParam, PDO::PARAM_INT);
         } elseif (is_string($hostParam)) {
             $query = 'SELECT host_id, ns.nagios_server_id, host_register, host_address, host_name, host_alias
               FROM host
@@ -722,7 +730,7 @@ class CentreonHost
         }
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
 
         if (!$stmt->rowCount()) {
@@ -779,7 +787,7 @@ class CentreonHost
             $stmt->bindParam(':macro', $matches[1][$i], PDO::PARAM_STR);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             while ($row = $stmt->fetch()) {
                 $string = str_replace($matches[1][$i], $row['host_macro_value'], $string);
@@ -792,7 +800,7 @@ class CentreonHost
             $stmt2->bindValue(':host', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt2->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             while ($row2 = $stmt2->fetch()) {
                 if (!isset($antiLoop) || !$antiLoop) {
@@ -831,7 +839,7 @@ class CentreonHost
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
         } else {
             $macroList = "";
@@ -849,7 +857,7 @@ class CentreonHost
                 $stmt = $this->db->prepare($query);
                 $dbResult = $stmt->execute($queryValues);
                 if (!$dbResult) {
-                    throw new \Exception("An error occured");
+                    throw new Exception("An error occured");
                 }
             }
         }
@@ -879,7 +887,7 @@ class CentreonHost
                 $stmt = $this->db->prepare($query);
                 $dbResult = $stmt->execute($queryValues);
                 if (!$dbResult) {
-                    throw new \Exception("An error occured");
+                    throw new Exception("An error occured");
                 }
                 $cnt++;
                 $stored[strtolower($value)] = true;
@@ -920,7 +928,7 @@ class CentreonHost
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
 
             while ($row = $stmt->fetch()) {
@@ -960,7 +968,7 @@ class CentreonHost
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             while ($row = $stmt->fetch()) {
                 if (preg_match('/\$_HOST(.*)\$$/', $row['host_macro_name'], $matches)) {
@@ -1006,7 +1014,7 @@ class CentreonHost
             $stmt->bindParam(':host', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             while ($row = $stmt->fetch()) {
                 $arr[$i]['tpSelect_#index#'] = $row['host_tpl_id'];
@@ -1049,7 +1057,7 @@ class CentreonHost
         $stmt = $this->db->prepare($query);
         $dbResult = $stmt->execute($queryValues);
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
 
         $str = "";
@@ -1079,7 +1087,7 @@ class CentreonHost
             $stmt = $this->db->prepare($query);
             $dbResult = $stmt->execute($queryValues);
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
         }
     }
@@ -1087,7 +1095,12 @@ class CentreonHost
     /**
      * Checks if the insertion can be made
      *
+     * @param $hostId
+     * @param $templateId
+     * @param array $antiTplLoop
+     *
      * @return bool
+     * @throws PDOException
      */
     public function hasNoInfiniteLoop($hostId, $templateId, $antiTplLoop = array())
     {
@@ -1119,6 +1132,16 @@ class CentreonHost
         return true;
     }
 
+    /**
+     * @param $host_id
+     * @param $macroInput
+     * @param $macroValue
+     * @param $macroPassword
+     * @param $cmdId
+     *
+     * @return void
+     * @throws Exception
+     */
     public function hasMacroFromHostChanged(
         $host_id,
         &$macroInput,
@@ -1161,6 +1184,12 @@ class CentreonHost
         }
     }
 
+    /**
+     * @param $form
+     * @param $fromKey
+     *
+     * @return array
+     */
     public function getMacroFromForm($form, $fromKey)
     {
         $Macros = array();
@@ -1285,6 +1314,12 @@ class CentreonHost
         return $aFinalMacro;
     }
 
+    /**
+     * @param $form
+     *
+     * @return array
+     * @throws Exception
+     */
     public function ajaxMacroControl($form)
     {
         $macros = array();
@@ -1439,7 +1474,7 @@ class CentreonHost
                 $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
                 $dbResult = $stmt->execute();
                 if (!$dbResult) {
-                    throw new \Exception("An error occured");
+                    throw new Exception("An error occured");
                 }
 
                 while ($row = $stmt->fetch()) {
@@ -1482,7 +1517,7 @@ class CentreonHost
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             while ($row = $stmt->fetch()) {
                 $this->getHostChain($row['host_host_id'], $alreadyProcessed);
@@ -1508,7 +1543,7 @@ class CentreonHost
         $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
         while ($row = $stmt->fetch()) {
             $hostTemplateIds[] = $row['host_tpl_id'];
@@ -1557,7 +1592,7 @@ class CentreonHost
                 $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
                 $dbResult = $stmt->execute();
                 if (!$dbResult) {
-                    throw new \Exception("An error occured");
+                    throw new Exception("An error occured");
                 }
                 while ($row = $stmt->fetch()) {
                     if (!count($alreadyProcessed)) {
@@ -1584,7 +1619,7 @@ class CentreonHost
      * check host limitation
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     private function isAllowed(): bool
     {
@@ -1597,19 +1632,19 @@ class CentreonHost
             return false;
         }
         try {
-            $container = \Centreon\LegacyContainer::getInstance();
+            $container = LegacyContainer::getInstance();
         } catch (Exception $e) {
             throw new Exception('Cannot instantiate container');
         }
 
-        $container[\CentreonLicense\ServiceProvider::LM_PRODUCT_NAME] = 'epp';
-        $container[\CentreonLicense\ServiceProvider::LM_HOST_CHECK] = true;
+        $container[ServiceProvider::LM_PRODUCT_NAME] = 'epp';
+        $container[ServiceProvider::LM_HOST_CHECK] = true;
 
-        if (!$container[\CentreonLicense\ServiceProvider::LM_LICENSE]) {
+        if (!$container[ServiceProvider::LM_LICENSE]) {
             return false;
         }
 
-        $licenceManager = $container[\CentreonLicense\ServiceProvider::LM_LICENSE];
+        $licenceManager = $container[ServiceProvider::LM_LICENSE];
         if (!$licenceManager->validate()) {
             return false;
         }
@@ -1623,6 +1658,7 @@ class CentreonHost
      * Returns array of locked host templates
      *
      * @return array
+     * @throws PDOException
      */
     public function getLockedHostTemplates()
     {
@@ -1651,7 +1687,7 @@ class CentreonHost
         $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
         $arrayTemplate = array();
         while ($row = $stmt->fetch()) {
@@ -1669,10 +1705,12 @@ class CentreonHost
     }
 
     /**
-     * @param $macroArray
-     * @param $form
-     * @param $fromKey
-     * @param null $macrosArrayToCompare
+     * @param array $macroArray
+     * @param array $form
+     * @param string $fromKey
+     * @param array|null $macrosArrayToCompare
+     *
+     * @return void
      */
     public function purgeOldMacroToForm(
         &$macroArray,
@@ -1717,9 +1755,10 @@ class CentreonHost
     }
 
     /**
-     * @param $macroA
-     * @param $macroB
+     * @param array $macroA
+     * @param array $macroB
      * @param bool $getFirst
+     *
      * @return mixed
      */
     private function comparaPriority($macroA, $macroB, $getFirst = true)
@@ -1741,7 +1780,7 @@ class CentreonHost
     }
 
     /**
-     * @param $aTempMacro
+     * @param array $aTempMacro
      * @return array
      */
     public function macroUnique($aTempMacro)
@@ -1771,8 +1810,10 @@ class CentreonHost
     }
 
     /**
-     * @param $storedMacros
-     * @param $finalMacros
+     * @param array $storedMacros
+     * @param array $finalMacros
+     *
+     * @return void
      */
     private function addInfosToMacro($storedMacros, &$finalMacros)
     {
@@ -1798,8 +1839,9 @@ class CentreonHost
     }
 
     /**
-     * @param $storedMacros
-     * @param $finalMacro
+     * @param array $storedMacros
+     * @param array $finalMacro
+     *
      * @return string
      */
     private function getInheritedDescription($storedMacros, $finalMacro)
@@ -1824,8 +1866,10 @@ class CentreonHost
     }
 
     /**
-     * @param $finalMacro
+     * @param array $finalMacro
      * @param $description
+     *
+     * @return void
      */
     private function setInheritedDescription(&$finalMacro, $description)
     {
@@ -1835,7 +1879,9 @@ class CentreonHost
 
     /**
      * @param $tplValue
-     * @param $finalMacro
+     * @param array $finalMacro
+     *
+     * @return void
      */
     private function setTplValue($tplValue, &$finalMacro)
     {
@@ -1849,7 +1895,7 @@ class CentreonHost
     }
 
     /**
-     * @param $storedMacro
+     * @param array $storedMacro
      * @param bool $getFirst
      * @return bool
      */
@@ -1875,7 +1921,7 @@ class CentreonHost
 
     /**
      *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -2012,7 +2058,7 @@ class CentreonHost
         $stmt->bindParam(':hostId', $hostTplId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
         $listServices = array();
         while ($row = $stmt->fetch()) {
@@ -2064,7 +2110,7 @@ class CentreonHost
                 $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
                 $dbResult = $stmt->execute();
                 if (!$dbResult) {
-                    throw new \Exception("An error occured");
+                    throw new Exception("An error occured");
                 }
                 if (!$stmt->rowCount()) {
                     $serviceDesc = array(
@@ -2093,7 +2139,8 @@ class CentreonHost
     }
 
     /**
-     * @param $ret
+     * @param array $ret
+     *
      * @return mixed
      * @throws Exception
      */
@@ -2222,7 +2269,7 @@ class CentreonHost
         $rq .= ")";
         $dbResult = $this->db->query($rq);
         if (!$dbResult) {
-            throw new \Exception('Error while insert host ' . $ret['host_name']);
+            throw new Exception('Error while insert host ' . $ret['host_name']);
         }
 
         $stmt = $this->db->query("SELECT MAX(host_id) AS host_id FROM host");
@@ -2234,7 +2281,8 @@ class CentreonHost
     }
 
     /**
-     * @param $ret
+     * @param array $ret
+     *
      * @throws Exception
      */
     public function insertExtendedInfos($ret)
@@ -2268,13 +2316,14 @@ class CentreonHost
         $rq .= ")";
         $dbResult = $this->db->query($rq);
         if (!$dbResult) {
-            throw new \Exception('Error while insert host extended info ' . $ret['host_name']);
+            throw new Exception('Error while insert host extended info ' . $ret['host_name']);
         }
     }
 
     /**
      * @param $iHostId
      * @param $iServiceId
+     *
      * @throws Exception
      */
     public function insertRelHostService($iHostId, $iServiceId)
@@ -2288,13 +2337,14 @@ class CentreonHost
         $stmt->bindParam(':service', $iServiceId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
     }
 
     /**
      * @param $hostId
-     * @param $ret
+     * @param array $ret
+     *
      * @throws Exception
      */
     public function update($hostId, $ret)
@@ -2433,7 +2483,7 @@ class CentreonHost
 
         $dbResult = $this->db->query($rq);
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
 
         $this->updateExtendedInfos($hostId, $ret);
@@ -2441,7 +2491,8 @@ class CentreonHost
 
     /**
      * @param $hostId
-     * @param $ret
+     * @param array $ret
+     *
      * @throws Exception
      */
     public function updateExtendedInfos($hostId, $ret)
@@ -2479,7 +2530,7 @@ class CentreonHost
             $stmt = $this->db->prepare($query);
             $dbResult = $stmt->execute($queryValues);
             if (!$dbResult) {
-                throw new \Exception('Error while updating extendeded infos of host ' . $hostId);
+                throw new Exception('Error while updating extendeded infos of host ' . $hostId);
             }
         }
     }
@@ -2487,6 +2538,7 @@ class CentreonHost
     /**
      * @param $hostId
      * @param $pollerId
+     *
      * @throws Exception
      */
     public function setPollerInstance($hostId, $pollerId)
@@ -2497,7 +2549,7 @@ class CentreonHost
         $stmt->bindParam(':poller', $pollerId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
     }
 
@@ -2507,6 +2559,7 @@ class CentreonHost
      * @param string $register
      *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = [], $options = [], $register = '1')
     {
@@ -2584,7 +2637,8 @@ class CentreonHost
     }
 
     /**
-     * @param $hostName
+     * @param string $hostName
+     *
      * @throws Exception
      */
     public function deleteHostByName($hostName)
@@ -2594,7 +2648,7 @@ class CentreonHost
         $stmt->bindParam(':hostName', $hostName, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception('Error while delete host ' . $hostName);
+            throw new Exception('Error while delete host ' . $hostName);
         }
     }
 

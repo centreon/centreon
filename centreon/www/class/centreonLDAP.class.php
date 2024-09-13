@@ -45,21 +45,21 @@ class CentreonLDAP
 {
     /** @var CentreonLog|null */
     public $centreonLog;
-    /** @var */
+    /** @var Connection */
     private $ds;
     /** @var CentreonDB */
-    private $db = null;
-    /** @var */
+    private $db;
+    /** @var string */
     private $linkId;
     /** @var array */
     private $ldapHosts = array();
-    /** @var null */
+    /** @var array|null */
     private $ldap = null;
     /** @var array */
     private $constuctCache = array();
-    /** @var null */
+    /** @var array|null */
     private $userSearchInfo = null;
-    /** @var null */
+    /** @var array|null */
     private $groupSearchInfo = null;
     /** @var bool */
     private $debugImport = false;
@@ -265,6 +265,7 @@ class CentreonLDAP
      * Rebind with the default bind_dn
      *
      * @return bool If the connection is good
+     * @throws PDOException
      */
     public function rebind(): bool
     {
@@ -295,7 +296,7 @@ class CentreonLDAP
     /**
      * Send back the ldap resource
      *
-     * @return Connection|resource
+     * @return Connection
      */
     public function getDs()
     {

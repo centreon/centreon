@@ -33,15 +33,20 @@
  *
  */
 
-
+/**
+ * Class
+ *
+ * @class CentreonIssue
+ */
 class CentreonIssue
 {
+    /** @var CentreonDB */
     protected $dbb;
 
     /**
-     * Constructor
+     * CentreonIssue constructor
      *
-     * @param CentreonDB $db
+     * @param CentreonDB $dbb
      */
     public function __construct($dbb)
     {
@@ -52,7 +57,9 @@ class CentreonIssue
      * Get Children
      *
      * @param int $issueId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getChildren($issueId)
     {
@@ -104,7 +111,9 @@ class CentreonIssue
      * Check if issue is parent
      *
      * @param int $issueId
+     *
      * @return bool
+     * @throws PDOException
      */
     public function isParent($issueId)
     {

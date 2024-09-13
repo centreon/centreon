@@ -34,28 +34,23 @@
  */
 
 /**
- * Description of centreonPerformanceService
+ * Class
  *
+ * @class CentreonPerformanceService
+ * @description Description of centreonPerformanceService
  */
 class CentreonPerformanceService
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $dbMon;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonACL */
     protected $aclObj;
 
-
     /**
+     * CentreonPerformanceService constructor
      *
-     * @param type $dbMon
-     * @param type $aclObj
+     * @param $dbMon
+     * @param $aclObj
      */
     public function __construct($dbMon, $aclObj)
     {
@@ -64,9 +59,11 @@ class CentreonPerformanceService
     }
 
     /**
-     *
      * @param array $filters
+     *
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getList($filters = array())
     {
@@ -134,8 +131,8 @@ class CentreonPerformanceService
     }
 
     /**
-     *
      * @param string $additionnalCondition
+     *
      * @return string
      */
     private function getVirtualServicesCondition($additionnalCondition)

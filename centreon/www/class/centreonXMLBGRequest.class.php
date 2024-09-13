@@ -34,6 +34,8 @@
  *
  */
 
+use Pimple\Container;
+
 require_once realpath(__DIR__ . "/../../config/centreon.config.php");
 require_once realpath(__DIR__ . "/../../bootstrap.php");
 
@@ -52,9 +54,9 @@ class CentreonXMLBGRequest
      * Objects
      */
 
-    /** @var mixed */
+    /** @var CentreonDB */
     public $DB;
-    /** @var mixed */
+    /** @var CentreonDB */
     public $DBC;
     /** @var CentreonXML */
     public $XML;
@@ -137,7 +139,7 @@ class CentreonXMLBGRequest
      *  $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
      * </code>
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      * @param string $session_id
      * @param bool $dbNeeds
      * @param bool $headerType
@@ -148,7 +150,7 @@ class CentreonXMLBGRequest
      * @throws PDOException
      */
     public function __construct(
-        \Pimple\Container $dependencyInjector,
+        Container $dependencyInjector,
         $session_id,
         $dbNeeds,
         $headerType,
@@ -261,7 +263,7 @@ class CentreonXMLBGRequest
     {
         $statement = $this->DB->prepare("SELECT contact_admin, contact_id FROM contact " .
             "WHERE contact.contact_id = :userId LIMIT 1");
-        $statement->bindValue(":userId", (int) $this->user_id, \PDO::PARAM_INT);
+        $statement->bindValue(":userId", (int) $this->user_id, PDO::PARAM_INT);
         $statement->execute();
         $admin = $statement->fetchRow();
         $statement->closeCursor();
@@ -274,7 +276,9 @@ class CentreonXMLBGRequest
 
     /**
      * Get user id from session_id
+     *
      * @return void
+     * @throws PDOException
      */
     protected function getUserIdFromSID()
     {
@@ -290,18 +294,21 @@ class CentreonXMLBGRequest
 
     /**
      * Decode Function
+     *
+     * @param string $arg
+     *
+     * @return string
      */
     private function myDecode($arg)
     {
         return html_entity_decode($arg ?? '', ENT_QUOTES, "UTF-8");
     }
 
-    /*
-     * Get Status Color
-     */
-
     /**
+     * Get Status Color
+     *
      * @return void
+     * @throws PDOException
      */
     protected function getStatusColor()
     {
@@ -316,6 +323,7 @@ class CentreonXMLBGRequest
 
     /**
      * Send headers information for web server
+     *
      * @return void
      */
     public function header()
@@ -412,7 +420,7 @@ class CentreonXMLBGRequest
      * @param $tab
      * @param $defaultValue
      *
-     * @return string|void
+     * @return string
      */
     public function checkArgument($name, $tab, $defaultValue)
     {
@@ -427,10 +435,10 @@ class CentreonXMLBGRequest
                 return CentreonDB::escape($defaultValue);
             }
         }
-    }
+    }// FIXME no return
 
     /**
-     * @param $name
+     * @param string $name
      *
      * @return array|string|string[]
      */

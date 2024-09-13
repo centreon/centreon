@@ -64,11 +64,11 @@ class CentreonGraph
     const ENGINE_HIGH_INFINITE = 340282346638528860000000000000000000000;
     const ENGINE_LOW_INFINITE = -340282346638528860000000000000000000000;
 
-    /** @var null */
+    /** @var array|null */
     public $colorCache;
-    /** @var */
+    /** @var array */
     public $listMetricsId;
-    /** @var */
+    /** @var int */
     public $areaNb;
 
     /*
@@ -79,7 +79,7 @@ class CentreonGraph
     /** @var CentreonDB */
     protected $DBC;
 
-    /** @var */
+    /** @var SimpleXMLElement */
     public $XML;
     /** @var CentreonGMT */
     public $GMT;
@@ -116,13 +116,13 @@ class CentreonGraph
     protected $debug;
     /** @var int|mixed */
     protected $compress;
-    /** @var */
+    /** @var string */
     public $user_id;
-    /** @var */
+    /** @var array */
     protected $generalOpt;
     /** @var array|string|string[] */
     protected $filename;
-    /** @var */
+    /** @var string */
     protected $commandLine;
     /** @var mixed */
     protected $dbPath;
@@ -135,13 +135,13 @@ class CentreonGraph
         "host_name" => "",
         "service_description" => ""
     ];
-    /** @var */
+    /** @var string|int*/
     protected $templateId;
     /** @var array */
     protected $templateInformations;
-    /** @var */
+    /** @var string */
     protected $gprintScaleOption;
-    /** @var */
+    /** @var string|int */
     protected $graphID;
     /** @var array */
     protected $metricsEnabled;
@@ -157,13 +157,13 @@ class CentreonGraph
     protected $vname;
     /** @var array */
     protected $metrics;
-    /** @var */
+    /** @var int */
     protected $longer;
-    /** @var */
+    /** @var array */
     protected $rrdCachedOptions;
     /** @var bool */
     public $onecurve;
-    /** @var false */
+    /** @var bool */
     public $checkcurve;
 
     /**
@@ -369,9 +369,9 @@ class CentreonGraph
     }
 
     /**
+     * @param string|array $metrics
      *
-     * Enter description here ...
-     * @param unknown_type $metrics
+     * @return void
      */
     public function setMetricList($metrics)
     {
@@ -386,8 +386,9 @@ class CentreonGraph
     }
 
     /**
-     *
      * Initiate the Graph objects
+     *
+     * @return void
      */
     public function init()
     {
@@ -440,9 +441,9 @@ class CentreonGraph
     }
 
     /**
+     * @param $elem
      *
-     * Enter description here ...
-     * @param unknown_type $elem
+     * @return mixed
      */
     private static function quote($elem)
     {
@@ -450,9 +451,9 @@ class CentreonGraph
     }
 
     /**
+     * @param $elem
      *
-     * Enter description here ...
-     * @param unknown_type $elem
+     * @return string
      */
     private static function vquote($elem)
     {
@@ -462,7 +463,10 @@ class CentreonGraph
 
     /**
      * Return the appropriate comparison operator (GT or LT).
-     * @param $tm a reference to a curve definition
+     * $tm   a reference to a curve definition
+     * @param array $tm
+     *
+     * @return string
      */
     private static function getCmpOperator(&$tm)
     {
@@ -470,8 +474,8 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return void
+     * @throws PDOException
      */
     public function initCurveList()
     {
@@ -925,8 +929,9 @@ class CentreonGraph
     }
 
     /**
-     *
      * Create Legend on the graph
+     *
+     * @return void
      */
     public function createLegend()
     {
@@ -1093,10 +1098,10 @@ class CentreonGraph
     }
 
     /**
+     * @param int|null $l_value
+     * @param string|null $l_unit
      *
-     * Enter description here ...
-     * @param unknown_type $l_value
-     * @param unknown_type $l_unit
+     * @return string|void
      */
     private function humanReadable($l_value = null, $l_unit = null)
     {
@@ -1163,8 +1168,8 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return void
+     * @throws PDOException
      */
     private function getDefaultGraphTemplate()
     {
@@ -1199,9 +1204,10 @@ class CentreonGraph
     }
 
     /**
+     * @param string|null $template_id
      *
-     * Enter description here ...
-     * @param unknown_type $template_id
+     * @return void
+     * @throws PDOException
      */
     public function setTemplate($template_id = null)
     {
@@ -1243,8 +1249,8 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return int|mixed|string
+     * @throws PDOException
      */
     private function getServiceGraphID()
     {
@@ -1276,8 +1282,8 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Get index Data
+     * @return void
+     * @throws PDOException
      */
     private function getIndexData()
     {
@@ -1311,7 +1317,7 @@ class CentreonGraph
         $DBRESULT->closeCursor();
 
         if (isset($this->metricsEnabled)) {
-            $metrictitle = " metric " . $this->metrics[$this->metricsEnabled]["metric_name"];
+            $metrictitle = " metric " . $this->metrics[$this->metricsEnabled]["metric_name"];// FIXME metricsEnabled is an array ??
         } else {
             $metrictitle = "";
         }
@@ -1332,9 +1338,10 @@ class CentreonGraph
     }
 
     /**
-     *
      * Display Start and end time on graph
      * @param $arg
+     *
+     * @return void
      */
     public function addArgument($arg)
     {
@@ -1342,7 +1349,7 @@ class CentreonGraph
     }
 
     /**
-     * Geneate image...
+     * @return void
      */
     public static function displayError()
     {
@@ -1361,10 +1368,10 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
-     * @param $name
+     * @param string $name
      * @param $value
+     *
+     * @return void
      */
     public function setFont($name, $value)
     {
@@ -1372,10 +1379,10 @@ class CentreonGraph
     }
 
     /**
+     * @param string $name
+     * @param $value
      *
-     * Enter description here ...
-     * @param unknown_type $name
-     * @param unknown_type $value
+     * @return void
      */
     public function setColor($name, $value)
     {
@@ -1383,10 +1390,10 @@ class CentreonGraph
     }
 
     /**
+     * @param string $name
+     * @param $value
      *
-     * Enter description here ...
-     * @param unknown_type $name
-     * @param unknown_type $value
+     * @return void
      */
     public function setRRDOption($name, $value = null)
     {
@@ -1394,10 +1401,10 @@ class CentreonGraph
     }
 
     /**
+     * @param $lower
+     * @param $upper
      *
-     * Enter description here ...
-     * @param unknown_type $lower
-     * @param unknown_type $upper
+     * @return void
      */
     private function switchRRDLimitOption($lower = null, $upper = null)
     {
@@ -1414,9 +1421,9 @@ class CentreonGraph
     }
 
     /**
+     * @param $flag
      *
-     * Enter description here ...
-     * @param unknown_type $flag
+     * @return void
      */
     public function setCommandLineTimeLimit($flag)
     {
@@ -1426,10 +1433,10 @@ class CentreonGraph
     }
 
     /**
+     * @param string $name
+     * @param bool $bool
      *
-     * Enter description here ...
-     * @param unknown_type $name
-     * @param unknown_type $bool
+     * @return void
      */
     public function setOption($name, $bool = true)
     {
@@ -1437,9 +1444,9 @@ class CentreonGraph
     }
 
     /**
+     * @param string $name
      *
-     * Enter description here ...
-     * @param unknown_type $name
+     * @return false|mixed
      */
     public function getOption($name)
     {
@@ -1450,9 +1457,10 @@ class CentreonGraph
     }
 
     /**
+     * @param string $encoding
+     * @param string|int|false $content_length
      *
-     * Enter description here ...
-     * @param unknown_type $encoding
+     * @return void
      */
     public function setHeaders($encoding, $content_length = false)
     {
@@ -1463,14 +1471,14 @@ class CentreonGraph
         if ($this->compress && $encoding) {
             header('Content-Encoding: ' . $encoding);
         }
-        if ($content_length != false) {
+        if ($content_length !== false) {
             header("Content-Length: " . $content_length);
         }
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return array|string|string[]|void|null
+     * @throws Exception
      */
     public function displayImageFlow()
     {
@@ -1569,11 +1577,11 @@ class CentreonGraph
     }
 
     /**
+     * @param string $name
+     * @param array $tab
+     * @param string $defaultValue
      *
-     * Enter description here ...
-     * @param unknown_type $name
-     * @param unknown_type $tab
-     * @param unknown_type $defaultValue
+     * @return string|void
      */
     public function checkArgument($name, $tab, $defaultValue)
     {
@@ -1587,9 +1595,10 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
      * @param int $metricId
+     *
+     * @return mixed
+     * @throws PDOException
      */
     public function getOVDColor($metricId)
     {
@@ -1624,8 +1633,7 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return array
      */
     public function getRandomWebColor()
     {
@@ -1669,10 +1677,10 @@ class CentreonGraph
     }
 
     /**
+     * @param array $a
+     * @param array $b
      *
-     * Enter description here ...
-     * @param unknown_type $a
-     * @param unknown_type $b
+     * @return int
      */
     private function cmpmultiple($a, $b)
     {
@@ -1690,10 +1698,10 @@ class CentreonGraph
     }
 
     /**
+     * @param array $a
+     * @param array $b
      *
-     * Enter description here ...
-     * @param unknown_type $a
-     * @param unknown_type $b
+     * @return int
      */
     private function cmpcdeforder($a, $b)
     {
@@ -1704,11 +1712,11 @@ class CentreonGraph
     }
 
     /**
+     * @param string $rpn
+     * @param string $vname
+     * @param string|null $suffix
      *
-     * Enter description here ...
-     * @param unknown_type $rpn
-     * @param unknown_type $vname
-     * @param unknown_type $suffix
+     * @return string
      */
     protected function subsRPN($rpn, $vname, $suffix = null)
     {
@@ -1732,11 +1740,14 @@ class CentreonGraph
     }
 
     /**
-     *
      * need : [0]->need/visible [1]->need/hidden
-     * @param unknown_type $vId
-     * @param unknown_type $vName
-     * @param unknown_type $indexId
+     *
+     * @param string|null $vId
+     * @param string $vName
+     * @param string $indexId
+     *
+     * @return void
+     * @throws PDOException
      */
     private function manageVMetric($vId, $vName, $indexId)
     {
@@ -1844,9 +1855,9 @@ class CentreonGraph
     }
 
     /**
+     * @param string $message
      *
-     * Enter description here ...
-     * @param unknown_type $message
+     * @return void
      */
     private function log($message)
     {
@@ -1860,9 +1871,9 @@ class CentreonGraph
     }
 
     /**
+     * @param string $metric_id
      *
-     * Enter description here ...
-     * @param unknown_type $metric_id
+     * @return int
      */
     private function checkDBAvailability($metric_id)
     {
@@ -1950,7 +1961,9 @@ class CentreonGraph
      *
      * @param int $hostId
      * @param int $serviceId
+     *
      * @return int
+     * @throws PDOException
      */
     public function getIndexDataId($hostId, $serviceId)
     {
@@ -1973,7 +1986,9 @@ class CentreonGraph
      *
      * @param int $hostId
      * @param int $serviceId
+     *
      * @return bool
+     * @throws PDOException
      */
     public function statusGraphExists($hostId, $serviceId)
     {

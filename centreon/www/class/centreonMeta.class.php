@@ -34,19 +34,19 @@
  */
 
 /**
- * @author Sylvestre Ho <sho@centreon.com>
+ * Class
+ *
+ * @class CentreonMeta
  */
 class CentreonMeta
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
 
     /**
-     * Constructor
-     * @param type $db
+     * CentreonMeta constructor
+     *
+     * @param CentreonDB $db
      */
     public function __construct($db)
     {
@@ -57,6 +57,7 @@ class CentreonMeta
      * Return host id
      *
      * @return int
+     * @throws PDOException
      */
     public function getRealHostId()
     {
@@ -93,7 +94,9 @@ class CentreonMeta
      * Return service id
      *
      * @param int $metaId
+     *
      * @return int
+     * @throws PDOException
      */
     public function getRealServiceId($metaId)
     {
@@ -123,7 +126,9 @@ class CentreonMeta
      * Return metaservice id
      *
      * @param string $serviceDisplayName
+     *
      * @return int
+     * @throws PDOException
      */
     public function getMetaIdFromServiceDisplayName($serviceDisplayName)
     {
@@ -143,8 +148,8 @@ class CentreonMeta
     }
 
     /**
+     * @param int $field
      *
-     * @param integer $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
@@ -192,7 +197,9 @@ class CentreonMeta
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = array(), $options = array())
     {
@@ -243,7 +250,7 @@ class CentreonMeta
 
         try {
             $res = $this->db->query($queryList);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             return array();
         }
         $listMeta = array();
@@ -257,7 +264,10 @@ class CentreonMeta
      * Returns service details
      *
      * @param int $id
+     * @param array $parameters
+     *
      * @return array
+     * @throws PDOException
      */
     public function getParameters($id, $parameters = array())
     {
@@ -289,7 +299,9 @@ class CentreonMeta
      *
      * @param int $metaId
      * @param string $metaName
+     *
      * @return int
+     * @throws PDOException
      */
     public function insertVirtualService($metaId, $metaName)
     {
@@ -307,8 +319,8 @@ class CentreonMeta
             if ($row['display_name'] !== $metaName) {
                 $query = 'UPDATE service SET display_name = :display_name WHERE service_id = :service_id';
                 $statement = $this->db->prepare($query);
-                $statement->bindValue(':display_name', $metaName, \PDO::PARAM_STR);
-                $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+                $statement->bindValue(':display_name', $metaName, PDO::PARAM_STR);
+                $statement->bindValue(':service_id', (int) $serviceId, PDO::PARAM_INT);
                 $statement->execute();
             }
         } else {
@@ -323,8 +335,8 @@ class CentreonMeta
                     WHERE service_description = :service_description AND service_register = "2" LIMIT 1)'
                 . ')';
             $statement = $this->db->prepare($query);
-            $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
-            $statement->bindValue(':service_description', $composedName, \PDO::PARAM_STR);
+            $statement->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
+            $statement->bindValue(':service_description', $composedName, PDO::PARAM_STR);
             $statement->execute();
             $res = $this->db->query($queryService);
             if ($res->rowCount()) {

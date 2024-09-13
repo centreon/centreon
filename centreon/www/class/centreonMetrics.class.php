@@ -24,6 +24,8 @@ class CentreonMetrics
      * CentreonMetrics constructor
      *
      * @param CentreonDB $db
+     *
+     * @throws PDOException
      */
     public function __construct($db)
     {

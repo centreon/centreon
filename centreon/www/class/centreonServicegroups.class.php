@@ -34,34 +34,23 @@
  */
 
 /**
+ * Class
  *
- * Servicegroups objects
- *
+ * @class CentreonServicegroups
  */
-class CentreonServicegroups
+class CentreonServicegroups// FIXME CentreonServiceGroups exists too
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     private $DB;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var */
     private $relationCache;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var */
     private $dataTree;
 
     /**
+     * CentreonServicegroups constructor
      *
-     * Constructor
-     * @param $pearDB
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -70,7 +59,9 @@ class CentreonServicegroups
 
     /**
      * @param null $sgId
+     *
      * @return array|void
+     * @throws PDOException
      */
     public function getServiceGroupServices($sgId = null)
     {
@@ -144,12 +135,12 @@ class CentreonServicegroups
                 );
 
                 foreach ($sgParams as $index => $value) {
-                    $stmt->bindValue($index, $value, \PDO::PARAM_INT);
+                    $stmt->bindValue($index, $value, PDO::PARAM_INT);
                 }
 
                 $stmt->execute();
 
-                while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $servicesGroups[] = [
                         'id' => $row['sg_id'],
                         'name' => $row['sg_name']
@@ -283,11 +274,11 @@ class CentreonServicegroups
         $statement = $this->DB->prepare($request);
 
         foreach ($queryValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+            $statement->bindValue($key, $value, PDO::PARAM_INT);
         }
         $statement->execute();
 
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
             # hide unauthorized servicegroups
             $hide = false;
             if (
@@ -309,9 +300,9 @@ class CentreonServicegroups
     /**
      * @param string $sgName
      *
-     * @throws \Throwable
-     *
      * @return array<array{service:string,service_id:int,host:string,sg_name:string}>
+     *@throws Throwable
+     *
      */
     public function getServicesByServicegroupName(string $sgName): array
     {
@@ -327,7 +318,7 @@ class CentreonServicegroups
                 AND sg.sg_name = :sgName
             SQL;
         $statement = $this->DB->prepare($query);
-        $statement->bindValue(':sgName', $this->DB->escape($sgName), \PDO::PARAM_STR);
+        $statement->bindValue(':sgName', $this->DB->escape($sgName), PDO::PARAM_STR);
         $statement->execute();
         while ($elem = $statement->fetch()) {
             /** @var array{service_description:string,service_id:int,host_name:string} $elem */
@@ -344,9 +335,9 @@ class CentreonServicegroups
     /**
      * @param string $sgName
      *
-     * @throws \Throwable
-     *
      * @return array<array{service:string,service_id:int,host:string,sg_name:string}>
+     *@throws Throwable
+     *
      */
     public function getServicesThroughtServiceTemplatesByServicegroupName(string $sgName): array
     {
@@ -372,7 +363,7 @@ class CentreonServicegroups
             SQL;
 
         $statement = $this->DB->prepare($query);
-        $statement->bindValue(':sgName', $this->DB->escape($sgName), \PDO::PARAM_STR);
+        $statement->bindValue(':sgName', $this->DB->escape($sgName), PDO::PARAM_STR);
         $statement->execute();
         while ($elem = $statement->fetch()) {
             /** @var array{service_description:string,service_id:int,host_name:string} $elem */

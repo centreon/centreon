@@ -33,16 +33,18 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonLocale
+ */
 class CentreonLocale
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var \CentreonDB */
     protected $db;
     
     /**
-     * Constructor
+     * CentreonLocale constructor
      *
      * @param CentreonDB $db
      */
@@ -55,6 +57,7 @@ class CentreonLocale
      * GetLocaleList
      *
      * @return array
+     * @throws PDOException
      */
     public function getLocaleList()
     {

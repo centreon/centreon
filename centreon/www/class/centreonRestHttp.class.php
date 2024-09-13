@@ -19,36 +19,24 @@ require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonLog.class.php";
 
 /**
- * Utils class for call HTTP JSON REST
+ * Class
  *
- * @author Centreon
- * @version 1.0.0
- * @package centreon
+ * @class CentreonRestHttp
+ * @description Utils class for call HTTP JSON REST
  */
 class CentreonRestHttp
 {
-    /**
-     * @var The content type : default application/json
-     */
+    /** @var string The content type : default application/json */
     private $contentType = 'application/json';
-
-    /**
-     * @var using a proxy
-     */
+    /** @var string|null using a proxy */
     private $proxy = null;
-
-    /**
-     * @var proxy authentication information
-     */
+    /** @var string proxy authentication information */
     private $proxyAuthentication = null;
-
-    /**
-     * @var logFileThe The log file for call errors
-     */
+    /** @var CentreonLog|null logFileThe The log file for call errors */
     private $logObj = null;
 
     /**
-     * Constructor
+     * CentreonRestHttp constructor
      *
      * @param string $contentType The content type
      */
@@ -57,10 +45,17 @@ class CentreonRestHttp
         $this->getProxy();
         $this->contentType = $contentType;
         if (!is_null($logFile)) {
-            $this->logObj = new \CentreonLog(array(4 => $logFile));
+            $this->logObj = new CentreonLog(array(4 => $logFile));
         }
     }
 
+    /**
+     * @param $output
+     * @param $url
+     * @param $type
+     *
+     * @return void
+     */
     private function insertLog($output, $url, $type = 'RestInternalServerErrorException')
     {
         if (is_null($this->logObj)) {
@@ -77,12 +72,20 @@ class CentreonRestHttp
      *
      * @param string $url The endpoint url
      * @param string $method The HTTP method
-     * @param array|null $data The data to send on the request
+     * @param null $data The data to send on the request
      * @param array $headers The extra headers without Content-Type
      * @param bool $throwContent
      * @param bool $noCheckCertificate To disable CURLOPT_SSL_VERIFYPEER
-     * @param bool$noProxy To disable CURLOPT_PROXY
+     * @param bool $noProxy To disable CURLOPT_PROXY
+     *
      * @return array The result content
+     * @throws RestBadRequestException
+     * @throws RestConflictException
+     * @throws RestForbiddenException
+     * @throws RestInternalServerErrorException
+     * @throws RestMethodNotAllowedException
+     * @throws RestNotFoundException
+     * @throws RestUnauthorizedException
      */
     public function call($url, $method = 'GET', $data = null, $headers = array(), $throwContent = false, $noCheckCertificate = false, $noProxy = false)
     {
@@ -200,9 +203,10 @@ class CentreonRestHttp
     }
 
     /**
+     * @param string $url
+     * @param string|int $port
      *
-     * @param type $url
-     * @param type $port
+     * @return void
      */
     public function setProxy($url, $port)
     {
@@ -215,12 +219,12 @@ class CentreonRestHttp
     }
 
     /**
-     * get proxy data
-     *
+     * @return void
+     * @throws PDOException
      */
     private function getProxy()
     {
-        $db = new \CentreonDB();
+        $db = new CentreonDB();
         $query = 'SELECT `key`, `value` '
             . 'FROM `options` '
             . 'WHERE `key` IN ( '
