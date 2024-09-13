@@ -138,7 +138,7 @@ abstract class Centreon_ObjectRt
         $filterTab = array();
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                if (!count($filterTab)) {
+                if ($filterTab === []) {
                     $sql .= " WHERE $key LIKE ? ";
                 } else {
                     $sql .= " $filterType $key LIKE ? ";

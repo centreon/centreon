@@ -94,7 +94,7 @@ function serviceMacHandler()
             $macTab[] = "'\$_SERVICE" . strtoupper($value) . "\$'";
         }
     }
-    if (count($macTab)) {
+    if ($macTab !== []) {
         $sql = "SELECT count(*) as nb FROM nagios_macro WHERE macro_name IN (" . implode(',', $macTab) . ")";
         $res = $pearDB->query($sql);
         $row = $res->fetch();

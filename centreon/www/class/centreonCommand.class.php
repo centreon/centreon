@@ -308,7 +308,7 @@ class CentreonCommand
                 $macros[] = $match[1];
             }
 
-            if (count($macros) > 0) {
+            if ($macros !== []) {
                 $macrosDesc = $this->getMacrosCommand($iCommandId, $macros, $sType);
                 $aNames = array_column($macrosDesc, 'name');
 

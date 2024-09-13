@@ -60,7 +60,7 @@ foreach ($parameters as $name => $value) {
     }
 }
 
-if (!count($err['file_not_found']) && !count($err['file_not_found']) && !count($err['file_not_found'])) {
+if ($err['file_not_found'] === [] && $err['file_not_found'] === [] && $err['file_not_found'] === []) {
     $step->setBrokerConfiguration($parameters);
 }
 

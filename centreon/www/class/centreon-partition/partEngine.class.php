@@ -468,7 +468,7 @@ class PartEngine
                 $partitions[] = $row;
             }
         }
-        if (!count($partitions) && $throwException) {
+        if ($partitions === [] && $throwException) {
             throw new Exception("No partition found for table " . $tableName . "\n");
         } else {
             return $partitions;

@@ -95,7 +95,7 @@ class CentreonUtils
                 $arrData[$index] = $value;
             }
         }
-        if (!count($arrData)) {
+        if ($arrData === []) {
             $arrData = "";
         }
         return $arrData;

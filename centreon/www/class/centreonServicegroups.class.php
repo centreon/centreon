@@ -120,7 +120,7 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
              */
             $filteredSgIds = $this->filteredArrayId($serviceGroupsIds);
             $sgParams = [];
-            if (count($filteredSgIds) > 0) {
+            if ($filteredSgIds !== []) {
                 /*
                  * Building the sgParams hash table in order to correctly
                  * bind ids as ints for the request.

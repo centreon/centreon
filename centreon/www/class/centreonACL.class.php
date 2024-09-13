@@ -638,7 +638,7 @@ class CentreonACL
                 }
                 $DBRESULT->closeCursor();
 
-                if (count($topology)) {
+                if ($topology !== []) {
                     $query3 = "SELECT topology_page, topology_id "
                         . "FROM topology FORCE INDEX (`PRIMARY`) "
                         . "WHERE topology_page IS NOT NULL "
@@ -1234,7 +1234,7 @@ class CentreonACL
         $this->checkUpdateACL();
 
         $groupIds = array_keys($this->accessGroups);
-        if (!count($groupIds)) {
+        if ($groupIds === []) {
             return "''";
         }
 
@@ -1448,7 +1448,7 @@ class CentreonACL
     {
         $this->checkUpdateACL();
         $groupIds = array_keys($this->accessGroups);
-        if (!count($groupIds)) {
+        if ($groupIds === []) {
             return "''";
         }
         $query = "SELECT DISTINCT host_id "
@@ -1475,7 +1475,7 @@ class CentreonACL
     {
         $this->checkUpdateACL();
         $groupIds = array_keys($this->accessGroups);
-        if (!count($groupIds)) {
+        if ($groupIds === []) {
             return false;
         }
         $query = "SELECT DISTINCT service_id "
@@ -1502,7 +1502,7 @@ class CentreonACL
     {
         $this->checkUpdateACL();
         $groupIds = array_keys($this->accessGroups);
-        if (!count($groupIds)) {
+        if ($groupIds === []) {
             return "";
         }
         $tempTableName = 'centreon_acl_' . self::generateRandomString(5);
@@ -1522,7 +1522,7 @@ class CentreonACL
     {
         $this->checkUpdateACL();
         $groupIds = array_keys($this->accessGroups);
-        if (!count($groupIds)) {
+        if ($groupIds === []) {
             return "";
         }
         $tempTableName = 'centreon_acl_' . self::generateRandomString(5);
@@ -1550,7 +1550,7 @@ class CentreonACL
         $this->checkUpdateACL();
 
         $groupIds = array_keys($this->accessGroups);
-        if (!count($groupIds)) {
+        if ($groupIds === []) {
             return "''";
         }
 
@@ -1616,7 +1616,7 @@ class CentreonACL
         $this->checkUpdateACL();
 
         $groupIds = array_keys($this->accessGroups);
-        if (!count($groupIds)) {
+        if ($groupIds === []) {
             return "''";
         }
 
@@ -1677,7 +1677,7 @@ class CentreonACL
         $this->checkUpdateACL();
 
         $groupIds = array_keys($this->accessGroups);
-        if (!count($groupIds)) {
+        if ($groupIds === []) {
             return "''";
         }
 
@@ -1740,7 +1740,7 @@ class CentreonACL
         $this->checkUpdateACL();
 
         $groupIds = array_keys($this->accessGroups);
-        if (!count($groupIds)) {
+        if ($groupIds === []) {
             return "''";
         }
 
@@ -1803,7 +1803,7 @@ class CentreonACL
         $topology = array_keys($this->topology);
 
         $result = "''";
-        if (count($topology)) {
+        if ($topology !== []) {
             $result = implode(', ', $topology);
         }
 

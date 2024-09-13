@@ -177,7 +177,7 @@ if ((isset($inputs["o1"]) && $inputs["o1"]) || (isset($inputs["o2"]) && $inputs[
             }
         }
         $listMetricsToDelete = array_unique($listMetricsToDelete);
-        if (count($listMetricsToDelete) > 0) {
+        if ($listMetricsToDelete !== []) {
             $query = "UPDATE metrics SET to_delete = 1 WHERE metric_id IN (" .
                 implode(', ', $listMetricsToDelete) . ")";
             $pearDBO->query($query);

@@ -434,7 +434,7 @@ if (!is_null($host_id)) {
         $service_status["long_plugin_output"] = "";
         $service_status["plugin_output2"] = str_replace("\n", '\n', $service_status["plugin_output2"]);
         $outputTmp = explode('\n', $service_status["plugin_output2"]);
-        if (count($outputTmp)) {
+        if ($outputTmp !== []) {
             $i = 0;
             while (isset($outputTmp[$i])) {
                 if (!$i) {

@@ -68,7 +68,7 @@ function checkYearMax(array $fields)
         $errors['end'] = $tooHighDateMessage;
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
 }
 
 if (

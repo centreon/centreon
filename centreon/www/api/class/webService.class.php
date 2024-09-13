@@ -180,7 +180,7 @@ class CentreonWebService
             }
         }
 
-        if (count($webServiceClass) === 0) {
+        if ($webServiceClass === []) {
             static::sendResult("Method not found", 404);
         }
 

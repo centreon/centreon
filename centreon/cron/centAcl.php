@@ -412,7 +412,7 @@ try {
     }
     unset($result);
 
-    if (count($tabGroups)) {
+    if ($tabGroups !== []) {
 
         /**
          *  Cache for hosts and host Templates

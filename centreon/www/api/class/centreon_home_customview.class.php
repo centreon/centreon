@@ -75,7 +75,7 @@ class CentreonHomeCustomview extends CentreonWebService
             'SELECT cvur2.custom_view_id FROM custom_view_user_relation cvur2 ' .
             'WHERE cvur2.user_id = ' . $centreon->user->user_id . ' ' .
             'AND cvur2.is_consumed = 1) ' .
-            (count($q) > 0 ? 'AND d.name like ? ' : '') .
+            ($q !== [] ? 'AND d.name like ? ' : '') .
             'ORDER BY name';
 
         $stmt = $this->pearDB->prepare($query);

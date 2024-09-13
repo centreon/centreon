@@ -83,7 +83,7 @@ $imgs = array();
 $rq = "SELECT `img_id`,`dir_alias`,`img_name` FROM view_img "
     . "JOIN view_img_dir_relation ON img_img_id = img_id "
     . "JOIN view_img_dir ON dir_id = dir_dir_parent_id ";
-if ($o == IMAGE_MOVE && count($selected) > 0) {
+if ($o == IMAGE_MOVE && $selected !== []) {
     $rq .= " WHERE `img_id` IN (".implode(",", $selected).") ";
 }
 $rq .= " ORDER BY dir_alias, img_name";

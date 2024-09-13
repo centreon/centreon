@@ -159,7 +159,7 @@ if ($preferences['host_group']) {
     $inc = 0;
 
     $services = explode(",", $preferences['service']);
-    if (count($services)) {
+    if ($services !== []) {
         $query3 .= " AND (";
         foreach ($services as $elem) {
             if (!$inc) {

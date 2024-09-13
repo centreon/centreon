@@ -119,7 +119,7 @@ class NotificationResourceFactory
         $newResources = [];
         foreach ($resources as $resourceData) {
             $resourceIds = array_unique($resourceData['ids']);
-            if (count($resourceIds) === 0) {
+            if ($resourceIds === []) {
                 continue;
             }
 

@@ -2043,7 +2043,7 @@ class PHPMailer
         }
 
         //Create error message for any bad addresses
-        if (count($bad_rcpt) > 0) {
+        if ($bad_rcpt !== []) {
             $errstr = '';
             foreach ($bad_rcpt as $bad) {
                 $errstr .= $bad['to'] . ': ' . $bad['error'];
@@ -4886,7 +4886,7 @@ class PHPMailer
             }
         }
         $copiedHeaderFields = '';
-        if ($this->DKIM_copyHeaderFields && count($copiedHeaders) > 0) {
+        if ($this->DKIM_copyHeaderFields && $copiedHeaders !== []) {
             //Assemble a DKIM 'z' tag
             $copiedHeaderFields = ' z=';
             $first = true;

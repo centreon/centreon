@@ -132,7 +132,7 @@ class TopologyRepository extends ServiceEntityRepository
                     }
                     $DBRESULT->closeCursor();
 
-                    if (count($topology)) {
+                    if ($topology !== []) {
                         $query3 = "SELECT topology_url "
                             . "FROM topology FORCE INDEX (`PRIMARY`) "
                             . "WHERE topology_url IS NOT NULL "

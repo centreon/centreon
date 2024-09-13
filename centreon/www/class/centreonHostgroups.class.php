@@ -157,7 +157,7 @@ class CentreonHostgroups
         if (!empty($hostGroupsIds)) {
             $filteredHgIds = $this->filteredArrayId($hostGroupsIds);
             $hgParams = [];
-            if (count($filteredHgIds) > 0) {
+            if ($filteredHgIds !== []) {
                 /*
                  * Building the hgParams hash table in order to correctly
                  * bind ids as ints for the request.

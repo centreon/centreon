@@ -114,7 +114,7 @@ while ($aclTopology = $aclTopologies->fetch()) {
     }
 
     // insert missing parent topology relations
-    if (count($aclToInsert)) {
+    if ($aclToInsert !== []) {
         $bindedValues = [];
         foreach ($aclToInsert as $aclIndex => $aclValue) {
             $bindedValues[':acl_' . $aclIndex] = (int) $aclValue;

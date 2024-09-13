@@ -57,7 +57,7 @@ trait CommandLineTrait
             }
         }
 
-        if (count($macroPasswordNames) === 0) {
+        if ($macroPasswordNames === []) {
             return $monitoringCommand;
         }
 

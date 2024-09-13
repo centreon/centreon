@@ -1831,7 +1831,7 @@ class CentreonHost extends CentreonObject
             }
         }
 
-        if (count($aMacroTemplate) > 0) {
+        if ($aMacroTemplate !== []) {
             foreach ($aMacroTemplate as $key => $macr) {
                 foreach ($macr as $mm) {
                     $mm['macroOldValue'] = $mm["host_macro_value"];
@@ -1842,7 +1842,7 @@ class CentreonHost extends CentreonObject
             }
         }
 
-        if (count($aMacroInCommande) > 0) {
+        if ($aMacroInCommande !== []) {
             $macroCommande = current($aMacroInCommande);
             for ($i = 0; $i < count($macroCommande); $i++) {
                 $macroCommande[$i]['macroOldValue'] = $macroCommande[$i]["host_macro_value"];

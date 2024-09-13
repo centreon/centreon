@@ -275,7 +275,7 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
         $downtimeConcordanceArray = $this->downtimeConcordanceArray;
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
         $shouldJoinService = false;
-        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($serviceConcordanceArray)) !== []) {
             $shouldJoinService = true;
             $downtimeConcordanceArray = array_merge($downtimeConcordanceArray, $serviceConcordanceArray);
         }

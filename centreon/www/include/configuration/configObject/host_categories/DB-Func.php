@@ -49,7 +49,7 @@ function checkSeverity($fields)
     if (isset($fields['hc_type']) && $fields['hc_severity_icon'] == "") {
         $arr['hc_severity_icon'] = "Severity icon is required";
     }
-    if (count($arr)) {
+    if ($arr !== []) {
         return $arr;
     }
     return true;
@@ -497,7 +497,7 @@ function updateHostCategoriesHosts($hcId, $ret = [])
     $linkedObjects = array_merge($linkedHosts, $linkedHostTemplates);
 
     // build query to insert all relations
-    if (count($linkedObjects)) {
+    if ($linkedObjects !== []) {
         $query = "INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id) VALUES ";
         for ($i = 0; $i < count($linkedObjects); $i++) {
             if ($i != 0) {

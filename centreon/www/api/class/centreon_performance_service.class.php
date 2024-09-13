@@ -267,7 +267,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             foreach ($metaServices as $metaServiceId => $metaServiceName) {
                 $virtualServices[] = 'meta_' . $metaServiceId;
             }
-            if (count($virtualServices)) {
+            if ($virtualServices !== []) {
                 $metaServiceCondition = 'AND s.description IN (';
                 $explodedValues = '';
                 foreach ($virtualServices as $k => $v) {

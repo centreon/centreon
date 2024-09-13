@@ -2302,7 +2302,7 @@ function updateHostHostGroup($host_id, $ret = array())
 
     // Special Case, delete relation between host/service,
     // when service is linked to hostgroup in escalation, dependencies
-    if (count($hgSVS)) {
+    if ($hgSVS !== []) {
         foreach ($hgsOLD as $hg) {
             if (!isset($hgsNEW[$hg])) {
                 if (isset($hgSVS[$hg])) {
@@ -2814,7 +2814,7 @@ function insertHostInAPI(array $ret = []): int|null
     global $centreon, $form, $isCloudPlatform, $basePath;
 
     /** @var array<string,int|string|null> $formData */
-    $formData = !count($ret) ? $form->getSubmitValues() : $ret;
+    $formData = $ret === [] ? $form->getSubmitValues() : $ret;
 
     try {
         $hostId = insertHostByApi($formData, $isCloudPlatform, $basePath);

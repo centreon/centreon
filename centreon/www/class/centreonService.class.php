@@ -302,7 +302,7 @@ class CentreonService
              */
             $filteredSvcIds = $this->filteredArrayId($serviceIds);
 
-            if (count($filteredSvcIds) > 0) {
+            if ($filteredSvcIds !== []) {
                 foreach ($filteredSvcIds as $hostAndServiceId) {
                     list($hostId, $serviceId) = explode("_", $hostAndServiceId);
                     $where .= empty($where) ? " ( " : " OR ";
@@ -864,7 +864,7 @@ class CentreonService
             }
         }
 
-        if (count($aMacroTemplate) > 0) {
+        if ($aMacroTemplate !== []) {
             foreach ($aMacroTemplate as $key => $macr) {
                 foreach ($macr as $mm) {
                     $mm['macroOldValue_#index#'] = $mm["macroValue_#index#"];
@@ -875,7 +875,7 @@ class CentreonService
             }
         }
 
-        if (count($macroArray) > 0) {
+        if ($macroArray !== []) {
             foreach ($macroArray as $directMacro) {
                 $directMacro['macroOldValue_#index#'] = $directMacro["macroValue_#index#"];
                 $directMacro['macroFrom_#index#'] = 'direct';
@@ -942,7 +942,7 @@ class CentreonService
         //filter a macro
         $aTempMacro = array();
 
-        if (count($aMacroInService) > 0) {
+        if ($aMacroInService !== []) {
             for ($i = 0; $i < count($aMacroInService); $i++) {
                 $aMacroInService[$i]['macroOldValue_#index#'] = $aMacroInService[$i]["macroValue_#index#"];
                 $aMacroInService[$i]['macroFrom_#index#'] = 'fromService';
@@ -951,7 +951,7 @@ class CentreonService
             }
         }
 
-        if (count($aMacroTemplate) > 0) {
+        if ($aMacroTemplate !== []) {
             foreach ($aMacroTemplate as $key => $macr) {
                 foreach ($macr as $mm) {
                     $mm['macroOldValue_#index#'] = $mm["macroValue_#index#"];
@@ -1777,7 +1777,7 @@ class CentreonService
             }
         }
 
-        if (count($updateFields)) {
+        if ($updateFields !== []) {
             $query .= implode(',', $updateFields)
                 . 'WHERE service_service_id = "' . $service_id . '" ';
             try {

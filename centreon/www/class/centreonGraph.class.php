@@ -494,7 +494,7 @@ class CentreonGraph
                 }
             }
             /* Create selector for reals metrics */
-            if (count($l_rmEnabled)) {
+            if ($l_rmEnabled !== []) {
                 $l_rselector =
                     implode(
                         ",",
@@ -502,7 +502,7 @@ class CentreonGraph
                     );
                 $this->log("initCurveList with selector [real]= " . $l_rselector);
             }
-            if (count($l_vmEnabled)) {
+            if ($l_vmEnabled !== []) {
                 $l_vselector =
                     implode(
                         ",",

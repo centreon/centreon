@@ -227,7 +227,7 @@ if (! empty($preferences['svc_unknown'])) {
     $stateTab[] = 3;
 }
 
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
 
