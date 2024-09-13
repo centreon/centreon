@@ -30,7 +30,7 @@ const MigrationModal = ({ isOpen, close }: Props): JSX.Element => {
           text={`# ${t(labelExecuteThisCommandAsRoot)}
 /usr/share/centreon/bin/migrateCredentials.php`}
           language="bash"
-          commandToCopy="/usr/share/centreon/bin/migrateCredentials.php"
+          commandToCopy="php /usr/share/centreon/bin/migrateCredentials.php"
         />
       </Modal.Body>
     </Modal>
