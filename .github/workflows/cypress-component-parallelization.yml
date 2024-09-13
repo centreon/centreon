@@ -198,17 +198,6 @@ jobs:
           delete-old-comments: true
           filter-changed-files: true
 
-      - name: Check Code coverage
-        id: checkCodeCoverage
-        uses: ./.github/actions/code-coverage-gate-keeper
-        if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop') || github.ref_name == 'develop' }}
-        with:
-          module_path: ${{ inputs.module_name }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ steps.title.outputs.replaced }}
-          dynamicCodeCoveragesFilePath: /tmp/baseCodeCoverages.json
-          generateNewCodeCoverages: ${{ github.ref_name == 'develop' && github.event.inputs.is_nightly == 'false' }}
-
       - name: Send new dynamic code coverages
         if: ${{ github.ref_name == 'develop' && github.event.inputs.is_nightly == 'false' && steps.checkCodeCoverage.outputs.has_new_code_coverage }}
         run: |
