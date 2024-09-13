@@ -5,7 +5,7 @@ import {
 } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
 import { isEmpty, pluck } from 'ramda';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { agentConfigurationsListingDecoder } from '../api/decoders';
 import { getAgentConfigurationsEndpoint } from '../api/endpoints';
 import {
@@ -28,7 +28,6 @@ interface UseGetAgentConfigurationsState {
 
 export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
   const queryKey = useListingQueryKey();
-  const mountedRef = useRef(false);
 
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
@@ -39,7 +38,7 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
 
   const agentTypesConditions = useMemo(
     () =>
-      filters.agentTypes
+      !isEmpty(filters.agentTypes)
         ? [
             {
               field: 'type',
@@ -54,7 +53,7 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
 
   const pollersConditions = useMemo(
     () =>
-      filters.pollers
+      !isEmpty(filters.pollers)
         ? [
             {
               field: 'poller.id',
@@ -67,10 +66,11 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
     [filters.pollers]
   );
 
+  const conditions = [...agentTypesConditions, ...pollersConditions];
+
   const { data, isLoading } = useFetchQuery<
     ListingModel<AgentConfigurationListing>
   >({
-    baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     decoder: agentConfigurationsListingDecoder,
     getQueryKey: () => queryKey,
     getEndpoint: () =>
@@ -87,18 +87,14 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
               fields: ['name'],
               value: search
             },
-            conditions: [...agentTypesConditions, ...pollersConditions]
+            conditions: isEmpty(conditions) ? undefined : conditions
           }
         }
       }),
     queryOptions: {
-      suspense: !mountedRef.current
+      suspense: false
     }
   });
-
-  if (!mountedRef.current) {
-    mountedRef.current = true;
-  }
 
   const agentConfigurations = data?.result || [];
 

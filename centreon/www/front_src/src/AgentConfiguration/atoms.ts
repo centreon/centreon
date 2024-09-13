@@ -36,6 +36,7 @@ export const changeFilterAtom = atom(
       ...get(filtersAtom),
       [field]: newEntries
     });
+    set(pageAtom, 0);
   }
 );
 
@@ -58,5 +59,6 @@ export const deleteFilterEntryAtom = atom(
       ...get(filtersAtom),
       [field]: remove(entryToDeleteIndex, 1, fieldEntries)
     });
+    set(pageAtom, 0);
   }
 );

@@ -1,9 +1,11 @@
+import { PageSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
+import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { labelCreate } from '../Dashboards/translatedLabels';
 import ACListing from './Listing/Listing';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
 import {
+  labelAddNewAgent,
   labelAgentsConfigurations,
   labelWelcomeToTheAgentsConfigurationPage
 } from './translatedLabels';
@@ -12,6 +14,10 @@ const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
 
   const { isDataEmpty, isLoading, total, data } = useGetAgentConfigurations();
+
+  if (isLoading && isNil(data)) {
+    return <PageSkeleton displayHeaderAndNavigation={false} />;
+  }
 
   return (
     <PageLayout>
@@ -29,7 +35,7 @@ const AgentConfigurationPage = (): JSX.Element => {
               labels={{
                 title: t(labelWelcomeToTheAgentsConfigurationPage),
                 actions: {
-                  create: t(labelCreate)
+                  create: t(labelAddNewAgent)
                 }
               }}
               onCreate={() => undefined}
