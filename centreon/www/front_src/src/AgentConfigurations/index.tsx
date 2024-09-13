@@ -8,6 +8,14 @@ import { Button } from '@centreon/ui/components';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 
+const toDataUrl = (file: File | Blob) =>
+  new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.onloadend = () => resolve(fileReader.result);
+    fileReader.onerror = () => reject(fileReader.error);
+    fileReader.readAsDataURL(file);
+  });
+
 const Page = (): JSX.Element => {
   const [files, setFiles] = useState<FileList | null>(null);
 
@@ -16,9 +24,13 @@ const Page = (): JSX.Element => {
     method: Method.POST
   });
 
-  const send = (): void => {
-    const formData = new FormData();
+  const changeFiles = (newFiles: FileList): void => {
+    Promise.all(transformFileListToArray(newFiles).map(toDataUrl)).then(
+      setFiles
+    );
+  };
 
+  const send = (): void => {
     const payload = {
       name: 'heyyy',
       type: 'telegraf',
@@ -29,20 +41,12 @@ const Page = (): JSX.Element => {
         {
           poller: 'Paulaner'
         }
-      ]
+      ],
+      files
     };
 
-    formData.append('data', JSON.stringify(payload));
-    transformFileListToArray(files).forEach((file, index) => {
-      formData.append(
-        `file_${index}_${file.name}`,
-        file,
-        file.name
-      );
-    });
-
     mutateAsync({
-      payload: formData
+      payload: payload
     });
   };
 
@@ -58,8 +62,8 @@ const Page = (): JSX.Element => {
     >
       <FileDropZone
         accept="*"
-        files={files}
-        changeFiles={setFiles}
+        files={null}
+        changeFiles={changeFiles}
         multiple={false}
         resetFilesStatusAndUploadData={() => setFiles(null)}
       />
