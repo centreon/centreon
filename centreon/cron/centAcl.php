@@ -520,14 +520,12 @@ try {
                     $hsRelation[$sr["host_host_id"]] = array();
                 }
                 $hsRelation[$sr["host_host_id"]][$sr["service_service_id"]] = 1;
-            } else {
-                if (isset($hostHGRelation[$sr["hostgroup_hg_id"]])) {
-                    foreach ($hostHGRelation[$sr["hostgroup_hg_id"]] as $hostId) {
-                        if (!isset($hsRelation[$hostId])) {
-                            $hsRelation[$hostId] = array();
-                        }
-                        $hsRelation[$hostId][$sr["service_service_id"]] = 1;
+            } elseif (isset($hostHGRelation[$sr["hostgroup_hg_id"]])) {
+                foreach ($hostHGRelation[$sr["hostgroup_hg_id"]] as $hostId) {
+                    if (!isset($hsRelation[$hostId])) {
+                        $hsRelation[$hostId] = array();
                     }
+                    $hsRelation[$hostId][$sr["service_service_id"]] = 1;
                 }
             }
         }

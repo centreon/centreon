@@ -268,7 +268,6 @@ if (!$centreon->user->admin) {
 
 if ($hostgroup) {
     $mainQueryParameters[':host_group_id'] = [\PDO::PARAM_INT => $hostgroup];
-
     if ($poller) {
         $mainQueryParameters[':poller_id'] = [\PDO::PARAM_INT => $poller];
 
@@ -307,11 +306,9 @@ if ($hostgroup) {
             LIMIT :offset, :limit
             SQL;
     }
-} else {
-    if ($poller) {
-        $mainQueryParameters[':poller_id'] = [\PDO::PARAM_INT => $poller];
-
-        $request = <<<SQL
+} elseif ($poller) {
+    $mainQueryParameters[':poller_id'] = [\PDO::PARAM_INT => $poller];
+    $request = <<<SQL
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 h.host_id, h.host_name, host_alias, host_address, host_activate, host_template_model_htm_id
             FROM host h
@@ -326,8 +323,8 @@ if ($hostgroup) {
             ORDER BY h.host_name
             LIMIT :offset, :limit 
             SQL;
-    } else {
-        $request = <<<SQL
+} else {
+    $request = <<<SQL
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 h.host_id, h.host_name, host_alias, host_address, host_activate, host_template_model_htm_id
             FROM host h
@@ -339,7 +336,6 @@ if ($hostgroup) {
             ORDER BY h.host_name
             LIMIT :offset, :limit 
             SQL;
-    }
 }
 $dbResult = $pearDB->prepare($request);
 

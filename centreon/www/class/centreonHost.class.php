@@ -1020,12 +1020,10 @@ class CentreonHost
                 $arr[$i]['tpSelect_#index#'] = $row['host_tpl_id'];
                 $i++;
             }
-        } else {
-            if (isset($_REQUEST['tpSelect'])) {
-                foreach ($_REQUEST['tpSelect'] as $val) {
-                    $arr[$i]['tpSelect_#index#'] = $val;
-                    $i++;
-                }
+        } elseif (isset($_REQUEST['tpSelect'])) {
+            foreach ($_REQUEST['tpSelect'] as $val) {
+                $arr[$i]['tpSelect_#index#'] = $val;
+                $i++;
             }
         }
         return $arr;
@@ -1767,12 +1765,10 @@ class CentreonHost
             } else {
                 return $macroB;
             }
+        } elseif ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
+            return $macroA;
         } else {
-            if ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
-                return $macroA;
-            } else {
-                return $macroB;
-            }
+            return $macroB;
         }
     }
 

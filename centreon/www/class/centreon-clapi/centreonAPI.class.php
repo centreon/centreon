@@ -711,7 +711,6 @@ class CentreonAPI
          */
         if ($this->object) {
             $isService = $this->dependencyInjector['centreon.clapi']->has($this->object);
-
             if ($isService === true) {
                 $objName = $this->dependencyInjector['centreon.clapi']->get($this->object);
             } else {
@@ -739,23 +738,19 @@ class CentreonAPI
                     return 1;
                 }
             }
-
             $obj = new $objName($this->dependencyInjector);
-
             if (method_exists($obj, $action) || method_exists($obj, "__call")) {
                 $this->return_code = $obj->$action($this->variables);
             } else {
                 print "Method not implemented into Centreon API.\n";
                 return 1;
             }
+        } elseif (method_exists($this, $action)) {
+            $this->return_code = $this->$action();
+            print "Return code end : " . $this->return_code . "\n";
         } else {
-            if (method_exists($this, $action)) {
-                $this->return_code = $this->$action();
-                print "Return code end : " . $this->return_code . "\n";
-            } else {
-                print "Method not implemented into Centreon API.\n";
-                $this->return_code = 1;
-            }
+            print "Method not implemented into Centreon API.\n";
+            $this->return_code = 1;
         }
 
         if ($exit) {
@@ -833,7 +828,6 @@ class CentreonAPI
          */
         if ($this->object) {
             $this->iniObject($this->object);
-
             /**
              * Check class declaration
              */
@@ -844,13 +838,11 @@ class CentreonAPI
                 print "Method not implemented into Centreon API.\n";
                 return 1;
             }
+        } elseif (method_exists($this, $action) || method_exists($this, "__call")) {
+            $this->return_code = $this->$action();
         } else {
-            if (method_exists($this, $action) || method_exists($this, "__call")) {
-                $this->return_code = $this->$action();
-            } else {
-                print "Method not implemented into Centreon API.\n";
-                $this->return_code = 1;
-            }
+            print "Method not implemented into Centreon API.\n";
+            $this->return_code = 1;
         }
     }
 

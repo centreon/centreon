@@ -660,7 +660,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                         ON hostcategories.hc_id = hcr.hostcategories_hc_id
                     SQL
             );
-
             $findCategoryByServiceTemplateConcatenator->appendJoins(
                 <<<SQL
                     LEFT JOIN `:db`.service_categories_relation scr
@@ -684,7 +683,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                         ON hostcategories.hc_id = hcr.hostcategories_hc_id
                     SQL
             );
-        } else if (\in_array('hostgroup', $matches['object'], true)) {
+        } elseif (\in_array('hostgroup', $matches['object'], true)) {
             $findCategoryByServiceConcatenator->appendJoins(
                 <<<SQL
                     LEFT JOIN `:db`.service_categories_relation scr
@@ -701,7 +700,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                         ON hostgroup.hg_id = hr.hostgroup_hg_id
                     SQL
             );
-
             $findCategoryByServiceTemplateConcatenator->appendJoins(
                 <<<SQL
                     LEFT JOIN `:db`.service_categories_relation scr
@@ -720,7 +718,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                         ON hostgroup.hg_id = hr.hostgroup_hg_id
                     SQL
             );
-        } else if (\in_array('host', $matches['object'], true)) {
+        } elseif (\in_array('host', $matches['object'], true)) {
             $findCategoryByServiceConcatenator->appendJoins(
                 <<<SQL
                     LEFT JOIN `:db`.service_categories_relation scr
@@ -732,7 +730,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                         ON host.host_id = hsr.host_host_id
                     SQL
             );
-
             $findCategoryByServiceTemplateConcatenator->appendJoins(
                 <<<SQL
                     LEFT JOIN `:db`.service_categories_relation scr
@@ -746,7 +743,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                         ON host.host_id = hsr.host_host_id
                     SQL
             );
-        } else if (\in_array('servicegroup', $matches['object'], true)) {
+        } elseif (\in_array('servicegroup', $matches['object'], true)) {
             $findCategoryByServiceConcatenator->appendJoins(
                 <<<SQL
                         LEFT JOIN `:db`.service_categories_relation scr
@@ -760,7 +757,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                             ON sgr.servicegroup_sg_id = servicegroup.sg_id
                     SQL
             );
-
             $findCategoryByServiceTemplateConcatenator->appendJoins(
                 <<<SQL
                     LEFT JOIN `:db`.service_categories_relation scr

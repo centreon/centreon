@@ -642,20 +642,16 @@ class CentreonGraph
                         $metricPattern = str_replace('\\*', '.*', $metricPattern);
 
                         # Check associated
-                        if (
-                            ($dsVal['host_id'] == $metric['host_id'] || $dsVal['host_id'] == '') &&
-                            ($dsVal['service_id'] == $metric['service_id'] || $dsVal['service_id'] == '') &&
-                            preg_match($metricPattern, $metric['metric_name'])
-                        ) {
+                        if (($dsVal['host_id'] == $metric['host_id'] || $dsVal['host_id'] == '') &&
+                        ($dsVal['service_id'] == $metric['service_id'] || $dsVal['service_id'] == '') &&
+                        preg_match($metricPattern, $metric['metric_name'])) {
                             $ds_data_associated = $dsVal;
                             if ($dsVal['ds_legend'] != '') {
                                 $this->metrics[$metric["metric_id"]]["metric_legend"] = $dsVal['ds_legend'];
                             }
                             break;
-                        } else {
-                            if (preg_match($metricPattern, $metric['metric_name']) && $dsVal['ds_legend'] != '') {
-                                $this->metrics[$metric["metric_id"]]["metric_legend"] = $dsVal['ds_legend'];
-                            }
+                        } elseif (preg_match($metricPattern, $metric['metric_name']) && $dsVal['ds_legend'] != '') {
+                            $this->metrics[$metric["metric_id"]]["metric_legend"] = $dsVal['ds_legend'];
                         }
 
                         /* Check regular */
@@ -1834,10 +1830,8 @@ class CentreonGraph
                 if (is_null($vId)) {
                     if (!isset($this->vmetrics[$l_pointer]["need"]) || $this->vmetrics[$l_pointer]["need"] != 1) {
                         $this->vmetrics[$l_pointer]["need"] = 0;
-                    } else {
-                        if (!isset($this->vmetrics[$l_pointer]["need"]) || $this->vmetrics[$l_pointer]["need"] == 1) {
-                            $this->vmetrics[$l_pointer]["need"] = 0;
-                        }
+                    } elseif (!isset($this->vmetrics[$l_pointer]["need"]) || $this->vmetrics[$l_pointer]["need"] == 1) {
+                        $this->vmetrics[$l_pointer]["need"] = 0;
                     }
                 }
             }

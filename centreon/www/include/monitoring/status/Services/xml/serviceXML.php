@@ -437,10 +437,8 @@ if (!$sqlError) {
             $class = "line_downtime";
         } elseif ($data["state"] == 2) {
             $data["acknowledged"] == 1 ? $class = "line_ack" : $class = "list_down";
-        } else {
-            if ($data["acknowledged"] == 1) {
-                $class = "line_ack";
-            }
+        } elseif ($data["acknowledged"] == 1) {
+            $class = "line_ack";
         }
 
         $obj->XML->startElement("l");

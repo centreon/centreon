@@ -113,19 +113,16 @@ class HTML_QuickFormCustom extends HTML_QuickForm
 
         if ($this->_tokenValidated) {
             $success = true;
-        } else {
-            if (isset($submittedValues['centreon_token']) &&
-                in_array($submittedValues['centreon_token'], $_SESSION['x-centreon-token'])
-            ) {
-                $elapsedTime =
-                    time() - $_SESSION['x-centreon-token-generated-at'][(string)$submittedValues['centreon_token']];
-                if ($elapsedTime < (15 * 60)) {
-                    $key = array_search((string)$submittedValues['centreon_token'], $_SESSION['x-centreon-token']);
-                    unset($_SESSION['x-centreon-token'][$key]);
-                    unset($_SESSION['x-centreon-token-generated-at'][(string)$submittedValues['centreon_token']]);
-                    $success = true;
-                    $this->_tokenValidated = true;
-                }
+        } elseif (isset($submittedValues['centreon_token']) &&
+            in_array($submittedValues['centreon_token'], $_SESSION['x-centreon-token'])) {
+            $elapsedTime =
+                time() - $_SESSION['x-centreon-token-generated-at'][(string)$submittedValues['centreon_token']];
+            if ($elapsedTime < (15 * 60)) {
+                $key = array_search((string)$submittedValues['centreon_token'], $_SESSION['x-centreon-token']);
+                unset($_SESSION['x-centreon-token'][$key]);
+                unset($_SESSION['x-centreon-token-generated-at'][(string)$submittedValues['centreon_token']]);
+                $success = true;
+                $this->_tokenValidated = true;
             }
         }
 

@@ -324,7 +324,6 @@ if (isset($_GET["o"]) && $_GET["o"] == SERVER_ADD) {
         "engine_reload_command" => "service centengine reload",
         "nagios_perfdata" => "/var/log/centreon-engine/service-perfdata"
     ];
-
     $form->setDefaults(
         [
             "name" => '',
@@ -352,10 +351,8 @@ if (isset($_GET["o"]) && $_GET["o"] == SERVER_ADD) {
             "remote_server_use_as_proxy" => '1'
         ]
     );
-} else {
-    if (isset($cfg_server)) {
-        $form->setDefaults($cfg_server);
-    }
+} elseif (isset($cfg_server)) {
+    $form->setDefaults($cfg_server);
 }
 $form->addElement('hidden', 'id');
 $redirect = $form->addElement('hidden', 'o');

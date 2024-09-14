@@ -458,10 +458,8 @@ while ($row = $res->fetch()) {
         $class = 'line_downtime';
     } elseif ($row['state'] == 1) {
         $row['acknowledged'] == 1 ? $class = 'line_ack' : $class = 'list_down';
-    } else {
-        if ($row['acknowledged'] == 1) {
-            $class = 'line_ack';
-        }
+    } elseif ($row['acknowledged'] == 1) {
+        $class = 'line_ack';
     }
     $data[$row['host_id']]['class_tr'] = $class;
 }

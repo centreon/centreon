@@ -623,15 +623,13 @@ class CentreonACL
                         $topology[] = (int) $topo_page["topology_topology_id"];
                         if (!isset($tmp_topo_page[$topo_page['topology_topology_id']])) {
                             $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
-                        } else {
-                            if ($topo_page["access_right"] == self::ACL_ACCESS_READ_WRITE) {
-                                $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
-                            } elseif ($topo_page["access_right"] == self::ACL_ACCESS_READ_ONLY
-                                && $tmp_topo_page[$topo_page["topology_topology_id"]] == self::ACL_ACCESS_NONE
-                            ) {
-                                $tmp_topo_page[$topo_page["topology_topology_id"]] =
-                                    self::ACL_ACCESS_READ_ONLY;
-                            }
+                        } elseif ($topo_page["access_right"] == self::ACL_ACCESS_READ_WRITE) {
+                            $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
+                        } elseif ($topo_page["access_right"] == self::ACL_ACCESS_READ_ONLY
+                            && $tmp_topo_page[$topo_page["topology_topology_id"]] == self::ACL_ACCESS_NONE
+                        ) {
+                            $tmp_topo_page[$topo_page["topology_topology_id"]] =
+                                self::ACL_ACCESS_READ_ONLY;
                         }
                     }
                     $statement->closeCursor();
@@ -1576,12 +1574,10 @@ class CentreonACL
         while ($row = $DBRES->fetchRow()) {
             if ($escape === true) {
                 $hosts .= "'" . CentreonDB::escape($row[$fieldName]) . "',";
+            } elseif ($flag == "ID") {
+                $hosts .= $row[$fieldName] . ",";
             } else {
-                if ($flag == "ID") {
-                    $hosts .= $row[$fieldName] . ",";
-                } else {
-                    $hosts .= "'" . $row[$fieldName] . "',";
-                }
+                $hosts .= "'" . $row[$fieldName] . "',";
             }
         }
 
@@ -1703,12 +1699,10 @@ class CentreonACL
             $items[$row[$fieldName]] = true;
             if ($escape === true) {
                 $services .= "'" . CentreonDB::escape($row[$fieldName]) . "',";
+            } elseif ($flag == "ID") {
+                $services .= $row[$fieldName] . ",";
             } else {
-                if ($flag == "ID") {
-                    $services .= $row[$fieldName] . ",";
-                } else {
-                    $services .= "'" . $row[$fieldName] . "',";
-                }
+                $services .= "'" . $row[$fieldName] . "',";
             }
         }
 
@@ -2325,17 +2319,15 @@ class CentreonACL
                         $value = $opvalue;
                     }
                     $first = false;
+                } elseif (is_array($opvalue) && count($opvalue) == 3) {
+                    [$clause, $op, $value] = $opvalue;
+                } elseif (is_array($opvalue) && count($opvalue) == 2) {
+                    $clause = ' AND ';
+                    [$op, $value] = $opvalue;
                 } else {
-                    if (is_array($opvalue) && count($opvalue) == 3) {
-                        [$clause, $op, $value] = $opvalue;
-                    } elseif (is_array($opvalue) && count($opvalue) == 2) {
-                        $clause = ' AND ';
-                        [$op, $value] = $opvalue;
-                    } else {
-                        $clause = ' AND ';
-                        $op = " = ";
-                        $value = $opvalue;
-                    }
+                    $clause = ' AND ';
+                    $op = " = ";
+                    $value = $opvalue;
                 }
 
                 if ($op == 'IN') {

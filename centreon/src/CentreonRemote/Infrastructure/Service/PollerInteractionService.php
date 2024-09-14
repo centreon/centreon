@@ -193,13 +193,11 @@ class PollerInteractionService
         foreach ($tabServers as $poller) {
             if (isset($poller['localhost']) && $poller['localhost'] == 1) {
                 shell_exec("sudo {$poller['engine_restart_command']}");
+            } elseif ($fh = @fopen($centCorePipe, 'a+')) {
+                fwrite($fh, 'RESTART:' . $poller['id'] . "\n");
+                fclose($fh);
             } else {
-                if ($fh = @fopen($centCorePipe, 'a+')) {
-                    fwrite($fh, 'RESTART:' . $poller['id'] . "\n");
-                    fclose($fh);
-                } else {
-                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                }
+                throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
             }
 
             $restartTimeQuery = "UPDATE `nagios_server` 

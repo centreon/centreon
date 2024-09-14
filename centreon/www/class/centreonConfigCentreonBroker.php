@@ -1563,12 +1563,10 @@ class CentreonConfigCentreonBroker
             }
             if (!$isMultiple) {
                 $elemStr .= $row['groupname'] . '__' . $this->nbSubGroup++ . '__';
+            } elseif ($elemStr != "") {
+                $elemStr .= '__' . $row['groupname'] . '__';
             } else {
-                if ($elemStr != "") {
-                    $elemStr .= '__' . $row['groupname'] . '__';
-                } else {
-                    $elemStr .= $row['groupname'] . '__';
-                }
+                $elemStr .= $row['groupname'] . '__';
             }
             if (!empty($row['displayname'])) {
                 $displayName = $row['displayname'];

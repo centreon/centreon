@@ -316,12 +316,9 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
         if ($serviceGroupDatasetFilters === []) {
             // get the dataset with the highest ID (last one added) which is the first element of the datasets array
             $lastDatasetAdded = $datasets[0];
-
             preg_match('/dataset_for_rule_\d+_(\d+)/', $lastDatasetAdded['dataset_name'], $matches);
-
             // calculate the new dataset_name
             $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . ((int) $matches[1] + 1);
-
             if ($pearDB->beginTransaction()) {
                 try {
                     $datasetId = createNewDataset(datasetName: $newDatasetName);
@@ -334,22 +331,20 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
                     throw $exception;
                 }
             }
-        } else {
-            if ($pearDB->beginTransaction()) {
-                try {
-                    linkServiceGroupToDataset(datasetId: $serviceGroupDatasetFilters[0]['dataset_id'], serviceGroupId: $serviceGroupId);
-                    // Expend the existing hostgroup dataset_filter
-                    $expendedResourceIds = $serviceGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $serviceGroupId;
+        } elseif ($pearDB->beginTransaction()) {
+            try {
+                linkServiceGroupToDataset(datasetId: $serviceGroupDatasetFilters[0]['dataset_id'], serviceGroupId: $serviceGroupId);
+                // Expend the existing hostgroup dataset_filter
+                $expendedResourceIds = $serviceGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $serviceGroupId;
 
-                    updateDatasetFiltersResourceIds(
-                        datasetFilterId: $serviceGroupDatasetFilters[0]['dataset_filter_id'],
-                        resourceIds: $expendedResourceIds
-                    );
-                    $pearDB->commit();
-                } catch (\Throwable $exception) {
-                    $pearDB->rollBack();
-                    throw $exception;
-                }
+                updateDatasetFiltersResourceIds(
+                    datasetFilterId: $serviceGroupDatasetFilters[0]['dataset_filter_id'],
+                    resourceIds: $expendedResourceIds
+                );
+                $pearDB->commit();
+            } catch (\Throwable $exception) {
+                $pearDB->rollBack();
+                throw $exception;
             }
         }
     }

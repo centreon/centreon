@@ -202,11 +202,9 @@ class Validator implements JsonValidatorInterface
                 serialize($this->definitions),
                 $this->definitionFiles
             );
-        } else {
+        } elseif (($cache = $this->validatorCache->getCache()) !== null) {
             // We retrieve data from cache
-            if (($cache = $this->validatorCache->getCache()) !== null) {
-                $this->definitions = unserialize($cache);
-            }
+            $this->definitions = unserialize($cache);
         }
     }
 

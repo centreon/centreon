@@ -101,7 +101,7 @@ foreach ($downtimes as $downtime) {
                 $downtimeObj->setCommand($downtime['host_id'], $cmd);
             }
         }
-    } else if ($isScheduled && $downtime['dt_activate'] == '0') {
+    } elseif ($isScheduled && $downtime['dt_activate'] == '0') {
         if ($downtime['service_id'] != '') {
             foreach ($ext_cmd_del['svc'] as $cmd) {
                 $cmd = sprintf(

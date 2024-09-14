@@ -234,12 +234,10 @@ function testServiceTemplateExistence($name = null, $returnId = false)
         } else {
             return true;
         }
+    } elseif ($nbRows >= 1) {
+        return false;
     } else {
-        if ($nbRows >= 1) {
-            return false;
-        } else {
-            return true;
-        }
+        return true;
     }
 }
 
@@ -471,12 +469,10 @@ function divideGroupedServiceInDB($service_id = null, $service_arr = array(), $t
 
         if ($res["nbHost"] != 0 && $res["nbHG"] == 0) {
             divideHostsToHost($key);
+        } elseif ($toHost) {
+            divideHostGroupsToHost($key);
         } else {
-            if ($toHost) {
-                divideHostGroupsToHost($key);
-            } else {
-                divideHostGroupsToHostGroup($key);
-            }
+            divideHostGroupsToHostGroup($key);
         }
 
         /*

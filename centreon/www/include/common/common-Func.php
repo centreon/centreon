@@ -323,10 +323,8 @@ function getMyHostExtendedInfoFieldFromMultiTemplates($host_id, $field)
         $row2 = $statement2->fetchRow();
         if (isset($row2[$field]) && $row2[$field]) {
             return $row2[$field];
-        } else {
-            if ($result_field = getMyHostExtendedInfoFieldFromMultiTemplates($row['host_tpl_id'], $field)) {
-                return $result_field;
-            }
+        } elseif ($result_field = getMyHostExtendedInfoFieldFromMultiTemplates($row['host_tpl_id'], $field)) {
+            return $result_field;
         }
     }
     return null;
@@ -356,12 +354,10 @@ function getMyHostMacroFromMultiTemplates($host_id, $field)
             $macroValue = str_replace("#S#", "/", $row2["host_macro_value"]);
             $macroValue = str_replace("#BS#", "\\", $macroValue);
             return $macroValue;
-        } else {
-            if ($result_field = getMyHostMacroFromMultiTemplates($row['host_tpl_id'], $field)) {
-                $macroValue = str_replace("#S#", "/", $result_field);
-                $macroValue = str_replace("#BS#", "\\", $macroValue);
-                return $macroValue;
-            }
+        } elseif ($result_field = getMyHostMacroFromMultiTemplates($row['host_tpl_id'], $field)) {
+            $macroValue = str_replace("#S#", "/", $result_field);
+            $macroValue = str_replace("#BS#", "\\", $macroValue);
+            return $macroValue;
         }
     }
     return null;
@@ -490,10 +486,8 @@ function getMyHostExtendedInfoImage($host_id, $field, $flag1stLevel = null, $ant
             if (isset($row2["dir_alias"]) && isset($row2["img_path"]) && $row2["dir_alias"] && $row2["img_path"]) {
                 return $row2["dir_alias"] . "/" . $row2["img_path"];
             }
-        } else {
-            if ($result_field = getMyHostExtendedInfoImage($host_id, $field)) {
-                return $result_field;
-            }
+        } elseif ($result_field = getMyHostExtendedInfoImage($host_id, $field)) {
+            return $result_field;
         }
         return null;
     } else {
@@ -523,25 +517,19 @@ function getMyHostExtendedInfoImage($host_id, $field, $flag1stLevel = null, $ant
                 if (isset($row3["dir_alias"]) && isset($row3["img_path"]) && $row3["dir_alias"] && $row3["img_path"]) {
                     return $row3["dir_alias"] . "/" . $row3["img_path"];
                 }
-            } else {
-                if (isset($antiLoop) && $antiLoop) {
-                    if ($antiLoop != $row['host_tpl_id']) {
-                        if ($result_field = getMyHostExtendedInfoImage($row['host_tpl_id'], $field, null, $antiLoop)) {
-                            return $result_field;
-                        }
-                    }
-                } else {
-                    if (
-                        $result_field = getMyHostExtendedInfoImage(
-                            $row['host_tpl_id'],
-                            $field,
-                            null,
-                            $row['host_tpl_id']
-                        )
-                    ) {
+            } elseif (isset($antiLoop) && $antiLoop) {
+                if ($antiLoop != $row['host_tpl_id']) {
+                    if ($result_field = getMyHostExtendedInfoImage($row['host_tpl_id'], $field, null, $antiLoop)) {
                         return $result_field;
                     }
                 }
+            } elseif ($result_field = getMyHostExtendedInfoImage(
+                $row['host_tpl_id'],
+                $field,
+                null,
+                $row['host_tpl_id']
+            )) {
+                return $result_field;
             }
         }
         return null;

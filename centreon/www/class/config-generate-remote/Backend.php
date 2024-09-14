@@ -163,10 +163,8 @@ class Backend
                 if (posix_getuid() === fileowner($dir)) {
                     chmod($dir, 0770);
                 }
-            } else {
-                if (!mkdir($dir, 0770, true)) {
-                    throw new Exception("Cannot create directory '" . $dir . "'");
-                }
+            } elseif (!mkdir($dir, 0770, true)) {
+                throw new Exception("Cannot create directory '" . $dir . "'");
             }
         }
 

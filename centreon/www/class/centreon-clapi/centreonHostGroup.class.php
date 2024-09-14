@@ -445,10 +445,8 @@ class CentreonHostGroup extends CentreonObject
                     $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), array($rel));
                     if (isset($tab[0]) && $tab[0] != '') {
                         $relationTable[] = $tab[0];
-                    } else {
-                        if ($rel != '') {
-                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $rel);
-                        }
+                    } elseif ($rel != '') {
+                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $rel);
                     }
                 }
                 if ($matches[1] == "set") {

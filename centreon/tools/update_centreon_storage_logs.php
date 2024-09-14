@@ -394,11 +394,9 @@ try {
         $statement->execute();
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
         $shouldBeContinue = $result[0]['is_present'] == '1';
-
         if (! $shouldBeContinue) {
             throw new Exception("The current log table does not have the log_id column");
         }
-
         // For consistency consideration, we stop broker before creating the new table
         if ($isBrokerAlreadyStarted) {
             $logs("For consistency consideration, we stop broker before creating the new table");
@@ -409,28 +407,22 @@ try {
             $logs("Broker is not started, no need to stop it");
         }
         $currentStep++;
-
-
         // We create the new logs table and rename the older
         $logs("We create the new logs table and rename the older");
         $db->query("CREATE TABLE logs_new LIKE logs");
         $currentStep++;
-
         // Next we change the column log_id from the new logs table into BIGINT
         $logs("Next we modify the log_id column of the new logs table with the type BIGINT");
         $db->query("ALTER TABLE logs_new MODIFY log_id BIGINT(20) NOT NULL AUTO_INCREMENT");
         $currentStep++;
-
         // Finally we rename the current table 'logs' to 'logs_old'
         $logs("Finally we rename the current table 'logs' to 'logs_old'");
         $db->query("ALTER TABLE logs RENAME TO logs_old");
         $currentStep++;
-
         // And we rename the new table 'logs_new' to 'logs'
         $logs("And we rename the new table 'logs_new' to 'logs'");
         $db->query("ALTER TABLE logs_new RENAME TO logs");
         $currentStep++;
-
         // We start Broker if it was previously started
         if ($isBrokerAlreadyStarted) {
             // Now we can restart Broker
@@ -442,14 +434,12 @@ try {
             $logs("Broker was not started at the beginning of this script, we do not start it");
         }
         $currentStep++;
-    } else {
+    } elseif (!empty($partitions) && empty($firstRecoveryPartitionName)) {
         /**
          * Migration recovery mode
          */
         // If the partition name is not defined, we get the first not empty partition name
-        if (!empty($partitions) && empty($firstRecoveryPartitionName)) {
-            $firstRecoveryPartitionName = array_slice($partitions, 0, 1)[0];
-        }
+        $firstRecoveryPartitionName = array_slice($partitions, 0, 1)[0];
     }
 
     $isInCompatibleMode = isInCompatibleMode($db);

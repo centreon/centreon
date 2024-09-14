@@ -1080,10 +1080,8 @@ function resetHostTypeSpecificParams(array $bindParams, int $isTemplate): array
                 $bindParams[":$inputName"] = [\PDO::PARAM_NULL => null];
             }
         }
-    } else {
-        if (in_array(":command_command_id", $bindParams)) {
-            $bindParams[":command_command_id"] = [\PDO::PARAM_NULL => null];
-        }
+    } elseif (in_array(":command_command_id", $bindParams)) {
+        $bindParams[":command_command_id"] = [\PDO::PARAM_NULL => null];
     }
 
     return $bindParams;

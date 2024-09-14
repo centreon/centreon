@@ -252,14 +252,12 @@ class CentreonGraphService extends CentreonGraph
             foreach ($row->children() as $info) {
                 if (is_null($time)) {
                     $time = (string)$info;
+                } elseif (strtolower($info) === "nan" || is_null($info)) {
+                    $metrics[$i++]['data'][$time] = $info;
+                } elseif ($metrics[$i]['negative']) {
+                    $metrics[$i++]['data'][$time] = floatval((string)$info) * -1;
                 } else {
-                    if (strtolower($info) === "nan" || is_null($info)) {
-                        $metrics[$i++]['data'][$time] = $info;
-                    } elseif ($metrics[$i]['negative']) {
-                        $metrics[$i++]['data'][$time] = floatval((string)$info) * -1;
-                    } else {
-                        $metrics[$i++]['data'][$time] = floatval((string)$info);
-                    }
+                    $metrics[$i++]['data'][$time] = floatval((string)$info);
                 }
             }
         }

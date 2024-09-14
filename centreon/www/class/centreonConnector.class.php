@@ -172,18 +172,16 @@ class CentreonConnector
             $lastId = $lastIdQueryResult->fetchRow();
             if (!isset($lastId['id'])) {
                 throw new RuntimeException('Field id for connector not selected in query or connector not inserted');
-            } else {
-                if (isset($connector["command_id"])) {
-                    $statement = $this->dbConnection->prepare("UPDATE `command` " .
-                        "SET connector_id = :conId WHERE `command_id` = :value");
-                    foreach ($connector["command_id"] as $key => $value) {
-                        try {
-                            $statement->bindValue(':conId', (int) $lastId['id'], PDO::PARAM_INT);
-                            $statement->bindValue(':value', (int) $value, PDO::PARAM_INT);
-                            $statement->execute();
-                        } catch (PDOException $e) {
-                            throw new RuntimeException('Cannot update connector');
-                        }
+            } elseif (isset($connector["command_id"])) {
+                $statement = $this->dbConnection->prepare("UPDATE `command` " .
+                    "SET connector_id = :conId WHERE `command_id` = :value");
+                foreach ($connector["command_id"] as $key => $value) {
+                    try {
+                        $statement->bindValue(':conId', (int) $lastId['id'], PDO::PARAM_INT);
+                        $statement->bindValue(':value', (int) $value, PDO::PARAM_INT);
+                        $statement->execute();
+                    } catch (PDOException $e) {
+                        throw new RuntimeException('Cannot update connector');
                     }
                 }
             }

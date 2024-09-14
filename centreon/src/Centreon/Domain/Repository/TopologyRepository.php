@@ -92,58 +92,53 @@ class TopologyRepository extends ServiceEntityRepository
             foreach ($topologyUrlsFromDB as $topologyUrl) {
                 $topologyUrls[] = $topologyUrl['topology_url'];
             }
-        } else {
-            if (count($user->access->getAccessGroups()) > 0) {
-                $query = "SELECT DISTINCT acl_group_topology_relations.acl_topology_id "
-                    . "FROM acl_group_topology_relations, acl_topology, acl_topology_relations "
-                    . "WHERE acl_topology_relations.acl_topo_id = acl_topology.acl_topo_id "
-                    . "AND acl_topology.acl_topo_activate = '1' "
-                    . "AND acl_group_topology_relations.acl_group_id IN ("
-                    . $user->access->getAccessGroupsString() . ") ";
-                $DBRESULT = $this->db->query($query);
-
-                if ($DBRESULT->rowCount()) {
-                    $topology = array();
-                    $tmp_topo_page = array();
-                    $statement = $this->db->prepare("SELECT topology_topology_id, acl_topology_relations.access_right "
-                        . "FROM acl_topology_relations, acl_topology "
-                        . "WHERE acl_topology.acl_topo_activate = '1' "
-                        . "AND acl_topology.acl_topo_id = acl_topology_relations.acl_topo_id "
-                        . "AND acl_topology_relations.acl_topo_id = :acl_topo_id ");
-                    while ($topo_group = $DBRESULT->fetchRow()) {
-                        $statement->bindValue(':acl_topo_id', $topo_group["acl_topology_id"], \PDO::PARAM_INT);
-                        $statement->execute();
-                        while ($topo_page = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                            $topology[] = (int)$topo_page["topology_topology_id"];
-                            if (!isset($tmp_topo_page[$topo_page['topology_topology_id']])) {
-                                $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
-                            } else {
-                                if ($topo_page["access_right"] == self::ACL_ACCESS_READ_WRITE) {
-                                    $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
-                                } elseif ($topo_page["access_right"] == self::ACL_ACCESS_READ_ONLY
-                                    && $tmp_topo_page[$topo_page["topology_topology_id"]] == self::ACL_ACCESS_NONE
-                                ) {
-                                    $tmp_topo_page[$topo_page["topology_topology_id"]] =
-                                        self::ACL_ACCESS_READ_ONLY;
-                                }
-                            }
+        } elseif (count($user->access->getAccessGroups()) > 0) {
+            $query = "SELECT DISTINCT acl_group_topology_relations.acl_topology_id "
+                . "FROM acl_group_topology_relations, acl_topology, acl_topology_relations "
+                . "WHERE acl_topology_relations.acl_topo_id = acl_topology.acl_topo_id "
+                . "AND acl_topology.acl_topo_activate = '1' "
+                . "AND acl_group_topology_relations.acl_group_id IN ("
+                . $user->access->getAccessGroupsString() . ") ";
+            $DBRESULT = $this->db->query($query);
+            if ($DBRESULT->rowCount()) {
+                $topology = array();
+                $tmp_topo_page = array();
+                $statement = $this->db->prepare("SELECT topology_topology_id, acl_topology_relations.access_right "
+                    . "FROM acl_topology_relations, acl_topology "
+                    . "WHERE acl_topology.acl_topo_activate = '1' "
+                    . "AND acl_topology.acl_topo_id = acl_topology_relations.acl_topo_id "
+                    . "AND acl_topology_relations.acl_topo_id = :acl_topo_id ");
+                while ($topo_group = $DBRESULT->fetchRow()) {
+                    $statement->bindValue(':acl_topo_id', $topo_group["acl_topology_id"], \PDO::PARAM_INT);
+                    $statement->execute();
+                    while ($topo_page = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                        $topology[] = (int)$topo_page["topology_topology_id"];
+                        if (!isset($tmp_topo_page[$topo_page['topology_topology_id']])) {
+                            $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
+                        } elseif ($topo_page["access_right"] == self::ACL_ACCESS_READ_WRITE) {
+                            $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
+                        } elseif ($topo_page["access_right"] == self::ACL_ACCESS_READ_ONLY
+                            && $tmp_topo_page[$topo_page["topology_topology_id"]] == self::ACL_ACCESS_NONE
+                        ) {
+                            $tmp_topo_page[$topo_page["topology_topology_id"]] =
+                                self::ACL_ACCESS_READ_ONLY;
                         }
-                        $statement->closeCursor();
                     }
-                    $DBRESULT->closeCursor();
+                    $statement->closeCursor();
+                }
+                $DBRESULT->closeCursor();
 
-                    if ($topology !== []) {
-                        $query3 = "SELECT topology_url "
-                            . "FROM topology FORCE INDEX (`PRIMARY`) "
-                            . "WHERE topology_url IS NOT NULL "
-                            . "AND is_react = '1' "
-                            . "AND topology_id IN (" . implode(', ', $topology) . ") ";
-                        $DBRESULT3 = $this->db->query($query3);
-                        while ($topo_page = $DBRESULT3->fetchRow()) {
-                            $topologyUrls[] = $topo_page["topology_url"];
-                        }
-                        $DBRESULT3->closeCursor();
+                if ($topology !== []) {
+                    $query3 = "SELECT topology_url "
+                        . "FROM topology FORCE INDEX (`PRIMARY`) "
+                        . "WHERE topology_url IS NOT NULL "
+                        . "AND is_react = '1' "
+                        . "AND topology_id IN (" . implode(', ', $topology) . ") ";
+                    $DBRESULT3 = $this->db->query($query3);
+                    while ($topo_page = $DBRESULT3->fetchRow()) {
+                        $topologyUrls[] = $topo_page["topology_url"];
                     }
+                    $DBRESULT3->closeCursor();
                 }
             }
         }

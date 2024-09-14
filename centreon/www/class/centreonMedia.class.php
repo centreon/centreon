@@ -334,10 +334,8 @@ class CentreonMedia
         if (strtolower($extension) == 'zip') {
             $archiveObj->extractTo(dirname($archiveFile), $files);
             $archiveObj->close();
-        } else {
-            if (false === $archiveObj->extractTo(dirname($archiveFile), $files)) {
-                throw new Exception('Could not extract files');
-            }
+        } elseif (false === $archiveObj->extractTo(dirname($archiveFile), $files)) {
+            throw new Exception('Could not extract files');
         }
         return $files;
     }

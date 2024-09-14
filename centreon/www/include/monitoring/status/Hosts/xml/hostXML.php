@@ -87,12 +87,10 @@ $order = isset($_GET['order']) && $_GET['order'] === "DESC" ? "DESC" : "ASC";
 
 if (isset($_GET['sort_type']) && $_GET['sort_type'] === "host_name") {
     $sort_type = "name";
+} elseif ($o === "hpb" || $o === "h_unhandled") {
+    $sort_type = $obj->checkArgument("sort_type", $_GET, "");
 } else {
-    if ($o === "hpb" || $o === "h_unhandled") {
-        $sort_type = $obj->checkArgument("sort_type", $_GET, "");
-    } else {
-        $sort_type = $obj->checkArgument("sort_type", $_GET, "host_name");
-    }
+    $sort_type = $obj->checkArgument("sort_type", $_GET, "host_name");
 }
 // Store in session the last type of call
 $_SESSION['monitoring_host_status'] = $statusHost;

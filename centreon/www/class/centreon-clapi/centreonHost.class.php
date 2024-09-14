@@ -1919,12 +1919,10 @@ class CentreonHost extends CentreonObject
             } else {
                 return $macroB;
             }
+        } elseif ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
+            return $macroA;
         } else {
-            if ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
-                return $macroA;
-            } else {
-                return $macroB;
-            }
+            return $macroB;
         }
     }
 

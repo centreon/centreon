@@ -109,12 +109,10 @@ class CentreonXML
         $txt = html_entity_decode($txt);
         if ($encode || !$this->is_utf8($txt)) {
             $this->buffer->writeCData(utf8_encode($txt));
+        } elseif ($cdata) {
+            $this->buffer->writeCData($txt);
         } else {
-            if ($cdata) {
-                $this->buffer->writeCData($txt);
-            } else {
-                $this->buffer->text($txt);
-            }
+            $this->buffer->text($txt);
         }
     }
 

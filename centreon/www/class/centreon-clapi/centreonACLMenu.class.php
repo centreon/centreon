@@ -226,22 +226,20 @@ class CentreonACLMenu extends CentreonObject
 							WHERE topology_page = ?
 							AND LENGTH(topology_page) = ?";
                     $res = $this->db->query($sql, array($menu, $length));
-                } else {
-                    if ($level == self::LEVEL_1) {
-                        $sql = "SELECT topology_id, topology_page
+                } elseif ($level == self::LEVEL_1) {
+                    $sql = "SELECT topology_id, topology_page
                         		FROM topology
                         		WHERE topology_name = ?
                         		AND LENGTH(topology_page) = ?
                         		AND topology_parent IS NULL";
-                        $res = $this->db->query($sql, array($menu, $length));
-                    } else {
-                        $sql = "SELECT topology_id, topology_page
+                    $res = $this->db->query($sql, array($menu, $length));
+                } else {
+                    $sql = "SELECT topology_id, topology_page
                         		FROM topology
                         		WHERE topology_name = ?
                         		AND LENGTH(topology_page) = ?
                         		AND topology_parent = ?";
-                        $res = $this->db->query($sql, array($menu, $length, $topologies[($level - 1)]));
-                    }
+                    $res = $this->db->query($sql, array($menu, $length, $topologies[($level - 1)]));
                 }
                 $row = $res->fetch();
                 if (!isset($row['topology_id'])) {

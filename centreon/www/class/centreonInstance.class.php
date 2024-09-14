@@ -184,10 +184,8 @@ class CentreonInstance
             if (isset($this->params[$instance]) && isset($this->params[$instance][$paramName])) {
                 return $this->params[$instance][$paramName];
             }
-        } else {
-            if (isset($this->paramsByName[$instance]) && isset($this->paramsByName[$instance][$paramName])) {
-                return $this->paramsByName[$instance][$paramName];
-            }
+        } elseif (isset($this->paramsByName[$instance]) && isset($this->paramsByName[$instance][$paramName])) {
+            return $this->paramsByName[$instance][$paramName];
         }
         return null;
     }

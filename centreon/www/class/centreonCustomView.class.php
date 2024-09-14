@@ -483,41 +483,39 @@ class CentreonCustomView
                 $dbResult = $stmt->execute();
             }
             //other
-        } else {
+        } elseif ($this->checkOwnerViewStatus($customViewId) == 0) {
             // if owner consumed = 0 -> delete
-            if ($this->checkOwnerViewStatus($customViewId) == 0) {
-                //if not other shared view consumed, delete all
-                if (!$this->checkOtherShareViewUnlocked($customViewId, $this->userId)) {
-                    $query = 'DELETE FROM custom_views WHERE custom_view_id = :viewId';
-                    $stmt = $this->db->prepare($query);
-                    $stmt->bindParam(':viewId', $customViewId, PDO::PARAM_INT);
-                    $stmt->execute();
-                    //if shared view consumed, delete for me
-                } else {
-                    $query = 'DELETE FROM custom_view_user_relation ' .
-                        'WHERE user_id = :userId ' .
-                        'AND custom_view_id = :viewId';
-                    $stmt = $this->db->prepare($query);
-                    $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-                    $stmt->bindParam(':viewId', $customViewId, PDO::PARAM_INT);
-                    $stmt->execute();
-                }
-                //if owner not delete
+            //if not other shared view consumed, delete all
+            if (!$this->checkOtherShareViewUnlocked($customViewId, $this->userId)) {
+                $query = 'DELETE FROM custom_views WHERE custom_view_id = :viewId';
+                $stmt = $this->db->prepare($query);
+                $stmt->bindParam(':viewId', $customViewId, PDO::PARAM_INT);
+                $stmt->execute();
+                //if shared view consumed, delete for me
             } else {
-                // reset relation by setting is_consumed flag to 0
-                try {
-                    $stmt = $this->db->prepare(
-                        'UPDATE custom_view_user_relation SET is_consumed = 0 ' .
-                        'WHERE custom_view_id = :viewId AND user_id = :userId '
-                    );
-                    $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-                    $stmt->bindParam(':viewId', $customViewId, PDO::PARAM_INT);
-                    $stmt->execute();
-                } catch (\PDOException $e) {
-                    throw new Exception(
-                        "Cannot reset widget preferences, " . $e->getMessage() . "\n"
-                    );
-                }
+                $query = 'DELETE FROM custom_view_user_relation ' .
+                    'WHERE user_id = :userId ' .
+                    'AND custom_view_id = :viewId';
+                $stmt = $this->db->prepare($query);
+                $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
+                $stmt->bindParam(':viewId', $customViewId, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+            //if owner not delete
+        } else {
+            // reset relation by setting is_consumed flag to 0
+            try {
+                $stmt = $this->db->prepare(
+                    'UPDATE custom_view_user_relation SET is_consumed = 0 ' .
+                    'WHERE custom_view_id = :viewId AND user_id = :userId '
+                );
+                $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
+                $stmt->bindParam(':viewId', $customViewId, PDO::PARAM_INT);
+                $stmt->execute();
+            } catch (\PDOException $e) {
+                throw new Exception(
+                    "Cannot reset widget preferences, " . $e->getMessage() . "\n"
+                );
             }
         }
     }

@@ -299,7 +299,7 @@ class RequestTracker2Provider extends AbstractProvider
     {
         if ($entry['Type'] == self::RT_QUEUE_TYPE) {
             $this->assignRtQueue($entry, $groups_order, $groups);
-        } else if ($entry['Type'] == self::RT_CUSTOMFIELD_TYPE) {
+        } elseif ($entry['Type'] == self::RT_CUSTOMFIELD_TYPE) {
             $this->assignRtCustomField($entry, $groups_order, $groups);
         }
     }

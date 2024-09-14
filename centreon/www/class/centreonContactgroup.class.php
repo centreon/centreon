@@ -660,10 +660,8 @@ class CentreonContactgroup
                             $aElement[] = $match[1];
                         }
                     }
-                } else {
-                    if (!in_array($value, $aElement)) {
-                        $aElement[] = $value;
-                    }
+                } elseif (!in_array($value, $aElement)) {
+                    $aElement[] = $value;
                 }
             }
         }

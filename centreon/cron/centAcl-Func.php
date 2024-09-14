@@ -159,11 +159,9 @@ function getFilteredPollers($host, $resId)
                 $host[$row['host_host_id']] = 1;
             }
         }
-    } else {
+    } elseif ($isPollerFilter) {
         // If result of query is empty and user have poller restrictions, clean host table.
-        if ($isPollerFilter) {
-            $host = array();
-        }
+        $host = array();
     }
     return $host;
 }

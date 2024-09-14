@@ -134,10 +134,8 @@ class Centreon_OpenTickets_Log
             } else {
                 $query .= "motl.host_id IN (" . join(',', $params['host_filter']) . ") AND ";
             }
-        } else {
-            if ($build_services_filter != '') {
-                $query .= '(' . $build_services_filter . ') AND ';
-            }
+        } elseif ($build_services_filter != '') {
+            $query .= '(' . $build_services_filter . ') AND ';
         }
 
         if (!$centreon_bg->is_admin) {
