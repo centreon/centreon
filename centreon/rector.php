@@ -6,6 +6,7 @@ use Rector\CodeQuality\Rector\BooleanAnd\SimplifyEmptyArrayCheckRector;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\For_\ForRepeatedCountToOwnVariableRector;
+use Rector\CodeQuality\Rector\Ternary\ArrayKeyExistsTernaryThenValueToCoalescingRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveNullTagValueNodeRector;
@@ -65,20 +66,20 @@ return RectorConfig::configure()
         __DIR__ . '/../centreon-open-tickets/.php-cs-fixer.dist.php',
     ])->withRules([
 //        // ----------------- performance ----------------
-//        CountArrayToEmptyArrayComparisonRector::class, // OK / Change count array comparison to empty array comparison to improve performance
-//        ForRepeatedCountToOwnVariableRector::class, // OK / Change count() in for function to own variable
+//        CountArrayToEmptyArrayComparisonRector::class, // OK 70 files / Change count array comparison to empty array comparison to improve performance
+//        ForRepeatedCountToOwnVariableRector::class, // OK 27 files / Change count() in for function to own variable
 //        // -------------- coding quality ----------
 //        CompleteDynamicPropertiesRector::class, // OK / Add missing dynamic properties
-//        AddVoidReturnTypeWhereNoReturnRector::class, // OK / Add return type void to function like without any return
-//        AddClosureVoidReturnTypeWhereNoReturnRector::class, // OK / Add closure return type void if there is no return
+//        AddVoidReturnTypeWhereNoReturnRector::class, // OK 215 files / Add return type void to function like without any return
+//        AddClosureVoidReturnTypeWhereNoReturnRector::class, // OK 114 files / Add closure return type void if there is no return
 //        AddParamTypeSplFixedArrayRector::class, // KO / Add exact fixed array type in known cases
 //        NestedAnnotationToAttributeRector::class, // KO / Changed nested annotations to attributes
 //        AttributeKeyToClassConstFetchRector::class, // KO / Replace key value on specific attribute to class constant
 //        VarToPublicPropertyRector::class, // OK 1 file / Change property modifier from var to public
 //        RemoveUnusedPublicMethodParameterRector::class, // KO not exists / Remove unused parameter in public method on final class without extends and interface
 //        SimplifyEmptyArrayCheckRector::class, // OK 1 file / Simplify is_array and empty functions combination into a simple identical check for an empty array
-        SimplifyEmptyCheckOnEmptyArrayRector::class, // OK 131 files / Simplify empty() functions calls on empty arrays
-//        ArrayKeyExistsTernaryThenValueToCoalescingRector::class, // Change array_key_exists() ternary to coalescing
+//        SimplifyEmptyCheckOnEmptyArrayRector::class, // OK 131 files / Simplify empty() functions calls on empty arrays
+        ArrayKeyExistsTernaryThenValueToCoalescingRector::class, // 1 file // Change array_key_exists() ternary to coalescing
 //        InlineArrayReturnAssignRector::class, // Inline just in time array dim fetch assigns to direct return
 //        InlineConstructorDefaultToPropertyRector::class, // Move property default from constructor to property default
 //        ForeachToInArrayRector::class, // Simplify foreach loops into in_array when possible
