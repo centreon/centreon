@@ -97,7 +97,7 @@ class CentreonHostGroupService extends CentreonObject
     );
 
     /** @var int */
-    public $register;
+    public $register = 1;
     /** @var */
     protected $hgId;
 
@@ -132,7 +132,6 @@ class CentreonHostGroupService extends CentreonObject
         $this->exportExcludedParams = array_merge($this->insertParams, array($this->object->getPrimaryKey()));
         $this->action = "HGSERVICE";
         $this->nbOfCompulsoryParams = count($this->insertParams);
-        $this->register = 1;
         $this->activateField = 'service_activate';
     }
 

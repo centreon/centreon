@@ -200,15 +200,11 @@ class Service
                 Assertion::min($propertyValue, 0, "{$className}::{$propertyName}");
             }
         }
-
-        $this->commandArguments = [];
         foreach ($commandArguments as $argument) {
             if (is_scalar($argument)) {
                 $this->commandArguments[] = (string) $argument;
             }
         }
-
-        $this->eventHandlerArguments = [];
         foreach ($eventHandlerArguments as $argument) {
             if (is_scalar($argument)) {
                 $this->eventHandlerArguments[] = (string) $argument;

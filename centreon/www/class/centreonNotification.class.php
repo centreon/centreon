@@ -48,17 +48,17 @@ class CentreonNotification
     /** @var CentreonDB $db */
     protected $db;
     /** @var array */
-    protected $svcTpl;
+    protected $svcTpl = array();
     /** @var array */
-    protected $svcNotifType;
+    protected $svcNotifType = array();
     /** @var array */
-    protected $svcBreak;
+    protected $svcBreak = array(1 => false, 2 => false);
     /** @var array */
-    protected $hostNotifType;
+    protected $hostNotifType = array();
     /** @var array */
-    protected $notifiedHosts;
+    protected $notifiedHosts = array();
     /** @var array */
-    protected $hostBreak;
+    protected $hostBreak = array(1 => false, 2 => false);
 
     /**
      * CentreonNotification constructor
@@ -68,12 +68,6 @@ class CentreonNotification
     public function __construct($db)
     {
         $this->db = $db;
-        $this->svcTpl = array();
-        $this->svcNotifType = array();
-        $this->svcBreak = array(1 => false, 2 => false);
-        $this->hostNotifType = array();
-        $this->notifiedHosts = array();
-        $this->hostBreak = array(1 => false, 2 => false);
     }
 
     /**

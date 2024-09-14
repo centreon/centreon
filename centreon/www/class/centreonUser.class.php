@@ -57,9 +57,9 @@ class CentreonUser
     /** @var string|null */
     public $lang;
     /** @var string */
-    public $charset;
+    public $charset = "UTF-8";
     /** @var int */
-    public $version;
+    public $version = 3;
     /** @var int|string|null */
     public $admin;
     /** @var */
@@ -69,7 +69,7 @@ class CentreonUser
     /** @var mixed|null */
     public $gmt;
     /** @var bool|null */
-    public $is_admin;
+    public $is_admin = null;
     /** @var */
     public $groupList; //FIXME not in this class
     /** @var */
@@ -125,15 +125,12 @@ class CentreonUser
         $this->email = isset($user["contact_email"]) ?
             html_entity_decode($user["contact_email"], ENT_QUOTES, "UTF-8") : null;
         $this->lang = $user["contact_lang"] ?? null;
-        $this->charset = "UTF-8";
         $this->passwd = $user["contact_passwd"] ?? null;
         $this->token = $user['contact_autologin_key'] ?? null;
         $this->admin = $user["contact_admin"] ?? null;
-        $this->version = 3;
         $this->default_page = $user["default_page"] ?? CentreonAuth::DEFAULT_PAGE;
         $this->gmt = $user["contact_location"] ?? null;
         $this->showDeprecatedPages = (bool) $user["show_deprecated_pages"];
-        $this->is_admin = null;
         $this->theme = $user["contact_theme"] ?? 'light';
         /*
          * Initiate ACL

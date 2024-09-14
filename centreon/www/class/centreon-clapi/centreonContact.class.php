@@ -117,7 +117,7 @@ class CentreonContact extends CentreonObject
     );
 
     /** @var int */
-    protected $register;
+    protected $register = 1;
     /** @var CentreonTimePeriod */
     protected $tpObject;
     /** @var Centreon_Object_Timezone */
@@ -168,7 +168,6 @@ class CentreonContact extends CentreonObject
         );
         $this->action = "CONTACT";
         $this->nbOfCompulsoryParams = count($this->insertParams);
-        $this->register = 1;
         $this->activateField = 'contact_activate';
     }
 

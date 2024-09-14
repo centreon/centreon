@@ -58,9 +58,9 @@ class CentreonWidget
     /** @var CentreonDB */
     protected $db;
     /** @var array */
-    protected $widgets;
+    protected $widgets = array();
     /** @var array */
-    protected $userGroups;
+    protected $userGroups = array();
 
     /**
      * CentreonWidget constructor
@@ -74,8 +74,6 @@ class CentreonWidget
     {
         $this->userId = (int)$centreon->user->user_id;
         $this->db = $db;
-        $this->widgets = array();
-        $this->userGroups = array();
         $query = 'SELECT contactgroup_cg_id ' .
             'FROM contactgroup_contact_relation ' .
             'WHERE contact_contact_id = :id';

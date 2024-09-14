@@ -69,9 +69,9 @@ class CentreonFileManager implements iFileManager
     /** @var string */
     protected $completePath;
     /** @var array */
-    protected $legalExtensions;
+    protected $legalExtensions = array();
     /** @var int */
-    protected $legalSize;
+    protected $legalSize = 500000;
 
     /**
      * CentreonFileManager constructor
@@ -104,8 +104,6 @@ class CentreonFileManager implements iFileManager
         $this->fileName = $this->secureName(basename($this->originalFile, '.' . $this->extension));
         $this->newFile = $this->fileName . '.' . $this->extension;
         $this->completePath = $this->destinationPath . '/' . $this->newFile;
-        $this->legalExtensions = array();
-        $this->legalSize = 500000;
     }
 
     /**

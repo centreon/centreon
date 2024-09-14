@@ -76,13 +76,13 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      *
      * @var string
      */
-    public $_defaultDataset;
+    public $_defaultDataset = null;
 
     /**
      *
      * @var boolean
      */
-    public $_ajaxSource;
+    public $_ajaxSource = false;
 
     /**
      *
@@ -94,25 +94,25 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      *
      * @var string
      */
-    public $_multipleHtml;
+    public $_multipleHtml = '';
 
     /**
      *
      * @var string
      */
-    public $_defaultSelectedOptions;
+    public $_defaultSelectedOptions = '';
 
     /**
      *
      * @var string
      */
-    public $_jsCallback;
+    public $_jsCallback = '';
 
     /**
      *
      * @var boolean
      */
-    public $_allowClear;
+    public $_allowClear = true;
 
     /**
      *
@@ -124,7 +124,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      *
      * @var type
      */
-    public $_defaultDatasetOptions;
+    public $_defaultDatasetOptions = array();
 
     /**
      * @var int The number of element in the pagination
@@ -152,16 +152,9 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
         $sort = null
     ) {
         global $centreon;
-        $this->_ajaxSource = false;
-        $this->_defaultSelectedOptions = '';
-        $this->_multipleHtml = '';
-        $this->_allowClear = true;
         $this->realOptionsArray = $options;
         parent::__construct($elementName, $elementLabel, $options, $attributes);
         $this->_elementHtmlName = $this->getName();
-        $this->_defaultDataset = null;
-        $this->_defaultDatasetOptions = array();
-        $this->_jsCallback = '';
         $this->parseCustomAttributes($attributes);
 
         $this->_pagination = $centreon->optGen['selectPaginationSize'];

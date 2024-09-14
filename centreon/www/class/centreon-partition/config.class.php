@@ -52,7 +52,7 @@ class Config
     /** @var */
     private $defaultConfiguration;
     /** @var array */
-    public $tables;
+    public $tables = array();
     /** @var CentreonDB */
     public $centstorageDb;
     /** @var CentreonDB */
@@ -72,7 +72,6 @@ class Config
         $this->XMLFile = $file;
         $this->centstorageDb = $centstorageDb;
         $this->centreonDb = $centreonDb;
-        $this->tables = array();
         $this->loadCentreonDefaultConfiguration();
         $this->parseXML($this->XMLFile);
     }

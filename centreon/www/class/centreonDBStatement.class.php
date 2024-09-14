@@ -54,7 +54,7 @@ class CentreonDBStatement extends \PDOStatement
      *
      * @var array|null
      */
-    public $allFetched;
+    public $allFetched = null;
 
     /** @var CentreonLog */
     private $log;
@@ -67,7 +67,6 @@ class CentreonDBStatement extends \PDOStatement
     protected function __construct(CentreonLog $log = null)
     {
         $this->log = $log;
-        $this->allFetched = null;
     }
 
     /**

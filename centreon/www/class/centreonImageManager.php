@@ -43,9 +43,9 @@ use Pimple\Container;
 class CentreonImageManager extends centreonFileManager
 {
     /** @var string[] */
-    protected $legalExtensions;
+    protected $legalExtensions = array("jpg", "jpeg", "png", "gif", "svg");
     /** @var int */
-    protected $legalSize;
+    protected $legalSize = 2000000;
     /** @var mixed */
     protected $dbConfig;
 
@@ -67,8 +67,6 @@ class CentreonImageManager extends centreonFileManager
     ) {
         parent::__construct($dependencyInjector, $rawFile, $basePath, $destinationDir, $comment);
         $this->dbConfig = $this->dependencyInjector['configuration_db'];
-        $this->legalExtensions = array("jpg", "jpeg", "png", "gif", "svg");
-        $this->legalSize = 2000000;
     }
 
     /**

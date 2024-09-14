@@ -58,7 +58,7 @@ class CentreonLDAPContactRelation extends CentreonObject
     /** @var Centreon_Object_Contact */
     public $contact;
     /** @var int */
-    protected $register;
+    protected $register = 1;
 
     /**
      * CentreonLDAPContactRelation constructor
@@ -73,7 +73,6 @@ class CentreonLDAPContactRelation extends CentreonObject
         $this->ldap = new CentreonLdap($dependencyInjector);
         $this->contact = new Centreon_Object_Contact($dependencyInjector);
         $this->action = "LDAPCONTACT";
-        $this->register = 1;
         $this->activateField = 'contact_activate';
     }
 

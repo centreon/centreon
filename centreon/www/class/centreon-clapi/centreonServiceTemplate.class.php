@@ -100,7 +100,7 @@ class CentreonServiceTemplate extends CentreonObject
     );
 
     /** @var int */
-    public $register;
+    public $register = 0;
 
     /**
      * CentreonServiceTemplate constructor
@@ -136,7 +136,6 @@ class CentreonServiceTemplate extends CentreonObject
         );
         $this->action = "STPL";
         $this->nbOfCompulsoryParams = count($this->insertParams);
-        $this->register = 0;
         $this->activateField = 'service_activate';
     }
 

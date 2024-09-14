@@ -58,7 +58,20 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
     /**
      * @var array<string, string>
      */
-    private $hostConcordanceArray;
+    private $hostConcordanceArray = [
+        'author_id' => 'contact.contact_id',
+        'comment' => 'ack.comment_data',
+        'entry_time' => 'ack.entry_time',
+        'deletion_time' => 'ack.deletion_time',
+        'host_id' => 'ack.host_id',
+        'id' => 'ack.acknowledgement_id',
+        'is_notify_contacts' => 'ack.notify_contacts',
+        'is_persistent_comment' => 'ack.persistent_comment',
+        'is_sticky' => 'ack.sticky',
+        'poller_id' => 'ack.instance_id',
+        'state' => 'ack.state',
+        'type' => 'ack.type',
+    ];
 
     /**
      * @var array<string, string>
@@ -80,20 +93,6 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
         $this->sqlRequestTranslator
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
-        $this->hostConcordanceArray = [
-            'author_id' => 'contact.contact_id',
-            'comment' => 'ack.comment_data',
-            'entry_time' => 'ack.entry_time',
-            'deletion_time' => 'ack.deletion_time',
-            'host_id' => 'ack.host_id',
-            'id' => 'ack.acknowledgement_id',
-            'is_notify_contacts' => 'ack.notify_contacts',
-            'is_persistent_comment' => 'ack.persistent_comment',
-            'is_sticky' => 'ack.sticky',
-            'poller_id' => 'ack.instance_id',
-            'state' => 'ack.state',
-            'type' => 'ack.type',
-        ];
         $this->serviceConcordanceArray = array_merge(
             $this->hostConcordanceArray,
             [

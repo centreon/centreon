@@ -55,7 +55,7 @@ class CentreonGMT
     /** @var string|null */
     protected $myGMT = null;
     /** @var int */
-    public $use;
+    public $use = 1;
     /** @var array */
     protected $aListTimezone;
     /** @var array */
@@ -76,8 +76,6 @@ class CentreonGMT
      */
     public function __construct()
     {
-        // Flag activ / inactiv
-        $this->use = 1;
     }
 
     /**

@@ -66,11 +66,25 @@ class CentreonDowntime extends CentreonObject
     public const ORDER_ALIAS = 1;
 
     /** @var int[] */
-    protected $weekDays;
+    protected $weekDays = array(
+        'monday' => 1,
+        'tuesday' => 2,
+        'wednesday' => 3,
+        'thursday' => 4,
+        'friday' => 5,
+        'saturday' => 6,
+        'sunday' => 7
+    );
     /** @var CentreonService */
     protected $serviceObj;
     /** @var string[] */
-    protected $availableCycles;
+    protected $availableCycles = array(
+        'first',
+        'second',
+        'third',
+        'fourth',
+        'last'
+    );
     /** @var string[] */
     public static $aDepends = array(
         'SERVICE',
@@ -97,23 +111,6 @@ class CentreonDowntime extends CentreonObject
         );
         $this->nbOfCompulsoryParams = count($this->insertParams);
         $this->activateField = 'dt_activate';
-        $this->weekDays = array(
-            'monday' => 1,
-            'tuesday' => 2,
-            'wednesday' => 3,
-            'thursday' => 4,
-            'friday' => 5,
-            'saturday' => 6,
-            'sunday' => 7
-        );
-
-        $this->availableCycles = array(
-            'first',
-            'second',
-            'third',
-            'fourth',
-            'last'
-        );
     }
 
     /**

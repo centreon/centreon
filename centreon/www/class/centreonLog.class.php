@@ -50,7 +50,7 @@ class CentreonUserLog
     /** @var CentreonUserLog */
     private static $instance;
     /** @var array */
-    private $errorType;
+    private $errorType = array();
     /** @var int */
     private $uid;
     /** @var string */
@@ -67,7 +67,6 @@ class CentreonUserLog
     public function __construct($uid, $pearDB)
     {
         $this->uid = $uid;
-        $this->errorType = array();
 
         // Get Log directory path
         $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'debug_path'");

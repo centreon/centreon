@@ -77,7 +77,7 @@ class Service
      * @var bool Indicates whether or not this service is locked
      * @EntityDescriptor(column="is_locked", modifier="setLocked")
      */
-    private $isLocked;
+    private $isLocked = false;
 
     /**
      * @var int Service type
@@ -87,13 +87,13 @@ class Service
      * @see Service::TYPE_BUSINESS_ACTIVITY (2)
      * @see Service::TYPE_ANOMALY_DETECTION (3)
      */
-    private $serviceType;
+    private $serviceType = self::TYPE_SERVICE;
 
     /**
      * @var bool Indicates whether or not this service is activated
      * @EntityDescriptor(column="is_activated", modifier="setActivated")
      */
-    private $isActivated;
+    private $isActivated = true;
 
     /**
      * @var ExtendedService
@@ -107,9 +107,6 @@ class Service
 
     public function __construct()
     {
-        $this->isLocked = false;
-        $this->serviceType = self::TYPE_SERVICE;
-        $this->isActivated = true;
         $this->extendedService = new ExtendedService();
     }
 

@@ -62,9 +62,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
     /** @var */
     protected $params;
     /** @var array */
-    protected $userGroups;
+    protected $userGroups = array();
     /** @var false */
-    protected $trigger;
+    protected $trigger = false;
     /** @var CentreonACL */
     protected $acl;
     /** @var CentreonDB */
@@ -85,11 +85,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      */
     public function __construct($db, $quickform, $userId)
     {
-        $this->trigger = false;
         $this->db = $db;
         $this->quickform = $quickform;
         $this->userId = $userId;
-        $this->userGroups = array();
         $query = "SELECT contactgroup_cg_id
                           FROM contactgroup_contact_relation
                           WHERE contact_contact_id = " . $this->db->escape($this->userId);

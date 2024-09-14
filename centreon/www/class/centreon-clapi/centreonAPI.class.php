@@ -75,10 +75,10 @@ class CentreonAPI
     public $DBN;
     public $format;
     public $xmlObj;
-    public $debug;
+    public $debug = 0;
     public $variables;
     public $centreon_path;
-    private $return_code;
+    private $return_code = 0;
     private $dependencyInjector;
     private $relationObject;
     private $objectTable;
@@ -97,11 +97,6 @@ class CentreonAPI
         $options,
         \Pimple\Container $dependencyInjector
     ) {
-        /**
-         * Set variables
-         */
-        $this->debug = 0;
-        $this->return_code = 0;
         $this->dependencyInjector = $dependencyInjector;
         if (isset($user)) {
             $this->login = htmlentities($user, ENT_QUOTES);

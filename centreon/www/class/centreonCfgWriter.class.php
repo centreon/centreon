@@ -42,7 +42,7 @@
 class CentreonCfgWriter
 {
     /** @var string */
-    private $buffer;
+    private $buffer = "";
     /** @var CentreonXML */
     private $xmlBuffer;
     /** @var Centreon */
@@ -60,7 +60,6 @@ class CentreonCfgWriter
     public function __construct($centreon, $file_full_path)
     {
         $this->centreon = $centreon;
-        $this->buffer = "";
         $this->xmlBuffer = new CentreonXML();
         $this->file_path = $file_full_path;
     }

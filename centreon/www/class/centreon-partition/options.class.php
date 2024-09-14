@@ -42,7 +42,11 @@
 class Options
 {
     public $options;
-    public $shortopts;
+    /**
+     * Update Table partition
+     * @var string
+     */
+    public $shortopts = "u:";
     const INFO = "info";
     const DEBUG = "debug";
     const WARNING = "warning";
@@ -57,7 +61,6 @@ class Options
      */
     public function __construct()
     {
-        $this->shortopts = "u:"; /** Update Table partition */
         $this->shortopts .= "o:"; /** Optimize */
         $this->shortopts .= "m:"; /** Migrate Partition */
         $this->shortopts .= "c:"; /** Create table with Partition */

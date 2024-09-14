@@ -73,7 +73,16 @@ class CentreonCommand extends CentreonObject
         ),
     );
     /** @var int[] */
-    protected $typeConversion;
+    protected $typeConversion = array(
+        "notif" => 1,
+        "check" => 2,
+        "misc" => 3,
+        "discovery" => 4,
+        1 => "notif",
+        2 => "check",
+        3 => "misc",
+        4 => "discovery"
+    );
 
     /**
      * CentreonCommand constructor
@@ -94,16 +103,6 @@ class CentreonCommand extends CentreonObject
         );
         $this->action = "CMD";
         $this->nbOfCompulsoryParams = count($this->insertParams);
-        $this->typeConversion = array(
-            "notif" => 1,
-            "check" => 2,
-            "misc" => 3,
-            "discovery" => 4,
-            1 => "notif",
-            2 => "check",
-            3 => "misc",
-            4 => "discovery"
-        );
     }
 
     /**

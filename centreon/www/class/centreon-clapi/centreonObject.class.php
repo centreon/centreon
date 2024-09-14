@@ -83,7 +83,7 @@ abstract class CentreonObject
      */
     protected $db;
     /** @var string */
-    protected string $action;
+    protected string $action = "";
     /** @var */
     protected $dependencyInjector;
 
@@ -104,7 +104,7 @@ abstract class CentreonObject
      *
      * @var array
      */
-    protected $params;
+    protected $params = array();
     /**
      * Number of compulsory parameters when adding a new object
      *
@@ -116,7 +116,7 @@ abstract class CentreonObject
      *
      * @var string
      */
-    protected $delim;
+    protected $delim = ";";
     /**
      * Table column used for activating and deactivating object
      *
@@ -128,13 +128,13 @@ abstract class CentreonObject
      *
      * @var array
      */
-    protected $insertParams;
+    protected $insertParams = array();
     /**
      * Export : Table columns which will not be exported for 'setparam' action
      *
      * @var array
      */
-    protected $exportExcludedParams;
+    protected $exportExcludedParams = array();
     /**
      * cache to store object ids by object names
      *
@@ -156,11 +156,6 @@ abstract class CentreonObject
         $res = $this->db->query("SELECT `value` FROM informations WHERE `key` = 'version'");
         $row = $res->fetch();
         $this->version = $row['value'];
-        $this->params = array();
-        $this->insertParams = array();
-        $this->exportExcludedParams = array();
-        $this->action = "";
-        $this->delim = ";";
         $this->api = CentreonAPI::getInstance();
     }
 

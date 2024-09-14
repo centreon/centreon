@@ -46,33 +46,33 @@
 class MysqlTable
 {
     /** @var null */
-    public $type;
+    public $type = null;
     /** @var CentreonDB */
     private $db;
     /** @var */
     private $name;
     /** @var null */
-    private $schema;
+    private $schema = null;
     /** @var */
     private $schemaFile;
     /** @var int */
-    private $activate;
+    private $activate = 1;
     /** @var null */
-    private $column;
+    private $column = null;
     /** @var null */
-    private $duration;
+    private $duration = null;
     /** @var null */
-    private $timezone;
+    private $timezone = null;
     /** @var null */
-    private $retention;
+    private $retention = null;
     /** @var null */
-    private $retentionforward;
+    private $retentionforward = null;
     /** @var null */
-    private $createstmt;
+    private $createstmt = null;
     /** @var null */
-    private $backupFolder;
+    private $backupFolder = null;
     /** @var null */
-    private $backupFormat;
+    private $backupFormat = null;
 
     /**
      * Class constructor
@@ -85,17 +85,6 @@ class MysqlTable
     {
         $this->db = $DBobj;
         $this->setName($tableName);
-        $this->activate = 1;
-        $this->column = null;
-        $this->type = null;
-        $this->duration = null;
-        $this->timezone = null;
-        $this->schema = null;
-        $this->retention = null;
-        $this->retentionforward = null;
-        $this->createstmt = null;
-        $this->backupFolder = null;
-        $this->backupFormat = null;
         $this->setSchema($schema);
     }
     

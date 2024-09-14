@@ -135,11 +135,11 @@ class MetricUtils
 class CentreonGraphNg
 {
     /** @var array */
-    public $listMetricsId;
+    public $listMetricsId = array();
     /** @var array */
-    public $vmetrics;
+    public $vmetrics = array();
     /** @var false */
-    public $multipleServices;
+    public $multipleServices = false;
     /** @var */
     protected $db;
     /** @var */
@@ -150,7 +150,7 @@ class CentreonGraphNg
     /** @var */
     protected $rrdOptions;
     /** @var array */
-    protected $arguments;
+    protected $arguments = array();
 
     /** @var */
     protected $debug;
@@ -172,28 +172,28 @@ class CentreonGraphNg
     /** @var */
     protected $templateId;
     /** @var array */
-    protected $templateInformations;
+    protected $templateInformations = array();
     /** @var array */
-    protected $metrics;
+    protected $metrics = array();
     /** @var array */
-    protected $indexIds;
+    protected $indexIds = array();
 
     /** @var null */
-    protected $dsDefault;
+    protected $dsDefault = null;
     /** @var null */
-    protected $colorCache;
+    protected $colorCache = null;
     /** @var null */
-    protected $componentsDsCache;
+    protected $componentsDsCache = null;
     /** @var array */
-    protected $extraDatas;
+    protected $extraDatas = array();
     /** @var array */
-    protected $cacheAllMetrics;
+    protected $cacheAllMetrics = array();
     /** @var array */
-    protected $vnodes;
+    protected $vnodes = array();
     /** @var array */
-    protected $vnodesDependencies;
+    protected $vnodesDependencies = array();
     /** @var array */
-    protected $vmetricsOrder;
+    protected $vmetricsOrder = array();
     /** @var */
     protected $graphData;
     /** @var */
@@ -219,24 +219,7 @@ class CentreonGraphNg
     {
         $this->initDatabase();
         $this->metricUtils = MetricUtils::getInstance();
-
-        $this->cacheAllMetrics = array();
-        $this->vnodes = array();
-        $this->vnodesDependencies = array();
-        $this->vmetricsOrder = array();
-
-        $this->arguments = array();
-        $this->indexIds = array();
-        $this->dsDefault = null;
-        $this->colorCache = null;
         $this->userId = $userId;
-        $this->componentsDsCache = null;
-        $this->listMetricsId = array();
-        $this->metrics = array();
-        $this->vmetrics = array();
-        $this->templateInformations = array();
-        $this->extraDatas = array();
-        $this->multipleServices = false;
 
         $stmt = $this->dbCs->prepare("SELECT RRDdatabase_path, RRDdatabase_status_path FROM config");
         $stmt->execute();

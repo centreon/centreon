@@ -26,13 +26,13 @@ class CentreonOpenTicketsRequest
      *
      * @var array
      */
-    protected $postVar;
+    protected $postVar = array();
 
     /**
      *
      * @var array
      */
-    protected $getVar;
+    protected $getVar = array();
 
     /**
      * constructor
@@ -41,9 +41,6 @@ class CentreonOpenTicketsRequest
      */
     public function __construct()
     {
-        $this->postVar = array();
-        $this->getVar = array();
-
         foreach ($_POST as $key => $value) {
             $this->postVar[$key] = $value;
         }

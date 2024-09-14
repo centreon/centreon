@@ -56,7 +56,7 @@ class CentreonConfigPoller
     private $DB;
     private $DBC;
     private $dependencyInjector;
-    private $resultTest;
+    private $resultTest = array("warning" => 0, "errors" => 0);
     private $brokerCachePath;
     private $engineCachePath;
     private $centreon_path;
@@ -86,11 +86,9 @@ class CentreonConfigPoller
         $this->dependencyInjector = $dependencyInjector;
         $this->DB = $this->dependencyInjector["configuration_db"];
         $this->DBC = $this->dependencyInjector["realtime_db"];
-        $this->resultTest = 0;
         $this->brokerCachePath = _CENTREON_CACHEDIR_ . "/config/broker/";
         $this->engineCachePath = _CENTREON_CACHEDIR_ . "/config/engine/";
         $this->centreon_path = $centreon_path;
-        $this->resultTest = array("warning" => 0, "errors" => 0);
 
         $kernel = new Kernel('prod', false);
         $kernel->boot();

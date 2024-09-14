@@ -50,7 +50,7 @@ class CentreonLogAction
     /** @var CentreonUser */
     protected $logUser;
     /** @var array */
-    protected $uselessKey;
+    protected $uselessKey = array();
 
     /**
      * CentreonLogAction constructor
@@ -60,7 +60,6 @@ class CentreonLogAction
     public function __construct($usr)
     {
         $this->logUser = $usr;
-        $this->uselessKey = array();
         $this->uselessKey['submitA'] = 1;
         $this->uselessKey['submitC'] = 1;
         $this->uselessKey['o'] = 1;

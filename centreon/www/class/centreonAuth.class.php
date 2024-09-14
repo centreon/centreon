@@ -81,7 +81,7 @@ class CentreonAuth
     /** @var int */
     protected $autologin;
     /** @var string[] */
-    protected $cryptPossibilities;
+    protected $cryptPossibilities = array('MD5', 'SHA1');
 
     /** @var CentreonDB */
     protected $pearDB;
@@ -97,11 +97,11 @@ class CentreonAuth
     /** @var */
     protected $authType;
     /** @var array */
-    protected $ldap_auto_import;
+    protected $ldap_auto_import = array();
     /** @var array */
-    protected $ldap_store_password;
+    protected $ldap_store_password = array();
     /** @var int */
-    protected $default_page;
+    protected $default_page = self::DEFAULT_PAGE;
 
     // keep log class
     /** @var CentreonUserLog */
@@ -136,7 +136,6 @@ class CentreonAuth
         $token = ""
     ) {
         $this->dependencyInjector = $dependencyInjector;
-        $this->cryptPossibilities = array('MD5', 'SHA1');
         $this->CentreonLog = $CentreonLog;
         $this->login = $username;
         $this->password = $password;
@@ -144,9 +143,6 @@ class CentreonAuth
         $this->autologin = $autologin;
         $this->cryptEngine = $encryptType;
         $this->debug = $this->getLogFlag();
-        $this->ldap_auto_import = array();
-        $this->ldap_store_password = array();
-        $this->default_page = self::DEFAULT_PAGE;
 
         $res = $pearDB->query(
             "SELECT ar.ar_id, ari.ari_value, ari.ari_name " .

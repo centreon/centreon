@@ -54,11 +54,11 @@ class CentreonTimeperiodRenderer
     /** @var array[] */
     protected $timeline;
     /** @var array */
-    protected $includedTp;
+    protected $includedTp = array();
     /** @var array */
-    protected $excludedTp;
+    protected $excludedTp = array();
     /** @var array */
-    protected $exceptionList;
+    protected $exceptionList = array();
 
     /**
      * CentreonTimeperiodRenderer constructor
@@ -82,9 +82,6 @@ class CentreonTimeperiodRenderer
         );
         $this->timerange = $dayTab;
         $this->timeline = $dayTab;
-        $this->includedTp = array();
-        $this->excludedTp = array();
-        $this->exceptionList = array();
         $this->db = $db;
         $this->tpid = $tpid;
         $query = "SELECT tp_name, tp_alias, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday,

@@ -65,7 +65,7 @@ class Validator implements JsonValidatorInterface
     /**
      * @var string Version of the definition files to use for the validation process
      */
-    private $version;
+    private $version = self::VERSION_DEFAULT;
 
     /**
      * @var string Path where the definition files are stored
@@ -87,7 +87,6 @@ class Validator implements JsonValidatorInterface
     {
         $this->validationFilePath = $validationFilePath;
         $this->validatorCache = $validatorCache;
-        $this->version = self::VERSION_DEFAULT;
     }
 
     /**

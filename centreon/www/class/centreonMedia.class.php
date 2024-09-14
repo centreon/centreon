@@ -46,7 +46,7 @@ class CentreonMedia
     /** @var CentreonDB */
     protected $db;
     /** @var array */
-    protected $filenames;
+    protected $filenames = array();
     /** @var string */
     protected $mediadirectoryname = '';
 
@@ -58,7 +58,6 @@ class CentreonMedia
     public function __construct($db)
     {
         $this->db = $db;
-        $this->filenames = array();
     }
 
     /**

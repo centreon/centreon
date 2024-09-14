@@ -57,7 +57,28 @@ class CentreonSettings extends CentreonObject
     public const VALUENOTALLOWED = "This parameter value is not valid";
 
     /** @var array */
-    protected $authorizedOptions;
+    protected $authorizedOptions = array(
+        'broker' => array('values' => array('ndo', 'broker')),
+        'centstorage' => array('values' => array('0', '1')),
+        'gmt' => array(
+            'format' => self::ISSTRING,
+            'getterFormatMethod' => 'getTimezonenameFromId',
+            'setterFormatMethod' => 'getTimezoneIdFromName'
+        ),
+        'mailer_path_bin' => array('format' => self::ISSTRING),
+        'snmptt_unknowntrap_log_file' => array('format' => self::ISSTRING),
+        'snmpttconvertmib_path_bin' => array('format' => self::ISSTRING),
+        'perl_library_path' => array('format' => self::ISSTRING),
+        'rrdtool_path_bin' => array('format' => self::ISSTRING),
+        'debug_path' => array('format' => self::ISSTRING),
+        'debug_auth' => array('values' => array('0', '1')),
+        'debug_nagios_import' => array('values' => array('0', '1')),
+        'debug_rrdtool' => array('values' => array('0', '1')),
+        'debug_ldap_import' => array('values' => array('0', '1')),
+        'enable_autologin' => array('values' => array('0', '1')),
+        'interval_length' => array('format' => self::ISNUM),
+        'enable_gmt' => array('values' => array('0', '1')),
+    );
 
     /**
      * CentreonSettings constructor
@@ -69,29 +90,6 @@ class CentreonSettings extends CentreonObject
     public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-
-        $this->authorizedOptions = array(
-            'broker' => array('values' => array('ndo', 'broker')),
-            'centstorage' => array('values' => array('0', '1')),
-            'gmt' => array(
-                'format' => self::ISSTRING,
-                'getterFormatMethod' => 'getTimezonenameFromId',
-                'setterFormatMethod' => 'getTimezoneIdFromName'
-            ),
-            'mailer_path_bin' => array('format' => self::ISSTRING),
-            'snmptt_unknowntrap_log_file' => array('format' => self::ISSTRING),
-            'snmpttconvertmib_path_bin' => array('format' => self::ISSTRING),
-            'perl_library_path' => array('format' => self::ISSTRING),
-            'rrdtool_path_bin' => array('format' => self::ISSTRING),
-            'debug_path' => array('format' => self::ISSTRING),
-            'debug_auth' => array('values' => array('0', '1')),
-            'debug_nagios_import' => array('values' => array('0', '1')),
-            'debug_rrdtool' => array('values' => array('0', '1')),
-            'debug_ldap_import' => array('values' => array('0', '1')),
-            'enable_autologin' => array('values' => array('0', '1')),
-            'interval_length' => array('format' => self::ISNUM),
-            'enable_gmt' => array('values' => array('0', '1')),
-        );
     }
 
     /**

@@ -115,7 +115,7 @@ class CentreonHost extends CentreonObject
     /** @var Centreon_Object_Timezone */
     protected $timezoneObject;
     /** @var int */
-    protected $register;
+    protected $register = 1;
 
     /** @var string[] */
     public static $aDepends = array(
@@ -181,7 +181,6 @@ class CentreonHost extends CentreonObject
         );
         $this->action = "HOST";
         $this->nbOfCompulsoryParams = count($this->insertParams);
-        $this->register = 1;
         $this->activateField = 'host_activate';
     }
 

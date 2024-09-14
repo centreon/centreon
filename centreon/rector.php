@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\BooleanAnd\SimplifyEmptyArrayCheckRector;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
+use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\For_\ForRepeatedCountToOwnVariableRector;
@@ -80,9 +81,9 @@ return RectorConfig::configure()
 //        RemoveUnusedPublicMethodParameterRector::class, // KO not exists / Remove unused parameter in public method on final class without extends and interface
 //        SimplifyEmptyArrayCheckRector::class, // OK 1 file / Simplify is_array and empty functions combination into a simple identical check for an empty array
 //        SimplifyEmptyCheckOnEmptyArrayRector::class, // OK 131 files / Simplify empty() functions calls on empty arrays
-//        ArrayKeyExistsTernaryThenValueToCoalescingRector::class, // 1 file // Change array_key_exists() ternary to coalescing
-        InlineArrayReturnAssignRector::class, // Inline just in time array dim fetch assigns to direct return
-//        InlineConstructorDefaultToPropertyRector::class, // Move property default from constructor to property default
+//        ArrayKeyExistsTernaryThenValueToCoalescingRector::class, // OK 1 file // Change array_key_exists() ternary to coalescing
+//        InlineArrayReturnAssignRector::class, // OK 5 files / Inline just in time array dim fetch assigns to direct return
+        InlineConstructorDefaultToPropertyRector::class, // OK 48 files / Move property default from constructor to property default
 //        ForeachToInArrayRector::class, // Simplify foreach loops into in_array when possible
 //        SimplifyIfElseToTernaryRector::class, // Changes if/else for same value as assign to ternary
 //        ShortenElseIfRector::class, // Shortens else/if to elseif

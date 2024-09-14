@@ -126,7 +126,7 @@ class CentreonService extends CentreonObject
     );
 
     /** @var int */
-    public $register;
+    public $register = 1;
     /** @var */
     protected $hostId;
 
@@ -161,7 +161,6 @@ class CentreonService extends CentreonObject
         $this->exportExcludedParams = array_merge($this->insertParams, array($this->object->getPrimaryKey()));
         $this->action = "SERVICE";
         $this->nbOfCompulsoryParams = count($this->insertParams);
-        $this->register = 1;
         $this->activateField = 'service_activate';
     }
 

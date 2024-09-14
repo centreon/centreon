@@ -41,7 +41,7 @@
 class CentreonLang
 {
     /** @var string */
-    protected $charset;
+    protected $charset = "UTF-8";
     
     /** @var string */
     protected $lang;
@@ -60,7 +60,6 @@ class CentreonLang
      */
     public function __construct($centreon_path, $centreon = null)
     {
-        $this->charset = "UTF-8";
         if (!is_null($centreon) && isset($centreon->user->charset)) {
             $this->charset = $centreon->user->charset;
         }

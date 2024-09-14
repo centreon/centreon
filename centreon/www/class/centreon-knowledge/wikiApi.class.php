@@ -47,7 +47,7 @@ class WikiApi
     /**
      * @var never[]
      */
-    public $cookies;
+    public $cookies = array();
     /** @var CentreonDB */
     private $db;
     /** @var Wiki */
@@ -85,7 +85,6 @@ class WikiApi
         $this->noSslCertificate = $config['kb_wiki_certificate'];
         $this->curl = $this->getCurl();
         $this->version = $this->getWikiVersion();
-        $this->cookies = array();
     }
 
     /**

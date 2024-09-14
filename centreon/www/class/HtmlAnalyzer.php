@@ -29,7 +29,7 @@ declare(strict_types=1);
 class HtmlAnalyzer
 {
     /** @var int */
-    private int $index;
+    private int $index = -1;
     /** @var mixed|string */
     private mixed $stringToSanitize;
     /** @var int */
@@ -57,9 +57,7 @@ class HtmlAnalyzer
      */
     public function __construct(string $stringToSanitize)
     {
-        $this->index = -1;
         $this->stringToSanitize = $stringToSanitize;
-        $this->deepTag = 0;
     }
 
     /**

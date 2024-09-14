@@ -91,7 +91,7 @@ class Centreon
     /** @var */
     public $search_type_host;
     /** @var int */
-    public $poller;
+    public $poller = 0;
     /** @var */
     public $template;
     /** @var */
@@ -160,11 +160,6 @@ class Centreon
          * Create LogAction object
          */
         $this->CentreonLogAction = new CentreonLogAction($this->user);
-
-        /*
-         * Init Poller id
-         */
-        $this->poller = 0;
 
         /*
          * Init External CMD object
