@@ -344,13 +344,7 @@ class CentreonTimeperiodRenderer
      */
     protected function getException($id, $name, $day, $range)
     {
-        $exception = array();
-        $exception['fromTpId'] = $id;
-        $exception['fromTpName']  = $name;
-        $exception['day'] = $day;
-        $exception['range'] = $range;
-
-        return $exception;
+        return ['fromTpId' => $id, 'fromTpName' => $name, 'day' => $day, 'range' => $range];
     }
 
 

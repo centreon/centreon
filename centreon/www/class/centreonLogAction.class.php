@@ -464,36 +464,34 @@ class CentreonLogAction
      */
     public function listObjecttype(): array
     {
-        $object_type_tab = array();
-
-        $object_type_tab[0] = _("All");
-        $object_type_tab[1] = "command";
-        $object_type_tab[2] = "timeperiod";
-        $object_type_tab[3] = "contact";
-        $object_type_tab[4] = "contactgroup";
-        $object_type_tab[5] = "host";
-        $object_type_tab[6] = "hostgroup";
-        $object_type_tab[7] = "service";
-        $object_type_tab[8] = "servicegroup";
-        $object_type_tab[9] = "traps";
-        $object_type_tab[10] = "escalation";
-        $object_type_tab[11] = "host dependency";
-        $object_type_tab[12] = "hostgroup dependency";
-        $object_type_tab[13] = "service dependency";
-        $object_type_tab[14] = "servicegroup dependency";
-        $object_type_tab[15] = "poller";
-        $object_type_tab[16] = "engine";
-        $object_type_tab[17] = "broker";
-        $object_type_tab[18] = "resources";
-        $object_type_tab[19] = "meta";
-        $object_type_tab[20] = "access group";
-        $object_type_tab[21] = "menu access";
-        $object_type_tab[22] = "resource access";
-        $object_type_tab[23] = "action access";
-        $object_type_tab[24] = "manufacturer";
-        $object_type_tab[25] = "hostcategories";
-
-        return $object_type_tab;
+        return [
+            0 => _("All"),
+            1 => "command",
+            2 => "timeperiod",
+            3 => "contact",
+            4 => "contactgroup",
+            5 => "host",
+            6 => "hostgroup",
+            7 => "service",
+            8 => "servicegroup",
+            9 => "traps",
+            10 => "escalation",
+            11 => "host dependency",
+            12 => "hostgroup dependency",
+            13 => "service dependency",
+            14 => "servicegroup dependency",
+            15 => "poller",
+            16 => "engine",
+            17 => "broker",
+            18 => "resources",
+            19 => "meta",
+            20 => "access group",
+            21 => "menu access",
+            22 => "resource access",
+            23 => "action access",
+            24 => "manufacturer",
+            25 => "hostcategories"
+        ];
     }
 
     /**

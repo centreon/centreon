@@ -250,56 +250,44 @@ function updateGraphTemplate(int $graph_id = null): void
  *
  * @return array{string, array{int, mixed}
  */
-function getBindValues(array $data): array
+function getBindValues(array $data) : array
 {
-    $bindValues = [];
-    $bindValues[':name'] = isset($data['name']) && $data['name'] !== ''
-        ? [\PDO::PARAM_STR, htmlentities($data['name'], ENT_QUOTES, 'UTF-8')]
-        : [\PDO::PARAM_NULL, null];
-
-    $bindValues[':vertical_label'] = isset($data['vertical_label']) && $data['vertical_label'] !== ''
-        ? [\PDO::PARAM_STR, htmlentities($data['vertical_label'], ENT_QUOTES, 'UTF-8')]
-        : [\PDO::PARAM_NULL, null];
-
-    $bindValues[':width'] = isset($data['width']) && $data['width'] !== ''
-        ? [\PDO::PARAM_INT, $data["width"]]
-        : [\PDO::PARAM_NULL, null];
-
-    $bindValues[':height'] = isset($data['height']) && $data['height'] !== ''
-        ? [\PDO::PARAM_INT, $data["height"]]
-        : [\PDO::PARAM_NULL, null];
-
-    $bindValues[':base'] = isset($data['base']) && $data['base'] !== ''
-        ? [\PDO::PARAM_INT, $data["base"]]
-        : [\PDO::PARAM_NULL, null];
-
-    $bindValues[':lower_limit'] = isset($data['lower_limit']) && $data['lower_limit'] !== ''
-        ? [\PDO::PARAM_INT, $data["lower_limit"]]
-        : [\PDO::PARAM_NULL, null];
-
-    $bindValues[':upper_limit'] = isset($data['upper_limit']) && $data['upper_limit'] !== ''
-        ? [\PDO::PARAM_INT, $data["upper_limit"]]
-        : [\PDO::PARAM_NULL, null];
-
-    $bindValues[':size_to_max'] = isset($data['size_to_max']) && $data['size_to_max'] !== ''
-        ? [\PDO::PARAM_INT, $data["size_to_max"]]
-        : [\PDO::PARAM_INT, 0];
-
-    $bindValues[':default_tpl1'] = isset($data['default_tpl1']) && $data['default_tpl1'] !== ''
-        ? [\PDO::PARAM_STR, (int) $data["default_tpl1"]]
-        : [\PDO::PARAM_STR, 0];
-
-    $bindValues[':stacked'] = isset($data['stacked']) && $data['stacked'] !== ''
-        ? [\PDO::PARAM_STR, (int) $data["stacked"]]
-        : [\PDO::PARAM_NULL, null];
-
-    $bindValues[':scaled'] = isset($data['scaled']) && $data['scaled'] !== ''
-        ? [\PDO::PARAM_STR, (int) $data["scaled"]]
-        : [\PDO::PARAM_STR, 0];
-
-    $bindValues[':comment'] = isset($data['comment']) && $data['comment'] !== ''
-        ? [\PDO::PARAM_STR, htmlentities($data['comment'], ENT_QUOTES, 'UTF-8')]
-        : [\PDO::PARAM_NULL, null];
-
-    return $bindValues;
+    return [
+        ':name' => isset($data['name']) && $data['name'] !== ''
+            ? [\PDO::PARAM_STR, htmlentities($data['name'], ENT_QUOTES, 'UTF-8')]
+            : [\PDO::PARAM_NULL, null],
+        ':vertical_label' => isset($data['vertical_label']) && $data['vertical_label'] !== ''
+            ? [\PDO::PARAM_STR, htmlentities($data['vertical_label'], ENT_QUOTES, 'UTF-8')]
+            : [\PDO::PARAM_NULL, null],
+        ':width' => isset($data['width']) && $data['width'] !== ''
+            ? [\PDO::PARAM_INT, $data["width"]]
+            : [\PDO::PARAM_NULL, null],
+        ':height' => isset($data['height']) && $data['height'] !== ''
+            ? [\PDO::PARAM_INT, $data["height"]]
+            : [\PDO::PARAM_NULL, null],
+        ':base' => isset($data['base']) && $data['base'] !== ''
+            ? [\PDO::PARAM_INT, $data["base"]]
+            : [\PDO::PARAM_NULL, null],
+        ':lower_limit' => isset($data['lower_limit']) && $data['lower_limit'] !== ''
+            ? [\PDO::PARAM_INT, $data["lower_limit"]]
+            : [\PDO::PARAM_NULL, null],
+        ':upper_limit' => isset($data['upper_limit']) && $data['upper_limit'] !== ''
+            ? [\PDO::PARAM_INT, $data["upper_limit"]]
+            : [\PDO::PARAM_NULL, null],
+        ':size_to_max' => isset($data['size_to_max']) && $data['size_to_max'] !== ''
+            ? [\PDO::PARAM_INT, $data["size_to_max"]]
+            : [\PDO::PARAM_INT, 0],
+        ':default_tpl1' => isset($data['default_tpl1']) && $data['default_tpl1'] !== ''
+            ? [\PDO::PARAM_STR, (int) $data["default_tpl1"]]
+            : [\PDO::PARAM_STR, 0],
+        ':stacked' => isset($data['stacked']) && $data['stacked'] !== ''
+            ? [\PDO::PARAM_STR, (int) $data["stacked"]]
+            : [\PDO::PARAM_NULL, null],
+        ':scaled' => isset($data['scaled']) && $data['scaled'] !== ''
+            ? [\PDO::PARAM_STR, (int) $data["scaled"]]
+            : [\PDO::PARAM_STR, 0],
+        ':comment' => isset($data['comment']) && $data['comment'] !== ''
+            ? [\PDO::PARAM_STR, htmlentities($data['comment'], ENT_QUOTES, 'UTF-8')]
+            : [\PDO::PARAM_NULL, null]
+    ];
 }

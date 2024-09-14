@@ -308,18 +308,17 @@ function myGetTimeTamps($dateSTR)
 
 function getPeriodList()
 {
-    $periodList = array();
-    $periodList[""] = "";
-    $periodList["yesterday"] = _("Yesterday");
-    $periodList["thisweek"] = _("This Week");
-    $periodList["last7days"] = _("Last 7 Days");
-    $periodList["thismonth"] = _("This Month");
-    $periodList["last30days"] = _("Last 30 Days");
-    $periodList["lastmonth"] = _("Last Month");
-    $periodList["thisyear"] = _("This Year");
-    $periodList["lastyear"] = _("Last Year");
-
-    return $periodList;
+    return [
+        "" => "",
+        "yesterday" => _("Yesterday"),
+        "thisweek" => _("This Week"),
+        "last7days" => _("Last 7 Days"),
+        "thismonth" => _("This Month"),
+        "last30days" => _("Last 30 Days"),
+        "lastmonth" => _("Last Month"),
+        "thisyear" => _("This Year"),
+        "lastyear" => _("Last Year")
+    ];
 }
 
 function createDateTimelineFormat($time_unix)
