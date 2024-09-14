@@ -122,7 +122,9 @@ function multipleCommandInDB($commands = array(), $nbrDup = array())
 
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "command_name" ? ($command_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "command_name") {
+                    $command_name = $value2 = $value2 . "_" . $i;
+                }
                 $val ? $val .= ($value2 != null ? (", '" . $pearDB->escape($value2) . "'")
                     : ", NULL") : $val .= ($value2 != null ? ("'" . $pearDB->escape($value2) . "'") : "NULL");
                 if ($key2 != "command_id") {

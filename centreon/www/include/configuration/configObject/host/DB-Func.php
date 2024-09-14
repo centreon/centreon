@@ -453,7 +453,9 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
             $val = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "host_name" ? ($hostName = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "host_name") {
+                    $hostName = $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . CentreonDB::escape($value2) . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . CentreonDB::escape($value2) . "'") : "NULL");
@@ -1822,9 +1824,9 @@ function updateHostExtInfos($host_id = null, $ret = array())
      */
     $rq = "UPDATE extended_host_information ";
     $rq .= "SET ehi_notes = ";
-    isset($ret["ehi_notes"]) && $ret["ehi_notes"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["ehi_notes"]) . "', "
-        : $rq .= "NULL, ";
+    if (isset($ret["ehi_notes"]) && $ret["ehi_notes"] != null) {
+        $rq .= "'" . CentreonDB::escape($ret["ehi_notes"]) . "', ";
+    }
     $rq .= "ehi_notes_url = ";
     isset($ret["ehi_notes_url"]) && $ret["ehi_notes_url"] != null
         ? $rq .= "'" . CentreonDB::escape($ret["ehi_notes_url"]) . "', "
@@ -2057,7 +2059,9 @@ function updateHostNotifs($host_id = null, $ret = array())
 
     $rq = "UPDATE host SET ";
     $rq .= "host_notification_options  = ";
-    isset($ret) && $ret != null ? $rq .= "'" . implode(",", array_keys($ret)) . "' " : $rq .= "NULL ";
+    if (isset($ret) && $ret != null) {
+        $rq .= "'" . implode(",", array_keys($ret)) . "' ";
+    }
     $rq .= "WHERE host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -2108,7 +2112,9 @@ function updateHostNotifOptionInterval($host_id = null, $ret = array())
 
     $rq = "UPDATE host SET ";
     $rq .= "host_notification_interval = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
+    if (isset($ret) && $ret != null) {
+        $rq .= "'" . $ret . "' ";
+    }
     $rq .= "WHERE host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -2146,7 +2152,9 @@ function updateHostNotifOptionTimeperiod($host_id = null, $ret = array())
 
     $rq = "UPDATE host SET ";
     $rq .= "timeperiod_tp_id2 = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
+    if (isset($ret) && $ret != null) {
+        $rq .= "'" . $ret . "' ";
+    }
     $rq .= "WHERE host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -2189,7 +2197,9 @@ function updateHostNotifOptionFirstNotificationDelay($host_id = null, $ret = arr
 
     $rq = "UPDATE host SET ";
     $rq .= "host_first_notification_delay = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
+    if (isset($ret) && $ret != null) {
+        $rq .= "'" . $ret . "' ";
+    }
     $rq .= "WHERE host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -2236,7 +2246,9 @@ function updateHostNotifOptionRecoveryNotificationDelay($host_id = null, $ret = 
     }
     $rq = "UPDATE host SET ";
     $rq .= "host_recovery_notification_delay = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
+    if (isset($ret) && $ret != null) {
+        $rq .= "'" . $ret . "' ";
+    }
     $rq .= "WHERE host_id = '" . $host_id . "'";
     $pearDB->query($rq);
 }

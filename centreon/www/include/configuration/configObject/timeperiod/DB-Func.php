@@ -141,7 +141,9 @@ function multipleTimeperiodInDB($timeperiods = array(), $nbrDup = array())
                 if ($key2 == "tp_name") {
                     $value2 .= "_" . $i;
                 }
-                $key2 == "tp_name" ? ($tp_name = $value2) : "";
+                if ($key2 == "tp_name") {
+                    $tp_name = $value2;
+                }
                 $val[] = $value2 ?: null;
                 if ($key2 != "tp_id") {
                     $fields[$key2] = $value2;
@@ -258,9 +260,9 @@ function insertTimeperiod($ret = array(), $exceptions = null)
     $rq = "INSERT INTO timeperiod ";
     $rq .= "(tp_name, tp_alias, tp_sunday, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday, tp_saturday) ";
     $rq .= "VALUES (";
-    isset($ret["tp_name"]) && $ret["tp_name"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
+    if (isset($ret["tp_name"]) && $ret["tp_name"] != null) {
+        $rq .= "'" . htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8") . "', ";
+    }
     isset($ret["tp_alias"]) && $ret["tp_alias"] != null
         ? $rq .= "'" . htmlentities($ret["tp_alias"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";

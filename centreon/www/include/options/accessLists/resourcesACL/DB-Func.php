@@ -156,7 +156,9 @@ function multipleLCAInDB($lcas = array(), $nbrDup = array())
 
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "acl_res_name" ? ($acl_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "acl_res_name") {
+                    $acl_name = $value2 = $value2 . "_" . $i;
+                }
                 $values[] = $value2 != null
                     ? "'" . $value2 . "'"
                     : 'NULL';

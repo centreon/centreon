@@ -1448,8 +1448,9 @@ class CentreonService
             "service_comment, command_command_id_arg, command_command_id_arg2, service_register, service_locked, " .
             "service_activate) " .
             "VALUES ( ";
-        isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null ?
-            $rq .= (int)$ret["service_template_model_stm_id"] . ", " : $rq .= "NULL, ";
+        if (isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null) {
+            $rq .= (int)$ret["service_template_model_stm_id"] . ", ";
+        }
         isset($ret["command_command_id"]) && $ret["command_command_id"] != null ?
             $rq .= (int)$ret["command_command_id"] . ", " : $rq .= "NULL, ";
         isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null ?
@@ -1596,8 +1597,9 @@ class CentreonService
     {
         $rq = "UPDATE service SET ";
         $rq .= "service_template_model_stm_id = ";
-        isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null ?
-            $rq .= "'" . $ret["service_template_model_stm_id"] . "', " : $rq .= "NULL, ";
+        if (isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null) {
+            $rq .= "'" . $ret["service_template_model_stm_id"] . "', ";
+        }
         $rq .= "command_command_id = ";
         isset($ret["command_command_id"]) && $ret["command_command_id"] != null ?
             $rq .= "'" . $ret["command_command_id"] . "', " : $rq .= "NULL, ";

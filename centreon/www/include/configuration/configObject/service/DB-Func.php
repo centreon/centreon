@@ -997,9 +997,9 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
 
     $rq = "UPDATE service SET ";
     $rq .= "service_template_model_stm_id = ";
-    isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null
-        ? $rq .= "'" . $ret["service_template_model_stm_id"] . "', "
-        : $rq .= "NULL, ";
+    if (isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null) {
+        $rq .= "'" . $ret["service_template_model_stm_id"] . "', ";
+    }
 
     $rq .= "command_command_id = ";
     isset($ret["command_command_id"]) && $ret["command_command_id"] != null
@@ -1751,9 +1751,9 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         "service_comment, geo_coords, command_command_id_arg, command_command_id_arg2, " .
         "service_register, service_activate, service_acknowledgement_timeout) " .
         "VALUES ( ";
-    isset($submittedValues["service_template_model_stm_id"]) && $submittedValues["service_template_model_stm_id"] != null
-        ? $request .= "'" . $submittedValues["service_template_model_stm_id"] . "', "
-        : $request .= "NULL, ";
+    if (isset($submittedValues["service_template_model_stm_id"]) && $submittedValues["service_template_model_stm_id"] != null) {
+        $request .= "'" . $submittedValues["service_template_model_stm_id"] . "', ";
+    }
 
     isset($submittedValues["command_command_id"]) && $submittedValues["command_command_id"] != null
         ? $request .= "'" . $submittedValues["command_command_id"] . "', "
@@ -1940,9 +1940,9 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         "service_comment, geo_coords, command_command_id_arg, command_command_id_arg2, " .
         "service_register, service_activate, service_acknowledgement_timeout) " .
         "VALUES ( ";
-    isset($submittedValues["service_template_model_stm_id"]) && $submittedValues["service_template_model_stm_id"] != null
-        ? $rq .= "'" . $submittedValues["service_template_model_stm_id"] . "', "
-        : $rq .= "NULL, ";
+    if (isset($submittedValues["service_template_model_stm_id"]) && $submittedValues["service_template_model_stm_id"] != null) {
+        $rq .= "'" . $submittedValues["service_template_model_stm_id"] . "', ";
+    }
     isset($submittedValues["command_command_id"]) && $submittedValues["command_command_id"] != null
         ? $rq .= "'" . $submittedValues["command_command_id"] . "', "
         : $rq .= "NULL, ";
@@ -2243,9 +2243,9 @@ function updateService($service_id = null, $from_MC = false, $params = array())
     }
     $rq = "UPDATE service SET ";
     $rq .= "service_template_model_stm_id = ";
-    isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null
-        ? $rq .= "'" . $ret["service_template_model_stm_id"] . "', "
-        : $rq .= "NULL, ";
+    if (isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null) {
+        $rq .= "'" . $ret["service_template_model_stm_id"] . "', ";
+    }
     $rq .= "command_command_id = ";
     isset($ret["command_command_id"]) && $ret["command_command_id"] != null
         ? $rq .= "'" . $ret["command_command_id"] . "', "
@@ -2783,7 +2783,9 @@ function updateServiceNotifs($service_id = null, $ret = array())
 
     $rq = "UPDATE service SET ";
     $rq .= "service_notification_options = ";
-    isset($ret) && $ret != null ? $rq .= "'" . implode(",", array_keys($ret)) . "' " : $rq .= "NULL ";
+    if (isset($ret) && $ret != null) {
+        $rq .= "'" . implode(",", array_keys($ret)) . "' ";
+    }
     $rq .= "WHERE service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -2838,7 +2840,9 @@ function updateServiceNotifOptionInterval($service_id = null, $ret = array())
 
     $rq = "UPDATE service SET ";
     $rq .= "service_notification_interval = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
+    if (isset($ret) && $ret != null) {
+        $rq .= "'" . $ret . "' ";
+    }
     $rq .= "WHERE service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -2874,7 +2878,9 @@ function updateServiceNotifOptionTimeperiod($service_id = null, $ret = array())
 
     $rq = "UPDATE service SET ";
     $rq .= "timeperiod_tp_id2 = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
+    if (isset($ret) && $ret != null) {
+        $rq .= "'" . $ret . "' ";
+    }
     $rq .= "WHERE service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -2914,7 +2920,9 @@ function updateServiceNotifOptionFirstNotificationDelay($service_id = null, $ret
 
     $rq = "UPDATE service SET ";
     $rq .= "service_first_notification_delay = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
+    if (isset($ret) && $ret != null) {
+        $rq .= "'" . $ret . "' ";
+    }
     $rq .= "WHERE service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -3419,9 +3427,9 @@ function updateServiceExtInfos($serviceId = null, $submittedValues = [])
 
     $rq = "UPDATE extended_service_information ";
     $rq .= "SET esi_notes = ";
-    isset($submittedValues["esi_notes"]) && $submittedValues["esi_notes"] != null
-        ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_notes"]) . "', "
-        : $rq .= "NULL, ";
+    if (isset($submittedValues["esi_notes"]) && $submittedValues["esi_notes"] != null) {
+        $rq .= "'" . CentreonDB::escape($submittedValues["esi_notes"]) . "', ";
+    }
     $rq .= "esi_notes_url = ";
     isset($submittedValues["esi_notes_url"]) && $submittedValues["esi_notes_url"] != null
         ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_notes_url"]) . "', "

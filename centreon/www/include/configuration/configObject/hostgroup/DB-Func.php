@@ -276,7 +276,9 @@ function multipleHostGroupInDB($hostGroups = array(), $nbrDup = array())
             $rq = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "hg_name" ? ($hg_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "hg_name") {
+                    $hg_name = $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $pearDB->escape($value2) . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $pearDB->escape($value2) . "'") : "NULL");

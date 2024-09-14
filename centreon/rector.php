@@ -7,8 +7,10 @@ use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
+use Rector\CodeQuality\Rector\Expression\TernaryFalseExpressionToIfRector;
 use Rector\CodeQuality\Rector\For_\ForRepeatedCountToOwnVariableRector;
 use Rector\CodeQuality\Rector\Foreach_\ForeachToInArrayRector;
+use Rector\CodeQuality\Rector\If_\CompleteMissingIfElseBracketRector;
 use Rector\CodeQuality\Rector\If_\ShortenElseIfRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\Ternary\ArrayKeyExistsTernaryThenValueToCoalescingRector;
@@ -89,9 +91,9 @@ return RectorConfig::configure()
 //        InlineConstructorDefaultToPropertyRector::class, // OK 48 files / Move property default from constructor to property default
 //        ForeachToInArrayRector::class, // Simplify foreach loops into in_array when possible
 //        SimplifyIfElseToTernaryRector::class, // OK 154 files / Changes if/else for same value as assign to ternary
-        ShortenElseIfRector::class, // Shortens else/if to elseif
-//        CompleteMissingIfElseBracketRector::class, // Complete missing if/else brackets
-//        TernaryFalseExpressionToIfRector::class, // Change ternary with false to if and explicit call
+//        ShortenElseIfRector::class, // OK 47 files / Shortens else/if to elseif
+//        CompleteMissingIfElseBracketRector::class, // KO / Complete missing if/else brackets
+        TernaryFalseExpressionToIfRector::class, // OK 26 files /Change ternary with false to if and explicit call
 //        // -------------- coding style ----------
 //        ExplicitPublicClassMethodRector::class, // Add explicit public method visibility
 //        FuncCallToConstFetchRector::class, // Changes use of function calls to use constants

@@ -259,7 +259,9 @@ function multiplePoolInDB($pool = array(), $nbrDup = array())
             $val = null;
 
             foreach ($row as $key2 => $value2) {
-                $key2 == "pool_name" ? ($pool_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "pool_name") {
+                    $pool_name = $value2 = $value2 . "_" . $i;
+                }
                 if ($key2 == 'pool_host_id') {
                     $value2 = null;
                 } elseif ($key2 == 'pool_activate') {
@@ -493,9 +495,10 @@ function insertPool($ret = array())
         `pool_service_template_id`
     ) VALUES (
         NULL, ";
-    isset($ret["pool_name"])
-    && $ret["pool_name"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', " : $rq .= "NULL, ";
+    if (isset($ret["pool_name"])
+    && $ret["pool_name"] != null) {
+        $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', ";
+    }
     isset($ret["pool_host_id"])
     && $ret["pool_host_id"] != null
         ? $rq .= "'" . $ret["pool_host_id"] . "', " : $rq .= "NULL, ";
@@ -581,9 +584,10 @@ function updatePool($pool_id = null)
 
     $rq = "UPDATE mod_dsm_pool SET
         pool_name = ";
-    isset($ret["pool_name"])
-    && $ret["pool_name"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', " : $rq .= "NULL, ";
+    if (isset($ret["pool_name"])
+    && $ret["pool_name"] != null) {
+        $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', ";
+    }
     $rq .= "pool_description = ";
     isset($ret["pool_description"])
     && $ret["pool_description"] != null

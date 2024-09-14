@@ -87,7 +87,9 @@ function multipleTrapGroupInDB($trap_groups = array(), $nbrDup = array())
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 $name = "";
-                $key2 == "traps_group_name" ? ($name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "traps_group_name") {
+                    $name = $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");

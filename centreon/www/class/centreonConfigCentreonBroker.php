@@ -1724,7 +1724,9 @@ class CentreonConfigCentreonBroker
             'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
         ];
         $parameters = ['brokerId' => $configId];
-        $basePath ? $parameters['base_uri'] = $basePath : null;
+        if ($basePath) {
+            $parameters['base_uri'] = $basePath;
+        }
 
         foreach($groups_infos as $tag => $groups) {
             $parameters['tag'] = $tag === 'input' ? 'inputs' : 'outputs';

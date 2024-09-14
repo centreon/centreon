@@ -156,7 +156,9 @@ function multipleMetaServiceInDB($metas = array(), $nbrDup = array())
             # Create a sentence which contains all the value
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "meta_name" ? ($meta_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "meta_name") {
+                    $meta_name = $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
@@ -197,7 +199,9 @@ function multipleMetaServiceInDB($metas = array(), $nbrDup = array())
                         $metric["msr_id"] = null;
                         foreach ($metric as $key2 => $value2) {
                             $value2 = is_int($value2) ? (string) $value2 : $value2;
-                            $key2 == "meta_id" ? $value2 = $maxId["MAX(meta_id)"] : null;
+                            if ($key2 == "meta_id") {
+                                $value2 = $maxId["MAX(meta_id)"];
+                            }
                             $val
                                 ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                                 : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
@@ -290,9 +294,9 @@ function insertMetaService($ret = array())
         "data_source_type, meta_select_mode, regexp_str, metric, warning, critical, " .
         "graph_id, meta_comment, geo_coords, meta_activate) " .
         "VALUES ( ";
-    isset($ret["meta_name"]) && $ret["meta_name"] != null
-        ? $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
+    if (isset($ret["meta_name"]) && $ret["meta_name"] != null) {
+        $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', ";
+    }
     isset($ret["meta_display"]) && $ret["meta_display"] != null
         ? $rq .= "'" . htmlentities($ret["meta_display"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";
@@ -383,9 +387,9 @@ function updateMetaService($meta_id = null)
     $ret = $form->getSubmitValues();
     $rq = "UPDATE meta_service SET ";
     $rq .= "meta_name = ";
-    $ret["meta_name"] != null
-        ? $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
+    if ($ret["meta_name"] != null) {
+        $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', ";
+    }
     $rq .= "meta_display = ";
     $ret["meta_display"] != null
         ? $rq .= "'" . htmlentities($ret["meta_display"], ENT_QUOTES, "UTF-8") . "', "
@@ -542,7 +546,9 @@ function insertMetric($ret = array())
     $rq = "INSERT INTO meta_service_relation " .
         "(meta_id, host_id, metric_id, msr_comment, activate) " .
         "VALUES ( ";
-    isset($ret["meta_id"]) && $ret["meta_id"] != null ? $rq .= "'" . $ret["meta_id"] . "', " : $rq .= "NULL, ";
+    if (isset($ret["meta_id"]) && $ret["meta_id"] != null) {
+        $rq .= "'" . $ret["meta_id"] . "', ";
+    }
     isset($ret["host_id"]) && $ret["host_id"] != null ? $rq .= "'" . $ret["host_id"] . "', " : $rq .= "NULL, ";
     isset($ret["metric_sel"][1]) && $ret["metric_sel"][1] != null
         ? $rq .= "'" . $ret["metric_sel"][1] . "', "
@@ -570,7 +576,9 @@ function updateMetric($msr_id = null)
     $ret = $form->getSubmitValues();
     $rq = "UPDATE meta_service_relation SET ";
     $rq .= "meta_id = ";
-    $ret["meta_id"] != null ? $rq .= "'" . $ret["meta_id"] . "', " : $rq .= "NULL, ";
+    if ($ret["meta_id"] != null) {
+        $rq .= "'" . $ret["meta_id"] . "', ";
+    }
     $rq .= "host_id = ";
     $ret["host_id"] != null ? $rq .= "'" . $ret["host_id"] . "', " : $rq .= "NULL, ";
     $rq .= "metric_id = ";

@@ -301,10 +301,20 @@ $tpl->assign("tab_order", $tab_order);
 $tpl->assign('form', $renderer->toArray());
 
 
-!$tpl->get_template_vars('firstPage') ? $tpl->assign('firstPage', null) : null;
-!$tpl->get_template_vars('pagePrev') ? $tpl->assign('pagePrev', null) : null;
-!$tpl->get_template_vars('pageArr') ? $tpl->assign('pageArr', null) : null;
-!$tpl->get_template_vars('pageNext') ? $tpl->assign('pageNext', null) : null;
-!$tpl->get_template_vars('lastPage') ? $tpl->assign('lastPage', null) : null;
+if (!$tpl->get_template_vars('firstPage')) {
+    $tpl->assign('firstPage', null);
+}
+if (!$tpl->get_template_vars('pagePrev')) {
+    $tpl->assign('pagePrev', null);
+}
+if (!$tpl->get_template_vars('pageArr')) {
+    $tpl->assign('pageArr', null);
+}
+if (!$tpl->get_template_vars('pageNext')) {
+    $tpl->assign('pageNext', null);
+}
+if (!$tpl->get_template_vars('lastPage')) {
+    $tpl->assign('lastPage', null);
+}
 
 $tpl->display("pagination.ihtml");
