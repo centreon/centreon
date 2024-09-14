@@ -97,11 +97,7 @@ class MysqlTable
      */
     private function setName($name): void
     {
-        if (isset($name) && $name != "") {
-            $this->name = $name;
-        } else {
-            $this->name = null;
-        }
+        $this->name = isset($name) && $name != "" ? $name : null;
     }
     
     /**
@@ -123,11 +119,7 @@ class MysqlTable
      */
     private function setSchema($schema): void
     {
-        if (isset($schema) && $schema != "") {
-            $this->schema = $schema;
-        } else {
-            $this->schema = null;
-        }
+        $this->schema = isset($schema) && $schema != "" ? $schema : null;
     }
     
     /**
@@ -197,11 +189,7 @@ class MysqlTable
      */
     public function setTimezone($timezone): void
     {
-        if (isset($timezone) && $timezone != "") {
-            $this->timezone = $timezone;
-        } else {
-            $this->timezone = date_default_timezone_get();
-        }
+        $this->timezone = isset($timezone) && $timezone != "" ? $timezone : date_default_timezone_get();
     }
     
     /**

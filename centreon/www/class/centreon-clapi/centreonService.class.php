@@ -618,11 +618,7 @@ class CentreonService extends CentreonObject
         $exportedFields = [];
         $resultString = "";
         foreach ($listParam as $paramSearch) {
-            if (! isset($paramString)) {
-                $paramString = $paramSearch;
-            } else {
-                $paramString = $paramString . $this->delim . $paramSearch;
-            }
+            $paramString = ! isset($paramString) ? $paramSearch : $paramString . $this->delim . $paramSearch;
             $field = $paramSearch;
             if (!in_array($field, $authorizeParam)) {
                 $unknownParam[] = $field;
@@ -1012,11 +1008,7 @@ class CentreonService extends CentreonObject
             null,
             array("svc_svc_id" => $elements[0]['service_id'])
         );
-        if (empty($maxOrder)) {
-            $macroOrder = 0;
-        } else {
-            $macroOrder = $maxOrder[0]["max(macro_order)"] + 1;
-        }
+        $macroOrder = empty($maxOrder) ? 0 : $maxOrder[0]["max(macro_order)"] + 1;
         // disable the check if the macro added is already in service template with same value
         //if($this->hasMacroFromServiceChanged($this->db, $elements[0]['service_id'], $params[2], $params[3])){
         if (count($macroList)) {
@@ -1769,11 +1761,7 @@ class CentreonService extends CentreonObject
         foreach ($storedMacros as $key => $macros) {
             $choosedMacro = array();
             foreach ($macros as $macro) {
-                if (empty($choosedMacro)) {
-                    $choosedMacro = $macro;
-                } else {
-                    $choosedMacro = $this->comparaPriority($macro, $choosedMacro, false);
-                }
+                $choosedMacro = empty($choosedMacro) ? $macro : $this->comparaPriority($macro, $choosedMacro, false);
             }
             if (!empty($choosedMacro)) {
                 $finalMacros[] = $choosedMacro;
@@ -1821,11 +1809,7 @@ class CentreonService extends CentreonObject
             $choosedMacro = array();
             foreach ($storedMacros as $storedMacro) {
                 if (!empty($storedMacro['macroDescription'])) {
-                    if (empty($choosedMacro)) {
-                        $choosedMacro = $storedMacro;
-                    } else {
-                        $choosedMacro = $this->comparaPriority($storedMacro, $choosedMacro, false);
-                    }
+                    $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro, false);
                     $description = $choosedMacro['macroDescription'];
                 }
             }

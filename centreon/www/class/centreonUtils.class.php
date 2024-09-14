@@ -283,11 +283,7 @@ class CentreonUtils
         $isCurrentEqual = false;
 
 
-        if ($depth == 0) {
-            $maxRecursion = count($currentVersionExplode);
-        } else {
-            $maxRecursion = $depth;
-        }
+        $maxRecursion = $depth == 0 ? count($currentVersionExplode) : $depth;
 
         for ($i = 0; $i < $maxRecursion; $i++) {
             if ($currentVersionExplode[$i] > $targetVersionExplode[$i]) {

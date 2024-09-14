@@ -64,11 +64,7 @@ class CentreonConfigurationDowntime extends CentreonConfigurationObjects
     {
         $queryValues = array();
         // Check for select2 'q' argument
-        if (false === isset($this->arguments['q'])) {
-            $queryValues['dtName'] = '%%';
-        } else {
-            $queryValues['dtName'] = '%' . (string)$this->arguments['q'] . '%';
-        }
+        $queryValues['dtName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
 
         $queryDowntime = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dt.dt_name, dt.dt_id ' .
             'FROM downtime dt ' .

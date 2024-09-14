@@ -218,16 +218,8 @@ if (!empty($centreon->optGen["global_sort_order"])) {
 }
 
 if ($o == "svcpb" || $o == "svc_unhandled") {
-    if (!empty($filters["sort_type"])) {
-        $sort_type = $filters["sort_type"];
-    } else {
-        $sort_type = $centreon->optGen["problem_sort_type"];
-    }
-    if (!empty($filters["order"])) {
-        $order = $filters["order"];
-    } else {
-        $order = $centreon->optGen["problem_sort_order"];
-    }
+    $sort_type = !empty($filters["sort_type"]) ? $filters["sort_type"] : $centreon->optGen["problem_sort_type"];
+    $order = !empty($filters["order"]) ? $filters["order"] : $centreon->optGen["problem_sort_order"];
 } else {
     if (!empty($filters["sort_type"])) {
         $sort_type = $filters["sort_type"];
@@ -314,11 +306,7 @@ $tpl->assign("mon_status_information", _("Status information"));
 $tab_class = array("0" => "list_one", "1" => "list_two");
 $rows = 10;
 
-if (!isset($_GET['o'])) {
-    $sSetOrderInMemory = "1";
-} else {
-    $sSetOrderInMemory = "0";
-}
+$sSetOrderInMemory = !isset($_GET['o']) ? "1" : "0";
 
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 

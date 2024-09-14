@@ -201,11 +201,7 @@ class CentreonHomeCustomview extends CentreonWebService
         $defaultTab = array();
 
         $widgetTitle = $widgetObj->getWidgetTitle($widgetId);
-        if ($widgetTitle != '') {
-            $title = sprintf(_("Widget Preferences for %s"), $widgetTitle);
-        } else {
-            $title = _("Widget Preferences");
-        }
+        $title = $widgetTitle != '' ? sprintf(_("Widget Preferences for %s"), $widgetTitle) : _("Widget Preferences");
 
         $info = $widgetObj->getWidgetDirectory($widgetObj->getWidgetType($widgetId));
         $title .= " [" . $info . "]";

@@ -374,11 +374,7 @@ function sanitizeFormComponentTemplatesParameters(array $ret): array
             case 'ds_transparency':
                 if (!empty($inputValue)) {
                     $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
-                    if (empty($inputValue)) {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR, null];
-                    } else {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR, $inputValue];
-                    }
+                    $bindParams[':' . $inputName] = empty($inputValue) ? [\PDO::PARAM_STR, null] : [\PDO::PARAM_STR, $inputValue];
                 }
                 break;
             case 'ds_color_line_mode':

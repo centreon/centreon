@@ -137,16 +137,8 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
     protected function setServiceFilters()
     {
         /* Pagination Elements */
-        if (isset($this->arguments['limit'])) {
-            $this->limit = $this->arguments['limit'];
-        } else {
-            $this->limit = 30;
-        }
-        if (isset($this->arguments['number'])) {
-            $this->number = $this->arguments['number'];
-        } else {
-            $this->number = 0;
-        }
+        $this->limit = isset($this->arguments['limit']) ? $this->arguments['limit'] : 30;
+        $this->number = isset($this->arguments['number']) ? $this->arguments['number'] : 0;
         if (!is_numeric($this->number) || !is_numeric($this->limit)) {
             throw new \RestBadRequestException('Error, limit must be numerical');
         }
@@ -162,55 +154,19 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         } else {
             $this->status = null;
         }
-        if (isset($this->arguments['hostgroup'])) {
-            $this->hostgroup = $this->arguments['hostgroup'];
-        } else {
-            $this->hostgroup = null;
-        }
-        if (isset($this->arguments['servicegroup'])) {
-            $this->servicegroup = $this->arguments['servicegroup'];
-        } else {
-            $this->servicegroup = null;
-        }
-        if (isset($this->arguments['search'])) {
-            $this->search = $this->arguments['search'];
-        } else {
-            $this->search = null;
-        }
-        if (isset($this->arguments['searchHost'])) {
-            $this->searchHost = $this->arguments['searchHost'];
-        } else {
-            $this->searchHost = null;
-        }
-        if (isset($this->arguments['searchOutput'])) {
-            $this->searchOutput = $this->arguments['searchOutput'];
-        } else {
-            $this->searchOutput = null;
-        }
-        if (isset($this->arguments['instance'])) {
-            $this->instance = $this->arguments['instance'];
-        } else {
-            $this->instance = null;
-        }
+        $this->hostgroup = isset($this->arguments['hostgroup']) ? $this->arguments['hostgroup'] : null;
+        $this->servicegroup = isset($this->arguments['servicegroup']) ? $this->arguments['servicegroup'] : null;
+        $this->search = isset($this->arguments['search']) ? $this->arguments['search'] : null;
+        $this->searchHost = isset($this->arguments['searchHost']) ? $this->arguments['searchHost'] : null;
+        $this->searchOutput = isset($this->arguments['searchOutput']) ? $this->arguments['searchOutput'] : null;
+        $this->instance = isset($this->arguments['instance']) ? $this->arguments['instance'] : null;
         // set criticality
         $this->criticality = $this->arguments['criticality'] ?? null;
 
         /* view properties */
-        if (isset($this->arguments['viewType'])) {
-            $this->viewType = $this->arguments['viewType'];
-        } else {
-            $this->viewType = null;
-        }
-        if (isset($this->arguments['sortType'])) {
-            $this->sortType = $this->arguments['sortType'];
-        } else {
-            $this->sortType = null;
-        }
-        if (isset($this->arguments['order'])) {
-            $this->order = $this->arguments['order'];
-        } else {
-            $this->order = null;
-        }
+        $this->viewType = isset($this->arguments['viewType']) ? $this->arguments['viewType'] : null;
+        $this->sortType = isset($this->arguments['sortType']) ? $this->arguments['sortType'] : null;
+        $this->order = isset($this->arguments['order']) ? $this->arguments['order'] : null;
     }
 
     /**

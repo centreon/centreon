@@ -45,11 +45,7 @@ try {
         $cnt['connector_description'] = $cnt['description'];
         $cnt['command_line'] = $cnt['command_line'];
 
-        if ($cnt['enabled']) {
-            $cnt['connector_status'] = '1';
-        } else {
-            $cnt['connector_status'] = '0';
-        }
+        $cnt['connector_status'] = $cnt['enabled'] ? '1' : '0';
         $cnt['connector_id'] = $cnt['id'];
 
         unset($cnt['name']);

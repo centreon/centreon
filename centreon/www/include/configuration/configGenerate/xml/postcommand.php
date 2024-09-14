@@ -95,11 +95,7 @@ while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
         }
     }
 }
-if ($ok === false) {
-    $statusStr = "<b><font color='red'>NOK</font></b>";
-} else {
-    $statusStr = "<b><font color='green'>OK</font></b>";
-}
+$statusStr = $ok === false ? "<b><font color='red'>NOK</font></b>" : "<b><font color='green'>OK</font></b>";
 
 $xml->writeElement('result', $str);
 $xml->writeElement('status', $statusStr);

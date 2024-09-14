@@ -1095,11 +1095,7 @@ class CentreonGraphNg
             $metric['prints'] = array();
 
             $insert = 0;
-            if ($metric['virtual'] == 0) {
-                $metricFullname = 'v' . $metric['metric_id'];
-            } else {
-                $metricFullname = 'vv' . $metric['vmetric_id'];
-            }
+            $metricFullname = $metric['virtual'] == 0 ? 'v' . $metric['metric_id'] : 'vv' . $metric['vmetric_id'];
 
             $metric['last_value'] = null;
             $metric['minimum_value'] = null;

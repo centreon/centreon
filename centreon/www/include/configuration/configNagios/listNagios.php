@@ -60,11 +60,7 @@ if ($search) {
 
 $aclCond = "";
 if (!$centreon->user->admin && count($allowedMainConf)) {
-    if (isset($search) && $search) {
-        $aclCond = " AND ";
-    } else {
-        $aclCond = " WHERE ";
-    }
+    $aclCond = isset($search) && $search ? " AND " : " WHERE ";
     $aclCond .= "nagios_id IN (" . implode(',', array_keys($allowedMainConf)) . ") ";
 }
 

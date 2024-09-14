@@ -614,11 +614,7 @@ class CentreonConfigCentreonBroker
             $field['group_name'] = $row['groupname'];
             $field['hook_name'] = $row['jshook_name'];
             $field['hook_arguments'] = $row['jshook_arguments'];
-            if (!is_null($row['external']) && $row['external'] != '') {
-                $field['value'] = $row['external'];
-            } else {
-                $field['value'] = null;
-            }
+            $field['value'] = !is_null($row['external']) && $row['external'] != '' ? $row['external'] : null;
             $fields[] = $field;
         }
         usort($fields, array($this, 'sortField'));
@@ -1103,11 +1099,7 @@ class CentreonConfigCentreonBroker
             if (isset($row['fieldIndex']) && !is_null($row['fieldIndex']) && $row['fieldIndex'] != "") {
                 $fieldname = $tag . '[' . $row['config_group_id'] . '][' .
                     $this->getConfigFieldName($config_id, $tag, $row) . '_#index#]';
-                if (preg_match('/__(.+)$/', $row['config_key'], $matches)) {
-                    $suffix = $matches[1];
-                } else {
-                    $suffix = '';
-                }
+                $suffix = preg_match('/__(.+)$/', $row['config_key'], $matches) ? $matches[1] : '';
                 $arrayMultipleValues[$fieldname]['suffix'] = $suffix;
                 $arrayMultipleValues[$fieldname]['values'][] =
                     $isTypePassword && $suffix === 'value' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
@@ -1380,11 +1372,7 @@ class CentreonConfigCentreonBroker
             return false;
         }
 
-        if (isset($pearDBO)) {
-            $monitoringDb = $pearDBO;
-        } else {
-            $monitoringDb = new CentreonDB('centstorage');
-        }
+        $monitoringDb = isset($pearDBO) ? $pearDBO : new CentreonDB('centstorage');
 
         // Default values
         $s_db = "centreon";

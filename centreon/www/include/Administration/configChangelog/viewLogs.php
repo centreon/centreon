@@ -335,11 +335,7 @@ if ($prepareSelect->execute()) {
                         "badge" => $badge[$tabAction[$res['action_type']]]
                     );
                 } else {
-                    if (empty($contactList[$res['log_contact_id']])) {
-                        $author = _("unknown");
-                    } else {
-                        $author = $contactList[$res['log_contact_id']];
-                    }
+                    $author = empty($contactList[$res['log_contact_id']]) ? _("unknown") : $contactList[$res['log_contact_id']];
 
                     // as the relation may have been deleted since the event,
                     // some relations can't be found for this service, while events have been saved for it in the DB

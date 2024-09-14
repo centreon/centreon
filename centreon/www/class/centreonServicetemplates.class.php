@@ -142,11 +142,7 @@ class CentreonServicetemplates extends CentreonService
      */
     public function getLinkedServicesByName($serviceTemplateName, $checkTemplates = true)
     {
-        if ($checkTemplates) {
-            $register = 0;
-        } else {
-            $register = 1;
-        }
+        $register = $checkTemplates ? 0 : 1;
 
         $linkedServices = array();
         $query = 'SELECT DISTINCT s.service_description '

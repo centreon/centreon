@@ -946,11 +946,7 @@ class PHPMailer
      */
     public function isHTML($isHtml = true): void
     {
-        if ($isHtml) {
-            $this->ContentType = static::CONTENT_TYPE_TEXT_HTML;
-        } else {
-            $this->ContentType = static::CONTENT_TYPE_PLAINTEXT;
-        }
+        $this->ContentType = $isHtml ? static::CONTENT_TYPE_TEXT_HTML : static::CONTENT_TYPE_PLAINTEXT;
     }
 
     /**
@@ -976,11 +972,7 @@ class PHPMailer
     {
         $ini_sendmail_path = ini_get('sendmail_path');
 
-        if (false === stripos($ini_sendmail_path, 'sendmail')) {
-            $this->Sendmail = '/usr/sbin/sendmail';
-        } else {
-            $this->Sendmail = $ini_sendmail_path;
-        }
+        $this->Sendmail = false === stripos($ini_sendmail_path, 'sendmail') ? '/usr/sbin/sendmail' : $ini_sendmail_path;
         $this->Mailer = 'sendmail';
     }
 
@@ -991,11 +983,7 @@ class PHPMailer
     {
         $ini_sendmail_path = ini_get('sendmail_path');
 
-        if (false === stripos($ini_sendmail_path, 'qmail')) {
-            $this->Sendmail = '/var/qmail/bin/qmail-inject';
-        } else {
-            $this->Sendmail = $ini_sendmail_path;
-        }
+        $this->Sendmail = false === stripos($ini_sendmail_path, 'qmail') ? '/var/qmail/bin/qmail-inject' : $ini_sendmail_path;
         $this->Mailer = 'qmail';
     }
 
@@ -1712,11 +1700,7 @@ class PHPMailer
         }
         //CVE-2016-10033, CVE-2016-10045: Don't pass -f if characters will be escaped.
         if (!empty($this->Sender) && static::validateAddress($this->Sender) && self::isShellSafe($this->Sender)) {
-            if ($this->Mailer === 'qmail') {
-                $sendmailFmt = '%s -f%s';
-            } else {
-                $sendmailFmt = '%s -oi -f%s -t';
-            }
+            $sendmailFmt = $this->Mailer === 'qmail' ? '%s -f%s' : '%s -oi -f%s -t';
         } else {
             //allow sendmail to choose a default envelope sender. It may
             //seem preferable to force it to use the From header as with
@@ -1989,11 +1973,7 @@ class PHPMailer
             throw new Exception($this->lang('smtp_connect_failed'), self::STOP_CRITICAL);
         }
         //Sender already validated in preSend()
-        if ('' === $this->Sender) {
-            $smtp_from = $this->From;
-        } else {
-            $smtp_from = $this->Sender;
-        }
+        $smtp_from = '' === $this->Sender ? $this->From : $this->Sender;
         if (!$this->smtp->mail($smtp_from)) {
             $this->setError($this->lang('from_failed') . $smtp_from . ' : ' . implode(',', $this->smtp->getError()));
             throw new Exception($this->ErrorInfo, self::STOP_CRITICAL);
@@ -2145,11 +2125,7 @@ class PHPMailer
             }
             if ($this->smtp->connect($prefix . $host, $port, $this->Timeout, $options)) {
                 try {
-                    if ($this->Helo) {
-                        $hello = $this->Helo;
-                    } else {
-                        $hello = $this->serverHostname();
-                    }
+                    $hello = $this->Helo ? $this->Helo : $this->serverHostname();
                     $this->smtp->hello($hello);
                     //Automatically enable TLS encryption if:
                     //* it's not disabled
@@ -2410,11 +2386,7 @@ class PHPMailer
      */
     public function wrapText($message, $length, $qp_mode = false)
     {
-        if ($qp_mode) {
-            $soft_break = sprintf(' =%s', static::$LE);
-        } else {
-            $soft_break = static::$LE;
-        }
+        $soft_break = $qp_mode ? sprintf(' =%s', static::$LE) : static::$LE;
         //If utf-8 encoding is used, we will need to make sure we don't
         //split multibyte characters when we wrap
         $is_utf8 = static::CHARSET_UTF8 === strtolower($this->CharSet);
@@ -3314,11 +3286,7 @@ class PHPMailer
                 }
 
                 //Encode as string attachment
-                if ($bString) {
-                    $mime[] = $this->encodeString($string, $encoding);
-                } else {
-                    $mime[] = $this->encodeFile($path, $encoding);
-                }
+                $mime[] = $bString ? $this->encodeString($string, $encoding) : $this->encodeFile($path, $encoding);
                 if ($this->isError()) {
                     return '';
                 }
@@ -3447,20 +3415,12 @@ class PHPMailer
                 break;
         }
 
-        if ($this->has8bitChars($str)) {
-            $charset = $this->CharSet;
-        } else {
-            $charset = static::CHARSET_ASCII;
-        }
+        $charset = $this->has8bitChars($str) ? $this->CharSet : static::CHARSET_ASCII;
 
         //Q/B encoding adds 8 chars and the charset ("` =?<charset>?[QB]?<content>?=`").
         $overhead = 8 + strlen($charset);
 
-        if ('mail' === $this->Mailer) {
-            $maxlen = static::MAIL_MAX_LINE_LENGTH - $overhead;
-        } else {
-            $maxlen = static::MAX_LINE_LENGTH - $overhead;
-        }
+        $maxlen = 'mail' === $this->Mailer ? static::MAIL_MAX_LINE_LENGTH - $overhead : static::MAX_LINE_LENGTH - $overhead;
 
         //Select the encoding that produces the shortest output and/or prevents corruption.
         if ($matchcount > strlen($str) / 3) {

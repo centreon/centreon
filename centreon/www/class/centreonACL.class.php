@@ -1262,11 +1262,7 @@ class CentreonACL
         $hosts = array();
         $DBRES = CentreonDBInstance::getDbCentreonStorageInstance()->query($query);
         while ($row = $DBRES->fetchRow()) {
-            if ($escape === true) {
-                $hosts[] = CentreonDB::escape($row[$fieldName]);
-            } else {
-                $hosts[] = $row[$fieldName];
-            }
+            $hosts[] = $escape === true ? CentreonDB::escape($row[$fieldName]) : $row[$fieldName];
         }
 
         return $hosts;
@@ -1648,11 +1644,7 @@ class CentreonACL
                 continue;
             }
             $items[$row[$fieldName]] = true;
-            if ($escape === true) {
-                $services[] = CentreonDB::escape($row[$fieldName]);
-            } else {
-                $services[] = $row[$fieldName];
-            }
+            $services[] = $escape === true ? CentreonDB::escape($row[$fieldName]) : $row[$fieldName];
         }
 
         return $services;
@@ -1901,11 +1893,7 @@ class CentreonACL
                 . "WHERE h.host_register = '1' ";
             $result = CentreonDBInstance::getDbCentreonInstance()->query($query);
             while ($row = $result->fetchRow()) {
-                if ($withServiceDescription) {
-                    $tab[$row['host_id']][$row['service_id']] = $row['service_description'];
-                } else {
-                    $tab[$row['host_id']][$row['service_id']] = 1;
-                }
+                $tab[$row['host_id']][$row['service_id']] = $withServiceDescription ? $row['service_description'] : 1;
             }
             $result->closeCursor();
             // Used By EventLogs page Only
@@ -1937,11 +1925,7 @@ class CentreonACL
 
             $result = $pearDBMonitoring->query($query);
             while ($row = $result->fetch()) {
-                if ($withServiceDescription) {
-                    $tab[$row['host_id']][$row['service_id']] = $row['description'];
-                } else {
-                    $tab[$row['host_id']][$row['service_id']] = 1;
-                }
+                $tab[$row['host_id']][$row['service_id']] = $withServiceDescription ? $row['description'] : 1;
             }
             $result->closeCursor();
         }
@@ -2274,11 +2258,7 @@ class CentreonACL
                 WHERE contact_id = ' . $currentContact;
             try {
                 $res = CentreonDBInstance::getDbCentreonInstance()->query($query);
-                if ($row = $res->fetchRow()) {
-                    $currentContact = $row['contact_template_id'];
-                } else {
-                    $currentContact = 0;
-                }
+                $currentContact = ($row = $res->fetchRow()) ? $row['contact_template_id'] : 0;
             } catch (PDOException $e) {
                 $currentContact = 0;
             }
@@ -2337,11 +2317,7 @@ class CentreonACL
             $first = true;
             foreach ($options['conditions'] as $key => $opvalue) {
                 if ($first) {
-                    if ($hasWhereClause) {
-                        $clause = ' AND (';
-                    } else {
-                        $clause = ' WHERE (';
-                    }
+                    $clause = $hasWhereClause ? ' AND (' : ' WHERE (';
                     if (is_array($opvalue) && count($opvalue) == 2) {
                         [$op, $value] = $opvalue;
                     } else {
@@ -2452,11 +2428,7 @@ class CentreonACL
             $key = $this->constructKey($elem, $options);
 
             if ($key != '' && !isset($result[$key])) {
-                if (isset($options['get_row'])) {
-                    $result[$key] = $elem[$options['get_row']];
-                } else {
-                    $result[$key] = $elem;
-                }
+                $result[$key] = isset($options['get_row']) ? $elem[$options['get_row']] : $elem;
             }
         }
 

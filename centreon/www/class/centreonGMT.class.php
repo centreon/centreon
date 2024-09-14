@@ -312,11 +312,7 @@ class CentreonGMT
             $statement = CentreonDBInstance::getDbCentreonInstance()->prepare($query);
             $statement->bindValue(':session_id', $sid, \PDO::PARAM_STR);
             $statement->execute();
-            if ($info = $statement->fetch()) {
-                $this->myGMT = $info["contact_location"];
-            } else {
-                $this->myGMT = 0;
-            }
+            $this->myGMT = ($info = $statement->fetch()) ? $info["contact_location"] : 0;
         } catch (\PDOException $e) {
             $this->myGMT = 0;
         }

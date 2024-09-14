@@ -111,17 +111,9 @@ class CentreonAPI
         $this->options = $options;
         $this->centreon_path = $centreon_path;
 
-        if (isset($options["v"])) {
-            $this->variables = $options["v"];
-        } else {
-            $this->variables = "";
-        }
+        $this->variables = isset($options["v"]) ? $options["v"] : "";
 
-        if (isset($options["o"])) {
-            $this->object = htmlentities(strtoupper($options["o"]), ENT_QUOTES);
-        } else {
-            $this->object = "";
-        }
+        $this->object = isset($options["o"]) ? htmlentities(strtoupper($options["o"]), ENT_QUOTES) : "";
 
         $this->objectTable = [];
 

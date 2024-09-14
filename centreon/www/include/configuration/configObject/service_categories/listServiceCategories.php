@@ -64,11 +64,7 @@ if ($search) {
 
 $aclCond = "";
 if (!$oreon->user->admin && $scString != "''") {
-    if (is_null($searchTool)) {
-        $clause = " WHERE ";
-    } else {
-        $clause = " AND ";
-    }
+    $clause = is_null($searchTool) ? " WHERE " : " AND ";
     $aclCond .= $acl->queryBuilder($clause, "sc_id", $scString);
 }
 

@@ -112,11 +112,7 @@ for ($i = 0; $elem = $res->fetchRow(); $i++) {
     }
 
     if ($elem['img_id']) {
-        if (isset($search) && $search) {
-            $searchOpt = "&search=" . $search;
-        } else {
-            $searchOpt = "";
-        }
+        $searchOpt = isset($search) && $search ? "&search=" . $search : "";
         $selectedImgElem = $form->addElement(
             'checkbox',
             "select[" . $elem['dir_id'] . "-" . $elem['img_id'] . "]"

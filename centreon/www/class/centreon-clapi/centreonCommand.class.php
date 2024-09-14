@@ -229,11 +229,7 @@ class CentreonCommand extends CentreonObject
             $exportedFields = [];
             $resultString = "";
             foreach ($listParam as $paramSearch) {
-                if (!$paramString) {
-                    $paramString = $paramSearch;
-                } else {
-                    $paramString = $paramString . $this->delim . $paramSearch;
-                }
+                $paramString = !$paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
                 $field = $paramSearch;
                 if (!in_array($field, $authorizeParam)) {
                     $unknownParam[] = $field;

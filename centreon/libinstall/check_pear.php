@@ -163,11 +163,7 @@ if (count($argv) < 2 || count($argv) > 3) {
     exit(2);
 }
 
-if (count($argv) == 3) {
-    $file = $argv[2];
-} else {
-    $file = 'pear.lst';
-}
+$file = count($argv) == 3 ? $argv[2] : 'pear.lst';
 check_file($file);
 
 $packages = get_list($file);

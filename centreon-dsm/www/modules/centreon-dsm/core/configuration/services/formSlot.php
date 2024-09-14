@@ -160,11 +160,7 @@ if ($o != "mc") {
     $form->addRule('pool_prefix', _("Compulsory Alias"), 'required');
     $form->addRule('pool_number', _("Compulsory Alias"), 'required');
 } elseif ($o == "mc") {
-    if ($form->getSubmitValue("submitMC")) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue("submitMC") ? false : true;
 }
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 

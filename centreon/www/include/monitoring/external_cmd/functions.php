@@ -48,11 +48,7 @@ function write_command($cmd, $poller)
     /*
      * Destination is centcore pipe path
      */
-    if (defined("_CENTREON_VARLIB_")) {
-        $destination = _CENTREON_VARLIB_ . "/centcore.cmd";
-    } else {
-        $destination = "/var/lib/centreon/centcore.cmd";
-    }
+    $destination = defined("_CENTREON_VARLIB_") ? _CENTREON_VARLIB_ . "/centcore.cmd" : "/var/lib/centreon/centcore.cmd";
 
     $cmd = str_replace("`", "&#96;", $cmd);
     $cmd = str_replace("\n", "<br>", $cmd);

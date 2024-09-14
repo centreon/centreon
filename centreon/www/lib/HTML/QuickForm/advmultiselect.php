@@ -754,11 +754,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
 
             // prepare option tables to be displayed as in POST order
             $append = is_array($this->_values) ? count($this->_values) : 0;
-            if ($append > 0) {
-                $arrHtmlSelected = array_fill(0, $append, ' ');
-            } else {
-                $arrHtmlSelected = array();
-            }
+            $arrHtmlSelected = $append > 0 ? array_fill(0, $append, ' ') : array();
 
             $options           = count($this->_options);
             $arrHtmlUnselected = array();
@@ -1056,11 +1052,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
             $js .= 'qfamsHandler.js';
         }
 
-        if (file_exists($js)) {
-            $js = file_get_contents($js);
-        } else {
-            $js = '';
-        }
+        $js = file_exists($js) ? file_get_contents($js) : '';
 
         if ($raw !== true) {
             $js = '<script type="text/javascript">'

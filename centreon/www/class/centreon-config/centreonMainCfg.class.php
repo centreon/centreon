@@ -306,11 +306,7 @@ class CentreonMainCfg
         }
 
         $res = $this->DB->query("SELECT * FROM cfg_nagios WHERE  nagios_server_id = " . $source);
-        if ($res->rowCount() == 0) {
-            $baseValues = $this->aInstanceDefaultValues;
-        } else {
-            $baseValues = $res->fetch();
-        }
+        $baseValues = $res->rowCount() == 0 ? $this->aInstanceDefaultValues : $res->fetch();
 
         $rq = "INSERT INTO `cfg_nagios` (
             `nagios_name`, `nagios_server_id`, `log_file`, `cfg_dir`,

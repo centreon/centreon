@@ -1110,11 +1110,7 @@ class CentreonGraph
         }
 
         if ($l_unit == 'B' || $l_unit == 'o' || $l_unit == 'b/s') {
-            if (isset($this->RRDoptions["base"])) {
-                $l_base = $this->RRDoptions["base"];
-            } else {
-                $l_base = 1000;
-            }
+            $l_base = isset($this->RRDoptions["base"]) ? $this->RRDoptions["base"] : 1000;
 
             $l_px = array(
                 "8" => array(
@@ -1287,11 +1283,7 @@ class CentreonGraph
      */
     private function getIndexData(): void
     {
-        if (isset($this->metricsEnabled)) {
-            $svc_instance = $this->metrics[$this->metricsEnabled[0]]["index_id"];
-        } else {
-            $svc_instance = $this->index;
-        }
+        $svc_instance = isset($this->metricsEnabled) ? $this->metrics[$this->metricsEnabled[0]]["index_id"] : $this->index;
 
         $this->log("index_data for " . $svc_instance);
         $DBRESULT = $this->DBC->prepare("SELECT * FROM index_data WHERE id = :svc_instance LIMIT 1");

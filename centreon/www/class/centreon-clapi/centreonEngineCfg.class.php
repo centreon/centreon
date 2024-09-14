@@ -262,11 +262,7 @@ class CentreonEngineCfg extends CentreonObject
             if ($canUpdateParams) {
                 $p = strtolower($params[1]);
                 if ($params[2] == "") {
-                    if (isset($this->params[$p]) && $this->params[$p] == 2) {
-                        $params[2] = $this->params[$p];
-                    } else {
-                        $params[2] = null;
-                    }
+                    $params[2] = isset($this->params[$p]) && $this->params[$p] == 2 ? $this->params[$p] : null;
                 }
                 $updateParams = array($params[1] => $params[2]);
                 $updateParams['objectId'] = $objectId;

@@ -156,11 +156,7 @@ $defaultLog = [];
 foreach ($logs as $log) {
     array_push($smartyLogs, 'log_' . $log);
     $flippedLevel = array_flip($logsLevel);
-    if ($log === 'core') {
-        $defaultLog['log_' . $log] = $flippedLevel['info'];
-    } else {
-        $defaultLog['log_' . $log] = $flippedLevel['error'];
-    }
+    $defaultLog['log_' . $log] = $log === 'core' ? $flippedLevel['info'] : $flippedLevel['error'];
     $form->addElement('select', 'log_' . $log, _($log), $logsLevel);
 }
 

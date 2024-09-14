@@ -152,11 +152,7 @@ class PollerDefaultsOverwriteService
         foreach ($data as $key => $val) {
             $instanceIds = explode(',', $val['_instance_id']);
 
-            if (in_array($this->pollerID, $instanceIds)) {
-                $data[$key]['_instance_id'] = $this->pollerID;
-            } else {
-                $data[$key]['_instance_id'] = '';
-            }
+            $data[$key]['_instance_id'] = in_array($this->pollerID, $instanceIds) ? $this->pollerID : '';
         }
 
         return $this->findPollerAndSetResourceData(

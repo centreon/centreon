@@ -129,11 +129,7 @@ class CentreonExternalCommand
     {
         global $centreon;
 
-        if (!defined('_CENTREON_VARLIB_')) {
-            $varlib = "/var/lib/centreon";
-        } else {
-            $varlib = _CENTREON_VARLIB_;
-        }
+        $varlib = !defined('_CENTREON_VARLIB_') ? "/var/lib/centreon" : _CENTREON_VARLIB_;
 
         $str_remote = "";
         $return_remote = 0;

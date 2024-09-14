@@ -438,11 +438,7 @@ while ($row = $res->fetch()) {
             $res2 = $dbb->prepare($query);
             $res2->bindValue(':hostId', $row['host_id'], PDO::PARAM_INT);
             $res2->execute();
-            if ($row2 = $res2->fetch()) {
-                $data[$row['host_id']]['comment'] = substr($row2['data'], 0, $commentLength);
-            } else {
-                $data[$row['host_id']]['comment'] = '-';
-            }
+            $data[$row['host_id']]['comment'] = ($row2 = $res2->fetch()) ? substr($row2['data'], 0, $commentLength) : '-';
             $res2->closeCursor();
         } catch (PDOException $e) {
             CentreonLog::create()->error(

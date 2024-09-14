@@ -86,11 +86,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         }
 
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $q = (string)$this->arguments['q'];
-        } else {
-            $q = '';
-        }
+        $q = isset($this->arguments['q']) ? (string)$this->arguments['q'] : '';
 
         // Check for service enable
         if (isset($this->arguments['e'])) {

@@ -70,11 +70,7 @@ class CentreonHosttemplates extends CentreonHost
      */
     public function getLinkedHostsByName($hostTemplateName, $checkTemplates = true)
     {
-        if ($checkTemplates) {
-            $register = 0;
-        } else {
-            $register = 1;
-        }
+        $register = $checkTemplates ? 0 : 1;
 
         $linkedHosts = [];
         $query = 'SELECT DISTINCT h.host_name

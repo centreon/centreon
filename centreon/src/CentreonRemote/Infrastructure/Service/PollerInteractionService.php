@@ -117,11 +117,7 @@ class PollerInteractionService
     {
         $centreonBrokerPath = _CENTREON_CACHEDIR_ . '/config/broker/';
 
-        if (defined('_CENTREON_VARLIB_')) {
-            $centCorePipe = _CENTREON_VARLIB_ . '/centcore.cmd';
-        } else {
-            $centCorePipe = '/var/lib/centreon/centcore.cmd';
-        }
+        $centCorePipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
 
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
@@ -171,11 +167,7 @@ class PollerInteractionService
     {
         $tabServers = [];
 
-        if (defined('_CENTREON_VARLIB_')) {
-            $centCorePipe = _CENTREON_VARLIB_ . '/centcore.cmd';
-        } else {
-            $centCorePipe = '/var/lib/centreon/centcore.cmd';
-        }
+        $centCorePipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
 
         $tabs = $this->centreon->user->access->getPollerAclConf([
             'fields' => ['name', 'id', 'localhost', 'engine_restart_command'],

@@ -186,11 +186,7 @@ if (
 /**
  * Contacts Templates
  */
-if (isset($contactId)) {
-    $strRestrinction = " AND contact_id != '" . intval($contactId) . "'";
-} else {
-    $strRestrinction = "";
-}
+$strRestrinction = isset($contactId) ? " AND contact_id != '" . intval($contactId) . "'" : "";
 
 $contactTpl = array(null => "           ");
 $DBRESULT = $pearDB->query("SELECT contact_id, contact_name
@@ -746,11 +742,7 @@ $form->addElement(
     $attrTimezones
 );
 
-if ($o != MASSIVE_CHANGE) {
-    $auth_type = array();
-} else {
-    $auth_type = array(null => null);
-}
+$auth_type = $o != MASSIVE_CHANGE ? array() : array(null => null);
 
 $auth_type["local"] = "Centreon";
 if ($centreon->optGen['ldap_auth_enable'] == 1) {
@@ -1129,11 +1121,7 @@ if ($o != MASSIVE_CHANGE) {
         'keepOneContactAtLeast'
     );
 } elseif ($o == MASSIVE_CHANGE) {
-    if ($form->getSubmitValue("submitMC")) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue("submitMC") ? false : true;
 }
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 

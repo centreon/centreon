@@ -238,11 +238,7 @@ function moveImg($img_id, $dir_alias)
     $img_info = $prepare->fetch(PDO::FETCH_ASSOC);
     $image_info_path = basename($img_info["img_path"]);
     $image_info_dir_alias = basename($img_info["dir_alias"]);
-    if ($dir_alias) {
-        $dir_alias = sanitizePath($dir_alias);
-    } else {
-        $dir_alias = $image_info_dir_alias;
-    }
+    $dir_alias = $dir_alias ? sanitizePath($dir_alias) : $image_info_dir_alias;
     if ($dir_alias != $img_info["dir_alias"]) {
         $oldpath = $mediadir . $image_info_dir_alias . "/" . $image_info_path;
         $newpath = $mediadir . $dir_alias . "/" . $image_info_path;

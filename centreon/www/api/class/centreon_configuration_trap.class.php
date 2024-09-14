@@ -62,11 +62,7 @@ class CentreonConfigurationTrap extends CentreonConfigurationObjects
     {
         $queryValues = array();
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
         $queryTraps = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT t.traps_name, t.traps_id, m.name ' .
             'FROM traps t, traps_vendor m ' .
             'WHERE t.manufacturer_id = m.id ' .

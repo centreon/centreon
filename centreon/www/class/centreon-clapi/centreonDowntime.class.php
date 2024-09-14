@@ -303,11 +303,7 @@ class CentreonDowntime extends CentreonObject
             if (!isset($this->weekDays[$dayOfWeek]) && !in_array($dayOfWeek, $this->weekDays)) {
                 throw new CentreonClapiException(sprintf('Invalid period format %s', $dayOfWeek));
             }
-            if (is_numeric($dayOfWeek)) { // value doesn't need conversion
-                $days[] = $dayOfWeek;
-            } else {
-                $days[] = $this->weekDays[$dayOfWeek];
-            }
+            $days[] = is_numeric($dayOfWeek) ? $dayOfWeek : $this->weekDays[$dayOfWeek];
         }
         $p[':day_of_week'] = implode(',', $days);
         $p[':day_of_month'] = null;
@@ -372,11 +368,7 @@ class CentreonDowntime extends CentreonObject
         if (!isset($this->weekDays[$dayOfWeek]) && !in_array($dayOfWeek, $this->weekDays)) {
             throw new CentreonClapiException(sprintf('Invalid period format %s', $dayOfWeek));
         }
-        if (is_numeric($dayOfWeek)) {
-            $p[':day_of_week'] = $dayOfWeek;
-        } else {
-            $p[':day_of_week'] = $this->weekDays[$dayOfWeek];
-        }
+        $p[':day_of_week'] = is_numeric($dayOfWeek) ? $dayOfWeek : $this->weekDays[$dayOfWeek];
         $p[':day_of_month'] = null;
 
         $cycle = strtolower($tmp[6]);

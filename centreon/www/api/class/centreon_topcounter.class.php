@@ -210,11 +210,7 @@ class CentreonTopCounter extends CentreonWebService
             : $this->centreon->user->lang;
         $autoLoginKey = null;
 
-        if (isset($_SESSION['disable_sound'])) {
-            $this->soundNotificationsEnabled = !$_SESSION['disable_sound'];
-        } else {
-            $this->soundNotificationsEnabled = true;
-        }
+        $this->soundNotificationsEnabled = isset($_SESSION['disable_sound']) ? !$_SESSION['disable_sound'] : true;
 
         // Is the autologin feature enabled ?
         try {

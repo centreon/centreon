@@ -372,11 +372,7 @@ function formatData($state, $time, $timeTOTAL, $time_none, $nb_alert, $color)
     $tab["time"] = CentreonDuration::toString($time);
     $tab["timestamp"] = $time;
     $tab["pourcentTime"] = round($time / ($timeTOTAL + 1) * 100, 2);
-    if ($state != "Undetermined") {
-        $tab["pourcentkTime"] = round($time / ($timeTOTAL - $time_none + 1) * 100, 2) . "%";
-    } else {
-        $tab["pourcentkTime"] = null;
-    }
+    $tab["pourcentkTime"] = $state != "Undetermined" ? round($time / ($timeTOTAL - $time_none + 1) * 100, 2) . "%" : null;
     $tab["nbAlert"] = $nb_alert;
     $tab["style"] = "class='ListColCenter' style='background:" . $color . "'";
     return $tab;

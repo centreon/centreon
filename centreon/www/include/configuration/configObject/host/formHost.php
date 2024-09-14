@@ -1038,11 +1038,7 @@ if ($o !== HOST_MASSIVE_CHANGE) {
         );
     }
 } elseif ($o === HOST_MASSIVE_CHANGE) {
-    if ($form->getSubmitValue('submitMC')) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
 }
 
 $form->setRequiredNote("<i style='color: red;'>*</i>&nbsp;" . _('Required fields'));

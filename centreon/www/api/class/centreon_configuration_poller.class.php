@@ -71,11 +71,7 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
         }
 
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $queryPoller = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT ns.id, ns.name FROM nagios_server ns ';
 

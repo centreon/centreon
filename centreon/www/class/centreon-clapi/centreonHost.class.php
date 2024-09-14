@@ -444,11 +444,7 @@ class CentreonHost extends CentreonObject
      */
     public function setParam($parameters = []): void
     {
-        if (method_exists($this, "initUpdateParameters")) {
-            $params = $this->initUpdateParameters($parameters);
-        } else {
-            $params = $parameters;
-        }
+        $params = method_exists($this, "initUpdateParameters") ? $this->initUpdateParameters($parameters) : $parameters;
         if (!empty($params)) {
             $hostId = $params['objectId'];
 
@@ -628,11 +624,7 @@ class CentreonHost extends CentreonObject
             $exportedFields = [];
             $resultString = "";
             foreach ($listParam as $paramSearch) {
-                if (!isset($paramString) || !$paramString) {
-                    $paramString = $paramSearch;
-                } else {
-                    $paramString = $paramString . $this->delim . $paramSearch;
-                }
+                $paramString = !isset($paramString) || !$paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
                 $field = $paramSearch;
                 if (!in_array($field, $authorizeParam)) {
                     $unknownParam[] = $field;
@@ -1018,11 +1010,7 @@ class CentreonHost extends CentreonObject
             null,
             array("host_host_id" => $hostId)
         );
-        if (empty($maxOrder)) {
-            $macroOrder = 0;
-        } else {
-            $macroOrder = $maxOrder[0]["max(macro_order)"] + 1;
-        }
+        $macroOrder = empty($maxOrder) ? 0 : $maxOrder[0]["max(macro_order)"] + 1;
 
         // disable the check if the macro added is already in host template with same value
         //if($this->hasMacroFromHostChanged($hostId,$params[1],$params[2],$cmdId = false)){
@@ -1133,11 +1121,7 @@ class CentreonHost extends CentreonObject
             $svcExtended = new Centreon_Object_Service_Extended($this->dependencyInjector);
         }
 
-        if (!isset($hostTemplateId)) {
-            $id = $hostId;
-        } else {
-            $id = $hostTemplateId;
-        }
+        $id = !isset($hostTemplateId) ? $hostId : $hostTemplateId;
         $templates = $tmplRel->gethost_tpl_idFromhost_host_id($id);
         foreach ($templates as $templateId) {
             $serviceTemplates = $hostSvcRel->getservice_service_idFromhost_host_id($templateId);
@@ -1730,11 +1714,7 @@ class CentreonHost extends CentreonObject
                 $alreadyProcessed[] = $hostId;
 
                 if (empty($fields)) {
-                    if (!$allFields) {
-                        $fields = "h.host_id, h.host_name";
-                    } else {
-                        $fields = " * ";
-                    }
+                    $fields = !$allFields ? "h.host_id, h.host_name" : " * ";
                 }
 
                 $sql = "SELECT " . $fields . " "
@@ -1913,11 +1893,7 @@ class CentreonHost extends CentreonObject
         foreach ($storedMacros as $key => $macros) {
             $choosedMacro = array();
             foreach ($macros as $macro) {
-                if (empty($choosedMacro)) {
-                    $choosedMacro = $macro;
-                } else {
-                    $choosedMacro = $this->comparaPriority($macro, $choosedMacro);
-                }
+                $choosedMacro = empty($choosedMacro) ? $macro : $this->comparaPriority($macro, $choosedMacro);
             }
             if (!empty($choosedMacro)) {
                 $finalMacros[] = $choosedMacro;
@@ -1993,11 +1969,7 @@ class CentreonHost extends CentreonObject
             $choosedMacro = array();
             foreach ($storedMacros as $storedMacro) {
                 if (!empty($storedMacro['description'])) {
-                    if (empty($choosedMacro)) {
-                        $choosedMacro = $storedMacro;
-                    } else {
-                        $choosedMacro = $this->comparaPriority($storedMacro, $choosedMacro);
-                    }
+                    $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro);
 
                     $description = $choosedMacro['description'];
                 }

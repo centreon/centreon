@@ -178,11 +178,7 @@ function updateTimeperiod($tp_id, $params = array())
         return;
     }
     $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($params) ? $params : $form->getSubmitValues();
 
     $ret["tp_name"] = $centreon->checkIllegalChar($ret["tp_name"]);
 

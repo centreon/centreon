@@ -263,24 +263,12 @@ function testServiceExistence($name = null, $hPars = array(), $hgPars = array(),
     $hgPars = (is_array($hgPars) || $hgPars instanceof Countable) ? $hgPars : [];
 
     if (isset($form) && !count($hPars) && !count($hgPars)) {
-        if (count($params)) {
-            $arr = $params;
-        } else {
-            $arr = $form->getSubmitValues();
-        }
+        $arr = count($params) ? $params : $form->getSubmitValues();
         if (isset($arr["service_id"])) {
             $id = $arr["service_id"];
         }
-        if (isset($arr["service_hPars"])) {
-            $hPars = $arr["service_hPars"];
-        } else {
-            $hPars = array();
-        }
-        if (isset($arr["service_hgPars"])) {
-            $hgPars = $arr["service_hgPars"];
-        } else {
-            $hgPars = array();
-        }
+        $hPars = isset($arr["service_hPars"]) ? $arr["service_hPars"] : array();
+        $hgPars = isset($arr["service_hgPars"]) ? $arr["service_hgPars"] : array();
     }
 
     $escapeName = CentreonDB::escape($centreon->checkIllegalChar($name));
@@ -796,16 +784,8 @@ function multipleServiceInDB(
                                  VALUES (:host_host_id,:hostgroup_hg_id,:service_service_id,:servicegroup_sg_id)";
                         $statement = $pearDB->prepare($query);
                         while ($Sg = $dbResult->fetch()) {
-                            if (isset($host) && $host) {
-                                $host_id = $host;
-                            } else {
-                                $host_id = $Sg["host_host_id"] ?? null;
-                            }
-                            if (isset($hostgroup) && $hostgroup) {
-                                $hg_id = $hostgroup;
-                            } else {
-                                $hg_id = $Sg["hostgroup_hg_id"] ?? null;
-                            }
+                            $host_id = isset($host) && $host ? $host : $Sg["host_host_id"] ?? null;
+                            $hg_id = isset($hostgroup) && $hostgroup ? $hostgroup : $Sg["hostgroup_hg_id"] ?? null;
                             $statement->bindValue(
                                 ':host_host_id',
                                 $host_id,
@@ -1001,11 +981,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     $service = new CentreonService($pearDB);
 
     $ret = array();
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
 
 
     $kernel = Kernel::createForWeb();
@@ -1161,11 +1137,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $service = new CentreonService($pearDB);
 
     $ret = array();
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
 
     $kernel = Kernel::createForWeb();
     /** @var UUIDGeneratorInterface $uuidGenerator */
@@ -1494,11 +1466,7 @@ function updateServiceInDBForCloud($serviceId = null, $massiveChange = false, $p
         return;
     }
 
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
 
     $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
 
@@ -1548,11 +1516,7 @@ function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $
         return;
     }
 
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
 
     $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
 
@@ -2259,11 +2223,7 @@ function updateService($service_id = null, $from_MC = false, $params = array())
     $service = new CentreonService($pearDB);
 
     $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($params) ? $params : $form->getSubmitValues();
 
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
@@ -2520,11 +2480,7 @@ function updateService_MC($service_id = null, $params = array())
     $service = new CentreonService($pearDB);
 
     $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($params) ? $params : $form->getSubmitValues();
 
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
@@ -2768,11 +2724,7 @@ function updateServiceContact($service_id = null, $ret = array())
     $rq = "DELETE FROM contact_service_relation ";
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["service_cs"])) {
-        $ret = $ret["service_cs"];
-    } else {
-        $ret = $form->getSubmitValue("service_cs");
-    }
+    $ret = isset($ret["service_cs"]) ? $ret["service_cs"] : $form->getSubmitValue("service_cs");
 
     $loopCount = (is_array($ret) || $ret instanceof Countable) ? count($ret) : 0;
 
@@ -2796,11 +2748,7 @@ function updateServiceContactGroup($service_id = null, $ret = array())
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    if (isset($ret["service_cgs"])) {
-        $ret = $ret["service_cgs"];
-    } else {
-        $ret = $form->getSubmitValue("service_cgs");
-    }
+    $ret = isset($ret["service_cgs"]) ? $ret["service_cgs"] : $form->getSubmitValue("service_cgs");
 
     $cg = new CentreonContactgroup($pearDB);
 
@@ -2835,11 +2783,7 @@ function updateServiceNotifs($service_id = null, $ret = array())
     global $form;
     global $pearDB;
 
-    if (isset($ret["service_notifOpts"])) {
-        $ret = $ret["service_notifOpts"];
-    } else {
-        $ret = $form->getSubmitValue("service_notifOpts");
-    }
+    $ret = isset($ret["service_notifOpts"]) ? $ret["service_notifOpts"] : $form->getSubmitValue("service_notifOpts");
 
     $rq = "UPDATE service SET ";
     $rq .= "service_notification_options = ";
@@ -2930,11 +2874,7 @@ function updateServiceNotifOptionTimeperiod($service_id = null, $ret = array())
         return;
     }
 
-    if (isset($ret["timeperiod_tp_id2"])) {
-        $ret = $ret["timeperiod_tp_id2"];
-    } else {
-        $ret = $form->getSubmitValue("timeperiod_tp_id2");
-    }
+    $ret = isset($ret["timeperiod_tp_id2"]) ? $ret["timeperiod_tp_id2"] : $form->getSubmitValue("timeperiod_tp_id2");
 
     $rq = "UPDATE service SET ";
     $rq .= "timeperiod_tp_id2 = ";
@@ -3087,11 +3027,7 @@ function updateServiceServiceGroup($service_id = null, $ret = array())
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $pearDB->query($rq);
 
-    if (isset($ret["service_sgs"])) {
-        $ret = $ret["service_sgs"];
-    } else {
-        $ret = CentreonUtils::mergeWithInitialValues($form, 'service_sgs');
-    }
+    $ret = isset($ret["service_sgs"]) ? $ret["service_sgs"] : CentreonUtils::mergeWithInitialValues($form, 'service_sgs');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
         /* We need to record each relation for host / hostgroup selected */
@@ -3187,11 +3123,7 @@ function updateServiceTrap($service_id = null, $ret = array())
     $rq = "DELETE FROM traps_service_relation ";
     $rq .= "WHERE service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["service_traps"])) {
-        $ret = $ret["service_traps"];
-    } else {
-        $ret = $form->getSubmitValue("service_traps");
-    }
+    $ret = isset($ret["service_traps"]) ? $ret["service_traps"] : $form->getSubmitValue("service_traps");
 
     if (is_array($ret)) {
         $counter = count($ret);
@@ -3529,11 +3461,7 @@ function updateServiceExtInfos_MC($serviceId = null, $parameters = [])
         return;
     }
 
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
     $rq = "UPDATE extended_service_information SET ";
     if (isset($ret["esi_notes"]) && $ret["esi_notes"] != null) {
         $rq .= "esi_notes = '" . CentreonDB::escape($ret["esi_notes"]) . "', ";
@@ -3589,11 +3517,7 @@ function updateServiceCategories_MC($service_id = null, $ret = array())
         return;
     }
 
-    if (isset($ret["service_categories"])) {
-        $ret = $ret["service_categories"];
-    } else {
-        $ret = $form->getSubmitValue("service_categories");
-    }
+    $ret = isset($ret["service_categories"]) ? $ret["service_categories"] : $form->getSubmitValue("service_categories");
     if (is_array($ret)) {
         $counter = count($ret);
         for ($i = 0; $i < $counter; $i++) {

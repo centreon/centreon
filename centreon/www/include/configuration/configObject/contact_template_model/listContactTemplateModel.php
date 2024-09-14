@@ -161,11 +161,7 @@ foreach ($contacts as $contact) {
 
     $contact_type = 0;
     if (isset($contact['contact_register']) && $contact['contact_register']) {
-        if ($contact['contact_admin'] == 1) {
-            $contact_type = 1;
-        } else {
-            $contact_type = 2;
-        }
+        $contact_type = $contact['contact_admin'] == 1 ? 1 : 2;
     } else {
         $contact_type = 3;
     }

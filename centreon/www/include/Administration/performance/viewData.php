@@ -295,11 +295,7 @@ for ($i = 0; $indexData = $stmt->fetch(\PDO::FETCH_ASSOC); $i++) {
     $indexData["trashed"] = $yesOrNo[$indexData["trashed"]];
     $indexData["hidden"] = $yesOrNo[$indexData["hidden"]];
 
-    if (isset($indexData["locked"])) {
-        $indexData["locked"] = $yesOrNo[$indexData["locked"]];
-    } else {
-        $indexData["locked"] = $yesOrNo[0];
-    }
+    $indexData["locked"] = isset($indexData["locked"]) ? $yesOrNo[$indexData["locked"]] : $yesOrNo[0];
 
     $indexData["class"] = $tab_class[$i % 2];
     $data[$i] = $indexData;

@@ -67,11 +67,7 @@ class CentreonConfigurationMeta extends CentreonConfigurationObjects
         }
 
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $queryMeta = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT meta_id, meta_name, meta_activate FROM meta_service ' .
             'WHERE meta_name LIKE :name ' .

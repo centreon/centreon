@@ -55,11 +55,7 @@ class CentreonConfigurationGraphtemplate extends CentreonConfigurationObjects
     {
         $queryValues = array();
         // Check for select2 'q' argument
-        if (false === isset($this->arguments['q'])) {
-            $queryValues['name'] = '%%';
-        } else {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        }
+        $queryValues['name'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT graph_id, name ' .
             'FROM giv_graphs_template ' .

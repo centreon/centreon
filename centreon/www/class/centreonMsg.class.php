@@ -55,11 +55,7 @@ class CentreonMsg
      */
     public function __construct($divId = null)
     {
-        if (empty($divId)) {
-            $this->div = "centreonMsg";
-        } else {
-            $this->div = $divId;
-        }
+        $this->div = empty($divId) ? "centreonMsg" : $divId;
         $this->color = "#FFFFFF";
     }
 

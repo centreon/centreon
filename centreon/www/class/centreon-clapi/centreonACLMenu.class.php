@@ -125,11 +125,7 @@ class CentreonACLMenu extends CentreonObject
 
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
         if ($objectId != 0) {
-            if ($params[1] == "comment") {
-                $params[1] = "acl_comments";
-            } else {
-                $params[1] = "acl_topo_" . $params[1];
-            }
+            $params[1] = $params[1] == "comment" ? "acl_comments" : "acl_topo_" . $params[1];
             $updateParams = array($params[1] => $params[2]);
             $updateParams['objectId'] = $objectId;
             return $updateParams;

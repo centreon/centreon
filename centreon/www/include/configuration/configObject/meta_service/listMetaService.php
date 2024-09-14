@@ -107,11 +107,7 @@ if (!$acl->admin && $metaStr) {
     }
     $queryParams = implode(',', array_keys($metaStrParams));
 
-    if ($search !== '') {
-        $conditionStr = "AND meta_id IN (" . $queryParams . ")";
-    } else {
-        $conditionStr = "WHERE meta_id IN (" . $queryParams . ")";
-    }
+    $conditionStr = $search !== '' ? "AND meta_id IN (" . $queryParams . ")" : "WHERE meta_id IN (" . $queryParams . ")";
 }
 if ($search !== '') {
     $statement = $pearDB->prepare("SELECT * FROM meta_service " .

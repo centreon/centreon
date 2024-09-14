@@ -58,11 +58,7 @@ class CentreonConfigurationServiceSeverity extends CentreonConfigurationObjects
         $queryValues = array();
 
         // Check for select2 'q' argument
-        if (false !== isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = false !== isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $queryContact = "SELECT SQL_CALC_FOUND_ROWS DISTINCT sc_id, sc_name FROM service_categories
                         WHERE sc_name LIKE :name

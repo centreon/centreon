@@ -96,11 +96,7 @@ if (isset($_POST['Search'])) {
 }
 
 //convert status filter to enum
-if ($searchStatus == 5) {
-    $enumStatus = -1;
-} else {
-    $enumStatus = $searchStatus - 1;
-}
+$enumStatus = $searchStatus == 5 ? -1 : $searchStatus - 1;
 $queryValues = array();
 $rq = 'SELECT SQL_CALC_FOUND_ROWS * FROM traps WHERE 1 ';
 // List of elements - Depends on different criteria

@@ -66,11 +66,7 @@ if ($search) {
 
 $aclCond = "";
 if (!$oreon->user->admin && count($allowedResourceConf)) {
-    if (isset($search) && $search) {
-        $aclCond = " AND ";
-    } else {
-        $aclCond = " WHERE ";
-    }
+    $aclCond = isset($search) && $search ? " AND " : " WHERE ";
     $aclCond .= "resource_id IN (" . implode(',', array_keys($allowedResourceConf)) . ") ";
 }
 

@@ -267,11 +267,7 @@ class CentreonXMLBGRequest
         $statement->execute();
         $admin = $statement->fetchRow();
         $statement->closeCursor();
-        if ($admin !== false && $admin["contact_admin"]) {
-            $this->is_admin = 1;
-        } else {
-            $this->is_admin = 0;
-        }
+        $this->is_admin = $admin !== false && $admin["contact_admin"] ? 1 : 0;
     }
 
     /**
@@ -345,11 +341,7 @@ class CentreonXMLBGRequest
      */
     public function getNextLineClass()
     {
-        if ($this->classLine == "list_one") {
-            $this->classLine = "list_two";
-        } else {
-            $this->classLine = "list_one";
-        }
+        $this->classLine = $this->classLine == "list_one" ? "list_two" : "list_one";
         return $this->classLine;
     }
 

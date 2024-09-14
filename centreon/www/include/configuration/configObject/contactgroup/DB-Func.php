@@ -254,11 +254,7 @@ function updateContactGroup($cgId = null, $params = array())
         return;
     }
     $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($params) ? $params : $form->getSubmitValues();
 
     $cgName = $centreon->checkIllegalChar(
         \HtmlAnalyzer::sanitizeAndRemoveTags($ret["cg_name"])
@@ -293,11 +289,7 @@ function updateContactGroupContacts($cg_id, $ret = array())
     $rq = "DELETE FROM `contactgroup_contact_relation` WHERE `contactgroup_cg_id` = '" . (int)$cg_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    if (isset($ret["cg_contacts"])) {
-        $ret = $ret["cg_contacts"];
-    } else {
-        $ret = CentreonUtils::mergeWithInitialValues($form, 'cg_contacts');
-    }
+    $ret = isset($ret["cg_contacts"]) ? $ret["cg_contacts"] : CentreonUtils::mergeWithInitialValues($form, 'cg_contacts');
     $counter = count($ret);
 
     for ($i = 0; $i < $counter; $i++) {

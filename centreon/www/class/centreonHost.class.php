@@ -1457,11 +1457,7 @@ class CentreonHost
             } else {
                 $alreadyProcessed[] = $hostId;
                 if (empty($fields)) {
-                    if (!$allFields) {
-                        $fields = "h.host_id, h.host_name";
-                    } else {
-                        $fields = " * ";
-                    }
+                    $fields = !$allFields ? "h.host_id, h.host_name" : " * ";
                 }
 
                 $query = 'SELECT ' . $fields . ' ' .
@@ -1796,11 +1792,7 @@ class CentreonHost
         foreach ($storedMacros as $key => $macros) {
             $choosedMacro = array();
             foreach ($macros as $macro) {
-                if (empty($choosedMacro)) {
-                    $choosedMacro = $macro;
-                } else {
-                    $choosedMacro = $this->comparaPriority($macro, $choosedMacro);
-                }
+                $choosedMacro = empty($choosedMacro) ? $macro : $this->comparaPriority($macro, $choosedMacro);
             }
             if (!empty($choosedMacro)) {
                 $finalMacros[] = $choosedMacro;
@@ -1852,11 +1844,7 @@ class CentreonHost
             $choosedMacro = array();
             foreach ($storedMacros as $storedMacro) {
                 if (!empty($storedMacro['macroDescription'])) {
-                    if (empty($choosedMacro)) {
-                        $choosedMacro = $storedMacro;
-                    } else {
-                        $choosedMacro = $this->comparaPriority($storedMacro, $choosedMacro);
-                    }
+                    $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro);
                     $description = $choosedMacro['macroDescription'];
                 }
             }
@@ -2080,11 +2068,7 @@ class CentreonHost
     {
         global $centreon;
 
-        if (!isset($hostTemplateId)) {
-            $id = $hostId;
-        } else {
-            $id = $hostTemplateId;
-        }
+        $id = !isset($hostTemplateId) ? $hostId : $hostTemplateId;
         $templates = $this->getTemplateChain($id);
 
         foreach ($templates as $templateId) {

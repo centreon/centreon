@@ -169,11 +169,7 @@ class CentreonServiceGroup extends CentreonObject
             $exportedFields = [];
             $resultString = "";
             foreach ($listParam as $paramSearch) {
-                if (!$paramString) {
-                    $paramString = $paramSearch;
-                } else {
-                    $paramString = $paramString . $this->delim . $paramSearch;
-                }
+                $paramString = !$paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
                 $field = $paramSearch;
                 if (!in_array($field, $authorizeParam)) {
                     $unknownParam[] = $field;
@@ -481,11 +477,7 @@ class CentreonServiceGroup extends CentreonObject
      */
     public function setParam($parameters = []): void
     {
-        if (method_exists($this, "initUpdateParameters")) {
-            $params = $this->initUpdateParameters($parameters);
-        } else {
-            $params = $parameters;
-        }
+        $params = method_exists($this, "initUpdateParameters") ? $this->initUpdateParameters($parameters) : $parameters;
         if (!empty($params)) {
             $servicegroupId = $params['objectId'];
 

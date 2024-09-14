@@ -174,11 +174,7 @@ if ($o == IMAGE_MOVE) {
         array("onClick" => "javascript:window.location.href='?p=$p'")
     );
 } elseif ($o == IMAGE_MODIFY_DIRECTORY) {
-    if (isset($dir['dir_imgs'])) {
-        $confirm = implode(',', $dir['dir_imgs']);
-    } else {
-        $confirm = "";
-    }
+    $confirm = isset($dir['dir_imgs']) ? implode(',', $dir['dir_imgs']) : "";
     $subC = $form->addElement('submit', 'submitC', _("Save"),['class' => 'btc bt_success']);
     $res = $form->addElement(
         "button",

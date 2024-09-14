@@ -56,11 +56,7 @@ class CentreonConfigurationManufacturer extends CentreonConfigurationObjects
     {
         $queryValues = array();
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT id, name FROM traps_vendor ' .
             'WHERE name LIKE :name ' .

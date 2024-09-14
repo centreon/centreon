@@ -90,11 +90,7 @@ class CentreonService
     public function __construct($db, $dbMon = null)
     {
         $this->db = $db;
-        if (is_null($dbMon)) {
-            $this->dbMon = CentreonDBInstance::getDbCentreonStorageInstance();
-        } else {
-            $this->dbMon = $dbMon;
-        }
+        $this->dbMon = is_null($dbMon) ? CentreonDBInstance::getDbCentreonStorageInstance() : $dbMon;
 
         $this->instanceObj = CentreonInstance::getInstance($db, $dbMon);
     }
@@ -597,11 +593,7 @@ class CentreonService
 
                     $valPassword = null;
                     if (isset($row['is_password'])) {
-                        if ($row['is_password'] === 1) {
-                            $valPassword = '1';
-                        } else {
-                            $valPassword = null;
-                        }
+                        $valPassword = $row['is_password'] === 1 ? '1' : null;
                     }
                     $arr[$i]['macroPassword_#index#'] = $valPassword;
 
@@ -621,11 +613,7 @@ class CentreonService
 
                 $valPassword = null;
                 if (isset($_REQUEST['is_password'][$key])) {
-                    if ($_REQUEST['is_password'][$key] === '1') {
-                        $valPassword = '1';
-                    } else {
-                        $valPassword = null;
-                    }
+                    $valPassword = $_REQUEST['is_password'][$key] === '1' ? '1' : null;
                 }
                 $arr[$i]['macroPassword_#index#'] = $valPassword;
 
@@ -1314,11 +1302,7 @@ class CentreonService
         foreach ($storedMacros as $key => $macros) {
             $choosedMacro = array();
             foreach ($macros as $macro) {
-                if (empty($choosedMacro)) {
-                    $choosedMacro = $macro;
-                } else {
-                    $choosedMacro = $this->comparaPriority($macro, $choosedMacro, false);
-                }
+                $choosedMacro = empty($choosedMacro) ? $macro : $this->comparaPriority($macro, $choosedMacro, false);
             }
             if (!empty($choosedMacro)) {
                 $finalMacros[] = $choosedMacro;
@@ -1371,11 +1355,7 @@ class CentreonService
             $choosedMacro = array();
             foreach ($storedMacros as $storedMacro) {
                 if (!empty($storedMacro['macroDescription'])) {
-                    if (empty($choosedMacro)) {
-                        $choosedMacro = $storedMacro;
-                    } else {
-                        $choosedMacro = $this->comparaPriority($storedMacro, $choosedMacro, false);
-                    }
+                    $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro, false);
                     $description = $choosedMacro['macroDescription'];
                 }
             }
@@ -1992,11 +1972,7 @@ class CentreonService
         $result = $this->db->query($query);
 
         while ($row = $result->fetchRow()) {
-            if ($getHostName) {
-                $hosts[] = $row['host_name'];
-            } else {
-                $hosts[] = $row['host_id'];
-            }
+            $hosts[] = $getHostName ? $row['host_name'] : $row['host_id'];
         }
         $hosts = array_unique($hosts);
 

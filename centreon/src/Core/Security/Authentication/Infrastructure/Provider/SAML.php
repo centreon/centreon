@@ -443,11 +443,7 @@ class SAML implements ProviderAuthenticationInterface
         $this->info('SAML SLS invoked');
 
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        if (isset($_SESSION, $_SESSION['LogoutRequestID'])) {
-            $requestID = $_SESSION['LogoutRequestID'];
-        } else {
-            $requestID = null;
-        }
+        $requestID = isset($_SESSION, $_SESSION['LogoutRequestID']) ? $_SESSION['LogoutRequestID'] : null;
 
         $auth->processSLO(true, $requestID, false, null, true);
 

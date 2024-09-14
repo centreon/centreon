@@ -57,11 +57,7 @@ class CentreonConfigurationServicecategory extends CentreonConfigurationObjects
         $queryValues = array();
 
         // Check for select2 'q' argument
-        if (false !== isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = false !== isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         /*
 		 * Check for select2 't' argument

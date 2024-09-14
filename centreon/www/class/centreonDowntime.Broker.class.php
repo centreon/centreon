@@ -149,11 +149,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
     {
         $isApproaching = false;
 
-        if ($tomorrow) {
-            $currentDayOfWeek = $endDelay->format('w');
-        } else {
-            $currentDayOfWeek = $startDelay->format('w');
-        }
+        $currentDayOfWeek = $tomorrow ? $endDelay->format('w') : $startDelay->format('w');
 
         $daysOfWeek = explode(',', $daysOfWeek);
         foreach ($daysOfWeek as $dayOfWeek) {
@@ -180,11 +176,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
     {
         $isApproaching = false;
 
-        if ($tomorrow) {
-            $currentDayOfMonth = $endDelay->format('d');
-        } else {
-            $currentDayOfMonth = $startDelay->format('d');
-        }
+        $currentDayOfMonth = $tomorrow ? $endDelay->format('d') : $startDelay->format('d');
 
         if (preg_match('/^0(\d)$/', $currentDayOfMonth, $matches)) {
             $currentDayOfMonth = $matches[1];

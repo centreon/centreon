@@ -212,11 +212,7 @@ while ($ndo = $dbResult->fetch()) {
     $tabFinal[$ndo["name"]]["nb_service_p"] = 0 + $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 4, $obj);
     $tabFinal[$ndo["name"]]["cs"] = $ndo["state"];
 
-    if (isset($ndo["icon_image"]) && $ndo["icon_image"] != "") {
-        $tabIcone[$ndo["name"]] = $ndo["icon_image"];
-    } else {
-        $tabIcone[$ndo["name"]] = "none";
-    }
+    $tabIcone[$ndo["name"]] = isset($ndo["icon_image"]) && $ndo["icon_image"] != "" ? $ndo["icon_image"] : "none";
 }
 
 foreach ($tabFinal as $host_name => $tab) {

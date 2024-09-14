@@ -520,11 +520,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
             $value = $this->_findValue($caller->_constantValues);
 
             if (null === $value) {
-                if (is_null($this->_defaultDataset)) {
-                    $value = $this->_findValue($caller->_submitValues);
-                } else {
-                    $value = $this->_defaultDataset;
-                }
+                $value = is_null($this->_defaultDataset) ? $this->_findValue($caller->_submitValues) : $this->_defaultDataset;
 
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?

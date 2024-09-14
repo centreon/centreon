@@ -45,11 +45,7 @@ if (!$centreon->user->admin && $centreon->user->access->checkAction('generate_tr
 /*
  * Init Centcore Pipe
  */
-if (defined('_CENTREON_VARLIB_')) {
-    $centcore_pipe = _CENTREON_VARLIB_ . "/centcore.cmd";
-} else {
-    $centcore_pipe = "/var/lib/centreon/centcore.cmd";
-}
+$centcore_pipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . "/centcore.cmd" : "/var/lib/centreon/centcore.cmd";
 
 /*
  *  Get Poller List

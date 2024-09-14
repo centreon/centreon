@@ -852,11 +852,7 @@ function updateHostInDB($hostId = null, $isMassiveChange = false, $configuration
         return;
     }
 
-    if (! isset($configuration)) {
-        $ret = $form->getSubmitValues();
-    } else {
-        $ret = $configuration;
-    }
+    $ret = ! isset($configuration) ? $form->getSubmitValues() : $configuration;
 
     $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
 
@@ -1319,11 +1315,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
 
     $ret = [];
 
-    if (! isset($configuration)) {
-        $ret = $form->getSubmitValues();
-    } else {
-        $ret = $configuration;
-    }
+    $ret = ! isset($configuration) ? $form->getSubmitValues() : $configuration;
 
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
@@ -2063,11 +2055,7 @@ function updateHostNotifs($host_id = null, $ret = array())
         return;
     }
 
-    if (isset($ret["host_notifOpts"])) {
-        $ret = $ret["host_notifOpts"];
-    } else {
-        $ret = $form->getSubmitValue("host_notifOpts");
-    }
+    $ret = isset($ret["host_notifOpts"]) ? $ret["host_notifOpts"] : $form->getSubmitValue("host_notifOpts");
 
     $rq = "UPDATE host SET ";
     $rq .= "host_notification_options  = ";
@@ -2156,11 +2144,7 @@ function updateHostNotifOptionTimeperiod($host_id = null, $ret = array())
     global $form;
     global $pearDB;
 
-    if (isset($ret["timeperiod_tp_id2"])) {
-        $ret = $ret["timeperiod_tp_id2"];
-    } else {
-        $ret = $form->getSubmitValue("timeperiod_tp_id2");
-    }
+    $ret = isset($ret["timeperiod_tp_id2"]) ? $ret["timeperiod_tp_id2"] : $form->getSubmitValue("timeperiod_tp_id2");
 
     $rq = "UPDATE host SET ";
     $rq .= "timeperiod_tp_id2 = ";

@@ -123,11 +123,7 @@ for ($i = 0; $compo = $stmt->fetch(); $i++) {
     $query = "SELECT h.host_name FROM giv_components_template AS gct, host AS h WHERE gct.host_id = '" .
         $compo["host_id"] . "' AND gct.host_id = h.host_id";
     $titles = $pearDB->query($query);
-    if ($titles->rowCount()) {
-        $title = $titles->fetchRow();
-    } else {
-        $title = array("host_name" => "Global");
-    }
+    $title = $titles->rowCount() ? $titles->fetchRow() : array("host_name" => "Global");
     $titles->closeCursor();
     $elemArr[$i] = array(
         "MenuClass" => "list_" . $style,

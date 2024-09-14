@@ -367,11 +367,7 @@ function updateServiceDependencyServiceParents($dep_id = null, $ret = array())
     $rq = "DELETE FROM dependency_serviceParent_relation ";
     $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["dep_hSvPar"])) {
-        $ret1 = $ret["dep_hSvPar"];
-    } else {
-        $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hSvPar");
-    }
+    $ret1 = isset($ret["dep_hSvPar"]) ? $ret["dep_hSvPar"] : CentreonUtils::mergeWithInitialValues($form, "dep_hSvPar");
     $counter = count($ret1);
     for ($i = 0; $i < $counter; $i++) {
         $exp = explode("-", $ret1[$i]);
@@ -398,11 +394,7 @@ function updateServiceDependencyServiceChilds($dep_id = null, $ret = array())
     $rq = "DELETE FROM dependency_serviceChild_relation ";
     $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["dep_hSvChi"])) {
-        $ret1 = $ret["dep_hSvChi"];
-    } else {
-        $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hSvChi");
-    }
+    $ret1 = isset($ret["dep_hSvChi"]) ? $ret["dep_hSvChi"] : CentreonUtils::mergeWithInitialValues($form, "dep_hSvChi");
     $counter = count($ret1);
     for ($i = 0; $i < $counter; $i++) {
         $exp = explode("-", $ret1[$i]);

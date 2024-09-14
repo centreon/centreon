@@ -334,16 +334,8 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
     protected function setHostFilters(): void
     {
         // Pagination Elements
-        if (isset($this->arguments['limit'])) {
-            $this->limit = $this->arguments['limit'];
-        } else {
-            $this->limit = 30;
-        }
-        if (isset($this->arguments['number'])) {
-            $this->number = $this->arguments['number'];
-        } else {
-            $this->number = 0;
-        }
+        $this->limit = isset($this->arguments['limit']) ? $this->arguments['limit'] : 30;
+        $this->number = isset($this->arguments['number']) ? $this->arguments['number'] : 0;
         if (! is_numeric($this->number) || ! is_numeric($this->limit)) {
             throw new \RestBadRequestException('Error, limit must be numerical');
         }
@@ -359,33 +351,13 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         } else {
             $this->status = null;
         }
-        if (isset($this->arguments['hostgroup'])) {
-            $this->hostgroup = $this->arguments['hostgroup'];
-        } else {
-            $this->hostgroup = null;
-        }
-        if (isset($this->arguments['search'])) {
-            $this->search = $this->arguments['search'];
-        } else {
-            $this->search = null;
-        }
-        if (isset($this->arguments['instance'])) {
-            $this->instance = $this->arguments['instance'];
-        } else {
-            $this->instance = null;
-        }
-        if (isset($this->arguments['criticality'])) {
-            $this->criticality = $this->arguments['criticality'];
-        } else {
-            $this->criticality = null;
-        }
+        $this->hostgroup = isset($this->arguments['hostgroup']) ? $this->arguments['hostgroup'] : null;
+        $this->search = isset($this->arguments['search']) ? $this->arguments['search'] : null;
+        $this->instance = isset($this->arguments['instance']) ? $this->arguments['instance'] : null;
+        $this->criticality = isset($this->arguments['criticality']) ? $this->arguments['criticality'] : null;
 
         // view properties
-        if (isset($this->arguments['viewType'])) {
-            $this->viewType = $this->arguments['viewType'];
-        } else {
-            $this->viewType = null;
-        }
+        $this->viewType = isset($this->arguments['viewType']) ? $this->arguments['viewType'] : null;
         if (isset($this->arguments['order'])) {
             if (
                 mb_strtolower($this->arguments['order']) === 'asc'
@@ -398,11 +370,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         } else {
             $this->order = null;
         }
-        if (isset($this->arguments['sortType'])) {
-            $this->sortType = $this->arguments['sortType'];
-        } else {
-            $this->sortType = null;
-        }
+        $this->sortType = isset($this->arguments['sortType']) ? $this->arguments['sortType'] : null;
     }
 
     /**

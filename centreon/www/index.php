@@ -174,11 +174,7 @@ function updateCentreonBaseUri(): void
     // Regular expression pattern to match the string between slashes
     $pattern = "/\/([^\/]+)\//";
     preg_match($pattern, $requestUri, $matches);
-    if (isset($matches[0]) && $matches[0] !== '') {
-        $basePath = str_replace('//', '/', $matches[0]);
-    } else {
-        $basePath = '/centreon/';
-    }
+    $basePath = isset($matches[0]) && $matches[0] !== '' ? str_replace('//', '/', $matches[0]) : '/centreon/';
     $indexHtmlPath = './index.html';
     $indexHtmlContent = file_get_contents($indexHtmlPath);
 

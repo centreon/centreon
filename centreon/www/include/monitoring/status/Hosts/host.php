@@ -140,16 +140,8 @@ if (!empty($centreon->optGen["global_sort_order"])) {
 
 
 if ($o == "hpb" || $o == "h_unhandled" || empty($o)) {
-    if (!isset($filters["sort_type"])) {
-        $sort_type = $centreon->optGen["problem_sort_type"];
-    } else {
-        $sort_type = $filters["sort_type"];
-    }
-    if (!isset($filters["order"])) {
-        $order = $centreon->optGen["problem_sort_order"];
-    } else {
-        $order = $filters["order"];
-    }
+    $sort_type = !isset($filters["sort_type"]) ? $centreon->optGen["problem_sort_type"] : $filters["sort_type"];
+    $order = !isset($filters["order"]) ? $centreon->optGen["problem_sort_order"] : $filters["order"];
 } else {
     if (!isset($filters["sort_type"])) {
         if (isset($centreon->optGen["global_sort_type"]) && $centreon->optGen["global_sort_type"] != "host_name") {
@@ -244,11 +236,7 @@ $tpl->assign("mon_last_check", _("Last Check"));
 $tpl->assign("mon_duration", _("Duration"));
 $tpl->assign("mon_status_information", _("Status information"));
 
-if (!isset($_GET['o'])) {
-    $sSetOrderInMemory = "1";
-} else {
-    $sSetOrderInMemory = "0";
-}
+$sSetOrderInMemory = !isset($_GET['o']) ? "1" : "0";
 
 $sDefaultOrder = "0";
 

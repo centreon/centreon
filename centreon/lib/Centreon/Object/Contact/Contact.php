@@ -153,11 +153,7 @@ class Centreon_Object_Contact extends \Centreon_Object
             );
             $statement->bindValue(':contactId', $contact['contact_id'], \PDO::PARAM_INT);
             $statement->execute();
-            if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                $contact['contact_passwd'] = $result['password'];
-            } else {
-                $contact['contact_passwd'] = null;
-            }
+            $contact['contact_passwd'] = ($result = $statement->fetch(\PDO::FETCH_ASSOC)) ? $result['password'] : null;
         }
 
         return $contacts;

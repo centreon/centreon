@@ -90,11 +90,7 @@ class Command extends AbstractObject
                 WHERE options.key = 'mailer_path_bin'
             ");
         $stmt->execute();
-        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $this->mail_bin = $row['value'];
-        } else {
-            $this->mail_bin = '';
-        }
+        $this->mail_bin = ($row = $stmt->fetch(PDO::FETCH_ASSOC)) ? $row['value'] : '';
     }
 
     /**

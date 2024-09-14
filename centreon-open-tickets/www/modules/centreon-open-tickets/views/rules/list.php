@@ -67,11 +67,7 @@ while ($row = $res->fetch()) {
             _("Enabled")."'></a>";
     }
     $elemArr[$row['rule_id']]['dup'] = $moptions . "&nbsp;" . $dupElements->toHtml();
-    if ($tdStyle == "list_one") {
-        $tdStyle = "list_two";
-    } else {
-        $tdStyle = "list_one";
-    }
+    $tdStyle = $tdStyle == "list_one" ? "list_two" : "list_one";
     if ($ruleStr) {
         $ruleStr .= ",";
     }

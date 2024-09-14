@@ -756,11 +756,7 @@ class CentreonDowntime
      */
     public function duplicate($ids, $nb): void
     {
-        if (false === is_array($ids)) {
-            $ids = array($ids);
-        } else {
-            $ids = array_keys($ids);
-        }
+        $ids = false === is_array($ids) ? array($ids) : array_keys($ids);
         foreach ($ids as $id) {
             if (isset($nb[$id])) {
                 $query = "SELECT dt_id, dt_name, dt_description, dt_activate FROM downtime WHERE dt_id = :id";

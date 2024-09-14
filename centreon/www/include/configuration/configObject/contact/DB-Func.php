@@ -1517,11 +1517,7 @@ function sanitizeFormContactParameters(array $ret): array
             case 'contact_lang':
                 if (!empty($inputValue)) {
                     $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
-                    if (empty($inputValue)) {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR => 'browser'];
-                    } else {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR => $inputValue];
-                    }
+                    $bindParams[':' . $inputName] = empty($inputValue) ? [\PDO::PARAM_STR => 'browser'] : [\PDO::PARAM_STR => $inputValue];
                 }
                 break;
             case 'default_page':
@@ -1534,11 +1530,7 @@ function sanitizeFormContactParameters(array $ret): array
             case 'contact_auth_type':
                 if (!empty($inputValue)) {
                     $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
-                    if (empty($inputValue)) {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR => 'local'];
-                    } else {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR => $inputValue];
-                    }
+                    $bindParams[':' . $inputName] = empty($inputValue) ? [\PDO::PARAM_STR => 'local'] : [\PDO::PARAM_STR => $inputValue];
                 }
                 break;
             case 'contact_alias':

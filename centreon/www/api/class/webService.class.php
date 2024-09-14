@@ -80,11 +80,7 @@ class CentreonWebService
      */
     protected function loadDb()
     {
-        if (isset($this->pearDB)) {
-            $this->pearDB = $this->pearDB;
-        } else {
-            $this->pearDB = new CentreonDB();
-        }
+        $this->pearDB = isset($this->pearDB) ? $this->pearDB : new CentreonDB();
     }
 
     /**

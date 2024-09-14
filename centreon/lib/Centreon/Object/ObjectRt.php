@@ -93,11 +93,7 @@ abstract class Centreon_ObjectRt
      */
     public function getParameters($objectId, $parameterNames)
     {
-        if (is_array($parameterNames)) {
-            $params = implode(",", $parameterNames);
-        } else {
-            $params = $parameterNames;
-        }
+        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table WHERE $this->primaryKey = ?";
         return $this->getResult($sql, array($objectId), "fetch");
     }
@@ -129,11 +125,7 @@ abstract class Centreon_ObjectRt
         if ($filterType != "OR" && $filterType != "AND") {
             throw new Exception('Unknown filter type');
         }
-        if (is_array($parameterNames)) {
-            $params = implode(",", $parameterNames);
-        } else {
-            $params = $parameterNames;
-        }
+        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table ";
         $filterTab = array();
         if (count($filters)) {

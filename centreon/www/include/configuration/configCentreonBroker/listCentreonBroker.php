@@ -87,11 +87,7 @@ if (isset($_POST['searchCB']) || isset($_GET['searchCB'])) {
 
 $aclCond = "";
 if (!$centreon->user->admin && count($allowedBrokerConf)) {
-    if ($search !== '') {
-        $aclCond = " AND ";
-    } else {
-        $aclCond = " WHERE ";
-    }
+    $aclCond = $search !== '' ? " AND " : " WHERE ";
     $aclCond .= "config_id IN (" . implode(',', array_keys($allowedBrokerConf)) . ") ";
 }
 

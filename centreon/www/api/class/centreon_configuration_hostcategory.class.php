@@ -91,11 +91,7 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
         }
 
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['hcName'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['hcName'] = '%%';
-        }
+        $queryValues['hcName'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $queryHostCategory = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT hc.hc_name, hc.hc_id ' .
             'FROM hostcategories hc ' .

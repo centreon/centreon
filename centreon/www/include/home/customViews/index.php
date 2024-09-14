@@ -94,11 +94,7 @@ try {
     foreach ($views as $key => $val) {
         $indexTab[$key] = $i;
         $i++;
-        if (!$viewObj->checkPermission($key)) {
-            $views[$key]['icon'] = "locked";
-        } else {
-            $views[$key]['icon'] = "unlocked";
-        }
+        $views[$key]['icon'] = !$viewObj->checkPermission($key) ? "locked" : "unlocked";
         $views[$key]['default'] = "";
         if ($viewObj->getDefaultViewId() == $key) {
             $views[$key]['default'] = sprintf(" (%s)", _('default'));

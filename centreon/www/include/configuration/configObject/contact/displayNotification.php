@@ -81,11 +81,7 @@ $tpl->assign("headerMenu_service_esc", _("Escalated Services"));
 $style = "one";
 
 $groups = "''";
-if (isset($_POST["contact"])) {
-    $contactId = (int)htmlentities($_POST["contact"], ENT_QUOTES, "UTF-8");
-} else {
-    $contactId = 0;
-}
+$contactId = isset($_POST["contact"]) ? (int)htmlentities($_POST["contact"], ENT_QUOTES, "UTF-8") : 0;
 
 $formData = array('contact' => $contactId);
 

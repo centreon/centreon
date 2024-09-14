@@ -75,11 +75,7 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         $query = '';
 
         // Check for select2 'q' argument
-        if (false === isset($this->arguments['q'])) {
-            $queryValues["hostName"] = '%%';
-        } else {
-            $queryValues["hostName"] = '%' . (string)$this->arguments['q'] . '%';
-        }
+        $queryValues["hostName"] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
         $query .= 'SELECT SQL_CALC_FOUND_ROWS DISTINCT host_name, host_id, host_activate ' .
             'FROM ( ' .
             '( SELECT DISTINCT h.host_name, h.host_id, h.host_activate ' .

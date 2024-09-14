@@ -88,11 +88,7 @@ class CentreonCustomView
      */
     public function __construct($centreon, $db, $userId = null)
     {
-        if (is_null($userId)) {
-            $this->userId = $centreon->user->user_id;
-        } else {
-            $this->userId = $userId;
-        }
+        $this->userId = is_null($userId) ? $centreon->user->user_id : $userId;
         $this->db = $db;
         $this->userGroups = array();
         $query = 'SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = :userId';

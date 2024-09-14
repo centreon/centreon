@@ -400,11 +400,7 @@ function updateHostDependencyServiceChildren($dep_id = null, $ret = array())
     $rq = "DELETE FROM dependency_serviceChild_relation ";
     $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["dep_hSvChi"])) {
-        $ret = $ret["dep_hSvChi"];
-    } else {
-        $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
-    }
+    $ret = isset($ret["dep_hSvChi"]) ? $ret["dep_hSvChi"] : CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
         $exp = explode("-", $ret[$i]);

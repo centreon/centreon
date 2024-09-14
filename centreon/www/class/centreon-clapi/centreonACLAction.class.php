@@ -424,11 +424,7 @@ class CentreonACLAction extends CentreonObject
      */
     public function setparam($parameters = array()): void
     {
-        if (method_exists($this, "initUpdateParameters")) {
-            $params = $this->initUpdateParameters($parameters);
-        } else {
-            $params = $parameters;
-        }
+        $params = method_exists($this, "initUpdateParameters") ? $this->initUpdateParameters($parameters) : $parameters;
 
         if (!empty($params)) {
             $uniqueLabel = $this->object->getUniqueLabelField();

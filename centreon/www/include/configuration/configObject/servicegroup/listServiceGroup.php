@@ -63,11 +63,7 @@ if (!$acl->admin && $sgString) {
     }
     $queryParams = implode(',', array_keys($sgStrParams));
 
-    if ($search !== '') {
-        $conditionStr = "AND sg_id IN (" . $queryParams . ")";
-    } else {
-        $conditionStr = "WHERE sg_id IN (" . $queryParams . ")";
-    }
+    $conditionStr = $search !== '' ? "AND sg_id IN (" . $queryParams . ")" : "WHERE sg_id IN (" . $queryParams . ")";
 }
 
 if ($search !== '') {

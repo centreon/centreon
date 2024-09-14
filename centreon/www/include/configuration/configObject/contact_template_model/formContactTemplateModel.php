@@ -128,11 +128,7 @@ $DBRESULT->closeCursor();
 /**
  * Contacts Templates
  */
-if (isset($contact_id)) {
-    $strRestrinction = " AND contact_id != '" . $contact_id . "'";
-} else {
-    $strRestrinction = "";
-}
+$strRestrinction = isset($contact_id) ? " AND contact_id != '" . $contact_id . "'" : "";
 
 $contactTpl = array(null => "");
 $query = "SELECT contact_id, contact_name FROM contact " .
@@ -616,11 +612,7 @@ if ($o != "mc") {
         'existAlias'
     );
 } elseif ($o == "mc") {
-    if ($form->getSubmitValue("submitMC")) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue("submitMC") ? false : true;
 }
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 

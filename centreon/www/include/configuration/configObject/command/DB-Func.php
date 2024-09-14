@@ -176,11 +176,7 @@ function updateCommand($cmd_id = null, $params = array())
     }
 
     $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($params) ? $params : $form->getSubmitValues();
 
     $ret["command_name"] = $centreon->checkIllegalChar($ret["command_name"]);
     if (!isset($ret['enable_shell'])) {

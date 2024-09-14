@@ -599,11 +599,7 @@ class CentreonConfigPoller
                     'pollers' => []
                 ];
 
-                if (!empty($linkedResults)) {
-                    $exportParams['pollers'] = array_column($linkedResults, 'id');
-                } else {
-                    $exportParams['pollers'] = [$remote['id']];
-                }
+                $exportParams['pollers'] = !empty($linkedResults) ? array_column($linkedResults, 'id') : [$remote['id']];
 
                 $this->dependencyInjector[ServiceProvider::CENTREON_TASKSERVICE]->addTask(
                     Task::TYPE_EXPORT,

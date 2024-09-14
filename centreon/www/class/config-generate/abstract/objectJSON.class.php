@@ -91,11 +91,7 @@ abstract class AbstractObjectJSON
 
     protected function generateFile($object, $brokerType = true): void
     {
-        if ($brokerType) {
-            $data = ['centreonBroker' => $object];
-        } else {
-            $data = $object;
-        }
+        $data = $brokerType ? ['centreonBroker' => $object] : $object;
 
         $this->content = json_encode($data, JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
     }

@@ -56,11 +56,7 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
     {
         $range = array();
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $q = (string)$this->arguments['q'];
-        } else {
-            $q = '';
-        }
+        $q = isset($this->arguments['q']) ? (string)$this->arguments['q'] : '';
 
         if (isset($this->arguments['l'])) {
             $templateType = array('0', '1');
@@ -86,11 +82,7 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
             $range[] = (int)$this->arguments['page_limit'];
         }
 
-        if ($l == '1') {
-            $serviceTemplateList = $this->listWithHostTemplate($q, $range);
-        } else {
-            $serviceTemplateList = $this->listClassic($q, $range);
-        }
+        $serviceTemplateList = $l == '1' ? $this->listWithHostTemplate($q, $range) : $this->listClassic($q, $range);
         return $serviceTemplateList;
     }
 

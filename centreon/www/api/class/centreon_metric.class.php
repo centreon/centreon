@@ -77,11 +77,7 @@ class CentreonMetric extends CentreonWebService
         global $centreon;
 
         $queryValues = array();
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $query = 'SELECT DISTINCT(`metric_name`)
             COLLATE utf8_bin as "metric_name", index_id FROM `metrics` as m, index_data i
@@ -125,11 +121,7 @@ class CentreonMetric extends CentreonWebService
         global $centreon;
 
         $queryValues = array();
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS m.metric_id,
             CONCAT(h.name," - ", s.description, " - ",  m.metric_name) AS fullname
@@ -197,11 +189,7 @@ class CentreonMetric extends CentreonWebService
             throw new \RestBadRequestException('400 Bad Request, invalid service id');
         }
         $nameArg = \HtmlAnalyzer::sanitizeAndRemoveTags($this->arguments['q'] ?? false);
-        if ($nameArg !== false) {
-            $queryValues['name'] = '%' . $nameArg . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = $nameArg !== false ? '%' . $nameArg . '%' : '%%';
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS m.metric_id, ' .
             'm.metric_name AS name ' .

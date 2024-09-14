@@ -99,11 +99,7 @@ try {
         $template->assign('cmd', $cmd);
         if ($cmd == 72 || $cmd == 70) {
             $template->assign('ackHostSvcLabel', _("Acknowledge services of hosts"));
-            if ($cmd == 72) {
-                $title = _("Host Acknowledgement");
-            } else {
-                $title = _("Service Acknowledgement");
-            }
+            $title = $cmd == 72 ? _("Host Acknowledgement") : _("Service Acknowledgement");
 
             $template->assign('defaultMessage', sprintf(_('Acknowledged by %s'), $centreon->user->alias));
 
@@ -143,11 +139,7 @@ try {
             $template->display('acknowledge.ihtml');
         } elseif ($cmd == 75 || $cmd == 74) {
             $template->assign('downtimeHostSvcLabel', _("Set downtime on services of hosts"));
-            if ($cmd == 75) {
-                $title = _("Host Downtime");
-            } else {
-                $title = _("Service Downtime");
-            }
+            $title = $cmd == 75 ? _("Host Downtime") : _("Service Downtime");
 
             /* Default downtime options */
             $process_service_checked = '';
@@ -251,11 +243,7 @@ try {
                 if ($hostId !== 0 && $svcId !== 0) {
                     $hostname = $hostObj->getHostName($hostId);
                     $svcDesc = $svcObj->getServiceDesc($svcId);
-                    if ($isSvcCommand === true) {
-                        $cmdParam = $hostname . ';' . $svcDesc;
-                    } else {
-                        $cmdParam = $hostname;
-                    }
+                    $cmdParam = $isSvcCommand === true ? $hostname . ';' . $svcDesc : $hostname;
                     $externalCmd->$externalCommandMethod(
                         sprintf(
                             $command,

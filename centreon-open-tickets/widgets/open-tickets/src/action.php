@@ -127,11 +127,7 @@ function format_popup()
     global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path;
 
     $uniq_id = uniqid();
-    if ($cmd == 3) {
-        $title = _("Open Service Ticket");
-    } else {
-        $title = _("Open Host Ticket");
-    }
+    $title = $cmd == 3 ? _("Open Service Ticket") : _("Open Host Ticket");
 
     $result = $rule->getFormatPopupProvider(
         $preferences['rule'],

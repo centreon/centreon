@@ -53,11 +53,7 @@ $pathRoot = "./include/monitoring/";
 $pathDetails = "./include/monitoring/objectDetails/";
 $pathTools = "./include/tools/";
 
-if (!isset($_GET["cmd"]) && isset($_POST["cmd"])) {
-    $param = $_POST;
-} else {
-    $param = $_GET;
-}
+$param = !isset($_GET["cmd"]) && isset($_POST["cmd"]) ? $_POST : $_GET;
 
 if (isset($param["cmd"])
     && $param["cmd"] == 14

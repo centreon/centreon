@@ -123,11 +123,7 @@ while ($r = $res->fetch()) {
     $rU = $statement->fetch();
     if ($rU["contact_admin"] != "1") {
         $session_data[$cpt] = array();
-        if ($cpt % 2) {
-            $session_data[$cpt]["class"] = "list_one";
-        } else {
-            $session_data[$cpt]["class"] = "list_two";
-        }
+        $session_data[$cpt]["class"] = $cpt % 2 ? "list_one" : "list_two";
         $session_data[$cpt]["user_id"] = $r["user_id"];
         $session_data[$cpt]["user_alias"] = $rU["contact_name"];
         $session_data[$cpt]["admin"] = $rU["contact_admin"];
