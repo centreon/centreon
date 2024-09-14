@@ -134,7 +134,7 @@ $tabOrder["default"] = $tabOrder['criticality_id'];
  */
 function analyseGraphs(array $hostServiceIds): void
 {
-    if (empty($hostServiceIds)) {
+    if ($hostServiceIds === []) {
         return;
     }
     global $obj, $graphs;

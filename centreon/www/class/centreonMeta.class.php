@@ -220,7 +220,7 @@ class CentreonMeta
         $query = 'SELECT meta_id, meta_name FROM meta_service ' .
             'WHERE meta_id IN (' . $listValues . ') ORDER BY meta_name ';
         $stmt = $this->db->prepare($query);
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }

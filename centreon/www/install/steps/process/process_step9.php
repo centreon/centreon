@@ -74,7 +74,7 @@ try {
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath('database');
         $vaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
-        if (! empty($vaultPaths)) {
+        if ($vaultPaths !== []) {
             updateConfigFilesWithVaultPath($vaultPaths);
         }
     }

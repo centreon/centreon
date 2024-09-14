@@ -60,14 +60,14 @@ class NotificationValidator
         array $contactGroupsIds,
         ContactInterface $currentContact
     ): void {
-        if (empty($userIds) && empty($contactGroupsIds)) {
+        if ($userIds === [] && $contactGroupsIds === []) {
             throw NotificationException::emptyArrayNotAllowed('users, contactgroups');
         }
         $this->currentContact = $currentContact;
-        if (! empty($userIds)) {
+        if ($userIds !== []) {
             $this->validateUsers($userIds);
         }
-        if (! empty($contactGroupsIds)) {
+        if ($contactGroupsIds !== []) {
             $this->validateContactGroups($contactGroupsIds);
         }
     }

@@ -54,7 +54,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
      */
     public function findServiceByIdAndAccessGroupIds(int $hostId, int $serviceId, array $accessGroupIds): ?Service
     {
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return null;
         }
 
@@ -70,7 +70,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
      */
     public function isAllowedToFindServiceByAccessGroupIds(int $hostId, int $serviceId, array $accessGroupIds): bool
     {
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return false;
         }
 

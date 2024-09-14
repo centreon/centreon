@@ -195,7 +195,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
      */
     private function linkHostTemplatesToHost(int $hostId, array $hostTemplates): void
     {
-        if (empty($hostTemplates)) {
+        if ($hostTemplates === []) {
             return;
         }
 
@@ -215,7 +215,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
      */
     public function findHostByAccessGroupIds(int $hostId, array $accessGroupIds): ?Host
     {
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return null;
         }
 
@@ -589,7 +589,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
      */
     public function findHostNamesAlreadyUsed(array $namesToCheck): array
     {
-        if (empty($namesToCheck)) {
+        if ($namesToCheck === []) {
             return [];
         }
 

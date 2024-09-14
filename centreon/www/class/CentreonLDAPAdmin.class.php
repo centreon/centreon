@@ -693,7 +693,7 @@ class CentreonLdapAdmin
                 while ($row2 = $statement2->fetch()) {
                     $ldapContactIdList[] = (int) $row2['contact_id'];
                 }
-                if (!empty($ldapContactIdList)) {
+                if ($ldapContactIdList !== []) {
                     $contactIds = implode(', ', $ldapContactIdList);
                     $this->db->query(
                         "DELETE FROM contact_password WHERE contact_id IN ($contactIds)"

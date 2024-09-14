@@ -178,7 +178,7 @@ try {
                                 $missingPrivileges[] = $mandatoryPrivilege;
                             }
                         }
-                        if (!empty($missingPrivileges)) {
+                        if ($missingPrivileges !== []) {
                             throw new \Exception(
                                 sprintf(
                                     'Missing privileges %s on user %s',

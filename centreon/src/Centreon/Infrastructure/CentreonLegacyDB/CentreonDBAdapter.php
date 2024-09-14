@@ -110,7 +110,7 @@ class CentreonDBAdapter
             throw new \Exception('Error at preparing the query.');
         }
 
-        if (is_array($params) && !empty($params)) {
+        if (is_array($params) && $params !== []) {
             $x = 1;
 
             foreach ($params as $param) {

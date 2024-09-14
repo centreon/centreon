@@ -139,7 +139,7 @@ class Validator implements JsonValidatorInterface
             );
         }
 
-        if (empty($definitionsToUseForValidation)) {
+        if ($definitionsToUseForValidation === []) {
             throw new \Exception(
                 sprintf(_('The definition model "%s" to validate the JSON does not exist or is empty'), $modelName)
             );

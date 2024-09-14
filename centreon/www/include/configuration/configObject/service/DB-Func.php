@@ -911,7 +911,7 @@ function multipleServiceInDB(
                             }
                         }
 
-                        if (! empty($macroPasswords) && $vaultConfiguration !== null) {
+                        if ($macroPasswords !== [] && $vaultConfiguration !== null) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */
                             $readVaultRepository = $kernel->getContainer()->get(
                                 ReadVaultRepositoryInterface::class
@@ -1920,7 +1920,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     //If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && ! empty($passwordMacros)) {
+    if ($vaultConfiguration !== null && $passwordMacros !== []) {
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
@@ -2165,7 +2165,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     //If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && ! empty($passwordMacros)) {
+    if ($vaultConfiguration !== null && $passwordMacros !== []) {
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);

@@ -224,12 +224,12 @@ class Task implements EntityInterface
             return null;
         }
 
-        if (empty($input)) {
+        if ($input === []) {
             return $input;
         }
 
         $filteredKeys = array_filter(array_keys($input), $callback);
-        if (empty($filteredKeys)) {
+        if ($filteredKeys === []) {
             return array();
         }
 

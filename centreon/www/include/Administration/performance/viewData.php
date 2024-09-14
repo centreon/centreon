@@ -158,17 +158,17 @@ if ((isset($inputs["o1"]) && $inputs["o1"]) || (isset($inputs["o2"]) && $inputs[
         },
         ARRAY_FILTER_USE_KEY
     );
-    if ($inputs["o"] == REBUILD_RRD && !empty($selected)) {
+    if ($inputs["o"] == REBUILD_RRD && $selected !== []) {
         foreach (array_keys($selected) as $id) {
             $DBRESULT = $pearDBO->query("UPDATE index_data SET `must_be_rebuild` = '1' WHERE id = " . $id);
         }
         $brk->reload();
-    } elseif ($inputs["o"] == STOP_REBUILD_RRD && !empty($selected)) {
+    } elseif ($inputs["o"] == STOP_REBUILD_RRD && $selected !== []) {
         foreach (array_keys($selected) as $id) {
             $query = "UPDATE index_data SET `must_be_rebuild` = '0' WHERE `must_be_rebuild` = '1' AND id = " . $id;
             $pearDBO->query($query);
         }
-    } elseif ($inputs["o"] == DELETE_GRAPH && !empty($selected)) {
+    } elseif ($inputs["o"] == DELETE_GRAPH && $selected !== []) {
         $listMetricsToDelete = array();
         foreach (array_keys($selected) as $id) {
             $DBRESULT = $pearDBO->query("SELECT metric_id FROM metrics WHERE  `index_id` = " . $id);
@@ -187,19 +187,19 @@ if ((isset($inputs["o1"]) && $inputs["o1"]) || (isset($inputs["o2"]) && $inputs[
             $pearDB->query($query);
             $brk->reload();
         }
-    } elseif ($inputs["o"] == HIDE_GRAPH && !empty($selected)) {
+    } elseif ($inputs["o"] == HIDE_GRAPH && $selected !== []) {
         foreach (array_keys($selected) as $id) {
             $DBRESULT = $pearDBO->query("UPDATE index_data SET `hidden` = '1' WHERE id = " . $id);
         }
-    } elseif ($inputs["o"] == SHOW_GRAPH && !empty($selected)) {
+    } elseif ($inputs["o"] == SHOW_GRAPH && $selected !== []) {
         foreach (array_keys($selected) as $id) {
             $DBRESULT = $pearDBO->query("UPDATE index_data SET `hidden` = '0' WHERE id = " . $id);
         }
-    } elseif ($inputs["o"] == LOCK_SERVICE && !empty($selected)) {
+    } elseif ($inputs["o"] == LOCK_SERVICE && $selected !== []) {
         foreach (array_keys($selected) as $id) {
             $DBRESULT = $pearDBO->query("UPDATE index_data SET `locked` = '1' WHERE id = " . $id);
         }
-    } elseif ($inputs["o"] == UNLOCK_SERVICE && !empty($selected)) {
+    } elseif ($inputs["o"] == UNLOCK_SERVICE && $selected !== []) {
         foreach (array_keys($selected) as $id) {
             $DBRESULT = $pearDBO->query("UPDATE index_data SET `locked` = '0' WHERE id = " . $id);
         }

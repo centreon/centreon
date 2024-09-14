@@ -750,7 +750,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                     if (
                         ! empty($row['host_snmp_community'])
                         && str_starts_with(VaultConfiguration::VAULT_PATH_PATTERN, $row['host_snmp_community'])
-                        || ! empty($macroPasswords)
+                        || $macroPasswords !== []
                     ) {
                         if ($vaultConfiguration !== null) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */

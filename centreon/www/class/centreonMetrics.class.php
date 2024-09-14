@@ -70,7 +70,7 @@ class CentreonMetrics
             . "ORDER BY fullname COLLATE utf8_general_ci";
 
         $stmt = $this->dbo->prepare($queryService);
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }

@@ -821,14 +821,14 @@ class CentreonCustomView
             $sharedUsers = array();
             $alwaysSharedUsers = array();
 
-            if (!empty($lockedUsers)) {
+            if ($lockedUsers !== []) {
                 foreach ($lockedUsers as $lockedUser) {
                     if ($lockedUser != $centreon->user->user_id) {
                         $sharedUsers[$lockedUser] = 1;
                     }
                 }
             }
-            if (!empty($unlockedUsers)) {
+            if ($unlockedUsers !== []) {
                 foreach ($unlockedUsers as $unlockedUser) {
                     if ($unlockedUser != $centreon->user->user_id) {
                         $sharedUsers[$unlockedUser] = 0;
@@ -891,7 +891,7 @@ class CentreonCustomView
             $userIdKey = '';
 
             //prepare old user entries
-            if (!empty($oldSharedUsers)) {
+            if ($oldSharedUsers !== []) {
                 foreach ($oldSharedUsers as $k => $v) {
                     $userIdKey .= '?,';
                     $queryValue[] = (int)$k;
@@ -928,12 +928,12 @@ class CentreonCustomView
             // share with user groups //
             ////////////////////////////
             $sharedUsergroups = array();
-            if (!empty($lockedUsergroups)) {
+            if ($lockedUsergroups !== []) {
                 foreach ($lockedUsergroups as $lockedUsergroup) {
                     $sharedUsergroups[$lockedUsergroup] = 1;
                 }
             }
-            if (!empty($unlockedUsergroups)) {
+            if ($unlockedUsergroups !== []) {
                 foreach ($unlockedUsergroups as $unlockedUsergroup) {
                     $sharedUsergroups[$unlockedUsergroup] = 0;
                 }
@@ -989,7 +989,7 @@ class CentreonCustomView
             $queryCgId = array();
             $queryValue2[] = (int)$customViewId;
             $userGroupIdKey = '';
-            if (!empty($oldSharedUsergroups)) {
+            if ($oldSharedUsergroups !== []) {
                 foreach ($oldSharedUsergroups as $k => $v) {
                     $userGroupIdKey .= '?,';
                     $queryValue2[] = (int)$k;

@@ -768,7 +768,7 @@ class CentreonWidget
         if (empty($customViewId)) {
             throw new CentreonWidgetException('No custom view id provided');
         }
-        if (!empty($positions) && is_array($positions)) {
+        if ($positions !== [] && is_array($positions)) {
             foreach ($positions as $rawData) {
                 if (preg_match('/([0-9]+)_([0-9]+)_([0-9]+)/', $rawData, $matches)) {
                     $widgetOrder = "{$matches[1]}_{$matches[2]}";

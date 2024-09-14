@@ -1796,7 +1796,7 @@ function unvalidFormMessage()
  */
 function findHostsForConfigChangeFlagFromHostGroupIds(array $hostgroupIds, bool $shouldHostgroupBeEnabled = true): array
 {
-    if (empty($hostgroupIds)) {
+    if ($hostgroupIds === []) {
         return [];
     }
 
@@ -1837,7 +1837,7 @@ function findHostsForConfigChangeFlagFromHostGroupIds(array $hostgroupIds, bool 
  */
 function findHostsForConfigChangeFlagFromServiceIds(array $serviceIds, bool $shoudlServiceBeEnabled = true): array
 {
-    if (empty($serviceIds)) {
+    if ($serviceIds === []) {
         return [];
     }
 
@@ -1878,7 +1878,7 @@ function findHostsForConfigChangeFlagFromServiceIds(array $serviceIds, bool $sho
  */
 function findServicesForConfigChangeFlagFromServiceTemplateIds(array $serviceTemplateIds): array
 {
-    if (empty($serviceTemplateIds)) {
+    if ($serviceTemplateIds === []) {
         return [];
     }
 
@@ -1971,7 +1971,7 @@ function findHostsForConfigChangeFlagFromServiceGroupId(
  */
 function findPollersForConfigChangeFlagFromHostIds(array $hostIds, bool $shouldHostBeEnabled = true): array
 {
-    if (empty($hostIds)) {
+    if ($hostIds === []) {
         return [];
     }
 
@@ -2009,7 +2009,7 @@ function findPollersForConfigChangeFlagFromHostIds(array $hostIds, bool $shouldH
  */
 function definePollersToUpdated(array $pollerIds): void
 {
-    if (empty($pollerIds)) {
+    if ($pollerIds === []) {
         return;
     }
 

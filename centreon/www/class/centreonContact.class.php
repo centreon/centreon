@@ -243,7 +243,7 @@ class CentreonContact
 
         $stmt = $this->db->prepare($query);
 
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }
@@ -425,7 +425,7 @@ class CentreonContact
         }
 
         if ($doesRespectPassword === false) {
-            if (!empty($characterPolicyErrorMessages)) {
+            if ($characterPolicyErrorMessages !== []) {
                 $errorMessage .= ' ' . _('and must contain') . ' : '
                     . implode(', ', $characterPolicyErrorMessages) . '.';
             }

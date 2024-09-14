@@ -81,7 +81,7 @@ class CentreonTag
 
         $stmt = $this->db->prepare($query);
 
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }

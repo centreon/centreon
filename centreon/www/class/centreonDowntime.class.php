@@ -661,7 +661,7 @@ class CentreonDowntime
             }
         }
 
-        if (! empty($templateDowntimeInformation)) {
+        if ($templateDowntimeInformation !== []) {
             foreach ($this->findServicesByServiceTemplateIds(array_keys($templateDowntimeInformation)) as $service) {
                 $downtimes[] = array_merge(
                     $templateDowntimeInformation[$service['service_template_model_stm_id']],

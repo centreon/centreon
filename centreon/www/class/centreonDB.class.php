@@ -249,7 +249,7 @@ class CentreonDB extends PDO
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
 
-            if (empty($bindParams)) {
+            if ($bindParams === []) {
                 throw new CentreonDbException(
                     "Binding parameters are empty",
                     ['bind_params' => $bindParams]
@@ -261,7 +261,7 @@ class CentreonDB extends PDO
             }
 
             foreach ($bindParams as $paramName => $bindParam) {
-                if (is_array($bindParam) && ! empty($bindParam) && count($bindParam) === 2) {
+                if (is_array($bindParam) && $bindParam !== [] && count($bindParam) === 2) {
                     $paramValue = $bindParam[0];
                     $paramType = $bindParam[1];
                     if (

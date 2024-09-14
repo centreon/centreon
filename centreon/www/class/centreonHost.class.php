@@ -2613,7 +2613,7 @@ class CentreonHost
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':register', $register, PDO::PARAM_STR);
 
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }

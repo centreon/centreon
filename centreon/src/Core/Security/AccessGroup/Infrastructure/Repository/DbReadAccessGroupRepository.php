@@ -222,7 +222,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
             $queryBindValues[':access_group_' . $accessGroupId] = $accessGroupId;
         }
 
-        if (empty($queryBindValues)) {
+        if ($queryBindValues === []) {
             return [];
         }
         $accessGroups = [];

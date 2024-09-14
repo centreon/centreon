@@ -397,7 +397,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
             }
 
             $datas .= '{id: ' . $option["attr"]["value"] . ', text: "' . $option['text'] . '"},';
-            if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
+            if ($strValues !== [] && in_array($option['attr']['value'], $strValues, true)) {
                 $option['attr']['selected'] = 'selected';
                 $this->_defaultSelectedOptions .= "<option" . $this->_getAttrString($option['attr']) . '>' .
                     $option['text'] . "</option>";

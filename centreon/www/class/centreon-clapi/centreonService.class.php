@@ -718,7 +718,7 @@ class CentreonService extends CentreonObject
             }
         }
 
-        if (!empty($unknownParam)) {
+        if ($unknownParam !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . implode('|', $unknownParam));
         }
 

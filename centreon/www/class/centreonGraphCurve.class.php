@@ -110,7 +110,7 @@ class CentreonGraphCurve
 
         $stmt = $this->db->prepare($queryGraphCurve);
 
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }

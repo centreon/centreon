@@ -245,7 +245,7 @@ class RequestParameters implements RequestParametersInterface
         return [
             self::NAME_FOR_PAGE => $this->page,
             self::NAME_FOR_LIMIT => $this->limit,
-            self::NAME_FOR_SEARCH => !empty($this->search)
+            self::NAME_FOR_SEARCH => $this->search !== []
                 ? json_decode(json_encode($this->search), true)
                 : new \stdClass(),
             self::NAME_FOR_SORT => !empty($this->sort)

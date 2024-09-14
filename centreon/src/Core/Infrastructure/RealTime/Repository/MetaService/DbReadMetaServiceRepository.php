@@ -51,7 +51,7 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
      */
     public function findMetaServiceByIdAndAccessGroupIds(int $metaId, array $accessGroupIds): ?MetaService
     {
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return null;
         }
 

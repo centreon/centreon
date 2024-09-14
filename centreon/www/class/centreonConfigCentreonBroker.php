@@ -1895,7 +1895,7 @@ class CentreonConfigCentreonBroker
                             unset($infos[$key]);
                         }
                     }
-                    if (!empty($newArray)) {
+                    if ($newArray !== []) {
                         $groups_infos_multiple[] = $newArray;
                         $infos['multiple_fields'] = $newArray;
                     }

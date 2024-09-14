@@ -102,7 +102,7 @@ if (isset($preferences['poller']) && $preferences['poller']) {
     }
 }
 
-if (!empty($instances)) {
+if ($instances !== []) {
     $queryLat = "SELECT
             1 AS REALTIME,
             MAX(T1.latency) AS h_max,

@@ -1190,7 +1190,7 @@ class CentreonService
         $selectedHosts = '';
         $listValues = '';
         $queryValues = array();
-        if (!empty($hostIdList)) {
+        if ($hostIdList !== []) {
             if ($hostgroup) {
                 $selectedHosts .= "AND hsr.hostgroup_hg_id IN (";
             } else {
@@ -1206,7 +1206,7 @@ class CentreonService
         # Construct service filter for query
         $selectedServices = '';
         $listValues = '';
-        if (!empty($serviceIdList)) {
+        if ($serviceIdList !== []) {
             $selectedServices .= "AND hsr.service_service_id IN (";
             foreach ($serviceIdList as $k => $v) {
                 $listValues .= ':service' . $v . ',';
@@ -1228,7 +1228,7 @@ class CentreonService
                     . "ORDER BY hg.hg_name ";
                 $stmt = $this->db->prepare($queryService);
 
-                if (!empty($queryValues)) {
+                if ($queryValues !== []) {
                     foreach ($queryValues as $key => $id) {
                         $stmt->bindValue(':' . $key, $id);
                     }
@@ -1253,7 +1253,7 @@ class CentreonService
 
                 $stmt = $this->db->prepare($queryService);
 
-                if (!empty($queryValues)) {
+                if ($queryValues !== []) {
                     foreach ($queryValues as $key => $id) {
                         $stmt->bindValue(':' . $key, $id);
                     }

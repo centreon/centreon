@@ -324,7 +324,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             $queryBindValues[':contact_group_' . $contactGroupId] = $contactGroupId;
         }
 
-        if (empty($queryBindValues)) {
+        if ($queryBindValues === []) {
             return [];
         }
         $contactGroups = [];

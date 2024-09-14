@@ -444,7 +444,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
 
         $search = $requestParameters->getSearch();
-        if (! empty($search) && array_key_exists('$and', $search)) {
+        if ($search !== [] && array_key_exists('$and', $search)) {
             $this->subRequestsInformation = $this->getSubRequestsInformation($search);
             $request .= $this->buildSubRequestForTags($this->subRequestsInformation);
         }
@@ -453,7 +453,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 WHERE r.enabled = 1
             SQL;
 
-        if (! empty($this->subRequestsInformation)) {
+        if ($this->subRequestsInformation !== []) {
             $request .= $this->subRequestsInformation['service']['request'] ?? '';
             $request .= $this->subRequestsInformation['host']['request'] ?? '';
         }
@@ -489,7 +489,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 ':metricName' => [$metricName => \PDO::PARAM_STR],
             ];
         }
-        if (! empty($this->subRequestsInformation)) {
+        if ($this->subRequestsInformation !== []) {
             foreach ($this->subRequestsInformation as $subRequestInformation) {
                 $boundValues[] = $subRequestInformation['bindValues'];
             }

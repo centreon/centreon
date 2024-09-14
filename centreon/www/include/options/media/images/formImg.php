@@ -241,7 +241,7 @@ if ($form->validate()) {
     /**
      * If a single image is uploaded
      */
-    if (empty($filesToUpload)) {
+    if ($filesToUpload === []) {
         $oImageUploader = new CentreonImageManager(
             $dependencyInjector,
             $_FILES,

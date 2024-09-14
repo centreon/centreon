@@ -1116,7 +1116,7 @@ class CentreonTraps
             'WHERE traps_id IN (' . $listValues . ') ORDER BY traps_name ';
 
         $stmt = $this->db->prepare($query);
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }

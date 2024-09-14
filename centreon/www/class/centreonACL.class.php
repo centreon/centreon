@@ -716,7 +716,7 @@ class CentreonACL
                             unset($parentsLvl[$parentLvl1][$parentLvl2]);
                             continue;
                         }
-                        if (empty($childrenLvl3)) {
+                        if ($childrenLvl3 === []) {
                             continue;
                         }
                         // First reading

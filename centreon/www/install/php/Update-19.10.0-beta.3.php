@@ -315,7 +315,7 @@ while ($row = $result->fetch()) {
         }
     }
 
-    $severityIds = !empty($severityIds) ? implode(',', $severityIds) : '';
+    $severityIds = $severityIds !== [] ? implode(',', $severityIds) : '';
 
     $statement->bindValue(':value', $severityIds, \PDO::PARAM_STR);
     $statement->bindValue(':view_id', $row['widget_view_id'], \PDO::PARAM_INT);

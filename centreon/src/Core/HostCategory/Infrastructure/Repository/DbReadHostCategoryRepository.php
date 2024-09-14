@@ -295,7 +295,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             ['id' => $hostCategoryId, 'accessgroups' => $accessGroups]
         );
 
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             $this->debug('Access groups array empty');
 
             return false;
@@ -387,7 +387,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             return [];
         }
 
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             $this->debug('Access groups array empty');
 
             return [];

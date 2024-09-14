@@ -202,7 +202,7 @@ class CentreonServiceGroup extends CentreonObject
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
         }
 
-        if (!empty($unknownParam)) {
+        if ($unknownParam !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . implode('|', $unknownParam));
         }
         echo implode(';', array_unique(explode(';', $paramString))) . "\n";

@@ -410,8 +410,8 @@ class CentreonLog
             $context = [
                 'context' => [
                     'default' => $defaultContext,
-                    'exception' => ! empty($exceptionContext) ? $exceptionContext : null,
-                    'custom' => ! empty($customContext) ? $customContext : null,
+                    'exception' => $exceptionContext !== [] ? $exceptionContext : null,
+                    'custom' => $customContext !== [] ? $customContext : null,
                 ]
             ];
 
@@ -441,7 +441,7 @@ class CentreonLog
             'message' => $exception->getMessage()
         ];
         $additonalOptions = $this->getExceptionOptions($exception);
-        if (! empty($additonalOptions)) {
+        if ($additonalOptions !== []) {
             $exceptionInfos['options'] = $additonalOptions;
         }
         return $exceptionInfos;
@@ -464,7 +464,7 @@ class CentreonLog
     {
         $excludeFunctions = ['log', 'debug', 'info', 'warning', 'error', 'critical', 'alert', 'emergency', 'insertLog'];
         $backTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
-        if (empty($backTrace)) {
+        if ($backTrace === []) {
             return null;
         }
         // get the last trace excluding the centreonlog trace
@@ -478,7 +478,7 @@ class CentreonLog
             )
         );
 
-        if (empty($lastTraceCleaned)) {
+        if ($lastTraceCleaned === []) {
             return null;
         }
 

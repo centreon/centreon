@@ -129,9 +129,9 @@ class PerformanceMetricsDataFactory
             $times[] = $metricData['times'];
         }
 
-        $base = ! empty($metricBases) ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
-        $metricsInfo = ! empty($metrics) ? $this->createMetricInformations($metrics, $metricNames) : [];
-        $times = ! empty($times) ? $this->getTimes($times) : [];
+        $base = $metricBases !== [] ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
+        $metricsInfo = $metrics !== [] ? $this->createMetricInformations($metrics, $metricNames) : [];
+        $times = $times !== [] ? $this->getTimes($times) : [];
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
     }

@@ -391,7 +391,7 @@ class Broker extends AbstractObjectJSON
 
             if ($anomalyDetectionLuaOutputGroupID >= 0) {
                 $luaParameters = $this->generateAnomalyDetectionLuaParameters();
-                if (!empty($luaParameters)) {
+                if ($luaParameters !== []) {
                     $object["output"][$anomalyDetectionLuaOutputGroupID]['lua_parameter'] = array_merge_recursive(
                         $object["output"][$anomalyDetectionLuaOutputGroupID]['lua_parameter'],
                         $luaParameters

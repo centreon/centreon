@@ -169,7 +169,7 @@ function multipleLCAInDB($lcas = array(), $nbrDup = array())
             }
 
             if (testExistence($acl_name)) {
-                if (! empty($values)) {
+                if ($values !== []) {
                     $pearDB->query("INSERT INTO acl_resources VALUES (" . implode(',', $values) . ")");
                 }
 

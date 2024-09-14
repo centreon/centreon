@@ -608,7 +608,7 @@ class CentreonConnector
 
         $stmt = $this->db->prepare($query); // FIXME to ckeck because not initialised no ?
 
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }

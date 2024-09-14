@@ -796,7 +796,7 @@ if ($form_service_type === 'BYHOST') {
         $defaultDataset = [];
         if ($service_id !== false) {
             $hostsBounded = findHostsOfService($service_id);
-            $defaultDataset = (! empty($hostsBounded))
+            $defaultDataset = ($hostsBounded !== [])
                 ? ['0' => $hostsBounded[0]]
                 : [];
         };

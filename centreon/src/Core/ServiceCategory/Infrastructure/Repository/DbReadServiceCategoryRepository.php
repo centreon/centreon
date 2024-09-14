@@ -336,7 +336,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
      */
     public function findByServiceAndAccessGroups(int $serviceId, array $accessGroups): array
     {
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             return [];
         }
 
@@ -414,7 +414,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             ['id' => $serviceCategoryId, 'accessgroups' => $accessGroups]
         );
 
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             $this->debug('Access groups array empty');
 
             return false;

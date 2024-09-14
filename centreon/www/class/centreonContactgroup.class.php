@@ -670,7 +670,7 @@ class CentreonContactgroup
 
         $listValues = '';
         $queryValues = array();
-        if (!empty($aElement)) {
+        if ($aElement !== []) {
             foreach ($aElement as $k => $v) {
                 $listValues .= ':cg' . $v . ',';
                 $queryValues['cg' . $v] = (int)$v;

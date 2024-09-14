@@ -119,7 +119,7 @@ class CentreonServicetemplates extends CentreonService
                 'WHERE s.service_register = "0" ' . $selectedServices . 'ORDER BY s.service_description ';
 
             $stmt = $this->db->prepare($queryService);
-            if (!empty($queryValues)) {
+            if ($queryValues !== []) {
                 foreach ($queryValues as $key => $id) {
                     $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
                 }

@@ -60,7 +60,7 @@ class AclGroupRepository
      */
     public function getUsersIdsByAclGroupIds(array $aclGroupIds): array
     {
-        if (empty($aclGroupIds)) {
+        if ($aclGroupIds === []) {
             return [];
         }
 

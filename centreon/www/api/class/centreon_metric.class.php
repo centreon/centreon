@@ -520,7 +520,7 @@ class CentreonMetric extends CentreonWebService
                 $filterServiceIds[':service' . $serviceId] = $serviceId;
             }
 
-            if (!empty($filterHostIds) && !empty($filterServiceIds)) {
+            if ($filterHostIds !== [] && $filterServiceIds !== []) {
                 $query = '
                     SELECT i.host_id, i.service_id, m.*
                     FROM index_data i, metrics m
@@ -538,7 +538,7 @@ class CentreonMetric extends CentreonWebService
                 $filterMetricIds[':metric' . $metricId] = $metricId;
             }
 
-            if (!empty($filterMetricIds)) {
+            if ($filterMetricIds !== []) {
                 if ($query !== '') {
                     $query .= ' UNION ';
                 }

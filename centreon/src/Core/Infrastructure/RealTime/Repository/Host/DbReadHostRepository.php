@@ -54,7 +54,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
      */
     public function findHostByIdAndAccessGroupIds(int $hostId, array $accessGroupIds): ?Host
     {
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return null;
         }
 
@@ -71,7 +71,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
      */
     public function isAllowedToFindHostByAccessGroupIds(int $hostId, array $accessGroupIds): bool
     {
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return false;
         }
 

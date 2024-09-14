@@ -66,7 +66,7 @@ class CentreonConfigurationChange
         array $hostgroupIds,
         bool $shouldHostgroupBeEnabled = true
     ): array {
-        if (empty($hostgroupIds)) {
+        if ($hostgroupIds === []) {
             return [];
         }
 
@@ -107,7 +107,7 @@ class CentreonConfigurationChange
         array $serviceIds,
         bool $shoudlServiceBeEnabled = true
     ): array {
-        if (empty($serviceIds)) {
+        if ($serviceIds === []) {
             return [];
         }
 
@@ -146,7 +146,7 @@ class CentreonConfigurationChange
      */
     private function findServicesForConfigChangeFlagFromServiceTemplateIds(array $serviceTemplateIds): array
     {
-        if (empty($serviceTemplateIds)) {
+        if ($serviceTemplateIds === []) {
             return [];
         }
 
@@ -235,7 +235,7 @@ class CentreonConfigurationChange
      */
     public function findPollersForConfigChangeFlagFromHostIds(array $hostIds, bool $shouldHostBeEnabled = true): array
     {
-        if (empty($hostIds)) {
+        if ($hostIds === []) {
             return [];
         }
 
@@ -271,7 +271,7 @@ class CentreonConfigurationChange
      */
     private function definePollersToUpdated(array $pollerIds): void
     {
-        if (empty($pollerIds)) {
+        if ($pollerIds === []) {
             return;
         }
 

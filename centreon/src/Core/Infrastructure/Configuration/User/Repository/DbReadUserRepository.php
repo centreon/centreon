@@ -234,7 +234,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     {
         $userIds = [];
 
-        if (empty($userAliases)) {
+        if ($userAliases === []) {
             return $userIds;
         }
 

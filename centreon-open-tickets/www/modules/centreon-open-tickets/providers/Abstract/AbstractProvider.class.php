@@ -1552,7 +1552,7 @@ Output: {$service.output|substr:0:1024}
             $exceptions = null;
             stream_select($read, $write, $exceptions, $timeleft, null);
 
-            if (!empty($read)) {
+            if ($read !== []) {
                 $output .= fread($pipes[1], 8192);
             }
         } while (!feof($pipes[1]) && $timeleft > 0);

@@ -525,7 +525,7 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
 
     $configResults = $stmt->fetchAll(\PDO::FETCH_COLUMN|\PDO::FETCH_GROUP);
     $configIds = array_intersect($configResults[$blockIds[0]], $configResults[$blockIds[1]]);
-    if (empty($configIds)) {
+    if ($configIds === []) {
         throw new \Exception("Cannot find broker config ids to migrate");
     }
 
@@ -580,7 +580,7 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
                 $unifiedSqlOutput[$row['config_key']]['config_group_id'] = $nextConfigGroupId;
             }
         }
-        if (empty($unifiedSqlOutput)) {
+        if ($unifiedSqlOutput === []) {
             throw new \Exception("Cannot find conf for unified sql from cfg_centreonbroker_info table");
         }
 

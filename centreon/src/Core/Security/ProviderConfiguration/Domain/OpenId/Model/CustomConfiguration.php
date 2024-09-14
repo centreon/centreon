@@ -666,7 +666,7 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
             }
         }
 
-        if (! empty($emptyParameters)) {
+        if ($emptyParameters !== []) {
             throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 

@@ -37,7 +37,7 @@ function extractErrorMessage(BufferedOutput $output): ?string
             $filteredMessages[] = $rawMessage;
         }
     }
-    if (!empty($filteredMessages)) {
+    if ($filteredMessages !== []) {
         if (substr(strtolower($filteredMessages[0]), 0, 2) == 'in') {
             array_shift($filteredMessages);
         }
