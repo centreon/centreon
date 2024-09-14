@@ -8,6 +8,7 @@ use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\For_\ForRepeatedCountToOwnVariableRector;
+use Rector\CodeQuality\Rector\Foreach_\ForeachToInArrayRector;
 use Rector\CodeQuality\Rector\Ternary\ArrayKeyExistsTernaryThenValueToCoalescingRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\Config\RectorConfig;
@@ -83,8 +84,8 @@ return RectorConfig::configure()
 //        SimplifyEmptyCheckOnEmptyArrayRector::class, // OK 131 files / Simplify empty() functions calls on empty arrays
 //        ArrayKeyExistsTernaryThenValueToCoalescingRector::class, // OK 1 file // Change array_key_exists() ternary to coalescing
 //        InlineArrayReturnAssignRector::class, // OK 5 files / Inline just in time array dim fetch assigns to direct return
-        InlineConstructorDefaultToPropertyRector::class, // OK 48 files / Move property default from constructor to property default
-//        ForeachToInArrayRector::class, // Simplify foreach loops into in_array when possible
+//        InlineConstructorDefaultToPropertyRector::class, // OK 48 files / Move property default from constructor to property default
+        ForeachToInArrayRector::class, // Simplify foreach loops into in_array when possible
 //        SimplifyIfElseToTernaryRector::class, // Changes if/else for same value as assign to ternary
 //        ShortenElseIfRector::class, // Shortens else/if to elseif
 //        CompleteMissingIfElseBracketRector::class, // Complete missing if/else brackets
