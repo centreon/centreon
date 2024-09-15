@@ -14,7 +14,10 @@ use Rector\CodeQuality\Rector\If_\CompleteMissingIfElseBracketRector;
 use Rector\CodeQuality\Rector\If_\ShortenElseIfRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\Ternary\ArrayKeyExistsTernaryThenValueToCoalescingRector;
+use Rector\CodingStyle\Rector\ClassConst\RemoveFinalFromConstRector;
+use Rector\CodingStyle\Rector\ClassConst\SplitGroupedClassConstantsRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
+use Rector\CodingStyle\Rector\Property\SplitGroupedPropertiesRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveNullTagValueNodeRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
@@ -34,6 +37,7 @@ use Rector\Php80\Rector\Property\NestedAnnotationToAttributeRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\Php82\Rector\Class_\ReadOnlyClassRector;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
+use Rector\Transform\Rector\FuncCall\FuncCallToConstFetchRector;
 use Rector\TypeDeclaration\Rector\Class_\MergeDateTimePropertyTypeDeclarationRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
 use Rector\TypeDeclaration\Rector\Closure\AddClosureVoidReturnTypeWhereNoReturnRector;
@@ -95,11 +99,11 @@ return RectorConfig::configure()
 //        CompleteMissingIfElseBracketRector::class, // KO / Complete missing if/else brackets
 //        TernaryFalseExpressionToIfRector::class, // OK 26 files /Change ternary with false to if and explicit call
 //         -------------- coding style ----------
-        ExplicitPublicClassMethodRector::class, // OK 1 file / Add explicit public method visibility
-//        FuncCallToConstFetchRector::class, // Changes use of function calls to use constants
-//        RemoveFinalFromConstRector::class, // Remove final from constants in classes defined as final
-//        SplitGroupedPropertiesRector::class, // Separate grouped properties to own lines
-//        SplitGroupedClassConstantsRector::class, // Separate class constant to own lines
+//        ExplicitPublicClassMethodRector::class, // OK 1 file / Add explicit public method visibility
+//        FuncCallToConstFetchRector::class, // KO 0 files / Changes use of function calls to use constants
+//        RemoveFinalFromConstRector::class, // KO 0 files / Remove final from constants in classes defined as final
+//        SplitGroupedPropertiesRector::class, // KO 0 files / Separate grouped properties to own lines
+        SplitGroupedClassConstantsRector::class, // Separate class constant to own lines
 //        SplitDoubleAssignRector::class, // Split multiple inline assigns to each own lines default value, to prevent undefined array issues
 //        WrapEncapsedVariableInCurlyBracesRector::class, // Wrap encapsed variables in curly braces
 //        WrapEncapsedVariableInCurlyBracesRector::class, // Wrap encapsed variables in curly braces

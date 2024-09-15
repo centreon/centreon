@@ -40,9 +40,9 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
 {
     use HttpUrlTrait;
     use PresenterTrait;
-    private const IMAGE_DIRECTORY = '/img/media/',
-                  HOST_RESOURCE_TYPE = 'host',
-                  SERVICE_RESOURCE_TYPE = 'service';
+    private const IMAGE_DIRECTORY = '/img/media/';
+    private const HOST_RESOURCE_TYPE = 'host';
+    private const SERVICE_RESOURCE_TYPE = 'service';
 
     /**
      * @param HypermediaCreator $hypermediaCreator
