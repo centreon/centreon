@@ -68,7 +68,7 @@ function send_cmd($cmd, $poller = null)
     if (isset($cmd)) {
         $flg = write_command($cmd, $poller);
     }
-    isset($flg) && $flg ? $ret = $flg : $ret = _("Command execution problem");
+    $ret = isset($flg) && $flg ? $flg : _("Command execution problem");
     return $ret;
 }
 
@@ -399,7 +399,7 @@ function acknowledgeHost($param)
 
     if ($actions == true || $is_admin) {
         $key = $param["host_name"];
-        isset($param['sticky']) && $param['sticky'] == "1" ? $sticky = "2" : $sticky = "1";
+        $sticky = isset($param['sticky']) && $param['sticky'] == "1" ? "2" : "1";
         $host_poller = GetMyHostPoller($pearDB, htmlentities($param["host_name"], ENT_QUOTES, "UTF-8"));
         $flg = write_command(
             " ACKNOWLEDGE_HOST_PROBLEM;" . urldecode($param["host_name"]) .
@@ -491,14 +491,14 @@ function acknowledgeService($param)
     if ($actions == true || $is_admin) {
         $param["comment"] = $param["comment"];
         $param["comment"] = str_replace('\'', ' ', $param["comment"]);
-        isset($param['sticky']) && $param['sticky'] == "1" ? $sticky = "2" : $sticky = "1";
+        $sticky = isset($param['sticky']) && $param['sticky'] == "1" ? "2" : "1";
         $flg = send_cmd(
             " ACKNOWLEDGE_SVC_PROBLEM;" . urldecode($param["host_name"]) . ";" .
             urldecode($param["service_description"]) . ";" . $sticky . ";" . $param["notify"] .
             ";" . $param["persistent"] . ";" . $param["author"] . ";" . $param["comment"],
             GetMyHostPoller($pearDB, urldecode($param["host_name"]))
         );
-        isset($param['force_check']) && $param['force_check'] ? $force_check = 1 : $force_check = 0;
+        $force_check = isset($param['force_check']) && $param['force_check'] ? 1 : 0;
         if ($force_check == 1 && $centreon->user->access->checkAction("service_schedule_forced_check") == true) {
             send_cmd(
                 " SCHEDULE_FORCED_SVC_CHECK;" . urldecode($param["host_name"]) . ";" .

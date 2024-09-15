@@ -38,17 +38,17 @@ if (!isset($oreon)) {
     exit();
 }
 
-isset($_GET["pool_id"]) ? $cG = $_GET["pool_id"] : $cG = null;
-isset($_POST["pool_id"]) ? $cP = $_POST["pool_id"] : $cP = null;
-$cG ? $slot_id = $cG : $slot_id = $cP;
+$cG = isset($_GET["pool_id"]) ? $_GET["pool_id"] : null;
+$cP = isset($_POST["pool_id"]) ? $_POST["pool_id"] : null;
+$slot_id = $cG ? $cG : $cP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = isset($_GET["select"]) ? $_GET["select"] : null;
+$cP = isset($_POST["select"]) ? $_POST["select"] : null;
+$select = $cG ? $cG : $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
+$cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
+$dupNbr = $cG ? $cG : $cP;
 
 $search = isset($_POST['searchSlot']) ? htmlentities($_POST['searchSlot'], ENT_QUOTES) : null;
 

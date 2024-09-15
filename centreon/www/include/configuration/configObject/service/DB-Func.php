@@ -648,9 +648,9 @@ function multipleServiceInDB(
             ) {
                 $hPars = array();
                 $hgPars = array();
-                (isset($val) && $val != "NULL" && $val)
-                    ? $rq = "INSERT INTO service VALUES (" . $val . ")"
-                    : $rq = null;
+                $rq = (isset($val) && $val != "NULL" && $val)
+                    ? "INSERT INTO service VALUES (" . $val . ")"
+                    : null;
                 if (isset($rq)) {
                     $dbResult = $pearDB->query($rq);
                     $dbResult = $pearDB->query("SELECT MAX(service_id) FROM service");
@@ -847,7 +847,7 @@ function multipleServiceInDB(
                                         : ", NULL"
                                     ) : $val .= ($value2 != null ? ("'" . $pearDB->escape($value2) . "'") : "NULL");
                             }
-                            $val ? $rq = "INSERT INTO extended_service_information VALUES (" . $val . ")" : $rq = null;
+                            $rq = $val ? "INSERT INTO extended_service_information VALUES (" . $val . ")" : null;
                             $pearDB->query($rq);
                             if ($key2 != "esi_id") {
                                 $fields[$key2] = $value2;

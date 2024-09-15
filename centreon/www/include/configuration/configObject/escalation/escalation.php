@@ -38,17 +38,17 @@ if (!isset($centreon)) {
     exit();
 }
 
-isset($_GET["esc_id"]) ? $cG = $_GET["esc_id"] : $cG = null;
-isset($_POST["esc_id"]) ? $cP = $_POST["esc_id"] : $cP = null;
-$cG ? $esc_id = $cG : $esc_id = $cP;
+$cG = isset($_GET["esc_id"]) ? $_GET["esc_id"] : null;
+$cP = isset($_POST["esc_id"]) ? $_POST["esc_id"] : null;
+$esc_id = $cG ? $cG : $cP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = isset($_GET["select"]) ? $_GET["select"] : null;
+$cP = isset($_POST["select"]) ? $_POST["select"] : null;
+$select = $cG ? $cG : $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
+$cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
+$dupNbr = $cG ? $cG : $cP;
 
 /*
  * Path to the configuration dir

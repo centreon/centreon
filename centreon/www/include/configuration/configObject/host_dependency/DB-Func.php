@@ -118,7 +118,7 @@ function multipleHostDependencyInDB($dependencies = array(), $nbrDup = array())
                 }
             }
             if (isset($dep_name) && testHostDependencyExistence($dep_name)) {
-                $val ? $rq = "INSERT INTO dependency VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO dependency VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(dep_id) FROM dependency");
                 $maxId = $dbResult->fetch();

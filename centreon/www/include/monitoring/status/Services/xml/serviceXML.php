@@ -436,7 +436,7 @@ if (!$sqlError) {
         if ($data["scheduled_downtime_depth"] > 0) {
             $class = "line_downtime";
         } elseif ($data["state"] == 2) {
-            $data["acknowledged"] == 1 ? $class = "line_ack" : $class = "list_down";
+            $class = $data["acknowledged"] == 1 ? "line_ack" : "list_down";
         } elseif ($data["acknowledged"] == 1) {
             $class = "line_ack";
         }

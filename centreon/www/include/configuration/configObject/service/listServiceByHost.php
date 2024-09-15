@@ -376,7 +376,7 @@ for ($i = 0; $service = $dbResult->fetch(); $i++) {
         "isServiceSvgFile" => $isServiceSvgFile
     );
     $fgHost["print"] ? null : $elemArr[$i]["RowMenu_name"] = null;
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

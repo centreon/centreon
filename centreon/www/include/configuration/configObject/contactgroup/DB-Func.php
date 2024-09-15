@@ -137,7 +137,7 @@ function multipleContactGroupInDB($contactGroups = array(), $nbrDup = array())
                 }
             }
             if (isset($cg_name) && testContactGroupExistence($cg_name)) {
-                $val ? $rq = "INSERT INTO `contactgroup` VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO `contactgroup` VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
 
                 $dbResult = $pearDB->query("SELECT MAX(cg_id) FROM `contactgroup`");

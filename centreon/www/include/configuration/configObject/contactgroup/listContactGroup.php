@@ -81,7 +81,7 @@ $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
 // Access level
-($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 $tpl->assign("headerMenu_name", _("Name"));
@@ -148,7 +148,7 @@ foreach ($cgs as $cg) {
         "RowMenu_badge" => $cg["cg_activate"] ? "service_ok" : "service_critical",
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

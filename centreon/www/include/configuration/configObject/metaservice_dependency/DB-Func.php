@@ -110,7 +110,7 @@ function multipleMetaServiceDependencyInDB($dependencies = array(), $nbrDup = ar
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
             if (testExistence($dep_name)) {
-                $val ? $rq = "INSERT INTO dependency VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO dependency VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(dep_id) FROM dependency");
                 $maxId = $dbResult->fetch();

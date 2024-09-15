@@ -160,7 +160,7 @@ for ($i = 0; $group = $statement->fetchRow(); $i++) {
         "RowMenu_options" => $moptions
     );
 
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

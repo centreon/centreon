@@ -192,7 +192,7 @@ for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
         "RowMenu_badge" => $cmd["command_activate"] ? "service_ok" : "service_critical",
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

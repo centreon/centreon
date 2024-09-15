@@ -331,13 +331,13 @@ if ($valid) {
 $vdef = 1; /* Display VDEF too */
 
 if ($o == METRIC_MODIFY || $o == METRIC_WATCH) {
-    isset($_POST["host_id"]) && $_POST["host_id"] != null
-        ? $host_service_id = $_POST["host_id"]
-        : $host_service_id = $vmetric["host_id"];
+    $host_service_id = isset($_POST["host_id"]) && $_POST["host_id"] != null
+        ? $_POST["host_id"]
+        : $vmetric["host_id"];
 } elseif ($o == METRIC_ADD) {
-    isset($_POST["host_id"]) && $_POST["host_id"] != null
-        ? $host_service_id = $_POST["host_id"]
-        : $host_service_id = 0;
+    $host_service_id = isset($_POST["host_id"]) && $_POST["host_id"] != null
+        ? $_POST["host_id"]
+        : 0;
 }
 ?>
 <script type="text/javascript">

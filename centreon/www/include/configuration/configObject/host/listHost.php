@@ -459,9 +459,9 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
             "isSvgFile" => $isSvgFile
         );
 
-        $style != "two"
-            ? $style = "two"
-            : $style = "one";
+        $style = $style != "two"
+            ? "two"
+            : "one";
     }
 }
 $tpl->assign("elemArr", $elemArr);

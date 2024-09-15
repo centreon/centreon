@@ -186,7 +186,7 @@ for ($i = 0; $config = $cfgBrokerStmt->fetch(); $i++) {
         "RowMenu_badge" => $config["config_activate"] ? "service_ok" : "service_critical",
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

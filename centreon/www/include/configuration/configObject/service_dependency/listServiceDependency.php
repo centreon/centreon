@@ -41,7 +41,7 @@ include_once("./class/centreonUtils.class.php");
 
 include("./include/common/autoNumLimit.php");
 
-isset($_GET["list"]) ? $list = $_GET["list"] : $list = null;
+$list = isset($_GET["list"]) ? $_GET["list"] : null;
 
 $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchSD'] ?? $_GET['searchSD'] ?? null
@@ -88,7 +88,7 @@ $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
 /* Access level */
-($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 # start header menu
@@ -126,7 +126,7 @@ for ($i = 0; $dep = $DBRESULT->fetchRow(); $i++) {
         "RowMenu_description" => CentreonUtils::escapeSecure(myDecode($dep["dep_description"])),
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

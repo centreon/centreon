@@ -94,7 +94,7 @@ function multipleMnftrInDB($mnftr = array(), $nbrDup = array())
                 $fields["name"] = $name;
             }
             if (testMnftrExistence($name)) {
-                $val ? $rq = "INSERT INTO traps_vendor VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO traps_vendor VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $oreon->CentreonLogAction->insertLog(
                     "manufacturer",

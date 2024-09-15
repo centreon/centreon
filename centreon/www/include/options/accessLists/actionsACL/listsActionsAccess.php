@@ -129,7 +129,7 @@ for ($i = 0; $topo = $statement->fetchRow(); $i++) {
         "RowMenu_options" => $moptions
     );
 
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 /* Different messages we put in the template */

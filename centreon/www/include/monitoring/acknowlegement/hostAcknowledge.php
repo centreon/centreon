@@ -45,9 +45,9 @@ require_once "./class/centreonDB.class.php";
  */
 $pearDBndo = $pearDBO;
 
-isset($_GET["host_name"])   ? $host_name = htmlentities($_GET["host_name"], ENT_QUOTES, "UTF-8") : $host_name = null;
-isset($_GET["cmd"])         ? $cmd = htmlentities($_GET["cmd"], ENT_QUOTES, "UTF-8") : $cmd = null;
-isset($_GET["en"])          ? $en = htmlentities($_GET["en"], ENT_QUOTES, "UTF-8") : $en = 1;
+$host_name = isset($_GET["host_name"])   ? htmlentities($_GET["host_name"], ENT_QUOTES, "UTF-8") : null;
+$cmd = isset($_GET["cmd"])         ? htmlentities($_GET["cmd"], ENT_QUOTES, "UTF-8") : null;
+$en = isset($_GET["en"])          ? htmlentities($_GET["en"], ENT_QUOTES, "UTF-8") : 1;
 
 $path = "./include/monitoring/acknowlegement/";
 

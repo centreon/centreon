@@ -39,13 +39,13 @@ if (!isset($centreon)) {
 
 include("./include/common/autoNumLimit.php");
 
-!isset($_GET["sort_types"]) ? $sort_types = 0 : $sort_types = $_GET["sort_types"];
-!isset($_GET["order"]) ? $order = 'ASC' : $order = $_GET["order"];
-!isset($_GET["num"]) ? $num = 0 : $num = $_GET["num"];
-!isset($_GET["host_search"]) ? $host_search = 0 : $host_search = $_GET["host_search"];
-!isset($_GET["search_type_host"]) ? $search_type_host = 1 : $search_type_host = $_GET["search_type_host"];
-!isset($_GET["search_type_service"]) ? $search_type_service = 1 : $search_type_service = $_GET["search_type_service"];
-!isset($_GET["sort_type"]) ? $sort_type = "host_name" : $sort_type = $_GET["sort_type"];
+$sort_types = !isset($_GET["sort_types"]) ? 0 : $_GET["sort_types"];
+$order = !isset($_GET["order"]) ? 'ASC' : $_GET["order"];
+$num = !isset($_GET["num"]) ? 0 : $_GET["num"];
+$host_search = !isset($_GET["host_search"]) ? 0 : $_GET["host_search"];
+$search_type_host = !isset($_GET["search_type_host"]) ? 1 : $_GET["search_type_host"];
+$search_type_service = !isset($_GET["search_type_service"]) ? 1 : $_GET["search_type_service"];
+$sort_type = !isset($_GET["sort_type"]) ? "host_name" : $_GET["sort_type"];
 
 /*
  * Check search value in Host search field

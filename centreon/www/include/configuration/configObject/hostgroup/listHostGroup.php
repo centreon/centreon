@@ -227,7 +227,7 @@ for ($i = 0; $hg = $dbResult->fetch(); $i++) {
     );
 
     // Switch color line
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

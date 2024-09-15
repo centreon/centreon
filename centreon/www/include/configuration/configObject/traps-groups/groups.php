@@ -38,17 +38,17 @@ if (!isset($centreon)) {
     exit();
 }
 
-isset($_GET["id"]) ? $trapGroupG = $_GET["id"] : $trapGroupG = null;
-isset($_POST["id"]) ? $trapGroupP = $_POST["id"] : $trapGroupP = null;
-$trapGroupG ? $id = $trapGroupG : $id = $trapGroupP;
+$trapGroupG = isset($_GET["id"]) ? $_GET["id"] : null;
+$trapGroupP = isset($_POST["id"]) ? $_POST["id"] : null;
+$id = $trapGroupG ? $trapGroupG : $trapGroupP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = isset($_GET["select"]) ? $_GET["select"] : null;
+$cP = isset($_POST["select"]) ? $_POST["select"] : null;
+$select = $cG ? $cG : $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
+$cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
+$dupNbr = $cG ? $cG : $cP;
 
 #Path to the configuration dir
 $path = "./include/configuration/configObject/traps-groups/";

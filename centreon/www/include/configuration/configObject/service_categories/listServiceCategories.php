@@ -152,7 +152,7 @@ for ($i = 0; $sc = $dbResult->fetch(); $i++) {
         "RowMenu_badge" => $sc["sc_activate"] ? "service_ok" : "service_critical",
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

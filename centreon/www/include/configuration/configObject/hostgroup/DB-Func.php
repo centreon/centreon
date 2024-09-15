@@ -291,7 +291,7 @@ function multipleHostGroupInDB($hostGroups = array(), $nbrDup = array())
                 }
             }
             if (testHostGroupExistence($hg_name)) {
-                $val ? $rq = "INSERT INTO hostgroup VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO hostgroup VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(hg_id) FROM hostgroup");
                 $maxId = $dbResult->fetch();
@@ -1112,7 +1112,7 @@ function updateHostGroupHosts($hg_id, $ret = array(), $increment = false)
         $statement->bindValue(':hg_parent_id', (int) $hg_id, \PDO::PARAM_INT);
         $statement->execute();
     }
-    isset($ret["hg_hg"]) ? $ret = $ret["hg_hg"] : $ret = $form->getSubmitValue("hg_hg");
+    $ret = isset($ret["hg_hg"]) ? $ret["hg_hg"] : $form->getSubmitValue("hg_hg");
     $hgNEW = array();
 
     $rq = "INSERT INTO hostgroup_hg_relation (hg_parent_id, hg_child_id) VALUES ";

@@ -112,7 +112,7 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
                             : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
                     }
                     if (testExistence($name)) {
-                        $val ? $rq = "INSERT INTO giv_graphs_template VALUES (" . $val . ")" : $rq = null;
+                        $rq = $val ? "INSERT INTO giv_graphs_template VALUES (" . $val . ")" : null;
                         $pearDB->query($rq);
                     }
                 }

@@ -257,7 +257,7 @@ if (
     $statement = $pearDB->prepare('SELECT `nagios_server_id` FROM `ns_host_relation` WHERE `host_host_id` = :host_id');
     $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
     $statement->execute();
-    for (($o !== HOST_MASSIVE_CHANGE) ? $i = 0 : $i = 1; $ns = $statement->fetch(); $i++) {
+    for ($i = ($o !== HOST_MASSIVE_CHANGE) ? 0 : 1; $ns = $statement->fetch(); $i++) {
         $host['nagios_server_id'][$i] = $ns['nagios_server_id'];
     }
     unset($ns);

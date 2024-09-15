@@ -380,9 +380,9 @@ function updateHostCategories($hcId)
     global $form, $pearDB, $centreon;
     $ret = [];
     $ret = $form->getSubmitValues();
-    $ret['hc_type']
-        ? $scType = true
-        : $scType = false;
+    $scType = $ret['hc_type']
+        ? true
+        : false;
     $bindParams = [];
     $bindParams[':hc_id'] = [\PDO::PARAM_INT => $hcId];
     foreach ($ret as $key => $value) {

@@ -19,6 +19,7 @@ use Rector\CodingStyle\Rector\ClassConst\RemoveFinalFromConstRector;
 use Rector\CodingStyle\Rector\ClassConst\SplitGroupedClassConstantsRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\CodingStyle\Rector\Property\SplitGroupedPropertiesRector;
+use Rector\CodingStyle\Rector\Ternary\TernaryConditionVariableAssignmentRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveNullTagValueNodeRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
@@ -104,11 +105,9 @@ return RectorConfig::configure()
 //        FuncCallToConstFetchRector::class, // KO 0 files / Changes use of function calls to use constants
 //        RemoveFinalFromConstRector::class, // KO 0 files / Remove final from constants in classes defined as final
 //        SplitGroupedPropertiesRector::class, // KO 0 files / Separate grouped properties to own lines
-//        SplitGroupedClassConstantsRector::class, // Separate class constant to own lines
-        SplitDoubleAssignRector::class, // Split multiple inline assigns to each own lines default value, to prevent undefined array issues
-//        WrapEncapsedVariableInCurlyBracesRector::class, // Wrap encapsed variables in curly braces
-//        WrapEncapsedVariableInCurlyBracesRector::class, // Wrap encapsed variables in curly braces
-//        TernaryConditionVariableAssignmentRector::class, // Assign outcome of ternary condition to variable, where applicable
+//        SplitGroupedClassConstantsRector::class, // OK 63 files / Separate class constant to own lines
+//        SplitDoubleAssignRector::class, // OK 34 files / Split multiple inline assigns to each own lines default value, to prevent undefined array issues
+        TernaryConditionVariableAssignmentRector::class, // OK 102 files / Assign outcome of ternary condition to variable, where applicable
 //        NullableCompareToNullRector::class, // Changes negate of empty comparison of nullable value to explicit === or !== compare
 //        MakeInheritedMethodVisibilitySameAsParentRector::class, // Make method visibility same as parent one
 //        StringClassNameToClassConstantRector::class, // Replace string class names by ::class constant (5.5)
@@ -196,6 +195,9 @@ return RectorConfig::configure()
 //        RenameParamToMatchTypeRector::class, // Rename param to match ClassType
 //        RenamePropertyToMatchTypeRector::class, // Rename property and method param to match its type
 //        RenameVariableToMatchMethodCallReturnTypeRector::class, // Rename variable to match method return type
+    //  -- -- deprecated ?? ---
+        //        WrapEncapsedVariableInCurlyBracesRector::class, // 152 files Wrap encapsed variables in curly braces
+
     ]);
 
 //return RectorConfig::configure()

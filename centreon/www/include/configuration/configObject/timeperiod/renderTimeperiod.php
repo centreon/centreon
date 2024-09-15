@@ -36,9 +36,9 @@ if (!isset($centreon)) {
     exit();
 }
 
-isset($_GET["tp_id"]) ? $tpG = $_GET["tp_id"] : $tpG = null;
-isset($_POST["tp_id"]) ? $tpP = $_POST["tp_id"] : $tpP = null;
-$tpG ? $tp_id = $tpG : $tp_id = $tpP;
+$tpG = isset($_GET["tp_id"]) ? $_GET["tp_id"] : null;
+$tpP = isset($_POST["tp_id"]) ? $_POST["tp_id"] : null;
+$tp_id = $tpG ? $tpG : $tpP;
 $path = "./include/configuration/configObject/timeperiod/";
 require_once $path . "DB-Func.php";
 require_once "./include/common/common-Func.php";

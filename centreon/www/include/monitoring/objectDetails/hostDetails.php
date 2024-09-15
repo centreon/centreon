@@ -252,7 +252,7 @@ if (!$is_admin && !$haveAccess) {
             }
             $row["duration"] = $duration;
 
-            ($class == 'list_one') ? $class = 'list_two' : $class = 'list_one';
+            $class = ($class == 'list_one') ? 'list_two' : 'list_one';
 
             // Set Data
             $services[] = $row;

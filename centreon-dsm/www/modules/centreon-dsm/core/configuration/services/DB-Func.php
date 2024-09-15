@@ -282,7 +282,7 @@ function multiplePoolInDB($pool = array(), $nbrDup = array())
             }
 
             if (isset($pool_name) && !testPoolExistence($pool_name)) {
-                $val ? $rq = "INSERT INTO `mod_dsm_pool` VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO `mod_dsm_pool` VALUES (" . $val . ")" : null;
                 $dbResult = $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(pool_id) FROM `mod_dsm_pool`");
                 $cmd_id = $dbResult->fetch();
@@ -658,7 +658,7 @@ function updatePoolContactGroup($pool_id = null, $ret = array())
 
     $pearDB->query("DELETE FROM mod_dsm_cg_relation WHERE pool_id = '" . $pool_id . "'");
 
-    (isset($ret["pool_cg"])) ? $ret = $ret["pool_cg"] : $ret = $form->getSubmitValue("pool_cg");
+    $ret = (isset($ret["pool_cg"])) ? $ret["pool_cg"] : $form->getSubmitValue("pool_cg");
     $counter = count($ret);
 
     for ($i = 0; $i < $counter; $i++) {
@@ -687,7 +687,7 @@ function updatePoolContact($pool_id = null, $ret = array())
 
     $pearDB->query("DELETE FROM mod_dsm_cct_relation WHERE pool_id = '" . $pool_id . "'");
 
-    (isset($ret["pool_cct"])) ? $ret = $ret["pool_cct"] : $ret = $form->getSubmitValue("pool_cct");
+    $ret = (isset($ret["pool_cct"])) ? $ret["pool_cct"] : $form->getSubmitValue("pool_cct");
     $counter = count($ret);
 
     for ($i = 0; $i < $counter; $i++) {

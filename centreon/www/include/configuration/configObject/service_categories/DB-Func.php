@@ -142,11 +142,11 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
             if (testServiceCategorieExistence($sc_name)) {
-                $val
-                    ? $query = "
+                $query = $val
+                    ? "
                         INSERT INTO `service_categories`
                         VALUES (NULL, :sc_name, :sc_description, :sc_level, :sc_icon_id, :sc_activate)"
-                    : $query = null;
+                    : null;
                 $statement = $pearDB->prepare($query);
                 foreach ($bindParams as $token => $bindValues) {
                     foreach ($bindValues as $paramType => $value) {

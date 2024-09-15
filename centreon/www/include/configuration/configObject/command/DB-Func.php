@@ -137,7 +137,7 @@ function multipleCommandInDB($commands = array(), $nbrDup = array())
             }
 
             if (isset($command_name) && testCmdExistence($command_name)) {
-                $val ? $rq = "INSERT INTO `command` VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO `command` VALUES (" . $val . ")" : null;
                 $dbResult = $pearDB->query($rq);
 
                 /*

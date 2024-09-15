@@ -70,8 +70,8 @@ while ($data = $DBRESULT->fetchRow()) {
 }
 $DBRESULT->closeCursor();
 
-isset($_POST['pollers']) && $_POST['pollers'] != "" ?
-    $selectedPoller = $_POST['pollers'] : $selectedPoller = $defaultPoller;
+$selectedPoller = isset($_POST['pollers']) && $_POST['pollers'] != "" ?
+    $_POST['pollers'] : $defaultPoller;
 
 $attrPollers = array(
     'datasourceOrigin' => 'ajax',

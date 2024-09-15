@@ -260,9 +260,9 @@ $DBRESULT->closeCursor();
 /*
  * Get poller ID
  */
-isset($_POST['pollers']) && $_POST['pollers'] != ""
-    ? $selectedPoller = $_POST['pollers']
-    : $selectedPoller = $defaultPoller;
+$selectedPoller = isset($_POST['pollers']) && $_POST['pollers'] != ""
+    ? $_POST['pollers']
+    : $defaultPoller;
 if (!isset($selectedPoller)) {
     $tmpKeys = array_keys($pollerList);
     $selectedPoller = $tmpKeys[0];

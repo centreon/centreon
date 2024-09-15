@@ -360,7 +360,7 @@ foreach ($contacts as $contact) {
         "RowMenu_options" => $moptions,
         "RowMenu_unblock" => $contact["blocking_time"] !== null ? $blockedUserIcon : "-"
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("isAdmin", $centreon->user->admin);
 $tpl->assign("blockedContactsCount", $blockedContactsCount);

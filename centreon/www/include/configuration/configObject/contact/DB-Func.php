@@ -439,7 +439,7 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
             }
 
             if (testContactExistence($contact_name) && testAliasExistence($contact_alias)) {
-                $val ? $rq = "INSERT INTO contact VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO contact VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $lastId = $pearDB->lastInsertId();
                 if (isset($lastId)) {

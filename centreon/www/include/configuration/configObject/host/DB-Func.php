@@ -468,7 +468,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                 }
             }
             if (hasHostNameNeverUsed($hostName)) {
-                $val ? $rq = "INSERT INTO host VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO host VALUES (" . $val . ")" : null;
                 $dbResult = $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(host_id) FROM host");
                 $maxId = $dbResult->fetch();
@@ -649,9 +649,9 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                 $fields[$key2] = $value2;
                             }
                         }
-                        $val
-                            ? $rq = "INSERT INTO extended_host_information VALUES (" . $val . ")"
-                            : $rq = null;
+                        $rq = $val
+                            ? "INSERT INTO extended_host_information VALUES (" . $val . ")"
+                            : null;
                         $dbResult2 = $pearDB->query($rq);
                     }
 
@@ -1341,9 +1341,9 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         }
     }
 
-    isset($ret["nagios_server_id"])
-        ? $server_id = $ret["nagios_server_id"]
-        : $server_id = $form->getSubmitValue("nagios_server_id");
+    $server_id = isset($ret["nagios_server_id"])
+        ? $ret["nagios_server_id"]
+        : $form->getSubmitValue("nagios_server_id");
 
     if (! isset($server_id) || $server_id == "" || $server_id == 0) {
         $server_id = null;
@@ -2291,7 +2291,7 @@ function updateHostHostGroup($host_id, $ret = array())
     $rq = "DELETE FROM hostgroup_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    isset($ret["host_hgs"]) ? $ret = $ret["host_hgs"] : $ret = $form->getSubmitValue("host_hgs");
+    $ret = isset($ret["host_hgs"]) ? $ret["host_hgs"] : $form->getSubmitValue("host_hgs");
     $hgsNEW = array();
 
     if ($ret) {
@@ -2613,9 +2613,9 @@ function updateNagiosServerRelation($hostId, $ret = [])
         return;
     }
 
-    isset($ret["nagios_server_id"])
-        ? $ret = $ret["nagios_server_id"]
-        : $ret = $form->getSubmitValue("nagios_server_id");
+    $ret = isset($ret["nagios_server_id"])
+        ? $ret["nagios_server_id"]
+        : $form->getSubmitValue("nagios_server_id");
 
     if (isset($ret) && $ret != "" && $ret != 0) {
         $pearDB->query("DELETE FROM `ns_host_relation` WHERE `host_host_id` = '" . (int) $hostId . "'");

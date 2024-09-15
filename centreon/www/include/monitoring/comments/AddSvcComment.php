@@ -53,9 +53,9 @@ $hostStr = $centreon->user->access->getHostsString("ID", $pearDBO);
 if ($centreon->user->access->checkAction("service_comment")) {
     $LCA_error = 0;
 
-    isset($_GET["host_id"]) ? $cG = $_GET["host_id"] : $cG = null;
-    isset($_POST["host_id"]) ? $cP = $_POST["host_id"] : $cP = null;
-    $cG ? $host_id = $cG : $host_id = $cP;
+    $cG = isset($_GET["host_id"]) ? $_GET["host_id"] : null;
+    $cP = isset($_POST["host_id"]) ? $_POST["host_id"] : null;
+    $host_id = $cG ? $cG : $cP;
 
     $host_name = null;
     $svc_description = null;

@@ -181,7 +181,7 @@ for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
         "RowMenu_status" => $vmetric["vmetric_activate"] ? _("Enabled") : _("Disabled"),
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

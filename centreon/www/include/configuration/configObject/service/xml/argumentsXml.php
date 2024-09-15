@@ -169,7 +169,7 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
     $disabled = 0;
     $nbArg = 0;
     foreach ($argTab as $name => $description) {
-        $style == 'list_one' ? $style = 'list_two' : $style = 'list_one';
+        $style = $style == 'list_one' ? 'list_two' : 'list_one';
         if ($o == "w") {
             $disabled = 1;
         }

@@ -107,7 +107,7 @@ if (isset($hostEscResources)) {
             "RowMenu_hico" => "./img/icons/host.png",
             "RowMenu_host" => myDecode($hostName)
         );
-        $style != "two" ? $style = "two" : $style = "one";
+        $style = $style != "two" ? "two" : "one";
     }
 }
 $tpl->assign("elemArrHostEsc", $elemArrHostEsc);
@@ -129,7 +129,7 @@ if (isset($svcEscResources)) {
                 "RowMenu_host" => myDecode($tab['host_name']),
                 "RowMenu_service" => myDecode($tab['service_description'])
             );
-            $style != "two" ? $style = "two" : $style = "one";
+            $style = $style != "two" ? "two" : "one";
         }
     }
 }
@@ -149,7 +149,7 @@ if (isset($hostResources)) {
             "RowMenu_hico" => "./img/icons/host.png",
             "RowMenu_host" => myDecode($hostName)
         );
-        $style != "two" ? $style = "two" : $style = "one";
+        $style = $style != "two" ? "two" : "one";
     }
 }
 $tpl->assign("elemArrHost", $elemArrHost);
@@ -170,7 +170,7 @@ if (isset($svcResources)) {
                 "RowMenu_host" => myDecode($tab['host_name']),
                 "RowMenu_service" => myDecode($tab['service_description'])
             );
-            $style != "two" ? $style = "two" : $style = "one";
+            $style = $style != "two" ? "two" : "one";
         }
     }
 }

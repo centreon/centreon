@@ -457,7 +457,7 @@ while ($row = $res->fetch()) {
     if ($row['scheduled_downtime_depth'] > 0) {
         $class = 'line_downtime';
     } elseif ($row['state'] == 1) {
-        $row['acknowledged'] == 1 ? $class = 'line_ack' : $class = 'list_down';
+        $class = $row['acknowledged'] == 1 ? 'line_ack' : 'list_down';
     } elseif ($row['acknowledged'] == 1) {
         $class = 'line_ack';
     }

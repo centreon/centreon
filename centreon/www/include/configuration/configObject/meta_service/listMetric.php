@@ -50,7 +50,7 @@ $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
 /* Access level */
-($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 require_once("./class/centreonDB.class.php");
@@ -158,7 +158,7 @@ if ($in_statement != "") {
                 "RowMenu_badge" => $relation["activate"] ? "service_ok" : "service_critical",
                 "RowMenu_options" => $moptions
             );
-            $style != "two" ? $style = "two" : $style = "one";
+            $style = $style != "two" ? "two" : "one";
             $i++;
         }
     }

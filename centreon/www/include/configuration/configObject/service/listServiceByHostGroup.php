@@ -410,7 +410,7 @@ for ($i = 0; $service = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
     );
 
     $fgHostgroup["print"] ? null : $elemArr[$i]["RowMenu_name"] = null;
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

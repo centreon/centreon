@@ -209,7 +209,7 @@ function multipleNagiosInDB($nagios = array(), $nbrDup = array())
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
             if (testExistence($nagios_name)) {
-                $val ? $rq = "INSERT INTO cfg_nagios VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO cfg_nagios VALUES (" . $val . ")" : null;
                 $dbResult = $pearDB->query($rq);
                 /* Find the new last nagios_id once */
                 $dbResult = $pearDB->query("SELECT MAX(nagios_id) FROM cfg_nagios");

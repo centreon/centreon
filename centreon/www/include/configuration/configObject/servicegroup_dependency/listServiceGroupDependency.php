@@ -121,7 +121,7 @@ for ($i = 0; $dep = $dbResult->fetch(); $i++) {
         "RowMenu_description" => CentreonUtils::escapeSecure(htmlentities($dep["dep_description"])),
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

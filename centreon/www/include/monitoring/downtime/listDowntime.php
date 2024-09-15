@@ -66,9 +66,9 @@ if (isset($_POST['SearchB'])) {
         ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_author'])
         : null;
     $centreon->historySearch[$url]["search_author"] = $search_author;
-    isset($_POST["view_all"]) ? $view_all = 1 : $view_all = 0;
+    $view_all = isset($_POST["view_all"]) ? 1 : 0;
     $centreon->historySearch[$url]["view_all"] = $view_all;
-    isset($_POST["view_downtime_cycle"]) ? $view_downtime_cycle = 1 : $view_downtime_cycle = 0;
+    $view_downtime_cycle = isset($_POST["view_downtime_cycle"]) ? 1 : 0;
     $centreon->historySearch[$url]["view_downtime_cycle"] = $view_downtime_cycle;
 } elseif (isset($_GET['SearchB'])) {
     $centreon->historySearch[$url] = array();
@@ -88,9 +88,9 @@ if (isset($_POST['SearchB'])) {
         ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_author'])
         : null;
     $centreon->historySearch[$url]["search_author"] = $search_author;
-    isset($_GET["view_all"]) ? $view_all = 1 : $view_all = 0;
+    $view_all = isset($_GET["view_all"]) ? 1 : 0;
     $centreon->historySearch[$url]["view_all"] = $view_all;
-    isset($_GET["view_downtime_cycle"]) ? $view_downtime_cycle = 1 : $view_downtime_cycle = 0;
+    $view_downtime_cycle = isset($_GET["view_downtime_cycle"]) ? 1 : 0;
     $centreon->historySearch[$url]["view_downtime_cycle"] = $view_downtime_cycle;
 } else {
     $search_service = $centreon->historySearch[$url]['search_service'] ?? null;

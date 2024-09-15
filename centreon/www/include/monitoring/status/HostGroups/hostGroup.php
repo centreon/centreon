@@ -39,10 +39,10 @@ if (!isset($centreon)) {
 
 include("./include/common/autoNumLimit.php");
 
-!isset($_GET["sort_types"]) ? $sort_types = 0 : $sort_types = $_GET["sort_types"];
-!isset($_GET["order"]) ? $order = 'ASC' : $order = $_GET["order"];
-!isset($_GET["num"]) ? $num = 0 : $num = $_GET["num"];
-!isset($_GET["sort_type"]) ? $sort_type = "hostGroup_name" : $sort_type = $_GET["sort_type"];
+$sort_types = !isset($_GET["sort_types"]) ? 0 : $_GET["sort_types"];
+$order = !isset($_GET["order"]) ? 'ASC' : $_GET["order"];
+$num = !isset($_GET["num"]) ? 0 : $_GET["num"];
+$sort_type = !isset($_GET["sort_type"]) ? "hostGroup_name" : $_GET["sort_type"];
 
 $tab_class = array("0" => "list_one", "1" => "list_two");
 $rows = 10;

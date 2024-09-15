@@ -213,8 +213,8 @@ class CentreonMedia
     {
         if (!isset($dirname)) {
             $tab = preg_split("/\//", $imagename);
-            isset($tab[0]) ? $dirname = $tab[0] : $dirname = null;
-            isset($tab[1]) ? $imagename = $tab[1] : $imagename = null;
+            $dirname = isset($tab[0]) ? $tab[0] : null;
+            $imagename = isset($tab[1]) ? $tab[1] : null;
         }
 
         if (!isset($imagename) || !isset($dirname)) {

@@ -115,7 +115,7 @@ for ($i = 0; $graph = $stmt->fetch(); $i++) {
         "RowMenu_split_component" => $graph["split_component"] ? _("Yes") : _("No"),
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

@@ -101,7 +101,7 @@ function multipleTrapGroupInDB($trap_groups = array(), $nbrDup = array())
             }
 
             if (testTrapGroupExistence($name)) {
-                $val ? $rq = "INSERT INTO traps_group VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO traps_group VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $oreon->CentreonLogAction->insertLog("traps_group", $key, $name, "a", $fields);
 

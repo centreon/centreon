@@ -153,7 +153,7 @@ for ($i = 0; $contact = $dbResult->fetch(); $i++) {
         "RowMenu_status" => $contact["pool_activate"] ? _("Enabled") : _("Disabled"),
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

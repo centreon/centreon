@@ -48,17 +48,17 @@ const DELETE_BROKER_CONFIGURATIONS = 'd';
 const LISTING_FILE = '/listCentreonBroker.php';
 const FORM_FILE = '/formCentreonBroker.php';
 
-isset($_GET["id"]) ? $cG = $_GET["id"] : $cG = null;
-isset($_POST["id"]) ? $cP = $_POST["id"] : $cP = null;
-$cG ? $id = $cG : $id = $cP;
+$cG = isset($_GET["id"]) ? $_GET["id"] : null;
+$cP = isset($_POST["id"]) ? $_POST["id"] : null;
+$id = $cG ? $cG : $cP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = isset($_GET["select"]) ? $_GET["select"] : null;
+$cP = isset($_POST["select"]) ? $_POST["select"] : null;
+$select = $cG ? $cG : $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
+$cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
+$dupNbr = $cG ? $cG : $cP;
 
 require_once './class/centreonConfigCentreonBroker.php';
 

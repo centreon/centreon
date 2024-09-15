@@ -260,7 +260,7 @@ function multipleActionInDB($actions = array(), $nbrDup = array())
                 }
             }
             if (testActionExistence($acl_action_name)) {
-                $val ? $rq = "INSERT INTO acl_actions VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO acl_actions VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(acl_action_id) FROM acl_actions");
                 $maxId = $dbResult->fetch();

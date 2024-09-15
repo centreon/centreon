@@ -142,7 +142,7 @@ for ($i = 0; $compo = $stmt->fetch(); $i++) {
         "RowMenu_tickness" => $compo["ds_tickness"],
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

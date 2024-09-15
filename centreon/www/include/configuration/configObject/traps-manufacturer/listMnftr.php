@@ -115,7 +115,7 @@ for ($i = 0; $mnftr = $statement->fetch(); $i++) {
         "RowMenu_alias" => CentreonUtils::escapeSecure(myDecode($mnftr["alias"])),
         "RowMenu_options" => $moptions
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

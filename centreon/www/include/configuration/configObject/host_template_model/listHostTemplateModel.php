@@ -104,7 +104,7 @@ $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
 /* Access level */
-($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 /*
@@ -200,7 +200,7 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
         "RowMenu_options" => $moptions,
         "isHostTemplateSvgFile" => $isHostTemplateSvgFile
     );
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

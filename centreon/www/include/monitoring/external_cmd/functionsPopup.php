@@ -167,10 +167,10 @@ function massiveServiceAck($key)
         $serviceDescription = $tmp[1];
     }
 
-    isset($_POST['persistent']) && $_POST['persistent'] == "true" ? $persistent = "1" : $persistent = "0";
-    isset($_POST['notify']) && $_POST['notify'] == "true" ? $notify = "1" : $notify = "0";
-    isset($_POST['sticky']) && $_POST['sticky'] == "true" ? $sticky = "2" : $sticky = "1";
-    isset($_POST['force_check']) && $_POST['force_check'] == "true" ? $force_check = "1" : $force_check = "0";
+    $persistent = isset($_POST['persistent']) && $_POST['persistent'] == "true" ? "1" : "0";
+    $notify = isset($_POST['notify']) && $_POST['notify'] == "true" ? "1" : "0";
+    $sticky = isset($_POST['sticky']) && $_POST['sticky'] == "true" ? "2" : "1";
+    $force_check = isset($_POST['force_check']) && $_POST['force_check'] == "true" ? "1" : "0";
 
     if ($actions == true || $is_admin) {
         $_POST["comment"] = sanitizeShellString($_POST["comment"]);

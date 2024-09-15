@@ -165,7 +165,7 @@ function multipleMetaServiceInDB($metas = array(), $nbrDup = array())
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
             if (testExistence($meta_name)) {
-                $val ? $rq = "INSERT INTO meta_service VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO meta_service VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(meta_id) FROM meta_service");
                 $maxId = $dbResult->fetch();
@@ -252,7 +252,7 @@ function multipleMetricInDB($metrics = array(), $nbrDup = array())
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
-            $val ? $rq = "INSERT INTO meta_service_relation VALUES (" . $val . ")" : $rq = null;
+            $rq = $val ? "INSERT INTO meta_service_relation VALUES (" . $val . ")" : null;
             $dbResult = $pearDB->query($rq);
         }
     }
