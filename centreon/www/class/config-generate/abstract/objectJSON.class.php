@@ -57,7 +57,7 @@ abstract class AbstractObjectJSON
         /**
          * @var class-string<static>
          */
-        $calledClass = get_called_class();
+        $calledClass = static::class;
 
         if (!isset($instances[$calledClass])) {
             $instances[$calledClass] = new $calledClass($dependencyInjector);

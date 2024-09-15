@@ -36,6 +36,8 @@ use Rector\Php53\Rector\Ternary\TernaryToElvisRector;
 use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
 use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Php54\Rector\Break_\RemoveZeroBreakContinueRector;
+use Rector\Php55\Rector\FuncCall\GetCalledClassToSelfClassRector;
+use Rector\Php55\Rector\FuncCall\GetCalledClassToStaticClassRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
@@ -121,10 +123,10 @@ return RectorConfig::configure()
         //        DirNameFileConstantToDirConstantRector::class, // OK 78 files / Convert dirname(__FILE__) to __DIR__ (5.3)
         //        ReplaceHttpServerVarsByServerRector::class, // KO 0 files / Rename old $HTTP_* variable names to new replacements (5.3)
         //        TernaryToElvisRector::class, // OK 20 files / Use ?: instead of ?, where useful (5.3)
-        //        RemoveZeroBreakContinueRector::class, // OK 0 files / Remove 0 from break and continue (5.4)
-        LongArrayToShortArrayRector::class, // OK 612 files / Long array to short array (5.4)
-        //        GetCalledClassToSelfClassRector::class, // Change get_called_class() to self::class on final class (5.5)
-        //        GetCalledClassToStaticClassRector::class, // Change get_called_class() to static::class on non-final class (5.5)
+        //        RemoveZeroBreakContinueRector::class, // KO 0 files / Remove 0 from break and continue (5.4)
+//        LongArrayToShortArrayRector::class, // OK 612 files / Long array to short array (5.4)
+//                GetCalledClassToSelfClassRector::class, // KO 0 files Change get_called_class() to self::class on final class (5.5)
+                GetCalledClassToStaticClassRector::class, // Change get_called_class() to static::class on non-final class (5.5)
         //        StaticToSelfOnFinalClassRector::class, // Change static::class to self::class on final class (5.5)
         //        StaticToSelfOnFinalClassRector::class, // Change static::class to self::class on final class (5.5)
         //        StringClassNameToClassConstantRector::class, // Replace string class names by ::class constant (5.5)

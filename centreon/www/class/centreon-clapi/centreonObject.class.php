@@ -651,7 +651,7 @@ abstract class CentreonObject
      */
     public static function getInstance($dependencyInjector = null)
     {
-        $class = get_called_class();
+        $class = static::class;
 
         if (is_null($dependencyInjector)) {
             $dependencyInjector = loadDependencyInjector();

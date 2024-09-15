@@ -80,7 +80,7 @@ abstract class AbstractObject
     public static function getInstance(Container $dependencyInjector)
     {
         static $instances = [];
-        $calledClass = get_called_class();
+        $calledClass = static::class;
 
         if (!isset($instances[$calledClass])) {
             $instances[$calledClass] = new $calledClass($dependencyInjector);
