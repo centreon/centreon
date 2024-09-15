@@ -30,23 +30,14 @@ interface StylesProps {
 const useStyles = makeStyles<StylesProps>()(
   (theme, { hasCustomDropZoneContent, isDraggingOver }) => ({
     dropzone: {
-      '&:hover': hasCustomDropZoneContent
-        ? undefined
-        : {
-            backgroundColor: alpha(theme.palette.primary.main, 0.1),
-            border: `${theme.spacing(0.3)} dashed ${
-              theme.palette.primary.main
-            }`,
-            boxShadow: theme.shadows[3],
-            cursor: 'pointer'
-          },
-      border: `${theme.spacing(0.3)} dashed ${
-        hasCustomDropZoneContent && !isDraggingOver
-          ? 'transparent'
-          : theme.palette.primary.main
-      }`,
+      '&:hover': {
+        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+        boxShadow: theme.shadows[3],
+        cursor: 'pointer'
+      },
+      border: `${theme.spacing(0.3)} dashed ${theme.palette.primary.main}`,
       boxShadow: isDraggingOver ? theme.shadows[3] : theme.shadows[0],
-      padding: hasCustomDropZoneContent ? undefined : theme.spacing(1),
+      padding: theme.spacing(0.5, 1),
       width: hasCustomDropZoneContent ? '100%' : theme.spacing(50)
     },
     dropzoneInfo: {
@@ -66,7 +57,7 @@ const useStyles = makeStyles<StylesProps>()(
 export type CustomDropZoneContentProps = Pick<
   UseDropzoneState,
   'openFileExplorer'
->;
+> & { files: FileList | null; label?: string };
 
 interface Props {
   CustomDropZoneContent?: ({
@@ -79,6 +70,7 @@ interface Props {
   maxFileSize?: number;
   multiple?: boolean;
   resetFilesStatusAndUploadData: () => void;
+  label?: string;
 }
 
 const getExtensions = cond([
@@ -115,7 +107,8 @@ const Dropzone = ({
   accept,
   CustomDropZoneContent,
   maxFileSize,
-  className
+  className,
+  label
 }: Props): JSX.Element => {
   const hasCustomDropZoneContent = !isNil(CustomDropZoneContent);
   const {
@@ -145,14 +138,18 @@ const Dropzone = ({
       <div>
         <Box
           className={cx(classes.dropzone, className)}
-          onClick={!hasCustomDropZoneContent ? openFileExplorer : undefined}
+          onClick={openFileExplorer}
           onDragLeave={dragOver(false)}
           onDragOver={dragOver(true)}
           onDrop={dropFiles}
         >
           <div className={classes.dropzoneInfo}>
             {hasCustomDropZoneContent ? (
-              <CustomDropZoneContent openFileExplorer={openFileExplorer} />
+              <CustomDropZoneContent
+                openFileExplorer={openFileExplorer}
+                files={files}
+                label={label}
+              />
             ) : (
               <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                 <PostAddIcon color="primary" fontSize="large" />
@@ -163,7 +160,7 @@ const Dropzone = ({
             )}
             <input
               accept={accept}
-              aria-label={t(labelSelectAFile) || ''}
+              aria-label={t(labelSelectAFile)}
               className={classes.input}
               multiple={multiple}
               ref={fileInputRef}

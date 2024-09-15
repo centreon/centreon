@@ -42,6 +42,7 @@ import LoadingSkeleton from './LoadingSkeleton';
 import RadioInput from './Radio';
 import SwitchInput from './Switch';
 import TextInput from './Text';
+import File from './File';
 import { Group, InputProps, InputPropsWithoutGroup, InputType } from './models';
 
 export const getInput = cond<
@@ -78,6 +79,7 @@ export const getInput = cond<
     always(CheckboxGroup)
   ],
   [equals(InputType.List) as (b: InputType) => boolean, always(List)],
+  [equals(InputType.File) as (b: InputType) => boolean, always(File)],
   [T, always(TextInput)]
 ]);
 
