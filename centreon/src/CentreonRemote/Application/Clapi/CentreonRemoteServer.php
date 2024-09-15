@@ -69,7 +69,8 @@ class CentreonRemoteServer implements CentreonClapiServiceInterface
             'remoteHttpPort' => null,
             'remoteNoCheckCertificate' => false,
         ];
-        $urlString = $noProxy = '';
+        $urlString = '';
+        $noProxy = '';
 
         // Check CLAPI
         $options = explode(';', $parametersString);

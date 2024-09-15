@@ -115,7 +115,8 @@ try {
         // checking mysql version before trying to alter the password plugin
         // As ALTER USER won't work on a mariaDB < 10.2, we need to check it before trying this request
         $prepareCheckVersion = $link->query("SHOW VARIABLES WHERE Variable_name IN ('version', 'version_comment')");
-        $versionName = $versionNumber = "";
+        $versionName = "";
+        $versionNumber = "";
         while ($row = $prepareCheckVersion->fetch()) {
             if ($row['Variable_name'] === "version") {
                 $versionNumber = $row['Value'];

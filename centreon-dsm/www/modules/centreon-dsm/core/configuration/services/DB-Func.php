@@ -260,7 +260,8 @@ function multiplePoolInDB($pool = array(), $nbrDup = array())
 
             foreach ($row as $key2 => $value2) {
                 if ($key2 == "pool_name") {
-                    $pool_name = $value2 = $value2 . "_" . $i;
+                    $pool_name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
                 }
                 if ($key2 == 'pool_host_id') {
                     $value2 = null;

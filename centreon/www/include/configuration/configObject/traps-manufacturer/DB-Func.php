@@ -82,7 +82,8 @@ function multipleMnftrInDB($mnftr = array(), $nbrDup = array())
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 $name = "";
                 if ($key2 == "name") {
-                    $name = $value2 = $value2 . "_" . $i;
+                    $name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
                 }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")

@@ -454,7 +454,8 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == "host_name") {
-                    $hostName = $value2 = $value2 . "_" . $i;
+                    $hostName = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
                 }
                 $val
                     ? $val .= ($value2 != null ? (", '" . CentreonDB::escape($value2) . "'") : ", NULL")

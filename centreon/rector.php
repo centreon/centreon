@@ -14,6 +14,7 @@ use Rector\CodeQuality\Rector\If_\CompleteMissingIfElseBracketRector;
 use Rector\CodeQuality\Rector\If_\ShortenElseIfRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\Ternary\ArrayKeyExistsTernaryThenValueToCoalescingRector;
+use Rector\CodingStyle\Rector\Assign\SplitDoubleAssignRector;
 use Rector\CodingStyle\Rector\ClassConst\RemoveFinalFromConstRector;
 use Rector\CodingStyle\Rector\ClassConst\SplitGroupedClassConstantsRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
@@ -103,8 +104,8 @@ return RectorConfig::configure()
 //        FuncCallToConstFetchRector::class, // KO 0 files / Changes use of function calls to use constants
 //        RemoveFinalFromConstRector::class, // KO 0 files / Remove final from constants in classes defined as final
 //        SplitGroupedPropertiesRector::class, // KO 0 files / Separate grouped properties to own lines
-        SplitGroupedClassConstantsRector::class, // Separate class constant to own lines
-//        SplitDoubleAssignRector::class, // Split multiple inline assigns to each own lines default value, to prevent undefined array issues
+//        SplitGroupedClassConstantsRector::class, // Separate class constant to own lines
+        SplitDoubleAssignRector::class, // Split multiple inline assigns to each own lines default value, to prevent undefined array issues
 //        WrapEncapsedVariableInCurlyBracesRector::class, // Wrap encapsed variables in curly braces
 //        WrapEncapsedVariableInCurlyBracesRector::class, // Wrap encapsed variables in curly braces
 //        TernaryConditionVariableAssignmentRector::class, // Assign outcome of ternary condition to variable, where applicable

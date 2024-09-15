@@ -174,7 +174,8 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 switch ($key2) {
                     case 'sg_name':
                         $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $sgName = $value2 = $value2 . "_" . $i;
+                        $sgName = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
                         $bindParams[':sg_name'] = [\PDO::PARAM_STR => $value2];
                         break;
                     case 'sg_alias':

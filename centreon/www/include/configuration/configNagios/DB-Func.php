@@ -202,7 +202,8 @@ function multipleNagiosInDB($nagios = array(), $nbrDup = array())
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 $value2 = $pearDB->escape($value2);
                 if ($key2 == "nagios_name") {
-                    $nagios_name = $value2 = $value2 . "_" . $i;
+                    $nagios_name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
                 }
                 $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");

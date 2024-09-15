@@ -106,7 +106,8 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                 switch ($key2) {
                     case 'sc_name':
                         $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $sc_name = $value2 = $value2 . "_" . $i;
+                        $sc_name = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
                         $bindParams[':sc_name'] = [
                             \PDO::PARAM_STR => $value2
                         ];

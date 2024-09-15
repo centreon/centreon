@@ -768,7 +768,8 @@ class CentreonDowntime
                     return;
                 }
                 $row = $statement->fetch(PDO::FETCH_ASSOC);
-                $index = $i = 1;
+                $index = 1;
+                $i = 1;
                 while ($i <= $nb[$id]) {
                     if (!$this->downtimeExists($row['dt_name'] . '_' . $index)) {
                         $row['index'] = $index;

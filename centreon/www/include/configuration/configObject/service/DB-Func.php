@@ -619,7 +619,8 @@ function multipleServiceInDB(
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == "service_description" && $descKey) {
-                    $service_description = $value2 = $value2 . "_" . $i;
+                    $service_description = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
                 } elseif ($key2 == "service_description") {
                     $service_description = null;
                 }

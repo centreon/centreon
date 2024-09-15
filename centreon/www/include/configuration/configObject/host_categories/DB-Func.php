@@ -178,7 +178,8 @@ function multipleHostCategoriesInDB($hostCategories = [], $nbrDup = [])
                 switch ($key2) {
                     case 'hc_name':
                         $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $hc_name = $value2 = $value2 . "_" . $i;
+                        $hc_name = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
                         $bindParams[':hc_name'] = [\PDO::PARAM_STR => $value2];
                         break;
                     case 'hc_alias':

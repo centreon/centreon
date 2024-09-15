@@ -562,7 +562,8 @@ class PartEngine
             $dbResult = $db->query(
                 "SHOW VARIABLES WHERE Variable_name LIKE 'version%'"
             );
-            $dbType = $dbVersion = null;
+            $dbType = null;
+            $dbVersion = null;
             while ($row = $dbResult->fetch()) {
                 switch ($row['Variable_name']) {
                     case 'version_comment':

@@ -471,8 +471,12 @@ class CentreonTopCounter extends CentreonWebService
             'total' => count($pollers),
             'refreshTime' => $this->refreshTime
         );
-
-        $staWar = $staCri = $datWar = $datCri = $latWar = $latCri = 0;
+        $staWar = 0;
+        $staCri = 0;
+        $datWar = 0;
+        $datCri = 0;
+        $latWar = 0;
+        $latCri = 0;
 
         foreach ($pollers as $poller) {
             //stability

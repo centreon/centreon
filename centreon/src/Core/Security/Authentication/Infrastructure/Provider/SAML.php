@@ -117,7 +117,8 @@ class SAML implements ProviderAuthenticationInterface
         $this->loginLogger->info(Provider::SAML, 'authenticate the user through SAML');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->auth = $auth = new Auth($this->formatter->format($customConfiguration));
+        $this->auth = new Auth($this->formatter->format($customConfiguration));
+        $auth = $this->auth;
         $auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
         $errors = $auth->getErrors();
         if (! empty($errors)) {

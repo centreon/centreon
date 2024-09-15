@@ -100,7 +100,8 @@ if (!isset($_SESSION["centreon"])) {
  * Define Oreon var alias
  */
 if (isset($_SESSION["centreon"])) {
-    $oreon = $centreon = $_SESSION["centreon"];
+    $oreon = $_SESSION["centreon"];
+    $centreon = $_SESSION["centreon"];
 }
 if (!isset($centreon) || !is_object($centreon)) {
     exit();

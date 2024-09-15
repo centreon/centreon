@@ -56,8 +56,8 @@ class CentreonConfigurationTimeperiod extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryWhere = $queryValues = [];
-
+        $queryWhere = [];
+        $queryValues = [];
         // Check for select2 'q' argument
         if (isset($this->arguments['q'])) {
             $queryWhere[] = 'tp_name LIKE :name';

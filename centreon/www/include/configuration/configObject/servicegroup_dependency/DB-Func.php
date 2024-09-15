@@ -109,7 +109,8 @@ function multipleServiceGroupDependencyInDB($dependencies = array(), $nbrDup = a
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == "dep_name") {
-                    $dep_name = $value2 = $value2 . "_" . $i;
+                    $dep_name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
                 }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")

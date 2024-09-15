@@ -413,10 +413,12 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if (in_array($key2, ['creation_date', 'password']) === false) {
                     if ($key2 == "contact_name") {
-                        $contact_name = $value2 = $value2 . "_" . $i;
+                        $contact_name = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
                     }
                     if ($key2 == "contact_alias") {
-                        $contact_alias = $value2 = $value2 . "_" . $i;
+                        $contact_alias = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
                     }
                     $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL") : $val .=
                         ($value2 != null ? ("'" . $value2 . "'") : "NULL");
